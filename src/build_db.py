@@ -100,7 +100,7 @@ df = pd.read_table(out_path + 'vdjdb_fixed.txt', sep='\t', index_col=[0])
 unfixed_cdr3 = []
 
 for index, row in df.iterrows():
-    if not row['good']:
+    if not row['good'] or (row['v.canonical'] and row['j.canonical']):
         unfixed_cdr3.append(row[['fixed.cdr3', 'closest.v.id', 'closest.j.id', 'v.canonical', 'j.canonical',
                                  'v.fix.type', 'j.fix.type']])
     else:
