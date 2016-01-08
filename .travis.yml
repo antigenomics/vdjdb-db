@@ -1,26 +1,26 @@
 language:
   - java
   - python
+  
 jdk:
   - oraclejdk8
+  
 python:
   - "2.7"
+  
 before_install:
-    - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-        wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
-      else
-        wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-      fi
-    - bash miniconda.sh -b -p $HOME/miniconda
-    - export PATH="$HOME/miniconda/bin:$PATH"
-    - hash -r
-    - conda config --set always_yes yes --set changeps1 no
-    - conda update -q conda
-    - conda info -a
+  - wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a
 
 install:
-    - conda create -n travisci --yes python=${TRAVIS_PYTHON_VERSION:0:3} pandas
-    - source activate travisci
+  - conda create -n travisci --yes python="2.7" pandas
+  - source activate travisci
+  
 script:
   - cd src/ 
   - python build_db.py
