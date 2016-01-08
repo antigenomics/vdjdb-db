@@ -18,9 +18,10 @@ before_install:
   - conda info -a
 
 install:
-  - conda create -n travisci --yes python="2.7" pandas
+  - conda create -n travisci --yes python=2.7 pandas
   - source activate travisci
   
 script:
   - cd src/ 
+  - mkdir ../out/
   - python build_db.py
