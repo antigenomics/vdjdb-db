@@ -1,0 +1,8 @@
+language:
+  - java
+  - python
+python:
+  - "2.7"
+script:
+  - cd src/ 
+  - python build_db.py
