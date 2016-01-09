@@ -26,22 +26,24 @@ To view the list of papers that were not yet processed go [here](https://github.
 
 Each database submission in ``chunks/`` folder should have the following header and columns:
 
-| column header   | column description           | allowed/example values                                          |
-|-----------------|------------------------------|-----------------------------------------------------------------|
-| record.id       | unique record id             | ``VDJDBSXXXXXXXX``                                              |
-| complex.id      | complex identifier           | ``VDJDBCXXXXXXXX`` or ``NA`` if record represents unpaired data |
-| cdr3            | CDR3 sequence                | amino acid sequence                                             |
-| v.segm          | Variable segment id          | ``TRBV20-1``, ``TRBV20-1*01``, etc                              |
-| j.segm          | Joining segment id           | ``TRBJ2-1``, ``TRBJ2-1*01``, etc                                |
-| gene            | TCR gene                     | ``TRA`` or ``TRB``                                              |
-| species         | TCR species                  | ``HomoSapiens``, ``MusMusculus``, etc                           |
-| mhc.a           | first MHC chain              | ``HLA-A*0201``, etc                                             |
-| mhc.b           | second MHC chain             | ``B2M``, etc                                                    |
-| mhc.type        | MHC class                    | ``MHCI`` or ``MHCII``                                           |
-| antigen         | antigen sequence             | amino acid sequence                                             |
-| antigen.gene    | parent gene of the antigen   | ``pp65``, ``BMLF1``, ``MBP``, etc	                           |
-| antigen.species | antigen species              | ``CMV``, ``EBV``, ``HomoSapiens``, etc                          |
-| method          | specificity inference method | ``tetramer``, ``pentamer``, ``restimulation``, etc              |
-| reference       | reference type               | e.g. ``pubmed``                                                 |
-| reference.id    | reference id                 | e.g.``PMID:XXXXXXX``                                            |
-| comment         | optional comment             | any                                                             |
+| column header   | column description           | allowed/example values                                                      |
+|-----------------|------------------------------|-----------------------------------------------------------------------------|
+| record.id       | unique record id             | ``VDJDBRXXXXXXXX``, where ``X`` stands for a digit                          |
+| complex.id      | complex identifier           | ``VDJDBCXXXXXXXX`` or ``VDJDBC00000000`` if record represents unpaired data |
+| cdr3            | CDR3 sequence                | amino acid sequence                                                         |
+| v.segm          | Variable segment id          | ``TRBV20-1``, ``TRBV20-1*01``, etc                                          |
+| j.segm          | Joining segment id           | ``TRBJ2-1``, ``TRBJ2-1*01``, etc                                            |
+| gene            | TCR gene                     | ``TRA`` or ``TRB``                                                          |
+| species         | TCR species                  | ``HomoSapiens``, ``MusMusculus``, etc                                       |
+| mhc.a           | first MHC chain              | ``HLA-A*0201``, etc                                                         |
+| mhc.b           | second MHC chain             | ``B2M``, etc                                                                |
+| mhc.type        | MHC class                    | ``MHCI`` or ``MHCII``                                                       |
+| antigen         | antigen sequence             | amino acid sequence                                                         |
+| antigen.gene    | parent gene of the antigen   | ``pp65``, ``BMLF1``, ``MBP``, etc	                                       |
+| antigen.species | antigen species              | ``CMV``, ``EBV``, ``HomoSapiens``, etc                                      |
+| method          | specificity inference method | ``tetramer``, ``pentamer``, ``restimulation``, etc                          |
+| reference       | reference type               | e.g. ``pubmed``                                                             |
+| reference.id    | reference id                 | e.g.``PMID:XXXXXXX``                                                        |
+| comment         | optional comment             | any                                                                         |
+
+Records with the same complex identifier represent TCR:peptide:MHC complexes, where both TCR alpha and beta chains are known.

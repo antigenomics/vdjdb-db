@@ -55,6 +55,8 @@ if duplicates:
 
 # Check correctness of certain columns
 
+record_id_pattern = r'^VDJDBR\d{8}$'
+complex_id_pattern = r'^VDJDBC\d{8}$'
 aa_pattern = r'^[ARNDCEQGHILKMFPSTWYV]+$'
 allowed_mhcs = ['MHCI', 'MHCII']
 allowed_genes = ['TRA', 'TRB']
@@ -64,6 +66,12 @@ bad_records = dict()
 
 for index, row in df.iterrows():
     messages = []
+
+    if not re.match(record_id_pattern, index):
+        messages.append('Bad record identifier')
+
+    if not re.match(complex_id_pattern, row['complex.id']):
+        messages.append('Bad complex identifier')
 
     if not re.match(aa_pattern, row['cdr3']):
         messages.append('Bad CDR3 sequence')
