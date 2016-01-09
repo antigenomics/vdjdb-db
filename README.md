@@ -1,4 +1,6 @@
-# VDJDB: A curated database of T-cell receptor sequences of known antigne specificity
+[![Build Status](https://travis-ci.org/antigenomics/vdjdb-db.svg?branch=master)](https://travis-ci.org/antigenomics/vdjdb-db)
+
+# VDJDB: A curated database of T-cell receptor sequences of known antigen specificity
 
 This repository hosts the submissions to database and scripts to check, fix and build the database itself.
 
@@ -21,6 +23,9 @@ To submit previously published sequence follow the steps below:
 CI tests include table format checks and CDR3 sequence checks via [FixCDR3](https://github.com/antigenomics/fixcdr3).
 
 To view the list of papers that were not yet processed go [here](https://github.com/antigenomics/vdjdb-db/labels/paper).
+
+Don't forget to add corresponding record to ``citations.txt``. If the paper contains the data itself just add ``PMID:XXXXXXX(tab)PMID:XXXXXXX``, 
+in case the paper also provides sequences from previously published studies add ``PMID:XXXXXXX(tab)PMID:XXXXXXX,PMID:YYYYYYY,PMID:ZZZZZZZ``.
 
 ## Database specification
 
