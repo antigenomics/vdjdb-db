@@ -10,7 +10,7 @@ To query the database for your immune repertoire sample(s) use the [VDJdb](https
 
 A web-based GUI for the database [VDJdb-server](https://github.com/antigenomics/vdjdb-server) is currently under development.
 
-## Submission guides
+## Submission guide
 
 To submit previously published sequence follow the steps below:
 
