@@ -31,7 +31,8 @@ df = pd.DataFrame(columns=[index_column] + required_columns)
 df.set_index(index_column, inplace=True)
 
 for file in chunk_files:
-    chunk = pd.read_table(path + file, sep='\t', index_col=[0])
+    chunk = pd.read_table(path + file, sep='\t', index_col=[0],
+                          na_values=[], keep_default_na=False)  # default NA's will break regex checking
 
     missing_cols = [x for x in required_columns if x not in chunk.columns.values]
 
