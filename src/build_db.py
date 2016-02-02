@@ -43,9 +43,6 @@ for file in chunk_files:
 
     df = df.append(chunk, verify_integrity=True)  # verify record id integrity
 
-# TODO: verify integrity of complexes
-# check that all records except CDR3 are same
-
 # Check for duplicates
 
 duplicates = df.set_index(required_columns).index.get_duplicates()
@@ -93,6 +90,35 @@ for index, row in df.iterrows():
 
 if bad_records:
     error("Database contains bad records:\n" + str(bad_records))
+
+# Check that all records except CDR3 are same
+
+bad_complexes = dict()
+
+complex_match_cols = ['species',
+                      'mhc.a', 'mhc.b', 'mhc.type',
+                      'antigen', 'antigen.gene', 'antigen.species',
+                      'method', 'reference', 'reference.id']
+
+for index, group in df.groupby('complex.id'):
+    if index != 'VDJDBC00000000':  # reserved for unpaired entries
+        messages = []
+
+        if len(group) != 2:
+            messages.append('Number of entries in complex should be 2')
+
+        rows = [r[1] for r in group.iterrows()]
+
+        unmatched_cols = [col_name for col_name in complex_match_cols if rows[0][col_name] != rows[1][col_name]]
+
+        if unmatched_cols:
+            messages.append('The following columns are not matching within complex entries' + str(unmatched_cols))
+
+        if messages:
+            bad_complexes[index] = messages
+
+if bad_complexes:
+    error("Database contains bad complex records:\n" + str(bad_records))
 
 # Fix
 
