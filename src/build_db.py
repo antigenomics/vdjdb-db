@@ -74,7 +74,7 @@ for index, row in df.iterrows():
     if not re.match(aa_pattern, row['cdr3']):
         messages.append('Bad CDR3 sequence')
 
-    if not row['antigen'] or not re.match(aa_pattern, row['antigen']):
+    if row['antigen'] and not re.match(aa_pattern, row['antigen']):
         messages.append('Bad antigen sequence')
 
     if not row['mhc.type'] in allowed_mhcs:
