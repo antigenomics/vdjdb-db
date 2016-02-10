@@ -124,7 +124,7 @@ if bad_complexes:
 # Fix
 
 bin_path = '../bin/'
-out_path = '../out/'
+out_path = '../database/'
 
 df[required_columns].to_csv(out_path + 'vdjdb_raw.txt', sep='\t', na_rep='NA')
 

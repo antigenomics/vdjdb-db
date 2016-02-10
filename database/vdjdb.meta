@@ -1,0 +1,17 @@
+name	type	factor
+record.id	txt	0
+complex.id	txt	0
+cdr3	seq	0
+v.segm	txt	1
+j.segm	txt	1
+gene	txt	1
+species	txt	1
+mhc.a	txt	1
+mhc.b	txt	1
+mhc.type	txt	1
+antigen	seq	0
+antigen.gene	txt	1
+antigen.species	txt	1
+method	txt	1
+reference	txt	1
+reference.id	txt	0
