@@ -49,6 +49,30 @@ Each database submission in ``chunks/`` folder should have the following header 
 | method          | specificity inference method | ``tetramer``, ``pentamer``, ``restimulation``, etc                          |
 | reference       | reference type               | e.g. ``pubmed``                                                             |
 | reference.id    | reference id                 | e.g.``PMID:XXXXXXX``                                                        |
-| comment         | optional comment             | any                                                                         |
+
+The resulting composite database fille will contain all those columns with an addition of ``comment`` column. The latter stores 
+a summary of **all** additional columns in every chunk as a compact list of key-value pairs in JSON format. 
+For example if chunk #1 contains columns
+
+tissue       | cell type
+-------------|-----------
+ ``spleen``  | ``cd8``
+ ``spleen``  | ``cd4``
+
+and chunk #2 contains column
+
+comment         |
+----------------|
+ ``unreliable`` |
+                |
+
+the resulting database will contain the following column in addition to the required ones:
+
+comment                                      |
+---------------------------------------------|
+``{ "tissue":"spleen", "cell type":"cd8"  }``|
+``{ "tissue":"spleen", "cell type":"cd4"  }``|
+``{ "comment":"unreliable" }``               |
+                                             |
 
 Records with the same complex identifier represent TCR:peptide:MHC complexes, where both TCR alpha and beta chains are known.

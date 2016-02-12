@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import csv
 import os
 import re
 import sys
@@ -19,6 +20,8 @@ required_columns = ['complex.id',
 
 index_column = 'record.id'
 
+final_columns = required_columns + ['comment']
+
 
 def error(*objs):
     print("[ERROR]", *objs, file=sys.stderr)
@@ -27,7 +30,7 @@ def error(*objs):
 
 # Make one big table of data
 
-df = pd.DataFrame(columns=[index_column] + required_columns)
+df = pd.DataFrame(columns=[index_column] + final_columns)
 df.set_index(index_column, inplace=True)
 
 for file in chunk_files:
@@ -41,6 +44,11 @@ for file in chunk_files:
 
     if chunk.index.name != index_column:
         error("Index column named", index_column, "should go first in", file)
+
+    extra_cols = [x for x in chunk.columns.values if x not in required_columns]
+
+    chunk['comment'] = chunk[extra_cols].apply(lambda x: str({col: x[col] for col in extra_cols}).replace("'", '"'),
+                                               axis=1)
 
     df = df.append(chunk, verify_integrity=True)  # verify record id integrity
 
@@ -126,7 +134,7 @@ if bad_complexes:
 bin_path = '../bin/'
 out_path = '../database/'
 
-df[required_columns].to_csv(out_path + 'vdjdb_raw.txt', sep='\t', na_rep='NA')
+df[final_columns].to_csv(out_path + 'vdjdb_raw.txt', sep='\t', na_rep='NA')
 
 check_call('java -jar {0}fixcdr3-1.0.0.jar {1}vdjdb_raw.txt {1}vdjdb_fixed.txt'.format(bin_path, out_path), shell=True)
 
@@ -146,4 +154,4 @@ for index, row in df.iterrows():
 if unfixed_cdr3:
     error("There were ambiguous CDR3 sequences that weren't fixed\n" + str(unfixed_cdr3))
 
-df[required_columns].to_csv(out_path + 'vdjdb.txt', sep='\t', na_rep='NA')
+df[final_columns].to_csv(out_path + 'vdjdb.txt', sep='\t', na_rep='NA', quoting=csv.QUOTE_NONE)
