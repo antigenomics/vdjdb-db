@@ -61,10 +61,10 @@ tissue       | cell type
 
 and chunk #2 contains column
 
-comment         |
-----------------|
- ``unreliable`` |
-                |
+comment              |
+---------------------|
+ ``mutated antigen`` |
+ ````                |
 
 the resulting database will contain the following column in addition to the required ones:
 
@@ -72,7 +72,7 @@ comment                                      |
 ---------------------------------------------|
 ``{ "tissue":"spleen", "cell type":"cd8"  }``|
 ``{ "tissue":"spleen", "cell type":"cd4"  }``|
-``{ "comment":"unreliable" }``               |
-                                             |
+``{ "comment":"mutated antigen" }``          |
+````                                         |
 
 Records with the same complex identifier represent TCR:peptide:MHC complexes, where both TCR alpha and beta chains are known.

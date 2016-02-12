@@ -33,6 +33,14 @@ def error(*objs):
 df = pd.DataFrame(columns=[index_column] + final_columns)
 df.set_index(index_column, inplace=True)
 
+
+def groom_comment(d):
+    if d:
+        return str(d).replace("'", '"')
+    else:
+        return " "
+
+
 for file in chunk_files:
     chunk = pd.read_table(path + file, sep='\t', index_col=[0],
                           na_values=[], keep_default_na=False)  # default NA's will break regex checking
@@ -47,8 +55,8 @@ for file in chunk_files:
 
     extra_cols = [x for x in chunk.columns.values if x not in required_columns]
 
-    chunk['comment'] = chunk[extra_cols].apply(lambda x: str({col: x[col] for col in extra_cols}).replace("'", '"'),
-                                               axis=1)
+    chunk['comment'] = chunk.apply(lambda x: groom_comment({col: x[col] for col in extra_cols if x[col].strip()}),
+                                   axis=1)
 
     df = df.append(chunk, verify_integrity=True)  # verify record id integrity
 
