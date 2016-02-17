@@ -16,7 +16,7 @@ required_columns = ['complex.id',
                     'cdr3', 'v.segm', 'j.segm', 'gene', 'species',
                     'mhc.a', 'mhc.b', 'mhc.type',
                     'antigen', 'antigen.gene', 'antigen.species',
-                    'method', 'reference', 'reference.id']
+                    'vdjdb.conf', 'reference.id']
 
 index_column = 'record.id'
 
@@ -115,7 +115,7 @@ bad_complexes = dict()
 complex_match_cols = ['species',
                       'mhc.a', 'mhc.b', 'mhc.type',
                       'antigen', 'antigen.gene', 'antigen.species',
-                      'method', 'reference', 'reference.id']
+                      'reference.id']
 
 for index, group in df.groupby('complex.id'):
     if index != 'VDJDBC00000000':  # reserved for unpaired entries
