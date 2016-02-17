@@ -53,6 +53,8 @@ for file in chunk_files:
     if chunk.index.name != index_column:
         error("Index column named", index_column, "should go first in", file)
 
+    chunk['vdjdb.conf'] = chunk['vdjdb.conf'].astype(int) # vdjdb conf scores are read as float
+
     extra_cols = [x for x in chunk.columns.values if x not in required_columns]
 
     chunk['comment'] = chunk.apply(lambda x: groom_comment({col: x[col] for col in extra_cols if x[col].strip()}),
@@ -137,18 +139,23 @@ for index, group in df.groupby('complex.id'):
 if bad_complexes:
     error("Database contains bad complex records:\n" + str(bad_records))
 
-# Fix
+# Fix and write final table
 
 bin_path = '../bin/'
 out_path = '../database/'
 
-df[final_columns].to_csv(out_path + 'vdjdb_raw.txt', sep='\t', na_rep='NA')
+if not os.path.exists(out_path):
+    os.makedirs(out_path)
+
+df[final_columns].to_csv(out_path + 'vdjdb_raw.txt', sep='\t', na_rep='NA', quoting=csv.QUOTE_NONE)
 
 check_call('java -jar {0}fixcdr3-1.0.0.jar {1}vdjdb_raw.txt {1}vdjdb_fixed.txt'.format(bin_path, out_path), shell=True)
 
 df = pd.read_table(out_path + 'vdjdb_fixed.txt', sep='\t', index_col=[0])
 
 unfixed_cdr3 = []
+
+# TODO: check for records with bad (null) closest V/J segment and report/discard/don't replace them
 
 for index, row in df.iterrows():
     if not (row['good'] or (row['v.canonical'] and row['j.canonical'])):
@@ -161,5 +168,7 @@ for index, row in df.iterrows():
 
 if unfixed_cdr3:
     error("There were ambiguous CDR3 sequences that weren't fixed\n" + str(unfixed_cdr3))
+
+df['vdjdb.conf'] = df['vdjdb.conf'].astype(int)
 
 df[final_columns].to_csv(out_path + 'vdjdb.txt', sep='\t', na_rep='NA', quoting=csv.QUOTE_NONE)
