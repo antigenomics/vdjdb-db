@@ -46,33 +46,36 @@ Each database submission in ``chunks/`` folder should have the following header 
 | antigen         | antigen sequence             | amino acid sequence                                                         |
 | antigen.gene    | parent gene of the antigen   | ``pp65``, ``BMLF1``, ``MBP``, etc	                                       |
 | antigen.species | antigen species              | ``CMV``, ``EBV``, ``HomoSapiens``, etc                                      |
-| method          | specificity inference method | ``tetramer``, ``pentamer``, ``restimulation``, etc                          |
-| reference       | reference type               | e.g. ``pubmed``                                                             |
+| vdjdb.conf      | level confidence             | manually assigned confidence level, ``-1`` if not set, see below            |
 | reference.id    | reference id                 | e.g.``PMID:XXXXXXX``                                                        |
 
 The resulting composite database fille will contain all those columns with an addition of ``comment`` column. The latter stores 
 a summary of **all** additional columns in every chunk as a compact list of key-value pairs in JSON format. 
 For example if chunk #1 contains columns
 
-tissue       | cell type
--------------|-----------
- ``spleen``  | ``cd8``
- ``spleen``  | ``cd4``
+tissue       | cell type | method       |
+-------------|-----------|--------------|
+ ``spleen``  | ``cd8``   | ``tetramer`` |
+ ``spleen``  | ``cd4``   | ``tetramer`` |
 
 and chunk #2 contains column
 
-comment              |
+method               |
 ---------------------|
- ``mutated antigen`` |
+ ``cloning``         |
  `` ``               |
 
 the resulting database will contain the following column in addition to the required ones:
 
-comment                                      |
----------------------------------------------|
-``{ "tissue":"spleen", "cell type":"cd8"  }``|
-``{ "tissue":"spleen", "cell type":"cd4"  }``|
-``{ "comment":"mutated antigen" }``          |
-`` ``                                        |
+comment                                                          |
+-----------------------------------------------------------------|
+``{ "tissue":"spleen", "cell type":"cd8", "method":"tetramer" }``|
+``{ "tissue":"spleen", "cell type":"cd4", "method":"tetramer" }``|
+``{ "method":"cloning" }``                                       |
+`` ``                                                            |
 
 Records with the same complex identifier represent TCR:peptide:MHC complexes, where both TCR alpha and beta chains are known.
+
+## VDJdb confidence scale
+
+TBA
