@@ -53,26 +53,26 @@ The resulting composite database fille will contain all those columns with an ad
 a summary of **all** additional columns in every chunk as a compact list of key-value pairs in JSON format. 
 For example if chunk #1 contains columns
 
-tissue       | cell type | method       |
--------------|-----------|--------------|
- ``spleen``  | ``cd8``   | ``tetramer`` |
- ``spleen``  | ``cd4``   | ``tetramer`` |
+... | tissue      | cell type | method       |
+----|-------------|-----------|--------------|
+... | ``spleen``  | ``cd8``   | ``tetramer`` |
+... | ``spleen``  | ``cd4``   | ``tetramer`` |
 
 and chunk #2 contains column
 
-method               |
----------------------|
- ``cloning``         |
- `` ``               |
+... | method              |
+----|---------------------|
+... | ``cloning``         |
+... | `` ``               |
 
 the resulting database will contain the following column in addition to the required ones:
 
-comment                                                          |
------------------------------------------------------------------|
-``{ "tissue":"spleen", "cell type":"cd8", "method":"tetramer" }``|
-``{ "tissue":"spleen", "cell type":"cd4", "method":"tetramer" }``|
-``{ "method":"cloning" }``                                       |
-`` ``                                                            |
+... | comment                                                          |
+----|------------------------------------------------------------------|
+... | ``{ "tissue":"spleen", "cell type":"cd8", "method":"tetramer" }``|
+... | ``{ "tissue":"spleen", "cell type":"cd4", "method":"tetramer" }``|
+... | ``{ "method":"cloning" }``                                       |
+... | `` ``                                                            |
 
 Records with the same complex identifier represent TCR:peptide:MHC complexes, where both TCR alpha and beta chains are known.
 
