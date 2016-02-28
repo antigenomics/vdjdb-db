@@ -132,20 +132,20 @@ for index, group in df.groupby('complex.id'):
 
         if len(group) != 2:
             messages.append('Number of entries in complex should be 2')
-
-        rows = [r[1] for r in group.iterrows()]
-
-        unmatched_cols = [col_name for col_name in complex_match_cols if rows[0][col_name] != rows[1][col_name]]
-
-        if unmatched_cols:
-            messages.append('The following columns are not matching within complex entries' + str(unmatched_cols))
-
-        signature = "\t".join(rows[0][signature_columns]) + "\t" + "\t".join(rows[1][signature_columns])
-
-        if signature in signatures:
-            messages.append('The complex is duplicate')
         else:
-            signatures.add(signature)
+            rows = [r[1] for r in group.iterrows()]
+
+            unmatched_cols = [col_name for col_name in complex_match_cols if rows[0][col_name] != rows[1][col_name]]
+
+            if unmatched_cols:
+                messages.append('The following columns are not matching within complex entries' + str(unmatched_cols))
+
+            signature = "\t".join(rows[0][signature_columns]) + "\t" + "\t".join(rows[1][signature_columns])
+
+            if signature in signatures:
+                messages.append('The complex is duplicate')
+            else:
+                signatures.add(signature)
 
         if messages:
             bad_complexes[index] = messages
