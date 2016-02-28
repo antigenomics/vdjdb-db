@@ -114,10 +114,17 @@ if bad_records:
 
 bad_complexes = dict()
 
+signatures = set()
+
 complex_match_cols = ['species',
                       'mhc.a', 'mhc.b', 'mhc.type',
                       'antigen', 'antigen.gene', 'antigen.species',
                       'reference.id']
+
+signature_columns = ['cdr3', 'v.segm', 'j.segm', 'gene', 'species',
+                    'mhc.a', 'mhc.b', 'mhc.type',
+                    'antigen', 'antigen.gene', 'antigen.species',
+                    'reference.id']
 
 for index, group in df.groupby('complex.id'):
     if index != 'VDJDBC00000000':  # reserved for unpaired entries
@@ -133,11 +140,18 @@ for index, group in df.groupby('complex.id'):
         if unmatched_cols:
             messages.append('The following columns are not matching within complex entries' + str(unmatched_cols))
 
+        signature = "\t".join(rows[0][signature_columns]) + "\t" + "\t".join(rows[1][signature_columns])
+
+        if signature in signatures:
+            messages.append('The complex is duplicate')
+        else:
+            signatures.add(signature)
+
         if messages:
             bad_complexes[index] = messages
 
 if bad_complexes:
-    error("Database contains bad complex records:\n" + str(bad_records))
+    error("Database contains bad complex records:\n" + str(bad_complexes))
 
 # Fix and write final table
 
