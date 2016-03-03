@@ -57,7 +57,7 @@ for file in chunk_files:
 
     extra_cols = [x for x in chunk.columns.values if x not in required_columns]
 
-    chunk['comment'] = chunk.apply(lambda x: groom_comment({col: x[col] for col in extra_cols if x[col].strip()}),
+    chunk['comment'] = chunk.apply(lambda x: groom_comment({col: x[col] for col in extra_cols if str(x[col]).strip()}),
                                    axis=1)
 
     df = df.append(chunk, verify_integrity=True)  # verify record id integrity
