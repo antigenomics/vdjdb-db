@@ -1,3 +1,4 @@
+record.id	pair.id	cdr3.aa	cdr3.nuc	v.segm	j.segm	gene	species	mhc.a	mhc.b	mhc.class	antigen.species	antigen.protein	antigen.seq	reference.id	reference.type	vdjdb.conf	sample.donor	sample.tissue	sample.cell-phenotype	sample.donor-mhc	method.isolation	method.tetramer	method.cells	method.mhc
 VDJDBR00001511	VDJDBR00000000	CASNPSGGYTGELF		TRBV27	TRBJ2-2	TRB	HomoSapiens	A*02:01	B2M	MHCI	CMV	pp65	NLVPMVATV	PMID:16287711	pubmed	2	healthy	PB	PBMC,CD8	.	MHC-multimer	home made	direct isolation	.
 VDJDBR00001541	VDJDBR00000000	CASSESMIQH		TRBV10-2	TRBJ1-5	TRB	HomoSapiens	A*02:01	B2M	MHCI	CMV	pp65	NLVPMVATV	PMID:16287711	pubmed	2	.	PB	PBMC,CD8	.	MHC-multimer	home made	direct isolation	.
 VDJDBR00001548	VDJDBR00000000	CASSFGQQETQY		TRBV12-4	TRBJ2-5	TRB	HomoSapiens	A*02:01	B2M	MHCI	EBV	BMLFI	GLCTLVAML	PMID:16287711	pubmed	2	healthy	PB	PBMC,CD8	.	MHC-multimer	home made	direct isolation	.
