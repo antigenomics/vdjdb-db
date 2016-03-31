@@ -1,3 +1,7 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Database specification
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 def COMPLEX_COLUMNS = [
         "cdr3.alpha",
         "v.alpha",
@@ -32,35 +36,46 @@ def COMPLEX_COLUMNS = [
         "meta.donor.MHC",
         "meta.donor.MHC.method",
         "meta.structure.id"
-],  SIGNATURE_COLS = [
-        "cdr3.alpha",
-        "v.alpha",
-        "j.alpha",
-        "cdr3.beta",
-        "v.beta",
-        "d.beta",
-        "j.beta",
-        "species",
-        "mhc.a",
-        "mhc.b",
-        "mhc.class",
-        "antigen.epitope",
-        "antigen.gene",
-        "antigen.species",
-        "reference.id",
-        "meta.study.id",
-        "meta.cell.subset",
-        "meta.subject.cohort",
-        "meta.subject.id",
-        "meta.replica.id",
-        "meta.clone.id",
-        "meta.tissue"
-]
+],  ALL_COLS = [
+        COMPLEX_COLUMNS, METHOD_COLUMNS, META_COLUMNS
+].flatten(),
+    SIGNATURE_COLS = [
+            "cdr3.alpha",
+            "v.alpha",
+            "j.alpha",
+            "cdr3.beta",
+            "v.beta",
+            "d.beta",
+            "j.beta",
+            "species",
+            "mhc.a",
+            "mhc.b",
+            "mhc.class",
+            "antigen.epitope",
+            "antigen.gene",
+            "antigen.species",
+            "reference.id",
+            "meta.study.id",
+            "meta.cell.subset",
+            "meta.subject.cohort",
+            "meta.subject.id",
+            "meta.replica.id",
+            "meta.clone.id",
+            "meta.tissue"
+    ]
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Misc utils and classes
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 def err = { String message ->
     System.err.println(message)
     System.exit(1)
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Table utils
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 def checkHeader = { String[] header ->
     if (!header)
@@ -71,7 +86,7 @@ def checkHeader = { String[] header ->
     if (header.length != colSet.size())
         err("Duplicate columns found: $header")
 
-    def missingColumns = [COMPLEX_COLUMNS, METHOD_COLUMNS, META_COLUMNS].flatten().findAll {
+    def missingColumns = ALL_COLS.findAll {
         !colSet.contains(it)
     }
 
@@ -84,12 +99,24 @@ class Table {
     final List<Row> rows
     final Map<String, Integer> indices = new HashMap<>()
 
-    Table(String[] header, List<String[]> rows) {
+    Table(String[] header, List<String[]> rows = []) {
         this.header = header
         this.rows = rows.collect { new Row(it) }
 
         header.eachWithIndex { String entry, int i ->
             indices[entry] = i
+        }
+    }
+
+    void append(Table other) {
+        other.rows.each { row ->
+            def values = new String[header.length]
+
+            header.eachWithIndex { String it, int i ->
+                values[i] = row[it]
+            }
+
+            rows << new Row(values)
         }
     }
 
@@ -109,36 +136,6 @@ class Table {
         }
     }
 }
-
-
-def isAASeqValid = { String str ->
-    str =~ /^[ARNDCQEGHILKMFPSTWYV]+$/
-}
-
-def isMhcValid = { String str ->
-    !str.startsWith("HLA") || str =~ /^HLA-[A-Z]+\*\d{2}(:\d{2})?$/
-}
-
-def speciesList = ["homosapiens", "musmusculus",
-                   "rattusnorvegicus", "macacamulatta"]
-
-def validators = [
-        "cdr3.alpha"     : isAASeqValid,
-        "v.alpha"        : { it.startsWith("TRAV") },
-        "j.alpha"        : { it.startsWith("TRAJ") },
-        "cdr3.beta"      : isAASeqValid,
-        "v.beta"         : { it.startsWith("TRBV") },
-        "d.beta"         : { it.startsWith("TRBD") },
-        "j.beta"         : { it.startsWith("TRBJ") },
-        "species"        : { speciesList.any { species -> it.toLowerCase() == species } },
-        "mhc.a"          : isMhcValid,
-        "mhc.b"          : isMhcValid,
-        "mhc.class"      : { it == "MHCI" || it == "MHCII" },
-        "antigen.epitope": isAASeqValid,
-        "reference.id"   : {
-            it.startsWith("PMID:") || it.startsWith("doi:") || it.toLowerCase().contains("unpublished")
-        }
-]
 
 def readChunk = { File chunkFile ->
     def header = null, rows = []
@@ -165,10 +162,48 @@ def readChunk = { File chunkFile ->
     new Table(header, rows)
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Basic validation utils
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+def isAASeqValid = { String str ->
+    str =~ /^[ARNDCQEGHILKMFPSTWYV]+$/
+}
+
+def isMhcValid = { String str ->
+    !str.startsWith("HLA") || str =~ /^HLA-[A-Z]+\*\d{2}(:\d{2})?$/
+}
+
+def speciesList = ["homosapiens", "musmusculus", "rattusnorvegicus", "macacamulatta"]
+
+def validators = [
+        "cdr3.alpha"     : isAASeqValid,
+        "v.alpha"        : { it.startsWith("TRAV") },
+        "j.alpha"        : { it.startsWith("TRAJ") },
+        "cdr3.beta"      : isAASeqValid,
+        "v.beta"         : { it.startsWith("TRBV") },
+        "d.beta"         : { it.startsWith("TRBD") },
+        "j.beta"         : { it.startsWith("TRBJ") },
+        "species"        : { speciesList.any { species -> it.toLowerCase() == species } },
+        "mhc.a"          : isMhcValid,
+        "mhc.b"          : isMhcValid,
+        "mhc.class"      : { it == "MHCI" || it == "MHCII" },
+        "antigen.epitope": isAASeqValid,
+        "reference.id"   : {
+            it.startsWith("PMID:") || it.startsWith("doi:") || it.toLowerCase().contains("unpublished")
+        }
+]
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Read, validate and concatenate chunks
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 def chunkFiles = new File("../chunks_new/").listFiles().toList()
 
 if (chunkFiles.empty)
     err("No database chunks to process")
+
+def masterTable = new Table(ALL_COLS as String[])
 
 chunkFiles.each { chunkFile ->
     def table = readChunk(chunkFile)
@@ -204,4 +239,6 @@ chunkFiles.each { chunkFile ->
         }
         err("There were errors processing $chunkFile.name")
     }
+
+    masterTable.append(table)
 }
