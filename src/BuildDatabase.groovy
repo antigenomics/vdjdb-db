@@ -200,6 +200,18 @@ chunkFiles.each { chunkFile ->
                 }
             }
 
+            if (row["cdr3.alpha"].length() == 0 && row["cdr3.beta"].length()) {
+                rowErrorMessages << "no.cdr3"
+            }
+
+            if (row["antigen.epitope"] == "") {
+                rowErrorMessages << "no.antigen.seq"
+            }
+
+            if (row["mhc.a"] == "" || row["mhc.b"] == "") {
+                rowErrorMessages << "no.mhc"
+            }
+
             if (rowErrorMessages) {
                 chunkErrorMessages[rowSignature] = rowErrorMessages.toString()
             }
