@@ -16,16 +16,18 @@
 
 
 enum FixType {
-    NoFixNeeded(false, true),
-    FixAdd(true, true), FixTrim(true, true),
-    FixReplace(true, true), FailedReplace(true, false),
-    FailedBadSegment(false, false),
-    FailedNoAlignment(true, false)
+    NoFixNeeded(false, true, 0),
+    FixAdd(true, true, 2), FixTrim(true, true, 1),
+    FixReplace(true, true, 3), FailedReplace(true, false, 5),
+    FailedBadSegment(false, false, 4),
+    FailedNoAlignment(true, false, 6)
 
     final boolean fixAttempted, good
+    final int rank
 
-    FixType(boolean fixAttempted, boolean good) {
+    FixType(boolean fixAttempted, boolean good, int rank) {
         this.fixAttempted = fixAttempted
         this.good = good
+        this.rank = rank
     }
 }

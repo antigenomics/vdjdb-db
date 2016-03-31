@@ -43,6 +43,4 @@ class FixerResult {
     String toString() {
         [cdr3, vId, jId, vCanonical, jCanonical, vFixType, jFixType, good].join("\t")
     }
-
-
 }

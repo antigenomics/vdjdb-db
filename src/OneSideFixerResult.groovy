@@ -16,10 +16,12 @@
 
 class OneSideFixerResult {
     final String cdr3
+    final String segmentId
     final FixType fixType
 
-    OneSideFixerResult(String cdr3, FixType fixType) {
+    OneSideFixerResult(String cdr3, String segmentId, FixType fixType) {
         this.cdr3 = cdr3
+        this.segmentId = segmentId
         this.fixType = fixType
     }
 }
