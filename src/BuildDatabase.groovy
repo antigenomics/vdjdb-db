@@ -206,7 +206,7 @@ chunkFiles.each { chunkFile ->
         }
     }
 
-    if (!chunkErrorMessages.empty) {
+    if (!chunkErrorMessages.isEmpty()) {
         println([SIGNATURE_COLS, "error.message"].flatten().join(" | "))
         chunkErrorMessages.each {
             println(it.key + " | " + it.value)
