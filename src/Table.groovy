@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-class Table {
-    final String[] header
+class Table implements Iterable<Row> {
+    final List<String> header
     final List<Row> rows
     final Map<String, Integer> indices = new HashMap<>()
 
     Table(String[] header, List<String[]> rows = []) {
-        this.header = header
+        this.header = header.toList()
         this.rows = rows.collect { new Row(it) }
 
         header.eachWithIndex { String entry, int i ->
@@ -30,29 +30,36 @@ class Table {
 
     void append(Table other) {
         other.rows.each { row ->
-            def values = new String[header.length]
+            def values = new String[header.size()]
 
-            header.eachWithIndex { String it, int i ->
-                values[i] = row[it]
+            header.eachWithIndex { it, ind ->
+                values[ind] = row[it]
             }
 
             rows << new Row(values)
         }
     }
 
+    @Override
+    Iterator<Row> iterator() {
+        rows.iterator()
+    }
+
     class Row {
-        final String[] values
+        final List<String> values
 
         Row(String[] values) {
-            this.values = new String[values.length]
+            this.values = new ArrayList<>(values.length)
 
-            for (int i = 0; i < values.length; i++) {
-                this.values[i] = values[i].trim()
-            }
+            values.each { this.values << it }
         }
 
         String getAt(String columnName) {
             values[indices[columnName]]
+        }
+
+        String putAt(String columnName, String value) {
+            values[indices[columnName]] = value
         }
     }
 }

@@ -1,3 +1,5 @@
+import groovy.json.JsonBuilder
+
 /*
  * Copyright 2015 Mikhail Shugay
  *
@@ -185,7 +187,7 @@ chunkFiles.each { chunkFile ->
     def chunkErrorMessages = [:]
     def rowSignatures = new HashSet<String>()
 
-    table.rows.each { row ->
+    table.each { row ->
         def rowSignature = SIGNATURE_COLS.collect { row[it] }.join(" | ")
 
         if (rowSignatures.contains(rowSignature)) {
@@ -200,7 +202,7 @@ chunkFiles.each { chunkFile ->
                 }
             }
 
-            if (row["cdr3.alpha"].length() == 0 && row["cdr3.beta"].length()) {
+            if (row["cdr3.alpha"] == "" && row["cdr3.beta"] == "") {
                 rowErrorMessages << "no.cdr3"
             }
 
@@ -229,4 +231,31 @@ chunkFiles.each { chunkFile ->
     masterTable.append(table)
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Fix CDR3 sequences
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 def cdr3Fixer = new Cdr3Fixer()
+
+masterTable.header << "cdr3fix.alpha" << "cdr3fix.beta"
+
+masterTable.each { row ->
+    ["alpha", "beta"].each {
+        if (row["cdr3.$it"] != "") {
+            def fixerResult = cdr3Fixer.fix(
+                    row["cdr3.$it"],
+                    row["v.$it"],
+                    row["j.$it"],
+                    row["species"]
+            )
+
+            if (fixerResult.good) {
+                row["cdr3.$it"] = fixerResult.cdr3
+            }
+
+            row.values << new JsonBuilder(fixerResult).toString()
+        } else {
+            row.values << ""
+        }
+    }
+}

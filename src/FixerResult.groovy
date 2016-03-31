@@ -30,17 +30,6 @@ class FixerResult {
     }
 
     boolean isGood() {
-        (vFixType.good ||
-                ((vFixType == FixType.FailedBadSegment || vFixType == FixType.FailedNoAlignment) && vCanonical)) &&
-                (jFixType.good ||
-                        ((jFixType == FixType.FailedBadSegment || jFixType == FixType.FailedNoAlignment) && jCanonical))
-    }
-
-    static
-    final String HEADER = "fixed.cdr3\tclosest.v.id\tclosest.j.id\tv.canonical\tj.canonical\tv.fix.type\tj.fix.type\tgood"
-
-    @Override
-    String toString() {
-        [cdr3, vId, jId, vCanonical, jCanonical, vFixType, jFixType, good].join("\t")
+        vFixType.good && jFixType.good
     }
 }
