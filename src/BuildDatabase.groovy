@@ -1,7 +1,7 @@
 import groovy.json.JsonBuilder
 
 /*
- * Copyright 2015 Mikhail Shugay
+ * Copyright 2016 Mikhail Shugay
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -181,7 +181,10 @@ if (chunkFiles.empty)
 
 def masterTable = new Table(ALL_COLS as String[])
 
+println "Assembling chunks"
+
 chunkFiles.each { chunkFile ->
+    println "Processing $chunkFile.name"
     def table = readChunk(chunkFile)
 
     def chunkErrorMessages = [:]
@@ -237,6 +240,8 @@ chunkFiles.each { chunkFile ->
 
 def cdr3Fixer = new Cdr3Fixer()
 
+println "Fixing CDR3 sequences"
+
 masterTable.header << "cdr3fix.alpha" << "cdr3fix.beta"
 
 masterTable.each { row ->
@@ -258,4 +263,18 @@ masterTable.each { row ->
             row.values << ""
         }
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Compute VDJdb score
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+println "Computing VDJdb scores"
+
+def scoreFactory = new VdjdbScoreFactory(masterTable)
+
+masterTable.header << "vdjdb.score"
+
+masterTable.each { row ->
+    row.values << scoreFactory.getScore(row).toString()
 }
