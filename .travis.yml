@@ -1,27 +1,7 @@
 language:
-  - java
-  - python
-  
-jdk:
-  - oraclejdk8
-  
-python:
-  - "2.7"
-  
-before_install:
-  - wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  - conda info -a
-
-install:
-  - conda create -n travisci --yes python=2.7 pandas
-  - source activate travisci
+  - groovy
   
 script:
   - cd src/ 
   - mkdir ../out/
-  - python build_db.py
+  - groovy -cp . BuildDatabase.groovy
