@@ -28,6 +28,11 @@ class Table implements Iterable<Row> {
         }
     }
 
+    void addCol(String colName) {
+        indices[colName] = header.size()
+        header << colName
+    }
+
     void append(Table other) {
         other.rows.each { row ->
             def values = new String[header.size()]
@@ -51,7 +56,7 @@ class Table implements Iterable<Row> {
         Row(String[] values) {
             this.values = new ArrayList<>(values.length)
 
-            values.each { this.values << it }
+            values.each { this.values << it.trim() }
         }
 
         String getAt(String columnName) {

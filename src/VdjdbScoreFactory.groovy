@@ -47,9 +47,11 @@ class VdjdbScoreFactory {
             } else if (verifyMethod.contains("stain")) {
                 // Verification by cloning & re-staining
                 score += 2
-            } else if (row["method.singlecell"] == "") {
-                // No verification and no single-cell sequencing performed
-                score -= 1
+            }
+
+            if (row["method.singlecell"] != "") {
+                // Single-cell sequencing performed
+                score += 1
             }
 
             scoreMap[sign] = score

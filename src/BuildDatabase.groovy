@@ -242,7 +242,8 @@ def cdr3Fixer = new Cdr3Fixer()
 
 println "Fixing CDR3 sequences"
 
-masterTable.header << "cdr3fix.alpha" << "cdr3fix.beta"
+masterTable.addCol "cdr3fix.alpha"
+masterTable.addCol "cdr3fix.beta"
 
 masterTable.each { row ->
     ["alpha", "beta"].each {
@@ -273,8 +274,101 @@ println "Computing VDJdb scores"
 
 def scoreFactory = new VdjdbScoreFactory(masterTable)
 
-masterTable.header << "vdjdb.score"
+masterTable.addCol "vdjdb.score"
 
 masterTable.each { row ->
     row.values << scoreFactory.getScore(row).toString()
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Write final table
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+println "Writing table"
+
+new File("../database/").mkdir()
+
+new File("../database/vdjdb_full.txt").withPrintWriter { pw ->
+    pw.println(masterTable.header.join("\t"))
+    masterTable.each {
+        pw.println(it.values.join("\t"))
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Write collapsed table
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// collapse complexes
+
+println "Writing flat table"
+
+def FLAT_COLUMNS = [
+        "complex.id",
+        "gene",
+        "cdr3",
+        "v",
+        "d",
+        "j",
+        "species",
+        "mhc.a",
+        "mhc.b",
+        "mhc.class",
+        "antigen.epitope",
+        "antigen.gene",
+        "antigen.species",
+        "reference.id",
+        "method",
+        "meta",
+        "cdr3fix",
+        "vdjdb.score"
+],
+    COMPLEX_ANNOT_COLS = [
+            "species",
+            "mhc.a",
+            "mhc.b",
+            "mhc.class",
+            "antigen.epitope",
+            "antigen.gene",
+            "antigen.species",
+            "reference.id"]
+
+def complexIdCounter = 0
+new File("../database/vdjdb_flat.txt").withPrintWriter { pw ->
+    pw.println(FLAT_COLUMNS.join("\t"))
+    masterTable.each { row ->
+        def complexAnnot = COMPLEX_ANNOT_COLS.collect { row[it] }.join("\t")
+
+        def methodAnnot = new JsonBuilder(METHOD_COLUMNS.collectEntries {
+            [(it.split("method.")[1]): row[it]]
+        }).toString(),
+            metaAnnot = new JsonBuilder(META_COLUMNS.collectEntries {
+                [(it.split("meta.")[1]): row[it]]
+            }).toString()
+
+        def complexId
+        if (row["cdr3.alpha"] == "") {
+            complexId = 0
+        } else {
+            complexIdCounter += 1
+            complexId = complexIdCounter
+        }
+
+        ["alpha", "beta"].each {
+            if (row["cdr3.$it"] != "") {
+                pw.println([complexId,
+                            it == "alpha" ? "TRA" : "TRB",
+                            row["cdr3.$it"],
+                            row["v.$it"],
+                            it == "alpha" ? "" : row["d.$it"],
+                            row["j.$it"],
+                            complexAnnot,
+                            methodAnnot,
+                            metaAnnot,
+                            row["cdr3fix.$it"],
+                            row["vdjdb.score"]
+                ].join("\t"))
+            }
+        }
+    }
 }
