@@ -118,7 +118,9 @@ class Cdr3Fixer {
             fix(vResult.cdr3, it, species, false)
         }.min { it.fixType.rank }
 
-        new FixerResult(jResult.cdr3.reverse(),
+        def newCdr3 = jResult.cdr3.reverse()
+
+        new FixerResult(newCdr3, newCdr3 != cdr3,
                 vResult.segmentId, vResult.fixType,
                 jResult.segmentId, jResult.fixType)
     }

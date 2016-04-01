@@ -255,7 +255,7 @@ masterTable.each { row ->
                     row["species"]
             )
 
-            if (fixerResult.good) {
+            if (fixerResult.good && fixerResult.fixNeeded) {
                 row["cdr3.$it"] = fixerResult.cdr3
             }
 
@@ -333,27 +333,27 @@ def FLAT_COLUMNS = [
             "antigen.species",
             "reference.id"]
 
-new File("../database/vdjdb_flat.meta") <<
-        ["name\ttype\tvisible\tsearchable\tdata.type",
-         "complex.id\ttxt\t0\t0\tcomplex.id",
-         "gene\ttxt\t1\t1\tfactor",
-         "cdr3\tseq\t1\t1\tcdr3",
-         "v\ttxt\t1\t1\tfactor",
-         "d\ttxt\t1\t0\tfactor",
-         "j\ttxt\t1\t1\tfactor",
-         "species\ttxt\t1\t1\tfactor",
-         "mhc.a\ttxt\t1\t1\tfactor",
-         "mhc.b\ttxt\t1\t1\tfactor",
-         "mhc.class\ttxt\t1\t1\tfactor",
-         "antigen.epitope\tseq\t1\t1\tpeptide",
-         "antigen.gene\ttxt\t1\t1\tfactor",
-         "antigen.species\ttxt\t1\t1\tfactor",
-         "reference.id\ttxt\t1\t1\turl",
-         "method\ttxt\t1\t0\tmethod.json",
-         "meta\ttxt\t1\t0\tmeta.json",
-         "cdr3fix\ttxt\t1\t0\tfixer.json",
-         "vdjdb.score\ttxt\t1\t1\tuint"].join("\n")
-
+new File("../database/vdjdb_flat.meta").withPrintWriter { pw ->
+    pw.println(["name\ttype\tvisible\tsearchable\tdata.type",
+                "complex.id\ttxt\t0\t0\tcomplex.id",
+                "gene\ttxt\t1\t1\tfactor",
+                "cdr3\tseq\t1\t1\tcdr3",
+                "v\ttxt\t1\t1\tfactor",
+                "d\ttxt\t1\t0\tfactor",
+                "j\ttxt\t1\t1\tfactor",
+                "species\ttxt\t1\t1\tfactor",
+                "mhc.a\ttxt\t1\t1\tfactor",
+                "mhc.b\ttxt\t1\t1\tfactor",
+                "mhc.class\ttxt\t1\t1\tfactor",
+                "antigen.epitope\tseq\t1\t1\tpeptide",
+                "antigen.gene\ttxt\t1\t1\tfactor",
+                "antigen.species\ttxt\t1\t1\tfactor",
+                "reference.id\ttxt\t1\t1\turl",
+                "method\ttxt\t1\t0\tmethod.json",
+                "meta\ttxt\t1\t0\tmeta.json",
+                "cdr3fix\ttxt\t1\t0\tfixer.json",
+                "vdjdb.score\ttxt\t1\t1\tuint"].join("\n"))
+}
 
 def complexIdCounter = 0
 new File("../database/vdjdb_flat.txt").withPrintWriter { pw ->
