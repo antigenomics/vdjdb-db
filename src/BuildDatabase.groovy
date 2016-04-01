@@ -303,26 +303,25 @@ new File("../database/vdjdb_full.txt").withPrintWriter { pw ->
 
 println "Writing flat table"
 
-def FLAT_COLUMNS = [
-        "complex.id",
-        "gene",
-        "cdr3",
-        "v",
-        "d",
-        "j",
-        "species",
-        "mhc.a",
-        "mhc.b",
-        "mhc.class",
-        "antigen.epitope",
-        "antigen.gene",
-        "antigen.species",
-        "reference.id",
-        "method",
-        "meta",
-        "cdr3fix",
-        "vdjdb.score"
-],
+def METADATA_LINES = ["name\ttype\tvisible\tsearchable\tdata.type",
+                      "complex.id\ttxt\t0\t0\tcomplex.id",
+                      "gene\ttxt\t1\t1\tfactor",
+                      "cdr3\tseq\t1\t1\tcdr3",
+                      "v.segm\ttxt\t1\t1\tfactor",
+                      "d.segm\ttxt\t1\t0\tfactor",
+                      "j.segm\ttxt\t1\t1\tfactor",
+                      "species\ttxt\t1\t1\tfactor",
+                      "mhc.a\ttxt\t1\t1\tfactor",
+                      "mhc.b\ttxt\t1\t1\tfactor",
+                      "mhc.class\ttxt\t1\t1\tfactor",
+                      "antigen.epitope\tseq\t1\t1\tpeptide",
+                      "antigen.gene\ttxt\t1\t1\tfactor",
+                      "antigen.species\ttxt\t1\t1\tfactor",
+                      "reference.id\ttxt\t1\t1\turl",
+                      "method\ttxt\t1\t0\tmethod.json",
+                      "meta\ttxt\t1\t0\tmeta.json",
+                      "cdr3fix\ttxt\t1\t0\tfixer.json",
+                      "vdjdb.score\ttxt\t1\t1\tuint"],
     COMPLEX_ANNOT_COLS = [
             "species",
             "mhc.a",
@@ -333,31 +332,13 @@ def FLAT_COLUMNS = [
             "antigen.species",
             "reference.id"]
 
-new File("../database/vdjdb_flat.meta").withPrintWriter { pw ->
-    pw.println(["name\ttype\tvisible\tsearchable\tdata.type",
-                "complex.id\ttxt\t0\t0\tcomplex.id",
-                "gene\ttxt\t1\t1\tfactor",
-                "cdr3\tseq\t1\t1\tcdr3",
-                "v\ttxt\t1\t1\tfactor",
-                "d\ttxt\t1\t0\tfactor",
-                "j\ttxt\t1\t1\tfactor",
-                "species\ttxt\t1\t1\tfactor",
-                "mhc.a\ttxt\t1\t1\tfactor",
-                "mhc.b\ttxt\t1\t1\tfactor",
-                "mhc.class\ttxt\t1\t1\tfactor",
-                "antigen.epitope\tseq\t1\t1\tpeptide",
-                "antigen.gene\ttxt\t1\t1\tfactor",
-                "antigen.species\ttxt\t1\t1\tfactor",
-                "reference.id\ttxt\t1\t1\turl",
-                "method\ttxt\t1\t0\tmethod.json",
-                "meta\ttxt\t1\t0\tmeta.json",
-                "cdr3fix\ttxt\t1\t0\tfixer.json",
-                "vdjdb.score\ttxt\t1\t1\tuint"].join("\n"))
+new File("../database/vdjdb.meta.txt").withPrintWriter { pw ->
+    pw.println(METADATA_LINES.join("\n"))
 }
 
 def complexIdCounter = 0
-new File("../database/vdjdb_flat.txt").withPrintWriter { pw ->
-    pw.println(FLAT_COLUMNS.join("\t"))
+new File("../database/vdjdb.txt").withPrintWriter { pw ->
+    pw.println(METADATA_LINES[1..-1].collect { it.split("\t")[0] }.join("\t"))
     masterTable.each { row ->
         def complexAnnot = COMPLEX_ANNOT_COLS.collect { row[it] }.join("\t")
 
