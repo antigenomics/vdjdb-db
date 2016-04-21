@@ -16,7 +16,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 15				CASSPPSGSYEQYF	TRBV7-9		TRBJ2-7	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV	PMID:17287271	tetramer-sort	1/75		sanger			CD8+		HIV+,ART+	AC-46	primary				A1,26;B8,51;Cw7,15		
 16				CASSLESGQRPYEQYF	TRBV7-9		TRBJ2-7	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV	PMID:17287271	tetramer-sort	1/75		sanger			CD8+		HIV+,ART+	AC-46	primary				A1,26;B8,51;Cw7,15		
 17				CASSIGPLEGNEQFF	TRBV19		TRBJ2-1	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV	PMID:17287271	tetramer-sort	2/75		sanger			CD8+		HIV+,ART+	AC-46	primary				A1,26;B8,51;Cw7,15		
-18				CASSWGQGOLSYEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV	PMID:17287271	tetramer-sort	2/75		sanger			CD8+		HIV+,ART+	AC-46	primary				A1,26;B8,51;Cw7,15		
+18				CASSWGQGQLSYEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV	PMID:17287271	tetramer-sort	2/75		sanger			CD8+		HIV+,ART+	AC-46	primary				A1,26;B8,51;Cw7,15		
 19				CASSYRGQGNYGYTF	TRBV5-4		TRBJ1-2	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV	PMID:17287271	tetramer-sort	1/75		sanger			CD8+		HIV+,ART+	AC-46	primary				A1,26;B8,51;Cw7,15		
 20				CASSYERGMNTEAFF	TRBV6-3		TRBJ1-1	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV	PMID:17287271	tetramer-sort	1/75		sanger			CD8+		HIV+,ART+	AC-46	primary				A1,26;B8,51;Cw7,15		
 21				CASSMGQGATEAFF	TRBV6-5		TRBJ1-1	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV	PMID:17287271	tetramer-sort	1/75		sanger			CD8+		HIV+,ART+	AC-46	primary				A1,26;B8,51;Cw7,15		
