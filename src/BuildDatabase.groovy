@@ -166,7 +166,9 @@ def validators = [
         "mhc.class"      : { it == "MHCI" || it == "MHCII" },
         "antigen.epitope": isAASeqValid,
         "reference.id"   : {
-            it.startsWith("PMID:") || it.startsWith("doi:") || it.toLowerCase().contains("unpublished")
+            it.startsWith("PMID:") || it.startsWith("doi:") ||
+            it.startsWith("http://") || it.startsWith("https://") ||
+			it.toLowerCase().contains("unpublished")
         }
 ]
 
