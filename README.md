@@ -195,3 +195,5 @@ field | description
 At the final stage of database processing, TCR:peptide:MHC complexes are assigned with confidence scores. Scores are computed according to reported **method** entries. First, a score is assigned to identification method. In case a given complex was identified using multimer sorting, frequency of a given TCR sequence among sorted population is taken into account. Additional score points are assigned in case one or more verification steps are reported for a given entry.
 
 Scores are first summarized within a given submission (replicas, etc) and then across different submissions to provide a single score for each unique complex record (i.e. set of unique **complex** fields).
+
+> **Note:** A record that has a ``meta.structure.id``, i.e. a structural data associated with it, automatically gets the highest VDJdb score possible.

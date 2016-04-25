@@ -24,7 +24,7 @@ class VdjdbScoreFactory {
         masterTable.each { row ->
             def sign = getSignature(row), score = getScore(row)
 
-            if (row["meta.complex.id"].trim().length() > 0) {
+            if (row["meta.structure.id"].trim().length() > 0) {
                 score = 100 // we have structure, any questions? :)
             } else {
                 if (MHC_MULTIMER.any {
