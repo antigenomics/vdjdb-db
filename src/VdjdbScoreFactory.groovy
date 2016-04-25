@@ -29,9 +29,10 @@ class VdjdbScoreFactory {
             }) {
                 // If identified using tetramer use frequency to assign score
                 // Otherwise score is 0
-                def freq = row["method.frequency"]
+                def freq = row["method.frequency"].trim()
+
                 if (freq.length() > 0) {
-                    def x = freq.split("/").collect { it.toInteger() }
+                    def x = freq.split("/+").collect { it.toInteger() }
 
                     if (x[0] > 1 && (x[0] / (double) x[1]) >= 0.1) {
                         score += 2
