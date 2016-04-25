@@ -19,9 +19,9 @@ class Util {
         seq.replaceAll(/[^FLSYCWPHQRIMTNKVADEG]/, "X")
     }
 
-    static String simplifySegmentName(String segmentName) {
-        segmentName = segmentName.split(",")[0] // take best match
-        segmentName.split("\\*")[0] // trim allele if present
+    static List<String> simplifySegmentName(String segmentName) {
+        def noAllele= segmentName.split("\\*")[0]
+        [noAllele, noAllele.split("-")[0]]
     }
 
     static String codon2aa(String codon) {

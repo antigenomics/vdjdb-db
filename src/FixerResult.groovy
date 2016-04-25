@@ -15,12 +15,14 @@
  */
 
 class FixerResult {
-    final String cdr3, vId, jId
+    final String cdr3, cdr3_old, vId, jId
     final boolean vCanonical, jCanonical, fixNeeded
     final FixType vFixType, jFixType
 
-    FixerResult(String cdr3, boolean fixNeeded, String vId, FixType vFixType, String jId, FixType jFixType) {
+    FixerResult(String cdr3,String cdr3_old,
+                boolean fixNeeded, String vId, FixType vFixType, String jId, FixType jFixType) {
         this.cdr3 = cdr3
+        this.cdr3_old = cdr3_old
         this.fixNeeded = fixNeeded
         this.vId = vId
         this.vFixType = vFixType

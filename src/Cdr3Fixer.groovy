@@ -52,8 +52,10 @@ class Cdr3Fixer {
         // Doing an extensive search
         // with all possible combinations
 
-        [id, Util.simplifySegmentName(id)].collect {
-            [id, "$id*01".toString(), (1..9).collect { "$id-$it*01".toString() }]
+        [id, Util.simplifySegmentName(id)].flatten().collect { String it ->
+            [it,
+             "$it*01".toString(),
+             it.contains("-") ? [] : (1..100).collect { "$id-$it*01".toString() }]
         }.flatten().find {
             segmentsById.containsKey(it)
         }
@@ -120,7 +122,7 @@ class Cdr3Fixer {
 
         def newCdr3 = jResult.cdr3.reverse()
 
-        new FixerResult(newCdr3, newCdr3 != cdr3,
+        new FixerResult(newCdr3, cdr3, newCdr3 != cdr3,
                 vResult.segmentId, vResult.fixType,
                 jResult.segmentId, jResult.fixType)
     }
