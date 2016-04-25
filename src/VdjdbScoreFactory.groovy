@@ -24,35 +24,41 @@ class VdjdbScoreFactory {
         masterTable.each { row ->
             def sign = getSignature(row), score = getScore(row)
 
-            if (MHC_MULTIMER.any {
-                row["method.identification"].toLowerCase().contains("$it-sort")
-            }) {
-                // If identified using tetramer use frequency to assign score
-                // Otherwise score is 0
-                def freq = row["method.frequency"].trim()
+            if (row["meta.complex.id"].trim().length() > 0) {
+                score = 100 // we have structure, any questions? :)
+            } else {
+                if (MHC_MULTIMER.any {
+                    row["method.identification"].toLowerCase().contains("$it-sort")
+                }) {
+                    // If identified using tetramer use frequency to assign score
+                    // Otherwise score is 0
+                    def freq = row["method.frequency"].trim()
 
-                if (freq.length() > 0) {
-                    def x = freq.split("/+").collect { it.toInteger() }
+                    if (freq.length() > 0) {
+                        def x = freq.split("/+").collect { it.toInteger() }
 
-                    if (x[0] > 1 && (x[0] / (double) x[1]) >= 0.1) {
-                        score += 2
+                        if (x[0] > 1 && (x[0] / (double) x[1]) >= 0.1) {
+                            score += 2
+                        }
                     }
                 }
-            }
 
-            def verifyMethod = row["method.verification"].toLowerCase()
+                def verifyMethod = row["method.verification"].toLowerCase()
 
-            if (verifyMethod.contains("targets")) {
-                // Verification with target cells
-                score += 4
-            } else if (verifyMethod.contains("stain")) {
-                // Verification by cloning & re-staining
-                score += 2
-            }
+                if (verifyMethod.contains("targets")) {
+                    // Verification with target cells
+                    score += 4
+                } else if (verifyMethod.contains("stain")) {
+                    // Verification by cloning & re-staining
+                    score += 2
+                }
 
-            if (row["method.singlecell"] != "") {
-                // Single-cell sequencing performed
-                score += 1
+                if (row["method.singlecell"] != "") {
+                    // Single-cell sequencing performed
+                    score += 1
+                }
+
+                score = Math.min(score, 100)
             }
 
             scoreMap[sign] = score

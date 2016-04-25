@@ -24,6 +24,10 @@ The ``BuildDatabase`` routine ran during CI tests upon each submission and prior
 
 To view the list of papers that were not yet processed follow [here](https://github.com/antigenomics/vdjdb-db/labels/paper).
 
+An XLS template is available [here](https://raw.githubusercontent.com/antigenomics/vdjdb-db/master/template.xls).
+
+> **CAUTION** make sure that nothing is messed up (``x/X`` frequencies are transformed to dates, bad encoding, etc) when importing from XLS template. The format of all fields is pre-set to *text* to prevent this case.
+
 ## Database specification
 
 Each database submission in ``chunks/`` folder should have the following header and columns:
