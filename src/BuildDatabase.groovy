@@ -176,7 +176,7 @@ def validators = [
 // Read, validate and concatenate chunks
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-def chunkFiles = new File("../chunks_new/").listFiles().findAll { !it.name.startsWith(".") && it.name.endsWith(".txt") }
+def chunkFiles = new File("../chunks/").listFiles().findAll { !it.name.startsWith(".") && it.name.endsWith(".txt") }
 
 if (chunkFiles.empty)
     err("No database chunks to process")
