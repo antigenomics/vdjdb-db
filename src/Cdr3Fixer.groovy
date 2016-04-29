@@ -93,15 +93,15 @@ class Cdr3Fixer {
         if (hit) {
             if (hit.startInSegment == 0) {
                 if (hit.startInCdr3 == 0) {
-                    return new OneSideFixerResult(cdr3, closestId, FixType.NoFixNeeded)
+                    return new OneSideFixerResult(cdr3, closestId, FixType.NoFixNeeded, hit.matchSize)
                 } else {
-                    return new OneSideFixerResult(cdr3.substring(hit.startInCdr3), closestId, FixType.FixTrim)
+                    return new OneSideFixerResult(cdr3.substring(hit.startInCdr3), closestId, FixType.FixTrim, hit.matchSize)
                 }
             } else {
                 if (hit.startInCdr3 == 0) {
-                    return new OneSideFixerResult(segmentSeq.substring(0, hit.startInSegment) + cdr3, closestId, FixType.FixAdd)
+                    return new OneSideFixerResult(segmentSeq.substring(0, hit.startInSegment) + cdr3, closestId, FixType.FixAdd, hit.matchSize)
                 } else if (hit.startInCdr3 <= maxReplaceSize) {
-                    return new OneSideFixerResult(segmentSeq.substring(0, hit.startInSegment) + cdr3.substring(hit.startInCdr3), closestId, FixType.FixReplace)
+                    return new OneSideFixerResult(segmentSeq.substring(0, hit.startInSegment) + cdr3.substring(hit.startInCdr3), closestId, FixType.FixReplace, hit.matchSize)
                 } else {
                     return new OneSideFixerResult(cdr3, closestId, FixType.FailedReplace)
                 }
@@ -122,7 +122,17 @@ class Cdr3Fixer {
 
         def newCdr3 = jResult.cdr3.reverse()
 
+        //
+        //       ---- 4
+        // ---- 4
+        // 0123456789
+        // CASSLPKLFF
+        //
+        // 10 - 4 = 6
+
         new FixerResult(newCdr3, cdr3, newCdr3 != cdr3,
+                vResult.x,
+                jResult.x < 0 ? jResult.x : newCdr3.length() - jResult.x - 1,
                 vResult.segmentId, vResult.fixType,
                 jResult.segmentId, jResult.fixType)
     }
