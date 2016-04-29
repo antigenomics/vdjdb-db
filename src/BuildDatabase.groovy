@@ -167,8 +167,8 @@ def validators = [
         "antigen.epitope": isAASeqValid,
         "reference.id"   : {
             it.startsWith("PMID:") || it.startsWith("doi:") ||
-            it.startsWith("http://") || it.startsWith("https://") ||
-			it.toLowerCase().contains("unpublished")
+                    it.startsWith("http://") || it.startsWith("https://") ||
+                    it.toLowerCase().contains("unpublished")
         }
 ]
 
@@ -257,9 +257,7 @@ masterTable.each { row ->
                     row["species"]
             )
 
-            if (fixerResult.good && fixerResult.fixNeeded) {
-                row["cdr3.$it"] = fixerResult.cdr3
-            }
+            row["cdr3.$it"] = fixerResult.cdr3
 
             row.values << new JsonBuilder(fixerResult).toString()
         } else {

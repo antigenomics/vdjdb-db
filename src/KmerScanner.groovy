@@ -21,8 +21,8 @@ class KmerScanner {
     KmerScanner(String seq, int minHitSize = 2) {
         this.minHitSize = minHitSize
 
-        for (int i = minHitSize; i < seq.length(); i++) {
-            for (int j = 0; j < seq.length() - i; j++) {
+        for (int i = minHitSize; i <= seq.length(); i++) {
+            for (int j = 0; j <= seq.length() - i; j++) {
                 String kmer = seq.substring(j, j + i)
                 kmers.put(kmer, j)
             }
@@ -30,6 +30,23 @@ class KmerScanner {
     }
 
     SearchResult scan(String seq) {
+        def bestHit = (minHitSize..<seq.length()).collect { int i ->
+            (0..<(seq.length() - i)).collect { int j ->
+                String kmer = seq.substring(j, j + i)
+
+                def hit = kmers[kmer]
+
+                if (hit != null) {
+                    new SearchResult(hit, j, kmer.length())
+                } else {
+                    new SearchResult(-1, j, -1)
+                }
+            }
+        }.flatten().max { it.matchSize }
+
+        bestHit.matchSize > 0 ? bestHit : null
+
+        /*
         // iterate from largest window to smallest one
         for (int i = seq.length(); i >= minHitSize; i--) {
             // sliding window scan
@@ -47,6 +64,6 @@ class KmerScanner {
             }
         }
 
-        null
+        null*/
     }
 }
