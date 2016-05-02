@@ -18,18 +18,21 @@
 class VdjdbScoreFactory {
     final Map<String, Integer> scoreMap = new HashMap<>()
 
-    final static List<String> MHC_MULTIMER = ["tetramer", "pentamer", "multimer"]
-
     VdjdbScoreFactory(Table masterTable) {
         masterTable.each { row ->
-            def sign = getSignature(row), score = getScore(row)
+            def sign = getSignature(row)//, score = getScore(row)
 
+            def score = 0
             if (row["meta.structure.id"].trim().length() > 0) {
-                score = 100 // we have structure, any questions? :)
+                score += 7 // we have structure, any questions? :)
             } else {
-                if (MHC_MULTIMER.any {
-                    row["method.identification"].toLowerCase().contains("$it-sort")
-                }) {
+                def method = row["method.identification"].toLowerCase().trim()
+
+                if (method.length() > 0) {
+                    score += 1
+
+                    def freqThreshold = method.contains("sort") ? 0.1 : 0.5
+
                     // If identified using tetramer use frequency to assign score
                     // Otherwise score is 0
                     def freq = row["method.frequency"].trim()
@@ -37,9 +40,14 @@ class VdjdbScoreFactory {
                     if (freq.length() > 0) {
                         def x = freq.split("/+").collect { it.toInteger() }
 
-                        if (x[0] > 1 && (x[0] / (double) x[1]) >= 0.1) {
-                            score += 2
+                        if (x[0] > 1 && (x[0] / (double) x[1]) >= freqThreshold) {
+                            score += 1
                         }
+                    }
+
+                    if (row["method.singlecell"].trim().length() > 0) {
+                        // Single-cell sequencing performed
+                        score += 1
                     }
                 }
 
@@ -47,21 +55,14 @@ class VdjdbScoreFactory {
 
                 if (verifyMethod.contains("targets")) {
                     // Verification with target cells
-                    score += 4
-                } else if (verifyMethod.contains("stain")) {
+                    score += 3
+                } else if (verifyMethod.contains("stain") || verifyMethod.contains("sort")) {
                     // Verification by cloning & re-staining
                     score += 2
                 }
-
-                if (row["method.singlecell"] != "") {
-                    // Single-cell sequencing performed
-                    score += 1
-                }
-
-                score = Math.min(score, 100)
             }
 
-            scoreMap[sign] = score
+            scoreMap[sign] = Math.max(scoreMap[sign] ?: 0, score)
         }
     }
 
@@ -76,7 +77,7 @@ class VdjdbScoreFactory {
             "mhc.a",
             "mhc.b",
             "mhc.class",
-            "antigen.epitope",
+            "antigen.epitope"
     ]
 
     int getScore(Table.Row row) {

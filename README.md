@@ -141,33 +141,37 @@ In case of good V/J germline matching and errors in CDR3 sequence, the final CDR
 
 ```json
 {
-   "fixNeeded":false,
-   "good":false,
-   "cdr3":"CAEIAGGYNKLIF",
-   "cdr3_old":"CAEIAGGYNKLIF",
-   "jFixType":"FailedBadSegment",
-   "jId":null,
-   "jCanonical":true,
-   "vFixType":"NoFixNeeded",
-   "vId":"TRAV5*01",
-   "vCanonical":true
-}
+	"fixNeeded":true,
+	"good":false,
+	"cdr3":"CASSQDVGTGGVFALYF",
+	"cdr3_old":"CASSQDVGTGGVFALY",
+	"jFixType":"FixAdd",
+	"jId":"TRBJ1-6*01",
+	"jCanonical":true,
+	"jStart":14,
+	"vFixType":"FailedBadSegment",
+	"vId":null,
+	"vCanonical":true,
+	"vEnd":-1
+	}
 ```
 
 and
 
 ```json
 {
-    "fixNeeded":true,
-    "good":true,
-    "cdr3":"CASSFDRPPDPQYF",
-    "cdr3_old":"CASSFDRPPDPQY",
-    "jFixType":"FixAdd",
-    "jCanonical":true,
-    "jId":"TRBJ2-3*01",
-    "vFixType":"NoFixNeeded",
-    "vCanonical":true,
-    "vId":"TRBV14*01"
+	"fixNeeded":true,
+	"good":true,
+	"cdr3":"CASSLSRGGNQPQYF",
+	"cdr3_old":"CASSLSRGGNQPQY",
+	"jFixType":"FixAdd",
+	"jId":"TRBJ1-5*01",
+	"jCanonical":true,
+	"jStart":9,
+	"vFixType":"NoFixNeeded",
+	"vId":"TRBV14*01",
+	"vCanonical":true,
+	"vEnd":4
 }
 ```
 
@@ -182,9 +186,11 @@ field | description
 ``jFixType`` | Type of fix applied to CDR3 J germline part
 ``jCanonical`` | ``true`` if CDR3 ends with ``F`` or ``W``, ``false`` otherwise
 ``jId``  | J segment identifier
+``jStart``  | A 0-based index of first CDR3 amino acid just before J segment
 ``vFixType`` | Type of fix applied to CDR3 V germline part
 ``vCanonical`` | ``true`` if CDR3 starts with ``C``, ``false`` otherwise
 ``vId`` | V segment identifier
+``vEnd``  | A 0-based index of the first CDR3 amino acid after V segment
 
 > **Note:**
 
@@ -194,6 +200,14 @@ field | description
 
 At the final stage of database processing, TCR:peptide:MHC complexes are assigned with confidence scores. Scores are computed according to reported **method** entries. First, a score is assigned to identification method. In case a given complex was identified using multimer sorting, frequency of a given TCR sequence among sorted population is taken into account. Additional score points are assigned in case one or more verification steps are reported for a given entry.
 
-Scores are first summarized within a given submission (replicas, etc) and then across different submissions to provide a single score for each unique complex record (i.e. set of unique **complex** fields).
+Max score is then selected among different records (independent submissions, replicas, etc) pointing to the same unique complex entry (i.e. set of unique **complex** fields).
 
 > **Note:** A record that has a ``meta.structure.id``, i.e. a structural data associated with it, automatically gets the highest VDJdb score possible.
+
+score | description
+------|----------------------
+0     | No data
+1     | Low-confidence
+2     | Medium-confidence
+3-6   | High-confidence
+7     | Has structural data
