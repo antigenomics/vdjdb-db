@@ -1,1 +1,1 @@
-https://github.com/antigenomics/vdjdb-db/releases/download/2016-05-02/vdjdb.zip
+https://github.com/antigenomics/vdjdb-db/releases/download/2016-05-02/vdjdb-2016-05-02.zip
