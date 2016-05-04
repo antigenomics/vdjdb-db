@@ -380,6 +380,29 @@ new File("../database/vdjdb.txt").withPrintWriter { pw ->
 
 println "Generating and writing slim database"
 
+def SLIM_METADATA_LINES = [
+        "name\ttype",
+        "complex.id\ttxt",
+        "gene\ttxt",
+        "cdr3\tseq",
+        "v.segm\ttxt",
+        "d.segm\ttxt",
+        "j.segm\ttxt",
+        "species\ttxt",
+        "mhc.a\ttxt",
+        "mhc.b\ttxt",
+        "mhc.class\ttxt",
+        "antigen.epitope\tseq",
+        "antigen.gene\ttxt",
+        "antigen.species\ttxt",
+        "reference.id\ttxt",
+        "vdjdb.score\ttxt"
+]
+
+new File("../database/vdjdb.slim.meta.txt").withPrintWriter { pw ->
+    pw.println(SLIM_METADATA_LINES.join("\n"))
+}
+
 def firstLine = true
 
 def colIdMap = [:]
