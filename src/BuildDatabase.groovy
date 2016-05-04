@@ -375,3 +375,52 @@ new File("../database/vdjdb.txt").withPrintWriter { pw ->
         }
     }
 }
+
+// Generate a slim version of database
+
+println "Generating and writing slim database"
+
+def firstLine = true
+
+def colIdMap = [:]
+
+def slimAccumulatorMap = new HashMap<String, SlimComplexAccumulator>()
+
+def getSignature = { splitLine ->
+    SlimComplexAccumulator.COMPLEX_SLIM_ANNOT_COLS.collect {
+        splitLine[colIdMap[it]]
+    }.join("\t")
+}
+
+new File("../database/vdjdb.txt").splitEachLine("\t") { splitLine ->
+    if (firstLine) {
+        def requiredIds = [SlimComplexAccumulator.COMPLEX_SLIM_ANNOT_COLS,
+                           SlimComplexAccumulator.SUMMARY_COLS].flatten()
+
+        splitLine.eachWithIndex { it, ind ->
+            if (requiredIds.contains(it)) {
+                colIdMap[it] = ind
+            }
+        }
+
+        firstLine = false
+    } else {
+        def signature = getSignature(splitLine)
+
+        def accumulator = slimAccumulatorMap[signature]
+
+        if (accumulator == null) {
+            slimAccumulatorMap[signature] = (accumulator = new SlimComplexAccumulator())
+        }
+
+        accumulator.append(splitLine, colIdMap)
+    }
+}
+
+new File("../database/vdjdb.slim.txt").withPrintWriter { pw ->
+    pw.println([SlimComplexAccumulator.COMPLEX_SLIM_ANNOT_COLS, SlimComplexAccumulator.SUMMARY_COLS].flatten().join("\t"))
+    slimAccumulatorMap.each {
+        pw.println(it.key + "\t" + it.value.summary)
+    }
+}
+
