@@ -147,7 +147,7 @@ def isAASeqValid = { String str ->
 }
 
 def isMhcValid = { String str ->
-    !str.startsWith("HLA") || str =~ /^HLA-[A-Z]+\*\d{2}(:\d{2})?$/
+    !str.startsWith("HLA") || str =~ /^HLA-[A-Z]+[0-9]?\*\d{2}(:\d{2,3}){0,3}$/
 }
 
 def speciesList = ["homosapiens", "musmusculus", "rattusnorvegicus", "macacamulatta"]
