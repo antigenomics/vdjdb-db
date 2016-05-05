@@ -2,13 +2,24 @@
 
 # VDJDB: A curated database of T-cell receptor sequences of known antigen specificity
 
+![Splash](images/vdjdb-splash.png)
+
+The primary goal of VDJdb is to facilitate access to existing information on T-cell receptor antigen specificities, i.e. the ability to recognize certain epitopes in certain MHC contexts.
+
+Our mission is to both aggregate the scarce TCR specificity information available so far and to create a curated repository to store such data.
+
+In addition to routine database updates providing the most up-to-date information, we make our best to ensure data consistency and fight irregularities in TCR specificity reporting with a complex database validation scheme:
+
+* We take into account all available information on experimental setup used to identify antigen-specific TCR sequences and assign a single confidence score to highligh most reliable records at the database generation stage.
+* Each database record is also automatically checked against a database of V/J segment germline sequences to ensure standardized and consistent reporting of V-J junctions and CDR3 sequences that define T-cell clones.
+
 This repository hosts the submissions to database and scripts to check, fix and build the database itself.
 
-To build database from submissions, go to ``src`` directory and run ``groovy -cp . BuildDatabase.groovy`` script (requires [Groovy](http://www.groovy-lang.org/)).
+To build database directly from submissions, go to ``src`` directory and run ``groovy -cp . BuildDatabase.groovy`` script (requires [Groovy](http://www.groovy-lang.org/)).
 
-To query the database for your immune repertoire sample(s) use the [VDJdb](https://github.com/antigenomics/vdjdb) software.
+To query the database for your immune repertoire sample(s) use the [VDJdb-standalone](https://github.com/antigenomics/vdjdb) software.
 
-A web-based GUI for the database [VDJdb-server](https://github.com/antigenomics/vdjdb-server) is currently under development.
+A web-based GUI for the database can be found in [VDJdb-server](https://github.com/antigenomics/vdjdb-server) repository.
 
 ## Submission guide
 
@@ -211,3 +222,13 @@ score | description
 2     | Medium-confidence
 3-6   | High-confidence
 7     | Has structural data
+
+## Database build contents
+
+After the ``BuildDatabase.groovy`` script is run, the final database assembly can be found in the ``database/`` folder:
+
+* ``vdjdb_full.txt`` - combined chunks with TCRalpha/beta records, antigen information, etc. All method and meta information are collapsed into two columns with corresponding names. VDJdb scores and CDR3 fixing information for TCR alpha and beta are given in separate columns.
+* ``vdjdb.txt`` - a collapsed version of database used for annotation of single-chain TCR sequencing data by VDJdb-standalone software. Each line corresponds to either TCR alpha or TCR beta record as specified by the ``gene`` column. TCR records coming from the same alpha-beta pair have the same index in ``complex.id`` column. In case ``complex.id`` is equal to ``0`` a record doesn't have either TCRalpha or TCRbeta chain information
+* ``vdjdb.meta.txt`` - metadata for ``vdjdb.txt`` table, used by VDJdb-standalone and VDJdb-server.
+* ``vdjdb.slim.txt`` - a slim database used for annotation of single-chain TCR sequencing data by VDJdb-standalone software. This is a collapsed version of ``vdjdb.txt`` containing unique records for each CDR3:antigen pair and comma-separated lists of values for other columns (``*.segm``,``mhc.*``, ``complex.id`` and ``reference.id``).
+* ``vdjdb.slim.meta.txt`` - metadata for ``vdjdb.slim.txt`` table.
