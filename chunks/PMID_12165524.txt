@@ -1,6 +1,4 @@
 cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	submitter	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	comment
-																																	
-																																	
 			CASSPQTGTGGYGYTFG	TRBV6-5		TRBJ1.2	HomoSapiens	HLA-A*0201	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:12165524	Ivan Zvyagin				sanger			CD8	0.085	healthy	001				PBMC	HLA-A2	Ab, PCR		Ambiguous TRBV nomenclature used. Originally provided in the paper BV13.1
 			CASSPQTGTGGYGYTFG	TRBV6-5		TRBJ1.2	HomoSapiens	HLA-A*0201	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:12165524	Ivan Zvyagin				sanger			CD8	0.07	healthy	002				PBMC	HLA-A2	Ab, PCR		Ambiguous TRBV nomenclature used. Originally provided in the paper BV13.1
 			CASSPLFGTSGGETYYFG	TRBV6-5		TRBJ2.5	HomoSapiens	HLA-A*0201	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:12165524	Ivan Zvyagin				sanger			CD8	0.07	healthy	002				PBMC	HLA-A2	Ab, PCR		Ambiguous TRBV nomenclature used. Originally provided in the paper BV13.1
