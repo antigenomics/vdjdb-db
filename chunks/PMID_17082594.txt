@@ -1,64 +1,64 @@
-cdr3.alpha		v.alpha		j.alpha	cdr3.beta		v.beta	d.beta		j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	submitter	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	comment
-CAVQDLGTSGSRLTF	TRAV	20	TRAJ	58	CASSARSGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			TK3		PBMC	B*3501	sanger		
-CAVQDLGTSGSRLTF	TRAV	20	TRAJ	58	CASSARSGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			TK6		PBMC	B*3501	sanger		
-CAVQDLQTSGSRLTF	TRAV	20	TRAJ	58	CASSAPTGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			CS1		PBMC	B*3501	sanger		
-CAVQSLETSGSRLTF	TRAV	20	TRAJ	58	CASSARTGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			MW1		PBMC	B*3501	sanger		
-					CASSPRRYNEQFF	TRBV	9		TRBJ	2–1	HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			SB5		PBMC	B*3508	sanger		
-					CASSGITSGEYTIYF	TRBV	9		TRBJ	1–3	HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			SB11		PBMC	B*3508	sanger		
-CAVRDGGTGFQKLVF	TRAV	3	TRAJ	8	CASRQDRDYQETQYF	TRBV	5–1		TRBJ	2–5	HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			SB14		PBMC	B*3508	sanger		
-CAARGIGSGTYKYIF	TRAV	29	TRAJ	40	CASSARSGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			MB1		PBMC	B*3501/08	sanger		
-CAARGIGSGTYKYIF	TRAV	29	TRAJ	40	CASSARSGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			MB4		PBMC	B*3501/08	sanger		
-					CASSARTGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	6/9		sanger					healthy	C.S.				PBMC	B*3501	sanger		
-					CASSARTGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	2/8		sanger					healthy	T.K.				PBMC	B*3501	sanger		
-					CASSARTGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/10		sanger					healthy	E.L.				PBMC	B*3501	sanger		
-					CASSARTGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	21/24		sanger					healthy	M.W.				PBMC	B*3501	sanger		
-					CASSARTGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	20/20		sanger					healthy	M.B.				PBMC	B*3501	sanger		
-					CASSVRTGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/24		sanger					healthy	M.W.				PBMC	B*3501	sanger		
-					CASSVRTGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	16/27		sanger					healthy	J.F.				PBMC	B*3501	sanger		
-					CASSVRTGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	8/10		sanger					healthy	E.L.				PBMC	B*3501	sanger		
-					CASSVRSGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	5/27		sanger					healthy	J.F.				PBMC	B*3501	sanger		
-					CASSARSGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/9		sanger					healthy	C.S.				PBMC	B*3501	sanger		
-					CASSARSGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	6/8		sanger					healthy	T.K.				PBMC	B*3501	sanger		
-					CASSSRSGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/9		sanger					healthy	C.S.				PBMC	B*3501	sanger		
-					CASSAREGKLFF	TRBV	9		TRBJ	1–4	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/10		sanger					healthy	E.L.				PBMC	B*3501	sanger		
-					CASSLKSGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	2/24		sanger					healthy	M.W.				PBMC	B*3501	sanger		
-					CASSAPAGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	5/27		sanger					healthy	J.F.				PBMC	B*3501	sanger		
-					CASSAPTGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/27		sanger					healthy	J.F.				PBMC	B*3501	sanger		
-					CASSVRPGLAGGGTGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/9		sanger					healthy	C.S.				PBMC	B*3501	sanger		
-CAVQDLGTSGSRLTF	TRAV	20	TRAJ	58							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	7/18		sanger					healthy	C.S.				PBMC	B*3501	sanger		
-CAVQDLGTSGSRLTF	TRAV	20	TRAJ	58							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	12/15		sanger					healthy	T.K.				PBMC	B*3501	sanger		
-CAVQDLETSGSRLTF	TRAV	20	TRAJ	58							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	5/18		sanger					healthy	C.S.				PBMC	B*3501	sanger		
-CAVQDLETSGSRLTF	TRAV	20	TRAJ	58							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	20/20		sanger					healthy	M.B.				PBMC	B*3501	sanger		
-CAVQALETSGSRLTF	TRAV	20	TRAJ	58							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	5/16		sanger					healthy	E.L.				PBMC	B*3501	sanger		
-CAVQSLETSGSRLTF	TRAV	20	TRAJ	58							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	17/17		sanger					healthy	M.W.				PBMC	B*3501	sanger		
-CAVQSLLTSGSRLTF	TRAV	20	TRAJ	58							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/15		sanger					healthy	T.K.				PBMC	B*3501	sanger		
-CAVQALLTSGSRLTF	TRAV	20	TRAJ	58							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/18		sanger					healthy	C.S.				PBMC	B*3501	sanger		
-CAVQLLLTSGSRLTF	TRAV	20	TRAJ	58							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/16		sanger					healthy	E.L.				PBMC	B*3501	sanger		
-CAVQDFGTSGSRLTF	TRAV	20	TRAJ	58							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/18		sanger					healthy	C.S.				PBMC	B*3501	sanger		
-CAVQALGNAGNMLTF	TRAV	20	TRAJ	39							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/18		sanger					healthy	C.S.				PBMC	B*3501	sanger		
-CAVQALGNAGNMLTF	TRAV	20	TRAJ	39							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/16		sanger					healthy	E.L.				PBMC	B*3501	sanger		
-CAVQALGNAGNMLTF	TRAV	20	TRAJ	39							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/15		sanger					healthy	T.K.				PBMC	B*3501	sanger		
-CAVQTLGNAGNMLTF	TRAV	20	TRAJ	39							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/16		sanger					healthy	E.L.				PBMC	B*3501	sanger		
-CAVQALSNAGNMLTF	TRAV	20	TRAJ	39							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	2/21		sanger					healthy	J.F.				PBMC	B*3501	sanger		
-CAVQALSNPGNMLTF	TRAV	20	TRAJ	39							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/21		sanger					healthy	J.F.				PBMC	B*3501	sanger		
-CAVQALLNAGNMLTF	TRAV	20	TRAJ	39							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	5/16		sanger					healthy	E.L.				PBMC	B*3501	sanger		
-CAVQALGAAGNKLTF	TRAV	20	TRAJ	17							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/18		sanger					healthy	C.S.				PBMC	B*3501	sanger		
-CAVQALGAAGNKLTF	TRAV	20	TRAJ	17							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	3/16		sanger					healthy	E.L.				PBMC	B*3501	sanger		
-CAVQALGAAGNKLTF	TRAV	20	TRAJ	17							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	7/21		sanger					healthy	J.F.				PBMC	B*3501	sanger		
-CAVQELGTAGNKLTF	TRAV	20	TRAJ	17							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/15		sanger					healthy	T.K.				PBMC	B*3501	sanger		
-CAVQVLVSAGNKLTF	TRAV	20	TRAJ	17							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/18		sanger					healthy	C.S.				PBMC	B*3501	sanger		
-CAVQALADSSYKLIF	TRAV	20	TRAJ	12							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/18		sanger					healthy	C.S.				PBMC	B*3501	sanger		
-CAVQALTDSSYKLIF	TRAV	20	TRAJ	12							HomoSapiens	B*3501	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	11/21		sanger					healthy	J.F.				PBMC	B*3501	sanger		
-					CASSGREHEQYF	TRBV	9		TRBJ	2–7	HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	5/15		sanger					healthy	C.A.				PBMC	B*3508	sanger		
-					CASSARSGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	10/15		sanger					healthy	C.A.				PBMC	B*3508	sanger		
-					CASSARSGELFF	TRBV	9		TRBJ	2–2	HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	20/20		sanger					healthy	M.B.				PBMC	B*3508	sanger		
-					CASSAPSGEQFF	TRBV	9		TRBJ	2–1	HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	9/9		sanger					healthy	J.W.				PBMC	B*3508	sanger		
-					CASSPRRYNLQFF	TRBV	9		TRBJ	2–1	HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	16/18		sanger					healthy	S.B.				PBMC	B*3508	sanger		
-					CASSGITSGEYTIYF	TRBV	9		TRBJ	1–3	HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	2/18		sanger					healthy	S.B.				PBMC	B*3508	sanger		
-					CAISDPGTLPNYGYTF	TRBV	10–3		TRBJ	1–2	HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	12/12		sanger					healthy	S.B.				PBMC	B*3508	sanger		
-					CAISESDPLRGTEAFF	TRBV	10–3		TRBJ	1–1	HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	9/9		sanger					healthy	J.W.				PBMC	B*3508	sanger		
-CAARGIPSGTYKYIF	TRAV	29	TRAJ	40							HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	9/9		sanger					healthy	C.A.				PBMC	B*3508	sanger		
-CAARGIGSGTYKYIF	TRAV	29	TRAJ	40							HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	20/20		sanger					healthy	M.B.				PBMC	B*3508	sanger		
-CAAHPTGANSKLTF	TRAV	29	TRAJ	56							HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	9/10		sanger					healthy	S.B.				PBMC	B*3508	sanger		
-CAASEIFGSARQLTF	TRAV	29	TRAJ	22							HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/10		sanger					healthy	S.B.				PBMC	B*3508	sanger		
-CAASGASTGANNLFF	TRAV	29	TRAJ	36							HomoSapiens	B*3508	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	14/14		sanger					healthy	J.W.				PBMC	B*3508	sanger		
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	submitter	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	comment
+CAVQDLGTSGSRLTF	TRAV20	TRAJ58	CASSARSGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			TK3		PBMC	HLA-B*35:01	sanger		
+CAVQDLGTSGSRLTF	TRAV20	TRAJ58	CASSARSGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			TK6		PBMC	HLA-B*35:01	sanger		
+CAVQDLQTSGSRLTF	TRAV20	TRAJ58	CASSAPTGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			CS1		PBMC	HLA-B*35:01	sanger		
+CAVQSLETSGSRLTF	TRAV20	TRAJ58	CASSARTGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			MW1		PBMC	HLA-B*35:01	sanger		
+			CASSPRRYNEQFF	TRBV9		TRBJ2–1	HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			SB5		PBMC	HLA-B*35:08	sanger		
+			CASSGITSGEYTIYF	TRBV9		TRBJ1–3	HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			SB11		PBMC	HLA-B*35:08	sanger		
+CAVRDGGTGFQKLVF	TRAV3	TRAJ8	CASRQDRDYQETQYF	TRBV5–1		TRBJ2–5	HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			SB14		PBMC	HLA-B*35:08	sanger		
+CAARGIGSGTYKYIF	TRAV29	TRAJ40	CASSARSGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			MB1		PBMC	HLA-B*35:01:08	sanger		
+CAARGIGSGTYKYIF	TRAV29	TRAJ40	CASSARSGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	peptide stimulated CTL			sanger	multimer-sort				healthy			MB4		PBMC	HLA-B*35:01:08	sanger		
+			CASSARTGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	6/9		sanger					healthy	C.S.				PBMC	HLA-B*35:01	sanger		
+			CASSARTGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	2/8		sanger					healthy	T.K.				PBMC	HLA-B*35:01	sanger		
+			CASSARTGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/10		sanger					healthy	E.L.				PBMC	HLA-B*35:01	sanger		
+			CASSARTGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	21/24		sanger					healthy	M.W.				PBMC	HLA-B*35:01	sanger		
+			CASSARTGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	20/20		sanger					healthy	M.B.				PBMC	HLA-B*35:01	sanger		
+			CASSVRTGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/24		sanger					healthy	M.W.				PBMC	HLA-B*35:01	sanger		
+			CASSVRTGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	16/27		sanger					healthy	J.F.				PBMC	HLA-B*35:01	sanger		
+			CASSVRTGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	8/10		sanger					healthy	E.L.				PBMC	HLA-B*35:01	sanger		
+			CASSVRSGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	5/27		sanger					healthy	J.F.				PBMC	HLA-B*35:01	sanger		
+			CASSARSGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/9		sanger					healthy	C.S.				PBMC	HLA-B*35:01	sanger		
+			CASSARSGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	6/8		sanger					healthy	T.K.				PBMC	HLA-B*35:01	sanger		
+			CASSSRSGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/9		sanger					healthy	C.S.				PBMC	HLA-B*35:01	sanger		
+			CASSAREGKLFF	TRBV9		TRBJ1–4	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/10		sanger					healthy	E.L.				PBMC	HLA-B*35:01	sanger		
+			CASSLKSGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	2/24		sanger					healthy	M.W.				PBMC	HLA-B*35:01	sanger		
+			CASSAPAGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	5/27		sanger					healthy	J.F.				PBMC	HLA-B*35:01	sanger		
+			CASSAPTGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/27		sanger					healthy	J.F.				PBMC	HLA-B*35:01	sanger		
+			CASSVRPGLAGGGTGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/9		sanger					healthy	C.S.				PBMC	HLA-B*35:01	sanger		
+CAVQDLGTSGSRLTF	TRAV20	TRAJ58					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	7/18		sanger					healthy	C.S.				PBMC	HLA-B*35:01	sanger		
+CAVQDLGTSGSRLTF	TRAV20	TRAJ58					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	12/15		sanger					healthy	T.K.				PBMC	HLA-B*35:01	sanger		
+CAVQDLETSGSRLTF	TRAV20	TRAJ58					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	5/18		sanger					healthy	C.S.				PBMC	HLA-B*35:01	sanger		
+CAVQDLETSGSRLTF	TRAV20	TRAJ58					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	20/20		sanger					healthy	M.B.				PBMC	HLA-B*35:01	sanger		
+CAVQALETSGSRLTF	TRAV20	TRAJ58					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	5/16		sanger					healthy	E.L.				PBMC	HLA-B*35:01	sanger		
+CAVQSLETSGSRLTF	TRAV20	TRAJ58					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	17/17		sanger					healthy	M.W.				PBMC	HLA-B*35:01	sanger		
+CAVQSLLTSGSRLTF	TRAV20	TRAJ58					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/15		sanger					healthy	T.K.				PBMC	HLA-B*35:01	sanger		
+CAVQALLTSGSRLTF	TRAV20	TRAJ58					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/18		sanger					healthy	C.S.				PBMC	HLA-B*35:01	sanger		
+CAVQLLLTSGSRLTF	TRAV20	TRAJ58					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/16		sanger					healthy	E.L.				PBMC	HLA-B*35:01	sanger		
+CAVQDFGTSGSRLTF	TRAV20	TRAJ58					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/18		sanger					healthy	C.S.				PBMC	HLA-B*35:01	sanger		
+CAVQALGNAGNMLTF	TRAV20	TRAJ39					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/18		sanger					healthy	C.S.				PBMC	HLA-B*35:01	sanger		
+CAVQALGNAGNMLTF	TRAV20	TRAJ39					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/16		sanger					healthy	E.L.				PBMC	HLA-B*35:01	sanger		
+CAVQALGNAGNMLTF	TRAV20	TRAJ39					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/15		sanger					healthy	T.K.				PBMC	HLA-B*35:01	sanger		
+CAVQTLGNAGNMLTF	TRAV20	TRAJ39					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/16		sanger					healthy	E.L.				PBMC	HLA-B*35:01	sanger		
+CAVQALSNAGNMLTF	TRAV20	TRAJ39					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	2/21		sanger					healthy	J.F.				PBMC	HLA-B*35:01	sanger		
+CAVQALSNPGNMLTF	TRAV20	TRAJ39					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/21		sanger					healthy	J.F.				PBMC	HLA-B*35:01	sanger		
+CAVQALLNAGNMLTF	TRAV20	TRAJ39					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	5/16		sanger					healthy	E.L.				PBMC	HLA-B*35:01	sanger		
+CAVQALGAAGNKLTF	TRAV20	TRAJ17					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/18		sanger					healthy	C.S.				PBMC	HLA-B*35:01	sanger		
+CAVQALGAAGNKLTF	TRAV20	TRAJ17					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	3/16		sanger					healthy	E.L.				PBMC	HLA-B*35:01	sanger		
+CAVQALGAAGNKLTF	TRAV20	TRAJ17					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	7/21		sanger					healthy	J.F.				PBMC	HLA-B*35:01	sanger		
+CAVQELGTAGNKLTF	TRAV20	TRAJ17					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/15		sanger					healthy	T.K.				PBMC	HLA-B*35:01	sanger		
+CAVQVLVSAGNKLTF	TRAV20	TRAJ17					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/18		sanger					healthy	C.S.				PBMC	HLA-B*35:01	sanger		
+CAVQALADSSYKLIF	TRAV20	TRAJ12					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/18		sanger					healthy	C.S.				PBMC	HLA-B*35:01	sanger		
+CAVQALTDSSYKLIF	TRAV20	TRAJ12					HomoSapiens	HLA-B*35:01	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	11/21		sanger					healthy	J.F.				PBMC	HLA-B*35:01	sanger		
+			CASSGREHEQYF	TRBV9		TRBJ2–7	HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	5/15		sanger					healthy	C.A.				PBMC	HLA-B*35:08	sanger		
+			CASSARSGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	10/15		sanger					healthy	C.A.				PBMC	HLA-B*35:08	sanger		
+			CASSARSGELFF	TRBV9		TRBJ2–2	HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	20/20		sanger					healthy	M.B.				PBMC	HLA-B*35:08	sanger		
+			CASSAPSGEQFF	TRBV9		TRBJ2–1	HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	9/9		sanger					healthy	J.W.				PBMC	HLA-B*35:08	sanger		
+			CASSPRRYNLQFF	TRBV9		TRBJ2–1	HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	16/18		sanger					healthy	S.B.				PBMC	HLA-B*35:08	sanger		
+			CASSGITSGEYTIYF	TRBV9		TRBJ1–3	HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	2/18		sanger					healthy	S.B.				PBMC	HLA-B*35:08	sanger		
+			CAISDPGTLPNYGYTF	TRBV10–3		TRBJ1–2	HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	12/12		sanger					healthy	S.B.				PBMC	HLA-B*35:08	sanger		
+			CAISESDPLRGTEAFF	TRBV10–3		TRBJ1–1	HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	9/9		sanger					healthy	J.W.				PBMC	HLA-B*35:08	sanger		
+CAARGIPSGTYKYIF	TRAV29	TRAJ40					HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	9/9		sanger					healthy	C.A.				PBMC	HLA-B*35:08	sanger		
+CAARGIGSGTYKYIF	TRAV29	TRAJ40					HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	20/20		sanger					healthy	M.B.				PBMC	HLA-B*35:08	sanger		
+CAAHPTGANSKLTF	TRAV29	TRAJ56					HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	9/10		sanger					healthy	S.B.				PBMC	HLA-B*35:08	sanger		
+CAASEIFGSARQLTF	TRAV29	TRAJ22					HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	1/10		sanger					healthy	S.B.				PBMC	HLA-B*35:08	sanger		
+CAASGASTGANNLFF	TRAV29	TRAJ36					HomoSapiens	HLA-B*35:08	B2M	MHCI	HPVGEADYFEY	EBNA1	EBV	PMID:17082594	Ivan Zvyagin	multimer-sort	14/14		sanger					healthy	J.W.				PBMC	HLA-B*35:08	sanger		
