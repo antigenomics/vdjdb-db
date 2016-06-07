@@ -84,7 +84,7 @@ method.identification | ``tetramer``, ``dextramer``, ``pelimer``, ``pentamer``, 
 method.frequency | Frequency in isolated antigen-specific population, reported as ``X/X``. E.g. ``7/30`` if a given V/D/J/CDR3 is encountered in 7 out of 30 tetramer+ clones
 method.singlecell | ``yes`` if single cell sequencing was performed, blank otherwise
 method.sequencing | Sequencing method: ``sanger``, ``rna-seq`` or ``amplicon-seq``
-method.verification | ``tetramer``, ``dextramer``, ``pelimer``, ``pentamer``, etc for methods that include TCR cloning and re-staining with multimers. ``antigen-loaded-targets``, ``antigen-expressing-targets`` for molecular assays. Several comma-separated verification methods can be specified.
+method.verification | ``tetramer``, ``dextramer``, ``pelimer``, ``pentamer``, etc for methods that include TCR cloning and re-staining with multimers. ``antigen-loaded-targets``, ``antigen-expressing-targets`` for molecular assays. ``direct`` in case pMHC binding T-cells are directly subject to single-cell sequencing. Several comma-separated verification methods can be specified.
 
 > **Notes:**
 

@@ -26,8 +26,17 @@ class VdjdbScoreFactory {
             if (row["meta.structure.id"].trim().length() > 0) {
                 score += 7 // we have structure, any questions? :)
             } else {
-                def method = row["method.identification"].toLowerCase().trim()
+                def verifyMethod = row["method.verification"].toLowerCase()
 
+                if (verifyMethod.contains("targets")) {
+                    // Verification with target cells
+                    score += 3
+                } else if (verifyMethod.contains("stain") || verifyMethod.contains("sort")) {
+                    // Verification by cloning & re-staining
+                    score += 2
+                }
+				
+                def method = row["method.identification"].toLowerCase().trim()
                 if (method.length() > 0) {
                     score += 1
 
@@ -47,18 +56,8 @@ class VdjdbScoreFactory {
 
                     if (row["method.singlecell"].trim().length() > 0) {
                         // Single-cell sequencing performed
-                        score += 1
+                        score += (verifyMethod.contains("direct") ? 3 : 1) // direct verification by single-cell sorting of pMHC binding T-cells
                     }
-                }
-
-                def verifyMethod = row["method.verification"].toLowerCase()
-
-                if (verifyMethod.contains("targets")) {
-                    // Verification with target cells
-                    score += 3
-                } else if (verifyMethod.contains("stain") || verifyMethod.contains("sort")) {
-                    // Verification by cloning & re-staining
-                    score += 2
                 }
             }
 
