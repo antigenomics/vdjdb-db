@@ -4,6 +4,8 @@
 
 ![Splash](images/vdjdb-splash.png)
 
+> **DISCLAIMER** You are free to use VDJdb in research studies for the purpose of RepSeq sample and T-cell clonotype list annotation. However, the authors request priority in publishing a meta-analysis of the dataset aggregated and stored here. This message will be removed once VDJdb is officially published.
+
 The primary goal of VDJdb is to facilitate access to existing information on T-cell receptor antigen specificities, i.e. the ability to recognize certain epitopes in certain MHC contexts.
 
 Our mission is to both aggregate the scarce TCR specificity information available so far and to create a curated repository to store such data.
