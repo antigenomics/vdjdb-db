@@ -350,7 +350,7 @@ new File("../database/vdjdb.txt").withPrintWriter { pw ->
             }).toString()
 
         def complexId
-        if (row["cdr3.alpha"] == "") {
+        if (row["cdr3.alpha"] == "" || row["cdr3.beta"] == "") {
             complexId = 0
         } else {
             complexIdCounter += 1
