@@ -5,7 +5,7 @@ import com.milaboratory.core.sequence.AminoAcidSequence
         @Grab(group = 'com.milaboratory', module = 'milib', version = '1.3')
 )
 
-class RecordAlignment {
+class RecordAlignment implements Serializable {
     final Record record1, record2
     final Alignment<AminoAcidSequence> alignment
 

@@ -4,8 +4,6 @@ import com.milaboratory.core.alignment.Alignment
                 @Grab(group = 'org.codehaus.gpars', module = 'gpars', version = '1.2.1')]
 )
 
-
-
 import com.milaboratory.core.sequence.AminoAcidSequence
 import com.milaboratory.core.tree.SequenceTreeMap
 import com.milaboratory.core.tree.TreeSearchParameters
@@ -16,9 +14,10 @@ import java.util.concurrent.atomic.AtomicInteger
 
 // requires a pre-built database
 // load records
+def gene = args[0]
+
 println "[CDRALIGN] Loading database"
 
-def gene = "TRB"
 def recordMap = new HashMap<String, Record>()
 def firstLine = true
 
@@ -78,5 +77,11 @@ GParsPool.withPool(Runtime.getRuntime().availableProcessors()) {
     }
 }
 
-println "[CDRALIGN] Done, ${alignments.size()} alignments performed."
+println "[CDRALIGN] Done, ${alignments.size()} alignments performed. Writing output"
 
+// Write output
+def oos = new ObjectOutputStream(new FileOutputStream("../" + gene + ".bin"))
+oos.writeObject(alignments)
+oos.close()
+
+println "[CDRALIGN] Done."

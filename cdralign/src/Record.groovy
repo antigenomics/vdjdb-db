@@ -4,7 +4,7 @@ import com.milaboratory.core.sequence.AminoAcidSequence
         @Grab(group = 'com.milaboratory', module = 'milib', version = '1.3')
 )
 
-class Record {
+class Record implements Serializable {
     final AminoAcidSequence cdr3
     final List<AminoAcidSequence> antigen = new ArrayList<>()
 
