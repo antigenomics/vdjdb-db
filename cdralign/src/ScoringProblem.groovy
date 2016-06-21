@@ -72,9 +72,7 @@ class ScoringProblem extends AbstractProblem {
             }
         }
 
-        int gapPenalty = vars[k]
-
-        println("M=" + substitutionMatrix + ", k=" + gapPenalty)
+        int gapPenalty = VAR_FACTOR * vars[k]
 
         new LinearGapAlignmentScoring(AminoAcidSequence.ALPHABET, substitutionMatrix, gapPenalty)
     }
