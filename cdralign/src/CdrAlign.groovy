@@ -51,7 +51,7 @@ def alignments = new ConcurrentLinkedQueue<RecordAlignment>()
 def counter = new AtomicInteger()
 
 def chooseAlignment = { Alignment<AminoAcidSequence> a1, Alignment<AminoAcidSequence> a2 ->
-    a1 ? a2 : (a1.score < a2.score ? a2 : a1)
+    a1 ? (a1.score < a2.score ? a2 : a1) : a2
 }
 
 GParsPool.withPool(Runtime.getRuntime().availableProcessors()) {
