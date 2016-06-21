@@ -88,13 +88,13 @@ class ScoringProblem extends AbstractProblem {
         int k = 0
         for (int i = 0; i < N_SUBST_1; i++) {
             for (int j = i; j < N_SUBST_1; j++) {
-                solution.setVariable(k, i == j ? new RealVariable(1.5 / VAR_FACTOR, MAX_DIAG) :
-                        new RealVariable(MIN_NON_DIAG, -1.5 / VAR_FACTOR))
+                solution.setVariable(k, i == j ? new RealVariable(0, MAX_DIAG) :
+                        new RealVariable(MIN_NON_DIAG, 0))
                 k++
             }
         }
 
-        solution.setVariable(k, new RealVariable(MIN_GAP, -1.5 / VAR_FACTOR))
+        solution.setVariable(k, new RealVariable(MIN_GAP, -2 / VAR_FACTOR))
 
         solution
     }
