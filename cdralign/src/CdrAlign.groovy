@@ -1,13 +1,16 @@
-import com.milaboratory.core.alignment.Alignment
 @Grapes(
         [@Grab(group = 'com.milaboratory', module = 'milib', version = '1.3'),
-                @Grab(group = 'org.codehaus.gpars', module = 'gpars', version = '1.2.1')]
+                @Grab(group = 'org.codehaus.gpars', module = 'gpars', version = '1.2.1'),
+                @Grab(group = 'org.moeaframework', module = 'moeaframework', version = '2.10')]
 )
 
+import com.milaboratory.core.alignment.Alignment
 import com.milaboratory.core.sequence.AminoAcidSequence
 import com.milaboratory.core.tree.SequenceTreeMap
 import com.milaboratory.core.tree.TreeSearchParameters
 import groovyx.gpars.GParsPool
+import org.moeaframework.Executor
+import org.moeaframework.core.Solution
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
@@ -77,11 +80,33 @@ GParsPool.withPool(Runtime.getRuntime().availableProcessors()) {
     }
 }
 
-println "[CDRALIGN] Done, ${alignments.size()} alignments performed. Writing output"
+println "[CDRALIGN] Done, ${alignments.size()} alignments performed. Proceeding to optimization"
 
 // Write output
-def oos = new ObjectOutputStream(new FileOutputStream("../" + gene + ".bin"))
-oos.writeObject(alignments)
-oos.close()
+//def oos = new ObjectOutputStream(new FileOutputStream("../" + gene + ".bin"))
+//oos.writeObject(alignments)
+//oos.close()
 
-println "[CDRALIGN] Done."
+//println "[CDRALIGN] Done."
+
+//println "[OPTIMIZESCORING] Loading alignments"
+
+//def alignments = new ObjectInputStream(new FileInputStream("../" + gene + ".bin")).readObject() as ConcurrentLinkedQueue<RecordAlignment>
+
+//println "[OPTIMIZESCORING] Done. ${alignments.size()} alignments loaded."
+
+def result = new Executor()
+        .distributeOnAllCores()
+        .withProblem(new ScoringProblem(alignments))
+        .withAlgorithm("NSGAII")
+        .withMaxEvaluations(10000)
+        .run()
+
+//display the results
+System.out.format("Objective1  Objective2%n");
+
+for (Solution solution : result) {
+    System.out.format("%.4f      %.4f%n",
+            solution.getObjective(0),
+            solution.getObjective(1));
+}
