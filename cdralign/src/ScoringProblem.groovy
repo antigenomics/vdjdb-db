@@ -1,12 +1,15 @@
 import com.milaboratory.core.alignment.Alignment
-import com.milaboratory.core.alignment.AlignmentScoring
-import com.milaboratory.core.alignment.AlignmentUtils
 import com.milaboratory.core.alignment.LinearGapAlignmentScoring
 import com.milaboratory.core.sequence.AminoAcidSequence
 import org.moeaframework.core.Solution
 import org.moeaframework.core.variable.EncodingUtils
 import org.moeaframework.core.variable.RealVariable
 import org.moeaframework.problem.AbstractProblem
+
+import static com.milaboratory.core.mutations.Mutation.getFrom
+import static com.milaboratory.core.mutations.Mutation.getTo
+import static com.milaboratory.core.mutations.Mutation.isDeletion
+import static com.milaboratory.core.mutations.Mutation.isInsertion
 
 class ScoringProblem extends AbstractProblem {
     final Collection<RecordAlignment> alignments
@@ -56,7 +59,7 @@ class ScoringProblem extends AbstractProblem {
         solution.setObjective(1, noOverlapScore)
     }
 
-    static AlignmentScoring<AminoAcidSequence> getScoring(Solution solution) {
+    static LinearGapAlignmentScoring getScoring(Solution solution) {
         double[] vars = EncodingUtils.getReal(solution)
 
         int[] substitutionMatrix = new int[N_SUBST_2]
@@ -77,8 +80,18 @@ class ScoringProblem extends AbstractProblem {
         new LinearGapAlignmentScoring(AminoAcidSequence.ALPHABET, substitutionMatrix, gapPenalty)
     }
 
-    static double computeScore(AlignmentScoring<AminoAcidSequence> scoring, Alignment<AminoAcidSequence> alignment) {
-        AlignmentUtils.calculateScore(scoring, alignment.sequence1Range.length(), alignment.absoluteMutations)
+    static double computeScore(LinearGapAlignmentScoring scoring, Alignment alignment) {
+        def mutations = alignment.absoluteMutations
+        int score = 0
+        for (int i = 0; i < mutations.size(); ++i) {
+            int mutation = mutations.getMutation(i)
+
+            if (isDeletion(mutation) || isInsertion(mutation))
+                score += scoring.getGapPenalty()
+            else //Substitution
+                score += scoring.getScore(getFrom(mutation), getTo(mutation))
+        }
+        score / alignment.sequence1Range.length()
     }
 
     @Override
