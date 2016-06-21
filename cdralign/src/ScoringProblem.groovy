@@ -59,6 +59,11 @@ class ScoringProblem extends AbstractProblem {
     static AlignmentScoring<AminoAcidSequence> getScoring(Solution solution) {
         double[] vars = EncodingUtils.getReal(solution)
 
+        println vars.length
+        println N_SUBST_1
+        println N_SUBST_2
+        println N_SUBST
+
         int[] substitutionMatrix = new int[N_SUBST_2]
 
         int k = 0
