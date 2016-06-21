@@ -22,11 +22,25 @@ def gene = args[0]
 println "[CDRALIGN] Loading database"
 
 def recordMap = new HashMap<String, Record>()
-def firstLine = true
 
+def antigenCountMap = new HashMap<String, Integer>()
+
+def firstLine = true
 new File("../../database/vdjdb.slim.txt").splitEachLine("\t") {
     if (!firstLine) {
         if (it[0] == gene) {
+            antigenCountMap.put(it[3], (antigenCountMap[it[3]] ?: 0) + 1)
+        }
+    } else {
+        firstLine = false
+    }
+}
+
+firstLine = true
+def minCdr3CountPerAntigen = 10
+new File("../../database/vdjdb.slim.txt").splitEachLine("\t") {
+    if (!firstLine) {
+        if (it[0] == gene && antigenCountMap[it[3]] >= minCdr3CountPerAntigen) {
             def record
             recordMap.put(it[1], record = (recordMap[it[0]] ?: new Record(it[1])))
             record.antigen.add(new AminoAcidSequence(it[3]))
