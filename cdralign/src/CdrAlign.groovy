@@ -1,3 +1,4 @@
+import com.milaboratory.core.alignment.Alignment
 @Grapes(
         [@Grab(group = 'com.milaboratory', module = 'milib', version = '1.3'),
                 @Grab(group = 'org.codehaus.gpars', module = 'gpars', version = '1.2.1')]
@@ -49,16 +50,24 @@ println "[CDRALIGN] Performing alignments."
 def alignments = new ConcurrentLinkedQueue<RecordAlignment>()
 def counter = new AtomicInteger()
 
+def chooseAlignment = { Alignment<AminoAcidSequence> a1, Alignment<AminoAcidSequence> a2 ->
+    a1 ? a2 : (a1.score < a2.score ? a2 : a1)
+}
+
 GParsPool.withPool(Runtime.getRuntime().availableProcessors()) {
     treeMap.values().eachParallel { Record from ->
         def iter = treeMap.getNeighborhoodIterator(from.cdr3, searchParameters)
-
         def to
+        def alignmentMap = new HashMap<Record, Alignment<AminoAcidSequence>>()
 
         while ((to = iter.next()) != null) {
             if (from.cdr3 != to.cdr3) {
-                alignments.add(new RecordAlignment(from, to, iter.currentAlignment))
+                alignmentMap.put(to, chooseAlignment(alignmentMap[to], iter.currentAlignment))
             }
+        }
+
+        alignmentMap.each {
+            alignments.add(new RecordAlignment(from, it.key, it.value))
         }
 
         int counterVal
