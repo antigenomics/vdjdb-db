@@ -10,6 +10,9 @@ import com.milaboratory.core.tree.SequenceTreeMap
 import com.milaboratory.core.tree.TreeSearchParameters
 import groovyx.gpars.GParsPool
 
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.atomic.AtomicInteger
+
 // requires a pre-built database
 // load records
 println "[CDRALIGN] Loading database"
@@ -43,7 +46,8 @@ recordMap.values().each {
 
 println "[CDRALIGN] Performing alignments."
 
-def alignments = new ArrayList<RecordAlignment>()
+def alignments = new ConcurrentLinkedQueue<RecordAlignment>()
+def counter = new AtomicInteger()
 
 GParsPool.withPool(Runtime.getRuntime().availableProcessors()) {
     treeMap.values().eachParallel { Record from ->
@@ -55,6 +59,12 @@ GParsPool.withPool(Runtime.getRuntime().availableProcessors()) {
             if (from.cdr3 != to.cdr3) {
                 alignments.add(new RecordAlignment(from, to, iter.currentAlignment))
             }
+        }
+
+        int counterVal
+        if ((counterVal = counter.incrementAndGet()) % 100 == 0) {
+            println "[CDRALIGN] Done all alignments for $counterVal records, " +
+                    "total number of aligned CDR3 pairs is ${alignments.size()}"
         }
     }
 }
