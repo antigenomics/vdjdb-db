@@ -97,7 +97,7 @@ class ScoringProblem extends AbstractProblem {
 
     static double computeScore(LinearGapAlignmentScoring scoring, Alignment alignment) {
         def mutations = alignment.absoluteMutations
-        int score = 0
+        double score = 0
         for (int i = 0; i < mutations.size(); ++i) {
             int mutation = mutations.getMutation(i)
 
