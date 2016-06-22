@@ -10,6 +10,7 @@ import com.milaboratory.core.tree.SequenceTreeMap
 import com.milaboratory.core.tree.TreeSearchParameters
 import groovyx.gpars.GParsPool
 import org.moeaframework.Executor
+import org.moeaframework.core.NondominatedPopulation
 import org.moeaframework.core.Solution
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -67,24 +68,17 @@ println "[CDRALIGN] Performing alignments."
 def alignments = new ConcurrentLinkedQueue<RecordAlignment>()
 def counter = new AtomicInteger()
 
-def chooseAlignment = { Alignment<AminoAcidSequence> a1, Alignment<AminoAcidSequence> a2 ->
-    a1 ? (a1.score < a2.score ? a2 : a1) : a2
-}
-
 GParsPool.withPool(Runtime.getRuntime().availableProcessors()) {
     treeMap.values().eachParallel { Record from ->
         def iter = treeMap.getNeighborhoodIterator(from.cdr3, searchParameters)
         def to
-        def alignmentMap = new HashMap<Record, Alignment<AminoAcidSequence>>()
 
+        def toCdr3Hash = new HashSet<Record>()
         while ((to = iter.next()) != null) {
-            if (from.cdr3 != to.cdr3) {
-                alignmentMap.put(to, chooseAlignment(alignmentMap[to], iter.currentAlignment))
+            if (from.cdr3 != to.cdr3 && !toCdr3Hash.contains(to)) {
+                alignments.add(new RecordAlignment(from, to, iter.currentAlignment))
+                toCdr3Hash.add(to)
             }
-        }
-
-        alignmentMap.each {
-            alignments.add(new RecordAlignment(from, it.key, it.value))
         }
 
         int counterVal
@@ -114,14 +108,14 @@ def result = new Executor()
         .distributeOnAllCores()
         .withProblem(new ScoringProblem(alignments))
         .withAlgorithm("NSGAII")
-        .withProperty("populationSize", 100)
-        .withMaxEvaluations(10000)
+        //.withProperty("populationSize", 100)
+        .withMaxEvaluations(1000)
         .run()
 
 //display the results
 new File("../roc.txt").withPrintWriter { pw ->
-    pw.println("precision\trecall")
-    result.each {
-        pw.println(it.getObjective(0) + "\t" + it.getObjective(1))
+    pw.println("sensitivity\tspecificity")
+    result.each { Solution solution ->
+        pw.println(solution.getObjective(0) + "\t" + solution.getObjective(1))
     }
 }
