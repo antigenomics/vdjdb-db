@@ -13,7 +13,8 @@ import static com.milaboratory.core.mutations.Mutation.isInsertion
 
 class ScoringProblem extends AbstractProblem {
     final Collection<RecordAlignment> alignments
-    static final double MAX_DIAG = 1.0, MIN_NON_DIAG = -1.0, MIN_GAP = -1.0, VAR_FACTOR = 1000
+    static final double MAX_DIAG = 1.0, MIN_NON_DIAG = -1.0, MIN_GAP = -1.0, VAR_FACTOR = 1000,
+                        SCORE_RANGE = Math.max(MAX_DIAG, Math.max(-MIN_NON_DIAG, -MIN_GAP))
     static final int N_SUBST = AminoAcidSequence.ALPHABET.size() * (AminoAcidSequence.ALPHABET.size() + 1) / 2,
                      N_SUBST_1 = AminoAcidSequence.ALPHABET.size(),
                      N_SUBST_2 = N_SUBST_1 * N_SUBST_1,
@@ -46,7 +47,7 @@ class ScoringProblem extends AbstractProblem {
         int TP = 0, FP = 0, TN = 0, FN = 0
 
         alignments.each { RecordAlignment recordAlignment ->
-            double score = computeScore(solutionInfo.scoring, recordAlignment.alignment)
+            double score = computeScore(solutionInfo.scoring, recordAlignment.record1.cdr3, recordAlignment.alignment)
 
             if (recordAlignment.record1.antigen.any { recordAlignment.record2.antigen.contains(it) }) {
                 if (score >= solutionInfo.threshold) {
@@ -95,17 +96,27 @@ class ScoringProblem extends AbstractProblem {
         }
     }
 
-    static double computeScore(LinearGapAlignmentScoring scoring, Alignment alignment) {
+    static double computeScore(LinearGapAlignmentScoring scoring, AminoAcidSequence reference, Alignment alignment) {
         def mutations = alignment.absoluteMutations
         double score = 0
+
+        for (int i = 0; i < reference.size(); i++) {
+            byte aa = reference.codeAt(i)
+            score += scoring.getScore(aa, aa)
+        }
+
         for (int i = 0; i < mutations.size(); ++i) {
             int mutation = mutations.getMutation(i)
 
-            if (isDeletion(mutation) || isInsertion(mutation))
+            if (isInsertion(mutation)) {
                 score += scoring.getGapPenalty()
-            else //Substitution
-                score += scoring.getScore(getFrom(mutation), getTo(mutation))
+            } else {
+                byte from = getFrom(mutation)
+                score -= scoring.getScore(from, from)
+                score += isDeletion(mutation) ? scoring.getGapPenalty() : scoring.getScore(from, getTo(mutation))
+            }
         }
+
         score / alignment.sequence1Range.length()
     }
 
@@ -124,7 +135,7 @@ class ScoringProblem extends AbstractProblem {
 
         solution.setVariable(k, new RealVariable(MIN_GAP, -2 / VAR_FACTOR))
         k++
-        solution.setVariable(k, new RealVariable(0, VAR_FACTOR))
+        solution.setVariable(k, new RealVariable(-SCORE_RANGE, SCORE_RANGE))
 
         solution
     }
