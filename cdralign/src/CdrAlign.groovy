@@ -114,7 +114,8 @@ def result = new Executor()
         .distributeOnAllCores()
         .withProblem(new ScoringProblem(alignments))
         .withAlgorithm("NSGAII")
-        .withMaxEvaluations(10000)
+        .withProperty("populationSize", 100)
+        .withMaxEvaluations(25000)
         .run()
 
 //display the results
