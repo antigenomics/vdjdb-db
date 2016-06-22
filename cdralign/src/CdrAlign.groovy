@@ -25,10 +25,11 @@ def recordMap = new HashMap<String, Record>()
 
 def antigenCountMap = new HashMap<String, Integer>()
 
+def minDbScore = 2
 def firstLine = true
 new File("../../database/vdjdb.slim.txt").splitEachLine("\t") {
     if (!firstLine) {
-        if (it[0] == gene) {
+        if (it[0] == gene && it[-1].toInteger() >= minDbScore) {
             antigenCountMap.put(it[3], (antigenCountMap[it[3]] ?: 0) + 1)
         }
     } else {
@@ -40,7 +41,7 @@ firstLine = true
 def minCdr3CountPerAntigen = 10
 new File("../../database/vdjdb.slim.txt").splitEachLine("\t") {
     if (!firstLine) {
-        if (it[0] == gene && antigenCountMap[it[3]] >= minCdr3CountPerAntigen) {
+        if (it[0] == gene && it[-1].toInteger() >= minDbScore && antigenCountMap[it[3]] >= minCdr3CountPerAntigen) {
             def record
             recordMap.put(it[1], record = (recordMap[it[0]] ?: new Record(it[1])))
             record.antigen.add(new AminoAcidSequence(it[3]))
