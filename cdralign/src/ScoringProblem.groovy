@@ -47,7 +47,8 @@ class ScoringProblem extends AbstractProblem {
         int TP = 0, FP = 0, TN = 0, FN = 0
 
         alignments.each { RecordAlignment recordAlignment ->
-            double score = computeScore(solutionInfo.scoring, recordAlignment.record1.cdr3, recordAlignment.alignment)
+            double score = computeScore(solutionInfo.scoring, recordAlignment.record1.cdr3,
+                    recordAlignment.alignment)
 
             if (recordAlignment.record1.antigen.any { recordAlignment.record2.antigen.contains(it) }) {
                 if (score >= solutionInfo.threshold) {
