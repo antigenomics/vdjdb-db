@@ -44,19 +44,21 @@ class ScoringProblem extends AbstractProblem {
         def scoring = getScoring(solution)
 
         double overlapScore = 0.0, noOverlapScore = 0.0
+        int nOverlap = 0
 
         alignments.each { RecordAlignment recordAlignment ->
             double score = computeScore(scoring, recordAlignment.alignment)
 
             if (recordAlignment.record1.antigen.any { recordAlignment.record2.antigen.contains(it) }) {
                 overlapScore += score
+                nOverlap++
             } else {
                 noOverlapScore -= score
             }
         }
 
-        solution.setObjective(0, overlapScore)
-        solution.setObjective(1, noOverlapScore)
+        solution.setObjective(0, overlapScore / nOverlap)
+        solution.setObjective(1, noOverlapScore / (alignments.size() - nOverlap))
     }
 
     static LinearGapAlignmentScoring getScoring(Solution solution) {
