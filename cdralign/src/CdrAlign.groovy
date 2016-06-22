@@ -119,10 +119,9 @@ def result = new Executor()
         .run()
 
 //display the results
-System.out.format("Objective1  Objective2%n");
-
-for (Solution solution : result) {
-    System.out.format("%.4f      %.4f%n",
-            solution.getObjective(0),
-            solution.getObjective(1));
+new File("../roc.txt").withPrintWriter { pw ->
+    pw.println("precision\trecall")
+    result.each {
+        pw.println(it.getObjective(0) + "\t" + it.getObjective(1))
+    }
 }
