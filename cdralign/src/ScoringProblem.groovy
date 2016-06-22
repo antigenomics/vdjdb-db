@@ -17,7 +17,7 @@ class ScoringProblem extends AbstractProblem {
     static final int N_SUBST = AminoAcidSequence.ALPHABET.size() * (AminoAcidSequence.ALPHABET.size() + 1) / 2,
                      N_SUBST_1 = AminoAcidSequence.ALPHABET.size(),
                      N_SUBST_2 = N_SUBST_1 * N_SUBST_1,
-                     N_VARS = N_SUBST + 1
+                     N_VARS = N_SUBST + 2
 
     ScoringProblem(Collection<RecordAlignment> alignments) {
         super(N_VARS, 2)
@@ -41,45 +41,58 @@ class ScoringProblem extends AbstractProblem {
 
     @Override
     void evaluate(Solution solution) {
-        def scoring = getScoring(solution)
+        def solutionInfo = new SolutionInfo(solution)
 
-        double overlapScore = 0.0, noOverlapScore = 0.0
-        int nOverlap = 0
+        int TP = 0, FP = 0, TN = 0, FN = 0
 
         alignments.each { RecordAlignment recordAlignment ->
-            double score = computeScore(scoring, recordAlignment.alignment)
+            double score = computeScore(solutionInfo.scoring, recordAlignment.alignment)
 
             if (recordAlignment.record1.antigen.any { recordAlignment.record2.antigen.contains(it) }) {
-                overlapScore += score
-                nOverlap++
+                if (score >= solutionInfo.threshold) {
+                    TP++
+                } else {
+                    FN++
+                }
             } else {
-                noOverlapScore -= score
+                if (score >= solutionInfo.threshold) {
+                    FP++
+                } else {
+                    TN++
+                }
             }
         }
 
-        solution.setObjective(0, overlapScore / nOverlap)
-        solution.setObjective(1, noOverlapScore / (alignments.size() - nOverlap))
+        solution.setObjective(0, TP / (double) Math.min(1, TP + FP))
+        solution.setObjective(1, TP / (double) Math.min(1, TP + FN))
     }
 
-    static LinearGapAlignmentScoring getScoring(Solution solution) {
-        double[] vars = EncodingUtils.getReal(solution)
+    static class SolutionInfo {
+        final LinearGapAlignmentScoring scoring
+        final double threshold
 
-        int[] substitutionMatrix = new int[N_SUBST_2]
+        SolutionInfo(Solution solution) {
+            double[] vars = EncodingUtils.getReal(solution)
 
-        int k = 0
-        for (int i = 0; i < N_SUBST_1; i++) {
-            for (int j = i; j < N_SUBST_1; j++) {
-                int var = VAR_FACTOR * vars[k]
-                substitutionMatrix[i * N_SUBST_1 + j] = var
-                if (i != j)
-                    substitutionMatrix[j * N_SUBST_1 + i] = var
-                k++
+            int[] substitutionMatrix = new int[N_SUBST_2]
+
+            int k = 0
+            for (int i = 0; i < N_SUBST_1; i++) {
+                for (int j = i; j < N_SUBST_1; j++) {
+                    int var = VAR_FACTOR * vars[k]
+                    substitutionMatrix[i * N_SUBST_1 + j] = var
+                    if (i != j)
+                        substitutionMatrix[j * N_SUBST_1 + i] = var
+                    k++
+                }
             }
+
+            int gapPenalty = VAR_FACTOR * vars[k]
+            k++
+
+            this.scoring = new LinearGapAlignmentScoring(AminoAcidSequence.ALPHABET, substitutionMatrix, gapPenalty)
+            this.threshold = VAR_FACTOR * vars[k]
         }
-
-        int gapPenalty = VAR_FACTOR * vars[k]
-
-        new LinearGapAlignmentScoring(AminoAcidSequence.ALPHABET, substitutionMatrix, gapPenalty)
     }
 
     static double computeScore(LinearGapAlignmentScoring scoring, Alignment alignment) {
@@ -110,6 +123,8 @@ class ScoringProblem extends AbstractProblem {
         }
 
         solution.setVariable(k, new RealVariable(MIN_GAP, -2 / VAR_FACTOR))
+        k++
+        solution.setVariable(k, new RealVariable(0, VAR_FACTOR))
 
         solution
     }
