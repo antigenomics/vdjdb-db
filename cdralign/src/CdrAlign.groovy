@@ -19,8 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger
 
 // requires a pre-built database
 // load records
-def gene = args[0]
-
 println "[CDRALIGN] Loading database"
 
 def recordMap = new HashMap<String, Record>()
