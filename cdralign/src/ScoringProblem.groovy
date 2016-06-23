@@ -12,7 +12,7 @@ class ScoringProblem extends AbstractProblem {
     static final int N_SUBST = AminoAcidSequence.ALPHABET.size() * (AminoAcidSequence.ALPHABET.size() + 1) / 2,
                      N_SUBST_1 = AminoAcidSequence.ALPHABET.size(),
                      N_SUBST_2 = N_SUBST_1 * N_SUBST_1,
-                     N_VARS = N_SUBST + 2
+                     N_VARS = N_SUBST + 4
 
     ScoringProblem(Collection<RecordAlignment> alignments) {
         super(N_VARS, 2)
