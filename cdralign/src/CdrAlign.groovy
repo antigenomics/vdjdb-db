@@ -107,7 +107,7 @@ println "[CDRALIGN] Done, ${alignments.size()} alignments performed. Proceeding 
 def result = new Executor()
         .distributeOnAllCores()
         .withProblem(new ScoringProblem(alignments))
-        .withAlgorithm("NSGAII")
+        .withAlgorithm("NSGAIII")
         .withProperty("populationSize", 200)
         .withMaxEvaluations(25000)
         .run()
