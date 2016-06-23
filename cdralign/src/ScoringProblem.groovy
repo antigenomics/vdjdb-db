@@ -114,16 +114,19 @@ class ScoringProblem extends AbstractProblem {
 
             for (int i = 0; i < mutations.size(); ++i) {
                 int mutation = mutations.getMutation(i)
+                double weight = computeWeight(getPosition(mutation) - halfLength)
 
+                double currentScore
                 if (isInsertion(mutation)) {
-                    score += scoring.getGapPenalty()
+                    currentScore = scoring.getGapPenalty()
                 } else {
                     byte from = getFrom(mutation)
-                    double weight = computeWeight(getPosition(mutation) - halfLength)
-                    score -= scoring.getScore(from, from) * weight
-                    score += isDeletion(mutation) ? scoring.getGapPenalty() :
-                            (scoring.getScore(from, getTo(mutation)) * weight)
+                    currentScore = isDeletion(mutation) ? scoring.getGapPenalty() :
+                            (scoring.getScore(from, getTo(mutation)))
+                    currentScore -= scoring.getScore(from, from)
                 }
+
+                score += currentScore * weight
             }
 
             score
