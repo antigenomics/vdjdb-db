@@ -8,31 +8,16 @@ import org.moeaframework.problem.AbstractProblem
 class ScoringProblem extends AbstractProblem {
     final Collection<RecordAlignment> alignments
     static final double MAX_DIAG = 1.0, MIN_NON_DIAG = -1.0, MIN_GAP = -1.0, VAR_FACTOR = 1000,
-                        SCORE_RANGE = 30 * Math.max(MAX_DIAG, Math.max(-MIN_NON_DIAG, -MIN_GAP))
+                        SCORE_RANGE = 20 * Math.max(MAX_DIAG, Math.max(-MIN_NON_DIAG, -MIN_GAP))
     static final int N_SUBST = AminoAcidSequence.ALPHABET.size() * (AminoAcidSequence.ALPHABET.size() + 1) / 2,
                      N_SUBST_1 = AminoAcidSequence.ALPHABET.size(),
                      N_SUBST_2 = N_SUBST_1 * N_SUBST_1,
-                     N_VARS = N_SUBST + 4
+                     N_VARS = N_SUBST + 2
 
     ScoringProblem(Collection<RecordAlignment> alignments) {
         super(N_VARS, 2)
         this.alignments = alignments
     }
-
-    /*
-    @Override
-    Solution generate() {
-        Solution solution = newSolution()
-
-        (0..<N_VARS).each { int i ->
-            def var = solution.getVariable(i) as RealVariable
-            var.setValue(PRNG.nextDouble(var.lowerBound, var.upperBound))
-        }
-
-        evaluate(solution)
-
-        solution
-    }*/
 
     @Override
     void evaluate(Solution solution) {
@@ -81,11 +66,11 @@ class ScoringProblem extends AbstractProblem {
         int gapPenalty = VAR_FACTOR * vars[k]
         def scoring = new LinearGapAlignmentScoring(AminoAcidSequence.ALPHABET, substitutionMatrix, gapPenalty)
 
-        def mu = vars[++k]
-        def sigma = vars[++k]
+        //def mu = vars[++k]
+        //def sigma = vars[++k]
         def threshold = VAR_FACTOR * vars[++k]
 
-        new SolutionInfo(scoring, mu, sigma, threshold)
+        new SolutionInfo(scoring, threshold)
     }
 
     @Override
@@ -103,8 +88,8 @@ class ScoringProblem extends AbstractProblem {
 
         solution.setVariable(k, new RealVariable(MIN_GAP, -2 / VAR_FACTOR))
 
-        solution.setVariable(++k, new RealVariable(-3.0, 3.0))
-        solution.setVariable(++k, new RealVariable(1.0, 10.0))
+        // solution.setVariable(++k, new RealVariable(-3.0, 3.0))
+        // solution.setVariable(++k, new RealVariable(1.0, 10.0))
         solution.setVariable(++k, new RealVariable(-SCORE_RANGE, SCORE_RANGE))
 
         solution
