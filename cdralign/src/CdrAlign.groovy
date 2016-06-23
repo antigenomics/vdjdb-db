@@ -90,7 +90,7 @@ GParsPool.withPool(Runtime.getRuntime().availableProcessors()) {
 println "[CDRALIGN] Done, ${alignments.size()} alignments performed. Proceeding to optimization"
 
 // Run optimization
-int popSize = 200, nGenerations = 100
+int popSize = 100, nGenerations = 5000
 def listener = new ProgressListener() {
     @Override
     void progressUpdate(ProgressEvent event) {
