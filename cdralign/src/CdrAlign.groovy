@@ -90,27 +90,25 @@ GParsPool.withPool(Runtime.getRuntime().availableProcessors()) {
 println "[CDRALIGN] Done, ${alignments.size()} alignments performed. Proceeding to optimization"
 
 // Run optimization
+int popSize = 200, nGenerations = 100
 def listener = new ProgressListener() {
     @Override
     void progressUpdate(ProgressEvent event) {
-        println "[MOEA stats]" + "\n" +
-                "Time elapsed = " + event.elapsedTime + "\n" +
-                "Number of function evaluations = " + event.currentNFE + "\n" +
-                "Percent complete = " + event.percentComplete
+        println "[MOEA stats] Number of generations = " + (event.currentNFE / popSize)
     }
 }
 def result = new Executor()
         .distributeOnAllCores()
         .withProblem(new ScoringProblem(alignments))
         .withAlgorithm("NSGAII")
-        .withProperty("populationSize", 200)
-        .withMaxEvaluations(1000)
+        .withProperty("populationSize", popSize)
+        .withMaxEvaluations(nGenerations * popSize)
         .withProgressListener(listener).run()
 
 //display the results
 def alphabet = AminoAcidSequence.ALPHABET
 def AAS = ['F', 'S', 'Y', 'C', 'W', 'L', 'P', 'H', 'Q', 'I',
-           'M', 'T', 'N', 'K', 'R', 'V', 'A', 'D', 'E', 'G'] as List<Character>
+           'M', 'T', 'N', 'K', 'R', 'V', 'A', 'D', 'E', 'G']
 
 new File("../solutions.txt").withPrintWriter { pw ->
     pw.println("id\tparameter\tfrom\tto\tvalue")
@@ -119,7 +117,8 @@ new File("../solutions.txt").withPrintWriter { pw ->
 
         AAS.each { from ->
             AAS.each { to ->
-                int score = info.scoring.getScore(alphabet.symbolToCode(from), alphabet.symbolToCode(to))
+                int score = info.scoring.getScore(alphabet.symbolToCode(from.charAt(0)),
+                        alphabet.symbolToCode(to.charAt(0)))
                 pw.println(index + "\tsubstitution\t" + from + "\t" + to + "\t" + score)
             }
         }
