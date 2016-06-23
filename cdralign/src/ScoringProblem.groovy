@@ -7,6 +7,7 @@ import org.moeaframework.core.variable.RealVariable
 import org.moeaframework.problem.AbstractProblem
 
 import static com.milaboratory.core.mutations.Mutation.getFrom
+import static com.milaboratory.core.mutations.Mutation.getPosition
 import static com.milaboratory.core.mutations.Mutation.getTo
 import static com.milaboratory.core.mutations.Mutation.isDeletion
 import static com.milaboratory.core.mutations.Mutation.isInsertion
@@ -47,9 +48,8 @@ class ScoringProblem extends AbstractProblem {
         int TP = 0, FP = 0, TN = 0, FN = 0
 
         alignments.each { RecordAlignment recordAlignment ->
-            double score = computeScore(solutionInfo.scoring,
+            double score = solutionInfo.computeScore(solutionInfo.scoring,
                     recordAlignment.record1.cdr3,
-                    recordAlignment.record2.cdr3,
                     recordAlignment.alignment)
 
             if (recordAlignment.record1.antigen.any { recordAlignment.record2.antigen.contains(it) }) {
@@ -74,6 +74,7 @@ class ScoringProblem extends AbstractProblem {
     static class SolutionInfo {
         final LinearGapAlignmentScoring scoring
         final double threshold
+        final double mu, sigma
 
         SolutionInfo(Solution solution) {
             double[] vars = EncodingUtils.getReal(solution)
@@ -92,49 +93,48 @@ class ScoringProblem extends AbstractProblem {
             }
 
             int gapPenalty = VAR_FACTOR * vars[k]
-            k++
-
             this.scoring = new LinearGapAlignmentScoring(AminoAcidSequence.ALPHABET, substitutionMatrix, gapPenalty)
-            this.threshold = VAR_FACTOR * vars[k]
-        }
-    }
 
-    static double computeScore(LinearGapAlignmentScoring scoring,
-                               AminoAcidSequence reference,
-                               AminoAcidSequence query,
-                               Alignment alignment) {
-        def mutations = alignment.absoluteMutations
-        double score = 0
-
-        for (int i = 0; i < reference.size(); i++) {
-            byte aa = reference.codeAt(i)
-            score += scoring.getScore(aa, aa) / 2.0
-        }
-        for (int i = 0; i < query.size(); i++) {
-            byte aa = query.codeAt(i)
-            score += scoring.getScore(aa, aa) / 2.0
+            this.mu = vars[++k]
+            this.sigma = vars[++k]
+            this.threshold = VAR_FACTOR * vars[++k]
         }
 
-        for (int i = 0; i < mutations.size(); ++i) {
-            int mutation = mutations.getMutation(i)
+        double computeScore(AminoAcidSequence reference,
+                            Alignment alignment) {
+            def mutations = alignment.absoluteMutations
+            double score = 0
 
-            if (isInsertion(mutation)) {
-                byte to = getTo(mutation)
-                score -= scoring.getScore(to, to) / 2.0
-                score += scoring.getGapPenalty()
-            } else if (isDeletion(mutation)) {
-                byte from = getFrom(mutation)
-                score -= scoring.getScore(from, from) / 2.0
-                score += scoring.getGapPenalty()
-            } else {
-                byte from = getFrom(mutation), to = getTo(mutation)
-                score -= scoring.getScore(to, to) / 2.0
-                score -= scoring.getScore(from, from) / 2.0
-                score += scoring.getScore(from, to)
+            double halfLength = reference.size() / 2.0
+
+            for (int i = 0; i < reference.size(); i++) {
+                byte aa = reference.codeAt(i)
+                score += scoring.getScore(aa, aa) * computeWeight(i - halfLength)
             }
+
+            for (int i = 0; i < mutations.size(); ++i) {
+                int mutation = mutations.getMutation(i)
+
+                if (isInsertion(mutation)) {
+                    score += scoring.getGapPenalty()
+                } else {
+                    byte from = getFrom(mutation)
+                    double weight = computeWeight(getPosition(mutation) - halfLength)
+                    score -= scoring.getScore(from, from) * weight
+                    score += isDeletion(mutation) ? scoring.getGapPenalty() :
+                            (scoring.getScore(from, getTo(mutation)) * weight)
+                }
+            }
+
+            score
         }
 
-        score
+        static final double TWO_PI_SQRT = Math.sqrt(2 * Math.PI)
+
+        double computeWeight(double x) {
+            double delta = x - mu
+            Math.exp(-delta * delta / sigma / sigma) / TWO_PI_SQRT / sigma
+        }
     }
 
     @Override
@@ -151,8 +151,10 @@ class ScoringProblem extends AbstractProblem {
         }
 
         solution.setVariable(k, new RealVariable(MIN_GAP, -2 / VAR_FACTOR))
-        k++
-        solution.setVariable(k, new RealVariable(-SCORE_RANGE, SCORE_RANGE))
+
+        solution.setVariable(++k, new RealVariable(-3.0, 3.0))
+        solution.setVariable(++k, new RealVariable(1.0, 10.0))
+        solution.setVariable(++k, new RealVariable(-SCORE_RANGE, SCORE_RANGE))
 
         solution
     }

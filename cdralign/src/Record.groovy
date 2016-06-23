@@ -6,9 +6,11 @@ import com.milaboratory.core.sequence.AminoAcidSequence
 
 class Record implements Serializable {
     final AminoAcidSequence cdr3
+    final Gene gene
     final List<AminoAcidSequence> antigen = new ArrayList<>()
 
-    Record(String cdr3) {
+    Record(String gene, String cdr3) {
+        this.gene = Gene."$gene"
         this.cdr3 = new AminoAcidSequence(cdr3)
     }
 

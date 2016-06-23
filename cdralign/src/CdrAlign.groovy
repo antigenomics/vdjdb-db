@@ -4,14 +4,15 @@
                 @Grab(group = 'org.moeaframework', module = 'moeaframework', version = '2.10')]
 )
 
-import com.milaboratory.core.alignment.Alignment
 import com.milaboratory.core.sequence.AminoAcidSequence
 import com.milaboratory.core.tree.SequenceTreeMap
 import com.milaboratory.core.tree.TreeSearchParameters
 import groovyx.gpars.GParsPool
 import org.moeaframework.Executor
-import org.moeaframework.core.NondominatedPopulation
 import org.moeaframework.core.Solution
+import org.moeaframework.util.progress.ProgressEvent
+import org.moeaframework.util.progress.ProgressHelper
+import org.moeaframework.util.progress.ProgressListener
 
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
@@ -30,7 +31,7 @@ def minDbScore = 2
 def firstLine = true
 new File("../../database/vdjdb.slim.txt").splitEachLine("\t") {
     if (!firstLine) {
-        if (it[0] == gene && it[-1].toInteger() >= minDbScore) {
+        if (it[-1].toInteger() >= minDbScore) {
             antigenCountMap.put(it[3], (antigenCountMap[it[3]] ?: 0) + 1)
         }
     } else {
@@ -42,9 +43,9 @@ firstLine = true
 def minCdr3CountPerAntigen = 10
 new File("../../database/vdjdb.slim.txt").splitEachLine("\t") {
     if (!firstLine) {
-        if (it[0] == gene && it[-1].toInteger() >= minDbScore && antigenCountMap[it[3]] >= minCdr3CountPerAntigen) {
+        if (it[-1].toInteger() >= minDbScore && antigenCountMap[it[3]] >= minCdr3CountPerAntigen) {
             def record
-            recordMap.put(it[1], record = (recordMap[it[0]] ?: new Record(it[1])))
+            recordMap.put(it[1], record = (recordMap[it[0]] ?: new Record(it[0], it[1])))
             record.antigen.add(new AminoAcidSequence(it[3]))
         }
     } else {
@@ -75,7 +76,7 @@ GParsPool.withPool(Runtime.getRuntime().availableProcessors()) {
 
         def toCdr3Hash = new HashSet<Record>()
         while ((to = iter.next()) != null) {
-            if (from.cdr3 != to.cdr3 && !toCdr3Hash.contains(to)) {
+            if (from.cdr3 != to.cdr3 && from.gene == to.gene && !toCdr3Hash.contains(to)) {
                 alignments.add(new RecordAlignment(from, to, iter.currentAlignment))
                 toCdr3Hash.add(to)
             }
@@ -108,14 +109,42 @@ def result = new Executor()
         .distributeOnAllCores()
         .withProblem(new ScoringProblem(alignments))
         .withAlgorithm("NSGAIII")
-        .withProperty("populationSize", 200)
-        .withMaxEvaluations(25000)
-        .run()
+        //.withProperty("populationSize", 200)
+        .withMaxEvaluations(1000)
+        .withProgressListener(new ProgressListener() {
+    @Override
+    void progressUpdate(ProgressEvent event) {
+        println "" + [event.totalSeeds]
+    }
+}).run()
 
 //display the results
+def alphabet = AminoAcidSequence.ALPHABET
+def AAS = ['F', 'S', 'Y', 'C', 'W', 'L', 'P', 'H', 'Q', 'I',
+           'M', 'T', 'N', 'K', 'R', 'V', 'A', 'D', 'E', 'G'] as List<Character>
+
+new File("../solutions.txt").withPrintWriter { pw ->
+    pw.println("id\tparameter\tfrom\tto\tvalue")
+    result.eachWithIndex { Solution solution, int index ->
+        def info = new ScoringProblem.SolutionInfo(solution)
+
+        AAS.each { from ->
+            AAS.each { to ->
+                int score = info.scoring.getScore(alphabet.symbolToCode(from), alphabet.symbolToCode(to))
+                pw.println(index + "\tsubstitution\t" + from + "\t" + to + "\t" + score)
+            }
+        }
+
+        pw.println(index + "\tgap\tNA\tNA\t" + info.scoring.gapPenalty)
+        pw.println(index + "\tmu\tNA\tNA\t" + info.mu)
+        pw.println(index + "\tsigma\tNA\tNA\t" + info.sigma)
+        pw.println(index + "\tthreshold\tNA\tNA\t" + info.threshold)
+    }
+}
+
 new File("../roc.txt").withPrintWriter { pw ->
-    pw.println("sensitivity\tspecificity")
-    result.each { Solution solution ->
-        pw.println(solution.getObjective(0) + "\t" + solution.getObjective(1))
+    pw.println("id\tsensitivity\tspecificity")
+    result.eachWithIndex { Solution solution, int index ->
+        pw.println(index + "\t" + solution.getObjective(0) + "\t" + solution.getObjective(1))
     }
 }
