@@ -1,16 +1,9 @@
-import com.milaboratory.core.alignment.Alignment
 import com.milaboratory.core.alignment.LinearGapAlignmentScoring
 import com.milaboratory.core.sequence.AminoAcidSequence
 import org.moeaframework.core.Solution
 import org.moeaframework.core.variable.EncodingUtils
 import org.moeaframework.core.variable.RealVariable
 import org.moeaframework.problem.AbstractProblem
-
-import static com.milaboratory.core.mutations.Mutation.getFrom
-import static com.milaboratory.core.mutations.Mutation.getPosition
-import static com.milaboratory.core.mutations.Mutation.getTo
-import static com.milaboratory.core.mutations.Mutation.isDeletion
-import static com.milaboratory.core.mutations.Mutation.isInsertion
 
 class ScoringProblem extends AbstractProblem {
     final Collection<RecordAlignment> alignments
@@ -48,10 +41,9 @@ class ScoringProblem extends AbstractProblem {
         int TP = 0, FP = 0, TN = 0, FN = 0
 
         alignments.each { RecordAlignment recordAlignment ->
-            double score = solutionInfo.computeScore(recordAlignment.record1.cdr3,
-                    recordAlignment.alignment)
+            double score = solutionInfo.computeScore(recordAlignment.alignment)
 
-            if (recordAlignment.record1.antigen.any { recordAlignment.record2.antigen.contains(it) }) {
+            if (recordAlignment.antigensMatch) {
                 if (score >= solutionInfo.threshold) {
                     TP++
                 } else {

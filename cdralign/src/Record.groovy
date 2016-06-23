@@ -1,9 +1,5 @@
 import com.milaboratory.core.sequence.AminoAcidSequence
 
-@Grapes(
-        @Grab(group = 'com.milaboratory', module = 'milib', version = '1.3')
-)
-
 class Record implements Serializable {
     final AminoAcidSequence cdr3
     final Gene gene

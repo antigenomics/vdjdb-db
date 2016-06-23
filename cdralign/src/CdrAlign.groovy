@@ -89,26 +89,8 @@ GParsPool.withPool(Runtime.getRuntime().availableProcessors()) {
 
 println "[CDRALIGN] Done, ${alignments.size()} alignments performed. Proceeding to optimization"
 
-// Write output
-//def oos = new ObjectOutputStream(new FileOutputStream("../" + gene + ".bin"))
-//oos.writeObject(alignments)
-//oos.close()
-
-//println "[CDRALIGN] Done."
-
-//println "[OPTIMIZESCORING] Loading alignments"
-
-//def alignments = new ObjectInputStream(new FileInputStream("../" + gene + ".bin")).readObject() as ConcurrentLinkedQueue<RecordAlignment>
-
-//println "[OPTIMIZESCORING] Done. ${alignments.size()} alignments loaded."
-
-def result = new Executor()
-        .distributeOnAllCores()
-        .withProblem(new ScoringProblem(alignments))
-        .withAlgorithm("NSGAIII")
-//.withProperty("populationSize", 200)
-        .withMaxEvaluations(1000)
-        .withProgressListener(new ProgressListener() {
+// Run optimization
+def listener = new ProgressListener() {
     @Override
     void progressUpdate(ProgressEvent event) {
         println "[MOEA stats]" + "\n" +
@@ -116,7 +98,14 @@ def result = new Executor()
                 "Number of function evaluations = " + event.currentNFE + "\n" +
                 "Percent complete = " + event.percentComplete
     }
-}).run()
+}
+def result = new Executor()
+        .distributeOnAllCores()
+        .withProblem(new ScoringProblem(alignments))
+        .withAlgorithm("NSGAII")
+        .withProperty("populationSize", 200)
+        .withMaxEvaluations(1000)
+        .withProgressListener(listener).run()
 
 //display the results
 def alphabet = AminoAcidSequence.ALPHABET

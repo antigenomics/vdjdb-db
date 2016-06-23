@@ -1,8 +1,5 @@
 import com.milaboratory.core.alignment.Alignment
 import com.milaboratory.core.alignment.LinearGapAlignmentScoring
-import com.milaboratory.core.sequence.AminoAcidSequence
-import org.moeaframework.core.Solution
-import org.moeaframework.core.variable.EncodingUtils
 
 import static com.milaboratory.core.mutations.Mutation.getFrom
 import static com.milaboratory.core.mutations.Mutation.getPosition
@@ -21,8 +18,8 @@ class SolutionInfo {
         this.threshold = threshold
     }
 
-    double computeScore(AminoAcidSequence reference,
-                        Alignment alignment) {
+    double computeScore(Alignment alignment) {
+        def reference = alignment.sequence1
         def mutations = alignment.absoluteMutations
         double score = 0
 
@@ -35,7 +32,6 @@ class SolutionInfo {
 
         for (int i = 0; i < mutations.size(); ++i) {
             int mutation = mutations.getMutation(i)
-            double weight = computeWeight(getPosition(mutation) - halfLength)
 
             double currentScore
             if (isInsertion(mutation)) {
@@ -47,7 +43,7 @@ class SolutionInfo {
                 currentScore -= scoring.getScore(from, from)
             }
 
-            score += currentScore * weight
+            score += currentScore * computeWeight(getPosition(mutation) - halfLength)
         }
 
         score
