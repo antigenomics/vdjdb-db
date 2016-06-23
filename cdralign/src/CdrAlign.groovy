@@ -11,7 +11,6 @@ import groovyx.gpars.GParsPool
 import org.moeaframework.Executor
 import org.moeaframework.core.Solution
 import org.moeaframework.util.progress.ProgressEvent
-import org.moeaframework.util.progress.ProgressHelper
 import org.moeaframework.util.progress.ProgressListener
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -107,12 +106,15 @@ def result = new Executor()
         .distributeOnAllCores()
         .withProblem(new ScoringProblem(alignments))
         .withAlgorithm("NSGAIII")
-        //.withProperty("populationSize", 200)
+//.withProperty("populationSize", 200)
         .withMaxEvaluations(1000)
         .withProgressListener(new ProgressListener() {
     @Override
     void progressUpdate(ProgressEvent event) {
-        println "" + [event.totalSeeds]
+        println "[MOEA stats]" + "\n" +
+                "Time elapsed = " + event.elapsedTime + "\n" +
+                "Number of function evaluations = " + event.currentNFE + "\n" +
+                "Percent complete = " + event.percentComplete
     }
 }).run()
 
@@ -124,7 +126,7 @@ def AAS = ['F', 'S', 'Y', 'C', 'W', 'L', 'P', 'H', 'Q', 'I',
 new File("../solutions.txt").withPrintWriter { pw ->
     pw.println("id\tparameter\tfrom\tto\tvalue")
     result.eachWithIndex { Solution solution, int index ->
-        def info = new ScoringProblem.SolutionInfo(solution)
+        def info = ScoringProblem.decode(solution)
 
         AAS.each { from ->
             AAS.each { to ->

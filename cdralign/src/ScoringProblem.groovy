@@ -43,13 +43,12 @@ class ScoringProblem extends AbstractProblem {
 
     @Override
     void evaluate(Solution solution) {
-        def solutionInfo = new SolutionInfo(solution)
+        def solutionInfo = decode(solution)
 
         int TP = 0, FP = 0, TN = 0, FN = 0
 
         alignments.each { RecordAlignment recordAlignment ->
-            double score = solutionInfo.computeScore(solutionInfo.scoring,
-                    recordAlignment.record1.cdr3,
+            double score = solutionInfo.computeScore(recordAlignment.record1.cdr3,
                     recordAlignment.alignment)
 
             if (recordAlignment.record1.antigen.any { recordAlignment.record2.antigen.contains(it) }) {
@@ -71,73 +70,30 @@ class ScoringProblem extends AbstractProblem {
         solution.setObjective(1, -TN / (double) Math.max(1, TN + FP))
     }
 
-    static class SolutionInfo {
-        final LinearGapAlignmentScoring scoring
-        final double threshold
-        final double mu, sigma
+    static SolutionInfo decode(Solution solution) {
+        double[] vars = EncodingUtils.getReal(solution)
 
-        SolutionInfo(Solution solution) {
-            double[] vars = EncodingUtils.getReal(solution)
+        int[] substitutionMatrix = new int[N_SUBST_2]
 
-            int[] substitutionMatrix = new int[N_SUBST_2]
-
-            int k = 0
-            for (int i = 0; i < N_SUBST_1; i++) {
-                for (int j = i; j < N_SUBST_1; j++) {
-                    int var = VAR_FACTOR * vars[k]
-                    substitutionMatrix[i * N_SUBST_1 + j] = var
-                    if (i != j)
-                        substitutionMatrix[j * N_SUBST_1 + i] = var
-                    k++
-                }
+        int k = 0
+        for (int i = 0; i < N_SUBST_1; i++) {
+            for (int j = i; j < N_SUBST_1; j++) {
+                int var = VAR_FACTOR * vars[k]
+                substitutionMatrix[i * N_SUBST_1 + j] = var
+                if (i != j)
+                    substitutionMatrix[j * N_SUBST_1 + i] = var
+                k++
             }
-
-            int gapPenalty = VAR_FACTOR * vars[k]
-            this.scoring = new LinearGapAlignmentScoring(AminoAcidSequence.ALPHABET, substitutionMatrix, gapPenalty)
-
-            this.mu = vars[++k]
-            this.sigma = vars[++k]
-            this.threshold = VAR_FACTOR * vars[++k]
         }
 
-        double computeScore(AminoAcidSequence reference,
-                            Alignment alignment) {
-            def mutations = alignment.absoluteMutations
-            double score = 0
+        int gapPenalty = VAR_FACTOR * vars[k]
+        def scoring = new LinearGapAlignmentScoring(AminoAcidSequence.ALPHABET, substitutionMatrix, gapPenalty)
 
-            double halfLength = reference.size() / 2.0
+        def mu = vars[++k]
+        def sigma = vars[++k]
+        def threshold = VAR_FACTOR * vars[++k]
 
-            for (int i = 0; i < reference.size(); i++) {
-                byte aa = reference.codeAt(i)
-                score += scoring.getScore(aa, aa) * computeWeight(i - halfLength)
-            }
-
-            for (int i = 0; i < mutations.size(); ++i) {
-                int mutation = mutations.getMutation(i)
-                double weight = computeWeight(getPosition(mutation) - halfLength)
-
-                double currentScore
-                if (isInsertion(mutation)) {
-                    currentScore = scoring.getGapPenalty()
-                } else {
-                    byte from = getFrom(mutation)
-                    currentScore = isDeletion(mutation) ? scoring.getGapPenalty() :
-                            (scoring.getScore(from, getTo(mutation)))
-                    currentScore -= scoring.getScore(from, from)
-                }
-
-                score += currentScore * weight
-            }
-
-            score
-        }
-
-        static final double TWO_PI_SQRT = Math.sqrt(2 * Math.PI)
-
-        double computeWeight(double x) {
-            double delta = x - mu
-            Math.exp(-delta * delta / sigma / sigma) / TWO_PI_SQRT / sigma
-        }
+        new SolutionInfo(scoring, mu, sigma, threshold)
     }
 
     @Override
