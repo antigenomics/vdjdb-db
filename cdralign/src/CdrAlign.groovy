@@ -90,16 +90,19 @@ GParsPool.withPool(Runtime.getRuntime().availableProcessors()) {
 println "[CDRALIGN] Done, ${alignments.size()} alignments performed. Proceeding to optimization"
 
 // Run optimization
-int popSize = 100, nGenerations = 5000
+int popSize = 100, nGenerations = 1000
 def listener = new ProgressListener() {
     @Override
     void progressUpdate(ProgressEvent event) {
         println "[MOEA stats] Number of generations = " + (event.currentNFE / popSize)
     }
 }
+
+def problem = new ScoringProblem(alignments)
+
 def result = new Executor()
         .distributeOnAllCores()
-        .withProblem(new ScoringProblem(alignments))
+        .withProblem(problem)
         .withAlgorithm("NSGAII")
         .withProperty("populationSize", popSize)
         .withMaxEvaluations(nGenerations * popSize)
@@ -113,7 +116,7 @@ def AAS = ['F', 'S', 'Y', 'C', 'W', 'L', 'P', 'H', 'Q', 'I',
 new File("../solutions.txt").withPrintWriter { pw ->
     pw.println("id\tparameter\tfrom\tto\tvalue")
     result.eachWithIndex { Solution solution, int index ->
-        def info = ScoringProblem.decode(solution)
+        def info = problem.decode(solution)
 
         AAS.each { from ->
             AAS.each { to ->
