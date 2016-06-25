@@ -1,0 +1,38 @@
+---
+title: "VDJdb summary statistics"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+df <- read.table("../database/vdjdb.slim.txt", header=T, sep="\t")
+```
+
+```{r}
+library(plyr)
+library(knitr)
+
+summarize_complexes <- function(ddf, column) {
+  ddply(ddf, column, summarize, records = length(complex.id), paired.records = sum(ifelse(complex.id=="0",0,1)))
+}
+
+kable(summarize_complexes(df, c("species","gene")))
+kable(summarize_complexes(subset(df, mhc.class=="MHCI"), c("species", "mhc.a")))
+kable(summarize_complexes(df, c("antigen.gene", "antigen.species")))
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(df, aes(x=vdjdb.score)) + geom_histogram() + theme_bw()
+```
+
+```{r}
+ggplot(df, aes(x=nchar(as.character(cdr3)), fill = antigen.gene)) + 
+  geom_histogram() + 
+  facet_grid(species~gene, scales="free_y") + theme_bw()
+```
