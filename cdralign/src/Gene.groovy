@@ -1,0 +1,3 @@
+enum Gene {
+    TRA, TRB
+}
