@@ -20,9 +20,9 @@ summarize_complexes <- function(ddf, column) {
   ddply(ddf, column, summarize, records = length(complex.id), paired.records = sum(ifelse(complex.id=="0",0,1)))
 }
 
-kable(summarize_complexes(df, c("species","gene")))
-kable(summarize_complexes(subset(df, mhc.class=="MHCI"), c("species", "mhc.a")))
-kable(summarize_complexes(df, c("antigen.gene", "antigen.species")))
+kable(format = "latex", summarize_complexes(df, c("species","gene")))
+kable(format = "latex", summarize_complexes(subset(df, mhc.class=="MHCI"), c("species", "mhc.a")))
+kable(format = "latex", summarize_complexes(df, c("antigen.gene", "antigen.species")))
 ```
 
 ```{r}
