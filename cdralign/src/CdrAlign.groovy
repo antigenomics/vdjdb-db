@@ -128,6 +128,9 @@ new File("../solutions.txt").withPrintWriter { pw ->
 
         pw.println(index + "\tgap\tNA\tNA\t" + info.scoring.gapPenalty)
         pw.println(index + "\tthreshold\tNA\tNA\t" + info.threshold)
+        info.positionWeights.eachWithIndex { double value, int i ->
+            pw.println(index + "\tposition_weight\t" + i + "\tNA\t" + value)
+        }
     }
 }
 
