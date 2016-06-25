@@ -172,6 +172,14 @@ def validators = [
         }
 ]
 
+def correctors = ["antigen.species", "antigen.gene"].collectEntries {
+    [(it): new File("../patches/$it").readLines().collect { it.split("\t") }]
+}
+
+def correct = { String text, String from, String to ->
+    text.trim().equalsIgnoreCase(from) ? to : text
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Read, validate and concatenate chunks
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -222,6 +230,16 @@ chunkFiles.each { chunkFile ->
             if (rowErrorMessages) {
                 chunkErrorMessages[rowSignature] = rowErrorMessages.toString()
             }
+        }
+    }
+
+    table.each { row ->
+        correctors.each { Map.Entry<String, List<String[]>> replacer ->
+            def val = row[replacer.key]
+            replacer.value.each { fromto ->
+                val = val.split(",").collect { correct(it, fromto[0], fromto[1]) }.join(",")
+            }
+            row[replacer.key] = val
         }
     }
 
