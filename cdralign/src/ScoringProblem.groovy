@@ -11,6 +11,7 @@ class ScoringProblem extends AbstractProblem {
 
     static final double MAX_DIAG = 1.0, MIN_NON_DIAG = -1.0, MIN_GAP = -1.0, VAR_FACTOR = 1000,
                         SCORE_RANGE = 20 * Math.max(MAX_DIAG, Math.max(-MIN_NON_DIAG, -MIN_GAP))
+
     static final int N_SUBST = AminoAcidSequence.ALPHABET.size() * (AminoAcidSequence.ALPHABET.size() + 1) / 2,
                      N_SUBST_1 = AminoAcidSequence.ALPHABET.size(),
                      N_SUBST_2 = N_SUBST_1 * N_SUBST_1,
@@ -81,7 +82,7 @@ class ScoringProblem extends AbstractProblem {
 
     @Override
     Solution newSolution() {
-        Solution solution = new Solution(N_VARS, 2)
+        Solution solution = new Solution(N_VARS + nPositionalWeights, 2)
 
         int k = 0
         for (int i = 0; i < N_SUBST_1; i++) {
@@ -97,6 +98,7 @@ class ScoringProblem extends AbstractProblem {
         for (int i = 0; i < nPositionalWeights; i++) {
             solution.setVariable(++k, new RealVariable(0, 1))
         }
+
         solution.setVariable(++k, new RealVariable(-SCORE_RANGE, SCORE_RANGE))
 
         solution
