@@ -28,7 +28,7 @@ def recordMap = new HashMap<String, Record>()
 
 def antigenCountMap = new HashMap<String, Integer>()
 
-def minDbScore = 0, species = "HomoSapiens", gene = "TRB"
+def minDbScore = 2, species = "HomoSapiens", gene = "TRB"
 
 def goodRecord = { List<String> record ->
     record[-1].toInteger() >= minDbScore && record[0] == gene && record[2] == species
@@ -46,7 +46,7 @@ new File("../../database/vdjdb.slim.txt").splitEachLine("\t") {
 }
 
 firstLine = true
-def minCdr3CountPerAntigen = 10
+def minCdr3CountPerAntigen = 5
 new File("../../database/vdjdb.slim.txt").splitEachLine("\t") {
     if (!firstLine) {
         if (goodRecord(it) && antigenCountMap[it[3]] >= minCdr3CountPerAntigen) {
@@ -62,7 +62,7 @@ new File("../../database/vdjdb.slim.txt").splitEachLine("\t") {
 sout "Loaded ${recordMap.size()} unique CDR3s."
 
 // align all-vs-all
-def searchParameters = new TreeSearchParameters(7, 3, 3, 10)
+def searchParameters = new TreeSearchParameters(5, 2, 2, 7)
 
 def treeMap = new SequenceTreeMap<AminoAcidSequence, Record>(AminoAcidSequence.ALPHABET)
 
@@ -110,7 +110,7 @@ def listener = new ProgressListener() {
 def problem = new ScoringProblem(alignments)
 
 def result = new Executor()
-        //.distributeOnAllCores()
+        .distributeOnAllCores()
         .withProblem(problem)
         .withAlgorithm("NSGAII")
         .withProperty("populationSize", popSize)
