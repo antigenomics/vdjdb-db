@@ -1,9 +1,12 @@
 import com.milaboratory.core.alignment.LinearGapAlignmentScoring
 import com.milaboratory.core.sequence.AminoAcidSequence
+import groovyx.gpars.GParsPool
 import org.moeaframework.core.Solution
 import org.moeaframework.core.variable.EncodingUtils
 import org.moeaframework.core.variable.RealVariable
 import org.moeaframework.problem.AbstractProblem
+
+import java.util.concurrent.atomic.AtomicInteger
 
 class ScoringProblem extends AbstractProblem {
     final Collection<RecordAlignment> alignments
@@ -28,28 +31,31 @@ class ScoringProblem extends AbstractProblem {
     void evaluate(Solution solution) {
         def solutionInfo = decode(solution)
 
-        int TP = 0, FP = 0, TN = 0, FN = 0
+        def TP = new AtomicInteger(), FP = new AtomicInteger(), TN = new AtomicInteger(), FN = new AtomicInteger()
 
-        alignments.each { RecordAlignment recordAlignment ->
-            double score = solutionInfo.computeScore(recordAlignment.alignment)
 
-            if (recordAlignment.antigensMatch) {
-                if (score >= solutionInfo.threshold) {
-                    TP++
+        GParsPool.withPool(Runtime.getRuntime().availableProcessors()) {
+            alignments.eachParallel { RecordAlignment recordAlignment ->
+                double score = solutionInfo.computeScore(recordAlignment.alignment)
+
+                if (recordAlignment.antigensMatch) {
+                    if (score >= solutionInfo.threshold) {
+                        TP.incrementAndGet()
+                    } else {
+                        FN.incrementAndGet()
+                    }
                 } else {
-                    FN++
-                }
-            } else {
-                if (score >= solutionInfo.threshold) {
-                    FP++
-                } else {
-                    TN++
+                    if (score >= solutionInfo.threshold) {
+                        FP.incrementAndGet()
+                    } else {
+                        TN.incrementAndGet()
+                    }
                 }
             }
         }
 
-        solution.setObjective(0, -TP / (double) Math.max(1, TP + FP))
-        solution.setObjective(1, -TP / (double) Math.max(1, TP + FN))
+        solution.setObjective(0, -TP.get() / (double) Math.max(1, TP.get() + FP.get()))
+        solution.setObjective(1, -TP.get() / (double) Math.max(1, TP.get() + FN.get()))
     }
 
     SolutionInfo decode(Solution solution) {

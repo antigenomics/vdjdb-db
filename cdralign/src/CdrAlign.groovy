@@ -110,7 +110,7 @@ def listener = new ProgressListener() {
 def problem = new ScoringProblem(alignments)
 
 def result = new Executor()
-        .distributeOnAllCores()
+        //.distributeOnAllCores()
         .withProblem(problem)
         .withAlgorithm("NSGAII")
         .withProperty("populationSize", popSize)
