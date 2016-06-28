@@ -18,7 +18,11 @@ import java.util.concurrent.atomic.AtomicInteger
 
 // requires a pre-built database
 // load records
-println "[CDRALIGN] Loading database"
+def sout = {
+    println "[CDRALING ${new Date().toString()}] $it"
+}
+
+sout "Loading database"
 
 def recordMap = new HashMap<String, Record>()
 
@@ -55,7 +59,7 @@ new File("../../database/vdjdb.slim.txt").splitEachLine("\t") {
     }
 }
 
-println "[CDRALIGN] Loaded ${recordMap.size()} unique CDR3s."
+sout "Loaded ${recordMap.size()} unique CDR3s."
 
 // align all-vs-all
 def searchParameters = new TreeSearchParameters(7, 3, 3, 10)
@@ -66,7 +70,7 @@ recordMap.values().each {
     treeMap.put(it.cdr3, it)
 }
 
-println "[CDRALIGN] Performing alignments."
+sout "Performing alignments."
 
 def alignments = new ConcurrentLinkedQueue<RecordAlignment>()
 def counter = new AtomicInteger()
@@ -86,20 +90,20 @@ GParsPool.withPool(Runtime.getRuntime().availableProcessors()) {
 
         int counterVal
         if ((counterVal = counter.incrementAndGet()) % 100 == 0) {
-            println "[CDRALIGN] Done all alignments for $counterVal records, " +
+            sout "Done all alignments for $counterVal records, " +
                     "total number of aligned CDR3 pairs is ${alignments.size()}"
         }
     }
 }
 
-println "[CDRALIGN] Done, ${alignments.size()} alignments performed. Proceeding to optimization"
+sout "Done, ${alignments.size()} alignments performed. Proceeding to optimization"
 
 // Run optimization
-int popSize = 100, nGenerations = 1000
+int popSize = 100, nGenerations = 5000
 def listener = new ProgressListener() {
     @Override
     void progressUpdate(ProgressEvent event) {
-        println "[MOEA stats] Number of generations = " + (event.currentNFE / popSize)
+        sout "[MOEA stats] Number of generations = " + (event.currentNFE / popSize)
     }
 }
 
