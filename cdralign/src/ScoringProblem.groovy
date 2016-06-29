@@ -54,8 +54,8 @@ class ScoringProblem extends AbstractProblem {
             }
         }
 
-        solution.setObjective(0, -TP / (double) Math.max(1, TP + FP))
-        solution.setObjective(1, -TP / (double) Math.max(1, TP + FN))
+        solution.setObjective(0, -TP / (double) Math.max(1, TP + FN))
+        solution.setObjective(1, -TN / (double) Math.max(1, TN + FP))
     }
 
     SolutionInfo decode(Solution solution) {

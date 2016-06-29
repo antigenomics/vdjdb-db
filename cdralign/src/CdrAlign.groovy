@@ -144,7 +144,7 @@ new File("../solutions.txt").withPrintWriter { pw ->
 }
 
 new File("../roc.txt").withPrintWriter { pw ->
-    pw.println("id\tprecision\trecall")
+    pw.println("id\tsensitivity\tspecificity")
     result.eachWithIndex { Solution solution, int index ->
         pw.println(index + "\t" + solution.getObjective(0) + "\t" + solution.getObjective(1))
     }
