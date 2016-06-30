@@ -117,7 +117,7 @@ meta.replica.id | Replicate sample coming from the same donor, also applies for 
 meta.clone.id | T-cell clone id
 meta.epitope.id | Epitope id (e.g. ``FL10``)
 meta.tissue | Tissue used to isolate T-cells: ``PBMC``, ``spleen``,... or ``TCL`` (T-cell culture) if isolated from re-stimulated T-ells
-meta.donor.MHC | Donor MHC list if available, blank otherwise. IMGT specification (e.g. HLA-A*02:01) is preferable. Allele group names (e.g. HLAA-02) is also acceptable (don't use asterisk in such cases)
+meta.donor.MHC | Donor MHC list if available, blank otherwise. IMGT specification (e.g. HLA-A*02:01) is preferable. Allele group names (e.g. A02) is also acceptable (don't use asterisk in such cases)
 meta.donor.MHC.method | Donor MHC typing method if available, blank otherwise
 meta.structure.id | PDB structure ID if exists, or blank
 comment | Plain text comment, maximum 140 characters
