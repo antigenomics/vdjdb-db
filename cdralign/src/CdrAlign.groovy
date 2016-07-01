@@ -28,10 +28,11 @@ def recordMap = new HashMap<String, Record>()
 
 def antigenCountMap = new HashMap<String, Integer>()
 
-def minDbScore = 2, species = "HomoSapiens", gene = "TRB"
+def minDbScore = 2, species = "HomoSapiens"//, gene = "TRB"
 
 def goodRecord = { List<String> record ->
-    record[-1].toInteger() >= minDbScore && record[0] == gene && record[2] == species
+    record[-1].toInteger() >= minDbScore && //record[0] == gene &&
+            record[2] == species
 }
 
 def firstLine = true
@@ -99,7 +100,7 @@ GParsPool.withPool(Runtime.getRuntime().availableProcessors()) {
 sout "Done, ${alignments.size()} alignments performed. Proceeding to optimization"
 
 // Run optimization
-int popSize = 100, nGenerations = 5000
+int popSize = 200, nGenerations = 1000
 def listener = new ProgressListener() {
     @Override
     void progressUpdate(ProgressEvent event) {
