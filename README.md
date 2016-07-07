@@ -244,7 +244,7 @@ score | description
 
 ## Database build contents
 
-After the ``BuildDatabase.groovy`` script is ran, the final database assembly can be found in the ``database/`` folder:
+The final database assembly can be found in the ``database/`` folder upon execution of ``BuildDatabase.groovy`` script:
 
 * ``vdjdb_full.txt`` - combined chunks with TCRalpha/beta records, antigen information, etc. All method and meta information are collapsed into two columns with corresponding names. VDJdb scores and CDR3 fixing information for TCR alpha and beta are given in separate columns.
 * ``vdjdb.txt`` - a collapsed version of database used for annotation of single-chain TCR sequencing data by VDJdb-standalone software. Each line corresponds to either TCR alpha or TCR beta record as specified by the ``gene`` column. TCR records coming from the same alpha-beta pair have the same index in ``complex.id`` column. In case ``complex.id`` is equal to ``0`` a record doesn't have either TCRalpha or TCRbeta chain information
