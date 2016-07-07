@@ -231,16 +231,16 @@ VDJdb scoring is performed by evaluating TCR sequence, identification and verifi
     * staining-based - 1 points
     * If verification is performed, then the TCR sequence is assumed to be known, so score from ``1.`` is set to 3
 
-The final score is then calculated as minimal of score from ``1.`` and sum of ``2.`` and ``3.`` scores.
+The final score is then calculated as minimal between score from part ``1.`` and sum of scores from part ``2.`` and part ``3.``.
 
 Maximal score is then selected among different records (independent submissions, replicas, etc) pointing to the same unique complex entry (i.e. set of unique **complex** fields).
 
 score | description
 ------|----------------------
-0     | No data (a critical aspect of sequencing/specificity validation is missing)
-1     | Low confidence (no verification / poor TCR sequence confidence)
-2     | Moderate confidence (has some specificity verification, good TCR sequence confidence)
-3     | High confidence (has extensive verification or structural data)
+0     | Low confidence/no information (a critical aspect of sequencing/specificity validation is missing)
+1     | Moderate confidence (no verification / poor TCR sequence confidence)
+2     | High confidence (has some specificity verification, good TCR sequence confidence)
+3     | Very high confidence (has extensive verification or structural data)
 
 ## Database build contents
 
