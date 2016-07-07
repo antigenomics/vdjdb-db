@@ -82,7 +82,7 @@ Optional columns (i.e. it is not required to fill them, but they **should** be p
 
 column name     | description
 ----------------|-------------
-method.identification | ``tetramer``, ``dextramer``, ``pelimer``, ``pentamer``, etc for sorting-based identification. For molecular assays use: ``antigen-loaded-targets``, ``antigen-expressing-targets``, or ``other``
+method.identification | ``tetramer-sort``, ``dextramer-sort``, ``pelimer-sort``, ``pentamer-sort``, etc for sorting-based identification. For molecular assays use: ``antigen-loaded-targets`` (if T cells specificity was analysed against cells incubatetd with antigenic peptide), ``antigen-expressing-targets`` (if T cells specificity was analysed against cells tranformed with antigenic organism, protein or peptide, e.g. BCL transformed with EBV), or ``other`` (briefly (several words) describe method in comment). Add ``cultured-T-cells`` or ``limiting-dilution-cloning`` if T cells were cultured before sequencing. Use comma to separate phrases.
 method.frequency | Frequency in isolated antigen-specific population, reported as ``X/X``. E.g. ``7/30`` if a given V/D/J/CDR3 is encountered in 7 out of 30 tetramer+ clones
 method.singlecell | ``yes`` if single cell sequencing was performed, blank otherwise
 method.sequencing | Sequencing method: ``sanger``, ``rna-seq`` or ``amplicon-seq``
@@ -117,7 +117,7 @@ meta.replica.id | Replicate sample coming from the same donor, also applies for 
 meta.clone.id | T-cell clone id
 meta.epitope.id | Epitope id (e.g. ``FL10``)
 meta.tissue | Tissue used to isolate T-cells: ``PBMC``, ``spleen``,... or ``TCL`` (T-cell culture) if isolated from re-stimulated T-ells
-meta.donor.MHC | Donor MHC list if available, blank otherwise
+meta.donor.MHC | Donor MHC list if available, blank otherwise. IMGT specification (e.g. HLA-A*02:01) is preferable. Allele group names (e.g. A02,B18) is also acceptable (don't use asterisk in such cases). Use comma to separate alleles
 meta.donor.MHC.method | Donor MHC typing method if available, blank otherwise
 meta.structure.id | PDB structure ID if exists, or blank
 comment | Plain text comment, maximum 140 characters
