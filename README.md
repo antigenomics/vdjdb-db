@@ -33,15 +33,19 @@ To submit previously published sequence follow the steps below:
 
 * Create a pull request for the branch and check if it passes the CI build. If there are any issues, modify them by fixing/removing entries as necessary.
 
-The ``BuildDatabase`` routine ran during CI tests upon each submission and prior to every database release implements table format checks, CDR3 sequence checks and fixes (if possible), and VDJdb confidence score assignment (see below).
+The structure of submission chunk is provided below, but first a couple of notes:
+
+> **STYLE** Try avoiding spaces (e.g. ``TRBV7,TRBV5``, not ``TRBV7, TRBV5``) and leave fields that have no information as blank (don't use any placeholder). Stick to listed field values at all cost! In case a critical part of your submission doesn't fit in current specification: 1) Create an issue in the issues section (and tag it as ``maintainance``), 2) provide us with an example (e.g. open a pull request). Do not insert critical information into the comment field.
+
+> **FORMAT** Please ensure that Variable/Joining and MHC names in your submission come from IMGT nomenclature (this does not apply to donor MHC typing fields).
+
+The ``BuildDatabase`` routine will be executed during CI tests upon each submission and prior to every database release implements table format checks, CDR3 sequence checks and fixes (if possible), and VDJdb confidence score assignment (see below).
 
 To view the list of papers that were not yet processed follow [here](https://github.com/antigenomics/vdjdb-db/labels/paper).
 
 An XLS template is available [here](https://raw.githubusercontent.com/antigenomics/vdjdb-db/master/template.xls).
 
 > **CAUTION** make sure that nothing is messed up (``x/X`` frequencies are transformed to dates, bad encoding, etc) when importing from XLS template. The format of all fields is pre-set to *text* to prevent this case.
-
-> **STYLE NOTE** Try avoiding spaces (e.g. ``TRBV7,TRBV5``, not ``TRBV7, TRBV5``) and leave fields that have no information as blank (don't use any placeholder). Stick to listed field values at all cost! In case a critical part of your submission doesn't fit in current specification: 1) Create an issue in the issues section (and tag it as ``maintainance``), 2) provide us with an example (e.g. open a pull request). Do not insert critical information into the comment field.
 
 ## Database specification
 
