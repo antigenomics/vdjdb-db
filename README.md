@@ -211,23 +211,38 @@ field | description
 
 ### VDJdb scoring
 
-At the final stage of database processing, TCR:peptide:MHC complexes are assigned with confidence scores. Scores are computed according to reported **method** entries. First, a score is assigned to identification method. In case a given complex was identified using multimer sorting, frequency of a given TCR sequence among sorted population is taken into account. Additional score points are assigned in case one or more verification steps are reported for a given entry.
+At the final stage of database processing, TCR:peptide:MHC complexes are assigned with confidence scores. Scores are computed according to reported **method** entries. 
 
-Max score is then selected among different records (independent submissions, replicas, etc) pointing to the same unique complex entry (i.e. set of unique **complex** fields).
+VDJdb scoring is performed by evaluating TCR sequence, identification and verification confidence based on the following criteria:
 
-> **Note:** A record that has a ``meta.structure.id``, i.e. a structural data associated with it, automatically gets the highest VDJdb score possible.
+1. Ensuring TCR sequence is correctly identified according to ``method.sequencing`` and ``method.singlecell`` (0-3 points)
+    * sanger - several cells sequenced (2+ cells sequenced according to ``method.frequency``)
+    * amplicon-seq - frequency is higher than ``0.01``
+    * single-cell - 3 points if performed
+2. Initial identification of TCR:pMHC is correct according to ``method.identification`` (0-1 point)
+    * sort-based - frequency is higher than ``0.1`` according to ``method.frequency``)
+    * culture-based - frequency is higher than ``0.5``
+    * limiting dilution/culture prior to sequencing - the ``method.frequency`` becomes somewhat ambigous, check if it is higher than ``0.5``
+3. Verification T-cell specificity (0-3 points)
+    * direct method - 3 points, e.g. has PDB id (``meta.structure.id`` is not empty) or some other method that directly evaluates TCR:pMHC binding
+    * target stimulation-based - 2 points
+    * staining-based - 1 points
+    * If verification is performed, then the TCR sequence is assumed to be known, so score from ``1.`` is set to 3
+
+The final score is then calculated as minimal of score from ``1.`` and sum of ``2.`` and ``3.`` scores.
+
+Maximal score is then selected among different records (independent submissions, replicas, etc) pointing to the same unique complex entry (i.e. set of unique **complex** fields).
 
 score | description
 ------|----------------------
-0     | No data
-1     | Low-confidence
-2     | Medium-confidence
-3-6   | High-confidence
-7     | Has structural data
+0     | No data (a critical aspect of sequencing/specificity validation is missing)
+1     | Low confidence (no verification / poor TCR sequence confidence)
+2     | Moderate confidence (has some specificity verification, good TCR sequence confidence)
+3     | High confidence (has extensive verification or structural data)
 
 ## Database build contents
 
-After the ``BuildDatabase.groovy`` script is run, the final database assembly can be found in the ``database/`` folder:
+After the ``BuildDatabase.groovy`` script is ran, the final database assembly can be found in the ``database/`` folder:
 
 * ``vdjdb_full.txt`` - combined chunks with TCRalpha/beta records, antigen information, etc. All method and meta information are collapsed into two columns with corresponding names. VDJdb scores and CDR3 fixing information for TCR alpha and beta are given in separate columns.
 * ``vdjdb.txt`` - a collapsed version of database used for annotation of single-chain TCR sequencing data by VDJdb-standalone software. Each line corresponds to either TCR alpha or TCR beta record as specified by the ``gene`` column. TCR records coming from the same alpha-beta pair have the same index in ``complex.id`` column. In case ``complex.id`` is equal to ``0`` a record doesn't have either TCRalpha or TCRbeta chain information

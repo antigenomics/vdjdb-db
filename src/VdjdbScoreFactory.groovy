@@ -20,49 +20,131 @@ class VdjdbScoreFactory {
 
     VdjdbScoreFactory(Table masterTable) {
         masterTable.each { row ->
-            def sign = getSignature(row)//, score = getScore(row)
+            def sign = getSignature(row)
 
-            def score = 0
+            def score
             if (row["meta.structure.id"].trim().length() > 0) {
-                score += 7 // we have structure, any questions? :)
+                score = 3 // we have structure, any questions? :)
             } else {
+                /*
+                    - We are sure that we have correct TCR sequence (+0 or +2)
+                      sanger - several cells sequenced (2+)
+                      single-cell - sure automatically
+                      amplicon-seq - frequency is higher than 0.01
+
+                    - We have moderate confidence about T-cell specificity (+0 or +2)
+                      sort-based method - frequency is higher than 0.1
+                      culture-based method - frequency is higher than 0.5
+                      limiting dilution/culture performed - frequency is higher than 0.5
+
+                    - We have high confidence about T-cell specificity (+0 or +3..+5)
+                      direct method - best
+                      stimulation-based - medium
+                      sort-based worst
+                 */
+
+                def freqStr = row["method.frequency"].trim()
+                def freq = getFrequency(freqStr),
+                    count = getNumberOfCells(freqStr)
+
+                // sequencing
+                def seqScore = 0
+
+                def singleCell = row["method.singlecell"].trim().toLowerCase()
+
+                if (singleCell.length() > 0 && singleCell != "no") {
+                    seqScore = 3
+                } else {
+                    switch (row["method.sequencing"].trim().toLowerCase()) {
+                        case "sanger":
+                            seqScore = count >= 2 ? 3 : 2
+                            break
+                        case "amplicon-seq":
+                            seqScore = freq >= 0.01f ? 3 : 1
+                            break
+                    }
+                }
+
+                // Moderate confidence regarding specificity
+                def identifyMethod = row["method.identification"].toLowerCase().trim()
+
+                def specScore1 = 0
+
+                if (cultureBasedIdentification(identifyMethod)) {
+                    specScore1 = freq >= 0.5f ? 1 : 0
+                } else {
+                    if (sortBasedMethod(identifyMethod)) {
+                        specScore1 = freq >= 0.1f ? 1 : 0
+                    } else if (stimulationBasedMethod(identifyMethod)) {
+                        specScore1 = freq >= 0.5f ? 1 : 0
+                    }
+                }
+
+                // High confidence regarding specificity
                 def verifyMethod = row["method.verification"].toLowerCase()
 
-                if (verifyMethod.contains("targets")) {
-                    // Verification with target cells
-                    score += 3
-                } else if (verifyMethod.contains("stain") || verifyMethod.contains("sort")) {
+                def specScore2 = 0
+
+                if (directVerification(verifyMethod)) {
+                    // A direct method to observe TCR specificity
+                    specScore2 = 3
+                } else if (stimulationBasedMethod(verifyMethod)) {
+                    // Verification by target lysis, etc
+                    specScore2 = 2
+                    seqScore = 3 // tcr was cloned
+                } else if (sortBasedMethod(verifyMethod)) {
                     // Verification by cloning & re-staining
-                    score += 2
+                    specScore2 = 1
+                    seqScore = 3 // tcr was cloned
                 }
-				
-                def method = row["method.identification"].toLowerCase().trim()
-                if (method.length() > 0) {
-                    score += 1
 
-                    def freqThreshold = method.contains("sort") ? 0.1 : 0.5
-
-                    // If identified using tetramer use frequency to assign score
-                    // Otherwise score is 0
-                    def freq = row["method.frequency"].trim()
-
-                    if (freq.length() > 0) {
-                        def x = freq.split("/+").collect { it.toInteger() }
-
-                        if (x[0] > 1 && (x[0] / (double) x[1]) >= freqThreshold) {
-                            score += 1
-                        }
-                    }
-
-                    if (row["method.singlecell"].trim().length() > 0) {
-                        // Single-cell sequencing performed
-                        score += (verifyMethod.contains("direct") ? 3 : 1) // direct verification by single-cell sorting of pMHC binding T-cells
-                    }
-                }
+                score = Math.min(seqScore, specScore1 + specScore2)
             }
 
             scoreMap[sign] = Math.max(scoreMap[sign] ?: 0, score)
         }
+    }
+
+    static int getNumberOfCells(String freq) {
+        if (freq.length() == 0) {
+            return 0
+        }
+        freq.contains('/') ? freq.split("/+")[0].toInteger() : 0
+    }
+
+    static float getFrequency(String freq) {
+        if (freq.length() == 0) {
+            return 0
+        }
+        if (freq.contains('/')) {
+            def x = freq.split("/+").collect { it.toFloat() }
+            return x[0] / x[1]
+        } else if (freq.endsWith('%') && freq.length() > 1) {
+            return freq[0..-2].toFloat() / 100.0
+        } else {
+            return freq.toFloat()
+        }
+    }
+
+    static boolean sortBasedMethod(String method) {
+        // Sorting, magnetic separation, etc
+        method.contains("sort") || method.contains("beads") ||
+                method.contains("separation") || method.contains("stain")
+    }
+
+    static boolean stimulationBasedMethod(String method) {
+        // Indentification / verification by cloning with ag-loaded target cells, etc
+        method.contains("targets")
+    }
+
+    static boolean cultureBasedIdentification(String method) {
+        // Cultured prior to sequencing => frequency doesn't tell much
+        method.contains("culture") || method.contains("cloning")
+    }
+
+    static boolean directVerification(String method) {
+        // Verification by direct monitoring of pMHC binding
+        method.contains("direct")
     }
 
     static final List<String> SIGNATURE_COLS = [
