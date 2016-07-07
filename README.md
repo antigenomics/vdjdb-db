@@ -41,6 +41,8 @@ An XLS template is available [here](https://raw.githubusercontent.com/antigenomi
 
 > **CAUTION** make sure that nothing is messed up (``x/X`` frequencies are transformed to dates, bad encoding, etc) when importing from XLS template. The format of all fields is pre-set to *text* to prevent this case.
 
+> **NOTE** Try avoiding spaces (e.g. ``TRBV7,TRBV5``, not ``TRBV7, TRBV5``) and leave fields that have no information as blank (don't use any placeholder).
+
 ## Database specification
 
 Each database submission in ``chunks/`` folder should have the following header and columns:
@@ -82,11 +84,11 @@ Optional columns (i.e. it is not required to fill them, but they **should** be p
 
 column name     | description
 ----------------|-------------
-method.identification | ``tetramer-sort``, ``dextramer-sort``, ``pelimer-sort``, ``pentamer-sort``, etc for sorting-based identification. For molecular assays use: ``antigen-loaded-targets`` (if T cells specificity was analysed against cells incubatetd with antigenic peptide), ``antigen-expressing-targets`` (if T cells specificity was analysed against cells tranformed with antigenic organism, protein or peptide, e.g. BCL transformed with EBV), or ``other`` (briefly (several words) describe method in comment). Add ``cultured-T-cells`` or ``limiting-dilution-cloning`` if T cells were cultured before sequencing. Use comma to separate phrases.
-method.frequency | Frequency in isolated antigen-specific population, reported as ``X/X``. E.g. ``7/30`` if a given V/D/J/CDR3 is encountered in 7 out of 30 tetramer+ clones
+method.identification | ``tetramer-sort``, ``dextramer-sort``, ``pelimer-sort``, ``pentamer-sort``, etc for sorting-based identification. For molecular assays use: ``antigen-loaded-targets`` (if T cells specificity was analysed against cells incubatetd with antigenic peptide), ``antigen-expressing-targets`` (if T cells specificity was analysed against cells tranformed with antigenic organism, protein or peptide, e.g. BCL transformed with EBV), or ``other`` (briefly (several words) describe method in comment). Add ``cultured-T-cells`` or ``limiting-dilution-cloning`` if T cells were cultured before sequencing as in this case ``method.frequency`` will have completely different meaning. Use comma to separate phrases.
+method.frequency | Frequency in isolated antigen-specific population, reported as ``X/X`` if possible, e.g. ``7/30`` if a given V/D/J/CDR3 is encountered in 7 out of 30 tetramer+ clones. Formats ``X%``, ``X.X%`` and ``X.X`` are also supported.
 method.singlecell | ``yes`` if single cell sequencing was performed, blank otherwise
 method.sequencing | Sequencing method: ``sanger``, ``rna-seq`` or ``amplicon-seq``
-method.verification | ``tetramer``, ``dextramer``, ``pelimer``, ``pentamer``, etc for methods that include TCR cloning and re-staining with multimers. ``antigen-loaded-targets``, ``antigen-expressing-targets`` for molecular assays. ``direct`` in case pMHC binding T-cells are directly subject to single-cell sequencing. Several comma-separated verification methods can be specified.
+method.verification | ``tetramer-stain``, ``dextramer-stain``, ``pelimer-stain``, ``pentamer-stain``, etc for methods that include TCR cloning and re-staining with multimers. ``antigen-loaded-targets``, ``antigen-expressing-targets`` for molecular assays that validate specificity of **cloned** T-cell receptors. ``direct`` in case pMHC binding T-cells are directly subject to single-cell sequencing. Several comma-separated verification methods can be specified.
 
 > **Notes:**
 
@@ -117,9 +119,9 @@ meta.replica.id | Replicate sample coming from the same donor, also applies for 
 meta.clone.id | T-cell clone id
 meta.epitope.id | Epitope id (e.g. ``FL10``)
 meta.tissue | Tissue used to isolate T-cells: ``PBMC``, ``spleen``,... or ``TCL`` (T-cell culture) if isolated from re-stimulated T-ells
-meta.donor.MHC | Donor MHC list if available, blank otherwise. IMGT specification (e.g. HLA-A*02:01) is preferable. Allele group names (e.g. A02,B18) is also acceptable (don't use asterisk in such cases). Use comma to separate alleles
+meta.donor.MHC | Donor MHC list if available, blank otherwise. IMGT specification (e.g. HLA-A*02:01) is preferable. Allele group names (e.g. A02,B18) is also acceptable (don't use asterisk in such cases). Use comma to separate alleles.
 meta.donor.MHC.method | Donor MHC typing method if available, blank otherwise
-meta.structure.id | PDB structure ID if exists, or blank
+meta.structure.id | PDB structure ID if exists, or blank. Records having a structural data associated with them will automatically get the highest confidence score.
 comment | Plain text comment, maximum 140 characters
 
 > **Note:**

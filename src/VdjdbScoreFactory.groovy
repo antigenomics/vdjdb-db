@@ -47,6 +47,8 @@ class VdjdbScoreFactory {
                 def freq = getFrequency(freqStr),
                     count = getNumberOfCells(freqStr)
 
+                assert freq <= 1.0f
+
                 // sequencing
                 def seqScore = 0
 
@@ -120,7 +122,7 @@ class VdjdbScoreFactory {
             def x = freq.split("/+").collect { it.toFloat() }
             return x[0] / x[1]
         } else if (freq.endsWith('%') && freq.length() > 1) {
-            return freq[0..-2].toFloat() / 100.0
+            return freq[0..-2].toFloat() / 100.0f
         } else {
             return freq.toFloat()
         }
