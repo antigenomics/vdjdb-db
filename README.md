@@ -41,7 +41,7 @@ An XLS template is available [here](https://raw.githubusercontent.com/antigenomi
 
 > **CAUTION** make sure that nothing is messed up (``x/X`` frequencies are transformed to dates, bad encoding, etc) when importing from XLS template. The format of all fields is pre-set to *text* to prevent this case.
 
-> **NOTE** Try avoiding spaces (e.g. ``TRBV7,TRBV5``, not ``TRBV7, TRBV5``) and leave fields that have no information as blank (don't use any placeholder).
+> **STYLE NOTE** Try avoiding spaces (e.g. ``TRBV7,TRBV5``, not ``TRBV7, TRBV5``) and leave fields that have no information as blank (don't use any placeholder). Stick to listed field values at all cost! In case a critical part of your submission doesn't fit in current specification: 1) Create an issue in the issues section (and tag it as ``maintainance``), 2) provide us with an example (e.g. open a pull request). Do not insert critical information into the comment field.
 
 ## Database specification
 
