@@ -58,7 +58,7 @@ These columns convey full information about TCR:peptide:MHC complex and are mand
 column name     | description
 ----------------|-------------
 cdr3.alpha | TCR alpha CDR3 amino acid sequence. Complete sequence starting with C and ending with F/W should be provided if possible. Trimmed sequences will be fixed at database building stage in case sufficient V/J germline parts are present
-v.alpha | TCR alpha Variable (V) segment id, up to best resolution possible (``TRAVX*XX``, e.g. ``TRAV7``, ``TRAV7*01``, ``TRAV7*02``...). 
+v.alpha | TCR alpha Variable (V) segment id, up to best resolution possible (``TRAVX*XX``, e.g. ``TRAV7``, ``TRAV7*01``, ``TRAV7*02``...). Strictly IMGT nomenclature. Can be left blank if unknown.
 j.alpha | TCR alpha Joining (J) segment id
 cdr3.beta | TCR beta CDR3 amino acid sequence
 v.beta | TCR beta V segment id
@@ -88,11 +88,11 @@ Optional columns (i.e. it is not required to fill them, but they **should** be p
 
 column name     | description
 ----------------|-------------
-method.identification | ``tetramer-sort``, ``dextramer-sort``, ``pelimer-sort``, ``pentamer-sort``, etc for sorting-based identification. For molecular assays use: ``antigen-loaded-targets`` (if T cells specificity was analysed against cells incubatetd with antigenic peptide), ``antigen-expressing-targets`` (if T cells specificity was analysed against cells tranformed with antigenic organism, protein or peptide, e.g. BCL transformed with EBV), or ``other`` (briefly (several words) describe method in comment). Add ``cultured-T-cells`` or ``limiting-dilution-cloning`` if T cells were cultured before sequencing as in this case ``method.frequency`` will have completely different meaning. Use comma to separate phrases.
+method.identification | ``tetramer-sort``, ``dextramer-sort``, ``pelimer-sort``, ``pentamer-sort``, etc for sorting-based identification. For molecular assays use: ``antigen-loaded-targets`` (if T cells specificity was analysed against cells incubatetd with antigenic peptide), ``antigen-expressing-targets`` (if T cells specificity was analysed against cells tranformed with antigenic organism, protein or peptide, e.g. BCL transformed with EBV). For magnetic cell separation use ``beads`` keyword. Add ``cultured-T-cells`` or ``limiting-dilution-cloning`` if T cells were cultured before sequencing as in this case ``method.frequency`` will have completely different meaning. Use comma to separate phrases.
 method.frequency | Frequency in isolated antigen-specific population, reported as ``X/X`` if possible, e.g. ``7/30`` if a given V/D/J/CDR3 is encountered in 7 out of 30 tetramer+ clones. Formats ``X%``, ``X.X%`` and ``X.X`` are also supported.
 method.singlecell | ``yes`` if single cell sequencing was performed, blank otherwise
 method.sequencing | Sequencing method: ``sanger``, ``rna-seq`` or ``amplicon-seq``
-method.verification | ``tetramer-stain``, ``dextramer-stain``, ``pelimer-stain``, ``pentamer-stain``, etc for methods that include TCR cloning and re-staining with multimers. ``antigen-loaded-targets``, ``antigen-expressing-targets`` for molecular assays that validate specificity of **cloned** T-cell receptors. ``direct`` in case pMHC binding T-cells are directly subject to single-cell sequencing. Several comma-separated verification methods can be specified.
+method.verification | ``tetramer-stain``, ``dextramer-stain``, ``pelimer-stain``, ``pentamer-stain``, etc for methods that include TCR cloning and re-staining with multimers. For magnetic cell separation use ``beads`` keyword. ``antigen-loaded-targets``, ``antigen-expressing-targets`` for molecular assays that validate specificity of **cloned** T-cell receptors. ``direct`` in case pMHC binding T-cells are directly subject to single-cell sequencing. Several comma-separated verification methods can be specified.
 
 > **Notes:**
 
@@ -117,13 +117,13 @@ column name     | description
 meta.study.id | Internal study id
 meta.cell.subset | T-cell subset, free style, e.g. ``CD8+``, ``CD4+CD25+``
 meta.subset.frequency | Frequency of a given TCR sequence in specified cell subset, e.g. ``5%`` means that the TCR sequence represents an expanded clone occupying 5% of CD8+ cells
-meta.subject.cohort | Subject cohort, free style, e.g. ``healthy``, ``HIV+``,...
+meta.subject.cohort | Subject cohort, free style, e.g. ``healthy`` or ``HIV+``. If possible, specify to what extent a healthy donor is healthy, e.g. ``CMV-seronegative``.
 meta.subject.id | Subject id (e.g. ``donor1``, ``donor2``,...)
 meta.replica.id | Replicate sample coming from the same donor, also applies for different time points, etc (e.g. ``5mo``)
 meta.clone.id | T-cell clone id
 meta.epitope.id | Epitope id (e.g. ``FL10``)
-meta.tissue | Tissue used to isolate T-cells: ``PBMC``, ``spleen``,... or ``TCL`` (T-cell culture) if isolated from re-stimulated T-ells
-meta.donor.MHC | Donor MHC list if available, blank otherwise. IMGT specification (e.g. HLA-A*02:01) is preferable. Allele group names (e.g. A02,B18) is also acceptable (don't use asterisk in such cases). Use comma to separate alleles.
+meta.tissue | Tissue used to isolate T-cells: ``PBMC``, ``spleen``, etc. or ``TCL`` (T-cell culture) if isolated from re-stimulated T-cells
+meta.donor.MHC | Donor MHC list if available, blank otherwise. IMGT nomenclature (e.g. HLA-A*02:01) is preferable. Allele group names (e.g. ``A02``, ``B18``) is also acceptable (don't use asterisk in such cases). Use comma to separate alleles.
 meta.donor.MHC.method | Donor MHC typing method if available, blank otherwise
 meta.structure.id | PDB structure ID if exists, or blank. Records having a structural data associated with them will automatically get the highest confidence score.
 comment | Plain text comment, maximum 140 characters
@@ -241,10 +241,10 @@ Maximal score is then selected among different records (independent submissions,
 
 score | description
 ------|----------------------
-0     | Low confidence/no information (a critical aspect of sequencing/specificity validation is missing)
-1     | Moderate confidence (no verification / poor TCR sequence confidence)
-2     | High confidence (has some specificity verification, good TCR sequence confidence)
-3     | Very high confidence (has extensive verification or structural data)
+0     | Low confidence/no information - a critical aspect of sequencing/specificity validation is missing
+1     | Moderate confidence - no verification / poor TCR sequence confidence
+2     | High confidence - has some specificity verification, good TCR sequence confidence
+3     | Very high confidence - has extensive verification or structural data
 
 ## Database build contents
 
