@@ -50,7 +50,7 @@ class VdjdbScoreFactory {
                 assert freq <= 1.0f
 
                 // sequencing
-                def seqScore = 0
+                def seqScore = 1
 
                 def singleCell = row["method.singlecell"].trim().toLowerCase()
 
