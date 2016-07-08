@@ -1,6 +1,6 @@
 ---
 title: "VDJdb summary statistics"
-output: pdf_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -20,19 +20,28 @@ summarize_complexes <- function(ddf, column) {
   ddply(ddf, column, summarize, records = length(complex.id), paired.records = sum(ifelse(complex.id=="0",0,1)))
 }
 
-kable(format = "latex", summarize_complexes(df, c("species","gene")))
-kable(format = "latex", summarize_complexes(subset(df, mhc.class=="MHCI"), c("species", "mhc.a")))
-kable(format = "latex", summarize_complexes(df, c("antigen.gene", "antigen.species")))
+fmt <- "html"
+
+kable(format = fmt, summarize_complexes(df, c("species","gene")))
+kable(format = fmt, summarize_complexes(subset(df, mhc.class=="MHCI"), c("species", "mhc.a")))
+kable(format = fmt, summarize_complexes(df, c("antigen.gene", "antigen.species")))
 ```
 
 ```{r}
 library(ggplot2)
 
-ggplot(df, aes(x=vdjdb.score)) + geom_histogram() + theme_bw()
+df.sc <- ddply(df, .(vdjdb.score), summarize, total = length(vdjdb.score))
+
+ggplot(df.sc, aes(x="", y=total, fill = as.factor(vdjdb.score))) + geom_bar(stat = "identity") + 
+  coord_polar(theta = "y") + xlab("") + ylab("") +
+  scale_fill_brewer("VDJdb score", palette = "BuPu") + 
+  theme_bw()
+
+nrow(subset(df, vdjdb.score > 0))
 ```
 
 ```{r}
 ggplot(df, aes(x=nchar(as.character(cdr3)), fill = antigen.gene)) + 
-  geom_histogram() + 
+  geom_histogram(bins = 21) + scale_x_continuous(limits = c(5,25), breaks = seq(5,25,5)) + 
   facet_grid(species~gene, scales="free_y") + theme_bw()
 ```

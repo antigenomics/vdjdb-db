@@ -221,9 +221,9 @@ At the final stage of database processing, TCR:peptide:MHC complexes are assigne
 
 VDJdb scoring is performed by evaluating TCR sequence, identification and verification confidence based on the following criteria:
 
-1. Ensuring TCR sequence is correctly identified according to ``method.sequencing`` and ``method.singlecell`` (0-3 points)
-    * sanger - several cells sequenced (2+ cells sequenced according to ``method.frequency``)
-    * amplicon-seq - frequency is higher than ``0.01``
+1. Ensuring TCR sequence is correctly identified according to ``method.sequencing`` and ``method.singlecell`` (1-3 points)
+    * sanger - several cells sequenced (2+ cells sequenced according to ``method.frequency``) - 2 points, otherwise 1
+    * amplicon-seq - frequency is higher than ``0.01`` - 2 points, otherwise 0
     * single-cell - 3 points if performed
 2. Initial identification of TCR:pMHC is correct according to ``method.identification`` (0-1 point)
     * sort-based - frequency is higher than ``0.1`` according to ``method.frequency``)
