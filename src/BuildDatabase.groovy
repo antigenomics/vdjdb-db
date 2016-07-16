@@ -184,7 +184,13 @@ def correct = { String text, String from, String to ->
 // Read, validate and concatenate chunks
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-def chunkFiles = new File("../chunks/").listFiles().findAll { !it.name.startsWith(".") && it.name.endsWith(".txt") }
+def chunksToBuild = args.length > 0 ? args[0].split(",") as List<String> : []
+
+def chunkFiles = new File("../chunks/").listFiles().findAll { chunkFile ->
+    def chunkName = chunkFile.name
+    !chunkName.startsWith(".") && chunkName.endsWith(".txt") &&
+            (chunksToBuild.empty || chunksToBuild.any { chunkName.toLowerCase().contains(it.toLowerCase()) })
+}
 
 if (chunkFiles.empty)
     err("No database chunks to process")
