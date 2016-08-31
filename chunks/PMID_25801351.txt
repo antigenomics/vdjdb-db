@@ -80,38 +80,3 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 79				CASSYQTGAAYGYTF	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult31			NLV	PBMC			
 80				CASSCQTGAACGYTF	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult32			NLV	PBMC			
 81				CASSLQTGVRSYEQY	TRBV6-5		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult33			NLV	PBMC			
-82																																
-83																																
-84																																
-85																																
-86																																
-87																																
-88																																
-89																																
-90																																
-91																																
-92																																
-93																																
-94																																
-95																																
-96																																
-97																																
-98																																
-99																																
-100																																
-101																																
-102																																
-103																																
-104																																
-105																																
-106																																
-107																																
-108																																
-109																																
-110																																
-111																																
-112																																
-113																																
-114																																
-115																																
-116																																
