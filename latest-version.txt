@@ -1,4 +1,5 @@
-https://github.com/antigenomics/vdjdb-db/releases/download/08-07-2016/vdjdb-2016-07-08.zip
+https://github.com/antigenomics/vdjdb-db/releases/download/2016-09-05/vdjdb-2016-09-05.zip
+https://github.com/antigenomics/vdjdb-db/releases/download/2016-07-08/vdjdb-2016-07-08.zip
 https://github.com/antigenomics/vdjdb-db/releases/download/2016-06-25/vdjdb-2016-06-25.zip
 https://github.com/antigenomics/vdjdb-db/releases/download/2016-06-15/vdjdb-2016-06-15.zip
 https://github.com/antigenomics/vdjdb-db/releases/download/2016-05-31/vdjdb-2016-05-31.zip
