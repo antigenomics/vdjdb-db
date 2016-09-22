@@ -1,0 +1,43 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
+1				CASSLLVSGNEQF	TRBV21		TRBJ2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	62%		sanger			CD8+		vaccinated,infected	202-T07	vCP205		KK10	PBMC			
+2				CASSTRQNTEAF	TRBV3		TRBJ1-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	7%		sanger			CD8+		vaccinated,infected	202-T07	vCP205		KK10	PBMC			
+3				CASSQGVGNTIY	TRBV7		TRBJ1-3	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	6%		sanger			CD8+		vaccinated,infected	202-T07	vCP205		KK10	PBMC			
+4				CASSRYQTEAF	TRBV3		TRBJ1-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	5%		sanger			CD8+		vaccinated,infected	202-T07	vCP205		KK10	PBMC			
+5				CASSGMRGTEAFF	TRBV7		TRBJ1-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	6%		sanger			CD8+		vaccinated,infected	202-T07	vCP205		KK10	PBMC			
+6				CSARDLAEGTYEQY	TRBV2		TRBJ2-7	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	5%		sanger			CD8+		vaccinated,infected	202-T07	vCP205		KK10	PBMC			
+7				CASSLDVGEQY	TRBV6-4		TRBJ2-7	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	4%		sanger			CD8+		vaccinated,infected	202-T07	vCP205		KK10	PBMC			
+8				CASSLKAAAYNEQF	TRBV5		TRBJ2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	2%		sanger			CD8+		vaccinated,infected	202-T07	vCP205		KK10	PBMC			
+9				CASSPALTDRLAYFSYNEQF	TRBV1		TRBJ2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	2%		sanger			CD8+		vaccinated,infected	202-T07	vCP205		KK10	PBMC			
+10				CSAISGTSGIFSYNEQF	TRBV2		TRBJ2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	1%		sanger			CD8+		vaccinated,infected	202-T07	vCP205		KK10	PBMC			
+11				CAIGGNTEAF	TRBV12-1		TRBJ1-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	1%		sanger			CD8+		vaccinated,infected	202-T07	vCP205		KK10	PBMC			
+12				CASSLLVSGNEQF	TRBV21		TRBJ2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	38%		sanger			CD8+		vaccinated,infected	202-T07	acute		KK10	PBMC			
+13				CASSSGMRGTEAF	TRBV7		TRBJ1-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	29%		sanger			CD8+		vaccinated,infected	202-T07	acute		KK10	PBMC			
+14				CASSLDVGEQY	TRBV6-4		TRBJ2-7	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	20%		sanger			CD8+		vaccinated,infected	202-T07	acute		KK10	PBMC			
+15				CASSLGVNAVEQY	TRBV7		TRBJ2-7	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	8%		sanger			CD8+		vaccinated,infected	202-T07	acute		KK10	PBMC			
+16				CSARDLAEGTYEQY	TRBV2		TRBJ2-7	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	5%		sanger			CD8+		vaccinated,infected	202-T07	acute		KK10	PBMC			
+17				CASGQSGTAYNEQF	TRBV10		TRBJ2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	38%		sanger			CD8+		vaccinated,infected	202-T07	chronic		KK10	PBMC			
+18				CSARVGLNNEQF	TRBV2		TRBJ2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	23%		sanger			CD8+		vaccinated,infected	202-T07	chronic		KK10	PBMC			
+19				CASSLLVSGNEQF	TRBV21		TRBJ2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	7%		sanger			CD8+		vaccinated,infected	202-T07	chronic		KK10	PBMC			
+20				CSARAPAGMYPGNQP	TRBV2		TRBJ1-5	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	6%		sanger			CD8+		vaccinated,infected	202-T07	chronic		KK10	PBMC			
+21				CASSSGMRGTEAF	TRBV7		TRBJ1-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	6%		sanger			CD8+		vaccinated,infected	202-T07	chronic		KK10	PBMC			
+22				CASSQGQYGNTIYF	TRBV7		TRBJ1-3	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	3%		sanger			CD8+		vaccinated,infected	202-T07	chronic		KK10	PBMC			
+23				CASSQGRLDNGQY	TRBV7		TRBJ2-7	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	3%		sanger			CD8+		vaccinated,infected	202-T07	chronic		KK10	PBMC			
+24				CASSTRGNTEAF	TRBV3		TRBJ1-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	3%		sanger			CD8+		vaccinated,infected	202-T07	chronic		KK10	PBMC			
+25				CASSLGVNAVEQY	TRBV7		TRBJ2-7	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	3%		sanger			CD8+		vaccinated,infected	202-T07	chronic		KK10	PBMC			
+26				CASSQGRWGTEAF	TRBV7		TRBJ1-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	1%		sanger			CD8+		vaccinated,infected	202-T07	chronic		KK10	PBMC			
+27				CASSLGANAVEQY	TRBV7		TRBJ2-7	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	1%		sanger			CD8+		vaccinated,infected	202-T07	chronic		KK10	PBMC			
+28				CASSSGLAGGREQF	TRBV7		TRBJ2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	1%		sanger			CD8+		vaccinated,infected	202-T07	chronic		KK10	PBMC			
+29				CASSRYQTEAF	TRBV3		TRBJ1-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	1%		sanger			CD8+		vaccinated,infected	202-T07	chronic		KK10	PBMC			
+30				CASSPGTFHNEQF	TRBV7		TRBJ2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	1%		sanger			CD8+		vaccinated,infected	202-T07	chronic		KK10	PBMC			
+31				CASSDPTGSGAYEQY	TRBV21		TRBJ2-7	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	1%		sanger			CD8+		vaccinated,infected	202-T07	chronic		KK10	PBMC			
+32				CASGQSGTACNEQF	TRBV10		TRBJ2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	1%		sanger			CD8+		vaccinated,infected	202-T07	chronic		KK10	PBMC			
+33				CSARDPSRGSGVMDEQF	TRBV2		TRBJ2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	97%		sanger			CD8+		HIV+	3963I			KK10	PBMC			
+34				CSARDPPRGSGVMDEQF	TRBV2		TRBJ2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	2%		sanger			CD8+		HIV+	3963I			KK10	PBMC			
+35				CSADPSRGSGVMDEQF	TRBV2-1		TRBJ2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	2%		sanger			CD8+		HIV+	3963I			KK10	PBMC			
+36				CASSLDRETGY	TRBV6-4		TRBV2-5	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	78%		sanger			CD8+		HIV+	2714A			KK10	PBMC			
+37				CASSDRTVRAYEQY	TRBV6-4		TRBV2-7	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	7%		sanger			CD8+		HIV+	2714A			KK10	PBMC			
+38				CASSRSWLAGGLSTDTQY	TRBV17		TRBV2-3	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	5%		sanger			CD8+		HIV+	2714A			KK10	PBMC			
+39				CASSHDRDTQY	TRBV6-4		TRBV2-7	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	4%		sanger			CD8+		HIV+	2714A			KK10	PBMC			
+40				CASSPLGTRAYEQY	TRBV6-4		TRBV2-7	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	2%		sanger			CD8+		HIV+	2714A			KK10	PBMC			
+41				CASSPLGPSAYEQY	TRBV6-4		TRBV2-7	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	2%		sanger			CD8+		HIV+	2714A			KK10	PBMC			
+42				CASSPGVFGNEQF	TRBV5		TRBV2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	p24	HIV	PMID:15753288	tetramer-sort	2%		sanger			CD8+		HIV+	2714A			KK10	PBMC			
