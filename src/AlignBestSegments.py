@@ -1,4 +1,4 @@
-import argparse
+import os
 
 import pandas as pd
 
@@ -99,18 +99,17 @@ def align_nuc_to_aa_rev(seq, gene):
 	return score
 
 
-def align_segments_and_write(sequence_files, segments_filepath="./src/segments.txt"):
+def align_segments_and_write(sequence_files, segments_filepath="./segments.txt"):
 
 	def _fix_v(index, row, df, gene_type, segments):
 		seg_gene_type = ""
 		if gene_type == "alpha":
 			seg_gene_type = "TRA"
+		elif gene_type == "beta":
+			seg_gene_type = "TRB"
 		else:
-			if gene_type == "beta":
-				seg_gene_type = "TRB"
-			else:
-				print("Error: unknown gene type", gene_type)
-				return 0
+			print("Error: unknown gene type", gene_type)
+			return 0
 
 		fixed_seg = ""
 		max_score = -1
@@ -135,12 +134,11 @@ def align_segments_and_write(sequence_files, segments_filepath="./src/segments.t
 		seg_gene_type = ""
 		if gene_type == "alpha":
 			seg_gene_type = "TRA"
+		elif gene_type == "beta":
+			seg_gene_type = "TRB"
 		else:
-			if gene_type == "beta":
-				seg_gene_type = "TRB"
-			else:
-				print("Error: unknown gene type", gene_type)
-				return 0
+			print("Error: unknown gene type", gene_type)
+			return 0
 
 		fixed_seg = ""
 		max_score = -1
@@ -161,13 +159,16 @@ def align_segments_and_write(sequence_files, segments_filepath="./src/segments.t
 
 
 	if sequence_files is not list:
-		sequence_files = [sequence_files]
+		if os.path.isdir(sequence_files):
+			sequence_files = [sequence_files + "/" + x for x in os.listdir(sequence_files) if os.path.isfile(sequence_files + "/" + x)]
+		else:
+			sequence_files = [sequence_files]
 
 	segments = pd.read_csv(segments_filepath, sep="\t")
 	segments.columns = ["species", "gene", "segment", "id", "ref", "seq"]
 
-	for seq_file in sequence_files:
-		print("Processing ", seq_file, "...", end = "\t")
+	for file_i, seq_file in enumerate(sequence_files):
+		print(file_i, "/", len(sequence_files), "Processing", seq_file, "...", end = "\t")
 		df = pd.read_csv(seq_file, sep="\t")
 
 		df["v.alpha.fixed"] = "NA"
@@ -196,4 +197,4 @@ def align_segments_and_write(sequence_files, segments_filepath="./src/segments.t
 
 
 if __name__ == "__main__":
-	align_segments_and_write("./chunks/PMID_9862375.txt")
+	align_segments_and_write("../chunks/")
