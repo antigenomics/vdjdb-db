@@ -33,11 +33,11 @@ for aa, codon in CODON_LIST:
 
 def align_nuc_to_aa(seq, gene):
 
-	def _align_slice(codon_pos, gene_symbol, aminoacid):
+	def _align_slice(codon_pos, gene_symbol, aminoacid, prev_aligned = [True] * 6):
 		aligned = [False] * 6
 		for i, codon in enumerate(CODONS[aminoacid]):
-			aligned[i] = codon[codon_pos] == gene_symbol
-		return sum(aligned) > 0
+			aligned[i] = prev_aligned[i] & (codon[codon_pos] == gene_symbol)
+		return sum(aligned) > 0, aligned
 
 	score = 0
 
@@ -45,19 +45,19 @@ def align_nuc_to_aa(seq, gene):
 
 	for aa_pos, aa in enumerate(seq):
 		if aa_pos*3 < len(gene):
-			flag = _align_slice(0, gene[aa_pos*3], aa)
+			flag, aligned = _align_slice(0, gene[aa_pos*3], aa)
 
 			if flag:
 				score += 1
 
 				if (aa_pos*3 + 1) < len(gene):
-					flag = _align_slice(1, gene[aa_pos*3 + 1], aa)
+					flag, aligned = _align_slice(1, gene[aa_pos*3 + 1], aa, aligned)
 
 					if flag:
 						score += 1
 
 						if (aa_pos*3 + 2) < len(gene):
-							flag = _align_slice(2, gene[aa_pos*3 + 2], aa)
+							flag, aligned = _align_slice(2, gene[aa_pos*3 + 2], aa, aligned)
 
 							score += flag
 		if not flag:
@@ -68,29 +68,29 @@ def align_nuc_to_aa(seq, gene):
 
 def align_nuc_to_aa_rev(seq, gene):
 	
-	def _align_slice(codon_pos, gene_symbol, aminoacid):
+	def _align_slice(codon_pos, gene_symbol, aminoacid, prev_aligned = [True] * 6):
 		aligned = [False] * 6
 		for i, codon in enumerate(CODONS[aminoacid]):
-			aligned[i] = codon[codon_pos] == gene_symbol
+			aligned[i] = prev_aligned[i] & (codon[codon_pos] == gene_symbol)
 		return sum(aligned) > 0
 
 	score = 0
 
 	for aa_pos, aa in enumerate(reversed(seq)):
 		if aa_pos*3 < len(gene):
-			flag = _align_slice(2, gene[-(aa_pos*3 + 1)], aa)
+			flag, aligned = _align_slice(2, gene[-(aa_pos*3 + 1)], aa)
 
 			if flag:
 				score += 1
 
 				if (aa_pos*3 + 1) < len(gene):
-					flag = _align_slice(1, gene[-(aa_pos*3 + 2)], aa)
+					flag, aligned = _align_slice(1, gene[-(aa_pos*3 + 2)], aa, aligned)
 
 					if flag:
 						score += 1
 
 						if (aa_pos*3 + 2) < len(gene):
-							flag = _align_slice(0, gene[-(aa_pos*3 + 3)], aa)
+							flag, aligned = _align_slice(0, gene[-(aa_pos*3 + 3)], aa, aligned)
 
 							score += flag
 		if not flag:
@@ -197,4 +197,5 @@ def align_segments_and_write(sequence_files, segments_filepath="./segments.txt")
 
 
 if __name__ == "__main__":
-	align_segments_and_write("../chunks/")
+	print(align_nuc_to_aa("L", "TTC"))
+	# align_segments_and_write("../chunks/")
