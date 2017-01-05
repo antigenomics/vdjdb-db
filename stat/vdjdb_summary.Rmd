@@ -7,41 +7,104 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+Libraries
 
 ```{r}
-df <- read.table("../database/vdjdb.slim.txt", header=T, sep="\t")
-```
-
-```{r}
-library(plyr)
+library(dplyr)
+library(stringr)
 library(knitr)
-
-summarize_complexes <- function(ddf, column) {
-  ddply(ddf, column, summarize, records = length(complex.id), paired.records = sum(ifelse(complex.id=="0",0,1)))
-}
-
-fmt <- "html"
-
-kable(format = fmt, summarize_complexes(df, c("species","gene")))
-kable(format = fmt, summarize_complexes(subset(df, mhc.class=="MHCI"), c("species", "mhc.a")))
-kable(format = fmt, summarize_complexes(df, c("antigen.gene", "antigen.species")))
-```
-
-```{r}
 library(ggplot2)
-
-df.sc <- ddply(df, .(vdjdb.score), summarize, total = length(vdjdb.score))
-
-ggplot(df.sc, aes(x="", y=total, fill = as.factor(vdjdb.score))) + geom_bar(stat = "identity") + 
-  coord_polar(theta = "y") + xlab("") + ylab("") +
-  scale_fill_brewer("VDJdb score", palette = "BuPu") + 
-  theme_bw()
-
-nrow(subset(df, vdjdb.score > 0))
+library(RColorBrewer)
 ```
 
+Load slim dataset
+
 ```{r}
-ggplot(df, aes(x=nchar(as.character(cdr3)), fill = antigen.gene)) + 
+df = read.table("../database/vdjdb.slim.txt", header=T, sep="\t")
+```
+
+
+### Summary by species and gene
+
+```{r}
+df.sg = df %>% 
+  group_by(species, gene) %>%
+  summarize(records = length(complex.id), paired.records = sum(ifelse(complex.id=="0",0,1)))
+
+kable(format = "html", df.sg)
+```
+
+### Summary of MHC alleles for human TCRs
+
+```{r}
+df.m = df %>% 
+  filter(species == "HomoSapiens") %>%
+  mutate(mhc.a.split = str_split_fixed(mhc.a, "[:,]", n = Inf)[,1],
+         mhc.b.split = str_split_fixed(mhc.b, "[:,]", n = Inf)[,1]) %>%
+  group_by(mhc.a.split, mhc.b.split, gene) %>%
+  summarize(records = n(), antigens = length(unique(antigen.epitope)))
+  
+kable(format = "html", df.m)
+```
+
+### Summary of antigens for human TCRs
+
+```{r}
+df.a = df %>% 
+  filter(species == "HomoSapiens") %>%
+  group_by(antigen.species, antigen.gene) %>%
+  summarize(records = n(), epitopes = length(unique(antigen.epitope)))
+
+kable(format = "html", df.a)
+```
+
+### VDJdb confidence scores
+
+```{r}
+df.score <- df %>%
+  group_by(vdjdb.score) %>%
+  summarize(total = n())
+
+ggplot(df.score, aes(x="", y=total, fill = as.factor(vdjdb.score))) + geom_bar(stat = "identity") + 
+  coord_polar(theta = "y") + xlab("") + ylab("") +
+  scale_fill_brewer("VDJdb score", palette = "RdBu") + 
+  theme_bw()
+```
+
+### Spectratype for human TCRs, self and foreign antigens
+
+```{r}
+df.spe = subset(df, species=="HomoSapiens")
+df.spe$self.antigen = ifelse(df.spe$antigen.species == "HomoSapiens", "self", "foreign")
+ggplot(df.spe, 
+       aes(x=nchar(as.character(cdr3)), fill = antigen.gene)) + 
   geom_histogram(bins = 21) + scale_x_continuous(limits = c(5,25), breaks = seq(5,25,5)) + 
-  facet_grid(species~gene, scales="free_y") + theme_bw()
+  facet_grid(self.antigen~gene, scales="free_y") + 
+  theme_bw()
+```
+
+### Variable segment usage and HLA (for human, MHCI and TRB only)
+
+```{r}
+rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
+r <- rf(32)
+
+df.vhla = df %>% filter(species == "HomoSapiens" & mhc.class == "MHCI" & gene == "TRB") %>%
+  mutate(mhc.a.split = str_split_fixed(mhc.a, "[:,]", n = Inf)[,1],
+         v.segm.split = str_split_fixed(v.segm, "[*,]", n = Inf)[,1]) %>%
+  group_by(mhc.a.split, v.segm.split) %>%
+  summarize(records = n()) %>%
+  group_by(mhc.a.split) %>%
+  mutate(records.mhc = sum(records)) %>%
+  group_by(v.segm.split) %>%
+  mutate(records.v = sum(records))
+  
+df.vhla$v.segm.split = with(df.vhla, factor(v.segm.split, v.segm.split[order(records.v)]))
+df.vhla$mhc.a.split = with(df.vhla, factor(mhc.a.split, mhc.a.split[order(records.mhc)]))
+
+ggplot(df.vhla, aes(x=mhc.a.split, y=v.segm.split, fill = records)) +
+  geom_tile() +
+  scale_fill_gradientn(colors=r, trans="log") +
+  xlab("") + ylab("") +
+  theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
