@@ -149,7 +149,9 @@ df = read.table(&quot;../database/vdjdb.slim.txt&quot;, header=T, sep=&quot;\t&q
 <h3>Summary by species and gene</h3>
 <pre class="r"><code>df.sg = df %&gt;% 
   group_by(species, gene) %&gt;%
-  summarize(records = length(complex.id), paired.records = sum(ifelse(complex.id==&quot;0&quot;,0,1)))
+  summarize(records = length(complex.id), 
+            paired.records = sum(ifelse(complex.id==&quot;0&quot;,0,1)),
+            epitopes = length(unique(antigen.epitope)))
 
 kable(format = &quot;html&quot;, df.sg)</code></pre>
 <table>
@@ -167,6 +169,9 @@ records
 <th style="text-align:right;">
 paired.records
 </th>
+<th style="text-align:right;">
+epitopes
+</th>
 </tr>
 </thead>
 <tbody>
@@ -183,6 +188,9 @@ TRA
 <td style="text-align:right;">
 327
 </td>
+<td style="text-align:right;">
+77
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
@@ -196,6 +204,9 @@ TRB
 </td>
 <td style="text-align:right;">
 325
+</td>
+<td style="text-align:right;">
+113
 </td>
 </tr>
 <tr>
@@ -211,6 +222,9 @@ TRA
 <td style="text-align:right;">
 0
 </td>
+<td style="text-align:right;">
+1
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
@@ -224,6 +238,9 @@ TRB
 </td>
 <td style="text-align:right;">
 0
+</td>
+<td style="text-align:right;">
+3
 </td>
 </tr>
 <tr>
@@ -239,6 +256,9 @@ TRA
 <td style="text-align:right;">
 16
 </td>
+<td style="text-align:right;">
+16
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
@@ -252,6 +272,9 @@ TRB
 </td>
 <td style="text-align:right;">
 17
+</td>
+<td style="text-align:right;">
+16
 </td>
 </tr>
 </tbody>

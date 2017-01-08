@@ -24,7 +24,9 @@ df = read.table("../database/vdjdb.slim.txt", header=T, sep="\t")
 ```{r}
 df.sg = df %>% 
   group_by(species, gene) %>%
-  summarize(records = length(complex.id), paired.records = sum(ifelse(complex.id=="0",0,1)))
+  summarize(records = length(complex.id), 
+            paired.records = sum(ifelse(complex.id=="0",0,1)),
+            epitopes = length(unique(antigen.epitope)))
 
 kable(format = "html", df.sg)
 ```
