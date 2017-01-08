@@ -1,28 +1,23 @@
 ---
 title: "VDJdb summary statistics"
-output: html_document
+output: 
+  html_document:
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Libraries
-
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(dplyr)
 library(stringr)
 library(knitr)
 library(ggplot2)
 library(RColorBrewer)
-```
 
-Load slim dataset
-
-```{r}
 df = read.table("../database/vdjdb.slim.txt", header=T, sep="\t")
 ```
-
 
 ### Summary by species and gene
 
@@ -41,7 +36,7 @@ df.m = df %>%
   filter(species == "HomoSapiens") %>%
   mutate(mhc.a.split = str_split_fixed(mhc.a, "[:,]", n = Inf)[,1],
          mhc.b.split = str_split_fixed(mhc.b, "[:,]", n = Inf)[,1]) %>%
-  group_by(mhc.a.split, mhc.b.split, gene) %>%
+  group_by(mhc.a.split, mhc.b.split) %>%
   summarize(records = n(), antigens = length(unique(antigen.epitope)))
   
 kable(format = "html", df.m)
@@ -58,6 +53,18 @@ df.a = df %>%
 kable(format = "html", df.a)
 ```
 
+### Unique CDR3 per epitope (for human)
+
+```{r}
+df.ag = df %>%
+  filter(species == "HomoSapiens") %>%
+  group_by(gene, mhc.class, antigen.species, antigen.gene, antigen.epitope) %>%
+  summarize(cdr3.count = length(unique(cdr3))) %>%
+  arrange(-cdr3.count)
+
+kable(format = "html", df.ag)
+```
+
 ### VDJdb confidence scores
 
 ```{r}
@@ -71,30 +78,33 @@ ggplot(df.score, aes(x="", y=total, fill = as.factor(vdjdb.score))) + geom_bar(s
   theme_bw()
 ```
 
-### Spectratype for human TCRs, self and foreign antigens
+### Spectratype for human TCRs (colored by epitope)
 
 ```{r}
 df.spe = subset(df, species=="HomoSapiens")
-df.spe$self.antigen = ifelse(df.spe$antigen.species == "HomoSapiens", "self", "foreign")
+
 ggplot(df.spe, 
-       aes(x=nchar(as.character(cdr3)), fill = antigen.gene)) + 
-  geom_histogram(bins = 21) + scale_x_continuous(limits = c(5,25), breaks = seq(5,25,5)) + 
-  facet_grid(self.antigen~gene, scales="free_y") + 
+       aes(x=nchar(as.character(cdr3)), fill = antigen.epitope)) + 
+  geom_histogram(bins = 21) + 
+  scale_x_continuous(limits = c(5,25), breaks = seq(5,25,5)) + 
+  facet_grid(mhc.class~gene, scales="free", space="free") + 
+  scale_fill_discrete(guide=F) +
+  xlab("CDR3 length") + ylab("") +
   theme_bw()
 ```
 
-### Variable segment usage and HLA (for human, MHCI and TRB only)
+### Variable segment usage and HLA (for human, TRB only)
 
-```{r}
+```{r warning=FALSE}
 rf <- colorRampPalette(rev(brewer.pal(11, 'Spectral')))
 r <- rf(32)
 
-df.vhla = df %>% filter(species == "HomoSapiens" & mhc.class == "MHCI" & gene == "TRB") %>%
+df.vhla = df %>% filter(species == "HomoSapiens" & gene == "TRB") %>%
   mutate(mhc.a.split = str_split_fixed(mhc.a, "[:,]", n = Inf)[,1],
          v.segm.split = str_split_fixed(v.segm, "[*,]", n = Inf)[,1]) %>%
-  group_by(mhc.a.split, v.segm.split) %>%
+  group_by(mhc.class, mhc.a.split, v.segm.split) %>%
   summarize(records = n()) %>%
-  group_by(mhc.a.split) %>%
+  group_by(mhc.class, mhc.a.split) %>%
   mutate(records.mhc = sum(records)) %>%
   group_by(v.segm.split) %>%
   mutate(records.v = sum(records))
@@ -106,5 +116,6 @@ ggplot(df.vhla, aes(x=mhc.a.split, y=v.segm.split, fill = records)) +
   geom_tile() +
   scale_fill_gradientn(colors=r, trans="log") +
   xlab("") + ylab("") +
+  facet_grid(~mhc.class, scales="free", space="free") +
   theme_bw() + theme(axis.text.x = element_text(angle = 90, hjust = 1))
 ```
