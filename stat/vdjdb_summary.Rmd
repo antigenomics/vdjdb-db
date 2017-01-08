@@ -26,10 +26,13 @@ df.sg = df %>%
   group_by(species, gene) %>%
   summarize(records = length(complex.id), 
             paired.records = sum(ifelse(complex.id=="0",0,1)),
-            epitopes = length(unique(antigen.epitope)))
+            epitopes = length(unique(antigen.epitope)),
+            publications = length(unique(str_split_fixed(reference.id, ",", n = Inf)[,1])))
 
 kable(format = "html", df.sg)
 ```
+
+> Note that publications count also includes structural data papers which are all stored in a single PDB_Database.txt chunk
 
 ### Summary of MHC alleles for human TCRs
 

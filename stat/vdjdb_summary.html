@@ -151,7 +151,8 @@ df = read.table(&quot;../database/vdjdb.slim.txt&quot;, header=T, sep=&quot;\t&q
   group_by(species, gene) %&gt;%
   summarize(records = length(complex.id), 
             paired.records = sum(ifelse(complex.id==&quot;0&quot;,0,1)),
-            epitopes = length(unique(antigen.epitope)))
+            epitopes = length(unique(antigen.epitope)),
+            publications = length(unique(str_split_fixed(reference.id, &quot;,&quot;, n = Inf)[,1])))
 
 kable(format = &quot;html&quot;, df.sg)</code></pre>
 <table>
@@ -172,6 +173,9 @@ paired.records
 <th style="text-align:right;">
 epitopes
 </th>
+<th style="text-align:right;">
+publications
+</th>
 </tr>
 </thead>
 <tbody>
@@ -191,6 +195,9 @@ TRA
 <td style="text-align:right;">
 77
 </td>
+<td style="text-align:right;">
+65
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
@@ -208,6 +215,9 @@ TRB
 <td style="text-align:right;">
 113
 </td>
+<td style="text-align:right;">
+86
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
@@ -221,6 +231,9 @@ TRA
 </td>
 <td style="text-align:right;">
 0
+</td>
+<td style="text-align:right;">
+1
 </td>
 <td style="text-align:right;">
 1
@@ -242,6 +255,9 @@ TRB
 <td style="text-align:right;">
 3
 </td>
+<td style="text-align:right;">
+2
+</td>
 </tr>
 <tr>
 <td style="text-align:left;">
@@ -258,6 +274,9 @@ TRA
 </td>
 <td style="text-align:right;">
 16
+</td>
+<td style="text-align:right;">
+14
 </td>
 </tr>
 <tr>
@@ -276,9 +295,15 @@ TRB
 <td style="text-align:right;">
 16
 </td>
+<td style="text-align:right;">
+14
+</td>
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p>Note that publications count also includes structural data papers which are all stored in a single PDB_Database.txt chunk</p>
+</blockquote>
 </div>
 <div id="summary-of-mhc-alleles-for-human-tcrs" class="section level3">
 <h3>Summary of MHC alleles for human TCRs</h3>
