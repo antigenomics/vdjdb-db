@@ -3,7 +3,7 @@ language:
 
 before_install:
   - sudo apt-get install python
-  - pip install pandas
+  - sudo pip install pandas
   
 script:
   - cd src/ 
