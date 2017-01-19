@@ -266,7 +266,7 @@ chunkFiles.each { chunkFile ->
 
 def cdr3Fixer = new Cdr3Fixer()
 
-println "Fixing CDR3 sequences"
+println "Fixing CDR3 sequences (stage I)"
 
 masterTable.addCol "cdr3fix.alpha"
 masterTable.addCol "cdr3fix.beta"
@@ -318,6 +318,19 @@ new File("../database/vdjdb_full.txt").withPrintWriter { pw ->
         pw.println(it.values.join("\t"))
     }
 }
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Re-align gene segments in the final table using nucleotide-on-amino acid aligner
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+println "Fixing CDR3 sequences (stage II)"
+println "(it may take a while...)"
+
+def cmd = ["python3", "AlignBestSegments.py", "../database/vdjdb_full.txt", "./segments.txt"]
+def proc = cmd.execute()
+proc.waitFor()
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Write collapsed table
