@@ -445,9 +445,9 @@ new File("../database/vdjdb.txt").splitEachLine("\t") { splitLine ->
                            SlimComplexAccumulator.SUMMARY_COLS].flatten()
 
         splitLine.eachWithIndex { it, ind ->
-            if (requiredIds.contains(it)) {
+//            if (requiredIds.contains(it)) {
                 colIdMap[it] = ind
-            }
+//            }
         }
 
         firstLine = false
@@ -465,7 +465,9 @@ new File("../database/vdjdb.txt").splitEachLine("\t") { splitLine ->
 }
 
 new File("../database/vdjdb.slim.txt").withPrintWriter { pw ->
-    pw.println([SlimComplexAccumulator.COMPLEX_SLIM_ANNOT_COLS, SlimComplexAccumulator.SUMMARY_COLS].flatten().join("\t"))
+    pw.println([SlimComplexAccumulator.COMPLEX_SLIM_ANNOT_COLS,
+                SlimComplexAccumulator.SUMMARY_COLS].flatten().join("\t"))
+
     slimAccumulatorMap.each {
         pw.println(it.key + "\t" + it.value.summary)
     }
