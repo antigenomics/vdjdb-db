@@ -327,7 +327,7 @@ new File("../database/vdjdb_full.txt").withPrintWriter { pw ->
 println "Fixing CDR3 sequences (stage II)"
 println "(it may take a while...)"
 
-def cmd = ["python3", "AlignBestSegments.py", "../database/vdjdb_full.txt", "./segments.txt"]
+def cmd = ["python", "AlignBestSegments.py", "../database/vdjdb_full.txt", "./segments.txt"]
 def proc = cmd.execute()
 proc.waitFor()
 
