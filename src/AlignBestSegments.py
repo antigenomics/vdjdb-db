@@ -1,10 +1,10 @@
+from __future__ import print_function
+
 import os
 import sys
 import json
 
 import pandas as pd
-
-from __future__ import print_function
 
 
 CODON_LIST = [('A', 'GCT'), ('A', 'GCC'), ('A', 'GCA'), ('A', 'GCG'),
@@ -191,7 +191,7 @@ def align_segments_and_write(full_table, segments_filepath="./segments.txt"):
 			# FINALISATION
 			json_val["good"] = (json_val["vEnd"] != -1) and (json_val["jStart"] != -1)
 
-			df.set_value(index, "cdr3fix." + gene_type, json.dumps(json_val))
+			df.set_value(index, "cdr3fix." + gene_type, json_val)
 
 
 	segments = pd.read_csv(segments_filepath, sep="\t")
@@ -205,6 +205,7 @@ def align_segments_and_write(full_table, segments_filepath="./segments.txt"):
 		_fix_json(index, row, df, "alpha", segments)
 		_fix_json(index, row, df, "beta", segments)
 
+	# df.to_csv(full_table[:-3] + ".fix.txt", sep="\t", index=False)
 	df.to_csv(full_table, sep="\t", index=False)
 	print("Done.")
 
