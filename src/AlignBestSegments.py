@@ -178,7 +178,7 @@ def align_segments_and_write(full_table, table, segments_filepath="./segments.tx
 			json_val["oldJId"] = json_val["jId"]
 			json_val["jId"] = fixed_seg
 			json_val["oldJStart"] = json_val["jStart"]
-			json_val["jStart"] = len(row["cdr3" + gene_type]) - max_score
+			json_val["jStart"] = 3*len(row["cdr3" + gene_type]) - max_score
 			json_val["oldJFixType"] = json_val["jFixType"]
 			if max_score != -1:
 				if json_val["jFixType"] == "NoFixNeeded":
