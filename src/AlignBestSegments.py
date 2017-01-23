@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import division
 
 import os
 import sys
@@ -130,7 +131,7 @@ def align_segments_and_write(full_table, table, segments_filepath="./segments.tx
 			old_score = 0
 			fixed_seg = "None"
 			for _, seg_row in segments[(segments.species == row["species"]) & (segments.gene == seg_gene_type) & (segments.segment == "Variable")].iterrows():
-				cur_score = align_nuc_to_aa(row["cdr3" + gene_type], seg_row["seq"][seg_row["ref"] - 3:])
+				cur_score = align_nuc_to_aa(row["cdr3" + gene_type], seg_row["seq"][seg_row["ref"] - 3:]) // 3
 				if cur_score > max_score:
 					max_score = cur_score
 					fixed_seg = seg_row["id"]
@@ -167,7 +168,7 @@ def align_segments_and_write(full_table, table, segments_filepath="./segments.tx
 			old_score = 0
 			fixed_seg = "None"
 			for _, seg_row in segments[(segments.species == row["species"]) & (segments.gene == seg_gene_type) & (segments.segment == "Joining")].iterrows():
-				cur_score = align_nuc_to_aa(row["cdr3" + gene_type], seg_row["seq"][:seg_row["ref"] + 4])
+				cur_score = align_nuc_to_aa(row["cdr3" + gene_type], seg_row["seq"][:seg_row["ref"] + 4]) // 3
 				if cur_score > max_score:
 					max_score = cur_score
 					fixed_seg = seg_row["id"]
@@ -178,7 +179,7 @@ def align_segments_and_write(full_table, table, segments_filepath="./segments.tx
 			json_val["oldJId"] = json_val["jId"]
 			json_val["jId"] = fixed_seg
 			json_val["oldJStart"] = json_val["jStart"]
-			json_val["jStart"] = 3*len(row["cdr3" + gene_type]) - max_score
+			json_val["jStart"] = len(row["cdr3" + gene_type]) - max_score
 			json_val["oldJFixType"] = json_val["jFixType"]
 			if max_score != -1:
 				if json_val["jFixType"] == "NoFixNeeded":
