@@ -79,7 +79,7 @@ def align_nuc_to_aa_rev(seq, gene):
 		aligned = [False] * 6
 		for i, codon in enumerate(CODONS[aminoacid]):
 			aligned[i] = prev_aligned[i] & (codon[codon_pos] == gene_symbol)
-		return sum(aligned) > 0
+		return sum(aligned) > 0, aligned
 
 	score = 0
 
@@ -168,7 +168,7 @@ def align_segments_and_write(full_table, table, segments_filepath="./segments.tx
 			old_score = 0
 			fixed_seg = "None"
 			for _, seg_row in segments[(segments.species == row["species"]) & (segments.gene == seg_gene_type) & (segments.segment == "Joining")].iterrows():
-				cur_score = align_nuc_to_aa(row["cdr3" + gene_type], seg_row["seq"][:seg_row["ref"] + 4]) // 3
+				cur_score = align_nuc_to_aa_rev(row["cdr3" + gene_type], seg_row["seq"][:seg_row["ref"] + 4]) // 3
 				if cur_score > max_score:
 					max_score = cur_score
 					fixed_seg = seg_row["id"]
@@ -231,4 +231,5 @@ def align_segments_and_write(full_table, table, segments_filepath="./segments.tx
 
 
 if __name__ == "__main__":
+	# print(align_nuc_to_aa_rev("CASGSQGYGRAQHF", "TAGCAATCAGCCCCAGCATTT"))
 	align_segments_and_write(sys.argv[1], sys.argv[2], sys.argv[3]) # vdjdb_full.txt, vdjdb.txt, segments.txt
