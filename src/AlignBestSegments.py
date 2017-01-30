@@ -5,6 +5,8 @@ import os
 import sys
 import json
 import csv
+import multiprocessing as mp
+import math
 
 import pandas as pd
 from pandas.io.json import json_normalize
@@ -106,9 +108,46 @@ def align_nuc_to_aa_rev(seq, gene):
 	return score
 
 
+
+def fix_json(row):
+	cdr3 = row[0]
+	res_v_id = "NA"
+	res_v_score = -1
+	res_j_id = "NA"
+	res_j_score = -1
+	if not (type(cdr3) is float):
+		seg_gene_type = row[1]
+		species = row[2]
+
+		# VARIABLE
+		max_score = -1
+		for _, seg_row in segments[(segments.species == species) & (segments.gene == seg_gene_type) & (segments.segment == "Variable")].iterrows():
+			cur_score = align_nuc_to_aa(cdr3, seg_row["seq"][seg_row["ref"] - 3:]) // 3
+			if cur_score > res_v_score:
+				res_v_score = cur_score
+				res_v_id = seg_row["id"]
+
+			# TODO: search for a row after all this iterations. Same for J.
+			# if seg_row["id"][:seg_row["id"].find("*")] == row["v" + gene_type]:
+			# 	old_score = cur_score
+
+		# JOINING
+		max_score = -1
+		for _, seg_row in segments[(segments.species == species) & (segments.gene == seg_gene_type) & (segments.segment == "Joining")].iterrows():
+			cur_score = align_nuc_to_aa_rev(cdr3, seg_row["seq"][:seg_row["ref"] + 4]) // 3
+			if cur_score > res_j_score:
+				res_j_score = cur_score
+				res_j_id = seg_row["id"]
+
+			# if seg_row["id"][:seg_row["id"].find("*")] == row["jId"]:
+			# 	old_score = cur_score
+
+	return res_v_id, res_v_score, res_j_id, res_j_score
+
+
 def align_segments_and_write(full_table, table, segments_filepath="./segments.txt"):
 
-	def _fix_json(index, row, df, gene_type, segments, single_col):
+	def _fix_json2(index, row, df, gene_type, segments, single_col):
 		seg_gene_type = ""
 		if gene_type == ".alpha":
 			seg_gene_type = "TRA"
@@ -163,6 +202,7 @@ def align_segments_and_write(full_table, table, segments_filepath="./segments.tx
 			else:
 				json_val["vFixType"] = "Failed"
 
+
 			# JOINING
 			max_score = -1
 			old_score = 0
@@ -197,7 +237,12 @@ def align_segments_and_write(full_table, table, segments_filepath="./segments.tx
 			# FINALISATION
 			json_val["good"] = (json_val["vEnd"] != -1) and (json_val["jStart"] != -1)
 
-			df.set_value(index, "cdr3fix" + gene_type, json.dumps(json_val))
+			return json_val
+			# df.set_value(index, "cdr3fix" + gene_type, json.dumps(json_val))
+
+
+	def _write_json():
+		pass
 
 
 	segments = pd.read_csv(segments_filepath, sep="\t")
@@ -206,11 +251,36 @@ def align_segments_and_write(full_table, table, segments_filepath="./segments.tx
 
 	df = pd.read_csv(full_table, sep="\t")
 
+
+	def json2tuples(df, cdr3seqcol, seg_gene_type):
+		# json.loads(row["cdr3fix" + gene_type])
+		return [(row[cdr3seqcol], seg_gene_type, row["species"]) for _, row in df.iterrows()]
+
+	a_js = json2tuples(df, "cdr3.alpha", "TRA")
+	b_js = json2tuples(df, "cdr3.beta", "TRB")
+
+
+	mgr = mp.Manager()
+	ns = mgr.Namespace()
+	ns.segments = segments
+
+	pool = mp.Pool(mp.cpu_count())
+	a_js = pool.map(fix_json, a_js)
+	b_js = pool.map(fix_json, b_js)
+
+	print("Done")
+	return None
+
+
 	for index, row in df.iterrows():
 		if (index+1) % 500 == 0:
 			print(index + 1, "/", len(df))
-		_fix_json(index, row, df, ".alpha", segments, False)
-		_fix_json(index, row, df, ".beta", segments, False)
+		df.set_value(index, "cdr3fix.alpha", json.dumps(a_js[index]))
+		df.set_value(index, "cdr3fix.beta", json.dumps(b_js[index]))
+		# _fix_json(index, row, df, ".alpha", segments, False)
+		# _fix_json(index, row, df, ".beta", segments, False)
+
+
 
 	df.to_csv(full_table, sep="\t", index=False, quoting=csv.QUOTE_NONE)
 
@@ -232,4 +302,38 @@ def align_segments_and_write(full_table, table, segments_filepath="./segments.tx
 
 if __name__ == "__main__":
 	# print(align_nuc_to_aa_rev("CASGSQGYGRAQHF", "TAGCAATCAGCCCCAGCATTT"))
-	align_segments_and_write(sys.argv[1], sys.argv[2], sys.argv[3]) # vdjdb_full.txt, vdjdb.txt, segments.txt
+	# align_segments_and_write(sys.argv[1], sys.argv[2], sys.argv[3]) # vdjdb_full.txt, vdjdb.txt, segments.txt
+
+	full_table = sys.argv[1]
+	segments_filepath = sys.argv[3]
+
+
+	segments = pd.read_csv(segments_filepath, sep="\t")
+	segments.columns = ["species", "gene", "segment", "id", "ref", "seq"]
+
+
+	df = pd.read_csv(full_table, sep="\t")
+
+
+	def json2tuples(df, cdr3seqcol, seg_gene_type):
+		# json.loads(row["cdr3fix" + gene_type])
+		return [(row[cdr3seqcol], seg_gene_type, row["species"]) for _, row in df.iterrows()]
+
+	a_js = json2tuples(df, "cdr3.alpha", "TRA")
+	b_js = json2tuples(df, "cdr3.beta", "TRB")
+
+	print("-- processing the full table")
+	pool = mp.Pool(mp.cpu_count())
+	a_js = pool.map(fix_json, a_js)
+	b_js = pool.map(fix_json, b_js)
+
+	print("-- writing")
+	for index, row in df.iterrows():
+		df.set_value(index, "cdr3fix.alpha", json.dumps(a_js[index]))
+		df.set_value(index, "cdr3fix.beta", json.dumps(b_js[index]))
+
+
+	print("-- processing the vdjdb.txt table")
+
+
+	print("-- writing")
