@@ -108,7 +108,6 @@ def align_nuc_to_aa_rev(seq, gene):
 	return score
 
 
-
 def fix_json(row):
 	cdr3 = row[0]
 	res_v_id = "NA"
@@ -120,7 +119,6 @@ def fix_json(row):
 		species = row[2]
 
 		# VARIABLE
-		max_score = -1
 		for _, seg_row in segments[(segments.species == species) & (segments.gene == seg_gene_type) & (segments.segment == "Variable")].iterrows():
 			cur_score = align_nuc_to_aa(cdr3, seg_row["seq"][seg_row["ref"] - 3:]) // 3
 			if cur_score > res_v_score:
@@ -132,7 +130,6 @@ def fix_json(row):
 			# 	old_score = cur_score
 
 		# JOINING
-		max_score = -1
 		for _, seg_row in segments[(segments.species == species) & (segments.gene == seg_gene_type) & (segments.segment == "Joining")].iterrows():
 			cur_score = align_nuc_to_aa_rev(cdr3, seg_row["seq"][:seg_row["ref"] + 4]) // 3
 			if cur_score > res_j_score:
@@ -145,166 +142,90 @@ def fix_json(row):
 	return res_v_id, res_v_score, res_j_id, res_j_score
 
 
-def align_segments_and_write(full_table, table, segments_filepath="./segments.txt"):
+def update_segments(index, old_row, new_row, gene_type, single_col):
+	seg_gene_type = ""
+	if gene_type == ".alpha":
+		seg_gene_type = "TRA"
+	elif gene_type == ".beta":
+		seg_gene_type = "TRB"
+	else:
+		print("Error: unknown gene type", gene_type)
+		return 0
 
-	def _fix_json2(index, row, df, gene_type, segments, single_col):
-		seg_gene_type = ""
-		if gene_type == ".alpha":
-			seg_gene_type = "TRA"
-		elif gene_type == ".beta":
-			seg_gene_type = "TRB"
-		else:
-			print("Error: unknown gene type", gene_type)
-			return 0
+	if single_col:
+		gene_type = ""
 
-		if single_col:
-			gene_type = ""
+	if not pd.isnull(row["cdr3fix" + gene_type]):
+		json_val = json.loads(row["cdr3fix" + gene_type])
 
-		if not pd.isnull(row["cdr3fix" + gene_type]):
-			json_val = json.loads(row["cdr3fix" + gene_type])
+		# NoFixNeeded -> NoFix or ChangeSegment
+		# FixAdd, FixReplace, FixTrim -> ChangedSequence
+		# fail -> Failed
 
-			# если скоры одинаковые??
-
-			# VARIABLE
-			max_score = -1
-			old_score = 0
-			fixed_seg = "None"
-			for _, seg_row in segments[(segments.species == row["species"]) & (segments.gene == seg_gene_type) & (segments.segment == "Variable")].iterrows():
-				cur_score = align_nuc_to_aa(row["cdr3" + gene_type], seg_row["seq"][seg_row["ref"] - 3:]) // 3
-				if cur_score > max_score:
-					max_score = cur_score
-					fixed_seg = seg_row["id"]
-
-				# TODO: search for a row after all this iterations. Same for J.
-				# if seg_row["id"][:seg_row["id"].find("*")] == row["v" + gene_type]:
-				# 	old_score = cur_score
-
-			# NoFixNeeded -> NoFix or ChangeSegment
-			# FixAdd, FixReplace, FixTrim -> ChangedSequence
-			# fail -> Failed
-
-			# кроме тех где NoFixNeeded
-			json_val["oldVId"] = json_val["vId"]
-			json_val["vId"] = fixed_seg
-			json_val["oldVEnd"] = json_val["vEnd"]
-			json_val["vEnd"] = max_score
-			json_val["oldVFixType"] = json_val["vFixType"]
-			if max_score != -1:
-				if json_val["vFixType"] == "NoFixNeeded":
-					if json_val["vId"] == json_val["oldVId"]:
-						json_val["vFixType"] = "NoFix"
-					else:
-						json_val["vFixType"] = "ChangeSegment"
-				elif json_val["vFixType"] in ["FixAdd", "FixReplace", "FixTrim"]:
-					json_val["vFixType"] = "ChangeSequence"
+		# кроме тех где NoFixNeeded
+		json_val["oldVId"] = json_val["vId"]
+		json_val["vId"] = new_row[0]
+		json_val["oldVEnd"] = json_val["vEnd"]
+		json_val["vEnd"] = new_row[1]
+		json_val["oldVFixType"] = json_val["vFixType"]
+		if new_row[1] != -1:
+			if json_val["vFixType"] == "NoFixNeeded":
+				if json_val["vId"] == json_val["oldVId"]:
+					json_val["vFixType"] = "NoFix"
 				else:
-					json_val["vFixType"] = "Failed"
+					json_val["vFixType"] = "ChangeSegment"
+			elif json_val["vFixType"] in ["FixAdd", "FixReplace", "FixTrim"]:
+				json_val["vFixType"] = "ChangeSequence"
 			else:
 				json_val["vFixType"] = "Failed"
+		else:
+			json_val["vFixType"] = "Failed"
 
 
-			# JOINING
-			max_score = -1
-			old_score = 0
-			fixed_seg = "None"
-			for _, seg_row in segments[(segments.species == row["species"]) & (segments.gene == seg_gene_type) & (segments.segment == "Joining")].iterrows():
-				cur_score = align_nuc_to_aa_rev(row["cdr3" + gene_type], seg_row["seq"][:seg_row["ref"] + 4]) // 3
-				if cur_score > max_score:
-					max_score = cur_score
-					fixed_seg = seg_row["id"]
-
-				# if seg_row["id"][:seg_row["id"].find("*")] == row["jId"]:
-				# 	old_score = cur_score
-
-			json_val["oldJId"] = json_val["jId"]
-			json_val["jId"] = fixed_seg
-			json_val["oldJStart"] = json_val["jStart"]
-			json_val["jStart"] = len(row["cdr3" + gene_type]) - max_score
-			json_val["oldJFixType"] = json_val["jFixType"]
-			if max_score != -1:
-				if json_val["jFixType"] == "NoFixNeeded":
-					if json_val["vId"] == json_val["oldVId"]:
-						json_val["jFixType"] = "NoFix"
-					else:
-						json_val["jFixType"] = "ChangeSegment"
-				elif json_val["jFixType"] in ["FixAdd", "FixReplace", "FixTrim"]:
-					json_val["jFixType"] = "ChangeSequence"
+		json_val["oldJId"] = json_val["jId"]
+		json_val["jId"] = new_row[2]
+		json_val["oldJStart"] = json_val["jStart"]
+		json_val["jStart"] = len(row["cdr3" + gene_type]) - new_row[3]
+		json_val["oldJFixType"] = json_val["jFixType"]
+		if new_row[3] != -1:
+			if json_val["jFixType"] == "NoFixNeeded":
+				if json_val["vId"] == json_val["oldVId"]:
+					json_val["jFixType"] = "NoFix"
 				else:
-					json_val["jFixType"] = "Failed"
+					json_val["jFixType"] = "ChangeSegment"
+			elif json_val["jFixType"] in ["FixAdd", "FixReplace", "FixTrim"]:
+				json_val["jFixType"] = "ChangeSequence"
 			else:
 				json_val["jFixType"] = "Failed"
+		else:
+			json_val["jFixType"] = "Failed"
 
-			# FINALISATION
-			json_val["good"] = (json_val["vEnd"] != -1) and (json_val["jStart"] != -1)
+		# FINALISATION
+		json_val["good"] = (json_val["vEnd"] != -1) and (json_val["jStart"] != -1)
 
-			return json_val
-			# df.set_value(index, "cdr3fix" + gene_type, json.dumps(json_val))
+		df.set_value(index, "cdr3fix" + gene_type, json.dumps(json_val))
 
-
-	def _write_json():
-		pass
-
-
-	segments = pd.read_csv(segments_filepath, sep="\t")
-	segments.columns = ["species", "gene", "segment", "id", "ref", "seq"]
+		if gene_type == "":
+			gene_type = ".segm"
+		df.set_value(index, "v" + gene_type, json_val["vId"])
+		df.set_value(index, "j" + gene_type, json_val["jId"])
 
 
-	df = pd.read_csv(full_table, sep="\t")
-
-
-	def json2tuples(df, cdr3seqcol, seg_gene_type):
+def json2tuples(df, cdr3seqcol, seg_gene_type):
 		# json.loads(row["cdr3fix" + gene_type])
 		return [(row[cdr3seqcol], seg_gene_type, row["species"]) for _, row in df.iterrows()]
 
-	a_js = json2tuples(df, "cdr3.alpha", "TRA")
-	b_js = json2tuples(df, "cdr3.beta", "TRB")
 
-
-	mgr = mp.Manager()
-	ns = mgr.Namespace()
-	ns.segments = segments
-
-	pool = mp.Pool(mp.cpu_count())
-	a_js = pool.map(fix_json, a_js)
-	b_js = pool.map(fix_json, b_js)
-
-	print("Done")
-	return None
-
-
-	for index, row in df.iterrows():
-		if (index+1) % 500 == 0:
-			print(index + 1, "/", len(df))
-		df.set_value(index, "cdr3fix.alpha", json.dumps(a_js[index]))
-		df.set_value(index, "cdr3fix.beta", json.dumps(b_js[index]))
-		# _fix_json(index, row, df, ".alpha", segments, False)
-		# _fix_json(index, row, df, ".beta", segments, False)
-
-
-
-	df.to_csv(full_table, sep="\t", index=False, quoting=csv.QUOTE_NONE)
-
-
-	# vdjdb.txt
-	df = pd.read_csv(table, sep="\t")
-	for index, row in df.iterrows():
-		if (index+1) % 500 == 0:
-			print(index + 1, "/", len(df))
-		_fix_json(index, row, df, ".alpha" if row["gene"] == "TRA" else ".beta", segments, True)
-
-	df["method"] = df["method"].apply(json.loads).apply(json.dumps)
-	df["meta"] = df["meta"].apply(json.loads).apply(json.dumps)
-
-	df.to_csv(table, sep="\t", index=False, quoting=csv.QUOTE_NONE)
-
-	print("Done.")
+def json2tuples2(df, cdr3seqcol):
+		# json.loads(row["cdr3fix" + gene_type])
+		return [(row[cdr3seqcol], row["gene"], row["species"]) for _, row in df.iterrows()]
 
 
 if __name__ == "__main__":
-	# print(align_nuc_to_aa_rev("CASGSQGYGRAQHF", "TAGCAATCAGCCCCAGCATTT"))
-	# align_segments_and_write(sys.argv[1], sys.argv[2], sys.argv[3]) # vdjdb_full.txt, vdjdb.txt, segments.txt
-
+	# print(align_nuc_to_aa_rev("CAVTTDSWGKLQF", "TGACAACTGACAGCTGGGGGAAATTGCAGTTT"))
+	# # align_segments_and_write(sys.argv[1], sys.argv[2], sys.argv[3]) # vdjdb_full.txt, vdjdb.txt, segments.txt
 	full_table = sys.argv[1]
+	table = sys.argv[2]
 	segments_filepath = sys.argv[3]
 
 
@@ -312,28 +233,38 @@ if __name__ == "__main__":
 	segments.columns = ["species", "gene", "segment", "id", "ref", "seq"]
 
 
-	df = pd.read_csv(full_table, sep="\t")
-
-
-	def json2tuples(df, cdr3seqcol, seg_gene_type):
-		# json.loads(row["cdr3fix" + gene_type])
-		return [(row[cdr3seqcol], seg_gene_type, row["species"]) for _, row in df.iterrows()]
-
-	a_js = json2tuples(df, "cdr3.alpha", "TRA")
-	b_js = json2tuples(df, "cdr3.beta", "TRB")
-
-	print("-- processing the full table")
 	pool = mp.Pool(mp.cpu_count())
+
+
+	print("-- processing the vdjdb_full.txt table")
+	df = pd.read_csv(full_table, sep="\t")
+	a_js = json2tuples(df, "cdr3.alpha", "TRA")
+	print(a_js[:10])
+	b_js = json2tuples(df, "cdr3.beta", "TRB")
 	a_js = pool.map(fix_json, a_js)
+	print(a_js[:10])
 	b_js = pool.map(fix_json, b_js)
+
 
 	print("-- writing")
 	for index, row in df.iterrows():
-		df.set_value(index, "cdr3fix.alpha", json.dumps(a_js[index]))
-		df.set_value(index, "cdr3fix.beta", json.dumps(b_js[index]))
+		update_segments(index, row, a_js[index], ".alpha", False)
+		update_segments(index, row, b_js[index], ".beta", False)
+
+	df.to_csv(full_table, sep="\t", index=False, quoting=csv.QUOTE_NONE)
 
 
 	print("-- processing the vdjdb.txt table")
+	df = pd.read_csv(table, sep="\t")
+	ab_js = json2tuples2(df, "cdr3")
+	ab_js = pool.map(fix_json, ab_js)
 
 
 	print("-- writing")
+	for index, row in df.iterrows():
+		update_segments(index, row, ab_js[index], ".alpha" if row["gene"] == "TRA" else ".beta", True)
+
+	df["method"] = df["method"].apply(json.loads).apply(json.dumps)
+	df["meta"] = df["meta"].apply(json.loads).apply(json.dumps)
+
+	df.to_csv(table, sep="\t", index=False, quoting=csv.QUOTE_NONE)
