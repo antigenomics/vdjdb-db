@@ -11,6 +11,8 @@ import math
 import pandas as pd
 from pandas.io.json import json_normalize
 
+from Bio.Seq import Seq
+
 
 CODON_LIST = [('A', 'GCT'), ('A', 'GCC'), ('A', 'GCA'), ('A', 'GCG'),
  ('L', 'TTA'), ('L', 'TTG'), ('L', 'CTT'), ('L', 'CTC'), ('L', 'CTA'), ('L', 'CTG'),
@@ -110,9 +112,9 @@ def align_nuc_to_aa_rev(seq, gene):
 
 def fix_json(row):
 	cdr3 = row[0]
-	res_v_id = "NA"
+	res_v_id = "null"
 	res_v_score = -1
-	res_j_id = "NA"
+	res_j_id = "null"
 	res_j_score = -1
 	if not (type(cdr3) is float):
 		seg_gene_type = row[1]
@@ -120,29 +122,26 @@ def fix_json(row):
 
 		# VARIABLE
 		for _, seg_row in segments[(segments.species == species) & (segments.gene == seg_gene_type) & (segments.segment == "Variable")].iterrows():
-			cur_score = align_nuc_to_aa(cdr3, seg_row["seq"][seg_row["ref"] - 3:]) // 3
+			cur_score = align_nuc_to_aa(cdr3, seg_row["seq"][seg_row["ref"] - 3:])
 			if cur_score > res_v_score:
 				res_v_score = cur_score
 				res_v_id = seg_row["id"]
-
-			# TODO: search for a row after all this iterations. Same for J.
-			# if seg_row["id"][:seg_row["id"].find("*")] == row["v" + gene_type]:
-			# 	old_score = cur_score
+			# elif cur_score == res_v_score:
+			# 	res_v_id = res_v_id + "," + seg_row["id"]
 
 		# JOINING
 		for _, seg_row in segments[(segments.species == species) & (segments.gene == seg_gene_type) & (segments.segment == "Joining")].iterrows():
-			cur_score = align_nuc_to_aa_rev(cdr3, seg_row["seq"][:seg_row["ref"] + 4]) // 3
+			cur_score = align_nuc_to_aa_rev(cdr3, seg_row["seq"][:seg_row["ref"] + 4])
 			if cur_score > res_j_score:
 				res_j_score = cur_score
 				res_j_id = seg_row["id"]
+			# elif cur_score == res_j_score:
+			# 	res_j_id = res_j_id + "," + seg_row["id"]
 
-			# if seg_row["id"][:seg_row["id"].find("*")] == row["jId"]:
-			# 	old_score = cur_score
-
-	return res_v_id, res_v_score, res_j_id, res_j_score
+	return res_v_id, res_v_score // 3, res_j_id, res_j_score // 3
 
 
-def update_segments(index, old_row, new_row, gene_type, single_col):
+def update_segments(index, old_row, new_row, gene_type, single_col, stats):
 	seg_gene_type = ""
 	if gene_type == ".alpha":
 		seg_gene_type = "TRA"
@@ -163,42 +162,51 @@ def update_segments(index, old_row, new_row, gene_type, single_col):
 		# fail -> Failed
 
 		# кроме тех где NoFixNeeded
-		json_val["oldVId"] = json_val["vId"]
-		json_val["vId"] = new_row[0]
-		json_val["oldVEnd"] = json_val["vEnd"]
-		json_val["vEnd"] = new_row[1]
-		json_val["oldVFixType"] = json_val["vFixType"]
-		if new_row[1] != -1:
-			if json_val["vFixType"] == "NoFixNeeded":
-				if json_val["vId"] == json_val["oldVId"]:
-					json_val["vFixType"] = "NoFix"
+		# print(json_val["vEnd"], new_row[1])
+		# print(json_val["cdr3"], json_val["vId"], new_row[0])
+		# print(json_val["vEnd"], new_row[1])
+		if json_val["vEnd"] + 2 < new_row[1]:
+			json_val["oldVId"] = json_val["vId"]
+			json_val["vId"] = new_row[0]
+			json_val["oldVEnd"] = json_val["vEnd"]
+			json_val["vEnd"] = new_row[1]
+			json_val["oldVFixType"] = json_val["vFixType"]
+			if json_val["oldVId"] != json_val["vId"]:
+				stats[str(json_val["oldVId"]) + "->" + json_val["vId"]] = stats.get(str(json_val["oldVId"]) + "->" + json_val["vId"], 0) + 1
+			if new_row[1] != -1:
+				if json_val["vFixType"] == "NoFixNeeded":
+					if json_val["vId"] == json_val["oldVId"]:
+						json_val["vFixType"] = "NoFix"
+					else:
+						json_val["vFixType"] = "ChangeSegment"
+				elif json_val["vFixType"] in ["FixAdd", "FixReplace", "FixTrim"]:
+					json_val["vFixType"] = "ChangeSequence"
 				else:
-					json_val["vFixType"] = "ChangeSegment"
-			elif json_val["vFixType"] in ["FixAdd", "FixReplace", "FixTrim"]:
-				json_val["vFixType"] = "ChangeSequence"
+					json_val["vFixType"] = "Failed"
 			else:
 				json_val["vFixType"] = "Failed"
-		else:
-			json_val["vFixType"] = "Failed"
 
 
-		json_val["oldJId"] = json_val["jId"]
-		json_val["jId"] = new_row[2]
-		json_val["oldJStart"] = json_val["jStart"]
-		json_val["jStart"] = len(row["cdr3" + gene_type]) - new_row[3]
-		json_val["oldJFixType"] = json_val["jFixType"]
-		if new_row[3] != -1:
-			if json_val["jFixType"] == "NoFixNeeded":
-				if json_val["vId"] == json_val["oldVId"]:
-					json_val["jFixType"] = "NoFix"
+		if (json_val["jStart"] == -1) or (json_val["jStart"] - 2 > (len(row["cdr3" + gene_type]) - new_row[3])):
+			json_val["oldJId"] = json_val["jId"]
+			json_val["jId"] = new_row[2]
+			json_val["oldJStart"] = json_val["jStart"]
+			json_val["jStart"] = len(row["cdr3" + gene_type]) - new_row[3]
+			json_val["oldJFixType"] = json_val["jFixType"]
+			if json_val["oldJId"] != json_val["jId"]:
+				stats[str(json_val["oldJId"]) + "->" + json_val["jId"]] = stats.get(str(json_val["oldJId"]) + "->" + json_val["jId"], 0) + 1
+			if new_row[3] != -1:
+				if json_val["jFixType"] == "NoFixNeeded":
+					if json_val["jId"] == json_val["oldJId"]:
+						json_val["jFixType"] = "NoFix"
+					else:
+						json_val["jFixType"] = "ChangeSegment"
+				elif json_val["jFixType"] in ["FixAdd", "FixReplace", "FixTrim"]:
+					json_val["jFixType"] = "ChangeSequence"
 				else:
-					json_val["jFixType"] = "ChangeSegment"
-			elif json_val["jFixType"] in ["FixAdd", "FixReplace", "FixTrim"]:
-				json_val["jFixType"] = "ChangeSequence"
+					json_val["jFixType"] = "Failed"
 			else:
 				json_val["jFixType"] = "Failed"
-		else:
-			json_val["jFixType"] = "Failed"
 
 		# FINALISATION
 		json_val["good"] = (json_val["vEnd"] != -1) and (json_val["jStart"] != -1)
@@ -222,7 +230,7 @@ def json2tuples2(df, cdr3seqcol):
 
 
 if __name__ == "__main__":
-	# print(align_nuc_to_aa_rev("CAVTTDSWGKLQF", "TGACAACTGACAGCTGGGGGAAATTGCAGTTT"))
+	# print(align_nuc_to_aa("CASSYLPGQGDHYSNQPQH", "TGTGCCAGCAGCTTAGG"))
 	# # align_segments_and_write(sys.argv[1], sys.argv[2], sys.argv[3]) # vdjdb_full.txt, vdjdb.txt, segments.txt
 	full_table = sys.argv[1]
 	table = sys.argv[2]
@@ -234,22 +242,25 @@ if __name__ == "__main__":
 
 
 	pool = mp.Pool(mp.cpu_count())
+	# pool = mp.Pool(1)
 
 
 	print("-- processing the vdjdb_full.txt table")
 	df = pd.read_csv(full_table, sep="\t")
 	a_js = json2tuples(df, "cdr3.alpha", "TRA")
-	print(a_js[:10])
 	b_js = json2tuples(df, "cdr3.beta", "TRB")
 	a_js = pool.map(fix_json, a_js)
-	print(a_js[:10])
 	b_js = pool.map(fix_json, b_js)
 
 
 	print("-- writing")
+	stats = {}
 	for index, row in df.iterrows():
-		update_segments(index, row, a_js[index], ".alpha", False)
-		update_segments(index, row, b_js[index], ".beta", False)
+		update_segments(index, row, a_js[index], ".alpha", False, stats)
+		update_segments(index, row, b_js[index], ".beta", False, stats)
+	with open("stats.full.txt", "w") as file:
+		for s,v in sorted(stats.items(), key = lambda x: x[1], reverse = True):
+			print(s, v, sep = "\t", file = file)
 
 	df.to_csv(full_table, sep="\t", index=False, quoting=csv.QUOTE_NONE)
 
@@ -261,8 +272,12 @@ if __name__ == "__main__":
 
 
 	print("-- writing")
+	stats = {}
 	for index, row in df.iterrows():
-		update_segments(index, row, ab_js[index], ".alpha" if row["gene"] == "TRA" else ".beta", True)
+		update_segments(index, row, ab_js[index], ".alpha" if row["gene"] == "TRA" else ".beta", True, stats)
+	with open("stats.txt", "w") as file:
+			for s,v in sorted(stats.items(), key = lambda x: x[1], reverse = True):
+				print(s, v, sep = "\t", file = file)
 
 	df["method"] = df["method"].apply(json.loads).apply(json.dumps)
 	df["meta"] = df["meta"].apply(json.loads).apply(json.dumps)
