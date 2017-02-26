@@ -411,7 +411,8 @@ println "(it may take a while...)"
 
 def cmd = ["python", "AlignBestSegments.py", "../database/vdjdb_full.txt", "../database/vdjdb.txt", "./segments.txt"]
 def proc = cmd.execute()
-proc.waitFor()
+// proc.waitFor()
+proc.waitForProcessOutput(System.out, System.err)
 
 
 // Generate a slim version of database
