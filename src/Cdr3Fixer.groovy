@@ -132,7 +132,7 @@ class Cdr3Fixer {
 
         new FixerResult(newCdr3, cdr3, newCdr3 != cdr3,
                 vResult.x,
-                jResult.x < 0 ? jResult.x : newCdr3.length() - jResult.x - 1,
+                jResult.x < 0 ? jResult.x : newCdr3.length() - jResult.x,
                 vResult.segmentId, vResult.fixType,
                 jResult.segmentId, jResult.fixType)
     }
