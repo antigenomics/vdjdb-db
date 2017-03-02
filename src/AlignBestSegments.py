@@ -171,7 +171,7 @@ def update_segments(index, old_row, new_row, gene_type, single_col, stats):
 		# FixAdd, FixReplace, FixTrim -> ChangedSequence
 		# fail -> Failed
 
-		# кроме тех где NoFixNeeded
+		# except where NoFixNeeded
 		# print(json_val["vEnd"], new_row[1])
 		# print(json_val["cdr3"], json_val["vId"], new_row[0])
 		# print(json_val["vEnd"], new_row[1])
