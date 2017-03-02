@@ -62,7 +62,6 @@ v.alpha | TCR alpha Variable (V) segment id, up to best resolution possible (``T
 j.alpha | TCR alpha Joining (J) segment id
 cdr3.beta | TCR beta CDR3 amino acid sequence
 v.beta | TCR beta V segment id
-d.beta | TCR beta Diversity segment id
 j.beta | TCR beta J segment id
 species | TCR parent species (``HomoSapiens``, ``MusMusculus``,...)
 mhc.a | First MHC chain allele, to best resolution possible, ``HLA-X*XX:XX``, e.g. ``HLA-A*02:01``
@@ -205,11 +204,11 @@ field | description
 ``jFixType`` | Type of fix applied to CDR3 J germline part
 ``jCanonical`` | ``true`` if CDR3 ends with ``F`` or ``W``, ``false`` otherwise
 ``jId``  | J segment identifier
-``jStart``  | A 0-based index of first CDR3 amino acid just before J segment
+``jStart``  | A 0-based index of first CDR3 amino acid that belongs to J segment
 ``vFixType`` | Type of fix applied to CDR3 V germline part
 ``vCanonical`` | ``true`` if CDR3 starts with ``C``, ``false`` otherwise
 ``vId`` | V segment identifier
-``vEnd``  | A 0-based index of the first CDR3 amino acid after V segment
+``vEnd``  | A 0-based index of the last CDR3 amino acid of V segment plus one
 
 > **Note:**
 
@@ -250,8 +249,8 @@ score | description
 
 The final database assembly can be found in the ``database/`` folder upon execution of ``BuildDatabase.groovy`` script:
 
-* ``vdjdb_full.txt`` - combined chunks with TCRalpha/beta records, antigen information, etc. All method and meta information are collapsed into two columns with corresponding names. VDJdb scores and CDR3 fixing information for TCR alpha and beta are given in separate columns.
-* ``vdjdb.txt`` - a collapsed version of database used for annotation of single-chain TCR sequencing data by VDJdb-standalone software. Each line corresponds to either TCR alpha or TCR beta record as specified by the ``gene`` column. TCR records coming from the same alpha-beta pair have the same index in ``complex.id`` column. In case ``complex.id`` is equal to ``0`` a record doesn't have either TCRalpha or TCRbeta chain information
+* ``vdjdb_full.txt`` - combined chunks with TCRalpha/beta records, antigen information, etc. All method and meta information are collapsed into two columns with corresponding names. VDJdb scores and CDR3 fixing information for TCR alpha and beta are given in separate columns. This is the raw version of VDJdb.
+* ``vdjdb.txt`` - a collapsed version of database used for annotation of single-chain TCR sequencing data by VDJdb-standalone software. Each line corresponds to either TCR alpha or TCR beta record as specified by the ``gene`` column. TCR records coming from the same alpha-beta pair have the same index in ``complex.id`` column. In case ``complex.id`` is equal to ``0`` a record doesn't have either TCRalpha or TCRbeta chain information. This table is used by VDJdb-standalone and VDJdb-server.
 * ``vdjdb.meta.txt`` - metadata for ``vdjdb.txt`` table, used by VDJdb-standalone and VDJdb-server.
-* ``vdjdb.slim.txt`` - a slim database used for annotation of single-chain TCR sequencing data by VDJdb-standalone software. This is a collapsed version of ``vdjdb.txt`` containing unique records for each CDR3:antigen pair and comma-separated lists of values for other columns (``*.segm``,``mhc.*``, ``complex.id`` and ``reference.id``).
+* ``vdjdb.slim.txt`` - a slim database used for annotation of single-chain TCR sequencing data by VDJdb-standalone software. This is a collapsed version of ``vdjdb.txt`` containing unique records for each CDR3:antigen pair and comma-separated lists of values for other columns (``*.segm``,``mhc.*``, ``complex.id`` and ``reference.id``). This table can be easily parsed with R and Python/Pandas, it is intended for end users exploring VDJdb.
 * ``vdjdb.slim.meta.txt`` - metadata for ``vdjdb.slim.txt`` table.

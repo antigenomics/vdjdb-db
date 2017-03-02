@@ -1,4 +1,5 @@
 import groovy.json.JsonBuilder
+import groovy.json.JsonSlurper
 
 /*
  * Copyright 2016 Mikhail Shugay
@@ -324,7 +325,7 @@ new File("../database/vdjdb_full.txt").withPrintWriter { pw ->
 // Write collapsed table
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// collapse complexes
+// collapse complexes - TRA and TRB go on separate lines, complex id is used to group them to parent record
 
 println "Writing flat table"
 
@@ -345,7 +346,11 @@ def METADATA_LINES = ["name\ttype\tvisible\tsearchable\tautocomplete\tdata.type\
                       "method\ttxt\t1\t0\t0\tmethod.json\tMethod\tDetails on method used to assay TCR specificity.",
                       "meta\ttxt\t1\t0\t0\tmeta.json\tMeta\tVarious meta-information: cell subset, donor status, etc.",
                       "cdr3fix\ttxt\t1\t0\t0\tfixer.json\tcdr3fix\tDetails on CDR3 sequence fixing (if applied) and consistency between V, J and reported CDR3 sequence.",
-                      "vdjdb.score\ttxt\t1\t1\t0\tuint\tscore\tVDJdb confidence score, the higher is the score the more confidence we have in the antigen specificity annotation of a given TCR clonotype/clone. 0 score indicates that there are insufficient method details to draw any conclusion."],
+                      "vdjdb.score\ttxt\t1\t1\t0\tuint\tscore\tVDJdb confidence score, the higher is the score the more confidence we have in the antigen specificity annotation of a given TCR clonotype/clone. 0 score indicates that there are insufficient method details to draw any conclusion.",
+                      "web.method\ttxt\t0\t0\t1\t0\tfactor\tInternal",
+                      "web.method.seq\ttxt\t0\t0\t1\t0\tfactor\tInternal",
+                      "web.cdr3fix.nc\ttxt\t0\t0\t1\t0\tfactor\tInternal",
+                      "web.cdr3fix.unmp\ttxt\t0\t0\t1\t0\tfactor\tInternal"],
     COMPLEX_ANNOT_COLS = [
             "species",
             "mhc.a",
@@ -359,6 +364,29 @@ def METADATA_LINES = ["name\ttype\tvisible\tsearchable\tautocomplete\tdata.type\
 new File("../database/vdjdb.meta.txt").withPrintWriter { pw ->
     pw.println(METADATA_LINES.join("\n"))
 }
+
+/* Internal stuff for fast table filtering using VDJdb server */
+
+def getWebMethod = { row ->
+    def data = row["method.identification"].toLowerCase()
+
+    if (data.contains("sort")) return "sort"
+    else if (data.contains("culture") || data.contains("cloning") || data.contains("targets")) return "culture"
+    return "other"
+}
+
+def getWebMethodSeq = { row ->
+    if (row["method.singlecell"].trim().length() > 0)
+        return "singlecell"
+
+    def data = row["method.sequencing"].toLowerCase()
+
+    if (data.contains("sanger")) return "sanger"
+    else if (data.contains("-seq")) return "amplicon"
+    return "other"
+}
+
+/* end */
 
 def complexIdCounter = 0
 new File("../database/vdjdb.txt").withPrintWriter { pw ->
@@ -387,13 +415,14 @@ new File("../database/vdjdb.txt").withPrintWriter { pw ->
                             it == "alpha" ? "TRA" : "TRB",
                             row["cdr3.$it"],
                             row["v.$it"],
-                            it == "alpha" ? "" : row["d.$it"],
                             row["j.$it"],
                             complexAnnot,
                             methodAnnot,
                             metaAnnot,
                             row["cdr3fix.$it"],
-                            row["vdjdb.score"]
+                            row["vdjdb.score"],
+                            getWebMethod(row), getWebMethodSeq(row), // Internal
+                            ".", "." // Internal. Placeholders for CDR3 fixer results
                 ].join("\t"))
             }
         }
@@ -410,8 +439,28 @@ println "(it may take a while...)"
 
 def cmd = ["python", "AlignBestSegments.py", "../database/vdjdb_full.txt", "../database/vdjdb.txt", "./segments.txt"]
 def proc = cmd.execute()
-// proc.waitFor()
 proc.waitForProcessOutput(System.out, System.err)
+
+def vdjdbLines = new File("../database/vdjdb.txt").readLines().collect { it.split("\t") as List }
+
+def cdr3FixIdx = vdjdbLines[0].indexOf("cdr3fix"),
+    webCdr3FixNcIdx = vdjdbLines[0].indexOf("web.cdr3fix.nc"),
+    webCdr3FixUnmpIdx = vdjdbLines[0].indexOf("web.cdr3fix.unmp")
+
+/* Internal stuff for fast table filtering using VDJdb server: process final cdr3fixer results */
+
+new File("../database/vdjdb.txt").withPrintWriter { pw ->
+    pw.println(vdjdbLines[0].join("\t"))
+    def jsonSlurper = new JsonSlurper()
+    vdjdbLines[1..-1].each { splitLine ->
+        cdr3FixJson = jsonSlurper.parseText(splitLine[cdr3FixIdx])
+        splitLine[webCdr3FixNcIdx] = cdr3FixJson.vCanonical && cdr3FixJson.jCanonical ? "no" : "yes"
+        splitLine[webCdr3FixUnmpIdx] = cdr3FixJson.vEnd > -1 && cdr3FixJson.jStart > -1 ? "no" : "yes"
+        pw.println(splitLine.join("\t"))
+    }
+}
+
+/* end */
 
 
 // Generate a slim version of database
