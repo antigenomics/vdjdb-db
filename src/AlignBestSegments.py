@@ -234,7 +234,7 @@ def update_segments(index, old_row, new_row, gene_type, single_col, stats):
 		# FINALISATION
 		json_val["good"] = (json_val["vEnd"] != -1) and (json_val["jStart"] != -1)
 
-		df.set_value(index, "cdr3fix" + gene_type, json.dumps(json_val))
+		df.set_value(index, "cdr3fix" + gene_type, json.dumps(json_val, sort_keys=True))
 
 		if gene_type == "":
 			gene_type = ".segm"
@@ -302,7 +302,7 @@ if __name__ == "__main__":
 			for s,v in sorted(stats.items(), key = lambda x: x[1], reverse = True):
 				print(s, v, sep = "\t", file = file)
 
-	df["method"] = df["method"].apply(json.loads).apply(json.dumps)
-	df["meta"] = df["meta"].apply(json.loads).apply(json.dumps)
+	df["method"] = df["method"].apply(json.loads).apply(json.dumps, sort_keys=True)
+	df["meta"] = df["meta"].apply(json.loads).apply(json.dumps, sort_keys=True)
 
 	df.to_csv(table, sep="\t", index=False, quoting=csv.QUOTE_NONE)
