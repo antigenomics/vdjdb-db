@@ -1,13 +1,15 @@
 tmp/
 database/
+releases/
+out/
 
-## Groovy
+## Groovy / Java
 
 *.class
 target/
-out/
 .idea/
 *.iml
+dependency-reduced-pom.xml
 
 ## Python
 
@@ -70,3 +72,6 @@ docs/_build/
 
 # PyBuilder
 target/
+
+## R
+.Rhistory

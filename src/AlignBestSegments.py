@@ -277,7 +277,7 @@ if __name__ == "__main__":
 	for index, row in df.iterrows():
 		update_segments(index, row, a_js[index], ".alpha", False, stats)
 		update_segments(index, row, b_js[index], ".beta", False, stats)
-	with open("stats.full.txt", "w") as file:
+	with open("../tmp/stats.full.txt", "w") as file:
 		for s,v in sorted(stats.items(), key = lambda x: x[1], reverse = True):
 			print(s, v, sep = "\t", file = file)
 
@@ -294,7 +294,7 @@ if __name__ == "__main__":
 	stats = {}
 	for index, row in df.iterrows():
 		update_segments(index, row, ab_js[index], ".alpha" if row["gene"] == "TRA" else ".beta", True, stats)
-	with open("stats.txt", "w") as file:
+	with open("../tmp/stats.txt", "w") as file:
 			for s,v in sorted(stats.items(), key = lambda x: x[1], reverse = True):
 				print(s, v, sep = "\t", file = file)
 

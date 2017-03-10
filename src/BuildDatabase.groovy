@@ -84,13 +84,19 @@ def COMPLEX_COLUMNS = [
     ]
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Misc utils and classes
+// Misc utils and classes, temporary files
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 def err = { String message ->
     System.err.println(message)
     System.exit(1)
 }
+
+new File("../tmp/").mkdirs()
+
+def segmentsTmp = new File("../tmp/segments.txt").newOutputStream()
+segmentsTmp << new Url('https://raw.githubusercontent.com/mikessh/migmap/master/src/main/resources/segments.txt').openStream()
+segmentsTmp.close()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Table utils
@@ -437,7 +443,7 @@ new File("../database/vdjdb.txt").withPrintWriter { pw ->
 println "Fixing CDR3 sequences (stage II)"
 println "(it may take a while...)"
 
-def cmd = ["python", "AlignBestSegments.py", "../database/vdjdb_full.txt", "../database/vdjdb.txt", "./segments.txt"]
+def cmd = ["python", "AlignBestSegments.py", "../database/vdjdb_full.txt", "../database/vdjdb.txt", "../tmp/segments.txt"]
 def proc = cmd.execute()
 proc.waitForProcessOutput(System.out, System.err)
 
