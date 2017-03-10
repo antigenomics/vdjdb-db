@@ -2,6 +2,8 @@
 
 # VDJDB: A curated database of T-cell receptor sequences of known antigen specificity
 
+[![Join the chat at https://gitter.im/antigenomics/vdjdb-db](https://badges.gitter.im/antigenomics/vdjdb-db.svg)](https://gitter.im/antigenomics/vdjdb-db?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ![Splash](images/vdjdb-splash.png)
 
 > **DISCLAIMER** You are free to use VDJdb in research studies for the purpose of RepSeq sample and T-cell clonotype list annotation. However, the authors request priority in publishing a meta-analysis of the dataset aggregated and stored here. This message will be removed once VDJdb is officially published.
