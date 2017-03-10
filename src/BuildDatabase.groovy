@@ -1,5 +1,6 @@
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
+import java.net.Url
 
 /*
  * Copyright 2016 Mikhail Shugay
