@@ -443,6 +443,10 @@ def cmd = ["python", "AlignBestSegments.py", "../database/vdjdb_full.txt", "../d
 def proc = cmd.execute()
 proc.waitForProcessOutput(System.out, System.err)
 
+if (!proc.exitValue) {
+   throw new RuntimeException("AlignBestSegments failed")
+}
+
 def vdjdbLines = new File("../database/vdjdb.txt").readLines().collect { it.split("\t") as List }
 
 def cdr3FixIdx = vdjdbLines[0].indexOf("cdr3fix"),
