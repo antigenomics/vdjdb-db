@@ -192,6 +192,8 @@ def update_segments(index, old_row, new_row, gene_type, single_col, stats):
 						json_val["vFixType"] = "ChangeSegment"
 				elif json_val["vFixType"] in ["FixAdd", "FixReplace", "FixTrim"]:
 					json_val["vFixType"] = "ChangeSequence"
+				elif json_val["vFixType"] == "FailedBadSegment":
+						json_val["vFixType"] = "ChangeSegment"
 				else:
 					json_val["vFixType"] = "Failed"
 			else:
@@ -222,6 +224,8 @@ def update_segments(index, old_row, new_row, gene_type, single_col, stats):
 							json_val["jFixType"] = "ChangeSegment"
 					elif json_val["jFixType"] in ["FixAdd", "FixReplace", "FixTrim"]:
 						json_val["jFixType"] = "ChangeSequence"
+					elif json_val["jFixType"] == "FailedBadSegment":
+						json_val["jFixType"] = "ChangeSegment"
 					else:
 						json_val["jFixType"] = "Failed"
 				else:
