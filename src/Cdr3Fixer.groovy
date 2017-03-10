@@ -18,11 +18,11 @@ class Cdr3Fixer {
     final Map<String, Map<String, String>> segmentsByIdBySpecies = new HashMap<>()
     final int maxReplaceSize, minHitSize
 
-    Cdr3Fixer(int maxReplaceSize = 1, int minHitSize = 2) {
+    Cdr3Fixer(String segmentsFileName, int maxReplaceSize = 1, int minHitSize = 2) {
         this.maxReplaceSize = maxReplaceSize
         this.minHitSize = minHitSize
 
-        new File("segments.txt").splitEachLine('\t') { splitLine ->
+        new File(segmentsFileName).splitEachLine('\t') { splitLine ->
             if (!splitLine[0].startsWith("#")) {
                 def species = splitLine[0].toLowerCase(),
                     type = splitLine[2].toLowerCase(), id = splitLine[3],
@@ -132,7 +132,7 @@ class Cdr3Fixer {
 
         new FixerResult(newCdr3, cdr3, newCdr3 != cdr3,
                 vResult.x,
-                jResult.x < 0 ? jResult.x : newCdr3.length() - jResult.x - 1,
+                jResult.x < 0 ? jResult.x : newCdr3.length() - jResult.x,
                 vResult.segmentId, vResult.fixType,
                 jResult.segmentId, jResult.fixType)
     }

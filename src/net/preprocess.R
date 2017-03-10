@@ -2,7 +2,7 @@ library(dplyr)
 
 #epitopes = c("NLVPMVATV","KRWIILGLNK","GLCTLVAML","ATDALMTGY")
 
-df = read.table("../database/vdjdb.slim.txt", header=T, sep="\t", stringsAsFactors=F) %>%
+df = read.table("../../database/vdjdb.slim.txt", header=T, sep="\t", stringsAsFactors=F) %>%
   filter(gene == "TRB", species == "HomoSapiens") %>% #, mhc.class == "MHCI", antigen.epitope %in% epitopes) %>%
   distinct() %>%
   group_by(antigen.epitope) %>%

@@ -4,8 +4,8 @@ language:
 before_install:
   - sudo apt-get install python
   - sudo pip install pandas
+  - sudo pip install biopython
   
 script:
   - cd src/ 
-  - mkdir ../out/
   - groovy -cp . BuildDatabase.groovy

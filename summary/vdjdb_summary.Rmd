@@ -1,0 +1,183 @@
+---
+title: "VDJdb summary statistics"
+output: 
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Make sure to keep the default for normal processing.
+default_output_hook <- knitr::knit_hooks$get("output")
+
+# Output hooks handle normal R console output.
+knitr::knit_hooks$set( output = function(x, options) {
+
+  comment <- knitr::opts_current$get("comment")
+  if( is.na(comment) ) comment <- ""
+  can_null <- grepl( paste0( comment, "\\s*\\[\\d?\\]" ),
+                     x, perl = TRUE)
+  do_null <- isTRUE( knitr::opts_current$get("null_prefix") )
+  if( can_null && do_null ) {
+    # By default R print output aligns at the right brace.
+    align_index <- regexpr( "\\]", x )[1] - 1
+    # Two cases: start or newline
+    re <- paste0( "^.{", align_index, "}\\]")
+    rep <- comment
+    x <- gsub( re, rep,  x )
+    re <- paste0( "\\\n.{", align_index, "}\\]")
+    rep <- paste0( "\n", comment )
+    x <- gsub( re, rep,  x )
+  }
+
+  default_output_hook( x, options )
+
+})
+
+knitr::opts_template$set("kill_prefix"=list(comment=NA, null_prefix=TRUE))
+```
+
+```{r message=FALSE, warning=FALSE}
+library(dplyr)
+library(stringr)
+library(knitr)
+library(ggplot2)
+library(RColorBrewer)
+
+df = read.table("../database/vdjdb.slim.txt", header=T, sep="\t")
+```
+
+!summary_embed_start!
+
+```{r, null_prefix=TRUE}
+paste("Last updated on", format(Sys.time(), '%d %B, %Y'))
+```
+
+#### Record statistics by species and TCR chain
+
+General statistics
+
+```{r}
+df.sg = df %>% 
+  group_by(species, gene) %>%
+  summarize(records = length(complex.id), 
+            paired.records = sum(ifelse(complex.id=="0",0,1)),
+            epitopes = length(unique(antigen.epitope)),
+            publications = length(unique(str_split_fixed(reference.id, ",", n = Inf)[,1])))
+
+colnames(df.sg) = c("Species", "Chain", "Records", "Paired records", "Unique epitopes", "Publications")
+
+kable(format = "html", df.sg)
+```
+
+#### Summary by MHC alleles
+
+Representative data for Homo Sapiens
+
+```{r}
+df.m = df %>% 
+  filter(species == "HomoSapiens") %>%
+  mutate(mhc.a.split = str_split_fixed(mhc.a, "[:,]", n = Inf)[,1],
+         mhc.b.split = str_split_fixed(mhc.b, "[:,]", n = Inf)[,1]) %>%
+  group_by(mhc.a.split, mhc.b.split) %>%
+  summarize(records = n(), antigens = length(unique(antigen.epitope))) %>%
+  arrange(-records)
+  
+colnames(df.m) = c("First chain", "Second chain", "Records", "Unique epitopes")
+kable(format = "html", df.m)
+```
+
+#### Summary by antigen origin
+
+Representative data for Homo Sapiens
+
+```{r}
+df.a = df %>% 
+  filter(species == "HomoSapiens") %>%
+  group_by(antigen.species, antigen.gene) %>%
+  summarize(records = n(), epitopes = length(unique(antigen.epitope))) %>%
+  arrange(-records)
+
+colnames(df.a) = c("Parent species", "Parent gene", "Records", "Unique epitopes")
+kable(format = "html", df.a)
+```
+
+#### Distribution VDJdb confidence scores
+
+Legend: 0 - critical information missing, 1 - medium confidence, 2 - high confidence, 3 - very high confidence.
+
+```{r}
+df.score <- df %>%
+  group_by(mhc.class, gene, vdjdb.score) %>%
+  summarize(total = n())
+
+ggplot(df.score, aes(x=paste(mhc.class, gene, sep = " "), y=total, fill = as.factor(vdjdb.score))) + 
+  geom_bar(stat = "identity", color = "black", size = 0.3) +  
+  xlab("") + ylab("") +
+  scale_fill_brewer("VDJdb score", palette = "PuBuGn") + 
+  theme_light() +
+  theme(legend.position="bottom")
+```
+
+#### Spectratype
+
+Representative data for Homo Sapiens. The spectratype is colored by epitope.
+
+```{r}
+df.spe = subset(df, species=="HomoSapiens")
+
+ggplot(df.spe, 
+       aes(x=nchar(as.character(cdr3)), fill = antigen.epitope)) + 
+  geom_histogram(bins = 21, size = 0.3) + 
+  scale_x_continuous(limits = c(5,25), breaks = seq(5,25,5)) + 
+  facet_wrap(~gene, scales="free") + 
+  scale_fill_hue(guide=F) +
+  xlab("CDR3 length") + ylab("Records") +
+  theme_bw()
+```
+
+#### Variable segment usage and MHC allele
+
+Representative data for Homo Sapiens, TCR beta chain.
+
+```{r warning=FALSE}
+df.vhla = df %>% filter(species == "HomoSapiens" & gene == "TRB") %>%
+  mutate(mhc.a.split = str_split_fixed(mhc.a, "[:,]", n = Inf)[,1],
+         v.segm.split = str_split_fixed(v.segm, "[*,]", n = Inf)[,1]) %>%
+  group_by(mhc.class, mhc.a.split, v.segm.split) %>%
+  summarize(records = n()) %>%
+  group_by(mhc.class, mhc.a.split) %>%
+  mutate(records.mhc = sum(records)) %>%
+  group_by(v.segm.split) %>%
+  mutate(records.v = sum(records))
+  
+df.vhla$v.segm.split = with(df.vhla, factor(v.segm.split, v.segm.split[order(records.v)]))
+df.vhla$mhc.a.split = with(df.vhla, factor(mhc.a.split, mhc.a.split[order(records.mhc)]))
+
+ggplot(df.vhla, aes(x=mhc.a.split, y=v.segm.split, fill = pmin(records, 100))) +
+  geom_tile() +
+  scale_fill_gradientn("Records", colors=colorRampPalette(brewer.pal(9, 'PuBuGn'))(32), 
+                       trans="log", breaks = c(1, 10, 100)) +
+  xlab("") + ylab("") +
+  facet_grid(~mhc.class, scales="free", space="free") +
+  theme_bw() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5), 
+                       axis.text.y = element_text(size=5),
+                     panel.grid.major = element_blank())
+```
+
+!summary_embed_end!
+
+#### Unique CDR3 sequences per epitope
+
+Representative data for Homo Sapiens
+
+```{r}
+df.ag = df %>%
+  filter(species == "HomoSapiens") %>%
+  group_by(gene, mhc.class, antigen.species, antigen.gene, antigen.epitope) %>%
+  summarize(cdr3.count = length(unique(cdr3))) %>%
+  arrange(-cdr3.count)
+
+colnames(df.ag) = c("TCR chain", "MHC class", "Parent species", "Parent gene", "Epitope sequence", "Unique CDR3")
+kable(format = "html", df.ag)
+```
