@@ -1,6 +1,5 @@
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
-import java.net.Url
 
 /*
  * Copyright 2016 Mikhail Shugay
@@ -94,10 +93,6 @@ def err = { String message ->
 }
 
 new File("../tmp/").mkdirs()
-
-def segmentsTmp = new File("../tmp/segments.txt").newOutputStream()
-segmentsTmp << new Url('https://raw.githubusercontent.com/mikessh/migmap/master/src/main/resources/segments.txt').openStream()
-segmentsTmp.close()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Table utils
@@ -272,7 +267,7 @@ chunkFiles.each { chunkFile ->
 // Fix CDR3 sequences
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-def cdr3Fixer = new Cdr3Fixer()
+def cdr3Fixer = new Cdr3Fixer("../res/segments.txt")
 
 println "Fixing CDR3 sequences (stage I)"
 
@@ -444,7 +439,7 @@ new File("../database/vdjdb.txt").withPrintWriter { pw ->
 println "Fixing CDR3 sequences (stage II)"
 println "(it may take a while...)"
 
-def cmd = ["python", "AlignBestSegments.py", "../database/vdjdb_full.txt", "../database/vdjdb.txt", "../tmp/segments.txt"]
+def cmd = ["python", "AlignBestSegments.py", "../database/vdjdb_full.txt", "../database/vdjdb.txt", "../res/segments.txt"]
 def proc = cmd.execute()
 proc.waitForProcessOutput(System.out, System.err)
 
