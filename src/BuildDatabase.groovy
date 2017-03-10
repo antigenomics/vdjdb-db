@@ -443,7 +443,7 @@ def cmd = ["python", "AlignBestSegments.py", "../database/vdjdb_full.txt", "../d
 def proc = cmd.execute()
 proc.waitForProcessOutput(System.out, System.err)
 
-if (!proc.exitValue) {
+if (!proc.exitValue()) {
    throw new RuntimeException("AlignBestSegments failed")
 }
 
