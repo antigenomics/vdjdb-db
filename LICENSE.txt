@@ -1,6 +1,6 @@
 VDJDB: A curated database of T-cell receptor sequences of known antigen specificity
 
-(c) by Mikhail Shugay, Ivan Zvyagin and Contributors
+Copyright 2015-2017 Mikhail Shugay, Ivan Zvyagin and VDJdb Contributors
 
 Attribution-NoDerivatives 4.0 International
 
