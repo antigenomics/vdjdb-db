@@ -13,7 +13,8 @@ new File("vdjdb_summary.html").eachLine { line ->
         if (line.startsWith("<pre><code>##")) {
             line = line.replaceAll("#", "").replaceAll("&quot;", "")
         }
-        pw.println(line.replaceAll("<table>", "<table class=\"table\">"))
+        pw.println(line.replaceAll("<table>", "<table class=\"table\">")
+                       .replaceAll(/width\s*=\s*"\d+"/, "width=\"100%\""))
     }
     if (line.contains("!summary_embed_start!")) {
         ignore = false
