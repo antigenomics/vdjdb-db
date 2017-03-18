@@ -17,11 +17,20 @@
 
 class VdjdbScoreFactory {
     final Map<String, Integer> scoreMap = new HashMap<>()
+    final Map<String, List<String>> publicationMap = new HashMap<>()
 
     VdjdbScoreFactory(Table masterTable) {
         masterTable.each { row ->
             def sign = getSignature(row)
 
+            // Assign publications
+            def pubList = publicationMap[sign]
+            if (pubList == null) {
+                publicationMap.put(sign, pubList = new ArrayList<String>())
+            }
+            pubList << row["reference.id"]
+
+            // Compute score
             def score
             if (row["meta.structure.id"].trim().length() > 0) {
                 score = 3 // we have structure, any questions? :)
@@ -165,6 +174,14 @@ class VdjdbScoreFactory {
 
     int getScore(Table.Row row) {
         scoreMap[getSignature(row)] ?: 0
+    }
+
+    int getSamplesDetected(Table.Row row) {
+        (publicationMap[getSignature(row)] ?: []).size()
+    }
+
+    int getStudiesDetected(Table.Row row) {
+        (publicationMap[getSignature(row)] ?: []).unique().size()
     }
 
     String getSignature(Table.Row row) {

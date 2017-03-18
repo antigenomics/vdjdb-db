@@ -335,20 +335,20 @@ def METADATA_LINES = ["name\ttype\tvisible\tsearchable\tautocomplete\tdata.type\
                       "complex.id\ttxt\t0\t0\t0\tcomplex.id\tcomplex.id\tTCR alpha and beta chain records having the same complex identifier belong to the same T-cell clone.",
                       "gene\ttxt\t1\t1\t1\tfactor\tGene\tTCR chain: alpha or beta.",
                       "cdr3\tseq\t1\t1\t0\tcdr3\tCDR3\tTCR complementarity determining region 3 (CDR3) amino acid sequence.",
-                      "v.segm\ttxt\t1\t1\t1\tfactor\tV\tTCR Variable segment identifier.",
-                      "j.segm\ttxt\t1\t1\t1\tfactor\tJ\tTCR Joining segment identifier.",
-                      "species\ttxt\t1\t1\t1\tfactor\tSpecies\tParent species of a given TCR.",
-                      "mhc.a\ttxt\t1\t1\t1\tfactor\tMHC.A\tFirst MHC chain identifier.",
-                      "mhc.b\ttxt\t1\t1\t1\tfactor\tMHC.B\tSecond MHC chain identifier (set to beta2microglobulin for MHC class I).",
-                      "mhc.class\ttxt\t1\t1\t1\tfactor\tMHC.class\tMHC class (I or II).",
-                      "antigen.epitope\tseq\t1\t1\t1\tpeptide\tAntigen.Epitope\tAmino acid sequence of the antigen peptide.",
-                      "antigen.gene\ttxt\t1\t1\t1\tfactor\tAntigen.Gene\tParent gene of the antigen peptide.",
-                      "antigen.species\ttxt\t1\t1\t1\tfactor\tAntigen.Species\tParent species of the antigen peptide.",
+                      "v.segm\ttxt\t1\t1\t1\tfactor\tV\tTCR Variable segment allele.",
+                      "j.segm\ttxt\t1\t1\t1\tfactor\tJ\tTCR Joining segment allele.",
+                      "species\ttxt\t1\t1\t1\tfactor\tSpecies\tTCR parent species.",
+                      "mhc.a\ttxt\t1\t1\t1\tfactor\tMHC A\tFirst MHC chain allele.",
+                      "mhc.b\ttxt\t1\t1\t1\tfactor\tMHC B\tSecond MHC chain allele (defaults to Beta2Microglobulin for MHC class I).",
+                      "mhc.class\ttxt\t1\t1\t1\tfactor\tMHC class\tMHC class (I or II).",
+                      "antigen.epitope\tseq\t1\t1\t1\tpeptide\tEpitope\tAmino acid sequence of the epitope.",
+                      "antigen.gene\ttxt\t1\t1\t1\tfactor\tEpitope gene\tRepresentative parent gene of the epitope.",
+                      "antigen.species\ttxt\t1\t1\t1\tfactor\tEpitope species\tRepresentative parent species of the epitope.",
                       "reference.id\ttxt\t1\t1\t1\turl\tReference\tPubmed reference / URL / or submitter details in case unpublished.",
                       "method\ttxt\t1\t0\t0\tmethod.json\tMethod\tDetails on method used to assay TCR specificity.",
                       "meta\ttxt\t1\t0\t0\tmeta.json\tMeta\tVarious meta-information: cell subset, donor status, etc.",
-                      "cdr3fix\ttxt\t1\t0\t0\tfixer.json\tcdr3fix\tDetails on CDR3 sequence fixing (if applied) and consistency between V, J and reported CDR3 sequence.",
-                      "vdjdb.score\ttxt\t1\t1\t0\tuint\tscore\tVDJdb confidence score, the higher is the score the more confidence we have in the antigen specificity annotation of a given TCR clonotype/clone. 0 score indicates that there are insufficient method details to draw any conclusion.",
+                      "cdr3fix\ttxt\t1\t0\t0\tfixer.json\tCDR3fix\tDetails on CDR3 sequence fixing (if applied) and consistency between V, J and reported CDR3 sequence.",
+                      "vdjdb.score\ttxt\t1\t1\t0\tuint\tScore\tVDJdb confidence score, the higher is the score the more confidence we have in the antigen specificity annotation of a given TCR clonotype/clone. Zero score indicates that there are insufficient method details to draw any conclusion.",
                       "web.method\ttxt\t0\t0\t1\t0\tfactor\tInternal",
                       "web.method.seq\ttxt\t0\t0\t1\t0\tfactor\tInternal",
                       "web.cdr3fix.nc\ttxt\t0\t0\t1\t0\tfactor\tInternal",
@@ -398,10 +398,16 @@ new File("../database/vdjdb.txt").withPrintWriter { pw ->
 
         def methodAnnot = new JsonBuilder(METHOD_COLUMNS.collectEntries {
             [(it.split("method.")[1]): row[it]]
-        }).toString(),
-            metaAnnot = new JsonBuilder(META_COLUMNS.collectEntries {
+        }).toString()
+
+        def metaAnnotMap = META_COLUMNS.collectEntries {
                 [(it.split("meta.")[1]): row[it]]
-            }).toString()
+            }
+
+        metaAnnotMap << [("samples.found"): scoreFactory.getSamplesDetected(row)]
+        metaAnnotMap << [("studies.found"): scoreFactory.getStudiesDetected(row)]
+
+        def metaAnnot = new JsonBuilder(metaAnnotMap).toString()
 
         def complexId
         if (row["cdr3.alpha"] == "" || row["cdr3.beta"] == "") {
@@ -474,19 +480,20 @@ new File("../database/vdjdb.txt").withPrintWriter { pw ->
 println "Generating and writing slim database"
 
 def SLIM_METADATA_LINES = [
-        "name\ttype",
-        "complex.id\ttxt",
         "gene\ttxt",
         "cdr3\tseq",
-        "v.segm\ttxt",
-        "j.segm\ttxt",
         "species\ttxt",
-        "mhc.a\ttxt",
-        "mhc.b\ttxt",
-        "mhc.class\ttxt",
         "antigen.epitope\tseq",
         "antigen.gene\ttxt",
         "antigen.species\ttxt",
+        "complex.id\ttxt",
+        "v.segm\ttxt",
+        "j.segm\ttxt",
+        "v.end\ttxt",
+        "j.start\ttxt",
+        "mhc.a\ttxt",
+        "mhc.b\ttxt",
+        "mhc.class\ttxt",
         "reference.id\ttxt",
         "vdjdb.score\ttxt"
 ]
