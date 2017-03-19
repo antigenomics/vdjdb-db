@@ -167,51 +167,71 @@ def update_segments(index, old_row, new_row, gene_type, single_col, stats):
 	if not pd.isnull(row["cdr3fix" + gene_type]):
 		json_val = json.loads(row["cdr3fix" + gene_type])
 
-		# NoFixNeeded -> NoFix or ChangeSegment
-		# FixAdd, FixReplace, FixTrim -> ChangedSequence
-		# fail -> Failed
+		if new_row[1] != -1:
+			if new_row[0] == json_val["vId"]:
+				if new_row[1] > json_val["vEnd"]:
+					json_val["oldVEnd"] = json_val["vEnd"]
+					json_val["vEnd"] = new_row[1]
 
-		# except where NoFixNeeded
-		# print(json_val["vEnd"], new_row[1])
-		# print(json_val["cdr3"], json_val["vId"], new_row[0])
-		# print(json_val["vEnd"], new_row[1])
-		if (new_row[1] - json_val["vEnd"]) >= MIN_DIFF_V:
-			json_val["oldVId"] = json_val["vId"]
-			json_val["vId"] = new_row[0]
-			json_val["oldVEnd"] = json_val["vEnd"]
-			json_val["vEnd"] = new_row[1]
-			json_val["oldVFixType"] = json_val["vFixType"]
-			if json_val["oldVId"] != json_val["vId"]:
-				temp_s = "v_" + str(json_val["oldVId"]) + "->" + json_val["vId"] + ":" + str(json_val["oldVEnd"]) + "->" + str(json_val["vEnd"])
-				stats[temp_s] = stats.get(temp_s, 0) + 1
+					json_val["oldVFixType"] = json_val["vFixType"]
+					json_val["vFixType"] = "Realign"
+			elif (new_row[1] - json_val["vEnd"]) >= MIN_DIFF_V:
+				json_val["oldVId"] = json_val["vId"]
+				json_val["vId"] = new_row[0]
 
-			if json_val["vId"] == json_val["oldVId"]:
-				json_val["vFixType"] = "Realign"
-			else:
+				json_val["oldVEnd"] = json_val["vEnd"]
+				json_val["vEnd"] = new_row[1]
+
+				json_val["oldVFixType"] = json_val["vFixType"]
 				json_val["vFixType"] = "ChangeSegment"
 
+		# if (new_row[1] - json_val["vEnd"]) >= MIN_DIFF_V:
+		# 	json_val["oldVId"] = json_val["vId"]
+		# 	json_val["vId"] = new_row[0]
+		# 	json_val["oldVEnd"] = json_val["vEnd"]
+		# 	json_val["vEnd"] = new_row[1]
+		# 	json_val["oldVFixType"] = json_val["vFixType"]
+		# 	if json_val["oldVId"] != json_val["vId"]:
+		# 		temp_s = "v_" + str(json_val["oldVId"]) + "->" + json_val["vId"] + ":" + str(json_val["oldVEnd"]) + "->" + str(json_val["vEnd"])
+		# 		stats[temp_s] = stats.get(temp_s, 0) + 1
 
-		# if ((len(row["cdr3" + gene_type]) - new_row[3]) == 12 or (len(row["cdr3" + gene_type]) - new_row[3]) == 14):
-		# 	print("-")
-		# 	print(new_row[2:])
-		# 	print((len(row["cdr3" + gene_type]) - new_row[3]) - json_val["jStart"])
-		# 	print(((len(row["cdr3" + gene_type]) - new_row[3]) - json_val["jStart"] >= MIN_DIFF_J))
-		# 	print("-")
-		if (new_row[3] != -1) and ((json_val["jStart"] == -1) or ((len(row["cdr3" + gene_type]) - new_row[3]) - json_val["jStart"] >= MIN_DIFF_J)):
-			json_val["oldJId"] = json_val["jId"]
-			json_val["jId"] = new_row[2]
-			json_val["oldJStart"] = json_val["jStart"]
-			json_val["jStart"] = len(row["cdr3" + gene_type]) - new_row[3]
-			json_val["oldJFixType"] = json_val["jFixType"]
-			if json_val["oldJId"] != json_val["jId"]:
-				temp_s = "j_" + str(json_val["oldJId"]) + "->" + json_val["jId"] + ":" + str(json_val["oldJStart"]) + "->" + str(json_val["jStart"])
-				stats[temp_s] = stats.get(temp_s, 0) + 1
-				
-			if json_val["jId"] == json_val["oldJId"]:
-				json_val["jFixType"] = "Realign"
-			else:
+		# 	if json_val["vId"] == json_val["oldVId"]:
+		# 		json_val["vFixType"] = "Realign"
+		# 	else:
+		# 		json_val["vFixType"] = "ChangeSegment"
+
+		if new_row[3] != -1:
+			if new_row[2] == json_val["jId"]:
+				if json_val["jStart"] > (len(row["cdr3" + gene_type]) - new_row[3]):
+					json_val["oldJStart"] = json_val["jStart"]
+					json_val["jStart"] = len(row["cdr3" + gene_type]) - new_row[3]
+
+					json_val["oldJFixType"] = json_val["jFixType"]
+					json_val["jFixType"] = "Realign"
+			elif json_val["jStart"] - (len(row["cdr3" + gene_type]) - new_row[3]) >= MIN_DIFF_J:
+				json_val["oldJId"] = json_val["jId"]
+				json_val["jId"] = new_row[2]
+
+				json_val["oldJStart"] = json_val["jStart"]
+				json_val["jStart"] = len(row["cdr3" + gene_type]) - new_row[3]
+
+				json_val["oldJFixType"] = json_val["jFixType"]
 				json_val["jFixType"] = "ChangeSegment"
 
+		# if (new_row[3] != -1) and ((json_val["jStart"] == -1) or (json_val["jStart"] - (len(row["cdr3" + gene_type]) - new_row[3]) >= MIN_DIFF_J)):
+		# 	json_val["oldJId"] = json_val["jId"]
+		# 	json_val["jId"] = new_row[2]
+		# 	json_val["oldJStart"] = json_val["jStart"]
+		# 	json_val["jStart"] = len(row["cdr3" + gene_type]) - new_row[3]
+		# 	json_val["oldJFixType"] = json_val["jFixType"]
+		# 	if json_val["oldJId"] != json_val["jId"]:
+		# 		temp_s = "j_" + str(json_val["oldJId"]) + "->" + json_val["jId"] + ":" + str(json_val["oldJStart"]) + "->" + str(json_val["jStart"])
+		# 		stats[temp_s] = stats.get(temp_s, 0) + 1
+				
+		# 	if json_val["jId"] == json_val["oldJId"]:
+		# 		json_val["jFixType"] = "Realign"
+		# 	else:
+		# 		json_val["jFixType"] = "ChangeSegment"
 
 		# FINALISATION
 		json_val["good"] = (json_val["vEnd"] != -1) and (json_val["jStart"] != -1)
