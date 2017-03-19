@@ -197,7 +197,7 @@ def update_segments(index, old_row, new_row, gene_type, single_col, stats):
 		# 	print((len(row["cdr3" + gene_type]) - new_row[3]) - json_val["jStart"])
 		# 	print(((len(row["cdr3" + gene_type]) - new_row[3]) - json_val["jStart"] >= MIN_DIFF_J))
 		# 	print("-")
-		if (new_row[3] != -1) and ((json_val["jStart"] == -1) or ((len(row["cdr3" + gene_type]) - new_row[3]) - json_val["jStart"] >= MIN_DIFF_J)):
+		if (new_row[3] != -1) and ((json_val["jStart"] == -1) or (json_val["jStart"] - (len(row["cdr3" + gene_type]) - new_row[3]) >= MIN_DIFF_J)):
 			json_val["oldJId"] = json_val["jId"]
 			json_val["jId"] = new_row[2]
 			json_val["oldJStart"] = json_val["jStart"]
