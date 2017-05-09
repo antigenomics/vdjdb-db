@@ -480,6 +480,7 @@ new File("../database/vdjdb.txt").withPrintWriter { pw ->
 println "Generating and writing slim database"
 
 def SLIM_METADATA_LINES = [
+        "name\ttype",
         "gene\ttxt",
         "cdr3\tseq",
         "species\ttxt",
