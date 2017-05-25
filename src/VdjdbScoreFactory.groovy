@@ -85,9 +85,9 @@ class VdjdbScoreFactory {
                     specScore1 = freq >= 0.5f ? 1 : 0
                 } else {
                     if (sortBasedMethod(identifyMethod)) {
-                        specScore1 = freq >= 0.1f ? 1 : 0
+                        specScore1 = freq >= 0.05f ? 1 : 0
                     } else if (stimulationBasedMethod(identifyMethod)) {
-                        specScore1 = freq >= 0.5f ? 1 : 0
+                        specScore1 = freq >= 0.25f ? 1 : 0
                     }
                 }
 

@@ -1,6 +1,6 @@
 ---
 title: "VDJdb summary statistics"
-output: 
+output:
   html_document:
     code_folding: hide
 ---
@@ -80,10 +80,12 @@ df.m = df %>%
   mutate(mhc.a.split = str_split_fixed(mhc.a, "[:,]", n = Inf)[,1],
          mhc.b.split = str_split_fixed(mhc.b, "[:,]", n = Inf)[,1]) %>%
   group_by(mhc.a.split, mhc.b.split) %>%
-  summarize(records = n(), antigens = length(unique(antigen.epitope))) %>%
+  summarize(records = n(), 
+            antigens = length(unique(antigen.epitope)),
+            publications = length(unique(str_split_fixed(reference.id, ",", n = Inf)[,1]))) %>%
   arrange(-records)
   
-colnames(df.m) = c("First chain", "Second chain", "Records", "Unique epitopes")
+colnames(df.m) = c("First chain", "Second chain", "Records", "Unique epitopes", "Publications")
 kable(format = "html", df.m)
 ```
 
@@ -95,10 +97,12 @@ Representative data for Homo Sapiens
 df.a = df %>% 
   filter(species == "HomoSapiens") %>%
   group_by(antigen.species, antigen.gene) %>%
-  summarize(records = n(), epitopes = length(unique(antigen.epitope))) %>%
+  summarize(records = n(), 
+            epitopes = length(unique(antigen.epitope)),
+            publications = length(unique(str_split_fixed(reference.id, ",", n = Inf)[,1]))) %>%
   arrange(-records)
 
-colnames(df.a) = c("Parent species", "Parent gene", "Records", "Unique epitopes")
+colnames(df.a) = c("Parent species", "Parent gene", "Records", "Unique epitopes", "Publications")
 kable(format = "html", df.a)
 ```
 
