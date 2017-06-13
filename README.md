@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/antigenomics/vdjdb-db.svg?branch=master)](https://travis-ci.org/antigenomics/vdjdb-db) [![Ask your questions about VDJdb, VDJdb-standalone and VDJdb-server in a live chat](https://badges.gitter.im/antigenomics/vdjdb-db.svg)](https://gitter.im/antigenomics/vdjdb-db?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![DOI](https://zenodo.org/badge/49149680.svg)](https://zenodo.org/badge/latestdoi/49149680)
+[![Build Status](https://travis-ci.org/antigenomics/vdjdb-db.svg?branch=master)](https://travis-ci.org/antigenomics/vdjdb-db) [![Ask your questions about VDJdb, VDJdb-standalone and VDJdb-server in a live chat](https://badges.gitter.im/antigenomics/vdjdb-db.svg)](https://gitter.im/antigenomics/vdjdb-db?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.806857.svg)](https://doi.org/10.5281/zenodo.806857)
 
 # VDJDB: A curated database of T-cell receptor sequences of known antigen specificity
 
