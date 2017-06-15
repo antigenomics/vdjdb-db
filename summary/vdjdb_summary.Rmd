@@ -55,7 +55,7 @@ paste("Last updated on", format(Sys.time(), '%d %B, %Y'))
 
 #### Record statistics by species and TCR chain
 
-General statistics
+General statistics. Note that general statistics is computed using "slim" database version. This version, for example, lists the same TCR sequence found in several samples/studies only once.
 
 ```{r}
 df.sg = df %>% 
@@ -155,8 +155,8 @@ df.vhla = df %>% filter(species == "HomoSapiens" & gene == "TRB") %>%
   group_by(v.segm.split) %>%
   mutate(records.v = sum(records))
   
-df.vhla$v.segm.split = with(df.vhla, factor(v.segm.split, v.segm.split[order(records.v)]))
-df.vhla$mhc.a.split = with(df.vhla, factor(mhc.a.split, mhc.a.split[order(records.mhc)]))
+#df.vhla$v.segm.split = with(df.vhla, factor(v.segm.split, v.segm.split[order(records.v)]))
+#df.vhla$mhc.a.split = with(df.vhla, factor(mhc.a.split, mhc.a.split[order(records.mhc)]))
 
 ggplot(df.vhla, aes(x=mhc.a.split, y=v.segm.split, fill = pmin(records, 100))) +
   geom_tile() +
