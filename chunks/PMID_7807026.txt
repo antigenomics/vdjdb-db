@@ -36,5 +36,4 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 35				CASSQGSYGYTF	TRBV17		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M1	Influenza-A	PMID:7807026	limiting-diffusion-cloning,antigen-expressing-targets			sanger			CD8+					SWA9	M58-66	PBMC			
 36				CASSTGSYGYTF	TRBV17		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M1	Influenza-A	PMID:7807026	limiting-diffusion-cloning,antigen-expressing-targets			sanger			CD8+					SWA18	M58-66	PBMC			
 37				CASSTGSYGYTF	TRBV17		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M1	Influenza-A	PMID:7807026	limiting-diffusion-cloning,antigen-expressing-targets			sanger			CD8+					MODG9	M58-66	PBMC			
-38				CASSIGNYGYTF	TRBV17		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M1	Influenza-A	PMID:7807026	limiting-diffusion-cloning,antigen-expressing-targets			sanger			CD8+					KDA1	M58-66	PBMC			
-39																																
+38				CASSIGNYGYTF	TRBV17		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M1	Influenza-A	PMID:7807026	limiting-diffusion-cloning,antigen-expressing-targets			sanger			CD8+					KDA1	M58-66	PBMC																																			
