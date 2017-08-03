@@ -1,65 +1,65 @@
 chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
-1				LCASSFGVSYEQYFG	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	10/23		sanger			CD8+			1			NP52-59	lymph-node			
-2				LCASSFHISYEQYFG	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	9/23		sanger			CD8+			1			NP52-59	lymph-node			
-3				LCASSFGVNSDYTFG	TRBV13		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	2/23		sanger			CD8+			1			NP52-59	lymph-node			
-4				LCASSLGVDAEQFFG	TRBV13		TRBJ2-1	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/23		sanger			CD8+			1			NP52-59	lymph-node			
-5				LCASSLGVGDTQYFG	TRBV13		TRBJ2-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/23		sanger			CD8+			1			NP52-59	lymph-node			
-6				LCASSFGVNSDYTFG	TRBV13		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	10/23		sanger			CD8+			2			NP52-59	lymph-node			
-7				LCASSFGTGGRVFFG	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	4/23		sanger			CD8+			2			NP52-59	lymph-node			
-8				LCASSHGTGAPQYFG	TRBV13		TRBJ2-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	3/23		sanger			CD8+			2			NP52-59	lymph-node			
-9				LCASSFGVSYEQYFG	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	2/23		sanger			CD8+			2			NP52-59	lymph-node			
-10				LCASSLGVGDTQYFG	TRBV13		TRBJ2-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/23		sanger			CD8+			2			NP52-59	lymph-node			
-11				LCASSWGTGNTQYFG	TRBV13		TRBJ2-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/23		sanger			CD8+			2			NP52-59	lymph-node			
-12				LCASSLGTGGKQFFG	TRBV13		TRBJ2-1	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/23		sanger			CD8+			2			NP52-59	lymph-node			
-13				LCASSQGIGAEQFFG	TRBV13		TRBJ2-1	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/23		sanger			CD8+			2			NP52-59	lymph-node			
-14				LCASSFGVSYEQYFG	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	14/22		sanger			CD8+			3			NP52-59	lymph-node			
-15				LCASSFGVNSDYTFG	TRBV13		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	4/22		sanger			CD8+			3			NP52-59	lymph-node			
-16				LCASSPGVGTEVFFG	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	2/22		sanger			CD8+			3			NP52-59	lymph-node			
-17				LCASSLGVGDTQYFG	TRBV13		TRBJ2-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/22		sanger			CD8+			3			NP52-59	lymph-node			
-18				LCASSFGTGGRVFFG	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/22		sanger			CD8+			3			NP52-59	lymph-node			
-19				LCASSPGTGVEQYFG	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	8/16		sanger			CD8+			4			NP52-59	lymph-node			
-20				LCASSFGVSYEQYFG	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	4/16		sanger			CD8+			4			NP52-59	lymph-node			
-21				LCASSPGTGQAPLFG	TRBV13		TRBJ1-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	2/16		sanger			CD8+			4			NP52-59	lymph-node			
-22				LCASSFGVNSDYTFG	TRBV13		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/16		sanger			CD8+			4			NP52-59	lymph-node			
-23				LCASSFHISYEQYFG	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/16		sanger			CD8+			4			NP52-59	lymph-node			
-24				LCASSFRDSGNTLYFG	TRBV13		TRBJ1-3	MusMusculus	H-2Kb	B2M	MHCI	RGYVYKGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	13/16		sanger			CD8+			1			K6	lymph-node			
-25				LCASSFRDGTNTEVFFG	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	RGYVYKGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	3/16		sanger			CD8+			1			K6	lymph-node			
-26				LCASSFRDSGNTLYFG	TRBV13		TRBJ1-3	MusMusculus	H-2Kb	B2M	MHCI	RGYVYKGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	18/18		sanger			CD8+			2			K6	lymph-node			
-27				LCASSLRDGSNQAPLFG	TRBV13		TRBJ1-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYKGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	16/16		sanger			CD8+			3			K6	lymph-node			
-28				FCASSLFRASAETLYFG	TRBV7		TRBJ2-3	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	4/20		sanger			CD8+			1			E6	lymph-node			
-29				FCASSPHRASQNTLYFG	TRBV7		TRBJ2-4	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	2/20		sanger			CD8+			1			E6	lymph-node			
-30				FCASSLFRANTGQLYFG	TRBV7		TRBJ2-2	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	2/20		sanger			CD8+			1			E6	lymph-node			
-31				FCASSPYRGGNQAPLFG	TRBV7		TRBJ1-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	2/20		sanger			CD8+			1			E6	lymph-node			
-32				FCASSLSRASQNTLYFG	TRBV7		TRBJ2-4	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/20		sanger			CD8+			1			E6	lymph-node			
-33				FCASSPFRGSQNTLYFG	TRBV7		TRBJ2-4	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/20		sanger			CD8+			1			E6	lymph-node			
-34				FCASSLSKVSQNTLYFG	TRBV7		TRBJ2-4	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/20		sanger			CD8+			1			E6	lymph-node			
-35				FCASSLFRAVQNTLYFG	TRBV7		TRBJ2-4	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/20		sanger			CD8+			1			E6	lymph-node			
-36				FCASSLYRANTGQLYFG	TRBV7		TRBJ2-2	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/20		sanger			CD8+			1			E6	lymph-node			
-37				FCASSLSRTLNSDYTFG	TRBV7		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/20		sanger			CD8+			1			E6	lymph-node			
-38				FCASSLFRTNNSPLYFA	TRBV7		TRBJ1-6	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/20		sanger			CD8+			1			E6	lymph-node			
-39				FCASSLYRNNQAPLFG	TRBV7		TRBJ1-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/20		sanger			CD8+			1			E6	lymph-node			
-40				FCASSLYRTGRNSDYTFG	TRBV7		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/20		sanger			CD8+			1			E6	lymph-node			
-41				FCASSLTRTGGQNTLYFG	TRBV7		TRBJ2-4	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/20		sanger			CD8+			1			E6	lymph-node			
-42				FCASSLSRASGNTLYFG	TRBV7		TRBJ1-3	MusMusculus	H-2Kb	B2M	MHCI	RGYVYDGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	5/6		sanger			CD8+			2			D6	lymph-node			
-43				FCASSPRRVSQNTLYFG	TRBV7		TRBJ2-4	MusMusculus	H-2Kb	B2M	MHCI	RGYVYDGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/6		sanger			CD8+			2			D6	lymph-node			
-44				FCASSLSRALNNQAPLFG	TRBV7		TRBJ1-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYDGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	7/7		sanger			CD8+			3			D6	lymph-node			
-45				LCASSSGVGTEVFFG	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	IGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	7/13		sanger			CD8+			1			I1	lymph-node			
-46				LCASSFGTGNTLYFG	TRBV13		TRBJ1-3	MusMusculus	H-2Kb	B2M	MHCI	IGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	3/13		sanger			CD8+			1			I1	lymph-node			
-47				LCASSFGTGVEQYFG	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	IGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	2/13		sanger			CD8+			1			I1	lymph-node			
-48				LCASSLGAGSDYTFG	TRBV13		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	IGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/13		sanger			CD8+			1			I1	lymph-node			
-49				LCASSSGVGTEVFFG	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	IGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	8/11		sanger			CD8+			2			I1	lymph-node			
-50				LCASSFGVNSDYTFG	TRBV13		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	IGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	2/11		sanger			CD8+			2			I1	lymph-node			
-51				LCASSLGTNTEVFFG	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	IGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/11		sanger			CD8+			2			I1	lymph-node			
-52				LCASSSGVGTEVFFG	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	7/15		sanger			CD8+			3			K1	lymph-node			
-53				LCASSLGTGTEVFFG	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	2/15		sanger			CD8+			3			K1	lymph-node			
-54				LCASSPGTGVEQYFG	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/15		sanger			CD8+			3			K1	lymph-node			
-55				LCASSFMTGGEQYFG	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/15		sanger			CD8+			3			K1	lymph-node			
-56				LCASSFRVATEVFFG	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/15		sanger			CD8+			3			K1	lymph-node			
-57				LCASSFRVGNTLYFG	TRBV13		TRBJ1-3	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/15		sanger			CD8+			3			K1	lymph-node			
-58				LCASSFHINSDYTFG	TRBV13		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/15		sanger			CD8+			3			K1	lymph-node			
-59				LCASSFGVNTGQLYFG	TRBV13		TRBJ2-2	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/15		sanger			CD8+			3			K1	lymph-node			
-60				LCASSSGVGTEVFFG	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	5/12		sanger			CD8+			4			K1	lymph-node			
-61				LCASSFGVNSDYTFG	TRBV13		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	3/12		sanger			CD8+			4			K1	lymph-node			
-62				LCASSPGTGVEQYFG	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	2/12		sanger			CD8+			4			K1	lymph-node			
-63				LCASSFRVATEVFFG	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/12		sanger			CD8+			4			K1	lymph-node			
-64				LCASSFRVGNTLYFG	TRBV13		TRBJ1-3	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antibody-sort	1/12		sanger			CD8+			4			K1	lymph-node			
+1				CASSFGVSYEQYF	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	10/23		sanger	antigen-loaded-targets		CD8+,Va2+			1			NP52-59	spleen			
+2				CASSFHISYEQYF	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	9/23		sanger	antigen-loaded-targets		CD8+,Va2+			1			NP52-59	spleen			
+3				CASSFGVNSDYTF	TRBV13		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	2/23		sanger	antigen-loaded-targets		CD8+,Va2+			1			NP52-59	spleen			
+4				CASSLGVDAEQFF	TRBV13		TRBJ2-1	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/23		sanger	antigen-loaded-targets		CD8+,Va2+			1			NP52-59	spleen			
+5				CASSLGVGDTQYF	TRBV13		TRBJ2-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/23		sanger	antigen-loaded-targets		CD8+,Va2+			1			NP52-59	spleen			
+6				CASSFGVNSDYTF	TRBV13		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	10/23		sanger	antigen-loaded-targets		CD8+,Va2+			2			NP52-59	spleen			
+7				CASSFGTGGRVFF	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	4/23		sanger	antigen-loaded-targets		CD8+,Va2+			2			NP52-59	spleen			
+8				CASSHGTGAPQYF	TRBV13		TRBJ2-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	3/23		sanger	antigen-loaded-targets		CD8+,Va2+			2			NP52-59	spleen			
+9				CASSFGVSYEQYF	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	2/23		sanger	antigen-loaded-targets		CD8+,Va2+			2			NP52-59	spleen			
+10				CASSLGVGDTQYF	TRBV13		TRBJ2-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/23		sanger	antigen-loaded-targets		CD8+,Va2+			2			NP52-59	spleen			
+11				CASSWGTGNTQYF	TRBV13		TRBJ2-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/23		sanger	antigen-loaded-targets		CD8+,Va2+			2			NP52-59	spleen			
+12				CASSLGTGGKQFF	TRBV13		TRBJ2-1	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/23		sanger	antigen-loaded-targets		CD8+,Va2+			2			NP52-59	spleen			
+13				CASSQGIGAEQFF	TRBV13		TRBJ2-1	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/23		sanger	antigen-loaded-targets		CD8+,Va2+			2			NP52-59	spleen			
+14				CASSFGVSYEQYF	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	14/22		sanger	antigen-loaded-targets		CD8+,Va2+			3			NP52-59	spleen			
+15				CASSFGVNSDYTF	TRBV13		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	4/22		sanger	antigen-loaded-targets		CD8+,Va2+			3			NP52-59	spleen			
+16				CASSPGVGTEVFF	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	2/22		sanger	antigen-loaded-targets		CD8+,Va2+			3			NP52-59	spleen			
+17				CASSLGVGDTQYF	TRBV13		TRBJ2-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/22		sanger	antigen-loaded-targets		CD8+,Va2+			3			NP52-59	spleen			
+18				CASSFGTGGRVFF	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/22		sanger	antigen-loaded-targets		CD8+,Va2+			3			NP52-59	spleen			
+19				CASSPGTGVEQYF	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	8/16		sanger	antigen-loaded-targets		CD8+,Va2+			4			NP52-59	spleen			
+20				CASSFGVSYEQYF	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	4/16		sanger	antigen-loaded-targets		CD8+,Va2+			4			NP52-59	spleen			
+21				CASSPGTGQAPLF	TRBV13		TRBJ1-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	2/16		sanger	antigen-loaded-targets		CD8+,Va2+			4			NP52-59	spleen			
+22				CASSFGVNSDYTF	TRBV13		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/16		sanger	antigen-loaded-targets		CD8+,Va2+			4			NP52-59	spleen			
+23				CASSFHISYEQYF	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	RGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/16		sanger	antigen-loaded-targets		CD8+,Va2+			4			NP52-59	spleen			
+24				CASSFRDSGNTLYF	TRBV13		TRBJ1-3	MusMusculus	H-2Kb	B2M	MHCI	RGYVYKGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	13/16		sanger	antigen-loaded-targets		CD8+,Va2+			1			K6	spleen			
+25				CASSFRDGTNTEVFF	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	RGYVYKGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	3/16		sanger	antigen-loaded-targets		CD8+,Va2+			1			K6	spleen			
+26				CASSFRDSGNTLYF	TRBV13		TRBJ1-3	MusMusculus	H-2Kb	B2M	MHCI	RGYVYKGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	18/18		sanger	antigen-loaded-targets		CD8+,Va2+			2			K6	spleen			
+27				CASSLRDGSNQAPLF	TRBV13		TRBJ1-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYKGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	16/16		sanger	antigen-loaded-targets		CD8+,Va2+			3			K6	spleen			
+28				CASSLFRASAETLYF	TRBV7		TRBJ2-3	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	4/20		sanger	antigen-loaded-targets		CD8+,Va2+			1			E6	spleen			
+29				CASSPHRASQNTLYF	TRBV7		TRBJ2-4	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	2/20		sanger	antigen-loaded-targets		CD8+,Va2+			1			E6	spleen			
+30				CASSLFRANTGQLYF	TRBV7		TRBJ2-2	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	2/20		sanger	antigen-loaded-targets		CD8+,Va2+			1			E6	spleen			
+31				CASSPYRGGNQAPLF	TRBV7		TRBJ1-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	2/20		sanger	antigen-loaded-targets		CD8+,Va2+			1			E6	spleen			
+32				CASSLSRASQNTLYF	TRBV7		TRBJ2-4	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/20		sanger	antigen-loaded-targets		CD8+,Va2+			1			E6	spleen			
+33				CASSPFRGSQNTLYF	TRBV7		TRBJ2-4	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/20		sanger	antigen-loaded-targets		CD8+,Va2+			1			E6	spleen			
+34				CASSLSKVSQNTLYF	TRBV7		TRBJ2-4	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/20		sanger	antigen-loaded-targets		CD8+,Va2+			1			E6	spleen			
+35				CASSLFRAVQNTLYF	TRBV7		TRBJ2-4	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/20		sanger	antigen-loaded-targets		CD8+,Va2+			1			E6	spleen			
+36				CASSLYRANTGQLYF	TRBV7		TRBJ2-2	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/20		sanger	antigen-loaded-targets		CD8+,Va2+			1			E6	spleen			
+37				CASSLSRTLNSDYTF	TRBV7		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/20		sanger	antigen-loaded-targets		CD8+,Va2+			1			E6	spleen			
+38				CASSLFRTNNSPLYF	TRBV7		TRBJ1-6	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/20		sanger	antigen-loaded-targets		CD8+,Va2+			1			E6	spleen			
+39				CASSLYRNNQAPLF	TRBV7		TRBJ1-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/20		sanger	antigen-loaded-targets		CD8+,Va2+			1			E6	spleen			
+40				CASSLYRTGRNSDYTF	TRBV7		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/20		sanger	antigen-loaded-targets		CD8+,Va2+			1			E6	spleen			
+41				CASSLTRTGGQNTLYF	TRBV7		TRBJ2-4	MusMusculus	H-2Kb	B2M	MHCI	RGYVYEGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/20		sanger	antigen-loaded-targets		CD8+,Va2+			1			E6	spleen			
+42				CASSLSRASGNTLYF	TRBV7		TRBJ1-3	MusMusculus	H-2Kb	B2M	MHCI	RGYVYDGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	5/6		sanger	antigen-loaded-targets		CD8+,Va2+			2			D6	spleen			
+43				CASSPRRVSQNTLYF	TRBV7		TRBJ2-4	MusMusculus	H-2Kb	B2M	MHCI	RGYVYDGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/6		sanger	antigen-loaded-targets		CD8+,Va2+			2			D6	spleen			
+44				CASSLSRALNNQAPLF	TRBV7		TRBJ1-5	MusMusculus	H-2Kb	B2M	MHCI	RGYVYDGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	7/7		sanger	antigen-loaded-targets		CD8+,Va2+			3			D6	spleen			
+45				CASSSGVGTEVFF	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	IGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	7/13		sanger	antigen-loaded-targets		CD8+,Va2+			1			I1	spleen			
+46				CASSFGTGNTLYF	TRBV13		TRBJ1-3	MusMusculus	H-2Kb	B2M	MHCI	IGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	3/13		sanger	antigen-loaded-targets		CD8+,Va2+			1			I1	spleen			
+47				CASSFGTGVEQYF	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	IGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	2/13		sanger	antigen-loaded-targets		CD8+,Va2+			1			I1	spleen			
+48				CASSLGAGSDYTF	TRBV13		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	IGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/13		sanger	antigen-loaded-targets		CD8+,Va2+			1			I1	spleen			
+49				CASSSGVGTEVFF	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	IGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	8/11		sanger	antigen-loaded-targets		CD8+,Va2+			2			I1	spleen			
+50				CASSFGVNSDYTF	TRBV13		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	IGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	2/11		sanger	antigen-loaded-targets		CD8+,Va2+			2			I1	spleen			
+51				CASSLGTNTEVFF	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	IGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/11		sanger	antigen-loaded-targets		CD8+,Va2+			2			I1	spleen			
+52				CASSSGVGTEVFF	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	7/15		sanger	antigen-loaded-targets		CD8+,Va2+			3			K1	spleen			
+53				CASSLGTGTEVFF	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	2/15		sanger	antigen-loaded-targets		CD8+,Va2+			3			K1	spleen			
+54				CASSPGTGVEQYF	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/15		sanger	antigen-loaded-targets		CD8+,Va2+			3			K1	spleen			
+55				CASSFMTGGEQYF	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/15		sanger	antigen-loaded-targets		CD8+,Va2+			3			K1	spleen			
+56				CASSFRVATEVFF	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/15		sanger	antigen-loaded-targets		CD8+,Va2+			3			K1	spleen			
+57				CASSFRVGNTLYF	TRBV13		TRBJ1-3	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/15		sanger	antigen-loaded-targets		CD8+,Va2+			3			K1	spleen			
+58				CASSFHINSDYTF	TRBV13		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/15		sanger	antigen-loaded-targets		CD8+,Va2+			3			K1	spleen			
+59				CASSFGVNTGQLYF	TRBV13		TRBJ2-2	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/15		sanger	antigen-loaded-targets		CD8+,Va2+			3			K1	spleen			
+60				CASSSGVGTEVFF	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	5/12		sanger	antigen-loaded-targets		CD8+,Va2+			4			K1	spleen			
+61				CASSFGVNSDYTF	TRBV13		TRBJ1-2	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	3/12		sanger	antigen-loaded-targets		CD8+,Va2+			4			K1	spleen			
+62				CASSPGTGVEQYF	TRBV13		TRBJ2-6	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	2/12		sanger	antigen-loaded-targets		CD8+,Va2+			4			K1	spleen			
+63				CASSFRVATEVFF	TRBV13		TRBJ1-1	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/12		sanger	antigen-loaded-targets		CD8+,Va2+			4			K1	spleen			
+64				CASSFRVGNTLYF	TRBV13		TRBJ1-3	MusMusculus	H-2Kb	B2M	MHCI	KGYVYQGL	nucleoprotein	VSV	PMID:9560256	antigen-loaded-targets	1/12		sanger	antigen-loaded-targets		CD8+,Va2+			4			K1	spleen			
