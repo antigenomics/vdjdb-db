@@ -96,13 +96,14 @@ Representative data for Homo Sapiens
 ```{r}
 df.a = df %>% 
   filter(species == "HomoSapiens") %>%
-  group_by(antigen.species, antigen.gene) %>%
+  group_by(antigen.species) %>% #, antigen.gene) %>%
   summarize(records = n(), 
             epitopes = length(unique(antigen.epitope)),
             publications = length(unique(str_split_fixed(reference.id, ",", n = Inf)[,1]))) %>%
   arrange(-records)
 
-colnames(df.a) = c("Parent species", "Parent gene", "Records", "Unique epitopes", "Publications")
+colnames(df.a) = c("Parent species", #"Parent gene",
+                   "Records", "Unique epitopes", "Publications")
 kable(format = "html", df.a)
 ```
 
@@ -147,10 +148,11 @@ Representative data for Homo Sapiens, TCR beta chain.
 ```{r warning=FALSE}
 df.vhla = df %>% filter(species == "HomoSapiens" & gene == "TRB") %>%
   mutate(mhc.a.split = str_split_fixed(mhc.a, "[:,]", n = Inf)[,1],
+         mhc.b.split = str_split_fixed(mhc.b, "[:,]", n = Inf)[,1],
          v.segm.split = str_split_fixed(v.segm, "[*,]", n = Inf)[,1]) %>%
-  group_by(mhc.class, mhc.a.split, v.segm.split) %>%
+  group_by(mhc.class, mhc.a.split, mhc.b.split, v.segm.split) %>%
   summarize(records = n()) %>%
-  group_by(mhc.class, mhc.a.split) %>%
+  group_by(mhc.class, mhc.a.split, mhc.b.split) %>%
   mutate(records.mhc = sum(records)) %>%
   group_by(v.segm.split) %>%
   mutate(records.v = sum(records))
@@ -158,13 +160,13 @@ df.vhla = df %>% filter(species == "HomoSapiens" & gene == "TRB") %>%
 #df.vhla$v.segm.split = with(df.vhla, factor(v.segm.split, v.segm.split[order(records.v)]))
 #df.vhla$mhc.a.split = with(df.vhla, factor(mhc.a.split, mhc.a.split[order(records.mhc)]))
 
-ggplot(df.vhla, aes(x=mhc.a.split, y=v.segm.split, fill = pmin(records, 100))) +
+ggplot(df.vhla, aes(x=paste(mhc.a.split, mhc.b.split, sep = " / "), y=v.segm.split, fill = pmin(records, 100))) +
   geom_tile() +
   scale_fill_gradientn("Records", colors=colorRampPalette(brewer.pal(9, 'PuBuGn'))(32), 
                        trans="log", breaks = c(1, 10, 100)) +
   xlab("") + ylab("") +
   facet_grid(~mhc.class, scales="free", space="free") +
-  theme_bw() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5), 
+  theme_bw() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), 
                        axis.text.y = element_text(size=5),
                      panel.grid.major = element_blank())
 ```
