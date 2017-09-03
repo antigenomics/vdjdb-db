@@ -4,8 +4,6 @@
 
 ![Splash](images/vdjdb-splash.png)
 
-> **DISCLAIMER** You are free to use VDJdb in research studies for the purpose of RepSeq sample and T-cell clonotype list annotation. However, the authors request priority in publishing a meta-analysis of the dataset aggregated and stored here. This message will be removed once VDJdb is officially published.
-
 The primary goal of VDJdb is to facilitate access to existing information on T-cell receptor antigen specificities, i.e. the ability to recognize certain epitopes in certain MHC contexts.
 
 Our mission is to both aggregate the scarce TCR specificity information available so far and to create a curated repository to store such data.
@@ -22,6 +20,10 @@ To build database directly from submissions, go to ``src`` directory and run ``g
 To query the database for your immune repertoire sample(s) use the [VDJdb-standalone](https://github.com/antigenomics/vdjdb) software.
 
 A web-based GUI for the database can be found in [VDJdb-server](https://github.com/antigenomics/vdjdb-server) repository.
+
+## Citing
+
+Cite the database as ``Shugay M et al. VDJdb: a curated database of T-cell receptor sequences with known antigen specificity. Nucleic Acids Research 2017, gkx760``.
 
 ## Submission guide
 
@@ -99,7 +101,7 @@ method.verification | ``tetramer-stain``, ``dextramer-stain``, ``pelimer-stain``
 
 > For special cases such as CD8-null tetramers that utilize HLA with mutated residues that abrogate CD8 binding, specify ``cd8null-tetramer`` in ``method.identification`` field rather than using ``mhc.a`` field.
 
-During database build phase, the information from columns mentioned above is collapsed to a JSON string and stored in a single ``method`` column, e.g.: 
+During database build phase, the information from columns mentioned above is collapsed to a JSON string and stored in a single ``method`` column, e.g.:
 ```json
 {
    "identification":"tetramer-sort",
@@ -131,7 +133,7 @@ comment | Plain text comment, maximum 140 characters
 
 > While these columns are optional, subject identifier, replica identifier, etc are used when scanning submission for duplicates. Normally duplicate records (with identical **complex information** columns) are not allowed, but they will not be considered as duplicates in case they have distinct id fields mentioned above.
 
-During database build phase, the information from columns mentioned above is collapsed to a JSON string and stored in a single ``meta`` column, e.g.: 
+During database build phase, the information from columns mentioned above is collapsed to a JSON string and stored in a single ``meta`` column, e.g.:
 ```json
 {
    "cell.subset":"CD8+",
@@ -216,7 +218,7 @@ field | description
 
 ### VDJdb scoring
 
-At the final stage of database processing, TCR:peptide:MHC complexes are assigned with confidence scores. Scores are computed according to reported **method** entries. 
+At the final stage of database processing, TCR:peptide:MHC complexes are assigned with confidence scores. Scores are computed according to reported **method** entries.
 
 VDJdb scoring is performed by evaluating TCR sequence, identification and verification confidence based on the following criteria:
 
