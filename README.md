@@ -23,7 +23,7 @@ A web-based GUI for the database can be found in [VDJdb-server](https://github.c
 
 ## Citing
 
-Cite the database as ``Shugay M et al. VDJdb: a curated database of T-cell receptor sequences with known antigen specificity. Nucleic Acids Research 2017, gkx760``.
+Cite the database as ``Shugay M et al. VDJdb: a curated database of T-cell receptor sequences with known antigen specificity. Nucleic Acids Research 2017, gkx760`` [doi:10.1093/nar/gkx760](https://doi.org/10.1093/nar/gkx760).
 
 ## Submission guide
 
