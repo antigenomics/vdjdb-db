@@ -2,6 +2,9 @@ language:
   - groovy
   - python
 
+python:
+  - 3.6
+
 before_install:
   - pip install pandas
   - pip install biopython
