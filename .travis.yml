@@ -1,8 +1,11 @@
+dist: trusty
+sudo: required
+
 language:
   - groovy
+  - python
 
 before_install:
-  - sudo apt-get install python
   - sudo pip install pandas
   - sudo pip install biopython
   
