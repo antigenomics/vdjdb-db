@@ -21,7 +21,7 @@ class Cdr3Fixer {
     static Map<String, String> nomenclatureConversions = new File("../patches/nomenclature.conversions")
         .readLines()
         .findAll { !it.startsWith("#") }
-        .collectEntries { def splitLine = it.split("\t"); [(splitLine[0]): splitLine[1]]}
+        .collectEntries { def splitLine = it.split("\t"); [(splitLine[0]): splitLine[1].split(",")[0]]}
 
 
     Cdr3Fixer(String segmentsFileName, int maxReplaceSize = 1, int minHitSize = 2) {
