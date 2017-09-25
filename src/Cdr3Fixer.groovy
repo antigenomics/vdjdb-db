@@ -18,6 +18,12 @@ class Cdr3Fixer {
     final Map<String, Map<String, String>> segmentsByIdBySpecies = new HashMap<>()
     final int maxReplaceSize, minHitSize
 
+    static Map<String, String> nomenclatureConversions = new File("../patches/nomenclature.conversions")
+        .readLines()
+        .findAll { !it.startsWith("#") }
+        .collectEntries { def splitLine = it.split("\t"); [(splitLine[0]): splitLine[1].split(",")[0]]}
+
+
     Cdr3Fixer(String segmentsFileName, int maxReplaceSize = 1, int minHitSize = 2) {
         this.maxReplaceSize = maxReplaceSize
         this.minHitSize = minHitSize
@@ -46,6 +52,13 @@ class Cdr3Fixer {
     String getClosestId(String species, String id) {
         def segmentsById = segmentsByIdBySpecies[species.toLowerCase()]
 
+        if (species.toLowerCase() == "homosapiens") {
+          def conversion = nomenclatureConversions[id]
+          if (conversion) {
+            id = conversion
+          }
+        }
+
         if (segmentsById == null)
             return null
 
@@ -55,7 +68,7 @@ class Cdr3Fixer {
         [id, Util.simplifySegmentName(id)].flatten().collect { String it ->
             [it,
              "$it*01".toString(),
-             it.contains("-") ? [] : (1..100).collect { "$id-$it*01".toString() }]
+             it.contains("-") ? [] : (1..100).collect { int i -> "$it-$i*01".toString() }]
         }.flatten().find {
             segmentsById.containsKey(it)
         }
