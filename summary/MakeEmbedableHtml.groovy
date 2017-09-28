@@ -1,6 +1,5 @@
 def ignore = true, ignore2 = false
 new File("vdjdb_summary_embed.html").withPrintWriter { pw ->
-pw.println("<div class=\"col-lg-10 col-lg-offset-1\">")
 new File("vdjdb_summary.html").eachLine { line ->
     if (line.contains("!summary_embed_end!")) {
         ignore = true
@@ -13,7 +12,7 @@ new File("vdjdb_summary.html").eachLine { line ->
         if (line.startsWith("<pre><code>##")) {
             line = line.replaceAll("#", "").replaceAll("&quot;", "")
         }
-        pw.println(line.replaceAll("<table>", "<table class=\"table\">")
+        pw.println(line.replaceAll("<table>", "<table class=\"ui unstackable single line celled stripped compact small table\">")
                        .replaceAll(/width\s*=\s*"\d+"/, "width=\"100%\""))
     }
     if (line.contains("!summary_embed_start!")) {
@@ -24,5 +23,4 @@ new File("vdjdb_summary.html").eachLine { line ->
         ignore2 = false
     }
 }
-pw.println("</div>")
 }
