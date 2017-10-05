@@ -1,0 +1,1 @@
+This code runs database proofreading and assembly. Run as ``groovy -cp . BuildDatabase.groovy``. Requires Groovy, Python (+pandas).
