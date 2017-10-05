@@ -1,0 +1,100 @@
+---
+title: "Various VDJdb statistics"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### N.B.
+
+You have to first run ``cd src/ && groovy -cp . BuildDatabase``, which will create ``database/`` folder with the most recent VDJdb build.
+
+### Record statistics by year
+
+Load data 
+
+```{r}
+library(data.table)
+library(dplyr)
+library(httr)
+library(xml2)
+library(ggplot2)
+library(stringr)
+select = dplyr::select
+
+dt.vdjdb = fread("../database/vdjdb_full.txt", sep = "\t", fill=T)
+
+dt.vdjdb.s = dt.vdjdb %>%
+  filter(species != "MacacaMulatta") %>%
+  mutate(tcr_key = paste(v.alpha, j.alpha, cdr3.alpha, v.beta, j.beta, cdr3.beta),
+         paired = cdr3.alpha != "" & cdr3.beta != "") %>%
+  select(reference.id, tcr_key, paired, antigen.epitope, species) %>%
+  unique
+```
+
+Fetch pubmed info
+
+```{r}
+ids = unique((dt.vdjdb.s %>%
+  filter(substr(reference.id,1,4)=="PMID") %>%
+  mutate(id = str_split_fixed(reference.id, ":", 2)[,2]))$id)
+
+pm_data = content(GET("https://eutils.ncbi.nlm.nih.gov/", 
+                      path = "entrez/eutils/esummary.fcgi",
+                      query = list(db = "pubmed", 
+                                   id = paste0(ids,collapse = ","))))
+
+write_xml(pm_data, "dates.xml")
+pm_data_2 = readLines("dates.xml")
+file.remove("dates.xml")
+
+pm_data_id = str_split_fixed(pm_data_2[grepl("<Id>", pm_data_2)], "[<>]", n = Inf)[,3]
+pm_data_date = str_split_fixed(pm_data_2[grepl('Name="PubDate"', pm_data_2)], "[<>]", n = Inf)[,3]
+
+dt.pubdate = data.table(
+  reference.id = paste0("PMID:", pm_data_id),
+  pub_date = str_split_fixed(pm_data_date, " ", n = Inf)[,1]
+)
+```
+
+Summarise
+
+```{r}
+dt.vdjdb.s2 = dt.vdjdb.s %>%
+  merge(dt.pubdate) %>%
+  merge(data.table(pub_date2 = unique(dt.pubdate$pub_date)), allow.cartesian = T) %>%
+  group_by(pub_date2, paired) %>%
+  summarise(tcr_count = length(unique(tcr_key[which(pub_date <= pub_date2)])),
+            epi_count = length(unique(antigen.epitope[which(pub_date <= pub_date2)])),
+            ref_count = length(unique(reference.id[which(pub_date <= pub_date2)])))
+
+ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = tcr_count, color = paired)) +
+  geom_line() +
+  geom_point() +
+  ylab("Number of unique TCR sequences in VDJdb") +
+  scale_x_continuous("Year", breaks = seq(1995, 2017, by =2)) +
+  scale_color_brewer(palette = "Set1") +
+  theme_bw()
+
+ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = epi_count, color = paired)) +
+  geom_line() +
+  geom_point() +
+  ylab("Number of unique epitopes in VDJdb") +
+  scale_x_continuous("Year", breaks = seq(1995, 2017, by =2)) +
+  scale_color_brewer(palette = "Set1") +
+  theme_bw()
+
+ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = ref_count, color = paired)) +
+  geom_line() +
+  geom_point() +
+  ylab("Number of unique publications in VDJdb") +
+  scale_x_continuous("Year", breaks = seq(1995, 2017, by =2)) +
+  scale_color_brewer(palette = "Set1") +
+  theme_bw()
+
+fwrite(dt.vdjdb.s2, "vdjdb_stats_pubyear.txt", sep = "\t")
+```
