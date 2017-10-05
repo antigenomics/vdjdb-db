@@ -32,8 +32,8 @@ dt.vdjdb.s = dt.vdjdb %>%
   filter(species != "MacacaMulatta") %>%
   mutate(tcr_key = paste(v.alpha, j.alpha, cdr3.alpha, v.beta, j.beta, cdr3.beta),
          mhc_key = paste(mhc.a, mhc.b),
-         paired = cdr3.alpha != "" & cdr3.beta != "") %>%
-  select(reference.id, tcr_key, mhc_key, paired, antigen.epitope, species) %>%
+         chains = ifelse(cdr3.alpha != "", ifelse(cdr3.beta != "", "paired", "TRA"), "TRB")) %>%
+  select(reference.id, tcr_key, mhc_key, chains, antigen.epitope, species) %>%
   unique
 ```
 
@@ -68,13 +68,13 @@ Summarise
 dt.vdjdb.s2 = dt.vdjdb.s %>%
   merge(dt.pubdate) %>%
   merge(data.table(pub_date2 = unique(dt.pubdate$pub_date)), allow.cartesian = T) %>%
-  group_by(pub_date2, paired) %>%
+  group_by(pub_date2, chains) %>%
   summarise(tcr_count = length(unique(tcr_key[which(pub_date <= pub_date2)])),
             epi_count = length(unique(antigen.epitope[which(pub_date <= pub_date2)])),
             ref_count = length(unique(reference.id[which(pub_date <= pub_date2)])),
             mhc_count = length(unique(mhc_key[which(pub_date <= pub_date2)])))
 
-ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = tcr_count, color = paired)) +
+ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = tcr_count, color = chains)) +
   geom_line() +
   geom_point() +
   ylab("Number of unique TCR sequences in VDJdb") +
@@ -82,7 +82,7 @@ ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = tcr_count, color = paired
   scale_color_brewer(palette = "Set1") +
   theme_bw()
 
-ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = epi_count, color = paired)) +
+ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = epi_count, color = chains)) +
   geom_line() +
   geom_point() +
   ylab("Number of unique epitopes in VDJdb") +
@@ -90,7 +90,7 @@ ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = epi_count, color = paired
   scale_color_brewer(palette = "Set1") +
   theme_bw()
 
-ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = ref_count, color = paired)) +
+ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = ref_count, color = chains)) +
   geom_line() +
   geom_point() +
   ylab("Number of unique publications in VDJdb") +
@@ -98,7 +98,7 @@ ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = ref_count, color = paired
   scale_color_brewer(palette = "Set1") +
   theme_bw()
 
-ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = mhc_count, color = paired)) +
+ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = mhc_count, color = chains)) +
   geom_line() +
   geom_point() +
   ylab("Number of MHC alleles in VDJdb") +
