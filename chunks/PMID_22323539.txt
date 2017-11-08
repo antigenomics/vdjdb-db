@@ -1,0 +1,39 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
+1				CAISERAIRGTSGLTDTQYF	TRBV10-3		TRBJ2-3	HomoSapiens	HLA-B*15	B2M	MHCI	TQGYFPDWQNY	Nef	HIV	PMID:21562156	tetramer-sort	50/67		sanger			CD8+	56		10001			TY11	PBMC			
+2				CASSPHRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	10/10		rna-seq			CD8+			1			55170	PBMC			
+3				CASSPNRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	9/10		rna-seq			CD8+			3			55170	PBMC			
+4				CASSPSRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	1/10		rna-seq			CD8+			3			55170	PBMC			
+5				CASSPARNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	5/10		rna-seq			CD8+			4			55170	PBMC			
+6				CASSPSRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	5/10		rna-seq			CD8+			4			55170	PBMC			
+7				CASSPHRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	7/11		rna-seq			CD8+			6			55170	PBMC			
+8				CASSPQRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	4/11		rna-seq			CD8+			6			55170	PBMC			
+9				CASSPSRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	5/9		rna-seq			CD8+			7			55170	PBMC			
+10				CASSPYRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	3/9		rna-seq			CD8+			7			55170	PBMC			
+11				CASSPHRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	1/9		rna-seq			CD8+			7			55170	PBMC			
+12				CASSPARNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	2/8		rna-seq			CD8+			8			55170	PBMC			
+13				CASSPQRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	1/8		rna-seq			CD8+			8			55170	PBMC			
+14				CASSPTRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	2/8		rna-seq			CD8+			8			55170	PBMC			
+15				CASSPSRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	3/8		rna-seq			CD8+			8			55170	PBMC			
+16				CASSPSRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	8/8		rna-seq			CD8+			9			55170	PBMC			
+17				CASSPQRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	11/15		rna-seq			CD8+			10			55170	PBMC			
+18				CASSPQRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	1/13		rna-seq			CD8+			10			55170	PBMC			
+19				CASSPSRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	3/15		rna-seq			CD8+			10			55170	PBMC			
+20				CASSPQRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	9/9		rna-seq			CD8+			11			55170	PBMC			
+21				CASSPARNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	1/9		rna-seq			CD8+			14			55170	PBMC			
+22				CASSPTRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	1/9		rna-seq			CD8+			14			55170	PBMC			
+23				CASSPSRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	7/9		rna-seq			CD8+			14			55170	PBMC			
+24				CASSKGAAITVGLETQYF	TRBV2		TRBJ2-5	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	8/8		rna-seq			CD8+			19			55170	PBMC			
+25				CSARDLKAGSWVEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	11/11		rna-seq			CD8+			19			55170	PBMC			
+26				CASSOGLAGGPRIDTQYF	TRBV4-1		TRBJ2-3	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	9/9		rna-seq			CD8+			19			55170	PBMC			
+27				CAISEGDINTEAFF	TRBV10-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	9/9		rna-seq			CD8+			19			55170	PBMC			
+28				CASSPQSDQNQGTQYF	TRBV5-1		TRBJ2-5	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	10/16		rna-seq			CD8+			21			55170	PBMC			
+29				CASSGDPEHGYNYGYIT	TRBV5-1		TRBJ1-2	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	5/16		rna-seq			CD8+			21			55170	PBMC			
+30				CASSLASDGPQETQYF	TRBV5-1		TRBJ2-5	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	1/16		rna-seq			CD8+			21			55170	PBMC			
+31				CSGIDKPVTDTQYF	TRBV29-1		TRBJ2-3	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	7/7		rna-seq			CD8+			22			55170	PBMC			
+32				CSASLASTSNYGYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	10/10		rna-seq			CD8+			22			55170	PBMC			
+33				CASSEGIGYNSPLHF	TRBV27		TRBJ1-6	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	20/20		rna-seq			CD8+			22			55170	PBMC			
+34				CASSWAPNTGELF	TRBV12-3		TRBJ2-2	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	10/10		rna-seq			CD8+			23			55170	PBMC			
+35				CSATPARASNTEAFF	TRBV20-1		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	14/16		rna-seq			CD8+			23			55170	PBMC			
+36				CSARDPQGVTEAFF	TRBV20-1		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	1/16		rna-seq			CD8+			23			55170	PBMC			
+37				CSARDSSGGAKNIQYF	TRBV20-1		TRBJ2-4	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	1/16		rna-seq			CD8+			23			55170	PBMC			
+38	CAASIGDFGNEKLTF	TRAV23	TRAJ48	CASSPYRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVLpp65		CMV	PMID:22323539	antigen-loaded-targets,pentamer-sort	3/3		rna-seq			CD8+			7			55170	PBMC			
