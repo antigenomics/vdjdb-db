@@ -2,7 +2,7 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 
 /*
- * Copyright 2016 Mikhail Shugay
+ * Copyright 2016-2017 Mikhail Shugay
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,6 +146,7 @@ def readChunk = { File chunkFile ->
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 def isAASeqValid = { String str ->
+    (str == "" || str.length() >= 3) && // if CDR3 is specified, it should be at least 3AA long
     str =~ /^[ARNDCQEGHILKMFPSTWYV]+$/
 }
 

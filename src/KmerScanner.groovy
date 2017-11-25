@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Mikhail Shugay
+ * Copyright 2016-2017 Mikhail Shugay
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ class KmerScanner {
             }
         }.flatten().max { it.matchSize }
 
-        bestHit.matchSize > 0 ? bestHit : null
+        (bestHit && bestHit.matchSize > 0) ? bestHit : null
 
         /*
         // iterate from largest window to smallest one

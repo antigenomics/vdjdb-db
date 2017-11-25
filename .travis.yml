@@ -11,4 +11,4 @@ before_install:
   
 script:
   - cd src/ 
-  - groovy -cp . BuildDatabase.groovy
+  - travis_wait groovy -cp . BuildDatabase.groovy
