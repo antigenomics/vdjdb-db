@@ -1,0 +1,5 @@
+**IMPORTANT**
+The issue tracker and pull requests are designed for working (depositing, updating and proofreading) with raw VDJdb data.
+For issues related to vdjdb.cdr3.net, please use the corresponding issue tracker: https://github.com/antigenomics/vdjdb-web/issues
+
+Please follow the instructions specified in README.md file in the root folder of this repository when preparing your submissions.
