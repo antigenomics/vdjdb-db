@@ -1,73 +1,73 @@
-chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method,frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	method.pairing
-1	CVVNIYDFGNEKLTF	TRAV12-1	TRAJ48	CSARVMVGGTEAFF	TRBV20-1	TRBD2	TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	99%		amplicon-seq		mem-inj	CD8+			vede				PBMC				frequency-based
-2	CAARANNARLMF	TRAV29DV5	TRAJ31	CASSLEYSPRPYEQYF	TRBV7-9	TRBD2	TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	67%		amplicon-seq		mem-inj	CD8+			kond				PBMC				frequency-based
-3				CATSTVGVGTGFPPSFF	TRBV15	TRBD1	TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	15%		amplicon-seq		mem-inj	CD8+			kond				PBMC				
-4				CASSFGGTGNQPQHF	TRBV12-3	TRBD1	TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	9%		amplicon-seq		mem-inj	CD8+			kond				PBMC				
-5	CAGTPGTYKYIF	TRAV21	TRAJ40					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	11%		amplicon-seq		mem-inj	CD8+			kond				PBMC				
-6	CALSENFIQGAQKLVF	TRAV19	TRAJ54					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	6%		amplicon-seq		mem-inj	CD8+			kond				PBMC				
-7	CATNTGNQFYF	TRAV24	TRAJ49	CASSPQTGTIYGYTF	TRBV6-5	TRBD1	TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	98%		amplicon-seq			CD8+		healthy	filk				PBMC				frequency-based
-8	CAVTPDGQKLLF	TRAV1-1	TRAJ16	CASSPGTSGRAWNNEQFF	TRBV12-3	TRBD2	TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	95%		amplicon-seq			CD8+		healthy	efim				PBMC				frequency-based
-9	CAGPMKTSYDKVIF	TRAV35	TRAJ50	CASSSANYGYTF	TRBV12-3		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	1%		amplicon-seq			CD8+		healthy	efim				PBMC				frequency-based
-10	CAGGGSSNTGKLIF	TRAV8-3	TRAJ37	CASSLLAVGTGGNTEAFF	TRBV7-2	TRBD1	TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	50%		amplicon-seq			CD8+		healthy	kvon				PBMC				frequency-based
-11	CALNQAGTALIF	TRAV8-3	TRAJ15	CASSLTTLAGVPYEQFF	TRBV7-3	TRBD2	TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	20%		amplicon-seq			CD8+		healthy	kvon				PBMC				frequency-based
-12	CAGGGSSNTGKLIF	TRAV8-3	TRAJ37	CASSLLLAGYNEQFF	TRBV11-2	TRBD2	TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	15%		amplicon-seq			CD8+		healthy	kvon				PBMC				frequency-based
-13	CILSNNNDMRF	TRAV26-2	TRAJ43					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	14%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
-14	CVVSDRWSNQFYF	TRAV8-2	TRAJ49					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	13%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
-15	CAVILYSSASKIIF	TRAV12-2	TRAJ3					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	10%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
-16	CAENLRDDKIIF	TRAV13-2	TRAJ30					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	9%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
-17	CARNTGNQFYF	TRAV24	TRAJ49					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	8%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
-18	CATDVSSYKLIF	TRAV17	TRAJ12					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	5%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
-19				CASSQEEGRVDGYTF	TRBV4-3	TRBD2	TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	11%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
-20				CAWTISDLAKNIQYF	TRBV30		TRBJ2-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	9%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
-21				CASSPGTDYYGYTF	TRBV7-9	TRBD1	TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	7%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
-22				CASSYGTGDSNQPQHF	TRBV28	TRBD1	TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	6%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
-23				CASSFQTGASYGYTF	TRBV6-5	TRBD1	TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	6%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
-24				CASSPYGAEGSYNEQFF	TRBV13	TRBD1	TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		dextramer-sort	4%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
-25	CAGPIPPGNEKLTF	TRAV35	TRAJ48	CASSSANYGYTF	TRBV12-3		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	36%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
-26	CAGPIPPGNEKLTF	TRAV35	TRAJ48	CASSSANYGYTF	TRBV12-3		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	3%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
-27	CATDATSDKLIF	TRAV17	TRAJ34	CASSRRDATRFAETQYF	TRBV11-3	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	34%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
-28	CATDATSDKLIF	TRAV17	TRAJ34	CASSRRDATRFAETQYF	TRBV11-3	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	82%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
-29	CAVRGTNARLMF	TRAV3	TRAJ31	CASSVVTEAFF	TRBV12-3	.	TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	12%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
-30	CARNTGNQFYF	TRAV24	TRAJ49	CASSYQTGTGTYGYTF	TRBV6-5	TRBD1	TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	4%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
-31	CARNTGNQFYF	TRAV24	TRAJ49	CASSYQTGTGTYGYTF	TRBV6-5	TRBD1	TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	4%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
-32	CAMTGTTNAGKSTF	TRAV12-3	TRAJ27	CASTYGSYGYTF	TRBV12-3		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	3%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
-33	CAVRDTNARLMF	TRAV3	TRAJ31	CASSVVTEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
-34	CAVRDTNARLMF	TRAV3	TRAJ31	CASSVVTEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
-35	CIRDNNNDMRF	TRAV26-2	TRAJ43	CASSLAPGTTNEKLFF	TRBV7-6	TRBD1	TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
-36	CIIDNNNDMRF	TRAV26-2	TRAJ43	CASSLAPGATNEKLFF	TRBV7-6	TRBD1	TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
-37				CASGVVNEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-38				CASGVVNEAFF	TRBV12-4		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-39				CASNPSGGVPDTQYF	TRBV27	TRBD2	TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-40				CASNPSGGVPDTQYF	TRBV27	TRBD2	TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-41				CASSFTTGSPGSPLHF	TRBV6-5	TRBD1	TRBJ1-6	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	4%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-42				CASSFTTGSPGSPLHF	TRBV6-5	TRBD1	TRBJ1-6	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-43				CASSIVNEQFF	TRBV12-3		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.20%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-44				CASSKGTFGDATSNTEAFF	TRBV21-1		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.20%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-45				CASSKGTFGDATSNTEAFF	TRBV21-1		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	0.20%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-46				CASSLAPGATNEKLFF	TRBV7-6	TRBD1	TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-47				CASSLAPGATNEKLFF	TRBV7-6		TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-48				CASSLAPGATNEKLFF	TRBV7-6	TRBD1	TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-49				CASSLAPGATNEKLFF	TRBV7-6	TRBD1	TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-50				CASSRTSGSPGELFF	TRBV27	TRBD2	TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-51				CASSRTSGSPGELFF	TRBV27	TRBD2	TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-52				CASSSVNEQFF	TRBV12-3		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-53				CASSSVNEQFF	TRBV12-3		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-54				CATSPGLAGAFQETQYF	TRBV24-1	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-55				CATSPGLAGAFQETQYF	TRBV24-1	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-56				CATSPGLAGAHQETQYF	TRBV24-1	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-57				CATSPGLAGAHQETQYF	TRBV24-1	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-58				CATSPGLAGAYQETQYF	TRBV24-1	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-59				CATSPGLAGAYQETQYF	TRBV24-1	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-60				CATSPGLAGGRQETQYF	TRBV24-1	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-61	CAGPLQTSYDKVIF	TRAV35	TRAJ50					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-62	CAGPLQTSYDKVIF	TRAV35	TRAJ50					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-63	CAVAFGNQFYF	TRAV8-3	TRAJ49					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-64	CAVAFGNQFYF	TRAV8-3	TRAJ49					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	0.20%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-65	CAVFFGNVLHC	TRAV3	TRAJ35					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-66	CAVFFGNVLHC	TRAV3	TRAJ35					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-67	CAVFFGNVLHC	TRAV3	TRAJ35					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-68	CAVFFGNVLHC	TRAV3	TRAJ35					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-69	CAVRDVNARLMF	TRAV3	TRAJ31					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.20%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-70	CAVRDVNARLMF	TRAV3	TRAJ31					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	0.20%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-71	CILRDGGGATNKLIF	TRAV26-2	TRAJ32					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
-72	CILRDGGGATNKLIF	TRAV26-2	TRAJ32					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV		tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	method.pairing
+1	CVVNIYDFGNEKLTF	TRAV12-1	TRAJ48	CSARVMVGGTEAFF	TRBV20-1	TRBD2	TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	99%		amplicon-seq		mem-inj	CD8+			vede				PBMC				frequency-based
+2	CAARANNARLMF	TRAV29DV5	TRAJ31	CASSLEYSPRPYEQYF	TRBV7-9	TRBD2	TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	67%		amplicon-seq		mem-inj	CD8+			kond				PBMC				frequency-based
+3				CATSTVGVGTGFPPSFF	TRBV15	TRBD1	TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	15%		amplicon-seq		mem-inj	CD8+			kond				PBMC				
+4				CASSFGGTGNQPQHF	TRBV12-3	TRBD1	TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	9%		amplicon-seq		mem-inj	CD8+			kond				PBMC				
+5	CAGTPGTYKYIF	TRAV21	TRAJ40					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	11%		amplicon-seq		mem-inj	CD8+			kond				PBMC				
+6	CALSENFIQGAQKLVF	TRAV19	TRAJ54					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	6%		amplicon-seq		mem-inj	CD8+			kond				PBMC				
+7	CATNTGNQFYF	TRAV24	TRAJ49	CASSPQTGTIYGYTF	TRBV6-5	TRBD1	TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	98%		amplicon-seq			CD8+		healthy	filk				PBMC				frequency-based
+8	CAVTPDGQKLLF	TRAV1-1	TRAJ16	CASSPGTSGRAWNNEQFF	TRBV12-3	TRBD2	TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	95%		amplicon-seq			CD8+		healthy	efim				PBMC				frequency-based
+9	CAGPMKTSYDKVIF	TRAV35	TRAJ50	CASSSANYGYTF	TRBV12-3		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	1%		amplicon-seq			CD8+		healthy	efim				PBMC				frequency-based
+10	CAGGGSSNTGKLIF	TRAV8-3	TRAJ37	CASSLLAVGTGGNTEAFF	TRBV7-2	TRBD1	TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	50%		amplicon-seq			CD8+		healthy	kvon				PBMC				frequency-based
+11	CALNQAGTALIF	TRAV8-3	TRAJ15	CASSLTTLAGVPYEQFF	TRBV7-3	TRBD2	TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	20%		amplicon-seq			CD8+		healthy	kvon				PBMC				frequency-based
+12	CAGGGSSNTGKLIF	TRAV8-3	TRAJ37	CASSLLLAGYNEQFF	TRBV11-2	TRBD2	TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	15%		amplicon-seq			CD8+		healthy	kvon				PBMC				frequency-based
+13	CILSNNNDMRF	TRAV26-2	TRAJ43					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	14%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
+14	CVVSDRWSNQFYF	TRAV8-2	TRAJ49					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	13%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
+15	CAVILYSSASKIIF	TRAV12-2	TRAJ3					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	10%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
+16	CAENLRDDKIIF	TRAV13-2	TRAJ30					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	9%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
+17	CARNTGNQFYF	TRAV24	TRAJ49					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	8%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
+18	CATDVSSYKLIF	TRAV17	TRAJ12					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	5%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
+19				CASSQEEGRVDGYTF	TRBV4-3	TRBD2	TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	11%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
+20				CAWTISDLAKNIQYF	TRBV30		TRBJ2-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	9%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
+21				CASSPGTDYYGYTF	TRBV7-9	TRBD1	TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	7%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
+22				CASSYGTGDSNQPQHF	TRBV28	TRBD1	TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	6%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
+23				CASSFQTGASYGYTF	TRBV6-5	TRBD1	TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	6%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
+24				CASSPYGAEGSYNEQFF	TRBV13	TRBD1	TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	dextramer-sort	4%		amplicon-seq		mem-inj	CD8+			pogr				PBMC				
+25	CAGPIPPGNEKLTF	TRAV35	TRAJ48	CASSSANYGYTF	TRBV12-3		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	36%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
+26	CAGPIPPGNEKLTF	TRAV35	TRAJ48	CASSSANYGYTF	TRBV12-3		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	3%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
+27	CATDATSDKLIF	TRAV17	TRAJ34	CASSRRDATRFAETQYF	TRBV11-3	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	34%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
+28	CATDATSDKLIF	TRAV17	TRAJ34	CASSRRDATRFAETQYF	TRBV11-3	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	82%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
+29	CAVRGTNARLMF	TRAV3	TRAJ31	CASSVVTEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	12%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
+30	CARNTGNQFYF	TRAV24	TRAJ49	CASSYQTGTGTYGYTF	TRBV6-5	TRBD1	TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	4%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
+31	CARNTGNQFYF	TRAV24	TRAJ49	CASSYQTGTGTYGYTF	TRBV6-5	TRBD1	TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	4%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
+32	CAMTGTTNAGKSTF	TRAV12-3	TRAJ27	CASTYGSYGYTF	TRBV12-3		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	3%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
+33	CAVRDTNARLMF	TRAV3	TRAJ31	CASSVVTEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
+34	CAVRDTNARLMF	TRAV3	TRAJ31	CASSVVTEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
+35	CIRDNNNDMRF	TRAV26-2	TRAJ43	CASSLAPGTTNEKLFF	TRBV7-6	TRBD1	TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
+36	CIIDNNNDMRF	TRAV26-2	TRAJ43	CASSLAPGATNEKLFF	TRBV7-6	TRBD1	TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				frequency-based
+37				CASGVVNEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+38				CASGVVNEAFF	TRBV12-4		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+39				CASNPSGGVPDTQYF	TRBV27	TRBD2	TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+40				CASNPSGGVPDTQYF	TRBV27	TRBD2	TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+41				CASSFTTGSPGSPLHF	TRBV6-5	TRBD1	TRBJ1-6	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	4%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+42				CASSFTTGSPGSPLHF	TRBV6-5	TRBD1	TRBJ1-6	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+43				CASSIVNEQFF	TRBV12-3		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.20%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+44				CASSKGTFGDATSNTEAFF	TRBV21-1		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.20%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+45				CASSKGTFGDATSNTEAFF	TRBV21-1		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	0.20%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+46				CASSLAPGATNEKLFF	TRBV7-6	TRBD1	TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+47				CASSLAPGATNEKLFF	TRBV7-6		TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+48				CASSLAPGATNEKLFF	TRBV7-6	TRBD1	TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+49				CASSLAPGATNEKLFF	TRBV7-6	TRBD1	TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+50				CASSRTSGSPGELFF	TRBV27	TRBD2	TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+51				CASSRTSGSPGELFF	TRBV27	TRBD2	TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+52				CASSSVNEQFF	TRBV12-3		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+53				CASSSVNEQFF	TRBV12-3		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+54				CATSPGLAGAFQETQYF	TRBV24-1	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+55				CATSPGLAGAFQETQYF	TRBV24-1	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+56				CATSPGLAGAHQETQYF	TRBV24-1	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+57				CATSPGLAGAHQETQYF	TRBV24-1	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+58				CATSPGLAGAYQETQYF	TRBV24-1	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+59				CATSPGLAGAYQETQYF	TRBV24-1	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+60				CATSPGLAGGRQETQYF	TRBV24-1	TRBD2	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+61	CAGPLQTSYDKVIF	TRAV35	TRAJ50					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+62	CAGPLQTSYDKVIF	TRAV35	TRAJ50					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+63	CAVAFGNQFYF	TRAV8-3	TRAJ49					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	1%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+64	CAVAFGNQFYF	TRAV8-3	TRAJ49					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	0.20%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+65	CAVFFGNVLHC	TRAV3	TRAJ35					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+66	CAVFFGNVLHC	TRAV3	TRAJ35					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+67	CAVFFGNVLHC	TRAV3	TRAJ35					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+68	CAVFFGNVLHC	TRAV3	TRAJ35					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+69	CAVRDVNARLMF	TRAV3	TRAJ31					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.20%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+70	CAVRDVNARLMF	TRAV3	TRAJ31					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	0.20%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+71	CILRDGGGATNKLIF	TRAV26-2	TRAJ32					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	pelimer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				
+72	CILRDGGGATNKLIF	TRAV26-2	TRAJ32					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	p65	CMV	https://github.com/antigenomics/vdjdb-db/issues/252	tetramer-sort	0.50%		amplicon-seq			CD8+		healthy	vdov				PBMC				

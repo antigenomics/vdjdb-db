@@ -4,7 +4,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 3				CASSPDRELFHTF	TRBV7-9		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	5/123		sanger					Asymptotic HTLV-I carrier, stable	AC1		HTJC1-3					
 4				CASSVRGSPLHF	TRBV9-1		TRBJ1-6	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/123		sanger					Asymptotic HTLV-I carrier, stable	AC1		HTJC1-4					
 5				CASSLVGTAYNNEQFF	TRBV11-3		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/123		sanger					Asymptotic HTLV-I carrier, stable	AC1		HTJC1-5					
-6				CSVAGGRTOELFF	TRBV29-1		TRBJ2-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/123		sanger					Asymptotic HTLV-I carrier, stable	AC1		HTJC1-6					
+6				CSVAGGRTGELFF	TRBV29-1		TRBJ2-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/123		sanger					Asymptotic HTLV-I carrier, stable	AC1		HTJC1-6					
 7				CASSSRTGGRNTEAFF	TRBV3-1		TRBJ1-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	8/111		sanger					Asymptotic HTLV-I carrier, stable	AC3		HTJC6-1					
 8				CASSQDRGAVYGYTF	TRBV4-1		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	8/111		sanger					Asymptotic HTLV-I carrier, stable	AC3		HTJC6-2					
 9				CASSLNGGHYEQYF	TRBV7-2		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/111		sanger					Asymptotic HTLV-I carrier, stable	AC3		HTJC6-3					
@@ -44,7 +44,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 43				CASSPDRGTEAFF	TRBV7-9		TRBJ1-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	2/89		sanger					Asymptotic HTLV-I carrier, stable	AC9		HTJC12-5					
 44				CASSPNFGPNYGYTF	TRBV9		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	3/89		sanger					Asymptotic HTLV-I carrier, stable	AC9		HTJCl2-6					
 45				CASSVRGNEQFF	TRBV9		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/89		sanger					Asymptotic HTLV-I carrier, stable	AC9		HTJCl2-7					
-46				CASSVRGSPLHF	TRBV9		TRBJ	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1-6		sanger					Asymptotic HTLV-I carrier, stable	AC9		HTJCl2-8					
+46				CASSVRGSPLHF	TRBV9		TRBJ1-6	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	6/89		sanger					Asymptotic HTLV-I carrier, stable	AC9		HTJCl2-8					
 47				CASSLGSRPGYF	TRBV13		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/89		sanger					Asymptotic HTLV-I carrier, stable	AC9		HTJCl2-9					
 48				CAREWRGEAYEQYF	TRBV25-1		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/89		sanger					Asymptotic HTLV-I carrier, stable	AC9		HTJCl2-10					
 49				CASIARVPSPGSCF	TRBV7-2		TRBJ2-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/114		sanger					Asymptotic HTLV-I carrier, stable	AC10		HTJC14-1					
@@ -72,16 +72,16 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 71				CASIEDRTPEAFF	TRBV7-9		TRBJ1-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	60/103		sanger					Asymptotic HTLV-I carrier, high-risk	AC16		HTJC22-7					
 72				CASSRDRERYEQYF	TRBV18		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	2/103		sanger					Asymptotic HTLV-I carrier, high-risk	AC16		HTJC22-8					
 73				CSARAAGTSGRRGDTQYF	TRBV20-1		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/103		sanger					Asymptotic HTLV-I carrier, high-risk	AC16		HTJC22-9					
-74				CASSQRSGQGNSPLHF	TRBV3-1		TRJ1-6	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	14/114		sanger					Asymptotic HTLV-I carrier, high-risk	AC17		HTIC27-1					
+74				CASSQRSGQGNSPLHF	TRBV3-1		TRBJ1-6	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	14/114		sanger					Asymptotic HTLV-I carrier, high-risk	AC17		HTIC27-1					
 75				CASSQDRGYVYGYTF	TRBV4-1		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	7/114		sanger					Asymptotic HTLV-I carrier, high-risk	AC17		HTJC27-2					
-76				CASSPDRAPEAFF	TRBV7-9		TRJ1-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/114		sanger					Asymptotic HTLV-I carrier, high-risk	AC17		HTJC27-3					
+76				CASSPDRAPEAFF	TRBV7-9		TRBJ1-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/114		sanger					Asymptotic HTLV-I carrier, high-risk	AC17		HTJC27-3					
 77				CASPRDREDGYTF	TRBV7-9		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	5/114		sanger					Asymptotic HTLV-I carrier, high-risk	AC17		HTJC27-4					
 78				CASSPDRADEQFF	TRBV7-9		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	5/114		sanger					Asymptotic HTLV-I carrier, high-risk	AC17		HTJC27-5					
 79				CASSPDRELTQYF	TRBV7-9		TRBJ2-5	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	64/114		sanger					Asymptotic HTLV-I carrier, high-risk	AC17		HTJC27-6					
 80				CASSPNRGPADEQYF	TRBV7-9		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/114		sanger					Asymptotic HTLV-I carrier, high-risk	AC17		HTJC27-7					
 81				CASSPNFGPNYGYTF	TRBV9		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/114		sanger					Asymptotic HTLV-I carrier, high-risk	AC17		HTJC27-8					
 82				CASSMRDIGNTGELFF	TRBV19		TRBJ2-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/114		sanger					Asymptotic HTLV-I carrier, high-risk	AC17		HTJC27-9					
-83				CASSGGRGSPLHF	TRBV27		TRW1-6	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/114		sanger					Asymptotic HTLV-I carrier, high-risk	AC17		HTJC27-10					
+83				CASSGGRGSPLHF	TRBV27		TRBJ1-6	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/114		sanger					Asymptotic HTLV-I carrier, high-risk	AC17		HTJC27-10					
 84				CSVEDLRSGGGDTEAFF	TRBV29-1		TRBJ1-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	14/114		sanger					Asymptotic HTLV-I carrier, high-risk	AC17		HTJC27-11					
 85				CASSLSALSYNEQFF	TRBV5-1		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/113		sanger					Adult T-cell leukemia/lymphoma, chronic	cATL1		HTJC13-1					
 86				CASSSSTSGNTGELFF	TRBV5-1		TRBJ2-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	88/113		sanger					Adult T-cell leukemia/lymphoma, chronic	cATL1		HTJC13-2					

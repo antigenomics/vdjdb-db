@@ -20,98 +20,103 @@ class VdjdbScoreFactory {
 
     VdjdbScoreFactory(Table masterTable) {
         masterTable.each { row ->
-            def sign = getSignature(row)
+            try {
+                def sign = getSignature(row)
 
-            // Assign publications
-            def pubList = publicationMap[sign]
-            if (pubList == null) {
-                publicationMap.put(sign, pubList = new ArrayList<String>())
-            }
-            pubList << row["reference.id"]
+                // Assign publications
+                def pubList = publicationMap[sign]
+                if (pubList == null) {
+                    publicationMap.put(sign, pubList = new ArrayList<String>())
+                }
+                pubList << row["reference.id"]
 
-            // Compute score
-            def score
-            if (row["meta.structure.id"].trim().length() > 0) {
-                score = 3 // we have structure, any questions? :)
-            } else {
-                /*
-                    - We are sure that we have correct TCR sequence (+0 or +2)
-                      sanger - several cells sequenced (2+)
-                      single-cell - sure automatically
-                      amplicon-seq - frequency is higher than 0.01
-
-                    - We have moderate confidence about T-cell specificity (+0 or +2)
-                      sort-based method - frequency is higher than 0.1
-                      culture-based method - frequency is higher than 0.5
-                      limiting dilution/culture performed - frequency is higher than 0.5
-
-                    - We have high confidence about T-cell specificity (+0 or +3..+5)
-                      direct method - best
-                      stimulation-based - medium
-                      sort-based worst
-                 */
-
-                def freqStr = row["method.frequency"].trim()
-                def freq = getFrequency(freqStr),
-                    count = getNumberOfCells(freqStr)
-
-                assert freq <= 1.0f
-
-                // sequencing
-                def seqScore = 1
-
-                def singleCell = row["method.singlecell"].trim().toLowerCase()
-
-                if (singleCell.length() > 0 && singleCell != "no") {
-                    seqScore = 3
+                // Compute score
+                def score
+                if (row["meta.structure.id"].trim().length() > 0) {
+                    score = 3 // we have structure, any questions? :)
                 } else {
-                    switch (row["method.sequencing"].trim().toLowerCase()) {
-                        case "sanger":
-                            seqScore = count >= 2 ? 3 : 2
-                            break
-                        case "amplicon-seq":
-                            seqScore = freq >= 0.01f ? 3 : 1
-                            break
+                    /*
+                        - We are sure that we have correct TCR sequence (+0 or +2)
+                          sanger - several cells sequenced (2+)
+                          single-cell - sure automatically
+                          amplicon-seq - frequency is higher than 0.01
+
+                        - We have moderate confidence about T-cell specificity (+0 or +2)
+                          sort-based method - frequency is higher than 0.1
+                          culture-based method - frequency is higher than 0.5
+                          limiting dilution/culture performed - frequency is higher than 0.5
+
+                        - We have high confidence about T-cell specificity (+0 or +3..+5)
+                          direct method - best
+                          stimulation-based - medium
+                          sort-based worst
+                     */
+
+                    def freqStr = row["method.frequency"].trim()
+                    def freq = getFrequency(freqStr),
+                        count = getNumberOfCells(freqStr)
+
+                    assert freq <= 1.0f
+
+                    // sequencing
+                    def seqScore = 1
+
+                    def singleCell = row["method.singlecell"].trim().toLowerCase()
+
+                    if (singleCell.length() > 0 && singleCell != "no") {
+                        seqScore = 3
+                    } else {
+                        switch (row["method.sequencing"].trim().toLowerCase()) {
+                            case "sanger":
+                                seqScore = count >= 2 ? 3 : 2
+                                break
+                            case "amplicon-seq":
+                                seqScore = freq >= 0.01f ? 3 : 1
+                                break
+                        }
                     }
-                }
 
-                // Moderate confidence regarding specificity
-                def identifyMethod = row["method.identification"].toLowerCase().trim()
+                    // Moderate confidence regarding specificity
+                    def identifyMethod = row["method.identification"].toLowerCase().trim()
 
-                def specScore1 = 0
+                    def specScore1 = 0
 
-                if (cultureBasedIdentification(identifyMethod)) {
-                    specScore1 = freq >= 0.5f ? 1 : 0
-                } else {
-                    if (sortBasedMethod(identifyMethod)) {
-                        specScore1 = freq >= 0.05f ? 1 : 0
-                    } else if (stimulationBasedMethod(identifyMethod)) {
-                        specScore1 = freq >= 0.25f ? 1 : 0
+                    if (cultureBasedIdentification(identifyMethod)) {
+                        specScore1 = freq >= 0.5f ? 1 : 0
+                    } else {
+                        if (sortBasedMethod(identifyMethod)) {
+                            specScore1 = freq >= 0.05f ? 1 : 0
+                        } else if (stimulationBasedMethod(identifyMethod)) {
+                            specScore1 = freq >= 0.25f ? 1 : 0
+                        }
                     }
+
+                    // High confidence regarding specificity
+                    def verifyMethod = row["method.verification"].toLowerCase()
+
+                    def specScore2 = 0
+
+                    if (directVerification(verifyMethod)) {
+                        // A direct method to observe TCR specificity
+                        specScore2 = 3
+                    } else if (stimulationBasedMethod(verifyMethod)) {
+                        // Verification by target lysis, etc
+                        specScore2 = 2
+                        seqScore = 3 // tcr was cloned
+                    } else if (sortBasedMethod(verifyMethod)) {
+                        // Verification by cloning & re-staining
+                        specScore2 = 1
+                        seqScore = 3 // tcr was cloned
+                    }
+
+                    score = Math.min(seqScore, specScore1 + specScore2)
                 }
 
-                // High confidence regarding specificity
-                def verifyMethod = row["method.verification"].toLowerCase()
-
-                def specScore2 = 0
-
-                if (directVerification(verifyMethod)) {
-                    // A direct method to observe TCR specificity
-                    specScore2 = 3
-                } else if (stimulationBasedMethod(verifyMethod)) {
-                    // Verification by target lysis, etc
-                    specScore2 = 2
-                    seqScore = 3 // tcr was cloned
-                } else if (sortBasedMethod(verifyMethod)) {
-                    // Verification by cloning & re-staining
-                    specScore2 = 1
-                    seqScore = 3 // tcr was cloned
-                }
-
-                score = Math.min(seqScore, specScore1 + specScore2)
+                scoreMap[sign] = Math.max(scoreMap[sign] ?: 0, score)
+            } catch (Exception e) {
+                throw new RuntimeException("Error: " + e + "\nin " +
+                    row["reference.id"] + " " + row["cdr3.alpha"] + " " + row["cdr3.beta"])
             }
-
-            scoreMap[sign] = Math.max(scoreMap[sign] ?: 0, score)
         }
     }
 
