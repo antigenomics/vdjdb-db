@@ -3,7 +3,6 @@ title: "VDJdb summary statistics"
 output:
   html_document:
     code_folding: hide
-  pdf_document: default
 ---
 
 ```{r setup, include=FALSE, warning=FALSE}
@@ -216,7 +215,7 @@ dt.pubdate = data.table(
 )
 ```
 
-Number of unique TCR sequences, epitopes, MHC alleles and publications by **publication** year.
+Number of unique TCR sequences, epitopes, MHC alleles and publications by **publication** year, cumulative plots.
 
 ```{r message=FALSE,warning=FALSE}
 dt.vdjdb.s2 = dt.vdjdb.s %>%
