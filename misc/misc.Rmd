@@ -19,3 +19,78 @@ fread("../database/vdjdb.slim.txt") %>%
   get_segment_parts %>%
   fwrite("../res/segments.aaparts.txt", sep = "\t")
 ```
+
+Export TCRs by chain & epitope for human
+
+```{r}
+fread("../database/vdjdb.slim.txt") %>%
+  filter(species == "HomoSapiens") %>%
+  proc_slim_vdjdb %>%
+  as.vdjtools.df -> dt.vdjdb
+
+epi.count <- dt.vdjdb %>%
+  group_by(gene, antigen.epitope) %>%
+  summarise(count = n())
+
+epi.good <- epi.count %>%
+  filter(count >= 30)
+
+system("mkdir export/")
+for (gg in c("TRA", "TRB")) {
+  for (ee in epi.good %>% filter(gene == gg) %>% .$antigen.epitope) {
+    dt.vdjdb %>% 
+      filter(gene == gg, antigen.epitope == ee) %>%
+      select(-species, -gene, -antigen.epitope) %>%
+      fwrite(paste0("export/", gg, ".", ee, ".txt"), sep = "\t")
+  }
+}
+```
+```
+dt.vdjdb.hb <- dt.vdjdb %>%
+  filter(species == "HomoSapiens", cdr3.beta != "", 
+         v.beta != "", j.beta != "") %>%
+  select(cdr3.beta, v.beta, j.beta, antigen.epitope) %>%
+  unique
+
+dt.epi.count.b <- dt.vdjdb.hb %>%
+  group_by(antigen.epitope) %>%
+  summarise(count = n())
+
+epi.sel.b <- dt.epi.count.b %>% 
+  filter(count >= 30) %>% 
+  .$antigen.epitope %>%
+  unique
+
+dt.vdjdb.hb.1 <- dt.vdjdb.hb %>%
+  filter(antigen.epitope %in% epi.sel.b)
+
+dt.vdjdb.ha <- dt.vdjdb %>%
+  filter(species == "HomoSapiens", cdr3.alpha != "",
+         v.alpha != "", j.alpha != "") %>%
+  select(cdr3.alpha, v.alpha, j.alpha, antigen.epitope) %>%
+  unique
+
+dt.epi.count.a <- dt.vdjdb.ha %>%
+  group_by(antigen.epitope) %>%
+  summarise(count = n())
+
+epi.sel.a <- dt.epi.count.a %>% 
+  filter(count >= 30) %>% 
+  .$antigen.epitope %>%
+  unique
+
+dt.vdjdb.ha.1 <- dt.vdjdb.ha %>%
+  filter(antigen.epitope %in% epi.sel.a)
+
+system("mkdir export/")
+for (epi in epi.sel.b) {
+  dt.vdjtools.b %>% 
+    filter(antigen.epitope == epi) %>%
+    fwrite(paste0("export/TRB.", epi, ".txt"), sep = "\t")
+}
+for (epi in epi.sel.a) {
+  dt.vdjtools.a %>% 
+    filter(antigen.epitope == epi) %>%
+    fwrite(paste0("export/TRA.", epi, ".txt"), sep = "\t")
+}
+```

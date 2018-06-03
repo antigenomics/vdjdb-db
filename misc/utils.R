@@ -2,6 +2,17 @@ library(dplyr)
 library(stringr)
 library(data.table)
 
+### VDJdb processing
+
+proc_slim_vdjdb <- function(.df) {
+  .df %>%
+    filter(v.segm != "", j.segm != "") %>%
+    mutate(v.segm = str_split_fixed(v.segm, "[*,]", 2)[,1],
+           j.segm = str_split_fixed(j.segm, "[*,]", 2)[,1]) %>%
+    select(species, gene, antigen.epitope, cdr3, v.segm, j.segm) %>%
+    unique
+}
+
 ### Segment processing
 get_segment_parts <- function(.df) {
   .df.v <- .df %>%
@@ -26,8 +37,6 @@ get_segment_parts <- function(.df) {
   
   rbind(.df.v, .df.j)
 }
-  
-
 
 ### VDJtools export
 
@@ -47,23 +56,18 @@ mock_back_translate <- function(x) {
 
 # "CASS" %>% strsplit('') %>% lapply(mock_back_translate)
 
-as.vdjtools.df <- function(.df, .chain = c("beta", "alpha")) {
-  if (.chain == "beta") {
-    .df$cdr3aa <- .df$cdr3.beta
-    .df$v <- .df$v.beta
-    .df$j <- .df$j.beta
-  } else {
-    .df$cdr3aa <- .df$cdr3.alpha
-    .df$v <- .df$v.alpha
-    .df$j <- .df$j.alpha
-  }
-  
-  .df$cdr3nt <- cdr3.beta %>% 
+as.vdjtools.df <- function(.df) {
+  .df$cdr3aa <- .df$cdr3
+  .df$cdr3nt <- .df$cdr3aa %>% 
     strsplit('') %>% 
     lapply(mock_back_translate)
   
   .df %>%
-    mutate(count = 1, freq = 1 / n(), d = "",
+    mutate(count = 1, v = v.segm, d = "", j = j.segm,
            vend = -1, dstart = -1, dend = -1, jstart = -1) %>%
-    select(count, freq, cdr3nt, cdr3aa, v, d, j, vend, dstart, dend, jstart)
+    group_by(species, gene, antigen.epitope) %>%
+    mutate(freq = 1 / n()) %>%
+    ungroup %>%
+    select(count, freq, cdr3nt, cdr3aa, v, d, j, vend, dstart, dend, jstart,
+           species, gene, antigen.epitope)
 }
