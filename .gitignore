@@ -2,6 +2,7 @@ tmp/
 database/
 releases/
 out/
+misc/export
 
 ## Groovy / Java
 

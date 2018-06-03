@@ -1,0 +1,21 @@
+---
+title: "misc"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+source("utils.R")
+```
+
+Generate a dump of annotated V/J segment sequences. This dump is used by CDRFixer to annotate cases when V/J is not supplied
+
+```{r}
+fread("../database/vdjdb.slim.txt") %>%
+  as.data.frame %>%
+  get_segment_parts %>%
+  fwrite("../res/segments.aaparts.txt", sep = "\t")
+```

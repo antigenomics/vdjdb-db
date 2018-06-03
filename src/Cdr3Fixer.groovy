@@ -15,15 +15,17 @@
  */
 
 class Cdr3Fixer {
+    final Map<String, Map<String, String>> segmentsBySequencePartBySpeciesGene = new HashMap<>()
     final Map<String, Map<String, String>> segmentsByIdBySpecies = new HashMap<>()
     final int maxReplaceSize, minHitSize
 
     static Map<String, String> nomenclatureConversions = new File("../patches/nomenclature.conversions")
-        .readLines()
-        .findAll { !it.startsWith("#") }
-        .collectEntries { def splitLine = it.split("[\t ]+"); [(splitLine[0]): splitLine[1].split(",")[0]] }
+            .readLines()
+            .findAll { !it.startsWith("#") }
+            .collectEntries { def splitLine = it.split("[\t ]+"); [(splitLine[0]): splitLine[1].split(",")[0]] }
 
-    Cdr3Fixer(String segmentsFileName, int maxReplaceSize = 1, int minHitSize = 2) {
+    Cdr3Fixer(String segmentsFileName, String segmentsSeqFileName,
+              int maxReplaceSize = 1, int minHitSize = 2) {
         this.maxReplaceSize = maxReplaceSize
         this.minHitSize = minHitSize
 
@@ -46,16 +48,34 @@ class Cdr3Fixer {
                 }
             }
         }
+
+        boolean firstLine = true
+        new File(segmentsSeqFileName).splitEachLine('\t') { splitLine ->
+            if (firstLine) {
+                firstLine = false
+            } else {
+                def speciesChain = splitLine[0] + "." +
+                        (splitLine[1] == "TRA" ? "alpha" : "beta") // see invokation in BuildDatabase
+
+                def segmentSeqMap = segmentsBySequencePartBySpeciesGene[speciesChain]
+
+                if (segmentSeqMap == null) {
+                    segmentsBySequencePartBySpeciesGene.put(speciesChain, segmentSeqMap = new HashMap<String, String>())
+                }
+
+                segmentSeqMap.put(splitLine[2], splitLine[4]) // segment id by part
+            }
+        }
     }
 
     String getClosestId(String species, String id) {
         def segmentsById = segmentsByIdBySpecies[species.toLowerCase()]
 
         if (species.toLowerCase() == "homosapiens") {
-          def conversion = nomenclatureConversions[id]
-          if (conversion) {
-            id = conversion
-          }
+            def conversion = nomenclatureConversions[id]
+            if (conversion) {
+                id = conversion
+            }
         }
 
         if (segmentsById == null)
@@ -123,7 +143,31 @@ class Cdr3Fixer {
         }
     }
 
-    FixerResult fix(String cdr3, String vId, String jId, String species) {
+    String guessId(String cdr3, String species, String gene, boolean fivePrime) {
+        def segmentSeqMap = segmentsBySequencePartBySpeciesGene[(String) (species + "." + gene)]
+
+        if (segmentSeqMap == null) {
+            return ""
+        }
+
+        if (fivePrime) {
+            for (int i = cdr3.length() - 4; i > 1; i--) {
+                def res = segmentSeqMap[cdr3.substring(0, i)]
+                if (res != null)
+                    return res
+            }
+            return ""
+        } else {
+            for (int i = 2; i < cdr3.length() - 3; i++) {
+                def res = segmentSeqMap[cdr3.substring(i)]
+                if (res != null)
+                    return res
+            }
+            return ""
+        }
+    }
+
+    FixerResult fix(String cdr3, String vId, String jId, String species, String gene) {
         def vResult = vId.split(",").collect {
             fix(cdr3, it, species, true)
         }.min { it.fixType.rank }

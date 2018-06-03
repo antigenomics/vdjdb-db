@@ -147,7 +147,7 @@ def readChunk = { File chunkFile ->
 
 def isAASeqValid = { String str ->
     (str == "" || str.length() >= 3) && // if CDR3 is specified, it should be at least 3AA long
-    str =~ /^[ARNDCQEGHILKMFPSTWYV]+$/
+            str =~ /^[ARNDCQEGHILKMFPSTWYV]+$/
 }
 
 def isMhcValid = { String str ->
@@ -268,7 +268,7 @@ chunkFiles.each { chunkFile ->
 // Fix CDR3 sequences
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-def cdr3Fixer = new Cdr3Fixer("../res/segments.txt")
+def cdr3Fixer = new Cdr3Fixer("../res/segments.txt", "../res/segments.aaparts.txt")
 
 println "Fixing CDR3 sequences (stage I)"
 
@@ -276,16 +276,27 @@ masterTable.addCol "cdr3fix.alpha"
 masterTable.addCol "cdr3fix.beta"
 
 masterTable.each { row ->
-    ["alpha", "beta"].each {
-        if (row["cdr3.$it"] != "") {
+    ["alpha", "beta"].each { gene ->
+        def cdr3 = row["cdr3.$gene"],
+            vId = row["v.$gene"],
+            jId = row["j.$gene"],
+            species = row["species"]
+
+        if (cdr3 != "") {
+            vId = vId == "" ? cdr3Fixer.guessId(cdr3, species, gene, true) : vId
+            row["v.$gene"] = vId
+            jId = jId == "" ? cdr3Fixer.guessId(cdr3, species, gene, false) : jId
+            row["j.$gene"] = jId
+
             def fixerResult = cdr3Fixer.fix(
-                    row["cdr3.$it"],
-                    row["v.$it"],
-                    row["j.$it"],
-                    row["species"]
+                    cdr3,
+                    vId,
+                    jId,
+                    species,
+                    gene
             )
 
-            row["cdr3.$it"] = fixerResult.cdr3
+            row["cdr3.$gene"] = fixerResult.cdr3
 
             row.values << new JsonBuilder(fixerResult).toString()
         } else {
@@ -322,7 +333,6 @@ new File("../database/vdjdb_full.txt").withPrintWriter { pw ->
         pw.println(it.values.join("\t"))
     }
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Write collapsed table
@@ -402,8 +412,8 @@ new File("../database/vdjdb.txt").withPrintWriter { pw ->
         }).toString()
 
         def metaAnnotMap = META_COLUMNS.collectEntries {
-                [(it.split("meta.")[1]): row[it]]
-            }
+            [(it.split("meta.")[1]): row[it]]
+        }
 
         metaAnnotMap << [("samples.found"): scoreFactory.getSamplesDetected(row)]
         metaAnnotMap << [("studies.found"): scoreFactory.getStudiesDetected(row)]
@@ -438,7 +448,6 @@ new File("../database/vdjdb.txt").withPrintWriter { pw ->
     }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Re-align gene segments in the final table using nucleotide-on-amino acid aligner
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -451,7 +460,7 @@ def proc = cmd.execute()
 proc.waitForProcessOutput(System.out, System.err)
 
 if (proc.exitValue() != 0) {
-   throw new RuntimeException("AlignBestSegments failed")
+    throw new RuntimeException("AlignBestSegments failed")
 }
 
 def vdjdbLines = new File("../database/vdjdb.txt").readLines().collect { it.split("\t") as List }
@@ -474,7 +483,6 @@ new File("../database/vdjdb.txt").withPrintWriter { pw ->
 }
 
 /* end */
-
 
 // Generate a slim version of database
 
@@ -523,7 +531,7 @@ new File("../database/vdjdb.txt").splitEachLine("\t") { splitLine ->
 
         splitLine.eachWithIndex { it, ind ->
 //            if (requiredIds.contains(it)) {
-                colIdMap[it] = ind
+            colIdMap[it] = ind
 //            }
         }
 
