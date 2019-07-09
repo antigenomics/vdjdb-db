@@ -3,6 +3,9 @@ dist: xenial
 language:
   - groovy
   - python
+  
+jdk:
+  - openjdk8
 
 before_install:
   - sudo pip install pandas
