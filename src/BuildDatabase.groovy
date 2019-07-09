@@ -188,7 +188,7 @@ def correct = { String text, String from, String to ->
 // Read, validate and concatenate chunks
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-def chunksToBuild = args.length > 0 ? args[-1].split(",") as List<String> : []
+def chunksToBuild = args.findAll { !it.startsWith("-") } //args.length > 0 ? args[-1].split(",") as List<String> : []
 
 def chunkFiles = new File("../chunks/").listFiles().findAll { chunkFile ->
     def chunkName = chunkFile.name
