@@ -13,4 +13,4 @@ before_install:
   
 script:
   - cd src/ 
-  - travis_wait groovy -cp . BuildDatabase.groovy
+  - travis_wait groovy -cp . BuildDatabase.groovy --no2fix

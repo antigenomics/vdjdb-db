@@ -188,7 +188,7 @@ def correct = { String text, String from, String to ->
 // Read, validate and concatenate chunks
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-def chunksToBuild = args.length > 0 ? args[0].split(",") as List<String> : []
+def chunksToBuild = args.length > 0 ? args[-1].split(",") as List<String> : []
 
 def chunkFiles = new File("../chunks/").listFiles().findAll { chunkFile ->
     def chunkName = chunkFile.name
@@ -452,15 +452,17 @@ new File("../database/vdjdb.txt").withPrintWriter { pw ->
 // Re-align gene segments in the final table using nucleotide-on-amino acid aligner
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-println "Fixing CDR3 sequences (stage II)"
-println "(it may take a while...)"
+if (!args.contains("--no2fix")) {
+    println "Fixing CDR3 sequences (stage II)"
+    println "(it may take a while...)"
 
-def cmd = ["python", "AlignBestSegments.py", "../database/vdjdb_full.txt", "../database/vdjdb.txt", "../res/segments.txt"]
-def proc = cmd.execute()
-proc.waitForProcessOutput(System.out, System.err)
+    def cmd = ["python", "AlignBestSegments.py", "../database/vdjdb_full.txt", "../database/vdjdb.txt", "../res/segments.txt"]
+    def proc = cmd.execute()
+    proc.waitForProcessOutput(System.out, System.err)
 
-if (proc.exitValue() != 0) {
-    throw new RuntimeException("AlignBestSegments failed")
+    if (proc.exitValue() != 0) {
+        throw new RuntimeException("AlignBestSegments failed")
+    }
 }
 
 def vdjdbLines = new File("../database/vdjdb.txt").readLines().collect { it.split("\t") as List }
