@@ -1,27 +1,27 @@
 chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
-1	CAVSDKNRDDKIIF	TRAV8-6*02	TRAJ30*01	CASRPGTASYEQYF	TRBV28*01	TRBD1*01	TRBJ2-7*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	4/4	NA	sanger	NA	NA	CD8+	NA	healthy	1	NA	10	NA	clone	NA	NA	NA
-2				CASRPGTASYEQYF	TRBV28*01	TRBD1*01	TRBJ2-7*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	2/7	NA	sanger	NA	NA	CD8+	NA	healthy	1	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
-3	CAVSDKNRDDKIIF	TRAV8-6*02	TRAJ30*01					HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	1/7	NA	sanger	NA	NA	CD8+	NA	healthy	1	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
-4	CAVSAPYNTDKLIFF	TRAV8-6*02	TRAJ34*01					HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	3/7	NA	sanger	NA	NA	CD8+	NA	healthy	1	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
-5	CAVRPSGGSYIPTF	TRAV8-6*02	TRAJ6*01					HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	1/7	NA	sanger	NA	NA	CD8+	NA	healthy	1	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
-6				CASRPGTSSYEQYF	TRBV28*01	TRBD1*01	TRBJ2-7*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	8/22	NA	sanger	NA	NA	CD8+	NA	healthy	6	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
-7	CAVSDKNRDDKIIF	TRAV8-6*02	TRAJ30*01					HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	10/22	NA	sanger	NA	NA	CD8+	NA	healthy	6	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
-8	CAVSANYGGSQGNLIF	TRAV8-6*02	TRAJ42*01					HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	4/22	NA	sanger	NA	NA	CD8+	NA	healthy	6	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
-9				CASRPGTSSYEQYF	TRBV28*01	TRBD2*01	TRBJ2-7*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	6/11	NA	sanger	NA	NA	CD8+	NA	healthy	2	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
-10	CAVSDKNRDDKIIF	TRAV8-6*02	TRAJ30*01					HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	5/11	NA	sanger	NA	NA	CD8+	NA	healthy	2	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
-11				CASRPGTSSYEQYF	TRBV28*01	TRBD2*01	TRBJ2-7*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	7/7	NA	sanger	NA	NA	CD8+	NA	healthy	2	NA	NA	NA	PBMC	NA	NA	NA
-12				CAWSEPQNLPSLYGYTF	TRBV30*01		TRBJ1-2*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	11/13	NA	sanger	NA	NA	CD8+	NA	healthy	1	NA	NA	NA	PBMC	NA	NA	NA
-13				CAWSVASGANNEQFF	TRBV30*01	TRBD2*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	1/13	NA	sanger	NA	NA	CD8+	NA	healthy	1	NA	NA	NA	PBMC	NA	NA	NA
-14				CAWSVAAGILEQFF	TRBV30*01	TRBD2*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	1/13	NA	sanger	NA	NA	CD8+	NA	healthy	1	NA	NA	NA	PBMC	NA	NA	NA
-15				CASSLVAGYGSYNEQFF	TRBV7-6*01	TRBD1*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	3/3	NA	sanger	NA	NA	CD8+	NA	healthy	2	NA	15	NA	clone	NA	NA	NA
-16				CASSLVAGYGSYNEQFF	TRBV7-6*01	TRBD1*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	3/3	NA	sanger	NA	NA	CD8+	NA	healthy	2	NA	4	NA	clone	NA	NA	NA
-17				CASSLVAGYGSYNEQFF	TRBV7-6*01	TRBD1*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	4/4	NA	sanger	NA	NA	CD8+	NA	healthy	2	NA	7	NA	clone	NA	NA	NA
-18				CASSLVAGYGSYNEQFF	TRBV7-6*01	TRBD1*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	4/4	NA	sanger	NA	NA	CD8+	NA	healthy	2	NA	10	NA	clone	NA	NA	NA
-19				CASSLVAGYGSYNEQFF	TRBV7-6*01	TRBD1*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	5/5	NA	sanger	NA	NA	CD8+	NA	healthy	2	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
-20				CASSQDRASPLHEQFF	TRBV4-3*01	TRBD2*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	8/10	NA	sanger	NA	NA	CD8+	NA	healthy	6	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
-21				CASSQDWGDGYTF	TRBV4-2*01	TRBD2*01	TRBJ1-2*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	1/10	NA	sanger	NA	NA	CD8+	NA	healthy	6	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
-22				CASSQVGHEQFF	TRBV4-3*01		TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	1/10	NA	sanger	NA	NA	CD8+	NA	healthy	6	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
-23				CAWSPTGDQPQHF	TRBV30*05	TRBD1*01	TRBJ1-5*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	2/5	NA	sanger	NA	NA	CD8+	NA	healthy	1	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
-24				CAWSEPGLDQPQHF	TRBV30*05	TRBD1*01	TRBJ1-5*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	1/5	NA	sanger	NA	NA	CD8+	NA	healthy	1	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
-25				CAWSVAAGILEQFF	TRBV30*05	TRBD2*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	1/5	NA	sanger	NA	NA	CD8+	NA	healthy	1	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
-26				CAWSLASGGTDNEQFF	TRBV30*05	TRBD2*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	1/5	NA	sanger	NA	NA	CD8+	NA	healthy	1	NA	NA	NA	Polyclonal T-cell line	NA	NA	NA
+1	CAVSDKNRDDKIIF	TRAV8-6*02	TRAJ30*01	CASRPGTASYEQYF	TRBV28*01	TRBD1*01	TRBJ2-7*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	4/4		sanger			CD8+		healthy	1		10		clone			
+2				CASRPGTASYEQYF	TRBV28*01	TRBD1*01	TRBJ2-7*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	2/7		sanger			CD8+		healthy	1				Polyclonal T-cell line			
+3	CAVSDKNRDDKIIF	TRAV8-6*02	TRAJ30*01					HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	1/7		sanger			CD8+		healthy	1				Polyclonal T-cell line			
+4	CAVSAPYNTDKLIFF	TRAV8-6*02	TRAJ34*01					HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	3/7		sanger			CD8+		healthy	1				Polyclonal T-cell line			
+5	CAVRPSGGSYIPTF	TRAV8-6*02	TRAJ6*01					HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	1/7		sanger			CD8+		healthy	1				Polyclonal T-cell line			
+6				CASRPGTSSYEQYF	TRBV28*01	TRBD1*01	TRBJ2-7*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	8/22		sanger			CD8+		healthy	6				Polyclonal T-cell line			
+7	CAVSDKNRDDKIIF	TRAV8-6*02	TRAJ30*01					HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	10/22		sanger			CD8+		healthy	6				Polyclonal T-cell line			
+8	CAVSANYGGSQGNLIF	TRAV8-6*02	TRAJ42*01					HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	4/22		sanger			CD8+		healthy	6				Polyclonal T-cell line			
+9				CASRPGTSSYEQYF	TRBV28*01	TRBD2*01	TRBJ2-7*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	6/11		sanger			CD8+		healthy	2				Polyclonal T-cell line			
+10	CAVSDKNRDDKIIF	TRAV8-6*02	TRAJ30*01					HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	5/11		sanger			CD8+		healthy	2				Polyclonal T-cell line			
+11				CASRPGTSSYEQYF	TRBV28*01	TRBD2*01	TRBJ2-7*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	CPSQEPMSIYVY	pp65	CMV	PMID:18270323	pentamer-sort	7/7		sanger			CD8+		healthy	2				PBMC			
+12				CAWSEPQNLPSLYGYTF	TRBV30*01		TRBJ1-2*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	11/13		sanger			CD8+		healthy	1				PBMC			
+13				CAWSVASGANNEQFF	TRBV30*01	TRBD2*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	1/13		sanger			CD8+		healthy	1				PBMC			
+14				CAWSVAAGILEQFF	TRBV30*01	TRBD2*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	1/13		sanger			CD8+		healthy	1				PBMC			
+15				CASSLVAGYGSYNEQFF	TRBV7-6*01	TRBD1*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	3/3		sanger			CD8+		healthy	2		15		clone			
+16				CASSLVAGYGSYNEQFF	TRBV7-6*01	TRBD1*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	3/3		sanger			CD8+		healthy	2		4		clone			
+17				CASSLVAGYGSYNEQFF	TRBV7-6*01	TRBD1*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	4/4		sanger			CD8+		healthy	2		7		clone			
+18				CASSLVAGYGSYNEQFF	TRBV7-6*01	TRBD1*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	4/4		sanger			CD8+		healthy	2		10		clone			
+19				CASSLVAGYGSYNEQFF	TRBV7-6*01	TRBD1*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	5/5		sanger			CD8+		healthy	2				Polyclonal T-cell line			
+20				CASSQDRASPLHEQFF	TRBV4-3*01	TRBD2*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	8/10		sanger			CD8+		healthy	6				Polyclonal T-cell line			
+21				CASSQDWGDGYTF	TRBV4-2*01	TRBD2*01	TRBJ1-2*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	1/10		sanger			CD8+		healthy	6				Polyclonal T-cell line			
+22				CASSQVGHEQFF	TRBV4-3*01		TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	1/10		sanger			CD8+		healthy	6				Polyclonal T-cell line			
+23				CAWSPTGDQPQHF	TRBV30*05	TRBD1*01	TRBJ1-5*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	2/5		sanger			CD8+		healthy	1				Polyclonal T-cell line			
+24				CAWSEPGLDQPQHF	TRBV30*05	TRBD1*01	TRBJ1-5*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	1/5		sanger			CD8+		healthy	1				Polyclonal T-cell line			
+25				CAWSVAAGILEQFF	TRBV30*05	TRBD2*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	1/5		sanger			CD8+		healthy	1				Polyclonal T-cell line			
+26				CAWSLASGGTDNEQFF	TRBV30*05	TRBD2*01	TRBJ2-1*01	HomoSapiens	HLA-B*35:08	B2M	MHCI	FPTKDVAL	pp65	CMV	PMID:18270323	pentamer-sort	1/5		sanger			CD8+		healthy	1				Polyclonal T-cell line			
