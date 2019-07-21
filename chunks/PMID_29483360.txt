@@ -1,0 +1,381 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	comment
+1				CSVGTGGTNEKLFF	TRBV29-1		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	99.96%		amplicon-seq						Donor5	Standard							
+2				CASTKTREKLYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.04%		amplicon-seq						Donor5	Standard							
+3				CSVGTGGTNEKLFF	TRBV29-1		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	99.92%		amplicon-seq						Donor5	Optimised							
+4				CASTKTREKLYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.08%		amplicon-seq						Donor5	Optimised							
+5				CASTFKESIVNTEAFF	TRBV7-9		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	29.04%		amplicon-seq						Donor0439	Standard							
+6				CSASGYSNQPQHF	TRBV20-1		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	19.81%		amplicon-seq						Donor0439	Standard							
+7				CASSWAAPGEQFF	TRBV19		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	13.73%		amplicon-seq						Donor0439	Standard							
+8				CASSPGTGGNSPLHF	TRBV5-1		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	12.85%		amplicon-seq						Donor0439	Standard							
+9				CASSSQGQGHVNTEAFF	TRBV7-9		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	6.49%		amplicon-seq						Donor0439	Standard							
+10				CASSLKQSGHYQETQYF	TRBV12-4		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	6.46%		amplicon-seq						Donor0439	Standard							
+11				CASSLASGNSYEQYF	TRBV11-2		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	5.62%		amplicon-seq						Donor0439	Standard							
+12				CASSLHRAEAFF	TRBV5-4		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	2.30%		amplicon-seq						Donor0439	Standard							
+13				CASSPGTVATGELFF	TRBV5-1		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	2.10%		amplicon-seq						Donor0439	Standard							
+14				CASSDYLAPTDTQYF	TRBV2		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.94%		amplicon-seq						Donor0439	Standard							
+15				CASSGGGGHYGYTF	TRBV9		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.65%		amplicon-seq						Donor0439	Standard							
+16				CASRGSGEKLFF	TRBV6-6		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	3.73%		amplicon-seq						Donor0439	Optimised							
+17				CASSVQGSGTYGYTF	TRBV9		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	2.95%		amplicon-seq						Donor0439	Optimised							
+18				CASSYSSTEAFF	TRBV6-5		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	2.69%		amplicon-seq						Donor0439	Optimised							
+19				CASSLLGQAYGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	2.49%		amplicon-seq						Donor0439	Optimised							
+20				CASSRQGDEKLFF	TRBV6-6		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	2.17%		amplicon-seq						Donor0439	Optimised							
+21				CSVEAGGNQPQHF	TRBV29-1		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	2.07%		amplicon-seq						Donor0439	Optimised							
+22				CSVLWTEAFF	TRBV29-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	2.04%		amplicon-seq						Donor0439	Optimised							
+23				CASSLARGGTEAFF	TRBV5-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	2.01%		amplicon-seq						Donor0439	Optimised							
+24				CASTYGTQYSYGYTF	TRBV3-1		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.97%		amplicon-seq						Donor0439	Optimised							
+25				CAIMSTSYTEAFF	TRBV10-3		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.91%		amplicon-seq						Donor0439	Optimised							
+26				CASSFQGGRIGQPQHF	TRBV12-3		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.87%		amplicon-seq						Donor0439	Optimised							
+27				CASSWGQGSYEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.84%		amplicon-seq						Donor0439	Optimised							
+28				CASSLSYGGLLDTEAFF	TRBV5-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.62%		amplicon-seq						Donor0439	Optimised							
+29				CASSSHTGGFGYTF	TRBV7-9		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.53%		amplicon-seq						Donor0439	Optimised							
+30				CASSSQRNTEAFF	TRBV7-3		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.53%		amplicon-seq						Donor0439	Optimised							
+31				CASRMDIFRMGNTIYF	TRBV6-1		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.52%		amplicon-seq						Donor0439	Optimised							
+32				CASSLEPLSGNTIYF	TRBV5-5		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.46%		amplicon-seq						Donor0439	Optimised							
+33				CASSRGQESPYYGYTF	TRBV5-1		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.44%		amplicon-seq						Donor0439	Optimised							
+34				CSARGDLRENSPLHF	TRBV20-1		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.44%		amplicon-seq						Donor0439	Optimised							
+35				CASSSDINYGYTF	TRBV7-8		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.43%		amplicon-seq						Donor0439	Optimised							
+36				CASSQLTATNYGYTF	TRBV4-1		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.42%		amplicon-seq						Donor0439	Optimised							
+37				CASSGGIGYGYTF	TRBV7-6		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.42%		amplicon-seq						Donor0439	Optimised							
+38				CASSLEVGNQPQHF	TRBV5-1		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.41%		amplicon-seq						Donor0439	Optimised							
+39				CASSQVRGTEAFF	TRBV11-2		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.37%		amplicon-seq						Donor0439	Optimised							
+40				CASSRDKNYGYTF	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.35%		amplicon-seq						Donor0439	Optimised							
+41				CASSFGRAGNQPQHF	TRBV27		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.26%		amplicon-seq						Donor0439	Optimised							
+42				CASSVDRNSPLHF	TRBV9		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.22%		amplicon-seq						Donor0439	Optimised							
+43				CASSQGRLGRYF	TRBV3-1		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.22%		amplicon-seq						Donor0439	Optimised							
+44				CASSFGSGNTIYF	TRBV12-3		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.18%		amplicon-seq						Donor0439	Optimised							
+45				CASSPRGRTEAFF	TRBV7-8		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.15%		amplicon-seq						Donor0439	Optimised							
+46				CSAKRGNTEAFF	TRBV20-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.15%		amplicon-seq						Donor0439	Optimised							
+47				CASSWVNTEAFF	TRBV7-2		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.15%		amplicon-seq						Donor0439	Optimised							
+48				CASYTGTGGNTIYF	TRBV12-4		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.09%		amplicon-seq						Donor0439	Optimised							
+49				CASSPTGTEAFF	TRBV3-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.09%		amplicon-seq						Donor0439	Optimised							
+50				CASSENRGKGTEAFF	TRBV7-9		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.08%		amplicon-seq						Donor0439	Optimised							
+51				CASSPNPGGLNGYTF	TRBV3-1		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.04%		amplicon-seq						Donor0439	Optimised							
+52				CSARQPGGVDTEAFF	TRBV20-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.04%		amplicon-seq						Donor0439	Optimised							
+53				CSARTLDGYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.03%		amplicon-seq						Donor0439	Optimised							
+54				CSVDRGLNTEAFF	TRBV29-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.03%		amplicon-seq						Donor0439	Optimised							
+55				CASRGFSDQPQHF	TRBV12-3		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	1.01%		amplicon-seq						Donor0439	Optimised							
+56				CASSLHGRNYEQYF	TRBV5-4		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.99%		amplicon-seq						Donor0439	Optimised							
+57				CASSSLNTEAFF	TRBV27		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.99%		amplicon-seq						Donor0439	Optimised							
+58				CSARETGTRFYEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.97%		amplicon-seq						Donor0439	Optimised							
+59				CASSQDTRRQPQHF	TRBV3-1		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.90%		amplicon-seq						Donor0439	Optimised							
+60				CASSVEGETQYF	TRBV9		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.90%		amplicon-seq						Donor0439	Optimised							
+61				CASSLESGEKLFF	TRBV5-1		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.87%		amplicon-seq						Donor0439	Optimised							
+62				CASSLEAADNYGYTF	TRBV5-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.86%		amplicon-seq						Donor0439	Optimised							
+63				CASSGGPPAREQYF	TRBV5-5		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.86%		amplicon-seq						Donor0439	Optimised							
+64				CASSPGPGETQYF	TRBV7-2		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.85%		amplicon-seq						Donor0439	Optimised							
+65				CASSLKQAGGAKNIQYF	TRBV7-9		TRBJ2-4	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.82%		amplicon-seq						Donor0439	Optimised							
+66				CASSLAGQGDNYEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.81%		amplicon-seq						Donor0439	Optimised							
+67				CASSLDGTPFYEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.80%		amplicon-seq						Donor0439	Optimised							
+68				CASSLGRGYEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.80%		amplicon-seq						Donor0439	Optimised							
+69				CASSEYVRGGNTIYF	TRBV25-1		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.78%		amplicon-seq						Donor0439	Optimised							
+70				CASSWGTPSYEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.78%		amplicon-seq						Donor0439	Optimised							
+71				CASSLLGISADTQYF	TRBV5-1		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.77%		amplicon-seq						Donor0439	Optimised							
+72				CATSNNVGQTQYF	TRBV15		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.75%		amplicon-seq						Donor0439	Optimised							
+73				CASSLRDRRTTDTQYF	TRBV5-1		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.68%		amplicon-seq						Donor0439	Optimised							
+74				CASSSGQPNTGELFF	TRBV5-1		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.66%		amplicon-seq						Donor0439	Optimised							
+75				CASSRQGLETQYF	TRBV11-2		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.66%		amplicon-seq						Donor0439	Optimised							
+76				CASSLARSGGTDTQYF	TRBV7-9		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.66%		amplicon-seq						Donor0439	Optimised							
+77				CASSQGSLNTEAFF	TRBV4-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.66%		amplicon-seq						Donor0439	Optimised							
+78				CASSSGVYYGYTF	TRBV11-2		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.65%		amplicon-seq						Donor0439	Optimised							
+79				CASSLAGAGLPEAFF	TRBV7-8		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.64%		amplicon-seq						Donor0439	Optimised							
+80				CASSLAGDTGELFF	TRBV5-5		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.63%		amplicon-seq						Donor0439	Optimised							
+81				CASSSRDGYQNTEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.62%		amplicon-seq						Donor0439	Optimised							
+82				CASSAPPGTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.61%		amplicon-seq						Donor0439	Optimised							
+83				CASSLAGQGALSRQYF	TRBV12-4		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.59%		amplicon-seq						Donor0439	Optimised							
+84				CASGLGTSYNEQFF	TRBV5-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.59%		amplicon-seq						Donor0439	Optimised							
+85				CSARDQSLAKNIQYF	TRBV20-1		TRBJ2-4	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.58%		amplicon-seq						Donor0439	Optimised							
+86				CASSEGSTWDSYGYTF	TRBV6-1		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.57%		amplicon-seq						Donor0439	Optimised							
+87				CASSLYSRAAGQPQHF	TRBV5-6		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.57%		amplicon-seq						Donor0439	Optimised							
+88				CASSREWNTEAFF	TRBV5-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.56%		amplicon-seq						Donor0439	Optimised							
+89				CATSDRQSRSGELFF	TRBV24-1		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.54%		amplicon-seq						Donor0439	Optimised							
+90				CSVKWGAGELFF	TRBV29-1		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.51%		amplicon-seq						Donor0439	Optimised							
+91				CASSQGLSGGLSYNEQFF	TRBV3-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.49%		amplicon-seq						Donor0439	Optimised							
+92				CASSQDGGSSYNEQFF	TRBV4-2		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.48%		amplicon-seq						Donor0439	Optimised							
+93				CSASLAGGPFQETQYF	TRBV20-1		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.47%		amplicon-seq						Donor0439	Optimised							
+94				CSARYQAGTETQYF	TRBV20-1		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.46%		amplicon-seq						Donor0439	Optimised							
+95				CSARPGGGSQSYEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.43%		amplicon-seq						Donor0439	Optimised							
+96				CASSANKVSGGPDNEQFF	TRBV9		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.42%		amplicon-seq						Donor0439	Optimised							
+97				CASSLVGTEAFF	TRBV7-9		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.42%		amplicon-seq						Donor0439	Optimised							
+98				CASSLAGAPSGEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.42%		amplicon-seq						Donor0439	Optimised							
+99				CASSYGAGEDTQYF	TRBV6-5		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.42%		amplicon-seq						Donor0439	Optimised							
+100				CASSLAWGRDYTEAFF	TRBV5-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.41%		amplicon-seq						Donor0439	Optimised							
+101				CASSSIRGQGYEQYF	TRBV7-9		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.41%		amplicon-seq						Donor0439	Optimised							
+102				CASSFEASVSTDTQYF	TRBV11-2		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.39%		amplicon-seq						Donor0439	Optimised							
+103				CASSEGPYTGELFF	TRBV6-1		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.39%		amplicon-seq						Donor0439	Optimised							
+104				CASASGANTGELFF	TRBV5-5		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.35%		amplicon-seq						Donor0439	Optimised							
+105				CSATDRVTGNTEAFF	TRBV20-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.33%		amplicon-seq						Donor0439	Optimised							
+106				CASTTGTGGGEQYF	TRBV12-4		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.32%		amplicon-seq						Donor0439	Optimised							
+107				CASSQGFGNTEAFF	TRBV19		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.31%		amplicon-seq						Donor0439	Optimised							
+108				CASCQVRGTEAFF	TRBV11-2		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.28%		amplicon-seq						Donor0439	Optimised							
+109				CSVPSGGANTGELFF	TRBV29-1		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.27%		amplicon-seq						Donor0439	Optimised							
+110				CASSPSHGLNTGELFF	TRBV7-9		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.24%		amplicon-seq						Donor0439	Optimised							
+111				CASSQSGAGGPYEQYF	TRBV16		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.24%		amplicon-seq						Donor0439	Optimised							
+112				CASSPSWDLQETQYF	TRBV4-1		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.24%		amplicon-seq						Donor0439	Optimised							
+113				CASSLVGVPNYGYTF	TRBV5-6		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.23%		amplicon-seq						Donor0439	Optimised							
+114				CASSDGAGTWDTQYF	TRBV6-1		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.22%		amplicon-seq						Donor0439	Optimised							
+115				CARRSWGASEQFF	TRBV27		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.20%		amplicon-seq						Donor0439	Optimised							
+116				CASSQTGGTEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.19%		amplicon-seq						Donor0439	Optimised							
+117				CASSSRDSYEQYF	TRBV7-9		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.19%		amplicon-seq						Donor0439	Optimised							
+118				CASSFLAENNEQFF	TRBV27		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.18%		amplicon-seq						Donor0439	Optimised							
+119				CASSLRNTEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.18%		amplicon-seq						Donor0439	Optimised							
+120				CASSLGGAEAFF	TRBV5-4		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.18%		amplicon-seq						Donor0439	Optimised							
+121				CSAPRTGRLDTEAFF	TRBV20-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.13%		amplicon-seq						Donor0439	Optimised							
+122				CASTSGTGTGELFF	TRBV5-1		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.13%		amplicon-seq						Donor0439	Optimised							
+123				CASSPNGVETQYF	TRBV6-1		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.13%		amplicon-seq						Donor0439	Optimised							
+124				CASSQMSGGAYNEQFF	TRBV14		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.11%		amplicon-seq						Donor0439	Optimised							
+125				CAISDGQGPYEQYF	TRBV10-3		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.11%		amplicon-seq						Donor0439	Optimised							
+126				CASSTGTSGGTDTQYF	TRBV5-1		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.10%		amplicon-seq						Donor0439	Optimised							
+127				CASSYGDSYEQYF	TRBV7-9		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.10%		amplicon-seq						Donor0439	Optimised							
+128				CASSQGSLNTEAFF	TRBV4-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.09%		amplicon-seq						Donor0439	Optimised							
+129				CASSALPAGGITGELFF	TRBV19		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.08%		amplicon-seq						Donor0439	Optimised							
+130				CASSPSPSLRGKVTYNEQFF	TRBV7-8		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.06%		amplicon-seq						Donor0439	Optimised							
+131				CASSLGSHTEAFF	TRBV5-5		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.06%		amplicon-seq						Donor0439	Optimised							
+132				CASSYSVPALGNTIYF	TRBV6-2		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.06%		amplicon-seq						Donor0439	Optimised							
+133				CASSTGQGASNEKLFF	TRBV7-9		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.06%		amplicon-seq						Donor0439	Optimised							
+134				CASTFKESIVNTEAFF	TRBV7-9		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.05%		amplicon-seq						Donor0439	Optimised							
+135				CASSPLDNWEQFF	TRBV18		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:29483360	tetramer-sort	0.05%		amplicon-seq						Donor0439	Optimised							
+136	CALSPSGNTGKLIF	TRAV16	TRAJ37					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	51.44%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+137	CAVGGGKLIF	TRAV12-2	TRAJ23					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	17.81%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+138	CAVSNYQLIW	TRAV12-2	TRAJ33					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	14.26%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+139	CVASGTYKYIF	TRAV12-2	TRAJ40					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	6.27%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+140	CAVGNDKIIF	TRAV12-2	TRAJ30					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	2.97%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+141	CAENSGGYQKVTF	TRAV13-2	TRAJ13					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	2.64%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+142	CAVNSDGQKLLF	TRAV12-2	TRAJ16					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.98%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+143	CAFPESNFGNEKLTF	TRAV38-1	TRAJ48					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.48%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+144	CAVGDDKIIF	TRAV12-2	TRAJ30					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.15%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+145	CAVSNYQLIW	TRAV12-2	TRAJ33					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	34.67%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+146	CAVGGGKLIF	TRAV12-2	TRAJ23					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	13.71%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+147	CALSPSGNTGKLIF	TRAV16	TRAJ37					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	7.76%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+148	CAVGNDKIIF	TRAV12-2	TRAJ30					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	5.95%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+149	CVASGTYKYIF	TRAV12-2	TRAJ40					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	3.10%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+150	CASIGGGRRALTF	TRAV25	TRAJ5					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	2.98%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+151	CAVIGDKIIF	TRAV12-2	TRAJ30					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	2.98%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+152	CAVGDDKIIF	TRAV12-2	TRAJ30					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	4.66%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+153	CATGDDKIIF	TRAV12-2	TRAJ30					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	2.85%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+154	CAVNSGTDSWGKLQF	TRAV12-2	TRAJ24					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	2.72%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+155	CIVRGDSWGKLQF	TRAV26-1	TRAJ24					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	2.07%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+156	CAVNSDGQKLLF	TRAV12-2	TRAJ16					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.81%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+157	CAMRETTASDGQKLLF	TRAV14DV4	TRAJ16					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.55%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+158	CAADGQKLLF	TRAV25	TRAJ16					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.55%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+159	CASMDSNYQLIW	TRAV1-2	TRAJ33					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.42%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+160	CAVGTDKLIF	TRAV12-2	TRAJ34					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.42%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+161	CGTDISGYSTLTF	TRAV30	TRAJ11					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.29%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+162	CAVIAGKSTF	TRAV12-2	TRAJ27					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.29%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+163	CAFPESNFGNEKLTF	TRAV38-1	TRAJ48					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.16%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+164	CAVNAAGTSYDKVIF	TRAV12-2	TRAJ50					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.16%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+165	CVVADDKIIF	TRAV12-1	TRAJ30					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.91%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+166	CAASDTNAGGTSYGKLTF	TRAV29DV5	TRAJ52					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.65%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+167	CAPSQGGSEKLVF	TRAV12-2	TRAJ57					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.65%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+168	CAVRWENSGYALNF	TRAV8-6	TRAJ41					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.39%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+169	CAGRREKLTF	TRAV35	TRAJ48					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.39%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+170	CAVNNARLMF	TRAV12-2	TRAJ31					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.39%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+171	CAVSDDKIIF	TRAV12-2	TRAJ30					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.26%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+172				CSASHRAGNEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	51.46%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+173				CATGLAGGNEQFF	TRBV15		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	33.62%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+174				CATSRGQAYEQYF	TRBV15		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	5.21%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+175				CASSPGTGTYEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	2.84%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+176				CASSPGQAYEQYF	TRBV3-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	2.29%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+177				CASSLSDRVGEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	2.13%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+178				CASSERGSNQPQHF	TRBV27		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.03%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+179				CASRQQGGTEAFF	TRBV6-5		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.71%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+180				CSASAADTDTQYF	TRBV20-1		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.71%		amplicon-seq						Donor0345	Standard							Strain 17D vaccine
+181				CATGLAGGNEQFF	TRBV15		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	34.50%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+182				CSASHRAGNEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	33.29%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+183				CATSRGQAYEQYF	TRBV15		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	10.41%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+184				CASSPGTGTYEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	4.54%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+185				CASSPGQAYEQYF	TRBV3-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	3.74%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+186				CASSLSSSTGPTDTQYF	TRBV28		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	2.07%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+187				CSVDVGAYEQYF	TRBV29-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.90%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+188				CASSQGQAYEQYF	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.84%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+189				CSAFRDFSYEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.15%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+190				CASSQGLAGVHEQFF	TRBV27		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.09%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+191				CASSLDWRGADSPLHF	TRBV5-1		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.92%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+192				CSALAGAFYEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.92%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+193				CASSVLRGRQGAWGEKLFF	TRBV7-3		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.86%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+194				CASSRGGTGDQPQHF	TRBV27		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.75%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+195				CSVDGRTGINEQFF	TRBV29-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.75%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+196				CASSPGLAGGLASTDTQYF	TRBV3-1		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.52%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+197				CASRQQGGTEAFF	TRBV6-5		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.40%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+198				CASSQGERFGNEQFF	TRBV4-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.35%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+199				CASSFAGTDTQYF	TRBV27		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	66.67%		amplicon-seq						TIL	Standard							
+200				CAWSQMGLGTEAFF	TRBV30		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	12.96%		amplicon-seq						TIL	Standard							
+201				CASSYSFTEATYEQYF	TRBV6-5		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	9.26%		amplicon-seq						TIL	Standard							
+202				CASSYVGLGSPLHF	TRBV6-3		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	5.56%		amplicon-seq						TIL	Standard							
+203				CASSWAGPVEQYF	TRBV12-4		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	5.56%		amplicon-seq						TIL	Standard							
+204				CASSFAGTDTQYF	TRBV27		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	63.66%		amplicon-seq						TIL	Optimised							
+205				CASSLQGLGRNAFF	TRBV28		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	4.45%		amplicon-seq						TIL	Optimised							
+206				CAWSQMGLGTEAFF	TRBV30		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	3.83%		amplicon-seq						TIL	Optimised							
+207				CASSLTGLGQPQHF	TRBV28		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	3.00%		amplicon-seq						TIL	Optimised							
+208				CATSDRGQGANWDEQFF	TRBV24-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	2.90%		amplicon-seq						TIL	Optimised							
+209				CASSWAGPVEQYF	TRBV12-4		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	2.59%		amplicon-seq						TIL	Optimised							
+210				CSVEGSLGRALRANEQFF	TRBV29-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	2.48%		amplicon-seq						TIL	Optimised							
+211				CSEGSPYNEQFF	TRBV20-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	2.17%		amplicon-seq						TIL	Optimised							
+212				CASSRGAFYNEQFF	TRBV28		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	1.86%		amplicon-seq						TIL	Optimised							
+213				CASSLGLAGNEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	1.66%		amplicon-seq						TIL	Optimised							
+214				CASSYSFTEATYEQYF	TRBV6-5		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	1.14%		amplicon-seq						TIL	Optimised							
+215				CASSQEPNWNTEAFF	TRBV4-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	1.14%		amplicon-seq						TIL	Optimised							
+216				CASSPAGLGQPQHF	TRBV6-3		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	1.14%		amplicon-seq						TIL	Optimised							
+217				CASSNGFHFNTLYF	TRBV27		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	1.14%		amplicon-seq						TIL	Optimised							
+218				CASSLHPTYQPQHF	TRBV7-6		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	1.14%		amplicon-seq						TIL	Optimised							
+219				CASSQASPGDEQFF	TRBV4-2		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	1.04%		amplicon-seq						TIL	Optimised							
+220				CAWSSQGLGQPQHF	TRBV30		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	0.72%		amplicon-seq						TIL	Optimised							
+221				CASSFVLAGGGYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	0.72%		amplicon-seq						TIL	Optimised							
+222				CSNQPQHF	TRBV15		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	0.72%		amplicon-seq						TIL	Optimised							
+223				CAWKGLGYSYEQYF	TRBV30		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	0.62%		amplicon-seq						TIL	Optimised							
+224				CASSTGQGFTEAFF	TRBV6-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	0.62%		amplicon-seq						TIL	Optimised							
+225				CSAPQTGLGQPQHF	TRBV20-1		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	0.62%		amplicon-seq						TIL	Optimised							
+226				CASTLGGGTEAFF	TRBV12-4		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:29483360	tetramer-sort	0.62%		amplicon-seq						TIL	Optimised							
+227				CASSPETGIGGQPQHF	TRBV7-2		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	36.70%		amplicon-seq						Donor0439	Standard_Sort1							
+228				CSARQGQGFLYEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	20.79%		amplicon-seq						Donor0439	Standard_Sort1							
+229				CASSFEGNTGELFF	TRBV27		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	12.12%		amplicon-seq						Donor0439	Standard_Sort1							
+230				CASSQVGQAIYGYTF	TRBV4-1		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	10.26%		amplicon-seq						Donor0439	Standard_Sort1							
+231				CASSTLRYEQYF	TRBV7-9		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	5.46%		amplicon-seq						Donor0439	Standard_Sort1							
+232				CASSPLVGSYNEQFF	TRBV4-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	3.76%		amplicon-seq						Donor0439	Standard_Sort1							
+233				CRAGGLAGALSYF	TRBV20-1		TRBJ2-4	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	3.02%		amplicon-seq						Donor0439	Standard_Sort1							
+234				CASSFEGLSYEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	2.59%		amplicon-seq						Donor0439	Standard_Sort1							
+235				CASSPLGGSYNEQFF	TRBV4-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	1.90%		amplicon-seq						Donor0439	Standard_Sort1							
+236				CASSSLRRGDNEQFF	TRBV13		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	1.43%		amplicon-seq						Donor0439	Standard_Sort1							
+237				CSAGGLAGALSYF	TRBV20-1		TRBJ2-4	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.89%		amplicon-seq						Donor0439	Standard_Sort1							
+238				CASSLASVTFAAEQFF	TRBV7-2		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.66%		amplicon-seq						Donor0439	Standard_Sort1							
+239				CASSQAPPVITGSPLHF	TRBV3-1		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.43%		amplicon-seq						Donor0439	Standard_Sort1							
+240				CSVEDRGVSYEQYF	TRBV29-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	14.57%		amplicon-seq						Donor0439	Optimised_Sort1							
+241				CASSPETGIGGQPQHF	TRBV7-2		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	14.16%		amplicon-seq						Donor0439	Optimised_Sort1							
+242				CASGLDIHAFF	TRBV12-5		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	8.28%		amplicon-seq						Donor0439	Optimised_Sort1							
+243				CASSPLDNWEQFF	TRBV18		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	7.37%		amplicon-seq						Donor0439	Optimised_Sort1							
+244				CASSLEVTYEQYF	TRBV7-9		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	6.82%		amplicon-seq						Donor0439	Optimised_Sort1							
+245				CASSLAGEGGNTIYF	TRBV7-9		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	6.50%		amplicon-seq						Donor0439	Optimised_Sort1							
+246				CSARQGQGFLYEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	6.32%		amplicon-seq						Donor0439	Optimised_Sort1							
+247				CASSEGQNYGYTF	TRBV27		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	6.24%		amplicon-seq						Donor0439	Optimised_Sort1							
+248				CASSLGGSYGYTF	TRBV27		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	3.70%		amplicon-seq						Donor0439	Optimised_Sort1							
+249				CSARYDTGELFF	TRBV20-1		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	3.67%		amplicon-seq						Donor0439	Optimised_Sort1							
+250				CASSFEGNTGELFF	TRBV27		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	3.47%		amplicon-seq						Donor0439	Optimised_Sort1							
+251				CASSQVGQAIYGYTF	TRBV4-1		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	3.44%		amplicon-seq						Donor0439	Optimised_Sort1							
+252				CASSPTGTEAFF	TRBV3-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	2.83%		amplicon-seq						Donor0439	Optimised_Sort1							
+253				CASSTLRYEQYF	TRBV7-9		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	2.13%		amplicon-seq						Donor0439	Optimised_Sort1							
+254				CASSPLVGSYNEQFF	TRBV4-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	1.72%		amplicon-seq						Donor0439	Optimised_Sort1							
+255				CASSLAGGYGYTF	TRBV7-9		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	1.17%		amplicon-seq						Donor0439	Optimised_Sort1							
+256				CASSIAEQIGEAFF	TRBV3-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	1.11%		amplicon-seq						Donor0439	Optimised_Sort1							
+257				CSAGGLAGALSYF	TRBV20-1		TRBJ2-4	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	1.02%		amplicon-seq						Donor0439	Optimised_Sort1							
+258				CATQTSGGFNEQFF	TRBV24-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.79%		amplicon-seq						Donor0439	Optimised_Sort1							
+259				CASSFEGLSYEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.73%		amplicon-seq						Donor0439	Optimised_Sort1							
+260				CASSFSDFGNEQYF	TRBV7-6		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.70%		amplicon-seq						Donor0439	Optimised_Sort1							
+261				CASETGRRFYEQYF	TRBV6-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.55%		amplicon-seq						Donor0439	Optimised_Sort1							
+262				CASIPGQGNGYTF	TRBV19		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.55%		amplicon-seq						Donor0439	Optimised_Sort1							
+263				CASSPGQGMAGELFF	TRBV27		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.44%		amplicon-seq						Donor0439	Optimised_Sort1							
+264				CASTLEGSSGYGYTF	TRBV5-6		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.41%		amplicon-seq						Donor0439	Optimised_Sort1							
+265				CSAEREISYEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.29%		amplicon-seq						Donor0439	Optimised_Sort1							
+266				CASSLASVTFAAEQFF	TRBV7-2		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.26%		amplicon-seq						Donor0439	Optimised_Sort1							
+267				CASSQPSGAVNNEQFF	TRBV4-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.26%		amplicon-seq						Donor0439	Optimised_Sort1							
+268				CASSLGGGLYNSPLHF	TRBV7-8		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.17%		amplicon-seq						Donor0439	Optimised_Sort1							
+269				CASSSLRRGDNEQFF	TRBV13		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.17%		amplicon-seq						Donor0439	Optimised_Sort1							
+270				CATSSYGGSGLGTEAFF	TRBV15		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.17%		amplicon-seq						Donor0439	Optimised_Sort1							
+271				CASSPETGIGGQPQHF	TRBV7-2		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	27.80%		amplicon-seq						Donor0439	Standard_Sort2							
+272				CATSDRGQGANWDEQFF	TRBV24-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	18.98%		amplicon-seq						Donor0439	Standard_Sort2							
+273				CASSQVGQAIYGYTF	TRBV4-1		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	12.95%		amplicon-seq						Donor0439	Standard_Sort2							
+274				CSARQGQGFLYEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	8.73%		amplicon-seq						Donor0439	Standard_Sort2							
+275				CASSFEGNTGELFF	TRBV27		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	8.70%		amplicon-seq						Donor0439	Standard_Sort2							
+276				CASSVATLRVSTNEKLFF	TRBV10-1		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	6.93%		amplicon-seq						Donor0439	Standard_Sort2							
+277				CASSTLRYEQYF	TRBV7-9		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	3.07%		amplicon-seq						Donor0439	Standard_Sort2							
+278				CASSPLVGSYNEQFF	TRBV4-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	2.48%		amplicon-seq						Donor0439	Standard_Sort2							
+279				CSVEGSLGRALRANEQFF	TRBV29-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	2.24%		amplicon-seq						Donor0439	Standard_Sort2							
+280				CASSFEGLSYEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	2.02%		amplicon-seq						Donor0439	Standard_Sort2							
+281				CSAGGLAGALSYF	TRBV20-1		TRBJ2-4	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	1.96%		amplicon-seq						Donor0439	Standard_Sort2							
+282				CASSVEGGNTIYF	TRBV9		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	1.06%		amplicon-seq						Donor0439	Standard_Sort2							
+283				CASSEEDRVGNQPQHF	TRBV2		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.84%		amplicon-seq						Donor0439	Standard_Sort2							
+284				CASSVALGLNYEQYF	TRBV9		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.81%		amplicon-seq						Donor0439	Standard_Sort2							
+285				CASSVEGAGTEAFF	TRBV9		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.75%		amplicon-seq						Donor0439	Standard_Sort2							
+286				CASSSLRRGDNEQFF	TRBV13		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.37%		amplicon-seq						Donor0439	Standard_Sort2							
+287				CASSPLDNWEQFF	TRBV18		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.34%		amplicon-seq						Donor0439	Standard_Sort2							
+288				CASSPLDNWEQFF	TRBV18		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	18.60%		amplicon-seq						Donor0439	Optimised_Sort2							
+289				CASSIQRNYGYTF	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	8.11%		amplicon-seq						Donor0439	Optimised_Sort2							
+290				CASSATFNDNEKLFF	TRBV10-1		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	7.43%		amplicon-seq						Donor0439	Optimised_Sort2							
+291				CATSDFGTEAFF	TRBV24-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	6.78%		amplicon-seq						Donor0439	Optimised_Sort2							
+292				CSVEDRGVSYEQYF	TRBV29-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	6.30%		amplicon-seq						Donor0439	Optimised_Sort2							
+293				CASSQGQLAGGLVF	TRBV4-1		TRBJ2-4	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	6.15%		amplicon-seq						Donor0439	Optimised_Sort2							
+294				CASSGSKGAAGELFF	TRBV11-2		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	5.73%		amplicon-seq						Donor0439	Optimised_Sort2							
+295				CASSLEVTYEQYF	TRBV7-9		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	3.65%		amplicon-seq						Donor0439	Optimised_Sort2							
+296				CASSLAGEGGNTIYF	TRBV7-9		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	3.32%		amplicon-seq						Donor0439	Optimised_Sort2							
+297				CASSEGQNYGYTF	TRBV27		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	2.64%		amplicon-seq						Donor0439	Optimised_Sort2							
+298				CASSEWGADNYGYTF	TRBV6-1		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	2.14%		amplicon-seq						Donor0439	Optimised_Sort2							
+299				CASSLGGSYGYTF	TRBV27		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	1.54%		amplicon-seq						Donor0439	Optimised_Sort2							
+300				CASSPTGTEAFF	TRBV3-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	1.33%		amplicon-seq						Donor0439	Optimised_Sort2							
+301				CASSLGGETQYF	TRBV13		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	1.11%		amplicon-seq						Donor0439	Optimised_Sort2							
+302				CASGLDIHAFF	TRBV12-5		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	1.08%		amplicon-seq						Donor0439	Optimised_Sort2							
+303				CASSEGAVSTRQFF	TRBV10-2		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.99%		amplicon-seq						Donor0439	Optimised_Sort2							
+304				CSAIYSPLMAEAFF	TRBV20-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.92%		amplicon-seq						Donor0439	Optimised_Sort2							
+305				CASSQDRGYTF	TRBV3-1		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.85%		amplicon-seq						Donor0439	Optimised_Sort2							
+306				CASSSGPRGGQPQHF	TRBV7-8		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.81%		amplicon-seq						Donor0439	Optimised_Sort2							
+307				CASVGSTGGEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.74%		amplicon-seq						Donor0439	Optimised_Sort2							
+308				CASTFGGPNSPLHF	TRBV12-4		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.69%		amplicon-seq						Donor0439	Optimised_Sort2							
+309				CASSPPGGLVAFF	TRBV12-4		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.69%		amplicon-seq						Donor0439	Optimised_Sort2							
+310				CASSLGLPGFGTEAFF	TRBV7-8		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.68%		amplicon-seq						Donor0439	Optimised_Sort2							
+311				CASSPMAEAFF	TRBV5-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.67%		amplicon-seq						Donor0439	Optimised_Sort2							
+312				CASSDRGWNEAFF	TRBV2		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.60%		amplicon-seq						Donor0439	Optimised_Sort2							
+313				CASSLGDPRVMSTEAFF	TRBV7-6		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.57%		amplicon-seq						Donor0439	Optimised_Sort2							
+314				CSVRAYSEETQYF	TRBV29-1		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.55%		amplicon-seq						Donor0439	Optimised_Sort2							
+315				RASSTPSRGIQPQHF	TRBV7-3		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.52%		amplicon-seq						Donor0439	Optimised_Sort2							
+316				CARDGKMNTEAFF	TRBV2		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.52%		amplicon-seq						Donor0439	Optimised_Sort2							
+317				CASSSPGQGGSETQYF	TRBV6-5		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.51%		amplicon-seq						Donor0439	Optimised_Sort2							
+318				CAISKTDRGNTEAFF	TRBV10-3		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.48%		amplicon-seq						Donor0439	Optimised_Sort2							
+319				CASSLGETQYF	TRBV5-1		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.47%		amplicon-seq						Donor0439	Optimised_Sort2							
+320				CASSPETGIGGQPQHF	TRBV7-2		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.46%		amplicon-seq						Donor0439	Optimised_Sort2							
+321				CASSLESDTQYF	TRBV7-9		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.46%		amplicon-seq						Donor0439	Optimised_Sort2							
+322				CASTSKKGINEQYF	TRBV12-4		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.46%		amplicon-seq						Donor0439	Optimised_Sort2							
+323				CASSFAGTDTQYF	TRBV27		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.46%		amplicon-seq						Donor0439	Optimised_Sort2							
+324				CASSLAGQTSYEQYF	TRBV7-8		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.44%		amplicon-seq						Donor0439	Optimised_Sort2							
+325				CASSLGTGTEAFF	TRBV12-4		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.44%		amplicon-seq						Donor0439	Optimised_Sort2							
+326				CASSLSGAGNEQFF	TRBV12-4		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.44%		amplicon-seq						Donor0439	Optimised_Sort2							
+327				CASSFVQDLGGYTF	TRBV5-6		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.44%		amplicon-seq						Donor0439	Optimised_Sort2							
+328				CASSQSGAEAFF	TRBV4-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.42%		amplicon-seq						Donor0439	Optimised_Sort2							
+329				CSARYDTGELFF	TRBV20-1		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.40%		amplicon-seq						Donor0439	Optimised_Sort2							
+330				CASSQGGTQYF	TRBV28		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.38%		amplicon-seq						Donor0439	Optimised_Sort2							
+331				CASSLAGGGETQYF	TRBV7-8		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.37%		amplicon-seq						Donor0439	Optimised_Sort2							
+332				CASSSGTVYNEQFF	TRBV12-3		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.35%		amplicon-seq						Donor0439	Optimised_Sort2							
+333				CASSYSGWRLHF	TRBV6-2		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.35%		amplicon-seq						Donor0439	Optimised_Sort2							
+334				CASKQGNPNTEAFF	TRBV5-5		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.31%		amplicon-seq						Donor0439	Optimised_Sort2							
+335				CASSKLGGPDEQFF	TRBV6-5		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.30%		amplicon-seq						Donor0439	Optimised_Sort2							
+336				CASSGNRAPVYDEQFF	TRBV11-2		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.28%		amplicon-seq						Donor0439	Optimised_Sort2							
+337				CASTGGYGYTF	TRBV5-1		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.28%		amplicon-seq						Donor0439	Optimised_Sort2							
+338				CASSGGGGEKLFF	TRBV7-9		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.27%		amplicon-seq						Donor0439	Optimised_Sort2							
+339				CASNLGIPASYEQYF	TRBV6-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.26%		amplicon-seq						Donor0439	Optimised_Sort2							
+340				CASSFRLAGGGNEQFF	TRBV5-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.25%		amplicon-seq						Donor0439	Optimised_Sort2							
+341				CASSAGTPIYNSPLHF	TRBV9		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.25%		amplicon-seq						Donor0439	Optimised_Sort2							
+342				CASSLAGGYGYTF	TRBV7-9		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.25%		amplicon-seq						Donor0439	Optimised_Sort2							
+343				CASSQGPSGIGTQYF	TRBV3-1		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.24%		amplicon-seq						Donor0439	Optimised_Sort2							
+344				CASETGRRFYEQYF	TRBV6-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.24%		amplicon-seq						Donor0439	Optimised_Sort2							
+345				CASSSLETQYF	TRBV6-5		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.23%		amplicon-seq						Donor0439	Optimised_Sort2							
+346				CATSDSGTPGNEQFF	TRBV24-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.22%		amplicon-seq						Donor0439	Optimised_Sort2							
+347				CASSFSDFGNEQYF	TRBV7-6		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.20%		amplicon-seq						Donor0439	Optimised_Sort2							
+348				CASSRLAGGDEQFF	TRBV12-4		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.20%		amplicon-seq						Donor0439	Optimised_Sort2							
+349				CASSYPTGEQYF	TRBV6-5		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.20%		amplicon-seq						Donor0439	Optimised_Sort2							
+350				CASIPGQGNGYTF	TRBV19		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.19%		amplicon-seq						Donor0439	Optimised_Sort2							
+351				CASSPGQGMAGELFF	TRBV27		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.17%		amplicon-seq						Donor0439	Optimised_Sort2							
+352				CASSIAEQIGEAFF	TRBV3-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.17%		amplicon-seq						Donor0439	Optimised_Sort2							
+353				CASLWEGLPNTGELFF	TRBV7-9		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.16%		amplicon-seq						Donor0439	Optimised_Sort2							
+354				CASSDHLVAGANYGYTF	TRBV2		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.15%		amplicon-seq						Donor0439	Optimised_Sort2							
+355				CATQTSGGFNEQFF	TRBV24-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.15%		amplicon-seq						Donor0439	Optimised_Sort2							
+356				CASSAGQGITEAFF	TRBV11-2		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.15%		amplicon-seq						Donor0439	Optimised_Sort2							
+357				CASTLEGSSGYGYTF	TRBV5-6		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.13%		amplicon-seq						Donor0439	Optimised_Sort2							
+358				CASGQRGAYNEQFF	TRBV7-2		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.13%		amplicon-seq						Donor0439	Optimised_Sort2							
+359				CASSIGGGSNQPQHF	TRBV19		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.12%		amplicon-seq						Donor0439	Optimised_Sort2							
+360				CASSLPSRQSFSYEQYF	TRBV11-3		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.11%		amplicon-seq						Donor0439	Optimised_Sort2							
+361				CARRSWGASEQFF	TRBV27		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.10%		amplicon-seq						Donor0439	Optimised_Sort2							
+362				CATSSYGGSGLGTEAFF	TRBV15		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.09%		amplicon-seq						Donor0439	Optimised_Sort2							
+363				CASSSPGHEQFF	TRBV6-5		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.09%		amplicon-seq						Donor0439	Optimised_Sort2							
+364				CASSPEGGAIVAPEAFF	TRBV9		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.08%		amplicon-seq						Donor0439	Optimised_Sort2							
+365				CASSQPSGAVNNEQFF	TRBV4-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.08%		amplicon-seq						Donor0439	Optimised_Sort2							
+366				CTSSQRGGYNEQFF	TRBV1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.08%		amplicon-seq						Donor0439	Optimised_Sort2							
+367				CASSTRAGTPTDTQYF	TRBV7-9		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.08%		amplicon-seq						Donor0439	Optimised_Sort2							
+368				CASSLGTLQGTVYF	TRBV7-6		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.08%		amplicon-seq						Donor0439	Optimised_Sort2							
+369				CASSLASNEQFF	TRBV13		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.08%		amplicon-seq						Donor0439	Optimised_Sort2							
+370				CSAEREISYEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.07%		amplicon-seq						Donor0439	Optimised_Sort2							
+371				CASSLLGGYTF	TRBV5-4		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.07%		amplicon-seq						Donor0439	Optimised_Sort2							
+372				CASSPPTGAGAGISYTF	TRBV7-9		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.07%		amplicon-seq						Donor0439	Optimised_Sort2							
+373				CASSLGGGLYNSPLHF	TRBV7-8		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.07%		amplicon-seq						Donor0439	Optimised_Sort2							
+374				CASSAGGTRYNEQFF	TRBV9		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.04%		amplicon-seq						Donor0439	Optimised_Sort2							
+375				CASSSGGMDTEAFF	TRBV7-8		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.04%		amplicon-seq						Donor0439	Optimised_Sort2							
+376				CASSWAMNTEAFF	TRBV13		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.04%		amplicon-seq						Donor0439	Optimised_Sort2							
+377				CASTKGASPGDEQFF	TRBV5-5		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.04%		amplicon-seq						Donor0439	Optimised_Sort2							
+378				CASSLGMGTEAFF	TRBV12-4		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.03%		amplicon-seq						Donor0439	Optimised_Sort2							
+379				CASSDPGQGVQTYEQYF	TRBV9		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.03%		amplicon-seq						Donor0439	Optimised_Sort2							
+380				CASSISRGRGYNEQFF	TRBV19		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.03%		amplicon-seq						Donor0439	Optimised_Sort2							
