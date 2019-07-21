@@ -49,7 +49,7 @@ library(stringr)
 library(gridExtra)
 select = dplyr::select
 
-df = read.table("../database/vdjdb.slim.txt", header=T, sep="\t")
+df = fread("../database/vdjdb.slim.txt", header=T, sep="\t")
 ```
 
 !summary_embed_start!
@@ -213,6 +213,15 @@ dt.pubdate = data.table(
   reference.id = paste0("PMID:", pm_data_id),
   pub_date = str_split_fixed(pm_data_date, " ", n = Inf)[,1]
 )
+
+dt.pubdate = rbind(dt.pubdate,
+                   data.frame(reference.id = 
+                                c("https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#",
+                                  "http://mediatum.ub.tum.de/doc/1136748",
+                                  "https://github.com/antigenomics/vdjdb-db/issues/288",
+                                  "https://github.com/antigenomics/vdjdb-db/issues/193",
+                                  "https://github.com/antigenomics/vdjdb-db/issues/252"),
+                              pub_date = c(2019, 2014, 2019, 2017, 2017) %>% as.character, stringsAsFactors = F))
 ```
 
 Number of unique TCR sequences, epitopes, MHC alleles and publications by **publication** year, cumulative plots.
@@ -231,7 +240,7 @@ p1=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = tcr_count, color = cha
   geom_line() +
   geom_point() +
   ylab("") +
-  scale_x_continuous("", breaks = seq(1995, 2017, by =2)) +
+  scale_x_continuous("", breaks = seq(1995, 2019, by =2)) +
   scale_color_brewer(palette = "Set1") +
   theme_bw() + ggtitle("Number of unique TCR sequences") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
@@ -240,7 +249,7 @@ p2=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = epi_count, color = cha
   geom_line() +
   geom_point() +
   ylab("") +
-  scale_x_continuous("", breaks = seq(1995, 2017, by =2)) +
+  scale_x_continuous("", breaks = seq(1995, 2019, by =2)) +
   scale_color_brewer(palette = "Set1") +
   theme_bw() + ggtitle("Number of unique epitopes") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
@@ -249,7 +258,7 @@ p3=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = ref_count, color = cha
   geom_line() +
   geom_point() +
   ylab("") +
-  scale_x_continuous("", breaks = seq(1995, 2017, by =2)) +
+  scale_x_continuous("", breaks = seq(1995, 2019, by =2)) +
   scale_color_brewer(palette = "Set1") +
   theme_bw() + ggtitle("Number of publications") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
@@ -258,7 +267,7 @@ p4=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = mhc_count, color = cha
   geom_line() +
   geom_point() +
   ylab("") +
-  scale_x_continuous("", breaks = seq(1995, 2017, by =2)) +
+  scale_x_continuous("", breaks = seq(1995, 2019, by =2)) +
   scale_color_brewer("TCR chain(s)", palette = "Set1") +
   theme_bw() + ggtitle("Number of MHC alleles") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) +
@@ -296,6 +305,29 @@ df.ag = df %>%
   summarize(cdr3.count = length(unique(cdr3))) %>%
   arrange(-cdr3.count)
 
+ggplot(df.ag, aes(x = cdr3.count)) +
+  geom_histogram() +
+  scale_x_log10("Unique CDR3s") + ylab("Number of epitopes") +
+  facet_wrap(~gene) +
+  theme_bw()
+
 colnames(df.ag) = c("TCR chain", "MHC class", "Parent species", "Parent gene", "Epitope sequence", "Unique CDR3")
 kable(format = "html", df.ag)
+```
+
+Epitopes, parent genes and species
+
+```{r}
+df %>%
+  filter(species == "HomoSapiens") %>%
+  select(antigen.species, antigen.gene, antigen.epitope) %>%
+  unique %>%
+  group_by(antigen.epitope) %>%
+  mutate(ambiguous.naming = ifelse(n() > 1, "*", "")) %>%
+  arrange(antigen.species, antigen.gene, antigen.epitope) %>%
+  kable(format = "html")
+```
+
+```{r}
+#
 ```
