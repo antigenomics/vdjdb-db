@@ -176,13 +176,17 @@ def validators = [
         }
 ]
 
-def correctors = ["antigen.species", "antigen.gene"].collectEntries {
-    [(it): new File("../patches/$it").readLines().collect { it.split("\t") }]
+def antigenSpeciesDict = new HashMap<String, String>(),
+    antigenGeneDict = new HashMap<String, String>()
+
+new File("../patches/antigen_epitope_species_gene.dict").readLines().drop(1).forEach { 
+    def splitLine = it.split("[\t ]+")
+    antigenSpeciesDict[splitLine[0]] = splitLine[1]
+    antigenGeneDict[splitLine[0]] = splitLine[2]
 }
 
-def correct = { String text, String from, String to ->
-    text.trim().equalsIgnoreCase(from) ? to : text
-}
+assert antigenSpeciesDict["NLVPMVATV"] == "CMV"
+assert antigenGeneDict["NLVPMVATV"] == "pp65"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Read, validate and concatenate chunks
@@ -243,13 +247,14 @@ chunkFiles.each { chunkFile ->
         }
     }
 
+
+    // patching
     table.each { row ->
-        correctors.each { Map.Entry<String, List<String[]>> replacer ->
-            def val = row[replacer.key]
-            replacer.value.each { fromto ->
-                val = val.split(",").collect { correct(it, fromto[0], fromto[1]) }.join(",")
-            }
-            row[replacer.key] = val
+        def epi = row["antigen.epitope"]
+
+        if (antigenSpeciesDict[epi]) {
+            row["antigen.species"] = antigenSpeciesDict[epi]
+            row["antigen.gene"] = antigenGeneDict[epi]
         }
     }
 
@@ -532,9 +537,7 @@ new File("../database/vdjdb.txt").splitEachLine("\t") { splitLine ->
                            SlimComplexAccumulator.SUMMARY_COLS].flatten()
 
         splitLine.eachWithIndex { it, ind ->
-//            if (requiredIds.contains(it)) {
             colIdMap[it] = ind
-//            }
         }
 
         firstLine = false
