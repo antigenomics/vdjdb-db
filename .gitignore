@@ -76,3 +76,6 @@ target/
 
 ## R
 .Rhistory
+
+## Linux
+.directory

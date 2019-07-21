@@ -1,87 +1,87 @@
 chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
-1				CASSLSAGAPGAEAFF 	TRBV27		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV 	pp65	CMV	PMID:25925682	tetramer-sort	35%		sanger					CMV-seropositive	CMVposD 							
-2				CASSPGSLYYGYTF 	TRBV12-4		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV 	pp65	CMV	PMID:25925682	tetramer-sort	15%		sanger					CMV-seropositive	CMVposD 							
-3				CASSPITGTGIYGYTF 	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV 	pp65	CMV	PMID:25925682	tetramer-sort	13%		sanger					CMV-seropositive	CMVposD 							
-4				CASSSTNGYTF 	TRBV12-4		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV 	pp65	CMV	PMID:25925682	tetramer-sort	10%		sanger					CMV-seropositive	CMVposD 							
-5				CASSYATGTAYGYTF 	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV 	pp65	CMV	PMID:25925682	tetramer-sort	8%		sanger					CMV-seropositive	CMVposD 							
-6				CASSLDRVTGELFF 	TRBV27		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV 	pp65	CMV	PMID:25925682	tetramer-sort	8%		sanger					CMV-seropositive	CMVposD 							
-7				CASSLVTGTGWGYTF 	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV 	pp65	CMV	PMID:25925682	tetramer-sort	5%		sanger					CMV-seropositive	CMVposD 							
-8				CAGSLVTGTGWGYTF 	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposD 							
-9				CASSSVGEWHF 	TRBV12-4		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposD 							
-10				CASSLDGVTGELFF 	TRBV27		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposD 							
-11				CASRLQTGTIYGYTF 	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV 	pp65	CMV	PMID:25925682	tetramer-sort	91%		sanger					CMV-seropositive	CMVposC 							
-12				CASSFSTGTAGGYTF 	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV 	pp65	CMV	PMID:25925682	tetramer-sort	6%		sanger					CMV-seropositive	CMVposC 							
-13				CASRPQTGTIYGYTF 	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC 							
-14				CASSFTGIAETQYF 	TRBV12-3		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	21%		sanger					CMV-seropositive	CMVposD 							
-15				CASSLRGPGLYNEQFF 	TRBV5-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	19%		sanger					CMV-seropositive	CMVposD 							
-16				CASRSPRAGETQYF 	TRBV12-3		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	16%		sanger					CMV-seropositive	CMVposD 							
-17				CASSFRGDTEAFF 	TRBV12-4		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	5%		sanger					CMV-seropositive	CMVposD 							
-18				CASSLETGSNEQFF 	TRBV5-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	5%		sanger					CMV-seropositive	CMVposD 							
-19				CASSWDRRAPSYNEQFF 	TRBV5-6		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	5%		sanger					CMV-seropositive	CMVposD 							
-20				CASSSGGGEQYF 	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	5%		sanger					CMV-seropositive	CMVposD 							
-21				CASSQGTSGGLSTDTQYF 	TRBV4-3		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD 							
-22				CASSSGTGDKETQYF 	TRBV5-1		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD 							
-23				CASNKGRYSGANVLTF 	TRBV6-1		TRBJ2-6	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD 							
-24				CASSRGFGLRAGQRNQPQHI 	TRBV6-2		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD 							
-25				CASSLGPGSEAFF 	TRBV5-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD 							
-26				CASSYGTGGQETQYF	TRBV6-3		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD 							
-27				CASRGRTQETQYF	TRBV7-9		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD 							
-28				CASSNTGTSGGYEQFF	TRBV13		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD 							
-29				CASSSYLTAPTDTQYF	TRBV12-3		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD 							
-30				CASSFAYGYTF	TRBV12-4		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD 							
-31				CASLKGGGTEAFF	TRBV30		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD 							
-32				CASSLGLNYEQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	28%		sanger					CMV-seropositive	CMVposC							
-33				CATHSGNTGELFF	TRBV24-1		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	18%		sanger					CMV-seropositive	CMVposC							
-34				CASSLSTSGDNEQFF	TRBV27		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	10%		sanger					CMV-seropositive	CMVposC							
-35				CASSDFRDRGHNEKLFF	TRBV6-1		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	8%		sanger					CMV-seropositive	CMVposC							
-36				CATFDGNTGELFF	TRBV24-1		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	8%		sanger					CMV-seropositive	CMVposC							
-37				CASSQVGPGRANTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
-38				CASSAAGGTGSGELFF	TRBV2		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
-39				CASSRNWVDTEAFF	TRBV5-6		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
-40				CASSSLWPELFF	TRBV5-6		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
-41				CASSPGDRRYSPLHF	TRBV7-9		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
-42				CASSSEGSGVQGEQYF	TRBV10-2		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
-43				CATENRGYSYNEQFF	TRBV19		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
-44				CATFSGNTGELFF	TRBV24-1		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
-45				CASNYYNEQFF	TRBV25-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
-46				CASRREGRVNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
-47				CASSLGLNHEQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
-48				CASSSRGLPYEQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
-49				CASRDRGLGQPQHF	TRBV12-4		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	50%		sanger					CMV-seropositive	CMVposA							
-50				CASSARTPRPGSSYNEQFF	TRBV9		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	16%		sanger					CMV-seropositive	CMVposA							
-51				CASSPPGGSGNTIYF	TRBV28		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	13%		sanger					CMV-seropositive	CMVposA							
-52				CASSFPTGGLWPSDGQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	8%		sanger					CMV-seropositive	CMVposA							
-53				CAWSVASTGLNYEQYF	TRBV30		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	8%		sanger					CMV-seropositive	CMVposA							
-54				CASSLAPSTEQYF	TRBV5-4		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposA							
-55				CASSARTLRPGSSYNEQFF	TRBV9		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposA							
-56				CASSLGPHDSTNYGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	17%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-57				CASSFGVNTEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	8%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-58				CASRPKSPLHF	TRBV5-4		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	6%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-59				CASSLARRVNPRTDTQYF	TRBV7-9		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	6%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-60				CASSLQGRGNQPQHF	TRBV6-5		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	6%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-61				CASSPTGTGEAFF	TRBV5-6		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	6%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-62				CASSQDRELAFF	TRBV12-4		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	6%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-63				CAISEDSLHNSPLHF	TRBV10-3		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-64				CASRAVSTDTQYF	TRBV7-9		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-65				CASSFLRRQTQYF	TRBV7-8		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-66				CASSLAGFGNTIYF	TRBV7-9		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-67				CASSLDLGASTDTQYF	TRBV11-1		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-68				CASSLGSHDSTNYGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-69				CASSLLPPGQGRNQPQHF	TRBV27		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-70				CASSLWPKLRYEQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-71				CASSPPTLEDSGANVLTF	TRBV12-4		TRBJ2-6	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-72				CASSQDWAGGLEQFF	TRBV4-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-73				CASSQFGRNYEQYF	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-74				CASSQGSAGNQPQHF	TRBV6-2		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-75				CASSQVLAGEGTDTQYF	TRBV4-3		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-76				CATSGRTGELFF	TRBV15		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-77				CATSPTANTEAFF	TRBV15		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-78				CAWGRNTEAFF	TRBV30		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-79				CAWTVGNTEAFF	TRBV30		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
-80				CASSLAVQSDEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	76%		sanger					CMV-seronegative	CMVnegA					HLA-A*02,HLA-A*24,HLA-B*15,HLA-B*35		
-81				CASSPSGYNEQFF	TRBV5-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	7%		sanger					CMV-seronegative	CMVnegA					HLA-A*02,HLA-A*24,HLA-B*15,HLA-B*35		
-82				CASSPSGGVGTGELFF	TRBV9		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	7%		sanger					CMV-seronegative	CMVnegA					HLA-A*02,HLA-A*24,HLA-B*15,HLA-B*35		
-83				CASSLTVQSDEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seronegative	CMVnegA					HLA-A*02,HLA-A*24,HLA-B*15,HLA-B*35		
-84				CASSGRDNYNEQFF	TRBV7-9		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seronegative	CMVnegA					HLA-A*02,HLA-A*24,HLA-B*15,HLA-B*35		
-85				CASSTRDRGSEQFF	TRBV18		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seronegative	CMVnegA					HLA-A*02,HLA-A*24,HLA-B*15,HLA-B*35		
-86				CSARDRDRGYEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV 	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seronegative	CMVnegA					HLA-A*02,HLA-A*24,HLA-B*15,HLA-B*35		
+1				CASSLSAGAPGAEAFF	TRBV27		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25925682	tetramer-sort	35%		sanger					CMV-seropositive	CMVposD							
+2				CASSPGSLYYGYTF	TRBV12-4		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25925682	tetramer-sort	15%		sanger					CMV-seropositive	CMVposD							
+3				CASSPITGTGIYGYTF	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25925682	tetramer-sort	13%		sanger					CMV-seropositive	CMVposD							
+4				CASSSTNGYTF	TRBV12-4		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25925682	tetramer-sort	10%		sanger					CMV-seropositive	CMVposD							
+5				CASSYATGTAYGYTF	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25925682	tetramer-sort	8%		sanger					CMV-seropositive	CMVposD							
+6				CASSLDRVTGELFF	TRBV27		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25925682	tetramer-sort	8%		sanger					CMV-seropositive	CMVposD							
+7				CASSLVTGTGWGYTF	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25925682	tetramer-sort	5%		sanger					CMV-seropositive	CMVposD							
+8				CAGSLVTGTGWGYTF	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposD							
+9				CASSSVGEWHF	TRBV12-4		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposD							
+10				CASSLDGVTGELFF	TRBV27		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposD							
+11				CASRLQTGTIYGYTF	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25925682	tetramer-sort	91%		sanger					CMV-seropositive	CMVposC							
+12				CASSFSTGTAGGYTF	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25925682	tetramer-sort	6%		sanger					CMV-seropositive	CMVposC							
+13				CASRPQTGTIYGYTF	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
+14				CASSFTGIAETQYF	TRBV12-3		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	21%		sanger					CMV-seropositive	CMVposD							
+15				CASSLRGPGLYNEQFF	TRBV5-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	19%		sanger					CMV-seropositive	CMVposD							
+16				CASRSPRAGETQYF	TRBV12-3		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	16%		sanger					CMV-seropositive	CMVposD							
+17				CASSFRGDTEAFF	TRBV12-4		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	5%		sanger					CMV-seropositive	CMVposD							
+18				CASSLETGSNEQFF	TRBV5-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	5%		sanger					CMV-seropositive	CMVposD							
+19				CASSWDRRAPSYNEQFF	TRBV5-6		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	5%		sanger					CMV-seropositive	CMVposD							
+20				CASSSGGGEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	5%		sanger					CMV-seropositive	CMVposD							
+21				CASSQGTSGGLSTDTQYF	TRBV4-3		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD							
+22				CASSSGTGDKETQYF	TRBV5-1		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD							
+23				CASNKGRYSGANVLTF	TRBV6-1		TRBJ2-6	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD							
+24				CASSRGFGLRAGQRNQPQHI	TRBV6-2		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD							
+25				CASSLGPGSEAFF	TRBV5-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD							
+26				CASSYGTGGQETQYF	TRBV6-3		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD							
+27				CASRGRTQETQYF	TRBV7-9		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD							
+28				CASSNTGTSGGYEQFF	TRBV13		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD							
+29				CASSSYLTAPTDTQYF	TRBV12-3		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD							
+30				CASSFAYGYTF	TRBV12-4		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD							
+31				CASLKGGGTEAFF	TRBV30		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seropositive	CMVposD							
+32				CASSLGLNYEQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	28%		sanger					CMV-seropositive	CMVposC							
+33				CATHSGNTGELFF	TRBV24-1		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	18%		sanger					CMV-seropositive	CMVposC							
+34				CASSLSTSGDNEQFF	TRBV27		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	10%		sanger					CMV-seropositive	CMVposC							
+35				CASSDFRDRGHNEKLFF	TRBV6-1		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	8%		sanger					CMV-seropositive	CMVposC							
+36				CATFDGNTGELFF	TRBV24-1		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	8%		sanger					CMV-seropositive	CMVposC							
+37				CASSQVGPGRANTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
+38				CASSAAGGTGSGELFF	TRBV2		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
+39				CASSRNWVDTEAFF	TRBV5-6		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
+40				CASSSLWPELFF	TRBV5-6		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
+41				CASSPGDRRYSPLHF	TRBV7-9		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
+42				CASSSEGSGVQGEQYF	TRBV10-2		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
+43				CATENRGYSYNEQFF	TRBV19		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
+44				CATFSGNTGELFF	TRBV24-1		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
+45				CASNYYNEQFF	TRBV25-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
+46				CASRREGRVNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
+47				CASSLGLNHEQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
+48				CASSSRGLPYEQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposC							
+49				CASRDRGLGQPQHF	TRBV12-4		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	50%		sanger					CMV-seropositive	CMVposA							
+50				CASSARTPRPGSSYNEQFF	TRBV9		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	16%		sanger					CMV-seropositive	CMVposA							
+51				CASSPPGGSGNTIYF	TRBV28		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	13%		sanger					CMV-seropositive	CMVposA							
+52				CASSFPTGGLWPSDGQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	8%		sanger					CMV-seropositive	CMVposA							
+53				CAWSVASTGLNYEQYF	TRBV30		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	8%		sanger					CMV-seropositive	CMVposA							
+54				CASSLAPSTEQYF	TRBV5-4		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposA							
+55				CASSARTLRPGSSYNEQFF	TRBV9		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seropositive	CMVposA							
+56				CASSLGPHDSTNYGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	17%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+57				CASSFGVNTEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	8%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+58				CASRPKSPLHF	TRBV5-4		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	6%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+59				CASSLARRVNPRTDTQYF	TRBV7-9		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	6%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+60				CASSLQGRGNQPQHF	TRBV6-5		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	6%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+61				CASSPTGTGEAFF	TRBV5-6		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	6%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+62				CASSQDRELAFF	TRBV12-4		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	6%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+63				CAISEDSLHNSPLHF	TRBV10-3		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+64				CASRAVSTDTQYF	TRBV7-9		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+65				CASSFLRRQTQYF	TRBV7-8		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+66				CASSLAGFGNTIYF	TRBV7-9		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+67				CASSLDLGASTDTQYF	TRBV11-1		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+68				CASSLGSHDSTNYGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+69				CASSLLPPGQGRNQPQHF	TRBV27		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+70				CASSLWPKLRYEQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+71				CASSPPTLEDSGANVLTF	TRBV12-4		TRBJ2-6	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+72				CASSQDWAGGLEQFF	TRBV4-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+73				CASSQFGRNYEQYF	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+74				CASSQGSAGNQPQHF	TRBV6-2		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+75				CASSQVLAGEGTDTQYF	TRBV4-3		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+76				CATSGRTGELFF	TRBV15		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+77				CATSPTANTEAFF	TRBV15		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+78				CAWGRNTEAFF	TRBV30		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+79				CAWTVGNTEAFF	TRBV30		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	3%		sanger					CMV-seronegative	CMVnegH					HLA-A*11,HLA-A*32,HLA-B*27,HLA-B*37		
+80				CASSLAVQSDEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	76%		sanger					CMV-seronegative	CMVnegA					HLA-A*02,HLA-A*24,HLA-B*15,HLA-B*35		
+81				CASSPSGYNEQFF	TRBV5-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	7%		sanger					CMV-seronegative	CMVnegA					HLA-A*02,HLA-A*24,HLA-B*15,HLA-B*35		
+82				CASSPSGGVGTGELFF	TRBV9		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	7%		sanger					CMV-seronegative	CMVnegA					HLA-A*02,HLA-A*24,HLA-B*15,HLA-B*35		
+83				CASSLTVQSDEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seronegative	CMVnegA					HLA-A*02,HLA-A*24,HLA-B*15,HLA-B*35		
+84				CASSGRDNYNEQFF	TRBV7-9		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seronegative	CMVnegA					HLA-A*02,HLA-A*24,HLA-B*15,HLA-B*35		
+85				CASSTRDRGSEQFF	TRBV18		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seronegative	CMVnegA					HLA-A*02,HLA-A*24,HLA-B*15,HLA-B*35		
+86				CSARDRDRGYEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:25925682	tetramer-sort	2%		sanger					CMV-seronegative	CMVnegA					HLA-A*02,HLA-A*24,HLA-B*15,HLA-B*35		
