@@ -984,7 +984,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 983				CASSLDRVSNQPQY	TRBV8		TRBJ1-5	MacacaMulatta	Mamu-A*01	B2M	MHCI	TTPESANL	Tat	SIV	PMID:15589168	tetramer-sort	2/100		sanger						885	5wk						
 984				CASSPDRVSNQPQY	TRBV9		TRBJ1-5	MacacaMulatta	Mamu-A*01	B2M	MHCI	TTPESANL	Tat	SIV	PMID:15589168	tetramer-sort	2/100		sanger						885	5wk						
 985				CASSPNRNSNQPQY	TRBV9		TRBJ1-5	MacacaMulatta	Mamu-A*01	B2M	MHCI	TTPESANL	Tat	SIV	PMID:15589168	tetramer-sort	2/100		sanger						885	5wk						
-986				CASSQGRQSNQPQY	TRBV9		TRBJ7-5	MacacaMulatta	Mamu-A*01	B2M	MHCI	TTPESANL	Tat	SIV	PMID:15589168	tetramer-sort	2/100		sanger						885	5wk						
+986				CASSQGRQSNQPQY	TRBV9		TRBJ1-5	MacacaMulatta	Mamu-A*01	B2M	MHCI	TTPESANL	Tat	SIV	PMID:15589168	tetramer-sort	2/100		sanger						885	5wk						
 987				CASRLTLGGGEQY	TRBV13-2		TRBJ2-7	MacacaMulatta	Mamu-A*01	B2M	MHCI	TTPESANL	Tat	SIV	PMID:15589168	tetramer-sort	2/100		sanger						885	5wk						
 988				CASRPTGGNQPQY	TRBV13-2		TRBJ1-5	MacacaMulatta	Mamu-A*01	B2M	MHCI	TTPESANL	Tat	SIV	PMID:15589168	tetramer-sort	2/100		sanger						885	5wk						
 989				CASSYDRRSNQPQY	TRBV13-2		TRBJ1-5	MacacaMulatta	Mamu-A*01	B2M	MHCI	TTPESANL	Tat	SIV	PMID:15589168	tetramer-sort	2/100		sanger						885	5wk						
