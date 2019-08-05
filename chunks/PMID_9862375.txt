@@ -9,13 +9,13 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 8	CILPLAGGTSYGKLTF	TRAV4S1	TRAJ14S3					HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	1/7		sanger	antigen-loaded-targets					IM53	22mo	P					
 9	CAVLFGNEKLTF	TRAV27S1	TRAJ17S8					HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	1/7		sanger	antigen-loaded-targets					IM53	22mo	C					
 10	CAVSKANGSRLTF	TRAV13S1	TRAJ4S1					HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	1/7		sanger	antigen-loaded-targets					IM53	22mo	E					
-11	CILPLAGGTSYGKLTF	TRAV4S1	TRAJ14S3	CASSLGQAYEQYF	TRBV6		TRBJ2	HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	4/6		sanger	antigen-loaded-targets					IM63	0mo	P					
-12	CILPLAGGTSYGKLTF	TRAV4S1	TRAJ14S3	CASSSGQAYEQYF	TRBV6		TRBJ2	HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	1/6		sanger	antigen-loaded-targets					IM63	0mo	Q					
+11	CILPLAGGTSYGKLTF	TRAV4S1	TRAJ14S3	CASSLGQAYEQYF	TRBV6S3		TRBJ2S7	HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	4/6		sanger	antigen-loaded-targets					IM63	0mo	P					
+12	CILPLAGGTSYGKLTF	TRAV4S1	TRAJ14S3	CASSSGQAYEQYF	TRBV6S3		TRBJ2S7	HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	1/6		sanger	antigen-loaded-targets					IM63	0mo	Q					
 13	CILRDVFPSGSARQLTF	TRAV4S1	TRAJ14S3					HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	1/6		sanger	antigen-loaded-targets					IM63	0mo	R					
-14	CILPLAGGTSYGKLTF	TRAV4S1	TRAJ14S3	CASSLGQAYEQYF	TRBV6		TRBJ2	HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	4/7		sanger	antigen-loaded-targets					IM63	9mo	P					
+14	CILPLAGGTSYGKLTF	TRAV4S1	TRAJ14S3	CASSLGQAYEQYF	TRBV6S3		TRBJ2S7	HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	4/7		sanger	antigen-loaded-targets					IM63	9mo	P					
 15	CILRDVFPSGSARQLTF	TRAV4S1	TRAJ14S3					HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	1/7		sanger	antigen-loaded-targets					IM63	9mo	R					
 16	CILRVLGSNYQLIW	TRAV4S1	TRAJ1S8					HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	1/7		sanger	antigen-loaded-targets					IM63	9mo	S					
 17	CAGLGSNDYKLSF	TRAV32S1	TRAJ1S3					HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	1/7		sanger	antigen-loaded-targets					IM63	9mo	T					
-18	CILPLAGGTSYGKLTF	TRAV4S1	TRAJ14S3	CASSLGQAYEQYF	TRBV6		TRBJ2	HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	5/7		sanger	antigen-loaded-targets					IM63	37mo	P					
-19	CILPLAGGTSYGKLTF	TRAV4S1	TRAJ14S3	CASSSGQAYEQYF	TRBV6		TRBJ2	HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	1/7		sanger	antigen-loaded-targets					IM63	37mo	Q					
+18	CILPLAGGTSYGKLTF	TRAV4S1	TRAJ14S3	CASSLGQAYEQYF	TRBV6S3		TRBJ2S7	HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	5/7		sanger	antigen-loaded-targets					IM63	37mo	P					
+19	CILPLAGGTSYGKLTF	TRAV4S1	TRAJ14S3	CASSSGQAYEQYF	TRBV6S3		TRBJ2S7	HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	1/7		sanger	antigen-loaded-targets					IM63	37mo	Q					
 20	CILRVLGSNYQLIW	TRAV4S1	TRAJ1S8					HomoSapiens	HLA-B*08:01	B2M	MHCI	FLRGRAYGL	EBNA3A	EBV	PMID:9862375	antigen-loaded-targets	1/7		sanger	antigen-loaded-targets					IM63	37mo	S					
