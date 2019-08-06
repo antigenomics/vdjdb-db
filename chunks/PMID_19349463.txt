@@ -111,7 +111,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 110				CASSDSGNSNQPQY	TRBV13B		TRBJ1-5	MacacaMulatta	Mamu-A*01	B2M	MHCI	CTPYDINQM	Gag	HIV-1	PMID:19349463	tetramer-sort	1/50		sanger			CD8+		Low-svl	r97113	infected		CM9	PBMC			
 111				CASSEARQGGNEQF	TRBV13B		TRBJ2-1	MacacaMulatta	Mamu-A*01	B2M	MHCI	CTPYDINQM	Gag	HIV-1	PMID:19349463	tetramer-sort	1/50		sanger			CD8+		Low-svl	r97113	infected		CM9	PBMC			
 112				CASSKQGNSNQPQY	TRBV13A		TRBJ1-5	MacacaMulatta	Mamu-A*01	B2M	MHCI	CTPYDINQM	Gag	HIV-1	PMID:19349463	tetramer-sort	1/50		sanger			CD8+		Low-svl	r97113	infected		CM9	PBMC			
-113				CASSEQGNSNQPQY	TRBV13-6		TRBJ1-5	MacacaMulatta	Mamu-A*01	B2M	MHCI	CTPYDINQM	Gag	HIV-1	PMID:19349463	tetramer-sort	1/50		sanger			CD8+		Low-svl	r97113	infected		CM9	PBMC			
+113				CASSEQGNSNQPQY	TRBV12-3		TRBJ1-5	MacacaMulatta	Mamu-A*01	B2M	MHCI	CTPYDINQM	Gag	HIV-1	PMID:19349463	tetramer-sort	1/50		sanger			CD8+		Low-svl	r97113	infected		CM9	PBMC			
 114				CASSLSSDTSQNTQY	TRBV21-2		TRBJ2-4	MacacaMulatta	Mamu-A*01	B2M	MHCI	CTPYDINQM	Gag	HIV-1	PMID:19349463	tetramer-sort	1/50		sanger			CD8+		Low-svl	r97113	infected		CM9	PBMC			
 115				CASRSTGTGTSQNTQY	TRBV22-1		TRBJ2-4	MacacaMulatta	Mamu-A*01	B2M	MHCI	CTPYDINQM	Gag	HIV-1	PMID:19349463	tetramer-sort	1/50		sanger			CD8+		Low-svl	r97113	infected		CM9	PBMC			
 116				CASSEGRGTGQNTQY	TRBV22-1		TRBJ2-4	MacacaMulatta	Mamu-A*01	B2M	MHCI	CTPYDINQM	Gag	HIV-1	PMID:19349463	tetramer-sort	1/50		sanger			CD8+		Low-svl	r97113	infected		CM9	PBMC			
