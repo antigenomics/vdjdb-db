@@ -13,7 +13,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 12	CAVGNNAGNMLTF	TRAV20	TRAJ39					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	2.52%		illumina	mixcr					30							
 13	CVVSEAAGNKLTF	TRAV8-2	TRAJ17					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	2.52%		illumina	mixcr					30							
 14	CALRNNAGNMLTF	TRAV9-2	TRAJ39					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	2.28%		illumina	mixcr					30							
-15	CAANNAGNNRKLIW	TRAV23DV6	TRAJ38					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	2.22%		illumina	mixcr					30							
+15	CAANNAGNNRKLIW	TRAV23/DV6	TRAJ38					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	2.22%		illumina	mixcr					30							
 16	CAVGNNAGNMLTF	TRAV20	TRAJ39					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	1.86%		illumina	mixcr					30							
 17	CAVSDSGTASKLTF	TRAV8-6	TRAJ44					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	1.46%		illumina	mixcr					30							
 18	CPSNDYKLSF	TRAV13-1	TRAJ20					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	1.24%		illumina	mixcr					30							
@@ -45,7 +45,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 44	CAESMVDDKIIF	TRAV5	TRAJ30					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	0.01%		illumina	mixcr					30							
 45	CAAITGIGGSQGNLIF	TRAV13-1	TRAJ42					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	42.20%		illumina	mixcr					81							
 46	CAGQAGYGGSQGNLIF	TRAV35	TRAJ42					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	27.72%		illumina	mixcr					81							
-47	CAANNAGNNRKLIW	TRAV23DV6	TRAJ38					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	14.33%		illumina	mixcr					81							
+47	CAANNAGNNRKLIW	TRAV23/DV6	TRAJ38					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	14.33%		illumina	mixcr					81							
 48	CVVSEAAGNKLTF	TRAV8-2	TRAJ17					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	7.67%		illumina	mixcr					81							
 49	CAVSDSGTASKLTF	TRAV8-6	TRAJ44					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	4.67%		illumina	mixcr					81							
 50	CAEISNYGGSQGNLIF	TRAV13-2	TRAJ42					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	1.08%		illumina	mixcr					81							
