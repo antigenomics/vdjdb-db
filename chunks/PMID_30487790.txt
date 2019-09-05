@@ -1,7 +1,7 @@
 chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
 1	CAVGNNAGNMLTF	TRAV20	TRAJ39					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	15.31%		illumina	mixcr					30							
-2	CAAKTGGGNKLTF	TRAV29DV5	TRAJ10					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	15.17%		illumina	mixcr					30							
-3	CAAKAGGGNKLTF	TRAV29DV5	TRAJ10					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	9.69%		illumina	mixcr					30							
+2	CAAKTGGGNKLTF	TRAV29/DV5	TRAJ10					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	15.17%		illumina	mixcr					30							
+3	CAAKAGGGNKLTF	TRAV29/DV5	TRAJ10					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	9.69%		illumina	mixcr					30							
 4	CAAITGIGGSQGNLIF	TRAV13-1	TRAJ42					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	8.32%		illumina	mixcr					30							
 5	CAGTDGGATNKLIF	TRAV36DV7	TRAJ32					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	6.29%		illumina	mixcr					30							
 6	CALSEAVSGGYQKVTF	TRAV19	TRAJ13					HomoSapiens	HLA-B*44:03:08	B2M	MHCI	NEGVKAAW	IE2	CMV	PMID:30487790	tetramer-sort	5.93%		illumina	mixcr					30							

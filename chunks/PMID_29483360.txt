@@ -164,7 +164,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 163	CAFPESNFGNEKLTF	TRAV38-1	TRAJ48					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.16%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
 164	CAVNAAGTSYDKVIF	TRAV12-2	TRAJ50					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	1.16%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
 165	CVVADDKIIF	TRAV12-1	TRAJ30					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.91%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
-166	CAASDTNAGGTSYGKLTF	TRAV29DV5	TRAJ52					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.65%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
+166	CAASDTNAGGTSYGKLTF	TRAV29/DV5	TRAJ52					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.65%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
 167	CAPSQGGSEKLVF	TRAV12-2	TRAJ57					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.65%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
 168	CAVRWENSGYALNF	TRAV8-6	TRAJ41					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.39%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
 169	CAGRREKLTF	TRAV35	TRAJ48					HomoSapiens	HLA-A*02	B2M	MHCI	LLWNGPMAV	NS4B	YFV	PMID:29483360	tetramer-sort	0.39%		amplicon-seq						Donor0345	Optimised							Strain 17D vaccine
