@@ -110,7 +110,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 109				CASSPPRQRDTQYF	TRBV7-8		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/110		sanger					Adult T-cell lymphoma	aATL3		OM003-1					
 110				CAINRDRESDQYF	TRBV7-9		TRBJ2-5	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	6/110		sanger					Adult T-cell lymphoma	aATL3		OM003-2					
 111				CASIPDREKTQYF	TRBV7-9		TRBJ2-5	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	7/110		sanger					Adult T-cell lymphoma	aATL3		OM003-3					
-112				CASKVDREGTIYF	TRBV7-9		TRBJI-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	15/110		sanger					Adult T-cell lymphoma	aATL3		OM003-4					
+112				CASKVDREGTIYF	TRBV7-9		TRBJ1-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	15/110		sanger					Adult T-cell lymphoma	aATL3		OM003-4					
 113				CASRVNRGGEQYF	TRBV7-9		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	1/110		sanger					Adult T-cell lymphoma	aATL3		OM003-5					
 114				CASSPDRAHTIYF	TRBV7-9		TRBJ1-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	53/110		sanger					Adult T-cell lymphoma	aATL3		OM003-6					
 115				CASSPDRANTGGAFF	TRBV7-9		TRBJ2-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	SFHSLHLLF	Tax	HTLV-1	PMID:28724766	tetramer-sort	6/110		sanger					Adult T-cell lymphoma	aATL3		OM003-7					
