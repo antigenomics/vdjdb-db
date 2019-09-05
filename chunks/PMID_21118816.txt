@@ -86,7 +86,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 85				CASSDWGGGGAEQFF	TRBV17*01	TRBD2*01	TRBJ2-1*01	MusMusculus	H-2Db	B2M	MHCI	NAITNAKII	M	RSV	PMID:21118816	tetramer-sort	2/131	yes	sanger			CD8+							lung			
 86				CASSDWGVGDTQYF	TRBV19*01	TRBD2*01	TRBJ2-5*01	MusMusculus	H-2Db	B2M	MHCI	NAITNAKII	M	RSV	PMID:21118816	tetramer-sort	2/131	yes	sanger			CD8+							lung			
 87				CASSEPGTGAYEQYF	TRBV13-3*01	TRBD2*01	TRBJ2-7*01	MusMusculus	H-2Db	B2M	MHCI	NAITNAKII	M	RSV	PMID:21118816	tetramer-sort	2/131	yes	sanger			CD8+							lung			
-88				CASSERRYEQYF	TRBV13-3*01	TRBD2.01	TRBJ2-7*01	MusMusculus	H-2Db	B2M	MHCI	NAITNAKII	M	RSV	PMID:21118816	tetramer-sort	2/131	yes	sanger			CD8+							lung			
+88				CASSERRYEQYF	TRBV13-3*01	TRBD2*01	TRBJ2-7*01	MusMusculus	H-2Db	B2M	MHCI	NAITNAKII	M	RSV	PMID:21118816	tetramer-sort	2/131	yes	sanger			CD8+							lung			
 89				CASSFLDSAETLYF	TRBV14*01	TRBD2*01	TRBJ2-3*01	MusMusculus	H-2Db	B2M	MHCI	NAITNAKII	M	RSV	PMID:21118816	tetramer-sort	2/131	yes	sanger			CD8+							lung			
 90				CASSLQGTGGALYAEQFF	TRBV17*01	TRBD2*01	TRBJ2-1*01	MusMusculus	H-2Db	B2M	MHCI	NAITNAKII	M	RSV	PMID:21118816	tetramer-sort	2/131	yes	sanger			CD8+							lung			
 91				CGAREGPANTEVFF	TRBV20*01	TRBD1*01	TRBJ1-1*01	MusMusculus	H-2Db	B2M	MHCI	NAITNAKII	M	RSV	PMID:21118816	tetramer-sort	2/131	yes	sanger			CD8+							lung			
