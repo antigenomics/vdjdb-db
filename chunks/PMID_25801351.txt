@@ -27,12 +27,12 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 26	CAVTTDSWGKLQ	TRAV12-2	TRAJ24					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	cord1			ELA	UBC			
 27	CAVNTDSWGKLQ	TRAV12-2	TRAJ24					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	cord6			ELA	UBC			
 28	CAVRTDSWGKLQ	TRAV12-2	TRAJ24					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult11			ELA	PBMC			
-29	CAIRDDKII	TRAV-12-3	TRAJ30					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	cord1			ELA	UBC			
+29	CAIRDDKII	TRAV12-3	TRAJ30					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	cord1			ELA	UBC			
 30	CAVRDDKII	TRAV12-2	TRAJ30					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult12			ELA	PBMC			
-31	CAMSGSNFGNEKLT	TRAV-12-3	TRAJ48					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	cord6			ELA	UBC			
+31	CAMSGSNFGNEKLT	TRAV12-3	TRAJ48					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	cord6			ELA	UBC			
 32	CAMSRSNFGNEKLT	TRAV12-2	TRAJ48					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult13			ELA	PBMC			
 33	CAVRGSNFGNEKLT	TRAV12-2	TRAJ48					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult14			ELA	PBMC			
-34	CAFGGADGLT	TRAV-12-3	TRAJ45					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	cord6			ELA	UBC			
+34	CAFGGADGLT	TRAV12-3	TRAJ45					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	cord6			ELA	UBC			
 35	CAAGGADGLT	TRAV12-2	TRAJ45					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult14			ELA	PBMC			
 36	CAGGGADGLT	TRAV12-2	TRAJ45					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult14			ELA	PBMC			
 37	CALGGADGLT	TRAV12-2	TRAJ45					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult14			ELA	PBMC			
