@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/antigenomics/vdjdb-db.svg?branch=master)](https://travis-ci.org/antigenomics/vdjdb-db) [![Ask your questions about VDJdb, VDJdb-standalone and VDJdb-server in a live chat](https://badges.gitter.im/antigenomics/vdjdb-db.svg)](https://gitter.im/antigenomics/vdjdb-db?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.806857.svg)](https://doi.org/10.5281/zenodo.806857)
+[![Build Status](https://travis-ci.org/antigenomics/vdjdb-db.svg?branch=master)](https://travis-ci.org/antigenomics/vdjdb-db)
 
 # VDJDB: A curated database of T-cell receptor sequences of known antigen specificity
 
@@ -17,9 +17,9 @@ This repository hosts the submissions to database and scripts to check, fix and 
 
 To build database directly from submissions, go to ``src`` directory and run ``groovy -cp . BuildDatabase.groovy`` script (requires [Groovy](http://www.groovy-lang.org/)).
 
-To query the database for your immune repertoire sample(s) use the [VDJdb-standalone](https://github.com/antigenomics/vdjdb) software.
+To query the database for your immune repertoire sample(s) use the [vdjmatch](https://github.com/antigenomics/vdjmatch) software.
 
-A web-based GUI for the database can be found in [VDJdb-server](https://github.com/antigenomics/vdjdb-server) repository.
+A web-based GUI for the database can be found in [VDJdb-web](https://github.com/antigenomics/vdjdb-web) repository.
 
 ## Citing
 
