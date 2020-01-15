@@ -1,0 +1,43 @@
+---
+title: "VDJdb pgen"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(stringr)
+```
+
+```{r}
+data <- read_tsv("../database/vdjdb.slim.txt") %>%
+  filter(species == "HomoSapiens") %>%
+  mutate(v.segm = str_split_fixed(v.segm, fixed("*"), 2)[,1],
+         j.segm = str_split_fixed(j.segm, fixed("*"), 2)[,1])
+```
+
+```{r}
+system("mkdir pgen/")
+
+data %>% 
+  filter(gene == "TRA") %>%
+  select(cdr3, v.segm, j.segm) %>%
+  write_tsv("pgen/TRA_seqs.txt", col_names = F)
+data %>% 
+  filter(gene == "TRB") %>%
+  select(cdr3, v.segm, j.segm) %>%
+  write_tsv("pgen/TRB_seqs.txt", col_names = F)
+
+system("bash pgen_comp.sh")
+```
+
+```{r}
+data.pgen <- rbind(
+  read_tsv("pgen/TRA_seqs.pgen.txt", col_names = c("cdr3", "pgen")) %>% mutate(gene = "TRA"),
+  read_tsv("pgen/TRB_seqs.pgen.txt", col_names = c("cdr3", "pgen")) %>% mutate(gene = "TRB")
+  )
+
+data %>%
+  merge(data.pgen) %>%
+  write_tsv("pgen/vdjdb.slim.pgen.txt")
+```
