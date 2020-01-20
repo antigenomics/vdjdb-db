@@ -228,6 +228,7 @@ Number of unique TCR sequences, epitopes, MHC alleles and publications by **publ
 
 ```{r message=FALSE,warning=FALSE}
 dt.vdjdb.s2 = dt.vdjdb.s %>%
+  as.data.frame %>%
   merge(dt.pubdate) %>%
   merge(data.table(pub_date2 = unique(dt.pubdate$pub_date)), allow.cartesian = T) %>%
   group_by(pub_date2, chains) %>%
@@ -282,12 +283,17 @@ g_legend = function(a.gplot){
 
 mylegend = g_legend(p4)
 
-grid.arrange(arrangeGrob(p1 + theme(legend.position="none"),
+PX1 <- grid.arrange(arrangeGrob(p1 + theme(legend.position="none"),
                          p2 + theme(legend.position="none"),
                          p3 + theme(legend.position="none"),
                          p4 + theme(legend.position="none"),
                          nrow=2),
              mylegend, nrow=2,heights=c(10, 1))
+
+PX1 %>% plot
+pdf("pubyear.pdf")
+PX1 %>% plot
+dev.off()
 
 fwrite(dt.vdjdb.s2, "vdjdb_stats_pubyear.txt", sep = "\t")
 ```
@@ -326,6 +332,31 @@ df %>%
   mutate(ambiguous.naming = ifelse(n() > 1, "*", "")) %>%
   arrange(antigen.species, antigen.gene, antigen.epitope) %>%
   kable(format = "html")
+```
+
+Some things for paper release
+
+```{r}
+dt.pubdate %>%
+  .$reference.id %>%
+  unique %>%
+  length
+
+df.sg %>%
+  .$Records %>%
+  sum
+
+df %>%
+  .$antigen.epitope %>%
+  unique %>% 
+  length
+
+dt.vdjdb.s2 %>%
+  ungroup %>%
+  mutate(pub_date2 = as.integer(pub_date2)) %>%
+  filter(pub_date2 == max(pub_date2)) %>%
+  .$tcr_count %>%
+  sum
 ```
 
 ```{r}
