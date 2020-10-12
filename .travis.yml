@@ -3,7 +3,10 @@ dist: xenial
 language:
   - groovy
   - python
-  
+
+python:
+  - 2.7
+
 jdk:
   - openjdk8
 
