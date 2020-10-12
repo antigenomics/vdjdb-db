@@ -12,7 +12,7 @@ jdk:
 
 before_install:
   - sudo pip install pandas
-  - sudo pip install biopython
+  - sudo pip install 'biopython==1.76'
   
 script:
   - cd src/ 
