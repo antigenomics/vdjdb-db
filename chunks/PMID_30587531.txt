@@ -1,0 +1,64 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
+1				CASSPGDEQFF	TRBV25-1		TRBJ2-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01, P05, P06, P07				PBMC			
+2				CASTPGDEQFF	TRBV25-1		TRBJ2-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P03, P06, P07				PBMC			
+3				CASSAGDEQYF	TRBV25-1		TRBJ2-7	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P05				PBMC			
+4				CASSPGDEQYF	TRBV25-1		TRBJ2-7	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01				PBMC			
+5				CASSPGDTQYF	TRBV25-1		TRBJ2-3	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P06				PBMC			
+6				CASTHGDEQFF	TRBV25-1		TRBJ2-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P05				PBMC			
+7				CASTPGDEQYF	TRBV25-1		TRBJ2-7	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P06				PBMC			
+8				CASTQGDEQFF	TRBV25-1		TRBJ2-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P06				PBMC			
+9				CASTSGDEQFF	TRBV25-1		TRBJ2-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P07				PBMC			
+10				CASTTGDEQFF	TRBV25-1		TRBJ2-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P03				PBMC			
+11				CATSPGDEQYF	TRBV25-1		TRBJ2-7	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01				PBMC			
+12				CASTLGDEQYF	TRBV25-1		TRBJ2-7	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P05				PBMC			
+13				CAVTAGDEQFF	TRBV25-1		TRBJ2-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P07				PBMC			
+14				CASSPISNEQFF	TRBV28		TRBJ2-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01, P07				PBMC			
+15				CASSPVSNEQFF	TRBV28		TRBJ2-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01, P02				PBMC			
+16				CASSPISNEQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01				PBMC			
+17				CASSPGTPRDEQFF	TRBV6-1,TRBV6-5,TRBV6-6		TRBJ2-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P03, P05				PBMC			
+18				CASSQGTPRDEQYF	TRBV6-1,TRBV6-5,TRBV6-6		TRBJ2-7	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P05				PBMC			
+19				CASSSGQKNTEAFF	TRBV6-1,TRBV6-5,TRBV6-6		TRBJ1-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01, P07				PBMC			
+20				CASSTGQKNTEAFF	TRBV6-1,TRBV6-5,TRBV6-6		TRBJ1-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01				PBMC			
+21				CASTPGQKNTEAFF	TRBV6-1,TRBV6-5,TRBV6-6		TRBJ1-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P04				PBMC			
+22				CASTTGQKNTEAFF	TRBV6-1,TRBV6-5,TRBV6-6		TRBJ1-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P05				PBMC			
+23				CATTSGQKNTEAFF	TRBV6-1,TRBV6-5,TRBV6-6		TRBJ1-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01				PBMC			
+24				CASQPGQKNTEAFF	TRBV6-1,TRBV6-5,TRBV6-6		TRBJ1-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P08				PBMC			
+25				CASSSGLTNTEAFF	TRBV6-1,TRBV6-5,TRBV6-6		TRBJ1-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P06				PBMC			
+26				CSAPDWNNEQFF	TRBV20-1		TRBJ2-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01, P02				PBMC			
+27				CSAPDWGNEQFF	TRBV20-1		TRBJ2-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P08				PBMC			
+28				CSAPNWFNEQFF	TRBV20-1		TRBJ2-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P05				PBMC			
+29				CSAPTWDNEQFF	TRBV20-1		TRBJ2-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01				PBMC			
+30				CASSFPDTQYF	TRBV28		TRBJ2-3	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01, P02				PBMC			
+31				CASTPWGAEAFF	TRBV28		TRBJ1-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	CRVLCCYVL	IE-1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P04, P08				PBMC			
+32				CATSRTGGETQYF	TRBV15		TRBJ2-5	HomoSapiens	HLA-C*07:02	B2M	MHCI	FRCPRRFCF	UL29/28	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01, P03, P05				PBMC			
+33				CATSREGGETQYF	TRBV15		TRBJ2-5	HomoSapiens	HLA-C*07:02	B2M	MHCI	FRCPRRFCF	UL29/28	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P05, P06, P08				PBMC			
+34				CATSAEGGETQYF	TRBV15		TRBJ2-5	HomoSapiens	HLA-C*07:02	B2M	MHCI	FRCPRRFCF	UL29/28	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P08				PBMC			
+35				CATSGTAGETQYF	TRBV15		TRBJ2-5	HomoSapiens	HLA-C*07:02	B2M	MHCI	FRCPRRFCF	UL29/28	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P08				PBMC			
+36				CATSRDAGETQYF	TRBV15		TRBJ2-5	HomoSapiens	HLA-C*07:02	B2M	MHCI	FRCPRRFCF	UL29/28	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P06				PBMC			
+37				CATSRDGGETQYF	TRBV15		TRBJ2-5	HomoSapiens	HLA-C*07:02	B2M	MHCI	FRCPRRFCF	UL29/28	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P02				PBMC			
+38				CATSRVAGETQYF	TRBV15		TRBJ2-5	HomoSapiens	HLA-C*07:02	B2M	MHCI	FRCPRRFCF	UL29/28	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P06				PBMC			
+39				CATSVTGGETQYF	TRBV15		TRBJ2-5	HomoSapiens	HLA-C*07:02	B2M	MHCI	FRCPRRFCF	UL29/28	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P02				PBMC			
+40				CASSGGLEAFF	TRBV6-2,TRBV6-3		TRBJ1-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	FRCPRRFCF	UL29/28	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P03, P07				PBMC			
+41				CASSLGLEAFF	TRBV6-2,TRBV6-3		TRBJ1-1	HomoSapiens	HLA-C*07:02	B2M	MHCI	FRCPRRFCF	UL29/28	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P03				PBMC			
+42				CASSPQRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVL	RPH1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P03, P04, P05, P06, P08				PBMC			
+43				CASSPARNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVL	RPH1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P03, P05, P08				PBMC			
+44				CASSPSRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVL	RPH1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P03, P08				PBMC			
+45				CASSPHRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVL	RPH1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P03, P05				PBMC			
+46				CASSPNRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVL	RPH1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P03, P08				PBMC			
+47				CASSPGRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVL	RPH1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P03				PBMC			
+48				CASSPTRNTEAFF	TRBV4-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPHERNGFTVL	RPH1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P08				PBMC			
+49				CASSFRTVSSYEQYF	TRBV7-8		TRBJ2-7	HomoSapiens	HLA-B*07:02	B2M	MHCI	TPRVTGGGAM	TPR1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01, P03, P04				PBMC			
+50				CASSFRTVNSYEQYF	TRBV7-8		TRBJ2-7	HomoSapiens	HLA-B*07:02	B2M	MHCI	TPRVTGGGAM	TPR1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P02, P03				PBMC			
+51				CASSLRTVSSYEQYF	TRBV7-8		TRBJ2-7	HomoSapiens	HLA-B*07:02	B2M	MHCI	TPRVTGGGAM	TPR1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P02, P04				PBMC			
+52				CASSLIGVSSYNEQFF	TRBV7-9		TRBJ2-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	TPRVTGGGAM	TPR1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01, P02, P06				PBMC			
+53				CASSLKGVSSYNEQFF	TRBV7-9		TRBJ2-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	TPRVTGGGAM	TPR1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P06				PBMC			
+54				CASSLRGESSYNEQFF	TRBV7-9		TRBJ2-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	TPRVTGGGAM	TPR1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01				PBMC			
+55				CASSFRQGVNTGELFF	TRBV7-9		TRBJ2-2	HomoSapiens	HLA-B*07:02	B2M	MHCI	TPRVTGGGAM	TPR1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01, P02				PBMC			
+56				CASSFRQGSNTGELFF	TRBV7-9		TRBJ2-2	HomoSapiens	HLA-B*07:02	B2M	MHCI	TPRVTGGGAM	TPR1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01				PBMC			
+57				CASSFRSGINTGELFF	TRBV7-9		TRBJ2-2	HomoSapiens	HLA-B*07:02	B2M	MHCI	TPRVTGGGAM	TPR1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P02				PBMC			
+58				CASSFRQGTPTGELFF	TRBV7-9		TRBJ2-2	HomoSapiens	HLA-B*07:02	B2M	MHCI	TPRVTGGGAM	TPR1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P04				PBMC			
+59				CASSYSSGELFF	TRBV6-2,TRBV6-3		TRBJ2-2	HomoSapiens	HLA-B*07:02	B2M	MHCI	TPRVTGGGAM	TPR1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P01, P08				PBMC			
+60				CASSYSGNTEAFF	TRBV6-2,TRBV6-3		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	TPRVTGGGAM	TPR1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P02, P08				PBMC			
+61				CASSSRGTVNTEAFF	TRBV7-2		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	TPRVTGGGAM	TPR1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P03, P05				PBMC			
+62				CASSLHTQGARTEAFF	TRBV7-9		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	TPRVTGGGAM	TPR1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P02, P07				PBMC			
+63				CASSLHSRGARTEAFF	TRBV7-9		TRBJ1-1	HomoSapiens	HLA-B*07:02	B2M	MHCI	TPRVTGGGAM	TPR1	CMV	PMID:30587531	antigen-loaded-targets			amplicon-seq	antigen-expressing-targets					P02				PBMC			
