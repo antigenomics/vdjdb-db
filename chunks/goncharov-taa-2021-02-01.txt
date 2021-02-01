@@ -1,0 +1,361 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
+1	CAVFTFNAGGTSYGKLTF	TRAV12-2	TRAJ52	CASSPGALNTEAFF	TRBV19		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+2	CAVGGGADGLTF	TRAV12-2	TRAJ45	CASSPAALSGAYEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+3	CAVGTAWRSGGGADGLTF	TRAV12-2	TRAJ45	CASSRRSSGELFF	TRBV19		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+4	CAVPIKAAGNKLTF	TRAV12-2	TRAJ17	CASSFQGLGQPQHF	TRBV28		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+5	CAVSVNMEYGNKLVF	TRAV12-2	TRAJ47	CASSRDSALWISTDTQYF	TRBV6		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+6	CAFSNTGNQFYF	TRAV12-2	TRAJ49	CASSRRSSGELFF	TRBV19		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+7	CAVPPAVYNFNKFYF	TRAV12-2	TRAJ21	CSASETGVGQPQHF	TRBV20		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+8	CAVNESGGGADGLTF	TRAV12-2	TRAJ45	CASSQQGLGQPQHF	TRBV27		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+9	CAALTGFQKLVF	TRAV12-2	TRAJ8	CSVSDLGVGQPQHF	TRBV20		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+10	CAVPPAVYNFNKFYF	TRAV12-2	TRAJ21	CASSQGDWGGSQPQHF	TRBV4		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+11	CAVNNARLMF	TRAV12-2	TRAJ31	CASSRDSALWISTDTQYF	TRBV6		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+12	CAVNLAWNNNARLMF	TRAV12-2	TRAJ31	CASRLGTGPEAFF	TRBV27		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+13	CAVNSGNQFYF	TRAV12-2	TRAJ49	CASSFGLGTEAFF	TRBV28		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+14	CAVRHAGGTSYGKLTF	TRAV12-2	TRAJ52	CASSLSNEGNEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+15	CAVNRNEKLTF	TRAV12-2	TRAJ48	CASSPPGLSGNIQYF	TRBV2		TRBJ2-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+16	CAVGTAWRSGGGADGLTF 	TRAV12-2	TRAJ45	CASSPGTLADTQYF	TRBV8		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+17	CAVKGQTGANNLFF	TRAV12-2	TRAJ36	CASSAGYGQPQHF	TRBV6		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+18	CAVNRNEKLTF	TRAV12-2	TRAJ48	CASSQEIGSEQPQHF	TRBV4		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+19	CAVNSGNQFYF	TRAV12-2	TRAJ49	CASRPTGMGQPQHF	TRBV27		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+20	CAVNGNNNDMRF	TRAV12-2	TRAJ43	CASAWGGMTNEQYF	TRBV19		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+21	CAVSRGTGDFNKFYF	TRAV12-2	TRAJ21	CASSETGGTEAFF	TRBV6		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+22	CAALNTGTASKLTF	TRAV12-2	TRAJ44	CASSDQGLGTEAFF	TRBV14		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+23	CAVNSGNQFYF	TRAV12-2	TRAJ49	CASSYLGMGQPQHF	TRBV6		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+24	CAVNSGNQFYF	TRAV12-2	TRAJ49	CASSLGDVDEYF	TRBV12		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+25	CAVSAAGNKLTF	TRAV12-2	TRAJ17	CASRSLGQGAEKLFF	TRBV27		TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+26				CASSRGTLHYGYTF	TRBV5 -6*01		TRBJ1-2*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	FYGKTILWF	ARMT1	HomoSapiens	PMID:30880120	tetramer-sort			amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
+27				CASSLGQGCSNQPQHF	TRBV11-3*01		TRBJ1-5*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	FYGKTILWF	ARMT1	HomoSapiens	PMID:30880120	tetramer-sort			amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
+28				CASSLGAAPQETQYF	TRBV5-6*01		TRBJ2-5*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	FYGKTILWF	ARMT1	HomoSapiens	PMID:30880120	tetramer-sort			amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
+29				CASSTRVVAGNNEQFF	TRBV4-1*02		TRBJ2-1*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	FYGKTILWF	ARMT1	HomoSapiens	PMID:30880120	tetramer-sort			amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
+30	CATDRGTDKLIF	TRAV17*01	TRAJ34	CASSPGVGTEAFF	TRBV6-2*01		TRBJ1-1*01	HomoSapiens	HLA-B*40:01	B2M	MHCI	EFTVSGNIL	NY-ESO-1	HomoSapiens	PMID:32314731	multimer-sort			amplicon-seq	antigen-expressing-targets		CD8+						NY-ESO-1 (125-133)	TIL			
+31	CAEGDTGRRALTF	TRAV5*01	TRAJ5*01	CASSPGASYEQYF	TRBV4-1*01		TRBJ2-7*01	HomoSapiens	HLA-B*40:01	B2M	MHCI	ESITGSLGPLL	gp100	HomoSapiens	PMID:32314731	multimer-sort			amplicon-seq	antigen-expressing-targets		CD8+						gp100 (448-458)	TIL			
+32	CAGMDSNYQLIW	TRAV8-3*01	TRAJ33*01	CASSLPLGYEQYF	TRBV6-1*01		TRBJ2-7*01	HomoSapiens	HLA-C*03:04	B2M	MHCI	LAMPFATPM	NY-ESO-1	HomoSapiens	PMID:32314731	multimer-sort			amplicon-seq	antigen-expressing-targets		CD8+						NY-ESO-1 (92-100)	TIL			
+33	CALQGWVRGADGLTF	TRAV38*01	TRAJ45*01	CASSQDSHSTSTDTQYF	TRBV3-1*01		TRBJ2-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	KASEKIFYV	SSX2	HomoSapiens	PMID:32314731	multimer-sort			amplicon-seq	antigen-expressing-targets		CD8+						SSX2 (41-49)	TIL			
+34	CAVEPMEYGNKLVF	TRAV21*02	TRAJ47*01	CASSALFSGANVLTF	TRBV19*01		TRBJ2-6*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	KASEKIFYV	SSX2	HomoSapiens	PMID:32314731	multimer-sort			amplicon-seq	antigen-expressing-targets		CD8+						SSX2 (41-49)	TIL			
+35	CAVATDSWGKLQF	TRAV21*01	TRAJ24*01	CASSLLPEGTGRVSGYTF	TRBV13*01		TRBJ1-2*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	VYFFLPDHL	gp100	HomoSapiens	PMID:32314731	multimer-sort			amplicon-seq	antigen-expressing-targets		CD8+						gp100 (intron4)	TIL			
+36	CAYRSSNFNEKLTF	TRAV38-2/DV8*01	TRAJ48*01	CATSSFRMTGDNSPLHF	TRBV15*02		TRBJ1-6*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	KASEKIFYV	SSX2	HomoSapiens	PMID:32314731	multimer-sort			amplicon-seq	antigen-expressing-targets		CD8+						SSX2 (41-49)	TIL			
+37	CAVAHSGGYQKVTF	TRAV12-2*01	TRAJ13*02	CASSWEYEQYF	TRBV7-9*03		TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	KASEKIFYV	SSX2	HomoSapiens	PMID:32314731	multimer-sort			amplicon-seq	antigen-expressing-targets		CD8+						SSX2 (41-49)	TIL			
+38	CALEVRSSASKIIF	TRAV19*01	TRAJ3*01	CSANPRTTLYEQYF	TRBV20-1*01		TRBJ2-7*01	HomoSapiens	HLA-B*18:01	B2M	MHCI	MEVDPIGHLY	MAGE-A3	HomoSapiens	PMID:32314731	multimer-sort			amplicon-seq	antigen-expressing-targets		CD8+						MAGE-A3 (167-176)	TIL			
+39	CVVRGMDSSYKLIF	TRAV10*01	TRAJ12*01	CATSSEDSSNQPQHF	TRBV15*02		TRBJ1-5*01	HomoSapiens	HLA-C*06:02	B2M	MHCI	HRRGSRSYV	gp100	HomoSapiens	PMID:32314731	multimer-sort			amplicon-seq	antigen-expressing-targets		CD8+						gp100 (190-198)	TIL			
+40	CVVSFSGNTPLVF	TRAV8-2*01	TRAJ29*01	CASSSSYSNQPQHF	TRBV7-9*03		TRBJ1-5*01	HomoSapiens	HLA-B*07:02	B2M	MHCI	APRGPHGGAASGL	NY-ESO-1	HomoSapiens	PMID:32314731	multimer-sort			amplicon-seq	antigen-expressing-targets		CD8+						NY-ESO-1 (60-72)	TIL			
+41	CALSESYSGAGSYQLTF	TRAV19*01	TRAJ28*01	CASSLASGSNQPQHF	TRBV7-9*01		TRBJ1-5*01	HomoSapiens	HLA-B*07:02	B2M	MHCI	RVRFFFPSL	MAGE-A1	HomoSapiens	PMID:32314731	multimer-sort			amplicon-seq	antigen-expressing-targets		CD8+						MAGE-A1	TIL			
+42	CILRDTVGSQGNLIF	TRAV26-2*01	TRAJ42*01	CASSESQGDYYGYTF	TRBV7-8*01		TRBJ1-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	VLNGTVHPV	ABCB5	HomoSapiens	PMID:32314731	multimer-sort			amplicon-seq	antigen-expressing-targets		CD8+						ABCB5 (700-708)	TIL			
+43	CAVYGGATNKLIF	TRAV1-2*01	TRAJ32*02	CASSPHAGGVDEKLFF	TRBV18*01		TRBJ1-4*01	HomoSapiens	HLA-B*18:01	B2M	MHCI	EEAAGIGIL	MART1	HomoSapiens	PMID:32314731	multimer-sort			amplicon-seq	antigen-expressing-targets		CD8+						MART1 (25-33)	TIL			
+44	CLVGDVEGSQGNLIF	TRAV4*01	TRAJ42*01	CASSHHSGGIYNEQFF	TRBV6-5*01		TRBJ2-1*01	HomoSapiens	HLA-C*05:01	B2M	MHCI	FQDYIKSYL	Tyrosinase	HomoSapiens	PMID:32314731	multimer-sort			amplicon-seq	antigen-expressing-targets		CD8+						Tyrosinase (460-468)	TIL			
+45	CAANSGNTPLVF	TRAV29/DV5*01	TRAJ29*01	CASSLMGGGNTIYF	TRBV2*01		TRBJ1-3*01	HomoSapiens	HLA-C*07:01	B2M	MHCI	RYGSFSVTL	gp100	HomoSapiens	PMID:32314731	multimer-sort			amplicon-seq	antigen-expressing-targets		CD8+						gp100 (479-487)	TIL			
+46				CASSIEFDRGAPTEQYF	TRBV19		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt8			MART-1 (27L) 26-35 	PBMC			
+47				CASSYRGQSNQPQHF	TRBV6-5		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt8			MART-1 (27L) 26-35 	PBMC			
+48				CASRWGQLTNYGYTF	TRBV19		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt8			MART-1 (27L) 26-35 	PBMC			
+49				CASRYQGLGQPQHF	TRBV28		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt8			MART-1 (27L) 26-35 	PBMC			
+50				CASSWSQLVHEQFF	TRBV28		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt8			MART-1 (27L) 26-35 	PBMC			
+51				CSAPDTGLGQPQHF	TRBV20-1		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt8			MART-1 (27L) 26-35 	PBMC			
+52				CASRDGTLSYNEQFF	TRBV6-5		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt8			MART-1 (27L) 26-35 	PBMC			
+53				CASSQGQLSSYNEQFF	TRBV10-1		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt8			MART-1 (27L) 26-35 	PBMC			
+54				CASSIAAVSLANYGYTF	TRBV19		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt22			MART-1 (27L) 26-35 	PBMC			
+55				CASSPGQGSPLHF	TRBV6-5		TRBJ1-6	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt22			MART-1 (27L) 26-35 	PBMC			
+56				CASSLLGGLEAFF	TRBV28		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt22			MART-1 (27L) 26-35 	PBMC			
+57				CASSFRGQNTEAFF	TRBV5-1		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt22			MART-1 (27L) 26-35 	PBMC			
+58				CASSQYEVQETQYF	TRBV3-1		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt22			MART-1 (27L) 26-35 	PBMC			
+59				CASSHQGVGQPQHF	TRBV28		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt22			MART-1 (27L) 26-35 	PBMC			
+60				CASSGQGMGYTF	TRBV5-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt22			MART-1 (27L) 26-35 	PBMC			
+61				CASTLTGLGQPQHF	TRBV28		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt22			MART-1 (27L) 26-35 	PBMC			
+62				CASIWAGLGQPQHF	TRBV28		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt22			MART-1 (27L) 26-35 	PBMC			
+63				CASSLQGMGQPQHF	TRBV28		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt22			MART-1 (27L) 26-35 	PBMC			
+64				CASSKPSGINEQFF	TRBV27		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt22			MART-1 (27L) 26-35 	PBMC			
+65				CSARSRGGGIETQYF	TRBV20-1		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt22			MART-1 (27L) 26-35 	PBMC			
+66				CASSVWADPNEAFF	TRBV9		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt15			MART-1 (27L) 26-35 	PBMC			
+67				CASRLATLVGNEQFF	TRBV6-5		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt15			MART-1 (27L) 26-35 	PBMC			
+68				CASRSGSLNTEAFF	TRBV6-5		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt15			MART-1 (27L) 26-35 	PBMC			
+69				CASSLTTPPSTDTQYF	TRBV27		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt15			MART-1 (27L) 26-35 	PBMC			
+70				CASRQQGLGSPLHF	TRBV28		TRBJ1-6	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt15			MART-1 (27L) 26-35 	PBMC			
+71				CASQSGFLSNSPLHF	TRBV19		TRBJ1-6	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt15			MART-1 (27L) 26-35 	PBMC			
+72				CASSYGDLYTGELFF	TRBV6-5		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt15			MART-1 (27L) 26-35 	PBMC			
+73				CASSLAGLADNEQFF	TRBV27		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt15			MART-1 (27L) 26-35 	PBMC			
+74				CASSLAWALQDEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt30			MART-1 (27L) 26-35 	PBMC			
+75				CAWSVQGLGYGYTF	TRBV30		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt30			MART-1 (27L) 26-35 	PBMC			
+76				CASSATGADQPQHF	TRBV4-2		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt30			MART-1 (27L) 26-35 	PBMC			
+77				CASSDYSNQPQHF	TRBV2		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt30			MART-1 (27L) 26-35 	PBMC			
+78				CSARAGNQPQHF	TRBV20-1		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt30			MART-1 (27L) 26-35 	PBMC			
+79				CSARAGAETQYF	TRBV20-1		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt30			MART-1 (27L) 26-35 	PBMC			
+80				CASTPPGSETQYF	TRBV28		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt38			MART-1 (27L) 26-35 	PBMC			
+81				CASSENQLMNTEAFF	TRBV25-1		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt38			MART-1 (27L) 26-35 	PBMC			
+82				CATSDQGGTEDEQFF	TRBV24-1		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt38			MART-1 (27L) 26-35 	PBMC			
+83				CAWSGGGGRVHEQYF	TRBV30		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt38			MART-1 (27L) 26-35 	PBMC			
+84				CAWSVPGLGQPQHF	TRBV30		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt38			MART-1 (27L) 26-35 	PBMC			
+85				CASSLQGLGTEAFF	TRBV28		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt38			MART-1 (27L) 26-35 	PBMC			
+86				CASSQQGLGTEAFF	TRBV28		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt38			MART-1 (27L) 26-35 	PBMC			
+87				CASSVQGLGQPQHF	TRBV28		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt38			MART-1 (27L) 26-35 	PBMC			
+88				CATSDSRQINTGELFF	TRBV24-1		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt38			MART-1 (27L) 26-35 	PBMC			
+89				CASSEGMGQPQHF	TRBV6-5		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt38			MART-1 (27L) 26-35 	PBMC			
+90				CASTYTSLAHNEQFF	TRBV6-1		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt38			MART-1 (27L) 26-35 	PBMC			
+91				CASSPGVLANEQYF	TRBV6-5		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt38			MART-1 (27L) 26-35 	PBMC			
+92				CATAPREDRVGNEAFF	TRBV3-2		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:20823160	tetramer-sort			sanger	antigen-loaded-targets		CD8+			Pt38			MART-1 (27L) 26-35 	PBMC			
+93	CAASLNTGKLIF	TRAV13-1*02	TRAJ37*01	CAILGQGYGYTF	TRBV10-3*02		TRBJ1-2*01	HomoSapiens	HLA-B*07:02	B2M	MHCI	APRGPHGGAASGL	NY-ESO	HomoSapiens	PMID:29531227	antigen-loaded-targets		yes	amplicon-seq	tetramer-sort		CD8+						NY-ESO-160–72	PBMC			
+94	CLVGEILDNFNKFYF	TRAV4*01	TRAJ21*01	CASSQRQEGDTQYF	TRBV28*01		TRBJ2-3*01	HomoSapiens	HLA-B*07:02	B2M	MHCI	APRGPHGGAASGL	NY-ESO	HomoSapiens	PMID:29531227	antigen-loaded-targets		yes	amplicon-seq	tetramer-sort		CD8+						NY-ESO-160–72	PBMC			6AVF
+95	CATGNDYKLSF	TRAV17*01	TRAJ20*01	CASQTFSPGQTQF	TRBV6-1*01		TRBJ2-7*01	HomoSapiens	HLA-B*07:02	B2M	MHCI	APRGPHGGAASGL	NY-ESO	HomoSapiens	PMID:29531227	antigen-loaded-targets		yes	amplicon-seq	tetramer-sort		CD8+						NY-ESO-160–72	PBMC			
+96	CLVVDQKLVF	TRAV4*01	TRAJ8*01	CASSGGHTGSNEQFF	TRBV9*01		TRBJ2-1*01	HomoSapiens	HLA-B*07:02	B2M	MHCI	APRGPHGGAASGL	NY-ESO	HomoSapiens	PMID:29531227	antigen-loaded-targets		yes	amplicon-seq	tetramer-sort		CD8+						NY-ESO-160–72	PBMC			6AVG
+97				CASSYGGGPEAFF	TRBV6		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+98				CASSFAANYEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+99				CASSFTGLGQPQHF	TRBV7		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+100				CASSLLPSGETQYF	TRBV27		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+101				CASSLGPSVYEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+102				CASSQGVLAGEQFF	TRBV4		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+103				CASSYGHFGSYGYTF	TRBV6		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+104				CASSLSTGFQETQYF	TRBV27		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+105				CASSITPLGGDGYTF	TRBV27		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+106				CASSYGAQGSYGYTF	TRBV6		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+107				CASSDDRGFDTGELFF	TRBV19		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+108				CASSSFLMTGLNEQFF	TRBV6		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+109				CASSGLGSGQPYEQYF	TRBV5		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+110				CASSQDELAASTDTQYF	TRBV4		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+111				CASSVGQSQPQHF	TRBV27		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							TIL			
+112				CASSSTGVGQPQHF	TRBV14		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							TIL			
+113				CASSMTGLGQPQHF	TRBV19		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							TIL			
+114				CSASVPGLGQPQHF	TRBV20		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							TIL			
+115				CASSFQGLGQPQHF	TRBV28		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							TIL			
+116				CASSQQGLGQPQHF	TRBV28		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							TIL			
+117				CASSLQGLGQPQHF	TRBV28		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							TIL			
+118				CASSIQGALGQPQHF	TRBV2		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							TIL			
+119				CASSFTGTFSYEQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							TIL			
+120				CASSLDAASVHYEQFF	TRBV11		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							TIL			
+121				CASSFGEGLVYNEQFF	TRBV28		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							TIL			
+122				CASRDPGGGGYEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							TIL			
+123				CASSQEALGGRVDTQYF	TRBV4		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12244204	tetramer-sort			sanger	antigen-loaded-targets		CD8+							TIL			
+124				CASPATGSNQPQF	TRBV4		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+125				CASSDSTASSEQFF	TRBV27		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+126				CASSPSQGGNTEAFF	TRBV27		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+127				CASSFSSGSPHEQFF	TRBV27		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+128				CASSSSGTSGVYEQF	TRBV28		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+129				CASSSTSGAQGDTQYF	TRBV27		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+130				CASSFGGLGTEAFF	TRBV28		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:16177129	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+131				CASSLSSLIVDTQYFF	TRBV27		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:16177129	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+132				CASSPGTLSDTQYFF	TRBV4		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:16177129	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+133				CASSQDRGGAETQYFF	TRBV4		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:16177129	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+134				CRPGPLAGYGYTFF	TRBV19		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:16177129	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+135				CSARDGLGELFFF	TRBV20		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:16177129	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+136				CSARAGVGGDTQYFF	TRBV20		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:16177129	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+137				CSARDGLGELFFF	TRBV20		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:16177129	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+138				CSAPRAGVGQPQHFF	TRBV20		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:16177129	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+139				CASSGQGVGNEQFF	TRBV7		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-expressing-targets		CD8+							PBMC			
+140				CASSRSPDTQYF	TRBV14		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-expressing-targets		CD8+							PBMC			
+141				CASRMIGYEQYF	TRBV3		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-expressing-targets		CD8+							PBMC			
+142				CASSDPTSPNEQFF	TRBV15		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-expressing-targets		CD8+							PBMC			
+143				CASALPGPITGSEAFF	TRBV2		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-expressing-targets		CD8+							PBMC			
+144				CASSTRDRGYEQYF	TRBV17		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-expressing-targets		CD8+							PBMC			
+145				CASSQEGGAFVDTQYF	TRBV14		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-expressing-targets		CD8+							PBMC			
+146				CASSLGAGIVETQYF	TRBV14		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-expressing-targets		CD8+							PBMC			
+147				CASSLLGGSTDTQYF	TRBV14		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-expressing-targets		CD8+							PBMC			
+148				CASASAQLGNTIYF	TRBV2		TRBJ1-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-expressing-targets		CD8+							PBMC			
+149				CASSLLGPGQPQHF	TRBV3		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12734356	tetramer-sort			sanger	antigen-expressing-targets		CD8+							PBMC			
+150				CASSRSPDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-expressing-targets		CD8+							PBMC			
+151				CASSPLSSVRLF	TRBV7		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+152				CASSERAGELFF	TRBV2		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+153				CSARDREDEKLFF	TRBV20		TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+154				CASSFGGSQPQHF	TRBV27		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+155				CASTLGQGQPQHF	TRBV3		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+156				CASSYSTGDGVHF	TRBV6		TRBJ1-6	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+157				CATSVSANTGELFF	TRBV9		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+158				CASSQEAGGETQYF	TRBV4		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+159				CASSLMASFETQYF	TRBV27		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+160				CASRGLAGAGEQYF	TRBV3		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+161				CASSYLGSGNEQFF	TRBV6		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+162				CASSPGLAYYEQYF	TRBV3		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+163				CASTPGPRDSPLHF	TRBV2		TRBJ1-6	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+164				CASSLLQGSDTQYF	TRBV27		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+165				CASSRGQGIDTQYF	TRBV7		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+166				CASSPEQGGQPQHF	TRBV4		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+167				CASSYDTLGTEAFF	TRBV6		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+168				CSASSGGAGVDTQYF	TRBV20		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+169				CASSVGGGNTGELFF	TRBV6		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+170				CASRLPGLSLNEQYF	TRBV6		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+171				CASSQESLAGNEQFF	TRBV4		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+172				CASSQVGMTTGELFF	TRBV3		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+173				CASSLMTAVYNSPLHF	TRBV12		TRBJ1-6	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+174				CSARDQLGLNTGELFF	TRBV20		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+175				CASSQIQGAVAGELFF	TRBV4		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+176				CAISESQVGVANTEAFF	TRBV10		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+177				CASSSAGGPHLRDEQFF	TRBV13		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+178				CASSPQRTSGRADEQFF	TRBV11		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+179				CASSLSGVTGVASYGYTF	TRBV27		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+180				CATSRAPGLAVTDTQTF	TRBV15		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+181				CASSFAALPGETEAFF	TRBV5		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+182				CASSQAHGLFSYEQYF	TRBV3		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+183	CGTETNTGNQFYF	TRAV29	TRAJ49	CASSLGRYNEQFF	TRBV8		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTA	gp100	HomoSapiens	PMID:12574392	antigen-loaded-targets,limiting-dilution-cloning			sanger	antigen-loaded-targets		CD8+						gp100280–288	PBMC			
+184	CAASTSGGTSYGKLTF	TRAV8	TRAJ52	CASSLGSSYEQYF	TRBV14		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTA	gp100	HomoSapiens	PMID:12574392	antigen-loaded-targets,limiting-dilution-cloning			sanger	antigen-loaded-targets		CD8+						gp100280–288	PBMC			
+185	CAVLSSGGSNYKLTF	TRAV21	TRAJ53	CASSFIGGTDTQYF	TRBV7-3		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTA	gp100	HomoSapiens	PMID:26917722	tetramer sort			sanger	antigen-loaded-targets		CD8+						gp100280–288	PBMC			5EU6
+186	CATDGDTPLVF	TRAV17	TRAJ29	CASSIGGPYEQYF	TRBV19		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTA	gp100	HomoSapiens	PMID:26917722	tetramer sort			sanger	antigen-loaded-targets		CD8+						gp100280–288	PBMC			
+187				CASSLRGNEQFF	TRBV11-3		TRBJ2-1	HomoSapiens	HLA-B*52:01	B2M	MHCI	YLAMPFATPMEAELARRSLA	NY-ESO-1	HomoSapiens	PMID:26291626	tetramer sort			amplicon-seq	antigen-loaded-targets		CD8+						NY-ESO-1 91–110	PBMC			
+188				CASSLVGTNIQYF	TRBV5-8		TRBJ2-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	YLAMPFATPMEAELARRSLA	NY-ESO-1	HomoSapiens	PMID:26291626	tetramer sort			amplicon-seq	antigen-loaded-targets		CD8+						NY-ESO-1 91–110	PBMC			
+189	CAVRPTSGGSYIPTF	TRAV21*01	TRAJ6*01	CASSYVGNTGELFF	TRBV6-5*01		TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLMWITQC	NY-ESO-1	HomoSapiens	PMID:18424733	multimer-sort			sanger	antigen-loaded-targets		CD8+						NY-ESO-1 157-165	PBMC			
+190	CAVNFGGGKLIF	TRAV12-2*01	TRAJ23*01	CASSLSFGTEAFF	TRBV6-4*01		TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	AAGIGILTV	MLANA	HomoSapiens	PMID:18424733	multimer-sort			sanger	antigen-loaded-targets		CD8+						MART-1 27-35	PBMC			
+191	CAGGTGNQFYF	TRAV35*02	TRAJ49*01	CAISEVGVGQPQHF	TRBV10-3		TRBJ1-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	AAGIGILTV	MLANA	HomoSapiens	PMID:18424733	multimer-sort			sanger	antigen-loaded-targets		CD8+						MART-1 27-35	PBMC			
+192	CAVTTDSWGKLQF	TRAV12-2*01	TRAJ24*02	CASRPGLAGGRPEQYF	TRBV6-5*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLFGYPVYV	Tax-1	HTLV	PMID:32184297	antigen-loaded-targets			amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
+193	CAAMEGAQKLVF	TRAV29/DV5*01	TRAJ54	CASSYPGGGFYEQYF	TRBV6-5*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLFGYPVYV	Tax-1	HTLV	PMID:32184297	antigen-loaded-targets			amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
+194	CAVRPTSGGSYIPTF	TRAV21*01	TRAJ6*01	CASSYVGNTGELFF	TRBV6-5*01		TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLMWITQC	NY-ESO-1	HomoSapiens	PMID:32184297	antigen-loaded-targets			amplicon-seq	antigen-loaded-targets		CD8+						NY-ESO-1 157-165	PBMC			
+195	CAVNFGGGKLIF	TRAV12-2*01	TRAJ23*01	CASSLSFGTEAFF	TRBV6-4*01		TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	AAGIGILTV	MLANA	HomoSapiens	PMID:32184297	antigen-loaded-targets			amplicon-seq	antigen-loaded-targets		CD8+						MART-1 27-35	PBMC			
+196	CAVRPGGAGPFFVVF	TRAV21*01	TRAJ28*01	CASSFNMATGQYF	TRBV5-1*01		TRBJ2-7*01	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGE-A3	HomoSapiens	PMID:14568971	tetramer sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+197				CASSIIGQRVEAFF	TRBV7-9	TRBD1-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+198				CASSLSMGQVYTEAFF	TRBV27-1*01	TRBD1-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+199				CATSTRDTGNEQFF	TRBV24	TRBD1-1*01	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+200				CASSLRSGHQETQYF	TRBV7-2*01	TRBD2-1	TRBJ2-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+201				CASSLSGAGGETQYF	TRBV5-1*01		TRBJ2-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+202				CASSSGDAGELFF	TRBV11-3*01	TRBD2-1*02	TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+203				CASSRWTNEQFF	TRBV11-2*02	TRBD2-1	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+204				CASISNGGGPEQFF	TRBV7-9		TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+205				CASSSYRRGQGYGYTF	TRBV9-1	TRBD1-1*01	TRBJ1-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+206				CSATTRRASYEQYF	TRBV20	TRBD2-1	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+207				CASSANRFLNTEAFF	TRBV5-4*01	TRBD1-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+208				CASSDLGLAGGMETGEQYF	TRBV25	TRBD2-1*02	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+209				CASSPLGVVTGELFF	TRBV6		TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+210				CATRMAGEGSEAFF	TRBV18-1*01	TRBD2-1	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+211				CASSPRQGRLGEKLFF	TRBV4-2*01		TRBJ1-4*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+212				CASSQEREVQGDTQYF	TRBV4-1*01	TRBD1-1*01	TRBJ2-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+213				CAISESSREDQETQYF	TRBV10-3*01	TRBD2-1*02	TRBJ2-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+214				CASSLRQSTDTQYF	TRBV28-1*01		TRBJ2-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+215				CASSSAGWVNTEAFF	TRBV27-1*01	TRBD1-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+216				CASSYFDSGKFAGELFF	TRBV6	TRBD2-1*02	TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L947Y				
+217				CASTPLSNQPQHF	TRBV6-6	TRBD2-1	TRBJ1-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L947Y				
+218				CASSIIGQRVEAFF	TRBV21-1*01	TRBD2-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L947Y				
+219				CASSDVSGNTIYF	TRBV19-1		TRBJ1-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L947Y				
+220				CASSHQDRASYEQYF	TRBV4-1*01	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L947Y				
+221				CASSLGVDSQETQYF	TRBV11-2*02	TRBD1-1*01	TRBJ2-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+222				CASSLLTSSTDTQYF	TRBV12	TRBD2-1	TRBJ2-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+223				CASSQETGTGGPDTQYF	TRBV14-1*01	TRBD1-1*01	TRBJ2-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+224				CASSTGGWQPQHF	TRBV27-1*01	TRBD1-1*01	TRBJ1-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+225				CASSILATSTDTQYF	TRBV19-1	TRBD2-1	TRBJ2-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+226				CASSPVLNTGELFF	TRBV27-1*01	TRBD1-1*01	TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+227				CASSILASSTDTQYF	TRBV19-1	TRBD2-1	TRBJ2-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+228				CASSTLAASTDTQYF	TRBV19-1	TRBD2-1	TRBJ2-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+229				CASSLRRQSGDTQYF	TRBV27-1*01	TRBD2-1*01	TRBJ2-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+230				CASSQGPYNEQFF	TRBV4-2*01	TRBD1-1*01	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+231				CASSRLRGSNQPQHF	TRBV18-1*01	TRBD1-1*01	TRBJ1-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLRSLENV	GCN1L1	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			GCN1L1 P274L				
+232				CASSLRRTATYEQYF	TRBV18-1*01	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLRSLENV	GCN1L1	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			GCN1L1 P274L				
+233				CASSTSGREETQYF	TRBV9-1	TRBD2-1*02	TRBJ2-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLRSLENV	GCN1L1	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			GCN1L1 P274L				
+234				CASSPSLGSSYEQYF	TRBV5-4*01	TRBD2-1	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLVDLAEEL	CDKN2A	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			CDKN2A P114L				
+235				CSASLGGEQFF	TRBV20-1*01	TRBD2-1*02	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RMWDFDIFL	PDE7B	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PDE7B G113R				
+236				CASTEGSVTEAFF	TRBV7-9		TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RMWDFDIFL	PDE7B	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PDE7B G113R				
+237				CASSEGVYEQYF	TRBV6-1*01	TRBD2-1*02	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	WVLALFDEV	POGK	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			POGK P46L				
+238				CAWTRLGIREQYF	TRBV30-1*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	WVLALFDEV	POGK	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			POGK P46L				
+239				CASSYFDSGKFAGELFF	TRBV6	TRBD2-1*02	TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L974F				
+240				CASTPLSNQPQHF	TRBV6-6	TRBD2-1	TRBJ1-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L974F				
+241				CASTPLSNQPQHF	TRBV6-5*01	TRBD2-1	TRBJ1-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L974F				
+242				CASFQLDTGELFF	TRBV7-9	TRBD2-1	TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L974F				
+243				CASSFLTGDEQYF	TRBV5-4*01	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L974F				
+244				CASSIIGQRVEAFF	TRBV7-9	TRBD1-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L974F				
+245				CASSILRDGGEAFF	TRBV21-1*01	TRBD2-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L974F				
+246				CASSYGTYGELFF	TRBV6-5*01	TRBD1-1*01	TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L974F				
+247				CASSDVSGNTIYF	TRBV19-1		TRBJ1-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L974F				
+248				CASSHQDRASYEQYF	TRBV4-1*01	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L974F				
+249				CASSGTGNNEQFF	TRBV4-1*01	TRBD2-1	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L974F				
+250				CASSELGGGPYEQYF	TRBV27-1*01	TRBD2-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L974F				
+251				CASSVGTSPRSYNEQFF	TRBV9-1	TRBD2-1	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RLSDFSEQL	AKAP9	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			AKAP9 L974F				
+252				CASSETLDLFYEQYF	TRBV12	TRBD2-1	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+253				CASSIGQGLRNIQYF	TRBV19-1	TRBD1-1*01	TRBJ2-4*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+254				CSARSVQGFYEQYF	TRBV20		TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+255				CASSGGTSVQETQYF	TRBV7-9	TRBD2-1	TRBJ2-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+256				CASSLYREYPDTQYF	TRBV28-1*01	TRBD2-1*02	TRBJ2-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+257				CASSPRITGSYEQYF	TRBV28-1*01	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+258				CSASDYGYTF	TRBV20-1*01	TRBD2-1	TRBJ1-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+259				CASSLGQGLREQYF	TRBV5-1*01	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+260				CASSPTPGQGDTGELFF	TRBV9-1	TRBD1-1*01	TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+261				CASSSTGGPEAFF	TRBV7-8*01	TRBD2-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+262				CASRPRRTGGPWEQFF	TRBV21-1*01	TRBD2-1*02	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+263				CASSLAGRGNEQFF	TRBV27-1*01	TRBD2-1*02	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+264				CATSGLQGDYSNYGYTF	TRBV15-1*01	TRBD1-1*01	TRBJ1-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+265				CATSDLSGFTDTQYF	TRBV24	TRBD2-1	TRBJ2-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+266				CASNPSGRNYEQYF	TRBV27-1*01	TRBD2-1*02	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+267				CSVEMQNYNEQFF	TRBV29-1*01		TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+268				CASSPLAGAFSEQYF	TRBV18-1*01	TRBD2-1*02	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLHGFSFYL	PORCN	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PORCN H346Y				
+269				CAISDVSSYNEQFF	TRBV10-3*01	TRBD2-1*02	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+270				CASSRDPSDGSTQYF	TRBV19-1	TRBD2-1	TRBJ2-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+271				CSVDRTSGNTEAFF	TRBV29-1*01		TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+272				CASSPGQGYYNEQFF	TRBV23-1*01	TRBD1-1*01	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+273				CASSQGTGGGEQFF	TRBV4-3*01	TRBD1-1*01	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+274				CASSQAVYNEQFF	TRBV4-2*01	TRBD2-1	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+275				CASSHRGADFYNEQFF	TRBV14-1*01	TRBD2-1*01	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+276				CSARDWGRATGELFF	TRBV20	TRBD2-1*02	TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+277				CASSPLAGDVNEQFF	TRBV27-1*01	TRBD2-1*02	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+278				CASSLADRGGSTGELFF	TRBV27-1*01	TRBD1-1*01	TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+279				CASSLGAGDADTQYF	TRBV5-1*01	TRBD2-1*02	TRBJ2-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YILKYSVFL	ZDBF2	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			ZDBF2 S228L				
+280				CASSFSSFYGYTF	TRBV12		TRBJ1-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLRSLENV	GCN1L1	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			GCN1L1 P247L				
+281				CASSTSGREETQYF	TRBV9-1	TRBD2-1*02	TRBJ2-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLRSLENV	GCN1L1	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			GCN1L1 P247L				
+282				CAWTIGTTRENIQYF	TRBV30-1*01		TRBJ2-4*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLRSLENV	GCN1L1	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			GCN1L1 P247L				
+283				CASSASGREETQYF	TRBV9-1	TRBD2-1*02	TRBJ2-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLRSLENV	GCN1L1	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			GCN1L1 P247L				
+284				CASSRLRGSNQPQHF	TRBV18-1*01	TRBD1-1*01	TRBJ1-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLRSLENV	GCN1L1	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			GCN1L1 P247L				
+285				CASSLRRTATYEQYF	TRBV18-1*01	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLRSLENV	GCN1L1	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			GCN1L1 P247L				
+286				CASSPSRQITYEQYF	TRBV18-1*01	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLRSLENV	GCN1L1	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			GCN1L1 P247L				
+287				CASSPYRGLREQYF	TRBV18-1*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLRSLENV	GCN1L1	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			GCN1L1 P247L				
+288				CASSRGRSQPQHF	TRBV18-1*01	TRBD2-1	TRBJ1-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLRSLENV	GCN1L1	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			GCN1L1 P247L				
+289				CASQRGRSYEQYF	TRBV2-1*01	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLRSLENV	GCN1L1	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			GCN1L1 P247L				
+290				CASSPGRSYEQYF	TRBV18-1*01	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLRSLENV	GCN1L1	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			GCN1L1 P247L				
+291				CASSSSGREETQYF	TRBV9-1	TRBD2-1*02	TRBJ2-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLRSLENV	GCN1L1	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			GCN1L1 P247L				
+292				CATSGLRSYNEQFF	TRBV15-1*01	TRBD2-1	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLRSLENV	GCN1L1	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			GCN1L1 P247L				
+293				CASSPTRGNTEAFF	TRBV7-9	TRBD1-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	RMWDFDIFL	PDE7B	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			PDE7B G113R				
+294				CASSFVAGIAEAFF	TRBV12	TRBD1-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	WVLALFDEV	POGK	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			POGK P46L				
+295				CASSHRGDSNQPQHF	TRBV7-2*01	TRBD1-1*01	TRBJ1-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			G209-2M				
+296				CASSPREYGYEQYF	TRBV7-6*01	TRBD2-1*02	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			G209-2M				
+297				CASSPGLRYGYTF	TRBV19-1	TRBD2-1	TRBJ1-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			G209-2M				
+298				CASTSIVQGRLLETQYF	TRBV6		TRBJ2-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			G209-2M				
+299				CASSLLRGSEAFF	TRBV28-1*01	TRBD1-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			G209-2M				
+300				CASSPGLAVYEQYF	TRBV3	TRBD2-1	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			G209-2M				
+301				CSVEPISSYNEQFF	TRBV29-1*01	TRBD2-1	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			G209-2M				
+302				CASSIDLGTEAFF	TRBV19-1		TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			G209-2M				
+303				CASLPQGPYGYTF	TRBV28-1*01		TRBJ1-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			G209-2M				
+304				CASSHGGSFHEQYF	TRBV23-1*01	TRBD2-1*02	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			G209-2M				
+305				CASSQDRNEQFF	TRBV27-1*01	TRBD1-1*01	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			G209-2M				
+306				CATSENGQGETQYF	TRBV24	TRBD1-1*01	TRBJ2-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			G280-9V				
+307				CASSVGVYNEQFF	TRBV9-1	TRBD2-1*02	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			G280-9V				
+308				CASSLTGYGYTF	TRBV5-1*01	TRBD1-1*01	TRBJ1-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL66			G280-9V				
+309				CASSKAWTAYNQPQHF	TRBV21-1*01		TRBJ1-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	VLDGFIPGT	MPV17	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL69			MPV17 R75G				
+310				CASSVGGQGWNTIYF	TRBV9-1	TRBD1-1*01	TRBJ1-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	VLDGFIPGT	MPV17	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL69			MPV17 R75G				
+311				CASSFAPPSANLRVFF	TRBV11-3*01	TRBD2-1*02	TRBJ1-4*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	VLDGFIPGT	MPV17	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL69			MPV17 R75G				
+312				CASSESGQTYNEQFF	TRBV2-1*01	TRBD1-1*01	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	VLDGFIPGT	MPV17	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL69			MPV17 R75G				
+313				CASSPSGSAYEQYF	TRBV19-1	TRBD2-1*02	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+314				CASSLLGGTEAFF	TRBV3	TRBD1-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+315				CASSVFLGTEAFF	TRBV10-2*01		TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+316				CASSELTGGKQYF	TRBV10-2*01	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+317				CASSELGGEQFF	TRBV10-2*01		TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+318				CASSVLGGDTQYF	TRBV10-2*01	TRBD2-1*01	TRBJ2-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+319				CASSKVALIYPSPTYEQYV	TRBV21-1*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+320				CASSILEGTEAFF	TRBV19-1		TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+321				CASSESMRGEQYV	TRBV10-2*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+322				CASSLLEGTEAFF	TRBV19-1	TRBD2-1*02	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+323				CASSIVGGTEAFF	TRBV19-1	TRBD2-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+324				CASSFAGGRTEAFF	TRBV11-2*02		TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+325				CASSEMGGTEAFF	TRBV10-2*01	TRBD2-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+326				CAISELEGTEAFF	TRBV10-3*01	TRBD2-1*02	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+327				CASSDLLGNEQFF	TRBV10-2*01		TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+328				CAISEMGGTEAFF	TRBV10-3*01	TRBD2-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+329				CASSILQGTEAFF	TRBV27-1*01	TRBD1-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+330				CASSGLLGHEQYF	TRBV10-2*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+331				CASSFPRGTEAFF	TRBV12	TRBD1-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+332				CASSELQGGEAFF	TRBV10-2*01		TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+333				CASSFMQGTEAFF	TRBV27-1*01	TRBD1-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	IMDQVPFSV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G209-2M				
+334				CASSVAASPSGNTIYF	TRBV9-1		TRBJ1-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+335				CASSIALGGYTF	TRBV19-1		TRBJ1-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+336				CASSSGPSYEQYF	TRBV12		TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+337				CASSRTGITDTQYF	TRBV3	TRBD1-1*01	TRBJ2-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+338				CASSLIPGVTGELFF	TRBV12	TRBD2-1*01	TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+339				CASSLQGAGNTIYF	TRBV12	TRBD1-1*01	TRBJ1-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+340				CASSVDGVLYNSPLHF	TRBV9-1	TRBD2-1*01	TRBJ1-6*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+341				CASSQEQGLSEKLFF	TRBV4-3*01	TRBD1-1*01	TRBJ1-4*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+342				CASSIGPVNTEAFF	TRBV19-1	TRBD1-1*01	TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+343				CATSDPRGYGYTF	TRBV24	TRBD2-1*02	TRBJ1-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+344				CASSLGGAYEQYF	TRBV12	TRBD2-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+345				CASSWTVRQPQHF	TRBV12	TRBD2-1	TRBJ1-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+346				CASSQGVNQPQHF	TRBV4-2*01		TRBJ1-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+347				CASSQGGAYEQYF	TRBV4-1*01	TRBD2-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+348				CASSAGVAYEQYV	TRBV19-1	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+349				CASSVGGSSYEQYF	TRBV9-1	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+350				CATSDNRGYGYTF	TRBV24	TRBD1-1*01	TRBJ1-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+351				CAWSAGRPYEQYF	TRBV30-1*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+352				CASSVAAGSSYEQYF	TRBV9-1	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+353				CATSDSRGYGYTF	TRBV24	TRBD2-1*01	TRBJ1-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+354				CASSLGQGAVYEQYV	TRBV6-5*01	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+355				CASSVSGGLAVYEQYF	TRBV9-1	TRBD2-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+356				CASSAYPSPTVDTQYF	TRBV9-1	TRBD2-1	TRBJ2-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+357				CASSIGAPYEQYF	TRBV19-1	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+358				CASSISPSGGTYEQYF	TRBV9-1	TRBD2-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+359				CASSYSVNYGYTF	TRBV6	TRBD2-1	TRBJ1-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
+360				CASSVGAGVAYEQYF	TRBV9-1	TRBD1-1*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:31685621	dextramer-sort			amplicon-seq			CD8+			MEL21			G280-9V				
