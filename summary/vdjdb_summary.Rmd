@@ -69,7 +69,7 @@ paste("Last updated on", format(Sys.time(), '%d %B, %Y'))
 
 General statistics. Note that general statistics is computed using the 'slim' database version. This version, for example, lists the same TCR sequence found in several samples/studies only once.
 
-```{r warning=FALSE}
+```{r warning=FALSE, message=FALSE}
 df.sg = df %>% 
   group_by(species, gene) %>%
   summarize(records = length(complex.id), 
@@ -109,7 +109,7 @@ pm_data = content(GET("https://eutils.ncbi.nlm.nih.gov/",
                       query = list(db = "pubmed", 
                                    id = paste0(ids,collapse = ","))))
 
-write_xml(pm_data, "dates.xml")
+invisible(write_xml(pm_data, "dates.xml"))
 pm_data_2 = readLines("dates.xml")
 tmp=file.remove("dates.xml")
 
@@ -147,9 +147,13 @@ Number of unique TCR sequences, epitopes, MHC alleles and publications by **publ
 
 ```{r message=FALSE,warning=FALSE}
 dt.vdjdb.s2 = dt.vdjdb.s %>%
-  as.data.frame %>%
-  merge(dt.pubdate) %>%
-  merge(data.table(pub_date2 = unique(dt.pubdate$pub_date)), allow.cartesian = T) %>%
+  merge(dt.pubdate %>% mutate(pub_date = pub_date %>% as.integer), 
+        by = "reference.id",
+        allow.cartesian = T) %>%
+  merge(expand.grid(pub_date = unique(dt.pubdate$pub_date) %>% as.integer,
+                    pub_date2 = unique(dt.pubdate$pub_date) %>% as.integer), 
+        by = "pub_date",
+        allow.cartesian = T) %>%
   group_by(pub_date2, chains) %>%
   summarise(tcr_count = length(unique(tcr_key[which(pub_date <= pub_date2)])),
             epi_count = length(unique(antigen.epitope[which(pub_date <= pub_date2)])),
@@ -221,7 +225,7 @@ grid.arrange(arrangeGrob(p1 + theme(legend.position="none"),
 
 Representative data for Homo Sapiens
 
-```{r warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 df.a = df %>% 
   filter(species == "HomoSapiens") %>%
   group_by(antigen.species) %>% #, antigen.gene) %>%
@@ -239,7 +243,7 @@ kable(format = "html", df.a)
 
 Summary of antigens and T-cell receptors related to COVID-19 pandemic.
 
-```{r warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 df %>% 
   filter(species == "HomoSapiens", 
          startsWith(as.character(antigen.species), "SARS-CoV")) %>%
@@ -278,7 +282,7 @@ kable(format = "html", df.c)
 
 Representative data for Homo Sapiens
 
-```{r warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 df.m = df %>% 
   as.tibble %>%
   filter(species == "HomoSapiens") %>%
@@ -301,7 +305,7 @@ kable(format = "html", df.m)
 
 Legend: 0 - low confidence, 1 - medium confidence, 2 - high confidence, 3 - very high confidence.
 
-```{r warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 df.score <- df %>%
   group_by(mhc.class, gene, vdjdb.score) %>%
   summarize(total = n())
@@ -318,7 +322,7 @@ ggplot(df.score, aes(x=paste(mhc.class, gene, sep = " "), y=total, fill = as.fac
 
 Representative data for Homo Sapiens. The spectratype is colored by epitope.
 
-```{r warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 df.spe = subset(df, species=="HomoSapiens")
 
 ggplot(df.spe, 
@@ -335,7 +339,7 @@ ggplot(df.spe,
 
 Representative data for Homo Sapiens, Variable gene. Only Variable genes and MHC alleles with at least 10 records are shown.
 
-```{r warning=FALSE, fig.height=10, fig.width=6}
+```{r message=FALSE, warning=FALSE, fig.height=10, fig.width=6}
 df.vhla = df %>% 
   as.tibble %>%
   filter(species == "HomoSapiens" ) %>%
