@@ -67,18 +67,18 @@ paste("Last updated on", format(Sys.time(), '%d %B, %Y'))
 
 #### Record statistics by species and TCR chain
 
-General statistics. Note that general statistics is computed using the 'slim' database version. This version, for example, lists the same TCR sequence found in several samples/studies only once.
+General statistics. Note that general statistics are computed using the 'slim' database version. Slim version, for example, lists the same TCR sequence found in several donors/studies only once and selects representative V/J for a given CDR3aa clonotype and the best score across all redundant records.
 
 ```{r warning=FALSE, message=FALSE}
 df.sg = df %>% 
   group_by(species, gene) %>%
   summarize(records = length(complex.id), 
-            paired.records = sum(ifelse(complex.id=="0",0,1)),
+            paired.records = sum(ifelse(complex.id=="0", 0, 1)),
             epitopes = length(unique(antigen.epitope)),
             publications = length(unique(str_split_fixed(reference.id, ",", n = Inf)[,1]))) %>%
   arrange(species, gene)
 
-colnames(df.sg) = c("Species", "Chain", "Records", "Paired records", "Unique epitopes", "Publications")
+colnames(df.sg) = c("Species", "Chain", "Records", "Paired records", "Unique epitopes", "Studies")
 
 kable(format = "html", df.sg)
 ```
@@ -131,7 +131,9 @@ dt.pubdate = rbind(dt.pubdate,
                                   "https://github.com/antigenomics/vdjdb-db/issues/313",
                                   "https://github.com/antigenomics/vdjdb-db/issues/312",
                                   "https://github.com/antigenomics/vdjdb-db/issues/311",
-                                  "https://github.com/antigenomics/vdjdb-db/issues/315"),
+                                  "https://github.com/antigenomics/vdjdb-db/issues/315",
+                                  "https://github.com/antigenomics/vdjdb-db/issues/323",
+                                  "https://github.com/antigenomics/vdjdb-db/issues/326"),
                               pub_date = c(2019, 
                                            2014, 
                                            2019, 
@@ -140,10 +142,12 @@ dt.pubdate = rbind(dt.pubdate,
                                            2020,
                                            2020,
                                            2020,
-                                           2020) %>% as.character, stringsAsFactors = F))
+                                           2020,
+                                           2021,
+                                           2021) %>% as.character, stringsAsFactors = F))
 ```
 
-Number of unique TCR sequences, epitopes, MHC alleles and publications by **publication** year, cumulative plots.
+Number of unique TCR sequences, epitopes, MHC alleles and studies by **publication** year, cumulative plots.
 
 ```{r message=FALSE,warning=FALSE}
 dt.vdjdb.s2 = dt.vdjdb.s %>%
@@ -166,7 +170,7 @@ p1=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = tcr_count, color = cha
   ylab("") +
   scale_x_continuous("", breaks = seq(1995, 2021, by =2)) +
   scale_color_brewer(palette = "Set1") +
-  theme_pubclean() + ggtitle("Number of unique TCR sequences") +
+  theme_pubclean() + ggtitle("Number of unique TCRs") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
 
 p2=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = epi_count, color = chains)) +
@@ -184,7 +188,7 @@ p3=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = ref_count, color = cha
   ylab("") +
   scale_x_continuous("", breaks = seq(1995, 2021, by =2)) +
   scale_color_brewer(palette = "Set1") +
-  theme_pubclean() + ggtitle("Number of publications") +
+  theme_pubclean() + ggtitle("Number of studies") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
 
 p4=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = mhc_count, color = chains)) +
@@ -235,7 +239,7 @@ df.a = df %>%
   arrange(-records)
 
 colnames(df.a) = c("Parent species", #"Parent gene",
-                   "Records", "Unique epitopes", "Publications")
+                   "Records", "Unique epitopes", "Studies")
 kable(format = "html", df.a)
 ```
 
@@ -247,35 +251,44 @@ Summary of antigens and T-cell receptors related to COVID-19 pandemic.
 df %>% 
   filter(species == "HomoSapiens", 
          startsWith(as.character(antigen.species), "SARS-CoV")) %>%
-  group_by(antigen.species, antigen.gene, mhc.a, antigen.epitope, gene) %>%
+  mutate(mhc.a = str_split_fixed(mhc.a, "[,:]", 2)[,1]) %>%
+  group_by(antigen.gene, mhc.a, antigen.epitope) %>%
+  mutate(publications = length(unique(str_split_fixed(reference.id, ",", n = Inf)[,1]))) %>%
+  group_by(antigen.gene, mhc.a, antigen.epitope, gene, publications) %>%
   summarize(records = n()) -> df.c
 
-colnames(df.c) = c("Strain", "Gene", "HLA", "Epitope", "TCR chain",
+colnames(df.c) = c("Gene", "HLA", "Epitope", "TCR chain",
+                   "Studies",
                    "Records")
 
-ggplot(df.c %>% ungroup %>% arrange(Records),
-       aes(axis1 = Strain,
-           axis2 = Gene,
-           axis3 = gsub("HLA-", "", HLA),
-           axis4 = substr(Epitope,1,3),
-           axis5 = `TCR chain`,
+ggplot(df.c %>% 
+         ungroup %>% arrange(Records) %>% filter(Records >= 10),
+       aes(axis1 = Gene,
+           axis2 = gsub("HLA-", "", HLA),
+           axis3 = substr(Epitope,1,3),
+           axis4 = `TCR chain`,
            y = log2(Records))) +
-  geom_alluvium(aes(fill = Epitope), 
-                color = "grey50") +
-  geom_stratum(fill = "grey50", color = "grey30") +
-  geom_label(stat = "stratum", label.strata = T,
-             label.size = 0, fill = "grey30", 
-             color = "white") +
+  geom_alluvium(aes(fill = paste(Gene, HLA)), 
+                color = "grey50", alpha = 0.8) +
+  geom_stratum(fill = "grey90", color = "grey50") +
+  #geom_label(stat = "stratum", label.strata = T,
+  #           #label.size = 0, 
+  #           fill = "grey30", 
+  #           #color = "white"
+  #           ) +
   theme_pubclean() +
-  scale_fill_brewer(guide = F, palette = "Spectral") +
+  scale_fill_discrete("") +
   ylab("") +
-  scale_x_discrete(limits = c("Strain", "Gene", "HLA", "Epitope", "TCR chain"),
+  scale_x_discrete(limits = c("Gene", "HLA", "Epitope", "TCR chain"),
                    expand = c(.1, .1)) +
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
-        panel.grid.major.y = element_blank())
+        panel.grid.major.y = element_blank(),
+        legend.position = "bottom")
 
-kable(format = "html", df.c)
+kable(format = "html", 
+      df.c %>% dcast(Gene + HLA + Epitope + Studies ~ `TCR chain`, fill = 0) %>%
+        arrange(-(TRB+TRA)))
 ```
 
 #### Summary by MHC alleles
@@ -297,7 +310,7 @@ df.m = df %>%
             publications = length(unique(str_split_fixed(reference.id, ",", n = Inf)[,1]))) %>%
   arrange(-records)
   
-colnames(df.m) = c("First chain", "Second chain", "Records", "Unique epitopes", "Publications")
+colnames(df.m) = c("First chain", "Second chain", "Records", "Unique epitopes", "Studies")
 kable(format = "html", df.m)
 ```
 
@@ -436,6 +449,22 @@ dt.vdjdb.s2 %>%
   filter(pub_date2 == max(pub_date2)) %>%
   .$tcr_count %>%
   sum
+```
+
+Same for COVID
+
+```{r}
+df %>%
+  filter(species == "HomoSapiens", 
+         startsWith(as.character(antigen.species), "SARS-CoV")) %>%
+  nrow()
+
+df %>%
+  filter(species == "HomoSapiens", 
+         startsWith(as.character(antigen.species), "SARS-CoV")) %>%
+  .$antigen.epitope %>%
+  unique %>% 
+  length
 ```
 
 ```{r}

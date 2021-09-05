@@ -49,4 +49,4 @@ cp ../latest-version.txt vdjdb-$DD/
 
 zip -rj vdjdb-$DD.zip vdjdb-$DD/
 
-echo "scp `hostname`.cdr3.net:`pwd`/vdjdb-$DD.zip ."
+echo "scp `hostname`:`pwd`/vdjdb-$DD.zip ."
