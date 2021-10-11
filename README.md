@@ -15,7 +15,7 @@ In addition to routine database updates providing the most up-to-date informatio
 
 This repository hosts the submissions to database and scripts to check, fix and build the database itself.
 
-To build database directly from submissions, go to ``src`` directory and run ``groovy -cp . BuildDatabase.groovy`` script (requires [Groovy](http://www.groovy-lang.org/)).
+To build database directly from submissions, go to ``src`` directory and run ``groovy -cp . BuildDatabase.groovy`` script (requires [Groovy](http://www.groovy-lang.org/) and [biopython](https://biopython.org/)).
 
 To query the database for your immune repertoire sample(s) use the [vdjmatch](https://github.com/antigenomics/vdjmatch) software.
 
