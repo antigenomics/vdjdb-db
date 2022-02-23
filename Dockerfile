@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 # Fix certificate issues
 RUN apt-get update && \
@@ -9,7 +9,7 @@ RUN apt-get update && \
 # `openjdk-8`
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends software-properties-common
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EB9B1D8886F44E2A
+# RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EB9B1D8886F44E2A
 RUN add-apt-repository -y ppa:openjdk-r/ppa
 RUN apt-get update
 
@@ -29,7 +29,7 @@ RUN update-alternatives --config javac
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 RUN export JAVA_HOME
 
-RUN apt install wget
+RUN apt-get install -y wget
 
 # gradle version
 # Gradle 5.1.1!
@@ -52,6 +52,23 @@ RUN curl -s "https://get.sdkman.io" | bash
 RUN source "$HOME/.sdkman/bin/sdkman-init.sh" && \
     sdk install groovy 3.0.9
 
+# needed for R 
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update \
+        && apt-get install -y --no-install-recommends \
+         r-base \
+         r-base-dev \
+         r-recommended
+
+# 'knitr', 'htmltools', 'jquerylib', 'stringr' are not available for package 'rmarkdown'
+RUN Rscript -e 'install.packages("rmarkdown", repos = "http://cran.us.r-project.org")'
+
+RUN apt-get install -y pandoc
+
+RUN touch .RProfile
+RUN echo 'library("rmarkdown")' >> .RProfile
+
 RUN touch docker.sh
 RUN echo '# /bin/sh' >> docker.sh
 RUN echo '[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"' >> docker.sh
@@ -59,7 +76,7 @@ RUN echo 'git clone https://github.com/antigenomics/vdjdb-db' >> docker.sh
 RUN echo 'cd vdjdb-db/' >> docker.sh
 RUN echo 'bash release.sh' >> docker.sh
 RUN echo 'mkdir -p /root/output' >> docker.sh
-RUN echo 'cp vdjdb-*zip /root/output/' >> docker.sh
+RUN echo 'cp -r * /root/output/' >> docker.sh
 
 CMD [ "bash", "docker.sh" ]
 
