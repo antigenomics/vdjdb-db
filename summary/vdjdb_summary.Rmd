@@ -247,7 +247,7 @@ kable(format = "html", df.a)
 
 Summary of antigens and T-cell receptors related to COVID-19 pandemic. Number of records for SARS-CoV-2 epitopes grouped by Gene+HLA plotted using alluvium plot. Epitopes with less than 10 records in total were not counted.
 
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, fig.width=11.5, fig.width=11.5}
 df %>% 
   filter(species == "HomoSapiens", 
          startsWith(as.character(antigen.species), "SARS-CoV")) %>%
@@ -269,22 +269,32 @@ ggplot(df.c %>%
            axis4 = `TCR chain`,
            y = log2(Records))) +
   geom_alluvium(aes(fill = paste(Gene, HLA)), 
-                color = "grey50", alpha = 0.8) +
-  geom_stratum(fill = "grey90", color = "grey50") +
+                color = "white", 
+                alpha = 0.7,
+                curve_type = "sigmoid") +
+  geom_stratum(fill = "white", 
+               color = "grey75") +
+  geom_text(stat = "stratum",
+            aes(label = after_stat(stratum))) +
   #geom_label(stat = "stratum", label.strata = T,
   #           #label.size = 0, 
   #           fill = "grey30", 
   #           #color = "white"
   #           ) +
   theme_pubclean() +
-  scale_fill_discrete("") +
-  ylab("") +
+  scale_fill_discrete(guide=F, "") +
+  #scale_fill_viridis_d(guide=F, "") +
+  ylab("") + 
   scale_x_discrete(limits = c("Gene", "HLA", "Epitope", "TCR chain"),
-                   expand = c(.1, .1)) +
+                   expand = c(.1, .1),
+                   position = "top") +
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
+        axis.text.x =  element_text(size = 16),
+        axis.ticks.x = element_blank(),
         panel.grid.major.y = element_blank(),
-        legend.position = "bottom")
+        legend.position = "bottom") #+ 
+  #guides(fill=guide_legend(nrow=4, byrow=TRUE))
 ```
 
 Summary of SARS-CoV-2 epitopes and corresponding TCR alpha and beta chain specificity records
