@@ -95,10 +95,13 @@ RUN echo 'library(stringr)' >> .RProfile
 RUN echo 'library(gridExtra)' >> .RProfile
 RUN echo 'library(reshape2)' >> .RProfile
 
+COPY vdjdb-motifs .
+
 RUN touch docker.sh
 RUN echo '# /bin/sh' >> docker.sh
 RUN echo '[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"' >> docker.sh
 RUN echo 'git clone https://github.com/antigenomics/vdjdb-db' >> docker.sh
+RUN echo 'mv vdjdb-motifs vdjdb-db/vdjdb-motifs'
 RUN echo 'cd vdjdb-db/' >> docker.sh
 RUN echo 'bash release.sh' >> docker.sh
 RUN echo 'mkdir -p /root/output' >> docker.sh
