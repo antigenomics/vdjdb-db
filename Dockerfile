@@ -74,28 +74,34 @@ RUN apt-get install -y libxml2 libxml2-dev
 
 # 'knitr', 'htmltools', 'jquerylib', 'stringr' are not available for package 'rmarkdown'
 RUN Rscript -e 'install.packages(c("rmarkdown", "ggplot2", "knitr", "ggpubr", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "ggrepel", "tidyverse", "dplyr", "httr", "xml2", "stringr", "gridExtra"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
-RUN Rscript -e 'install.packages("reshape2", repose = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
+RUN Rscript -e 'install.packages("reshape2", repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
+RUN Rscript -e 'install.packages(c("stringdist", "ggseqlogo", "igraph"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
 
-RUN touch .RProfile
-RUN echo 'library(rmarkdown)' >> .RProfile
-RUN echo 'library(ggplot2)' >> .RProfile
-RUN echo 'library(knitr)' >> .RProfile
-RUN echo 'library(ggpubr)' >> .RProfile
-RUN echo 'library(RColorBrewer)' >> .RProfile
-RUN echo 'library(data.table)' >> .RProfile
-RUN echo 'library(forcats)' >> .RProfile
-RUN echo 'library(ggh4x)' >> .RProfile
-RUN echo 'library(ggalluvial)' >> .RProfile
-RUN echo 'library(ggrepel)' >> .RProfile
-RUN echo 'library(tidyverse)' >> .RProfile
-RUN echo 'library(dplyr)' >> .RProfile
-RUN echo 'library(httr)' >> .RProfile #
-RUN echo 'library(xml2)' >> .RProfile
-RUN echo 'library(stringr)' >> .RProfile
-RUN echo 'library(gridExtra)' >> .RProfile
-RUN echo 'library(reshape2)' >> .RProfile
+RUN touch .RProfile \
+    && echo 'library(rmarkdown)' >> .RProfile \
+    && echo 'library(ggplot2)' >> .RProfile \
+    && echo 'library(knitr)' >> .RProfile \
+    && echo 'library(ggpubr)' >> .RProfile \
+    && echo 'library(RColorBrewer)' >> .RProfile \
+    && echo 'library(data.table)' >> .RProfile \
+    && echo 'library(forcats)' >> .RProfile \
+    && echo 'library(ggh4x)' >> .RProfile \
+    && echo 'library(ggalluvial)' >> .RProfile \
+    && echo 'library(ggrepel)' >> .RProfile \
+    && echo 'library(tidyverse)' >> .RProfile \
+    && echo 'library(dplyr)' >> .RProfile \
+    && echo 'library(httr)' >> .RProfile # \
+    && echo 'library(xml2)' >> .RProfile \
+    && echo 'library(stringr)' >> .RProfile \
+    && echo 'library(gridExtra)' >> .RProfile \
+    && echo 'library(reshape2)' >> .RProfile \
+    && echo 'library(parallel)' >> .RProfile \
+    && echo 'library(stringdist)' >> .RProfile \
+    && echo 'library(igraph)' >> .RProfile \
+    && echo 'library(igraph)' >> .RProfile \
+    && echo 'library(ggseqlogo)' >> .RProfile
 
-COPY vdjdb-motifs .
+COPY vdjdb-motifs vdjdb-motifs
 
 RUN touch docker.sh
 RUN echo '# /bin/sh' >> docker.sh
