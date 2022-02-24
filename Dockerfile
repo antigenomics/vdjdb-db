@@ -45,6 +45,7 @@ RUN rm gradle-5.1.1-all.zip
 RUN apt-get install -y git
 RUN apt-get install -y curl
 RUN apt-get install -y zip
+RUN apt-get install -y pandoc
 
 SHELL ["/bin/bash", "-c"] 
 
@@ -55,19 +56,42 @@ RUN source "$HOME/.sdkman/bin/sdkman-init.sh" && \
 # needed for R 
 ENV DEBIAN_FRONTEND noninteractive
 
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+RUN add-apt-repository -y 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/'
+RUN apt-get update
+
 RUN apt-get update \
         && apt-get install -y --no-install-recommends \
          r-base \
          r-base-dev \
          r-recommended
 
-# 'knitr', 'htmltools', 'jquerylib', 'stringr' are not available for package 'rmarkdown'
-RUN Rscript -e 'install.packages("rmarkdown", repos = "http://cran.us.r-project.org")'
+# for R deps
+RUN apt-get install -y libnlopt-dev
+RUN apt-get install -y libcurl4-openssl-dev
+RUN apt-get install -y libssl-dev
+RUN apt-get install -y libxml2 libxml2-dev
 
-RUN apt-get install -y pandoc
+# 'knitr', 'htmltools', 'jquerylib', 'stringr' are not available for package 'rmarkdown'
+RUN Rscript -e 'install.packages(c("rmarkdown", "ggplot2", "knitr", "ggpubr", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "ggrepel", "tidyverse", "dplyr", "httr", "xml2", "stringr", "gridExtra"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
 
 RUN touch .RProfile
-RUN echo 'library("rmarkdown")' >> .RProfile
+RUN echo 'library(rmarkdown)' >> .RProfile
+RUN echo 'library(ggplot2)' >> .RProfile
+RUN echo 'library(knitr)' >> .RProfile
+RUN echo 'library(ggpubr)' >> .RProfile
+RUN echo 'library(RColorBrewer)' >> .RProfile
+RUN echo 'library(data.table)' >> .RProfile
+RUN echo 'library(forcats)' >> .RProfile
+RUN echo 'library(ggh4x)' >> .RProfile
+RUN echo 'library(ggalluvial)' >> .RProfile
+RUN echo 'library(ggrepel)' >> .RProfile
+RUN echo 'library(tidyverse)' >> .RProfile
+RUN echo 'library(dplyr)' >> .RProfile
+RUN echo 'library(httr)' >> .RProfile #
+RUN echo 'library(xml2)' >> .RProfile
+RUN echo 'library(stringr)' >> .RProfile
+RUN echo 'library(gridExtra)' >> .RProfile
 
 RUN touch docker.sh
 RUN echo '# /bin/sh' >> docker.sh
