@@ -74,6 +74,7 @@ RUN apt-get install -y libxml2 libxml2-dev
 
 # 'knitr', 'htmltools', 'jquerylib', 'stringr' are not available for package 'rmarkdown'
 RUN Rscript -e 'install.packages(c("rmarkdown", "ggplot2", "knitr", "ggpubr", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "ggrepel", "tidyverse", "dplyr", "httr", "xml2", "stringr", "gridExtra"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
+RUN Rscript -e 'install.packages("reshape2", repose = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
 
 RUN touch .RProfile
 RUN echo 'library(rmarkdown)' >> .RProfile
@@ -92,6 +93,7 @@ RUN echo 'library(httr)' >> .RProfile #
 RUN echo 'library(xml2)' >> .RProfile
 RUN echo 'library(stringr)' >> .RProfile
 RUN echo 'library(gridExtra)' >> .RProfile
+RUN echo 'library(reshape2)' >> .RProfile
 
 RUN touch docker.sh
 RUN echo '# /bin/sh' >> docker.sh
