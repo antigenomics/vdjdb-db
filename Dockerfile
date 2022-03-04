@@ -114,3 +114,6 @@ RUN echo 'cp -r * /root/output/' >> docker.sh
 
 CMD [ "bash", "docker.sh" ]
 
+# mkdir: cannot create directory 'vdjdb_export/': File exists
+# sh: 1: /software/bin/vdjtools: not found
+# sh: 1: pdflatex: not found
