@@ -78,3 +78,7 @@ target/
 
 ## Linux
 .directory
+
+summary/*.pdf
+summary/*.html
+summary/*.txt
