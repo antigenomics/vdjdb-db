@@ -271,9 +271,11 @@ If you have [Docker Desktop](https://www.docker.com/products/docker-desktop) ins
 docker build -t vdjdbdb .
 ```
 
-In order to build the database using the newly created local Docker image create some folder (e.g. `output`) and use it as a external volume when running Docker image. Docker image always puts the result in `/root/output` folder within docker container.
+In order to build the database using the newly created local Docker image create some folder (e.g. `/tmp/output`) and use it as a external volume when running Docker image. Docker image always puts the result in `/root/output` folder within docker container.
 
 ```bash
-mkdir output
-docker run -v output:/root/output vdjdbdb
+mkdir -p /tmp/output
+docker run -v /tmp/output:/root/output vdjdbdb
 ```
+
+**NOTE**: Host path, e.g. `/tmp/output`, should be absolute.
