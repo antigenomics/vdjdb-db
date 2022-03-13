@@ -13,13 +13,21 @@ cd ..
 
 
 # Compute motifs
-cp -r database/*.txt ../vdjdb-motifs/vdjdb_dump/
+if [ -d "../vdjdb-motifs" ] 
+then
+  echo "Found 'vdjdb-motifs' folder. Processing..."
+  
+  mkdir ../vdjdb-motifs/vdjdb_dump/
+  cp -r database/*.txt ../vdjdb-motifs/vdjdb_dump/
 
-cd ../vdjdb-motifs/
-Rscript -e "rmarkdown::render('compute_vdjdb_motifs.Rmd')"
-cp cluster_members.txt ../vdjdb-db/database/
-cp motif_pwms.txt ../vdjdb-db/database/
-cd ../vdjdb-db/
+  cd ../vdjdb-motifs/
+  Rscript -e "rmarkdown::render('compute_vdjdb_motifs.Rmd')"
+  cp cluster_members.txt ../vdjdb-db/database/
+  cp motif_pwms.txt ../vdjdb-db/database/
+  cd ../vdjdb-db/
+else
+  echo "'vdjdb-motifs' folder is missing. Skipping..."
+fi
 
 # Gather database
 
