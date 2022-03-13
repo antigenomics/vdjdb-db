@@ -64,7 +64,7 @@ RUN apt-get install -y libxml2 libxml2-dev
 RUN Rscript -e 'install.packages(c("rmarkdown", "ggplot2", "knitr", "ggpubr", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "ggrepel", "tidyverse", "dplyr", "httr", "xml2", "stringr", "gridExtra", "circlize", "maps", "scatterpie"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
 RUN Rscript -e 'install.packages("reshape2", repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
 RUN Rscript -e 'install.packages(c("stringdist", "ggseqlogo", "igraph"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
-RUN Rscript -e 'install.packages(c("reshape2", "FField", "reshape", "gplots", "gridExtra", "circlize", "ggplot2", "grid", "VennDiagram", "ape", "MASS", "plotrix", "RColorBrewer", "scales"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
+RUN Rscript -e 'install.packages(c("reshape2", "FField", "reshape", "gplots", "gridExtra", "circlize", "ggplot2", "grid", "VennDiagram", "ape", "MASS", "plotrix", "RColorBrewer", "scales", "cowplot"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
 
 RUN apt-get install -y texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
 RUN apt-get install -y build-essential procps curl file git
