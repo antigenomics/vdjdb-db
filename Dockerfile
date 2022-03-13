@@ -82,10 +82,12 @@ RUN touch docker.sh
 RUN echo '# /bin/sh' >> docker.sh
 RUN echo '[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"' >> docker.sh
 RUN echo 'mkdir -p vcs' >> docker.sh
-RUN echo 'cd vcs/' >> docker.sh
-RUN echo 'git clone https://github.com/antigenomics/vdjdb-db' >> docker.sh
-RUN echo 'git clone https://github.com/antigenomics/vdjdb-motifs' >> docker.sh
-RUN echo 'cd vdjdb-db/'
+RUN echo 'cd vcs' >> docker.sh
+RUN echo 'echo $(pwd)' >> docker.sh
+RUN echo 'git clone https://github.com/antigenomics/vdjdb-db vdjdb-db' >> docker.sh
+RUN echo 'git clone https://github.com/antigenomics/vdjdb-motifs vdjdb-motifs' >> docker.sh
+RUN echo 'cd vdjdb-db' >> docker.sh
+RUN echo 'echo $(pwd)' >> docker.sh
 RUN echo 'bash release.sh' >> docker.sh
 RUN echo 'mkdir -p /root/output' >> docker.sh
 RUN echo 'cp -r database/*zip /root/output/' >> docker.sh
