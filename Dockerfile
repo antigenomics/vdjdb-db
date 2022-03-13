@@ -78,17 +78,14 @@ RUN chmod +x /software/bin/vdjtools
 ENV PATH="/usr/lib/jvm/java-8-openjdk-amd64/bin:${PATH}"
 ENV PATH="/software/bin:${PATH}"
 
-COPY vdjdb-motifs vdjdb-motifs
-
 RUN touch docker.sh
 RUN echo '# /bin/sh' >> docker.sh
 RUN echo '[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"' >> docker.sh
+RUN echo 'mkdir -p vcs' >> docker.sh
+RUN echo 'cd vsc/' >> docker.sh
 RUN echo 'git clone https://github.com/antigenomics/vdjdb-db' >> docker.sh
 RUN echo 'git clone https://github.com/antigenomics/vdjdb-motifs' >> docker.sh
-RUN echo 'mkdir -p vcs' >> docker.sh
-RUN echo 'mv vdjdb-db/* vsc/'
-RUN echo 'mv vdjdb-motifs/* vsc/'
-RUN echo 'cd vsc/' >> docker.sh
+RUN echo 'cd vdjdb-db/'
 RUN echo 'bash release.sh' >> docker.sh
 RUN echo 'mkdir -p /root/output' >> docker.sh
 RUN echo 'cp -r database/*zip /root/output/' >> docker.sh
