@@ -1,6 +1,6 @@
 VDJDB: A curated database of T-cell receptor sequences of known antigen specificity
 
-Copyright 2015-2021 VDJdb Developers
+Copyright 2015-2022 VDJdb Developers
 
 Attribution-NoDerivatives 4.0 International
 

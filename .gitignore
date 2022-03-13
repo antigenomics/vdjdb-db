@@ -1,8 +1,5 @@
 tmp/
 database/
-releases/
-out/
-misc/export
 
 ## Groovy / Java
 
@@ -76,6 +73,8 @@ target/
 
 ## R
 .Rhistory
+.DS_Store
+.RData
 
 ## Linux
 .directory
@@ -85,3 +84,7 @@ vdjdb-motifs
 
 ## output
 output
+
+summary/*.pdf
+summary/*.html
+summary/*.txt
