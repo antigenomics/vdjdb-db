@@ -88,8 +88,8 @@ RUN echo 'git clone https://github.com/antigenomics/vdjdb-db vdjdb-db' >> docker
 RUN echo 'git clone https://github.com/antigenomics/vdjdb-motifs vdjdb-motifs' >> docker.sh
 RUN echo 'cd vdjdb-db' >> docker.sh
 RUN echo 'echo $(pwd)' >> docker.sh
-RUN echo 'bash release.sh' >> docker.sh
 RUN echo 'mkdir -p /root/output' >> docker.sh
+RUN echo 'bash release.sh 2>&1 | tee /root/output/buildlog' >> docker.sh
 RUN echo 'cp -r database/*zip /root/output/' >> docker.sh
 
 CMD [ "bash", "docker.sh" ]
