@@ -266,4 +266,23 @@ First make sure that you clone both [vdjdb-db repo](https://github.com/antigenom
 
 Then navigate to ``vdjdb-db`` and run ``bash release.sh``. You can then find the output in ``~/vcs/vdjdb-db/database``, ``~/vcs/vdjdb-db/summary`` and ``~/vcs/vdjdb-motifs`` folders. Note that you have to check ``.Rmd`` files that will be executed and manually install missing R packages, as well as get [VDJtools binary](https://github.com/mikessh/vdjtools) and place it in the path specified in ``~/vcs/vdjdb-motifs/compute_vdjdb_motifs.Rmd``.
 
-Docker coming soon.
+## Database build process with Docker
+
+The repository contains `Dockerfile` to simplify the database building process. `Dockerfile` instantiates the correct environment needed to build the database.
+If you have [Docker Desktop](https://www.docker.com/products/docker-desktop) installed and running on your machine use the following command to build local Docker image:
+
+```bash
+docker build -t vdjdbdb .
+```
+
+In order to build the database using the newly created local Docker image create some folder (e.g. `/tmp/output`) and use it as a external volume when running Docker image. Docker image always puts the result in `/root/output` folder within docker container.
+
+**NOTE**: Host path, e.g. `/tmp/output`, should be absolute.
+
+**NOTE**: Database building process requires at least 64GB of RAM.
+
+```bash
+mkdir -p /tmp/output
+docker run -v /tmp/output:/root/output vdjdbdb
+```
+

@@ -79,6 +79,12 @@ target/
 ## Linux
 .directory
 
+## motifs
+vdjdb-motifs
+
+## output
+output
+
 summary/*.pdf
 summary/*.html
 summary/*.txt
