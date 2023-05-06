@@ -128,7 +128,6 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 130				CATQTGGSNQPQHF	TRBV10-3		TRBJ1-5	HomoSapiens	HLA-A*01	B2M	MHCI	TDLGQNLLY	HEXON	AdV	PMID:35401538	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 131				CASSQVVGQAHSPLHF	TRBV4-1		TRBJ1-6	HomoSapiens	HLA-A*01	B2M	MHCI	TDLGQNLLY	HEXON	AdV	PMID:35401538	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 132				CASSYPGNNSPLHF	TRBV6-6		TRBJ1-6	HomoSapiens	HLA-A*01	B2M	MHCI	TDLGQNLLY	HEXON	AdV	PMID:35401538	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
-133				CSAR-ASVATSST	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-A*01	B2M	MHCI	TDLGQNLLY	HEXON	AdV	PMID:35401538	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 134				CATSSAAQETQYF	TRBV19		TRBJ2-5	HomoSapiens	HLA-A*01	B2M	MHCI	TDLGQNLLY	HEXON	AdV	PMID:35401538	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 135				CAINPGTAYGYTF	TRBV10-3		TRBJ1-2	HomoSapiens	HLA-B*07	B2M	MHCI	KPYSGTAYNAL	HEXON	AdV	PMID:35401538	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 136				CASSPGTPEQFF	TRBV18		TRBJ2-1	HomoSapiens	HLA-B*07	B2M	MHCI	KPYSGTAYNAL	HEXON	AdV	PMID:35401538	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
