@@ -1,0 +1,146 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta		j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
+1	CIEYNFNKFY	TRAV26-1	TRAJ21	CASRPVAGLPHF	TRBV7-06		TRBJ1-6	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:26838051	tetramer-sort		yes		tetramer-sort		CD4+							PBMC			
+2	CALSELSIQGAQKLV	TRAV9-2	TRAJ54	CASSIVDRGGETQYF	TRBV4-01		TRBJ2-5	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:26838051	tetramer-sort		yes		tetramer-sort		CD4+							PBMC			
+3	CVVNSWAGNQFY	TRAV12-2	TRAJ49	CASSLGYGVSTGELF	TRBV5-04		TRBJ2-2	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:26838051	tetramer-sort		yes		tetramer-sort		CD4+							PBMC			
+4	CALSESGANSKLT	TRAV9-2	TRAJ56	CASSLRAWETQYF	TRBV7-02		TRBJ2-5	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:26838051	tetramer-sort		yes		tetramer-sort		CD4+							PBMC			
+5	CLVGHGSSNTGKLI	TRAV4-1	TRAJ37-2	CASSLRWGDGGKLF	TRBV7-02		TRBJ2-2	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:26838051	tetramer-sort		yes		tetramer-sort		CD4+							PBMC			
+6	CAVRDPLYNFNKFY	TRAV3-1	TRAJ21	CASSQGGDRGESEAF	TRBV4-02		TRBJ1-1	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:26838051	tetramer-sort		yes		tetramer-sort		CD4+							PBMC			
+7	CLVGGGADGLT	TRAV4-1	TRAJ45	CASSVRTLDTGELF	TRBV7-02		TRBJ2-2	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:26838051	tetramer-sort		yes		tetramer-sort		CD4+							PBMC			
+8	CAGDSGYALN	TRAV35-1	TRAJ41	CATSSRMGGDTQYF	TRBV15-02		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:26838051	tetramer-sort		yes		tetramer-sort		CD4+							PBMC			
+9	CAASEGDSGTYKYIF	TRAV14/DV4	TRAJ40	CASSINALVGEQFF	TRBV19		TRBJ2-1	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	QLQPFPQPELPY	Gluten	Wheat	PMID:30455354	tetramer-sort		yes		antigen-expressing-targets		CD4+							Gut			
+10	CAVKFASGTYKYIF	TRAV8-6	TRAJ40	CASSPAFSTDTQYF	TRBV7-3		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	QLQPFPQPELPY	Gluten	Wheat	PMID:30455354	tetramer-sort		yes		antigen-expressing-targets		CD4+							Gut			
+11	CAMREGWQAGNTLIF	TRAV14/DV4	TRAJ15	CASSLDGLTNTEAFF	TRBV5-4		TRBJ1-1	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	QLQPFPQPELPY	Gluten	Wheat	PMID:30455354	tetramer-sort		yes		antigen-expressing-targets		CD4+							Gut			
+12	CAVVDASSKLIF	TRAV26-1	TRAJ12	CSATLGGDYGYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQQPFPQPEQPFP	Gluten	Wheat	PMID:30455354	tetramer-sort		yes		antigen-expressing-targets		CD4+							Gut			
+13	CLVGGYNNNDMRF	TRAV19	TRAJ43	CSAQLAGGGGDTQYF	TRBV20-1		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQQPFPQPEQPFP	Gluten	Wheat	PMID:30455354	tetramer-sort		yes		antigen-expressing-targets		CD4+							Gut			
+14	CAESRYSGYSTLTF	TRAV14/DV4	TRAJ11	CSAFPGGDTEAFF	TRBV20-1		TRBJ1-1	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQQPFPQPEQPFP	Gluten	Wheat	PMID:30455354	tetramer-sort		yes		antigen-expressing-targets		CD4+							Gut			
+15	CALSEYGNKLVF	TRAV26-1	TRAJ47	CASSYVGGDTDTQYF	TRBV7-3		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQQPFPQPEQPFP	Gluten	Wheat	PMID:30455354	tetramer-sort		yes		antigen-expressing-targets		CD4+							Gut			
+16				CASSIRTDTQYF	TRBV7-2*02		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							Duodenum			
+17				CASSFRHTDTQYF	TRBV7-2*02		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+18				CASSLRTSGSHEQYF	TRBV7-2*02		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+19				CASSLRAAGDHEQYF	TRBV7-2*02		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+20				CASSKRTGDVGEQF	TRBV7-2*02		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+21				CASSIRAGADEQF	TRBV7-2*02		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+22				CASSLSPRADTQYF	TRBV7-2*02		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+23				CASSPRSSGTEQYF	TRBV7-2*02		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+24				CASSPPGLPYEQYF	TRBV7-2*02		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+25				CASSLGWQNNEQF	TRBV7-2*02		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+26				CASSLAGFPDEQF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+27				CASSLRAAGGHEQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+28				CASSIRHTDTQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+29				CASLIRFTDTQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+30				CASSIRTEDTQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+31				CASSLVGWETQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+32				CASSLRRDQYNEQF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+33				CASSTRTGDGGTQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPQLPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+34				CASSIRFTDTQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+35				CASSVRHTDTQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+36				CASSIRTGGDTQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+37				CASSLGGSTDTQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+38				CASSVRTGDSQPQHF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+39				CASSLRGLDMGTQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+40				CASSLRWGDEGEQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+41				CASSLRAGGNHEQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+42				CASSLRASGSHEQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+43				CASSLATRATYEQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+44				CASLLGRSNTGELFF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+45				CASSLRSGGADTQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+46				CASSQVRETQCF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+47				CASSSDRNYGYTF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+48				CASSFPGALNYGYTF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+49				CASSFSGTSPYEQF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+50				CASSFGGGTYEQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+51				CASSLVERGPYEQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+52				CASSLVSGGMDEQF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+53				CASSLQASSYNEQF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+54				CASSPRGRNYEQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+55				CASSPEGVRVGYGYTF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+56				CASSLAGGLHTDTQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+57				CASSLAGPLRFNEQF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+58				CASSLMGLSNYGYTF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+59				CASSLSAGPGANVLTF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+60				CASSPWTSGSTYNEQF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+61				CASSLEGAFSANYGYTF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+62				CASSLRGTYGSGANVLTF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPE	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+63				CASSPQLGVPFF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+64				CASSLNQGGGYTF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+65				CASSTHRAEGELF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+66				CASSFRLDRYGYTF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+67				CASSQGQSSYNEQF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+68				CASSVQGRVNTEAF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+69				CASSAGTLPTGELF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+70				CASSLARRFYNSPLHF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+71				CASSLEGRGYTF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+72				CASSLVGEKAFF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+73				CASSLSRYEQF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+74				CASSLAGVQPQHF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+75				CASSSPVGGEQF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+76				CASSSGGGYNEQF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+77				CASSSLGGAETQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+78				CASSSSQGNQPQHF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+79				CASSKSRGSYEQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+80				CASSPDGVNSPLHF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+81				CASSPNRSGNTIYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+82				CASSTRQSAYEQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+83				CASSLDAGNEKLF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+84				CASSLALGDTTEAFF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+85				CASSLARGVGNIQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+86				CASSLEGQGISPLHF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+87				CASSLELSGANVLTF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+88				CASSLGIGPYNEQF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+89				CASSVSFGQGYEQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+90				CASSRGGTSGLHTQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+91				CASSFQGGDGETQYF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+92				CASSLVGGGESTEAF	TRBV7-2*01		TRBJ2-3*01	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:21849672	tetramer-sort		yes		antigen-expressing-targets		CD4+							PBMC			
+93				CASSLGQPSTDTQYF	TRBV5-1		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+94				CASSIRTSGAHEQYF	TRBV7-2		TRBJ2-7	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+95				CASSLRAGGSHEQYF	TRBV7-2		TRBJ2-7	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+96				CASSFQRGAADTQYF	TRBV6-3		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+97				CASSFRVGAVDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+98				CASSIRWTDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+99				CASSQVYGGDTQYF	TRBV4-3		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+100				CASSWTGGHTDTQYF	TRBV2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+101				CASSEQREGEQYF	TRBV10-2		TRBJ2-7	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+102				CASSIRAGGTDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+103				CASSIRDTDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+104				CASSIRTGDHEQYF	TRBV7-2		TRBJ2-7	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+105				CASSIRTGGETQYF	TRBV7-2		TRBJ2-5	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+106				CASSIRTTDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+107				CASSIRYTDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+108				CASSLASYGDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+109				CASSLVAYSGETQYF	TRBV7-2		TRBJ2-5	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+110				CASSTRTTDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+111				CASSTRWSDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+112				CASSVRFTDTQYF	TRBV7-3		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+113				ATSIRFTDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+114				CASSIRQGGNHEQYF	TRBV7-2		TRBJ2-7	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+115				CASSQDGQGPETQYF	TRBV4-1		TRBJ2-5	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+116				CASSFRVSDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+117				CASSIRNTDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+118				CASSLRAGGVDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+119				CASSQPHRGDEQFF	TRBV4-2		TRBJ2-1	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+120				CASSARFTDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+121				CASSFRTSDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+122				CASSLRSGDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+123				CASSLVAWETQYF	TRBV7-2		TRBJ2-5	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+124				CASSVRGGEADTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQPQ	Gluten	Wheat	PMID:23878218	tetramer-sort		yes				CD4+							PBMC			
+125	CAYRSGYMEYGNKLV	TRAV8-6	TRAJ47-1	CSVSGGPSTDTQYF	TRBV29-1		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PFPQPELPY	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+126	CLVGDNDYKLSF	TRAV21	TRAJ20-1	CSVGQTDSPLHF	TRBV29-1		TRBJ1-6	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PFPQPELPY	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+127	CAVELGDSWGKFQF	TRAV1-2	TRAJ24-1	CSAGQGGTGELFF	TRBV29-1		TRBJ2-2	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PFPQPELPY	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+128	CAAPGGATNKLIF	TRAV26-2	TRAJ32-1	CSVAALAGFQETQYF	TRBV29-1		TRBJ2-5	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PFPQPELPY	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+129	CAVGWEDGTASKLTF	TRAV8-4	TRAJ44-1	CSASRWRSTDTQYF	TRBV20-1		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PFPQPELPY	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+130	CLVGDGGSFSGGYNKLIF	TRAV35	TRAJ4-1	CSAGVGGQETQYF	TRBV20-1		TRBJ2-5	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PFPQPELPY	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+131	CAVQADGNTGKLIF	TRAV9-1	TRAJ37-1	CSAYRTWDQETQYF	TRBV20-1		TRBJ2-5	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PFPQPELPY	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+132				CSAREPDNTGELFF	TRBV20-1		TRBJ2-2	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PFPQPELPY	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+133				CSARGYGLANPYEQY	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PFPQPELPY	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+134	CAGPYNTDKLIF	TRAV8-6	TRAJ34-1	CASSLASAGGTDTQYF	TRBV7-6		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PFPQPELPY	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+135	CAASANYGGATNKLIF	TRAV12-2	TRAJ32-1	CASSLNWDTEAFF	TRBV7-3		TRBJ1-1	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PFPQPELPY	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+136	CAVTLGGGSEKLVF	TRAV9-1	TRAJ21-1	CASSFSPAGSEAFF	TRBV5-5		TRBJ1-1	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PFPQPELPY	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+137	CAVGAGSNYQLIW	TRAV9-1	TRAJ33-1	CASSLEGQGASEQFF	TRBV5-5		TRBJ2-1	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PFPQPELPY	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+138	CLVAGAGGYNKLIF	TRAV1-2	TRAJ4-1	CASSQGLAGVQETQYF	TRBV4-2		TRBJ2-5	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PFPQPELPY	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+139	CAGPSGATNKLIF	TRAV26-2	TRAJ32-1	CASSPTALGTDTQYF	TRBV5-6		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PFPQPELPY	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+140				CASSFRFTDTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQ	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+141	CIAFQGAQKLVF	TRAV8-6	TRAJ54-1	CASSFRALAADTQYF	TRBV7-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQ	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+142	CLVGEAAGNKLTF	TRAV12-2	TRAJ17-1	CASSIRTSGDHEQYF	TRBV7-2		TRBJ2-7	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQ	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+143	CAVGRGGSQGNLIF	TRAV19	TRAJ42-1	CASSQYQSLVRGNNEQFF	TRBV4-2		TRBJ2-1	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQ	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+144	CAMREGRGAGSYQLTF	TRAV8-6	TRAJ28-1	CASSFPQVTDTQYF	TRBV4-2		TRBJ2-3	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQ	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
+145	CAMSVLSGTYKYIF	TRAV13-2	TRAJ40-1	CASSHVDRGGETQYF	TRBV4-2		TRBJ2-5	HomoSapiens	HLA-DQA1*05:01	HLA-DQB1*02:01	MHCII	PQPELPYPQ	Gluten	Wheat	PMID:24777060	tetramer-sort		yes		antigen-loaded-targets		CD4+							Small intestine			
