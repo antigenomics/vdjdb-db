@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/antigenomics/vdjdb-db.svg?branch=master)](https://travis-ci.org/antigenomics/vdjdb-db)
-
 # VDJDB: A curated database of T-cell receptor sequences of known antigen specificity
 
 ![Splash](images/vdjdb-splash.png)
@@ -23,7 +21,7 @@ A web-based GUI for the database can be found in [VDJdb-web](https://github.com/
 
 ## Citing
 
-Please cite the database using the **most recent** NAR paper ``Dmitry V Bagaev, Renske M A Vroomans, Jerome Samir, Ulrik Stervbo, Cristina Rius, Garry Dolton, Alexander Greenshields-Watson, Meriem Attaf, Evgeny S Egorov, Ivan V Zvyagin, Nina Babel, David K Cole, Andrew J Godkin, Andrew K Sewell, Can Kesmir, Dmitriy M Chudakov, Fabio Luciani, Mikhail Shugay, VDJdb in 2019: database extension, new analysis infrastructure and a T-cell receptor motif compendium, Nucleic Acids Research, gkz874.`` [doi:10.1093/nar/gkz874](https://doi.org/10.1093/nar/gkz874).
+Please cite the database using the **most recent** paper ``Mikhail Goncharov, Dmitry Bagaev, Dmitrii Shcherbinin, Ivan Zvyagin, Dmitry Bolotin, Paul G. Thomas, Anastasia A. Minervina, Mikhail V. Pogorelyy, Kristin Ladell, James E. McLaren, David A. Price, Thi H. O. Nguyen, Louise C. Rowntree, E. Bridie Clemens, Katherine Kedzierska, Garry Dolton, Cristina Rafael Rius, Andrew Sewell, Jerome Samir, Fabio Luciani, Ksenia V. Zornikova, Alexandra A. Khmelevskaya, Saveliy A. Sheetikov, Grigory A. Efimov, Dmitry Chudakov & Mikhail Shugay. VDJdb in the pandemic era: a compendium of T cell receptors specific for SARS-CoV-2. Nature Methods 2022. ``[doi:10.1038/s41592-022-01578-0](https://doi.org/10.1038/s41592-022-01578-0).
 
 ## Submission guide
 
@@ -89,11 +87,11 @@ Optional columns (i.e. it is not required to fill them, but they **should** be p
 
 column name     | description
 ----------------|-------------
-method.identification | ``tetramer-sort``, ``dextramer-sort``, ``pelimer-sort``, ``pentamer-sort``, etc for sorting-based identification. For molecular assays use: ``antigen-loaded-targets`` (if T cells specificity was analysed against cells incubatetd with antigenic peptide), ``antigen-expressing-targets`` (if T cells specificity was analysed against cells tranformed with antigenic organism, protein or peptide, e.g. BCL transformed with EBV). For magnetic cell separation use ``beads`` keyword. Add ``cultured-T-cells`` or ``limiting-dilution-cloning`` if T cells were cultured before sequencing as in this case ``method.frequency`` will have completely different meaning. Use comma to separate phrases.
+method.identification | ``tetramer-sort``, ``dextramer-sort``, ``pelimer-sort``, ``pentamer-sort``, etc for sorting-based identification. For molecular assays use: ``antigen-loaded-targets`` (if T cells specificity was analysed against cells incubatetd with antigenic peptide), ``antigen-expressing-targets`` (if T cells specificity was analysed against cells tranformed with antigenic organism, protein or peptide, e.g. BCL transformed with EBV). For magnetic cell separation use ``beads`` keyword. Add ``cultured-T-cells`` or ``limiting-dilution-cloning`` if T cells were cultured before sequencing as in this case ``method.frequency`` will have completely different meaning. Use comma to separate phrases. For cases that use UMI-tagged multimers use ``tetramer-umi``, etc.
 method.frequency | Frequency in isolated antigen-specific population, reported as ``X/X`` if possible, e.g. ``7/30`` if a given V/D/J/CDR3 is encountered in 7 out of 30 tetramer+ clones. Formats ``X%``, ``X.X%`` and ``X.X`` are also supported.
 method.singlecell | ``yes`` if single cell sequencing was performed, blank otherwise
 method.sequencing | Sequencing method: ``sanger``, ``rna-seq`` or ``amplicon-seq``
-method.verification | ``tetramer-stain``, ``dextramer-stain``, ``pelimer-stain``, ``pentamer-stain``, etc for methods that include TCR cloning and re-staining with multimers. For magnetic cell separation use ``beads`` keyword. ``antigen-loaded-targets``, ``antigen-expressing-targets`` for molecular assays that validate specificity of **cloned** T-cell receptors. ``direct`` in case pMHC binding T-cells are directly subject to single-cell sequencing. Several comma-separated verification methods can be specified.
+method.verification | ``tetramer-stain``, ``dextramer-stain``, ``pelimer-stain``, ``pentamer-stain``, etc for methods that include TCR cloning and re-staining with multimers. For magnetic cell separation use ``beads`` keyword. ``restimulation``, ``co-culture``, ``antigen-loaded-targets``, ``antigen-expressing-targets`` for molecular assays that validate specificity of **cloned** T-cell receptors. ``direct`` in case the affinity of TCRs of specific T-cells to the pMHC is quantified directly in some way. Several comma-separated verification methods can be specified.
 
 > **Notes:**
 
@@ -143,6 +141,28 @@ During database build phase, the information from columns mentioned above is col
    "tissue":"PBMC"
 }
 ```
+
+### Condition association columns (for extended database, TBA)
+
+column name    | description
+---------------|------------
+condition.name | natural language terms like ``T1D``, ``pollen allergy``, ``BRCA`` or ``YF vaccination``
+condition.id   | ``ICD-11:5A10`` for ``T1D`` in [ICD-11](https://icd.who.int/browse11/l-m/en) or ``OMIM:114480`` for ``breast cancer`` in [OMIM](https://www.omim.org/entry/114480)
+condition.type | ``infection``, ``vaccination``, ``cancer``, ``allergy`` or ``autoimmune``
+condition.subtype | natural language terms like ``acute`` or ``poor prognosis`` or ``grade II``
+antigen.epitope.long | encompassing protein sequence containing the epitope
+antigen.peptide.pool | e.g. ``MIRA COVID19`` TBD
+antigen.nonpeptide | ``α-GalCer`` or ``KRN7000`` TBD
+
+### Non TRAB columns (for extended database, TBA)
+
+column name    | description
+---------------|------------
+v.delta | ID of Variable segment in delta chain
+cdr3.delta | CDR3 of delta chain
+... | ...
+v.heavy.shm | CIGAR string of hypermutations in the heavy chain Variable segment
+... | ...
 
 ## Database processing
 
