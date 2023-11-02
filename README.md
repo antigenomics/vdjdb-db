@@ -21,7 +21,7 @@ A web-based GUI for the database can be found in [VDJdb-web](https://github.com/
 
 ## Citing
 
-Please cite the database using the **most recent** paper ``Mikhail Goncharov, Dmitry Bagaev, Dmitrii Shcherbinin, Ivan Zvyagin, Dmitry Bolotin, Paul G. Thomas, Anastasia A. Minervina, Mikhail V. Pogorelyy, Kristin Ladell, James E. McLaren, David A. Price, Thi H. O. Nguyen, Louise C. Rowntree, E. Bridie Clemens, Katherine Kedzierska, Garry Dolton, Cristina Rafael Rius, Andrew Sewell, Jerome Samir, Fabio Luciani, Ksenia V. Zornikova, Alexandra A. Khmelevskaya, Saveliy A. Sheetikov, Grigory A. Efimov, Dmitry Chudakov & Mikhail Shugay. VDJdb in the pandemic era: a compendium of T cell receptors specific for SARS-CoV-2. Nature Methods 2022. ``[doi:10.1038/s41592-022-01578-0](https://doi.org/10.1038/s41592-022-01578-0).
+Please cite the database using the **most recent** paper ``Mikhail Goncharov, Dmitry Bagaev, Dmitrii Shcherbinin, Ivan Zvyagin, Dmitry Bolotin, Paul G. Thomas, Anastasia A. Minervina, Mikhail V. Pogorelyy, Kristin Ladell, James E. McLaren, David A. Price, Thi H. O. Nguyen, Louise C. Rowntree, E. Bridie Clemens, Katherine Kedzierska, Garry Dolton, Cristina Rafael Rius, Andrew Sewell, Jerome Samir, Fabio Luciani, Ksenia V. Zornikova, Alexandra A. Khmelevskaya, Saveliy A. Sheetikov, Grigory A. Efimov, Dmitry Chudakov & Mikhail Shugay. VDJdb in the pandemic era: a compendium of T cell receptors specific for SARS-CoV-2. Nature Methods 2022.`` [doi:10.1038/s41592-022-01578-0](https://doi.org/10.1038/s41592-022-01578-0).
 
 ## Submission guide
 
@@ -144,17 +144,39 @@ During database build phase, the information from columns mentioned above is col
 
 ### Condition association columns (for extended database, TBA)
 
+Condition metadata:
+
 column name    | description
 ---------------|------------
 condition.name | natural language terms like ``T1D``, ``pollen allergy``, ``BRCA`` or ``YF vaccination``
 condition.id   | ``ICD-11:5A10`` for ``T1D`` in [ICD-11](https://icd.who.int/browse11/l-m/en) or ``OMIM:114480`` for ``breast cancer`` in [OMIM](https://www.omim.org/entry/114480)
 condition.type | ``infection``, ``vaccination``, ``cancer``, ``allergy`` or ``autoimmune``
 condition.subtype | natural language terms like ``acute`` or ``poor prognosis`` or ``grade II``
+
+Association metadata:
+
+column name    | description
+---------------|------------
+condition.freq | fraction of samples matching the entry
+condition.count | number of samples matching the entry (can be blank)
+population.freq | fraction of controls matching the entry, or Pgen computed by [OLGA/IgOR](https://github.com/statbiophys/OLGA/tree/master/olga)
+population.count | number of controls matching the entry (can be blank)
+association.pvalue | Association P-value, e.g. enrichment P-value for Fisher's exact test
+association.test | ``Fisher``, ``TCRNET``, ``ALICE`` or another statistical method
+
+### Ambiguous antigens (for extended database, TBA)
+
+Peptide pools, long peptides for T-cell culture expansion, non-peptide ligands
+
+column name    | description
+---------------|------------
 antigen.epitope.long | encompassing protein sequence containing the epitope
 antigen.peptide.pool | e.g. ``MIRA COVID19`` TBD
 antigen.nonpeptide | ``α-GalCer`` or ``KRN7000`` TBD
 
 ### Non TRAB columns (for extended database, TBA)
+
+Information for non alpha-beta T-cells, CAR-T, etc
 
 column name    | description
 ---------------|------------
