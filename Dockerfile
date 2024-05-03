@@ -87,6 +87,7 @@ RUN echo 'echo $(pwd)' >> docker.sh
 RUN echo 'git clone https://github.com/antigenomics/vdjdb-db vdjdb-db' >> docker.sh
 RUN echo 'git clone https://github.com/antigenomics/vdjdb-motifs vdjdb-motifs' >> docker.sh
 RUN echo 'cd vdjdb-db' >> docker.sh
+RUN echo 'git checkout menon_tm_tcr' >> docker.sh
 RUN echo 'echo $(pwd)' >> docker.sh
 RUN echo 'mkdir -p /root/output' >> docker.sh
 RUN echo 'bash release.sh 2>&1 | tee /root/output/buildlog' >> docker.sh
