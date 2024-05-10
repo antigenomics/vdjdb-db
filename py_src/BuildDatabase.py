@@ -126,7 +126,7 @@ validators = {
     'mhc.b': is_MHC_valid,
     'mhc.class': lambda x: x == 'MHCI' or x == 'MHCII',
     'antigen.epitope': is_aa_seq_valid,
-    'reference.id': lambda x: x.startswith('PMID:') or x.startswith('doi:') or x.startswith('http://"')
+    'reference.id': lambda x: x.startswith('PMID:') or x.startswith('doi:') or x.startswith('http://')
                               or x.startswith('https://') or 'unpublished' in x.lower() if not pd.isnull(x) else True
 
 }
@@ -186,7 +186,8 @@ for chunk_file in chunk_files:
 
     if chunk_error_messages.keys():
         print(dict(chunk_error_messages))
-        warnings.warn(f"There were errors processing {chunk_file}")
+        warn_message = f"There were errors processing {chunk_file}"
+        warnings.warn(warn_message)
         continue
 
     chunk_df['antigen.species'] = chunk_df['antigen.epitope'].apply(
@@ -201,4 +202,4 @@ for chunk_file in chunk_files:
 # this part is skipped
 
 os.makedirs('../database/', exist_ok=True)
-pd.concat(chunk_df_list).to_csv('../database/vdjdb.txt', sep='\t')
+pd.concat(chunk_df_list)[ALL_COLS].to_csv('../database/vdjdb_full.txt', sep='\t')

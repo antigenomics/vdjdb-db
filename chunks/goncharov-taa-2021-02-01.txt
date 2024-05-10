@@ -14,7 +14,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 13	CAVNSGNQFYF	TRAV12-2	TRAJ49	CASSFGLGTEAFF	TRBV28		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
 14	CAVRHAGGTSYGKLTF	TRAV12-2	TRAJ52	CASSLSNEGNEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
 15	CAVNRNEKLTF	TRAV12-2	TRAJ48	CASSPPGLSGNIQYF	TRBV2		TRBJ2-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
-16	CAVGTAWRSGGGADGLTF 	TRAV12-2	TRAJ45	CASSPGTLADTQYF	TRBV8		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
+16	CAVGTAWRSGGGADGLTF	TRAV12-2	TRAJ45	CASSPGTLADTQYF	TRBV8		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
 17	CAVKGQTGANNLFF	TRAV12-2	TRAJ36	CASSAGYGQPQHF	TRBV6		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
 18	CAVNRNEKLTF	TRAV12-2	TRAJ48	CASSQEIGSEQPQHF	TRBV4		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
 19	CAVNSGNQFYF	TRAV12-2	TRAJ49	CASRPTGMGQPQHF	TRBV27		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
