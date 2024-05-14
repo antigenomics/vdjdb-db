@@ -191,15 +191,132 @@ for chunk_file in chunk_files:
         continue
 
     chunk_df['antigen.species'] = chunk_df['antigen.epitope'].apply(
-    lambda x: aggregated_species[x] if x in aggregated_species else None
-)
+        lambda x: aggregated_species[x] if x in aggregated_species else None
+    )
     chunk_df['antigen.gene'] = chunk_df['antigen.epitope'].apply(
-    lambda x: aggregated_gene[x] if x in aggregated_gene else None
-)
+        lambda x: aggregated_gene[x] if x in aggregated_gene else None
+    )
     chunk_df_list.append(chunk_df)
 
 # Fix CDR3 sequences
 # this part is skipped
 
 os.makedirs('../database/', exist_ok=True)
-pd.concat(chunk_df_list)[ALL_COLS].to_csv('../database/vdjdb_full.txt', sep='\t')
+
+master_table = pd.concat(chunk_df_list)[ALL_COLS]
+
+master_table.to_csv('../database/vdjdb_full.txt', sep='\t')
+
+
+# Write collapsed table
+
+def get_web_method(method_identification: str) -> str:
+    method_identification = method_identification.lower()
+    if 'sort' in method_identification:
+        return "sort"
+    elif 'culture' in method_identification or 'cloning' in method_identification or 'targets' in method_identification:
+        return 'culture'
+    else:
+        return "other"
+
+
+def get_web_method_seq(clone_row: pd.Series) -> str:
+    if not pd.isnull(clone_row["method.singlecell"]):
+        return "singlecell"
+    else:
+        method_data = clone_row["method.sequencing"].lower()
+        if 'sanger' in method_data:
+            return 'sanger'
+        elif '-seq' in method_data:
+            return 'amplicon'
+        else:
+            return 'other'
+
+
+COMPLEX_ANNOT_COLS = [
+    "species",
+    "mhc.a",
+    "mhc.b",
+    "mhc.class",
+    "antigen.epitope",
+    "antigen.gene",
+    "antigen.species",
+    "reference.id"]
+
+SIGNATURE_COLS_PER_SAMPLE = [
+    "cdr3.alpha",
+    "v.alpha",
+    "j.alpha",
+    "cdr3.beta",
+    "v.beta",
+    "j.beta",
+    "species",
+    "mhc.a",
+    "mhc.b",
+    "mhc.class",
+    "antigen.epitope"
+]
+
+complex_id_count = 0
+
+sample_counts = master_table.value_counts(subset=SIGNATURE_COLS_PER_SAMPLE)
+study_counts = master_table.set_index(SIGNATURE_COLS)
+clones_list =[]
+
+for _, clone in master_table.iterrows():
+
+    if not (pd.isnull(clone["cdr3.alpha"]) or pd.isnull(clone["cdr3.beta"])):
+        complex_id_count += 1
+        complex_id = complex_id_count
+    else:
+        complex_id = 0
+
+    for chain in ['alpha', 'beta']:
+        if not pd.isnull(clone[f'cdr3.{chain}']):
+            clone_compact = {
+                'complex.id': complex_id,
+                'gene': 'TRA' if chain == 'alpha' else 'TRB',
+                'cdr3': clone[f"cdr3.{chain}"],
+                'v.segm': clone[f"v.{chain}"],
+                'j.segm': clone[f"j.{chain}"], }
+
+            for coll in COMPLEX_ANNOT_COLS:
+                clone_compact[coll] = clone[coll]
+
+            clone_compact['method'] = {coll.split('method.')[1]: clone[coll] for coll in METHOD_COLUMNS}
+            clone_compact['meta'] = {coll.split('meta.')[1]: clone[coll] for coll in META_COLUMNS}
+            clone_compact['meta']['samples.found'] = sample_counts.loc[(clone[coll] for coll
+                                                                        in SIGNATURE_COLS_PER_SAMPLE)]
+            clone_compact['meta']['studies.found'] = len(study_counts.loc[(clone[coll]
+                                                                           for coll in SIGNATURE_COLS_PER_SAMPLE)][
+                                                             'reference.id'].unique())
+
+            #add_here
+            clones_list.append(clone_compact)
+
+            #     methodAnnot,
+            #     metaAnnot,
+            #     row["cdr3fix.$it"],
+            #     row["vdjdb.score"],
+            #     getWebMethod(row), getWebMethodSeq(row),
+            # }
+
+# def getWebMethodSeq = { row ->
+#     if (row["method.singlecell"].trim().length() > 0)
+#         return "singlecell"
+#
+#     def data = row["method.sequencing"].toLowerCase()
+#
+#     if (data.contains("sanger")) return "sanger"
+#     else if (data.contains("-seq")) return "amplicon"
+#     return "other"
+# }
+
+COMPLEX_SLIM_ANNOT_COLS = [
+    "gene",
+    "cdr3",
+    "species",
+    "antigen.epitope",
+    "antigen.gene",
+    "antigen.species"
+]
