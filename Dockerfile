@@ -61,7 +61,7 @@ RUN apt-get install -y libssl-dev
 RUN apt-get install -y libxml2 libxml2-dev
 
 # 'knitr', 'htmltools', 'jquerylib', 'stringr' are not available for package 'rmarkdown'
-RUN Rscript -e 'install.packages(c("rmarkdown", "ggplot2", "knitr", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "ggrepel", "tidyverse", "dplyr", "httr", "xml2", "stringr", "gridExtra", "circlize", "maps", "scatterpie"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
+RUN Rscript -e 'install.packages(c("rmarkdown", "ggplot2", "knitr", "GlobalOptions", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "ggrepel", "tidyverse", "dplyr", "httr", "xml2", "stringr", "gridExtra", "circlize", "maps", "scatterpie"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
 RUN Rscript -e 'install.packages(c("stringdist", "ggseqlogo", "igraph"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
 RUN Rscript -e 'install.packages(c("reshape2", "FField", "reshape", "gplots", "grid", "VennDiagram", "ape", "MASS", "plotrix", "scales", "cowplot"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
 
