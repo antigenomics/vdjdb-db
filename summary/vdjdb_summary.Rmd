@@ -42,7 +42,7 @@ knitr::opts_template$set("kill_prefix"=list(comment=NA, null_prefix=TRUE))
 ```{r message=FALSE, warning=FALSE}
 library(knitr)
 library(ggplot2)
-library(ggpubr)
+#library(ggpubr)
 library(RColorBrewer)
 library(data.table)
 library(forcats)
@@ -183,7 +183,7 @@ p1=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = tcr_count, color = cha
   ylab("") +
   scale_x_continuous("", breaks = seq(1995, 2021, by =2)) +
   scale_color_brewer(palette = "Set1") +
-  theme_pubclean() + ggtitle("Number of unique TCRs") +
+  theme_classic() + ggtitle("Number of unique TCRs") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
 
 p2=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = epi_count, color = chains)) +
@@ -192,7 +192,7 @@ p2=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = epi_count, color = cha
   ylab("") +
   scale_x_continuous("", breaks = seq(1995, 2021, by =2)) +
   scale_color_brewer(palette = "Set1") +
-  theme_pubclean() + ggtitle("Number of unique epitopes") +
+  theme_classic() + ggtitle("Number of unique epitopes") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
 
 p3=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = ref_count, color = chains)) +
@@ -201,7 +201,7 @@ p3=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = ref_count, color = cha
   ylab("") +
   scale_x_continuous("", breaks = seq(1995, 2021, by =2)) +
   scale_color_brewer(palette = "Set1") +
-  theme_pubclean() + ggtitle("Number of studies") +
+  theme_classic() + ggtitle("Number of studies") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
 
 p4=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = mhc_count, color = chains)) +
@@ -210,7 +210,7 @@ p4=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = mhc_count, color = cha
   ylab("") +
   scale_x_continuous("", breaks = seq(1995, 2021, by =2)) +
   scale_color_brewer("TCR chain(s)", palette = "Set1") +
-  theme_pubclean() + ggtitle("Number of MHC alleles") +
+  theme_classic() + ggtitle("Number of MHC alleles") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) +
   theme(legend.position="bottom")
 
@@ -290,7 +290,7 @@ ggplot(df.c %>%
   ylab("") + scale_x_discrete(limits = c("Gene", "HLA", "Epitope", "TCR chain"),
                               expand = c(.1, .1),
                               position = "top") +
-  theme_pubclean() +
+  theme_classic() +
   theme(axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
         axis.text.x =  element_text(size = 16, color = "black"),
@@ -322,7 +322,7 @@ ggplot(df.score, aes(x=paste(mhc.class, gene, sep = " "), y=total, fill = as.fac
   geom_bar(stat = "identity", position = "dodge", color = "black", size = 0.3) +  
   xlab("") + scale_y_log10("Records") +
   scale_fill_brewer("VDJdb score", palette = "PuBuGn") + 
-  theme_pubclean() +
+  theme_classic() +
   theme(legend.position="bottom")
 ```
 
@@ -341,7 +341,7 @@ ggplot(df.spe,
   #scale_fill_distiller(palette = "Set3", guide=F, "") +
   scale_fill_hue(guide=F) +
   xlab("CDR3 length") + ylab("Records") +
-  theme_pubclean()
+  theme_classic()
 ```
 
 #### V(D)J usage and MHC alleles
@@ -379,7 +379,7 @@ ggplot(df.vhla, aes(x=gsub("HLA-", "", paste(mhc.a.split, mhc.b.split, sep = " /
                        trans="log", breaks = c(1, 10, 100, 1000)) +
   xlab("") + ylab("") +
   facet_grid(gene~mhc.class, scales="free", space="free") +
-  theme_pubclean() + 
+  theme_classic() + 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), 
         axis.text.y = element_text(size = 8),
         panel.grid.major = element_blank(),

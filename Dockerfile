@@ -45,7 +45,7 @@ RUN source "$HOME/.sdkman/bin/sdkman-init.sh" && \
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
-RUN add-apt-repository -y 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/'
+RUN add-apt-repository -y 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran35/'
 RUN apt-get update
 
 RUN apt-get update \
@@ -61,10 +61,9 @@ RUN apt-get install -y libssl-dev
 RUN apt-get install -y libxml2 libxml2-dev
 
 # 'knitr', 'htmltools', 'jquerylib', 'stringr' are not available for package 'rmarkdown'
-RUN Rscript -e 'install.packages(c("rmarkdown", "ggplot2", "knitr", "ggpubr", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "ggrepel", "tidyverse", "dplyr", "httr", "xml2", "stringr", "gridExtra", "circlize", "maps", "scatterpie"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
-RUN Rscript -e 'install.packages("reshape2", repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
+RUN Rscript -e 'install.packages(c("rmarkdown", "ggplot2", "knitr", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "ggrepel", "tidyverse", "dplyr", "httr", "xml2", "stringr", "gridExtra", "circlize", "maps", "scatterpie"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
 RUN Rscript -e 'install.packages(c("stringdist", "ggseqlogo", "igraph"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
-RUN Rscript -e 'install.packages(c("reshape2", "FField", "reshape", "gplots", "gridExtra", "circlize", "ggplot2", "grid", "VennDiagram", "ape", "MASS", "plotrix", "RColorBrewer", "scales", "cowplot"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
+RUN Rscript -e 'install.packages(c("reshape2", "FField", "reshape", "gplots", "grid", "VennDiagram", "ape", "MASS", "plotrix", "scales", "cowplot"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
 
 RUN apt-get install -y texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
 RUN apt-get install -y build-essential procps curl file git
