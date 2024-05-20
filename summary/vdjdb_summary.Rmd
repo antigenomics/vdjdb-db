@@ -42,17 +42,14 @@ knitr::opts_template$set("kill_prefix"=list(comment=NA, null_prefix=TRUE))
 ```{r message=FALSE, warning=FALSE}
 library(knitr)
 library(ggplot2)
-#library(ggpubr)
 library(RColorBrewer)
 library(data.table)
 library(forcats)
-#devtools::install_github("teunbrand/ggh4x")
 library(ggh4x)
 library(ggalluvial)
 library(circlize)
 library(ggrepel)
 library(tidyverse)
-library(dplyr)
 library(httr)
 library(xml2)
 library(stringr)
@@ -181,7 +178,7 @@ p1=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = tcr_count, color = cha
   geom_line() +
   geom_point() +
   ylab("") +
-  scale_x_continuous("", breaks = seq(1995, 2021, by =2)) +
+  scale_x_continuous("", breaks = seq(1995, 2024, by =2)) +
   scale_color_brewer(palette = "Set1") +
   theme_classic() + ggtitle("Number of unique TCRs") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
@@ -190,7 +187,7 @@ p2=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = epi_count, color = cha
   geom_line() +
   geom_point() +
   ylab("") +
-  scale_x_continuous("", breaks = seq(1995, 2021, by =2)) +
+  scale_x_continuous("", breaks = seq(1995, 2024, by =2)) +
   scale_color_brewer(palette = "Set1") +
   theme_classic() + ggtitle("Number of unique epitopes") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
@@ -199,7 +196,7 @@ p3=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = ref_count, color = cha
   geom_line() +
   geom_point() +
   ylab("") +
-  scale_x_continuous("", breaks = seq(1995, 2021, by =2)) +
+  scale_x_continuous("", breaks = seq(1995, 2024, by =2)) +
   scale_color_brewer(palette = "Set1") +
   theme_classic() + ggtitle("Number of studies") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5))
@@ -208,7 +205,7 @@ p4=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = mhc_count, color = cha
   geom_line() +
   geom_point() +
   ylab("") +
-  scale_x_continuous("", breaks = seq(1995, 2021, by =2)) +
+  scale_x_continuous("", breaks = seq(1995, 2024, by =2)) +
   scale_color_brewer("TCR chain(s)", palette = "Set1") +
   theme_classic() + ggtitle("Number of MHC alleles") +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5)) +
@@ -258,7 +255,7 @@ kable(format = "html", df.a)
 
 #### **COVID-19** data
 
-Summary of antigens and T-cell receptors related to COVID-19 pandemic. Number of records for SARS-CoV-2 epitopes grouped by Gene+HLA plotted using alluvium plot. Epitopes with less than 10 records in total were not counted.
+Summary of antigens and T-cell receptors related to COVID-19 pandemic. Number of records for SARS-CoV-2 epitopes grouped by Gene+HLA plotted using alluvium plot. Epitopes with less than 30 records in total were not counted.
 
 ```{r message=FALSE, warning=FALSE, fig.width=12, fig.height=10}
 df %>% 
@@ -275,7 +272,7 @@ colnames(df.c) = c("Gene", "HLA", "Epitope", "TCR chain",
                    "Records")
 
 ggplot(df.c %>% 
-         ungroup %>% arrange(Records) %>% filter(Records >= 10),
+         ungroup %>% arrange(Records) %>% filter(Records >= 30),
        aes(axis1 = Gene,
            axis2 = gsub("HLA-", "", HLA),
            axis3 = substr(Epitope,1,3),
@@ -301,17 +298,20 @@ ggplot(df.c %>%
 p1
 ```
 
-Summary of SARS-CoV-2 epitopes and corresponding TCR alpha and beta chain specificity records
+Summary of SARS-CoV-2 epitopes and corresponding TCR alpha and beta chain specificity records (cases with 10+ records)
 
 ```{r message=FALSE, warning=FALSE}
 kable(format = "html", 
       df.c %>% reshape2::dcast(Gene + HLA + Epitope + Studies ~ `TCR chain`, fill = 0) %>%
+        filter(TRA+TRB >= 10) %>%
         arrange(-(TRB+TRA)))
 ```
 
 #### Distribution VDJdb confidence scores
 
 Legend: 0 - low confidence, 1 - medium confidence, 2 - high confidence, 3 - very high confidence.
+
+Note that this scoring system is currently deprecated due to large amounts of deep multimer+ repertoire sequencing data and 10X scRNAseq with ImmuDEX dextramer multiplex that are almost impossible to validate independently. We suggest applying methods like TCRNET to [infer high-confidence TCR motifs](https://github.com/antigenomics/vdjdb-motifs) from VDJdb.
 
 ```{r message=FALSE, warning=FALSE}
 df.score <- df %>%
@@ -465,7 +465,7 @@ df %>%
   nrow()
 ```
 
-Total epitopes
+Total COVID epitopes
 
 ```{r}
 df %>%
@@ -524,7 +524,7 @@ df %>% filter(antigen.species == "EBV") %>% nrow
 df %>% filter(antigen.species == "EBV") %>% .$antigen.epitope %>% unique %>% length
 ```
 
-Count number of HLA allotypes. Class I
+Count number of HLA haplotypes. Class I
 
 ```{r}
 df %>%
