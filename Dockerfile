@@ -62,6 +62,7 @@ RUN apt-get install -y libssl-dev
 RUN apt-get install -y libxml2 libxml2-dev
 RUN apt-get install -y libcairo2-dev libxt-dev libx11-dev
 RUN apt-get install -y libmagick++-dev
+RUN apt-get install -y libharfbuzz-dev libfribidi-dev
 
 # 'knitr', 'htmltools', 'jquerylib', 'stringr' are not available for package 'rmarkdown'
 RUN Rscript -e 'install.packages(c("knitr", "ggplot2", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "circlize", "ggrepel", "tidyverse", "httr", "xml2", "stringr", "gridExtra", "maps", "scatterpie", "dplyr", "stringr", "stringdist", "reshape2", "igraph", "ggseqlogo", "parallel", "cowplot"))'
