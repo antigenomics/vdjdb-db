@@ -330,4 +330,4 @@ mkdir -p /tmp/output
 docker run -v /tmp/output:/root/output vdjdbdb
 ```
 
-Pre-built images can be found at [DockerHub](https://hub.docker.com/r/mikessh/vdjdb)
+Pre-built images can be found at [DockerHub](https://hub.docker.com/r/mikessh/vdjdb), N.B. replace `vdjdb` with `mikessh/vdjdb:legacy` if running this image.
