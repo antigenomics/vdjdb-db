@@ -56,16 +56,15 @@ RUN apt-get update \
 
 # for R deps
 RUN apt-get install -y libnlopt-dev
+RUN apt-get install -y libfontconfig1-dev
 RUN apt-get install -y libcurl4-openssl-dev
 RUN apt-get install -y libssl-dev
 RUN apt-get install -y libxml2 libxml2-dev
+RUN apt-get install -y libcairo2-dev libxt-dev libx11-dev
+RUN apt-get install -y libmagick++-dev
 
 # 'knitr', 'htmltools', 'jquerylib', 'stringr' are not available for package 'rmarkdown'
-#RUN Rscript -e 'install.packages(c("devtools", "pak"), dependencies = TRUE)'
-#RUN Rscript -e 'devtools::install_github(c("r-lib/systemfonts", "thomasp85/ggforce", "teunbrand/ggh4x")); pak::pak("r-lib/ragg")'
-RUN Rscript -e 'install.packages(c("rmarkdown", "ggplot2", "knitr", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "ggrepel", "tidyverse", "dplyr", "httr", "xml2", "stringr", "gridExtra", "circlize", "maps", "scatterpie"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"), dependencies = TRUE)'
-RUN Rscript -e 'install.packages(c("stringdist", "ggseqlogo", "igraph"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"), dependencies = TRUE)'
-RUN Rscript -e 'install.packages(c("reshape2", "FField", "reshape", "gplots", "grid", "VennDiagram", "ape", "MASS", "plotrix", "scales", "cowplot"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"), dependencies = TRUE)'
+RUN Rscript -e 'install.packages(c("knitr", "ggplot2", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "circlize", "ggrepel", "tidyverse", "httr", "xml2", "stringr", "gridExtra", "maps", "scatterpie", "dplyr", "stringr", "stringdist", "reshape2", "igraph", "ggseqlogo", "parallel", "cowplot"))'
 
 RUN apt-get install -y texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
 RUN apt-get install -y build-essential procps curl file git
