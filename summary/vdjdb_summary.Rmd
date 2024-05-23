@@ -464,7 +464,7 @@ df.vhla.1b <- df.vhla %>%
   filter(records >= 50) %>%
   filter(gene == "TRB", mhc.class == "MHCI") %>%
   mutate(mhc.a.split = substr(mhc.a.split, 5, nchar(mhc.a.split)),
-         v.segm.split = paste0("Vβ", substr(v.segm.split, 5, nchar(v.segm.split)))) %>%
+         v.segm.split = paste0("Vb", substr(v.segm.split, 5, nchar(v.segm.split)))) %>%
   reshape2::dcast(mhc.a.split ~ v.segm.split, value.var = "records", fill = 0)
 rownames(df.vhla.1b) <- df.vhla.1b$mhc.a.split
 df.vhla.1b$mhc.a.split <- NULL
