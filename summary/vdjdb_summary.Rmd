@@ -342,7 +342,7 @@ ggplot(df.n %>%
                 color = "white", alpha = 0.8, curve_type = "sigmoid") +
   geom_stratum(fill = "white", color = "black", size=0.2) +
   geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
-  scale_fill_distiller(palette = "Set3", guide=F, "") +
+  scale_fill_distiller(palette = "Accent", guide=F, "") +
   #scale_fill_hue(guide=F, "") +
   ylab("") + scale_x_discrete(limits = c("Gene", "HLA", "Epitope", "TCR chain"),
                               expand = c(.1, .1),
@@ -397,15 +397,19 @@ Representative data for Homo Sapiens. The spectratype is colored by epitope.
 df.spe = subset(df, species=="HomoSapiens")
 
 ggplot(df.spe, 
-       aes(x=nchar(as.character(cdr3)), fill = antigen.epitope)) + 
-  geom_histogram(bins = 21, binwidth = 1, alpha = 0.9) + 
+       aes(x=nchar(as.character(cdr3)))) + 
+  geom_histogram(aes(fill = antigen.epitope), 
+                 bins = 21, 
+                 binwidth = 1, alpha = 0.9, color = NA) + 
+  geom_density(aes(y=..count..), adjust = 4, linetype = "dotted") +
   scale_x_continuous(limits = c(5,25), breaks = seq(5,25,5)) + 
   facet_wrap(~gene) + 
-  #scale_fill_distiller(palette = "Set3", guide=F, "") +
-  scale_fill_hue(guide=F) +
+  #scale_fill_distiller(palette = "Spectral", guide=F, "") +
+  scale_fill_viridis_d(guide=F, direction = -1) +
   xlab("CDR3 length") + ylab("Records") +
   theme_classic() +
-  theme(axis.line = element_line(size = 0.3))
+  theme(axis.line = element_line(size = 0.3),
+        strip.background = element_blank())
 ```
 
 #### V(D)J usage and MHC alleles
@@ -448,10 +452,11 @@ ggplot(df.vhla, aes(x=gsub("HLA-", "", paste(mhc.a.split, mhc.b.split, sep = " /
         axis.text.y = element_text(size = 8),
         panel.grid.major = element_blank(),
         legend.position = "right",
-        axis.line = element_line(size = 0.3))
+        axis.line = element_line(size = 0.3),
+        strip.background = element_blank())
 ```
 
-Zoom-in for correspondence between human TRBV genes and MHC class I alleles for links supported by more than 50 records.
+Circos plot for correspondence between human TRBV genes and MHC class I alleles for links supported by more than 50 records in terms of the ratio of observed to expected records. Band width and color (from red:highest to light yellow:lowest) are scaled proportional to co-occurrence matrix value divided by row (TRBV) and column (HLA) sums.
 
 ```{r message=FALSE, warning=FALSE, fig.width=8, fig.height=8}
 #https://jokergoo.github.io/circlize_book
@@ -459,11 +464,14 @@ df.vhla.1b <- df.vhla %>%
   filter(records >= 50) %>%
   filter(gene == "TRB", mhc.class == "MHCI") %>%
   mutate(mhc.a.split = substr(mhc.a.split, 5, nchar(mhc.a.split)),
-         v.segm.split = substr(v.segm.split, 4, nchar(v.segm.split))) %>%
+         v.segm.split = paste0("Vβ", substr(v.segm.split, 5, nchar(v.segm.split)))) %>%
   reshape2::dcast(mhc.a.split ~ v.segm.split, value.var = "records", fill = 0)
 rownames(df.vhla.1b) <- df.vhla.1b$mhc.a.split
 df.vhla.1b$mhc.a.split <- NULL
 df.vhla.1b <- df.vhla.1b %>% as.matrix()
+df.vhla.1b <- (df.vhla.1b %>% 
+  sweep(1, rowSums(df.vhla.1b), `/`) %>%
+  sweep(2, colSums(df.vhla.1b), `/`)) * sum(df.vhla.1b)
 
 grid.col <- setNames(c(colorRampPalette(brewer.pal(9, 'YlGn'))(nrow(df.vhla.1b)) %>% rev, 
                        colorRampPalette(brewer.pal(9, 'PuBu'))(ncol(df.vhla.1b))), 
