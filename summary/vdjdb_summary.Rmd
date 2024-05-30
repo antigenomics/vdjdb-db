@@ -396,16 +396,19 @@ Representative data for Homo Sapiens. The spectratype is colored by epitope.
 ```{r message=FALSE, warning=FALSE}
 df.spe = subset(df, species=="HomoSapiens")
 
-ggplot(df.spe, 
-       aes(x=nchar(as.character(cdr3)))) + 
-  geom_histogram(aes(fill = antigen.epitope), 
-                 bins = 21, 
+ggplot(df.spe %>% mutate(
+  epi_len = nchar(antigen.epitope),
+  antigen.epitope = as.factor(antigen.epitope)), 
+  aes(x=nchar(as.character(cdr3)))) + 
+  geom_histogram(aes(fill = antigen.epitope %>% fct_reorder(epi_len) %>% as.integer(), 
+                     group = antigen.epitope), #), 
+                 bins = 21, size = 0,
                  binwidth = 1, alpha = 0.9, color = NA) + 
   geom_density(aes(y=..count..), adjust = 4, linetype = "dotted") +
   scale_x_continuous(limits = c(5,25), breaks = seq(5,25,5)) + 
   facet_wrap(~gene) + 
-  #scale_fill_distiller(palette = "Spectral", guide=F, "") +
-  scale_fill_viridis_d(guide=F, direction = -1) +
+  scale_fill_distiller(palette = "Spectral", guide=F, "") +
+  #scale_fill_viridis_d(guide=F, direction = -1) +
   xlab("CDR3 length") + ylab("Records") +
   theme_classic() +
   theme(axis.line = element_line(size = 0.3),
