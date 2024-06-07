@@ -209,6 +209,15 @@ QPFPQPELPYP	TriticumAestivum	Gliadin
 PSGEGSFQPSQENPQ	TriticumAestivum	Gliadin
 QLQPFPQPELPY    TriticumAestivum    Gliadin
 PQPELPYPQPQL    TriticumAestivum    Gliadin
+FPQPEQPFPWQP	TriticumAestivum	Gliadin
+PFPQPELPY	TriticumAestivum	Gliadin
+PQPELPYPQ	TriticumAestivum	Gliadin
+PQPELPYPQPE	TriticumAestivum	Gliadin
+PQPELPYPQPQ	TriticumAestivum	Gliadin
+PQPQLPYPQPQ	TriticumAestivum	Gliadin
+PQQPFPQPEQPFP	TriticumAestivum	Gliadin
+LQPFPQPELPYGSGGS	TriticumAestivum	Gliadin
+QPFPQPEQPFP	TriticumAestivum	Gliadin
 RGYVYQGL	VSV	N
 RGYVYKGL	VSV	N
 RGYVYEGL	VSV	N
@@ -221,8 +230,6 @@ RMYSPVSI	HIV-1	Gag
 RMYSPVSIL	HIV-1	Gag
 ALHGGWTTK	HomoSapiens	PIK3CA
 HMTEVVRHC	HomoSapiens	p53
-LQPFPQPELPYGSGGS	TriticumAestivum	Gliadin
-QPFPQPEQPFP	TriticumAestivum	Gliadin
 HMTEVVRHC	HomoSapiens	p53
 PGVLLKEFTVSGNIL	HomoSapiens	NY-ESO-1
 APRGPHGGAASGL	HomoSapiens	NY-ESO-1
