@@ -175,6 +175,10 @@ dt.vdjdb.s2 = dt.vdjdb.s %>%
             mhc_count = length(unique(mhc_key[which(pub_date <= pub_date2)])))
 
 p1=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = tcr_count, color = chains)) +
+  annotate("segment", x = 2017, xend = 2017, y = 0, yend = 19000, linetype="dotted", size = 0.3) +
+  annotate("text", x = 2017, y = 21000, label = "AIRR-seq for tet+", hjust = 1, vjust = 1) +
+  annotate("segment", x = 2019, xend = 2019, y = 0, yend = 27000, linetype="dotted", size = 0.3) +
+  annotate("text", x = 2019, y = 30000, label = "10X & dCODE", hjust = 1, vjust = 1) +
   geom_line() +
   geom_point() +
   ylab("") +
@@ -185,6 +189,8 @@ p1=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = tcr_count, color = cha
         axis.line = element_line(size = 0.3))
 
 p2=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = epi_count, color = chains)) +
+  annotate("segment", x = 2021, xend = 2021, y = 0, yend = 1000, linetype="dotted", size = 0.3) +
+  annotate("text", x = 2021, y = 1150, label = "COVID-19 studies", hjust = 1, vjust = 1) +
   geom_line() +
   geom_point() +
   ylab("") +
@@ -391,7 +397,7 @@ ggplot(df.score, aes(x=paste(mhc.class, gene, sep = " "), y=total, fill = as.fac
 
 #### Spectratype
 
-Representative data for Homo Sapiens. The spectratype is colored by epitope.
+Representative data for Homo Sapiens. CDR3 length distribution (spectratype) is colored by cognate epitope. Second plot shows epitope length distribution for MHC class I and II colored by unique CDR3 (alpha or beta) records.
 
 ```{r message=FALSE, warning=FALSE}
 df.spe = subset(df, species=="HomoSapiens")
@@ -400,16 +406,37 @@ ggplot(df.spe %>% mutate(
   epi_len = nchar(antigen.epitope),
   antigen.epitope = as.factor(antigen.epitope)), 
   aes(x=nchar(as.character(cdr3)))) + 
-  geom_histogram(aes(fill = antigen.epitope %>% fct_reorder(epi_len) %>% as.integer(), 
-                     group = antigen.epitope), #), 
+  geom_histogram(aes(fill = antigen.epitope %>% 
+                       fct_reorder(epi_len) %>% as.integer(),
+                     group = antigen.epitope %>% 
+                       fct_reorder(epi_len)), 
                  bins = 21, size = 0,
                  binwidth = 1, alpha = 0.9, color = NA) + 
-  geom_density(aes(y=..count..), adjust = 4, linetype = "dotted") +
+  geom_density(aes(y=..count..), adjust = 3.0, linetype = "dotted") +
   scale_x_continuous(limits = c(5,25), breaks = seq(5,25,5)) + 
   facet_wrap(~gene) + 
   scale_fill_distiller(palette = "Spectral", guide=F, "") +
   #scale_fill_viridis_d(guide=F, direction = -1) +
   xlab("CDR3 length") + ylab("Records") +
+  theme_classic() +
+  theme(axis.line = element_line(size = 0.3),
+        strip.background = element_blank())
+
+ggplot(df.spe %>% mutate(
+  cdr3_len = nchar(cdr3),
+  cdr3 = as.factor(cdr3)), 
+  aes(x=nchar(antigen.epitope))) + 
+  geom_histogram(aes(fill = cdr3 %>% 
+                       fct_reorder(cdr3_len) %>% as.integer(),
+                     group = cdr3 %>% 
+                       fct_reorder(cdr3_len)), 
+                 size = 0,
+                 binwidth = 1, alpha = 0.9, color = NA) + 
+  scale_x_continuous(breaks = 7:25) + 
+  facet_wrap(.~mhc.class, scales = "free") + 
+  scale_fill_distiller(palette = "Spectral", guide=F, "") +
+  #scale_fill_viridis_d(guide=F, direction = -1) +
+  xlab("Epitope length") + ylab("Records") +
   theme_classic() +
   theme(axis.line = element_line(size = 0.3),
         strip.background = element_blank())
