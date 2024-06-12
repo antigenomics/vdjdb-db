@@ -108,7 +108,8 @@ ids = unique((dt.vdjdb.s %>%
   filter(substr(reference.id,1,4)=="PMID") %>%
   mutate(id = str_split_fixed(reference.id, ":", 2)[,2]))$id)
 
-pm_data = content(GET("https://eutils.ncbi.nlm.nih.gov/", 
+pm_data = content(GET("https://eutils.ncbi.nlm.nih.gov/",
+                      timeout(60),
                       path = "entrez/eutils/esummary.fcgi",
                       query = list(db = "pubmed", 
                                    id = paste0(ids,collapse = ","))))
