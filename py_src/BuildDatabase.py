@@ -294,6 +294,10 @@ for _, clone in master_table.iterrows():
             #add_here
             clones_list.append(clone_compact)
 
+if not args.no2fix:
+    print("Fixing CDR3 sequences (stage II)")
+    print("(it may take a while...)")
+
             #     methodAnnot,
             #     metaAnnot,
             #     row["cdr3fix.$it"],
