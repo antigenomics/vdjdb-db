@@ -291,8 +291,16 @@ for _, clone in master_table.iterrows():
                                                                            for coll in SIGNATURE_COLS_PER_SAMPLE)][
                                                              'reference.id'].unique())
 
-            #add_here
+            clone_compact['cdr3fix'] = ''
+            clone_compact['vdjdb.score'] = 1
+            clone_compact['web.method'] = get_web_method(clone['method.identification'])
+            clone_compact['web.method.seq'] = get_web_method_seq(clone)
+            clone_compact['web.cdr3fix.nc'] = '.'
+            clone_compact['web.cdr3fix.unmp'] = '.'
+
             clones_list.append(clone_compact)
+    pd.concat(clones_list).to_csv('../database/vdjdb.txt', sep='\t')
+
 
 if not args.no2fix:
     print("Fixing CDR3 sequences (stage II)")
