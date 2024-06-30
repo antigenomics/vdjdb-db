@@ -90,8 +90,8 @@ def generate_default_db(master_table: pd.DataFrame):
                 clone_compact['vdjdb.score'] = 1
                 clone_compact['web.method'] = get_web_method(clone['method.identification'])
                 clone_compact['web.method.seq'] = get_web_method_seq(clone)
-                clone_compact['web.cdr3fix.nc'] = '.'
-                clone_compact['web.cdr3fix.unmp'] = '.'
+                clone_compact['web.cdr3fix.nc'] = 'no'
+                clone_compact['web.cdr3fix.unmp'] = 'no'
 
                 clones_list.append(clone_compact)
     pd.concat(clones_list).to_csv('../database/vdjdb.txt', sep='\t')

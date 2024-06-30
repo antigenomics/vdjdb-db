@@ -51,10 +51,8 @@ if __name__ == 'main':
     master_table.to_csv('../database/vdjdb_full.txt', sep='\t')
 
     default_db = generate_default_db(master_table)
+    print("Generating and writing slim database")
 
-    if not args.no2fix:
-        print("Fixing CDR3 sequences (stage II)")
-        print("(it may take a while...)")
 
 
 
