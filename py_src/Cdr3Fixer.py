@@ -1,8 +1,11 @@
+from OneSideFixerResult import OneSideFixerResult
+from FixType import FixType
+
 import pandas as pd
 
 from collections import defaultdict
 from typing import List, Tuple, Optional
-import os
+
 
 
 class Cdr3Fixer:
@@ -15,6 +18,13 @@ class Cdr3Fixer:
 
         self._load_segments_data(segments_file_name)
         self._load_segments_sequence_data(segments_seq_file_name)
+        self.nomenclature_conversions = defaultdict(lambda: None,
+                                                    pd.read_csv("../patches/nomenclature.conversions",
+                                                                sep='\t',
+                                                                index_col=0,
+                                                                header=None,
+                                                                skiprows=1
+                                                                )[0].to_dict())
 
     def _load_segments_data(self, segments_file_name: str) -> None:
 
@@ -23,7 +33,7 @@ class Cdr3Fixer:
         for _, segment in segments_file.iterrows():
 
             if segment.segment.lower().startswith("v") or segment.segment.lower().startswith("j"):
-                is_j_segment = segment.segment.lower().startswith("v")
+                is_j_segment = segment.segment.lower().startswith("j")
                 segment.sequence = segment.sequence[:segment.reference_point + 4] if is_j_segment \
                     else segment.sequence[segment.reference_point - 3:]
 
@@ -38,21 +48,20 @@ class Cdr3Fixer:
             self.segments_by_sequence_part_by_species_gene[species_chain][segment.cdr3] = segment.segm
 
     def get_closest_id(self, species: str, segment_id: str) -> Optional[str]:
-        segments_by_id = self.segments_by_id_by_species.get(species.lower())
+        segments_by_id = self.segments_by_id_by_species[species.lower()]
 
         if species.lower() == "homosapiens":
-            conversion = self.nomenclature_conversions.get(segment_id)
+            conversion = self.nomenclature_conversions[segment_id]
             if conversion:
                 segment_id = conversion
 
         if not segments_by_id:
             return None
 
-        for id_variant in [segment_id, self.simplify_segment_name(segment_id)]:
-            for it in [id_variant, f"{it}*01", *[f"{it}-{i}*01" for i in range(1, 101)]]:
-                if it in segments_by_id:
-                    return it
-
+        for id_variant in [segment_id, *self.simplify_segment_name(segment_id)]:
+            for possible_variant in [id_variant, f"{id_variant}*01", *[f"{id_variant}-{i}*01" for i in range(1, 101)]]:
+                if possible_variant in segments_by_id.keys():
+                    return possible_variant
         return None
 
     def get_segment_seq(self, species: str, segment_id: str) -> Optional[str]:
@@ -63,7 +72,21 @@ class Cdr3Fixer:
 
         return segments_by_id.get(segment_id)
 
-    def fix(self, cdr3: str, segment_id: str, species: str, five_prime: bool) -> Tuple[str, str, str]:
+    def fix(self, cdr3: str, segment_id: str, species: str, five_prime: bool) -> OneSideFixerResult:
+        closest_id = self.get_closest_id(species, segment_id)
+        segment_seq = self.get_segment_seq(species, closest_id)
+        if not segment_seq:
+            return OneSideFixerResult(cdr3 if five_prime else cdr3.reverse(),
+                                      closest_id,
+                                      FixType.FailedBadSegment)
+        if not five_prime:
+            cdr3 = cdr3[::-1]
+            segment_seq = segment_seq[::-1]
+
+
+
+
+    def fix_dep(self, cdr3: str, segment_id: str, species: str, five_prime: bool) -> Tuple[str, str, str]:
         closest_id = self.get_closest_id(species, segment_id)
         segment_seq = self.get_segment_seq(species, closest_id)
 
@@ -133,9 +156,9 @@ class Cdr3Fixer:
         return seq
 
     @staticmethod
-    def simplify_segment_name(segment_id: str) -> str:
-        # Placeholder for simplify_segment_name function
-        return segment_id
+    def simplify_segment_name(segment_name):
+        no_allele = segment_name.split("*")[0]
+        return [no_allele, no_allele.split("-")[0]]
 
     @staticmethod
     def find_hit(cdr3: str, segment_seq: str) -> Optional[Tuple[int, int]]:
