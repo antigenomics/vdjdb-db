@@ -42,8 +42,8 @@ class Cdr3Fixer:
 
     def _load_segments_sequence_data(self, segments_seq_file_name: str) -> None:
 
-        segments_seq_file_name = pd.read_csv(segments_seq_file_name, sep='\t')
-        for _, segment in segments_seq_file_name.iterrows():
+        segments_seq_file = pd.read_csv(segments_seq_file_name, sep='\t')
+        for _, segment in segments_seq_file.iterrows():
             species_chain = segment.species + (".alpha" if segment.gene == "TRA" else ".beta")
             self.segments_by_sequence_part_by_species_gene[species_chain][segment.cdr3] = segment.segm
 

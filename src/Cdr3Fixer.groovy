@@ -15,6 +15,15 @@
  */
 
 class Cdr3Fixer {
+import groovy.json.JsonBuilder
+import groovy.json.JsonSlurper
+
+/*
+*  segmentsByIdBySpecies - {specie: {segment_id: aa_seq}}
+*  refPoint - ??
+*  segmentsBySequencePartBySpeciesGene - {specie: {cdr3_part: segment_id}}
+*/
+
     final Map<String, Map<String, String>> segmentsBySequencePartBySpeciesGene = new HashMap<>()
     final Map<String, Map<String, String>> segmentsByIdBySpecies = new HashMap<>()
     final int maxReplaceSize, minHitSize
@@ -69,6 +78,7 @@ class Cdr3Fixer {
     }
 
     String getClosestId(String species, String id) {
+    // search closest gene name
         def segmentsById = segmentsByIdBySpecies[species.toLowerCase()]
 
         if (species.toLowerCase() == "homosapiens") {
@@ -94,6 +104,7 @@ class Cdr3Fixer {
     }
 
     String getSegmentSeq(String species, String id) {
+    // return cdr3aa seq
         if (id == null)
             return null
 
@@ -106,6 +117,7 @@ class Cdr3Fixer {
     }
 
     OneSideFixerResult fix(String cdr3, String id, String species, boolean fivePrime) {
+    // fivePrime - ??
         String closestId = getClosestId(species, id)
         String segmentSeq = getSegmentSeq(species, closestId)
 
