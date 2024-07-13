@@ -1,11 +1,12 @@
 from OneSideFixerResult import OneSideFixerResult
-from FixType import FixType
+import FixType
+from KmerScanner import KmerScanner
+from FixerResults import FixerResult
 
 import pandas as pd
 
 from collections import defaultdict
-from typing import List, Tuple, Optional
-
+from typing import Tuple, Optional
 
 
 class Cdr3Fixer:
@@ -76,48 +77,43 @@ class Cdr3Fixer:
         closest_id = self.get_closest_id(species, segment_id)
         segment_seq = self.get_segment_seq(species, closest_id)
         if not segment_seq:
-            return OneSideFixerResult(cdr3 if five_prime else cdr3.reverse(),
+            return OneSideFixerResult(cdr3 if five_prime else cdr3[::-1],
                                       closest_id,
                                       FixType.FailedBadSegment)
         if not five_prime:
             cdr3 = cdr3[::-1]
             segment_seq = segment_seq[::-1]
 
+        scanner = KmerScanner(segment_seq, self.min_hit_size)
 
-
-
-    def fix_dep(self, cdr3: str, segment_id: str, species: str, five_prime: bool) -> Tuple[str, str, str]:
-        closest_id = self.get_closest_id(species, segment_id)
-        segment_seq = self.get_segment_seq(species, closest_id)
-
-        if not segment_seq:
-            return (
-                cdr3 if five_prime else cdr3[::-1],
-                closest_id,
-                "FailedBadSegment"
-            )
-
-        if not five_prime:
-            cdr3 = cdr3[::-1]
-            segment_seq = segment_seq[::-1]
-
-        hit = self.find_hit(cdr3, segment_seq)
+        hit = scanner.scan(cdr3)
 
         if hit:
-            if hit[1] == 0:
-                if hit[0] == 0:
-                    return cdr3, closest_id, "NoFixNeeded"
+            if hit.start_in_segment == 0:
+                if hit.start_in_cdr3 == 0:
+                    return OneSideFixerResult(cdr3, closest_id, FixType.NoFixNeeded, hit.match_size)
                 else:
-                    return cdr3[hit[0]:], closest_id, "FixTrim"
+                    return OneSideFixerResult(cdr3[hit.start_in_cdr3:], closest_id, FixType.FixTrim, hit.match_size)
             else:
-                if hit[0] == 0:
-                    return segment_seq[:hit[1]] + cdr3, closest_id, "FixAdd"
-                elif hit[0] <= self.max_replace_size:
-                    return segment_seq[:hit[1]] + cdr3[hit[0]:], closest_id, "FixReplace"
+                if hit.start_in_cdr3 == 0:
+                    return OneSideFixerResult(segment_seq[:hit.start_in_segment] + cdr3,
+                                              closest_id,
+                                              FixType.FixAdd,
+                                              hit.match_size
+                                              )
+                elif hit.start_in_cdr3 <= self.max_replace_size:
+                    return OneSideFixerResult(segment_seq[:hit.start_in_segment] + cdr3[hit.start_in_cdr3:],
+                                              closest_id,
+                                              FixType.FixReplace,
+                                              hit.match_size
+                                              )
                 else:
-                    return cdr3, closest_id, "FailedReplace"
+                    return OneSideFixerResult(segment_seq,
+                                              closest_id,
+                                              FixType.FailedReplace,
+                                              )
         else:
-            return cdr3, closest_id, "FailedNoAlignment"
+            return OneSideFixerResult(cdr3, closest_id, FixType.FailedNoAlignment)
 
     def guess_id(self, cdr3: str, species: str, gene: str, five_prime: bool) -> str:
         species_gene = f"{species}.{gene}"
@@ -131,24 +127,32 @@ class Cdr3Fixer:
                 res = segment_seq_map.get(cdr3[:i])
                 if res:
                     return res
+                return ""
         else:
             for i in range(2, len(cdr3) - 3):
                 res = segment_seq_map.get(cdr3[i:])
                 if res:
                     return res
+            else: return ""
 
-        return ""
-
-    def fix_both(self, cdr3: str, v_id: str, j_id: str, species: str, gene: str) -> Tuple[str, str]:
+    def fix_both(self, cdr3: str, v_id: str, j_id: str, species: str):
         v_results = [self.fix(cdr3, v, species, True) for v in v_id.split(",")]
-        v_result = min(v_results, key=lambda x: self.rank_fix_type(x[2]))
+        v_result = min(v_results, key=lambda x: x.FixType.rank)
 
-        j_results = [self.fix(v_result[0], j, species, False) for j in j_id.split(",")]
-        j_result = min(j_results, key=lambda x: self.rank_fix_type(x[2]))
+        j_results = [self.fix(v_result.cdr3, j, species, False) for j in j_id.split(",")]
+        j_result = min(j_results, key=lambda x: x.FixType.rank)
 
-        new_cdr3 = j_result[0][::-1]
+        new_cdr3 = j_result.cdr3[::-1]
 
-        return new_cdr3, v_result[0], j_result[0]
+        return FixerResult(
+            new_cdr3,
+            cdr3,
+            new_cdr3 != cdr3,
+            v_result.x,
+            j_result.x if j_result.x < 0 else len(new_cdr3) - j_result.x,
+            v_result.segmentId, v_result.FixType,
+            j_result.segmentId, j_result.FixType
+        )
 
     @staticmethod
     def translate_linear(seq: str, is_j_segment: bool) -> str:

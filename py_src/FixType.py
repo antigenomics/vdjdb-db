@@ -2,13 +2,6 @@ from enum import Enum
 
 
 class FixType(Enum):
-    NoFixNeeded = (False, True, 0)
-    FixAdd = (True, True, 2)
-    FixTrim = (True, True, 1)
-    FixReplace = (True, True, 3)
-    FailedReplace = (True, False, 5)
-    FailedBadSegment = (False, False, 4)
-    FailedNoAlignment = (True, False, 6)
 
     def __new__(cls, fix_attempted, good, rank):
         obj = object.__new__(cls)
@@ -19,3 +12,12 @@ class FixType(Enum):
         self.fix_attempted = fix_attempted
         self.good = good
         self.rank = rank
+
+
+NoFixNeeded = FixType(False, True, 0)
+FixAdd = FixType(True, True, 2)
+FixTrim = FixType(True, True, 1)
+FixReplace = FixType(True, True, 3)
+FailedReplace = FixType(True, False, 5)
+FailedBadSegment = FixType(False, False, 4)
+FailedNoAlignment = FixType(True, False, 6)

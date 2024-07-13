@@ -1,6 +1,12 @@
 from dataclasses import dataclass
 
 
+@dataclass
+class SearchResult:
+    start_in_segment: int
+    start_in_cdr3: int
+    match_size: int
+
 class KmerScanner:
     """
     Scans other segment seq to get overlap with cdr3 seq
@@ -15,7 +21,7 @@ class KmerScanner:
                 kmer = seq[j:j + i]
                 self.kmers[kmer] = j
 
-    def scan(self, seq):
+    def scan(self, seq) -> SearchResult:
         best_hit = max(
             (SearchResult(self.kmers.get(seq[j:j + i], -1), j, i) for i in range(self.min_hit_size, len(seq))
              for j in range(len(seq) - i + 1))
@@ -23,9 +29,3 @@ class KmerScanner:
 
         return best_hit if best_hit.match_size > 0 else None
 
-
-@dataclass
-class SearchResult:
-    start_in_segment: int
-    start_in_cdr3: int
-    match_size: int
