@@ -2,11 +2,12 @@ from OneSideFixerResult import OneSideFixerResult
 import FixType
 from KmerScanner import KmerScanner
 from FixerResults import FixerResult
+from Utils import translate_linear, simplify_segment_name
 
 import pandas as pd
 
 from collections import defaultdict
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Any
 
 
 class Cdr3Fixer:
@@ -38,7 +39,7 @@ class Cdr3Fixer:
                 segment.sequence = segment.sequence[:segment.reference_point + 4] if is_j_segment \
                     else segment.sequence[segment.reference_point - 3:]
 
-                self.segments_by_id_by_species[segment['#species']][segment.id] = self.translate_linear(
+                self.segments_by_id_by_species[segment['#species']][segment.id] = translate_linear(
                     segment.sequence, is_j_segment)
 
     def _load_segments_sequence_data(self, segments_seq_file_name: str) -> None:
@@ -59,7 +60,7 @@ class Cdr3Fixer:
         if not segments_by_id:
             return None
 
-        for id_variant in [segment_id, *self.simplify_segment_name(segment_id)]:
+        for id_variant in [segment_id, *simplify_segment_name(segment_id)]:
             for possible_variant in [id_variant, f"{id_variant}*01", *[f"{id_variant}-{i}*01" for i in range(1, 101)]]:
                 if possible_variant in segments_by_id.keys():
                     return possible_variant
@@ -115,25 +116,26 @@ class Cdr3Fixer:
         else:
             return OneSideFixerResult(cdr3, closest_id, FixType.FailedNoAlignment)
 
-    def guess_id(self, cdr3: str, species: str, gene: str, five_prime: bool) -> str:
+    def guess_id(self, cdr3: str, species: str, gene: str, five_prime: bool) -> str | None:
         species_gene = f"{species}.{gene}"
         segment_seq_map = self.segments_by_sequence_part_by_species_gene.get(species_gene)
 
         if not segment_seq_map:
-            return ""
+            return None
 
         if five_prime:
             for i in range(len(cdr3) - 4, 1, -1):
                 res = segment_seq_map.get(cdr3[:i])
                 if res:
                     return res
-                return ""
+                return None
         else:
             for i in range(2, len(cdr3) - 3):
                 res = segment_seq_map.get(cdr3[i:])
                 if res:
                     return res
-            else: return ""
+            else:
+                return None
 
     def fix_both(self, cdr3: str, v_id: str, j_id: str, species: str):
         v_results = [self.fix(cdr3, v, species, True) for v in v_id.split(",")]
@@ -154,22 +156,3 @@ class Cdr3Fixer:
             j_result.segmentId, j_result.FixType
         )
 
-    @staticmethod
-    def translate_linear(seq: str, is_j_segment: bool) -> str:
-        # Simplified placeholder for translate_linear function
-        return seq
-
-    @staticmethod
-    def simplify_segment_name(segment_name):
-        no_allele = segment_name.split("*")[0]
-        return [no_allele, no_allele.split("-")[0]]
-
-    @staticmethod
-    def find_hit(cdr3: str, segment_seq: str) -> Optional[Tuple[int, int]]:
-        # Placeholder for find_hit function
-        return None
-
-    @staticmethod
-    def rank_fix_type(fix_type: str) -> int:
-        # Placeholder for rank_fix_type function
-        return 0

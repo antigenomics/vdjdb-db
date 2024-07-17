@@ -1,5 +1,6 @@
 import re
 
+
 def replace_non_aa(seq):
     return re.sub('[^FLSYCWPHQRIMTNKVADEG]', 'X', seq)
 
@@ -73,7 +74,7 @@ translate_dict = {'TTT': 'F',
                   'GGC': 'G',
                   'GGA': 'G',
                   'GGG': 'G'
-                }
+                  }
 
 
 def translate_linear(seq, reverse=False):
@@ -91,4 +92,3 @@ def translate_linear(seq, reverse=False):
             aa_seq += translate_dict[codon]
 
     return aa_seq
-
