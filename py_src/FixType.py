@@ -1,13 +1,4 @@
-from enum import Enum
-
-
-class FixType(Enum):
-
-    def __new__(cls, fix_attempted, good, rank):
-        obj = object.__new__(cls)
-        obj._value_ = (fix_attempted, good, rank)
-        return obj
-
+class FixType():
     def __init__(self, fix_attempted, good, rank):
         self.fix_attempted = fix_attempted
         self.good = good

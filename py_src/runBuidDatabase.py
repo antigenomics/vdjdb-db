@@ -4,7 +4,6 @@ import pandas as pd
 import warnings
 from dataclasses import asdict
 
-
 from ChunkQC import ChunkQC, ALL_COLS
 # from AlignBestSegments import *
 from Cdr3Fixer import Cdr3Fixer
@@ -14,7 +13,7 @@ antigen_df = pd.read_csv("../patches/antigen_epitope_species_gene.dict", sep='\t
 aggregated_species = antigen_df.groupby(level=0)['antigen.species'].agg(lambda x: x.iloc[0] if len(x) == 1 else list(x))
 aggregated_gene = antigen_df.groupby(level=0)['antigen.gene'].agg(lambda x: x.iloc[0] if len(x) == 1 else list(x))
 
-if __name__ == 'main':
+if __name__ == '__main__':
 
     os.makedirs('../tmp/', exist_ok=True)
 
@@ -28,10 +27,11 @@ if __name__ == 'main':
 
     chunk_files = [chunk_file for chunk_file in chunk_files if chunk_file[0] != '.' and chunk_file.endswith('.txt')]
 
+    print(len(chunk_files))
     chunk_df_list = []
 
     for chunk_file in chunk_files:
-        chunk_df = pd.read_csv(chunk_file, sep='\t', encoding_errors='ignore')
+        chunk_df = pd.read_csv(f'../chunks/{chunk_file}', sep='\t', encoding_errors='ignore')
         chunk_qc = ChunkQC(chunk_df)
         chunk_error_messages = chunk_qc.process_chunk()
 
@@ -68,15 +68,16 @@ if __name__ == 'main':
             else x[f'j.{gene}'])
 
         fixer_results = master_table.T.apply(
-            lambda x: cdr3_fixer.fix(x[f'cdr3.{gene}'],
-                                     x[f'v.{gene}'],
-                                     x[f'j.{gene}'],
-                                     x.species,
-                                     ) if not pd.isnull(x[f'cdr3.{gene}']) else None)
-
-        master_table[f'cdr3.{gene}'] = fixer_results.apply(lambda x: x.cdr3)
+            lambda x: cdr3_fixer.fix_both(x[f'cdr3.{gene}'],
+                                          x[f'v.{gene}'],
+                                          x[f'j.{gene}'],
+                                          x.species,
+                                          ) if not pd.isnull(x[f'cdr3.{gene}']) else None)
+        #remake fixer results
+        master_table[f'cdr3.{gene}'] = fixer_results.apply(lambda x: x.cdr3 if x else None)
         master_table[f'cdr3fix.{gene}'] = fixer_results.apply(lambda x: asdict(x) if x else None)
 
+    master_table.to_csv('../database/vdjdb_full.txt', sep='\t')
 
     default_db = generate_default_db(master_table)
     print("Generating and writing slim database")

@@ -26,7 +26,7 @@ class Cdr3Fixer:
                                                                 index_col=0,
                                                                 header=None,
                                                                 skiprows=1
-                                                                )[0].to_dict())
+                                                                )[1].to_dict()) #rewrite it
 
     def _load_segments_data(self, segments_file_name: str) -> None:
 
@@ -116,26 +116,26 @@ class Cdr3Fixer:
         else:
             return OneSideFixerResult(cdr3, closest_id, FixType.FailedNoAlignment)
 
-    def guess_id(self, cdr3: str, species: str, gene: str, five_prime: bool) -> str | None:
+    def guess_id(self, cdr3: str, species: str, gene: str, five_prime: bool) -> str:
         species_gene = f"{species}.{gene}"
         segment_seq_map = self.segments_by_sequence_part_by_species_gene.get(species_gene)
 
         if not segment_seq_map:
-            return None
+            return ""
 
         if five_prime:
             for i in range(len(cdr3) - 4, 1, -1):
                 res = segment_seq_map.get(cdr3[:i])
                 if res:
                     return res
-                return None
+                return ""
         else:
             for i in range(2, len(cdr3) - 3):
                 res = segment_seq_map.get(cdr3[i:])
                 if res:
                     return res
             else:
-                return None
+                return ""
 
     def fix_both(self, cdr3: str, v_id: str, j_id: str, species: str):
         v_results = [self.fix(cdr3, v, species, True) for v in v_id.split(",")]
