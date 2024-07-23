@@ -79,6 +79,7 @@ def generate_default_db(master_table: pd.DataFrame):
 
                 clone_compact['method'] = {coll.split('method.')[1]: clone[coll] for coll in METHOD_COLUMNS}
                 clone_compact['meta'] = {coll.split('meta.')[1]: clone[coll] for coll in META_COLUMNS}
+                #https://stackoverflow.com/questions/63144792/pandas-multiindex-with-none-values
                 clone_compact['meta']['samples.found'] = sample_counts.loc[(clone[coll] for coll
                                                                             in SIGNATURE_COLS_PER_SAMPLE)]
                 clone_compact['meta']['studies.found'] = len(study_counts.loc[(clone[coll]

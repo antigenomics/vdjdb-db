@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from enum import Enum
 from FixType import FixType
 
 
@@ -33,3 +32,25 @@ class FixerResult:
 
     def is_good(self):
         return self.vFixType.good and self.jFixType.good
+
+    # {"cdr3": "CASSIVGGNEQFF", "cdr3_old": "CASSIVGGNEQFF", "fixNeeded": false, "good": true, "jCanonical": true,
+    #  "jFixType": "NoFixNeeded", "jId": "TRBJ2-1*01", "jStart": 8, "vCanonical": true, "vEnd": 5,
+    #  "vFixType": "NoFixNeeded", "vId": "TRBV19*01"}
+
+    def results_to_dict(self):
+        return {
+            "cdr3": self.cdr3,
+            "cdr3_old": self.cdr3_old,
+            "fixNeeded": self.fixNeeded,
+            "good": self.is_good(),
+            "jCanonical": self.jCanonical,
+            "jFixType": self.jFixType.name,
+            "jId": self.jId,
+            "jStart": self.jStart,
+            "vCanonical": self.vCanonical,
+            "vEnd": self.vEnd,
+            "vFixType": self.vFixType.name,
+            "vId": self.vId
+        }
+
+

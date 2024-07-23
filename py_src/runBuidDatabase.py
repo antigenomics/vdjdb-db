@@ -2,7 +2,6 @@ import os
 import argparse
 import pandas as pd
 import warnings
-from dataclasses import asdict
 
 from ChunkQC import ChunkQC, ALL_COLS
 # from AlignBestSegments import *
@@ -10,8 +9,8 @@ from Cdr3Fixer import Cdr3Fixer
 from GenerateDefaultDB import generate_default_db
 
 antigen_df = pd.read_csv("../patches/antigen_epitope_species_gene.dict", sep='\t', index_col=0)
-aggregated_species = antigen_df.groupby(level=0)['antigen.species'].agg(lambda x: x.iloc[0] if len(x) == 1 else list(x))
-aggregated_gene = antigen_df.groupby(level=0)['antigen.gene'].agg(lambda x: x.iloc[0] if len(x) == 1 else list(x))
+aggregated_species = antigen_df.groupby(level=0)['antigen.species'].agg(lambda x: x.iloc[0] if len(x) == 1 else tuple(x))
+aggregated_gene = antigen_df.groupby(level=0)['antigen.gene'].agg(lambda x: x.iloc[0] if len(x) == 1 else tuple(x))
 
 if __name__ == '__main__':
 
@@ -41,10 +40,10 @@ if __name__ == '__main__':
             warnings.warn(warn_message)
 
         chunk_df['antigen.species'] = chunk_df['antigen.epitope'].apply(
-            lambda x: aggregated_species[x] if x in aggregated_species else None
+            lambda x: aggregated_species[x] if x in aggregated_species else x
         )
         chunk_df['antigen.gene'] = chunk_df['antigen.epitope'].apply(
-            lambda x: aggregated_gene[x] if x in aggregated_gene else None
+            lambda x: aggregated_gene[x] if x in aggregated_gene else x
         )
 
         chunk_df_list.append(chunk_df)
@@ -75,9 +74,9 @@ if __name__ == '__main__':
                                           ) if not pd.isnull(x[f'cdr3.{gene}']) else None)
         #remake fixer results
         master_table[f'cdr3.{gene}'] = fixer_results.apply(lambda x: x.cdr3 if x else None)
-        master_table[f'cdr3fix.{gene}'] = fixer_results.apply(lambda x: asdict(x) if x else None)
+        master_table[f'cdr3fix.{gene}'] = fixer_results.apply(lambda x: x.results_to_dict() if x else None)
 
     master_table.to_csv('../database/vdjdb_full.txt', sep='\t')
-
+    master_table.to_pickle('../database/vdjdb_full.pkl',)
     default_db = generate_default_db(master_table)
     print("Generating and writing slim database")
