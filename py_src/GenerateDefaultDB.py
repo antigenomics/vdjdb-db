@@ -51,6 +51,7 @@ SIGNATURE_COLS_PER_SAMPLE = [
 
 
 def generate_default_db(master_table: pd.DataFrame):
+    master_table.fillna('', inplace=True)
     complex_id_count = 0
 
     sample_counts = master_table.value_counts(subset=SIGNATURE_COLS_PER_SAMPLE)
@@ -79,13 +80,13 @@ def generate_default_db(master_table: pd.DataFrame):
 
                 clone_compact['method'] = {coll.split('method.')[1]: clone[coll] for coll in METHOD_COLUMNS}
                 clone_compact['meta'] = {coll.split('meta.')[1]: clone[coll] for coll in META_COLUMNS}
-                #https://stackoverflow.com/questions/63144792/pandas-multiindex-with-none-values
-                clone_compact['meta']['samples.found'] = sample_counts.loc[(clone[coll] for coll
-                                                                            in SIGNATURE_COLS_PER_SAMPLE)]
-                clone_compact['meta']['studies.found'] = len(study_counts.loc[(clone[coll]
-                                                                               for coll in
-                                                                               SIGNATURE_COLS_PER_SAMPLE)][
-                                                                 'reference.id'].unique())
+                # https://stackoverflow.com/questions/63144792/pandas-multiindex-with-none-values
+                clone_compact['meta']['samples.found'] = sample_counts.loc[tuple(clone[coll] for coll
+                                                                                 in SIGNATURE_COLS_PER_SAMPLE)]
+                clone_compact['meta']['studies.found'] \
+                    = len(study_counts.loc[tuple(clone[coll]
+                                                 for coll in
+                                                 SIGNATURE_COLS)].index.get_level_values(14).unique())
 
                 clone_compact['cdr3fix'] = ''
                 clone_compact['vdjdb.score'] = 1
@@ -95,5 +96,5 @@ def generate_default_db(master_table: pd.DataFrame):
                 clone_compact['web.cdr3fix.unmp'] = 'no'
 
                 clones_list.append(clone_compact)
-    pd.concat(clones_list).to_csv('../database/vdjdb.txt', sep='\t')
-    return pd.concat(clones_list)
+    pd.DataFrame(clones_list).to_csv('../database/vdjdb.txt', sep='\t')
+    return pd.DataFrame(clones_list)
