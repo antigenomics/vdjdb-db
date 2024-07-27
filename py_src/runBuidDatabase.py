@@ -7,6 +7,7 @@ from ChunkQC import ChunkQC, ALL_COLS
 # from AlignBestSegments import *
 from Cdr3Fixer import Cdr3Fixer
 from GenerateDefaultDB import generate_default_db
+from SlimDBGenerator import generate_slim_db
 
 antigen_df = pd.read_csv("../patches/antigen_epitope_species_gene.dict", sep='\t', index_col=0)
 aggregated_species = antigen_df.groupby(level=0)['antigen.species'].agg(lambda x: x.iloc[0] if len(x) == 1 else tuple(x))
@@ -80,3 +81,4 @@ if __name__ == '__main__':
     master_table.to_pickle('../database/vdjdb_full.pkl',)
     default_db = generate_default_db(master_table)
     print("Generating and writing slim database")
+    generate_slim_db(default_db)
