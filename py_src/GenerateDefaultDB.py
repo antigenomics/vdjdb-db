@@ -80,7 +80,6 @@ def generate_default_db(master_table: pd.DataFrame):
 
                 clone_compact['method'] = {coll.split('method.')[1]: clone[coll] for coll in METHOD_COLUMNS}
                 clone_compact['meta'] = {coll.split('meta.')[1]: clone[coll] for coll in META_COLUMNS}
-                # https://stackoverflow.com/questions/63144792/pandas-multiindex-with-none-values
                 clone_compact['meta']['samples.found'] = sample_counts.loc[tuple(clone[coll] for coll
                                                                                  in SIGNATURE_COLS_PER_SAMPLE)]
                 clone_compact['meta']['studies.found'] \
@@ -88,12 +87,15 @@ def generate_default_db(master_table: pd.DataFrame):
                                                  for coll in
                                                  SIGNATURE_COLS)].index.get_level_values(14).unique())
 
-                clone_compact['cdr3fix'] = ''
+                clone_compact['cdr3fix'] = clone[f"cdr3fix.{chain}"]
                 clone_compact['vdjdb.score'] = 1
                 clone_compact['web.method'] = get_web_method(clone['method.identification'])
                 clone_compact['web.method.seq'] = get_web_method_seq(clone)
-                clone_compact['web.cdr3fix.nc'] = 'no'
-                clone_compact['web.cdr3fix.unmp'] = 'no'
+                if clone_compact['cdr3fix'] != '':
+                    clone_compact['web.cdr3fix.nc'] = 'no' if clone_compact['cdr3fix']['jCanonical'] \
+                                                              and clone_compact['cdr3fix']['vCanonical'] else 'yes'
+                    clone_compact['web.cdr3fix.unmp'] = 'no' if clone_compact['cdr3fix']['vEnd'] > -1 \
+                                                                and clone_compact['cdr3fix']['jStart'] else 'yes'
 
                 clones_list.append(clone_compact)
     pd.DataFrame(clones_list).to_csv('../database/vdjdb.txt', sep='\t')
