@@ -31,6 +31,8 @@ class Cdr3Fixer:
     def _load_segments_data(self, segments_file_name: str) -> None:
 
         segments_file = pd.read_csv(segments_file_name, sep='\t')
+        for columns in ['#species', 'segment']:
+            segments_file[columns] = segments_file[columns].apply(lambda x: x.lower())
 
         for _, segment in segments_file.iterrows():
 

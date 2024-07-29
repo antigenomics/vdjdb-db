@@ -52,7 +52,7 @@ if __name__ == '__main__':
     os.makedirs('../database/', exist_ok=True)
     master_table = pd.concat(chunk_df_list)[ALL_COLS]
     master_table.to_csv('../database/vdjdb_full.txt', sep='\t')
-
+    master_table.to_pickle ('../database/vdjdb_full.pkl',)
     cdr3_fixer = Cdr3Fixer("../res/segments.txt", "../res/segments.aaparts.txt")
     print("Fixing CDR3 sequences (stage I)")
 
