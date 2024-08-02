@@ -1,7 +1,7 @@
 # Compile database
 
 cd src/
-groovy -cp . BuildDatabase.groovy --no2fix
+groovy -cp . BuildDatabase.groovy
 cd ..
 
 # Summary HTML
