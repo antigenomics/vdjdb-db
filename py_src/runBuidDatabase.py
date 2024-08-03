@@ -75,6 +75,8 @@ if __name__ == '__main__':
                                           ) if not pd.isnull(x[f'cdr3.{gene}']) else None)
         #remake fixer results
         master_table[f'cdr3.{gene}'] = fixer_results.apply(lambda x: x.cdr3 if x else None)
+        master_table[f'v.{gene}'] = fixer_results.apply(lambda x: x.vId if x else None)
+        master_table[f'j.{gene}'] = fixer_results.apply(lambda x: x.jId if x else None)
         master_table[f'cdr3fix.{gene}'] = fixer_results.apply(lambda x: x.results_to_dict() if x else None)
 
     master_table.to_csv('../database/vdjdb_full.txt', sep='\t')
