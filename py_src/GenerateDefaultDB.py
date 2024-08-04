@@ -13,7 +13,7 @@ def get_web_method(method_identification: str) -> str:
 
 
 def get_web_method_seq(clone_row: pd.Series) -> str:
-    if not pd.isnull(clone_row["method.singlecell"]):
+    if clone_row["method.singlecell"] != '':
         return "singlecell"
     else:
         method_data = clone_row["method.sequencing"].lower()
@@ -60,14 +60,14 @@ def generate_default_db(master_table: pd.DataFrame):
 
     for _, clone in master_table.iterrows():
 
-        if not (pd.isnull(clone["cdr3.alpha"]) or pd.isnull(clone["cdr3.beta"])):
+        if not (clone["cdr3.alpha"] == '') or(clone["cdr3.beta"] == ''):
             complex_id_count += 1
             complex_id = complex_id_count
         else:
             complex_id = 0
 
         for chain in ['alpha', 'beta']:
-            if not pd.isnull(clone[f'cdr3.{chain}']):
+            if clone[f'cdr3.{chain}']:
                 clone_compact = {
                     'complex.id': complex_id,
                     'gene': 'TRA' if chain == 'alpha' else 'TRB',
@@ -98,5 +98,5 @@ def generate_default_db(master_table: pd.DataFrame):
                                                                 and clone_compact['cdr3fix']['jStart'] else 'yes'
 
                 clones_list.append(clone_compact)
-    pd.DataFrame(clones_list).to_csv('../database/vdjdb.txt', sep='\t')
+    pd.DataFrame(clones_list).set_index('complex.id').to_csv('../database/vdjdb.txt', sep='\t')
     return pd.DataFrame(clones_list)

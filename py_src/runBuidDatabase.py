@@ -10,7 +10,8 @@ from GenerateDefaultDB import generate_default_db
 from SlimDBGenerator import generate_slim_db
 
 antigen_df = pd.read_csv("../patches/antigen_epitope_species_gene.dict", sep='\t', index_col=0)
-aggregated_species = antigen_df.groupby(level=0)['antigen.species'].agg(lambda x: x.iloc[0] if len(x) == 1 else tuple(x))
+aggregated_species = antigen_df.groupby(level=0)['antigen.species'].agg(
+    lambda x: x.iloc[0] if len(x) == 1 else tuple(x))
 aggregated_gene = antigen_df.groupby(level=0)['antigen.gene'].agg(lambda x: x.iloc[0] if len(x) == 1 else tuple(x))
 
 if __name__ == '__main__':
@@ -51,8 +52,6 @@ if __name__ == '__main__':
 
     os.makedirs('../database/', exist_ok=True)
     master_table = pd.concat(chunk_df_list)[ALL_COLS]
-    master_table.to_csv('../database/vdjdb_full.txt', sep='\t')
-    master_table.to_pickle ('../database/vdjdb_full.pkl',)
     cdr3_fixer = Cdr3Fixer("../res/segments.txt", "../res/segments.aaparts.txt")
     print("Fixing CDR3 sequences (stage I)")
 
@@ -73,14 +72,14 @@ if __name__ == '__main__':
                                           x[f'j.{gene}'],
                                           x.species,
                                           ) if not pd.isnull(x[f'cdr3.{gene}']) else None)
-        #remake fixer results
+        # remake fixer results
         master_table[f'cdr3.{gene}'] = fixer_results.apply(lambda x: x.cdr3 if x else None)
         master_table[f'v.{gene}'] = fixer_results.apply(lambda x: x.vId if x else None)
         master_table[f'j.{gene}'] = fixer_results.apply(lambda x: x.jId if x else None)
         master_table[f'cdr3fix.{gene}'] = fixer_results.apply(lambda x: x.results_to_dict() if x else None)
 
-    master_table.to_csv('../database/vdjdb_full.txt', sep='\t')
-    master_table.to_pickle('../database/vdjdb_full.pkl',)
+    master_table.set_index('cdr3.alpha').to_csv('../database/vdjdb_full.txt', sep='\t')
+    master_table.to_pickle('../database/vdjdb_full.pkl', )
     default_db = generate_default_db(master_table)
     print("Generating and writing slim database")
     generate_slim_db(default_db)

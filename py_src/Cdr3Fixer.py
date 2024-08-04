@@ -60,13 +60,13 @@ class Cdr3Fixer:
                 segment_id = conversion
 
         if not segments_by_id:
-            return None
+            return segment_id
 
         for id_variant in [segment_id, *simplify_segment_name(segment_id)]:
             for possible_variant in [id_variant, f"{id_variant}*01", *[f"{id_variant}-{i}*01" for i in range(1, 101)]]:
                 if possible_variant in segments_by_id.keys():
                     return possible_variant
-        return None
+        return segment_id
 
     def get_segment_seq(self, species: str, segment_id: str) -> Optional[str]:
         segments_by_id = self.segments_by_id_by_species.get(species.lower())
