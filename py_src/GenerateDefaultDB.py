@@ -51,6 +51,7 @@ SIGNATURE_COLS_PER_SAMPLE = [
 
 
 def generate_default_db(master_table: pd.DataFrame):
+    print("Generating and writing default database")
     master_table.fillna('', inplace=True)
     complex_id_count = 0
 

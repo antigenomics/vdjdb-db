@@ -81,5 +81,4 @@ if __name__ == '__main__':
     master_table.set_index('cdr3.alpha').to_csv('../database/vdjdb_full.txt', sep='\t')
     master_table.to_pickle('../database/vdjdb_full.pkl', )
     default_db = generate_default_db(master_table)
-    print("Generating and writing slim database")
     generate_slim_db(default_db)
