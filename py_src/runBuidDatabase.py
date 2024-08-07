@@ -6,7 +6,7 @@ import warnings
 from ChunkQC import ChunkQC, ALL_COLS
 # from AlignBestSegments import *
 from Cdr3Fixer import Cdr3Fixer
-from GenerateDefaultDB import generate_default_db
+from DefaultDBGenerator import generate_default_db
 from SlimDBGenerator import generate_slim_db
 
 antigen_df = pd.read_csv("../patches/antigen_epitope_species_gene.dict", sep='\t', index_col=0)

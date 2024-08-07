@@ -1,7 +1,5 @@
-from OneSideFixerResult import OneSideFixerResult
-import FixType
+from FixerDataModels import *
 from KmerScanner import KmerScanner
-from FixerResults import FixerResult
 from Utils import translate_linear, simplify_segment_name
 
 import pandas as pd
@@ -82,7 +80,7 @@ class Cdr3Fixer:
         if not segment_seq:
             return OneSideFixerResult(cdr3 if five_prime else cdr3[::-1],
                                       closest_id,
-                                      FixType.FailedBadSegment)
+                                      FailedBadSegment)
         if not five_prime:
             cdr3 = cdr3[::-1]
             segment_seq = segment_seq[::-1]
@@ -94,29 +92,29 @@ class Cdr3Fixer:
         if hit:
             if hit.start_in_segment == 0:
                 if hit.start_in_cdr3 == 0:
-                    return OneSideFixerResult(cdr3, closest_id, FixType.NoFixNeeded, hit.match_size)
+                    return OneSideFixerResult(cdr3, closest_id, NoFixNeeded, hit.match_size)
                 else:
-                    return OneSideFixerResult(cdr3[hit.start_in_cdr3:], closest_id, FixType.FixTrim, hit.match_size)
+                    return OneSideFixerResult(cdr3[hit.start_in_cdr3:], closest_id, FixTrim, hit.match_size)
             else:
                 if hit.start_in_cdr3 == 0:
                     return OneSideFixerResult(segment_seq[:hit.start_in_segment] + cdr3,
                                               closest_id,
-                                              FixType.FixAdd,
+                                              FixAdd,
                                               hit.match_size
                                               )
                 elif hit.start_in_cdr3 <= self.max_replace_size:
                     return OneSideFixerResult(segment_seq[:hit.start_in_segment] + cdr3[hit.start_in_cdr3:],
                                               closest_id,
-                                              FixType.FixReplace,
+                                              FixReplace,
                                               hit.match_size
                                               )
                 else:
                     return OneSideFixerResult(segment_seq,
                                               closest_id,
-                                              FixType.FailedReplace,
+                                              FailedReplace,
                                               )
         else:
-            return OneSideFixerResult(cdr3, closest_id, FixType.FailedNoAlignment)
+            return OneSideFixerResult(cdr3, closest_id, FailedNoAlignment)
 
     def guess_id(self, cdr3: str, species: str, gene: str, five_prime: bool) -> str:
         species_gene = f"{species}.{gene}"

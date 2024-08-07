@@ -1,6 +1,29 @@
 from dataclasses import dataclass
-from FixType import FixType
 
+
+class FixType:
+    def __init__(self, fix_attempted, good, rank, name):
+        self.fix_attempted = fix_attempted
+        self.good = good
+        self.rank = rank
+        self.name = name
+
+
+NoFixNeeded = FixType(False, True, 0, 'NoFixNeeded')
+FixAdd = FixType(True, True, 2, 'FixAdd')
+FixTrim = FixType(True, True, 1, 'FixTrim')
+FixReplace = FixType(True, True, 3, 'FixReplace')
+FailedReplace = FixType(True, False, 5, 'FailedReplace')
+FailedBadSegment = FixType(False, False, 4, 'FailedBadSegment')
+FailedNoAlignment = FixType(True, False, 6, 'FailedNoAlignment')
+
+
+@dataclass
+class OneSideFixerResult:
+    cdr3: str
+    segmentId: str
+    FixType: FixType
+    x: int = -1
 
 @dataclass
 class FixerResult:
@@ -33,10 +56,6 @@ class FixerResult:
     def is_good(self):
         return self.vFixType.good and self.jFixType.good
 
-    # {"cdr3": "CASSIVGGNEQFF", "cdr3_old": "CASSIVGGNEQFF", "fixNeeded": false, "good": true, "jCanonical": true,
-    #  "jFixType": "NoFixNeeded", "jId": "TRBJ2-1*01", "jStart": 8, "vCanonical": true, "vEnd": 5,
-    #  "vFixType": "NoFixNeeded", "vId": "TRBV19*01"}
-
     def results_to_dict(self):
         return {
             "cdr3": self.cdr3,
@@ -52,5 +71,3 @@ class FixerResult:
             "vFixType": self.vFixType.name,
             "vId": self.vId
         }
-
-
