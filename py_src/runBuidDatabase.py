@@ -4,33 +4,33 @@ import pandas as pd
 import warnings
 
 from ChunkQC import ChunkQC, ALL_COLS
-# from AlignBestSegments import *
 from Cdr3Fixer import Cdr3Fixer
 from DefaultDBGenerator import generate_default_db
 from SlimDBGenerator import generate_slim_db
 
+# reading and aggregating antigen nomenclature patches
 antigen_df = pd.read_csv("../patches/antigen_epitope_species_gene.dict", sep='\t', index_col=0)
 aggregated_species = antigen_df.groupby(level=0)['antigen.species'].agg(
     lambda x: x.iloc[0] if len(x) == 1 else tuple(x))
 aggregated_gene = antigen_df.groupby(level=0)['antigen.gene'].agg(lambda x: x.iloc[0] if len(x) == 1 else tuple(x))
 
-if __name__ == '__main__':
 
-    os.makedirs('../tmp/', exist_ok=True)
+if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Arguments for database building')
     parser.add_argument('--chunks-to-build', help='chunks to include in database', nargs='+', type=str)
     parser.add_argument('--no2fix', action='store_true', help='Fix did not occurred if enabled')
     args = parser.parse_args()
 
+    print('reading, concatenating, and QC of chunks')
+
     chunk_files = set(os.listdir('../chunks')).intersection(args.chunks_to_build) if \
         args.chunks_to_build else os.listdir('../chunks')
 
     chunk_files = [chunk_file for chunk_file in chunk_files if chunk_file[0] != '.' and chunk_file.endswith('.txt')]
 
-    print(len(chunk_files))
+    print(f'Total number of chunks: {len(chunk_files)}')
     chunk_df_list = []
-
     for chunk_file in chunk_files:
         chunk_df = pd.read_csv(f'../chunks/{chunk_file}', sep='\t', encoding_errors='ignore')
         chunk_qc = ChunkQC(chunk_df)
@@ -52,8 +52,10 @@ if __name__ == '__main__':
 
     os.makedirs('../database/', exist_ok=True)
     master_table = pd.concat(chunk_df_list)[ALL_COLS]
-    cdr3_fixer = Cdr3Fixer("../res/segments.txt", "../res/segments.aaparts.txt")
+
     print("Fixing CDR3 sequences (stage I)")
+
+    cdr3_fixer = Cdr3Fixer("../res/segments.txt", "../res/segments.aaparts.txt")
 
     for gene in ['alpha', 'beta']:
         master_table[f'v.{gene}'] = master_table.T.apply(
@@ -80,5 +82,9 @@ if __name__ == '__main__':
 
     master_table.set_index('cdr3.alpha').to_csv('../database/vdjdb_full.txt', sep='\t')
     master_table.to_pickle('../database/vdjdb_full.pkl', )
+
+    print("Generating and writing default database")
     default_db = generate_default_db(master_table)
+
+    print("Generating and writing slim database")
     generate_slim_db(default_db)

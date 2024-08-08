@@ -51,7 +51,11 @@ SIGNATURE_COLS_PER_SAMPLE = [
 
 
 def generate_default_db(master_table: pd.DataFrame):
-    print("Generating and writing default database")
+    """
+    Generates vdjdb default txt file from full table
+    :param master_table: full vdj db table
+    :return: default vdj db table
+    """
     master_table.fillna('', inplace=True)
     complex_id_count = 0
 

@@ -9,8 +9,17 @@ from typing import Tuple, Optional, Any
 
 
 class Cdr3Fixer:
+    """
+    Class for fixing row in chunk
+    """
     def __init__(self, segments_file_name: str, segments_seq_file_name: str,
                  max_replace_size: int = 1, min_hit_size: int = 2):
+        """
+        :param segments_file_name: file with complete segment sequences
+        :param segments_seq_file_name: file with parts of segments sequences
+        :param max_replace_size: max replace size for matching hits with segments
+        :param min_hit_size: min hit size with the segment
+        """
         self.segments_by_id_by_species = defaultdict(dict)
         self.segments_by_sequence_part_by_species_gene = defaultdict(dict)
         self.max_replace_size = max_replace_size
@@ -18,16 +27,18 @@ class Cdr3Fixer:
 
         self._load_segments_data(segments_file_name)
         self._load_segments_sequence_data(segments_seq_file_name)
-        self.nomenclature_conversions = defaultdict(lambda: None,
-                                                    pd.read_csv("../patches/nomenclature.conversions",
+        self.nomenclature_conversions = pd.read_csv("../patches/nomenclature.conversions",
                                                                 sep='\t',
                                                                 index_col=0,
                                                                 header=None,
                                                                 skiprows=1
-                                                                )[1].to_dict()) #rewrite it
+                                                                )[1].to_dict() #rewrite it
 
     def _load_segments_data(self, segments_file_name: str) -> None:
-
+        """
+        loads and preprocesses segment sequences
+        :param segments_file_name: file with complete segment sequences
+        """
         segments_file = pd.read_csv(segments_file_name, sep='\t')
         for columns in ['#species', 'segment']:
             segments_file[columns] = segments_file[columns].apply(lambda x: x.lower())
@@ -43,17 +54,26 @@ class Cdr3Fixer:
                     segment.sequence, is_j_segment)
 
     def _load_segments_sequence_data(self, segments_seq_file_name: str) -> None:
-
+        """
+        loads and preprocesses parts of segment sequences
+        :param segments_seq_file_name: file with parts of segments sequences
+        """
         segments_seq_file = pd.read_csv(segments_seq_file_name, sep='\t')
         for _, segment in segments_seq_file.iterrows():
             species_chain = segment.species + (".alpha" if segment.gene == "TRA" else ".beta")
             self.segments_by_sequence_part_by_species_gene[species_chain][segment.cdr3] = segment.segm
 
-    def get_closest_id(self, species: str, segment_id: str) -> Optional[str]:
+    def get_closest_id(self, species: str, segment_id: str) -> str:
+        """
+        Gets closet name of the segment
+        :param species: species of the TCR carrier
+        :param segment_id: id of the gene being analyzed
+        :return: possible conventional id or unchanged id
+        """
         segments_by_id = self.segments_by_id_by_species[species.lower()]
 
         if species.lower() == "homosapiens":
-            conversion = self.nomenclature_conversions[segment_id]
+            conversion = self.nomenclature_conversions.get(segment_id)
             if conversion:
                 segment_id = conversion
 
@@ -67,6 +87,12 @@ class Cdr3Fixer:
         return segment_id
 
     def get_segment_seq(self, species: str, segment_id: str) -> Optional[str]:
+        """
+        :param species: species of the TCR carrier
+        :param segment_id: id of the gene being analyzed
+        :return: None or aa sequence of the gene by id
+        """
+
         segments_by_id = self.segments_by_id_by_species.get(species.lower())
 
         if not segments_by_id:
@@ -75,6 +101,15 @@ class Cdr3Fixer:
         return segments_by_id.get(segment_id)
 
     def fix(self, cdr3: str, segment_id: str, species: str, five_prime: bool) -> OneSideFixerResult:
+        """
+        fixing cdr3 according to segment sequence
+        :param cdr3: cdr3 to fix
+        :param segment_id: ID of the gene
+        :param species: species of the TCR carrier
+        :param five_prime: sequence from 5 prime
+        :return: Fixer results for one side of cdr3
+        """
+
         closest_id = self.get_closest_id(species, segment_id)
         segment_seq = self.get_segment_seq(species, closest_id)
         if not segment_seq:
@@ -117,6 +152,14 @@ class Cdr3Fixer:
             return OneSideFixerResult(cdr3, closest_id, FailedNoAlignment)
 
     def guess_id(self, cdr3: str, species: str, gene: str, five_prime: bool) -> str:
+        """
+        Guesses gene id by part of the aa sequence
+        :param cdr3: cdr3's amino acid sequence
+        :param species: species of the TCR carrier
+        :param gene: "alpha" or "beta"
+        :param five_prime: sequence from 5 prime
+        :return: guessed id or empty string
+        """
         species_gene = f"{species}.{gene}"
         segment_seq_map = self.segments_by_sequence_part_by_species_gene.get(species_gene)
 
@@ -138,6 +181,14 @@ class Cdr3Fixer:
                 return ""
 
     def fix_both(self, cdr3: str, v_id: str, j_id: str, species: str):
+        """
+        Fixes V and J segments of cdr3
+        :param cdr3: cdr3's amino acid sequence
+        :param v_id: id of the V gene
+        :param j_id: id of the J gene
+        :param species: species of the TCR carrier
+        :return: fixer result for both sides
+        """
         v_results = [self.fix(cdr3, v, species, True) for v in v_id.split(",")]
         v_result = min(v_results, key=lambda x: x.FixType.rank)
 
