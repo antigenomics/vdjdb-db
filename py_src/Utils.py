@@ -1,11 +1,9 @@
-import re
-
-
-def replace_non_aa(seq):
-    return re.sub('[^FLSYCWPHQRIMTNKVADEG]', 'X', seq)
-
-
-def simplify_segment_name(segment_name):
+def simplify_segment_name(segment_name: str) -> list:
+    """
+    simplifies segment name
+    :param segment_name:
+    :return: list of simplified version of segment name
+    """
     no_allele = segment_name.split('*')[0]
     return [no_allele, segment_name.split('-')[0]]
 
@@ -77,7 +75,13 @@ translate_dict = {'TTT': 'F',
                   }
 
 
-def translate_linear(seq, reverse=False):
+def translate_linear(seq, reverse=False) -> str:
+    """
+    translates nucleotide sequence to amino acid sequence
+    :param seq: nucleotide sequence to be translated
+    :param reverse: if True reverse the sequence to be translated
+    :return: translated sequence
+    """
     aa_seq = ""
     if reverse:
         seq = seq[len(seq) % 3:]

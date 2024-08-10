@@ -1,12 +1,15 @@
 from dataclasses import dataclass
 
 
+@dataclass
 class FixType:
-    def __init__(self, fix_attempted, good, rank, name):
-        self.fix_attempted = fix_attempted
-        self.good = good
-        self.rank = rank
-        self.name = name
+    """
+    class for marking different scenarios of fix applied
+    """
+    fix_attempted: bool
+    good: bool
+    rank: int
+    name: str
 
 
 NoFixNeeded = FixType(False, True, 0, 'NoFixNeeded')
@@ -20,25 +23,19 @@ FailedNoAlignment = FixType(True, False, 6, 'FailedNoAlignment')
 
 @dataclass
 class OneSideFixerResult:
+    """
+    dataclass for results of one side fix
+    """
     cdr3: str
     segmentId: str
     FixType: FixType
     x: int = -1
 
-@dataclass
-class FixerResult:
-    cdr3: str
-    cdr3_old: str
-    vId: str
-    jId: str
-    vEnd: int
-    jStart: int
-    vCanonical: bool
-    jCanonical: bool
-    fixNeeded: bool
-    vFixType: FixType
-    jFixType: FixType
 
+class FixerResult:
+    """
+    dataclass for fixer results of whole CDR3
+    """
     def __init__(self, cdr3: str, cdr3_old: str, fix_needed: bool, v_rnd: int, j_dtart: int,
                  v_id: str, v_fix_type: FixType, j_id: str, j_fix_type: FixType):
         self.cdr3 = cdr3

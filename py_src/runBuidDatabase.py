@@ -2,6 +2,8 @@ import os
 import argparse
 import pandas as pd
 import warnings
+from termcolor import cprint
+
 
 from ChunkQC import ChunkQC, ALL_COLS
 from Cdr3Fixer import Cdr3Fixer
@@ -22,14 +24,14 @@ if __name__ == '__main__':
     parser.add_argument('--no2fix', action='store_true', help='Fix did not occurred if enabled')
     args = parser.parse_args()
 
-    print('reading, concatenating, and QC of chunks')
+    cprint('Reading, concatenating, and QC of chunks', 'magenta')
 
     chunk_files = set(os.listdir('../chunks')).intersection(args.chunks_to_build) if \
         args.chunks_to_build else os.listdir('../chunks')
 
     chunk_files = [chunk_file for chunk_file in chunk_files if chunk_file[0] != '.' and chunk_file.endswith('.txt')]
 
-    print(f'Total number of chunks: {len(chunk_files)}')
+    cprint(f'Total number of chunks: {len(chunk_files)}', 'magenta')
     chunk_df_list = []
     for chunk_file in chunk_files:
         chunk_df = pd.read_csv(f'../chunks/{chunk_file}', sep='\t', encoding_errors='ignore')
@@ -53,7 +55,7 @@ if __name__ == '__main__':
     os.makedirs('../database/', exist_ok=True)
     master_table = pd.concat(chunk_df_list)[ALL_COLS]
 
-    print("Fixing CDR3 sequences (stage I)")
+    cprint("Fixing CDR3 sequences (stage I)", 'magenta')
 
     cdr3_fixer = Cdr3Fixer("../res/segments.txt", "../res/segments.aaparts.txt")
 
@@ -83,8 +85,9 @@ if __name__ == '__main__':
     master_table.set_index('cdr3.alpha').to_csv('../database/vdjdb_full.txt', sep='\t')
     master_table.to_pickle('../database/vdjdb_full.pkl', )
 
-    print("Generating and writing default database")
+    cprint("Generating and writing default database", 'magenta')
     default_db = generate_default_db(master_table)
 
-    print("Generating and writing slim database")
+    cprint("Generating and writing slim database", "magenta")
     generate_slim_db(default_db)
+    cprint("DB generation successfully finished!", "magenta")

@@ -50,9 +50,9 @@ SIGNATURE_COLS_PER_SAMPLE = [
 ]
 
 
-def generate_default_db(master_table: pd.DataFrame):
+def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
     """
-    Generates vdjdb default txt file from full table
+    Generates vdjdb default txt file from full table. Writes it to /database/ folder
     :param master_table: full vdj db table
     :return: default vdj db table
     """
@@ -65,7 +65,7 @@ def generate_default_db(master_table: pd.DataFrame):
 
     for _, clone in master_table.iterrows():
 
-        if not (clone["cdr3.alpha"] == '') or(clone["cdr3.beta"] == ''):
+        if not (clone["cdr3.alpha"] == '') or (clone["cdr3.beta"] == ''):
             complex_id_count += 1
             complex_id = complex_id_count
         else:
@@ -93,7 +93,7 @@ def generate_default_db(master_table: pd.DataFrame):
                                                  SIGNATURE_COLS)].index.get_level_values(14).unique())
 
                 clone_compact['cdr3fix'] = clone[f"cdr3fix.{chain}"]
-                clone_compact['vdjdb.score'] = 1
+                clone_compact['vdjdb.score'] = 1  #placeholder for tests
                 clone_compact['web.method'] = get_web_method(clone['method.identification'])
                 clone_compact['web.method.seq'] = get_web_method_seq(clone)
                 if clone_compact['cdr3fix'] != '':

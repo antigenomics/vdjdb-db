@@ -111,20 +111,20 @@ validators = {
 
 
 class ChunkQC:
-    def __init__(self, chunk_df: pd.DataFrame):
+    def __init__(self, chunk_df: pd.DataFrame) -> None:
         """
         :param chunk_df: chunk to be quality controlled
         """
         self.chunk_df = chunk_df
 
-    def check_exist(self):
+    def check_exist(self) -> None:
         """
         checks if chunk is not empty
         """
         if not len(self.chunk_df):
             raise ValueError('Empty file')
 
-    def check_header(self):
+    def check_header(self) -> None:
         """
         checks if columns in the chunk_df are correct
         """
