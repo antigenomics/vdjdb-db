@@ -1,14 +1,14 @@
 # Compile database
 
-cd src/
-groovy -cp . BuildDatabase.groovy
+cd py_src/
+python runBuidDatabase.py
 cd ..
 
 # Summary HTML
 
 cd summary/
 Rscript -e "rmarkdown::render('vdjdb_summary.Rmd')"
-groovy MakeEmbedableHtml.groovy
+python MakeEmbedableHtml.py
 cd ..
 
 
