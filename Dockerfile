@@ -1,5 +1,8 @@
 FROM ubuntu:18.04
 
+ENV DEBIAN_FRONTEND=noninteractive
+
+
 # Fix certificate issues
 RUN apt-get update && \
     apt-get install -y ca-certificates-java && \
@@ -12,13 +15,46 @@ RUN apt-get install -y --no-install-recommends software-properties-common
 RUN add-apt-repository -y ppa:openjdk-r/ppa
 RUN apt-get update
 
-RUN apt-get update
-RUN add-apt-repository -y universe
-RUN apt-get update
-RUN apt-get install -y python python-pip
+RUN apt-get update && \
+    apt-get install -y \
+    build-essential \
+    libssl-dev \
+    zlib1g-dev \
+    libncurses5-dev \
+    libgdbm-dev \
+    liblzma-dev \
+    libsqlite3-dev \
+    libbz2-dev \
+    libffi-dev \
+    wget \
+    liblzma-dev \
+    libreadline-dev \
+    libtk8.6 \
+    libgdbm-compat-dev \
+    libncursesw5-dev
 
-RUN pip install 'pandas==0.24.2' 'numpy==1.16.6'
-RUN pip install 'biopython==1.76'
+WORKDIR /usr/src
+
+RUN wget https://www.python.org/ftp/python/3.10.10/Python-3.10.10.tgz && \
+    tar xzf Python-3.10.10.tgz && \
+    cd Python-3.10.10 && \
+    ./configure --enable-optimizations && \
+    make altinstall
+
+# Ensure pip is installed
+RUN /usr/local/bin/python3.10 -m ensurepip
+
+# Update alternatives to make Python 3.10 the default
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.10 1 && \
+    update-alternatives --install /usr/bin/pip pip /usr/local/bin/pip3.10 1
+
+# Verify Python and pip versions
+RUN python3 --version && pip --version
+
+# Optionally install any Python packages you need
+# RUN pip install <your-package>
+RUN python3 -m pip install 'pandas==2.2.2' 'numpy==2.0.0'
+RUN python3 -m pip install 'colorama==0.4.6'
 
 RUN apt-get install -y openjdk-8-jre openjdk-8-jdk openjdk-8-jdk-headless openjdk-8-jre-headless
 RUN update-alternatives --config java
@@ -44,7 +80,7 @@ RUN source "$HOME/.sdkman/bin/sdkman-init.sh" && \
 # needed for R 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9
 RUN add-apt-repository -y 'deb https://cloud.r-project.org/bin/linux/ubuntu bionic-cran40/'
 RUN apt-get update
 
@@ -56,15 +92,16 @@ RUN apt-get update \
 
 # for R deps
 RUN apt-get install -y libnlopt-dev
+RUN apt-get install -y libfontconfig1-dev
 RUN apt-get install -y libcurl4-openssl-dev
 RUN apt-get install -y libssl-dev
 RUN apt-get install -y libxml2 libxml2-dev
+RUN apt-get install -y libcairo2-dev libxt-dev libx11-dev
+RUN apt-get install -y libmagick++-dev
+RUN apt-get install -y libharfbuzz-dev libfribidi-dev
 
 # 'knitr', 'htmltools', 'jquerylib', 'stringr' are not available for package 'rmarkdown'
-RUN Rscript -e 'install.packages(c("rmarkdown", "ggplot2", "knitr", "ggpubr", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "ggrepel", "tidyverse", "dplyr", "httr", "xml2", "stringr", "gridExtra", "circlize", "maps", "scatterpie"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
-RUN Rscript -e 'install.packages("reshape2", repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
-RUN Rscript -e 'install.packages(c("stringdist", "ggseqlogo", "igraph"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
-RUN Rscript -e 'install.packages(c("reshape2", "FField", "reshape", "gplots", "gridExtra", "circlize", "ggplot2", "grid", "VennDiagram", "ape", "MASS", "plotrix", "RColorBrewer", "scales", "cowplot"), repos = c("http://cran.us.r-project.org", "https://cloud.r-project.org/"))'
+RUN Rscript -e 'install.packages(c("knitr", "ggplot2", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "circlize", "ggrepel", "tidyverse", "httr", "xml2", "stringr", "gridExtra", "maps", "scatterpie", "dplyr", "stringr", "stringdist", "reshape2", "igraph", "ggseqlogo", "parallel", "cowplot"))'
 
 RUN apt-get install -y texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
 RUN apt-get install -y build-essential procps curl file git
