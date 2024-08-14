@@ -10,10 +10,25 @@ RUN apt-get update && \
     update-ca-certificates -f;
 
 # `openjdk-8`
+RUN apt-get update && \
+    apt-get install -y \
+    gnupg \
+    software-properties-common && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN apt-get update
-RUN apt-get install -y --no-install-recommends software-properties-common
 RUN add-apt-repository -y ppa:openjdk-r/ppa
 RUN apt-get update
+
+# JAVA installation
+RUN apt-get install -y openjdk-8-jre openjdk-8-jdk openjdk-8-jdk-headless openjdk-8-jre-headless
+RUN update-alternatives --config java
+RUN update-alternatives --config javac
+
+# Setup JAVA_HOME -- useful for docker commandline
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
+RUN export JAVA_HOME
 
 
 # Python 3.10 installation
@@ -26,22 +41,15 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN python3 --version && pip --version
 
 RUN python3 -m pip install 'pandas==2.2.2' 'numpy==2.0.0'
-RUN python3 -m pip install 'colorama==0.4.6'
+RUN python3 -m pip install 'termcolor==2.1.0'
 
-# JAVA installation
-RUN apt-get install -y openjdk-8-jre openjdk-8-jdk openjdk-8-jdk-headless openjdk-8-jre-headless
-RUN update-alternatives --config java
-RUN update-alternatives --config javac
 
-# Setup JAVA_HOME -- useful for docker commandline
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
-RUN export JAVA_HOME
-
-RUN apt-get install -y wget
-RUN apt-get install -y unzip
+RUN apt-get update \
+ && apt-get install wget unzip zip -y
+#RUN apt-get install -y unzip
 RUN apt-get install -y git
 RUN apt-get install -y curl
-RUN apt-get install -y zip
+#RUN apt-get install -y zip
 RUN apt-get install -y pandoc
 
 SHELL ["/bin/bash", "-c"] 
@@ -72,7 +80,7 @@ RUN apt-get install -y libmagick++-dev
 RUN apt-get install -y libharfbuzz-dev libfribidi-dev
 
 # 'knitr', 'htmltools', 'jquerylib', 'stringr' are not available for package 'rmarkdown'
-RUN Rscript -e 'install.packages(c("knitr", "ggplot2", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "circlize", "ggrepel", "tidyverse", "httr", "xml2", "stringr", "gridExtra", "maps", "scatterpie", "dplyr", "stringr", "stringdist", "reshape2", "igraph", "ggseqlogo", "parallel", "cowplot"))'
+RUN Rscript -e 'install.packages(c("knitr", "ggplot2", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "circlize", "ggrepel", "tidyverse", "httr", "xml2", "stringr", "gridExtra", "maps", "scatterpie", "dplyr", "stringr", "stringdist", "reshape2", "igraph", "ggseqlogo", "parallel", "cowplot", "ggpubr", "rmarkdown"))'
 
 RUN apt-get install -y texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
 RUN apt-get install -y build-essential procps curl file git
@@ -86,18 +94,6 @@ RUN chmod +x /software/bin/vdjtools
 ENV PATH="/usr/lib/jvm/java-8-openjdk-amd64/bin:${PATH}"
 ENV PATH="/software/bin:${PATH}"
 
-RUN touch docker.sh
-RUN echo '# /bin/sh' >> docker.sh
-RUN echo '[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"' >> docker.sh
-RUN echo 'mkdir -p vcs' >> docker.sh
-RUN echo 'cd vcs' >> docker.sh
-RUN echo 'echo $(pwd)' >> docker.sh
-RUN echo 'git clone https://github.com/antigenomics/vdjdb-db vdjdb-db' >> docker.sh
-RUN echo 'git clone https://github.com/antigenomics/vdjdb-motifs vdjdb-motifs' >> docker.sh
-RUN echo 'cd vdjdb-db' >> docker.sh
-RUN echo 'echo $(pwd)' >> docker.sh
-RUN echo 'mkdir -p /root/output' >> docker.sh
-RUN echo 'bash release.sh 2>&1 | tee /root/output/buildlog' >> docker.sh
-RUN echo 'cp -r database/*zip /root/output/' >> docker.sh
+COPY docker.sh ./
 
 CMD [ "bash", "docker.sh" ]
