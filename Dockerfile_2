@@ -7,6 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install -y ca-certificates-java && \
     apt-get clean && \
+    apt-get update && \
     update-ca-certificates -f;
 
 # `openjdk-8`
@@ -65,9 +66,13 @@ SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update \
         && apt-get install -y --no-install-recommends \
+        && add-apt-repository ppa:marutter/rrutter4.0 \
+        && apt-get update && apt-get install -y \
          r-base \
          r-base-dev \
          r-recommended
+
+Run Rscript -e 'R.version'
 
 # for R deps
 RUN apt-get install -y libnlopt-dev
@@ -80,7 +85,13 @@ RUN apt-get install -y libmagick++-dev
 RUN apt-get install -y libharfbuzz-dev libfribidi-dev
 
 # 'knitr', 'htmltools', 'jquerylib', 'stringr' are not available for package 'rmarkdown'
-RUN Rscript -e 'install.packages(c("knitr", "ggplot2", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "circlize", "ggrepel", "tidyverse", "httr", "xml2", "stringr", "gridExtra", "maps", "scatterpie", "dplyr", "stringr", "stringdist", "reshape2", "igraph", "ggseqlogo", "parallel", "cowplot", "ggpubr", "rmarkdown"))'
+# ggh4x ggalluvial ggrepel tidyverse xml2 ggseqlogo cowplot ggpubr
+RUN Rscript -e 'install.packages(c("knitr", "ggplot2", "RColorBrewer", "data.table", "forcats", "ggh4x", "ggalluvial", "circlize", "ggrepel", "tidyverse", "httr", "xml2", "stringr", "gridExtra", "maps", "scatterpie", "dplyr", "stringdist", "reshape2", "igraph", "ggseqlogo", "cowplot", "ggpubr", "rmarkdown"))'
+RUN Rscript -e 'if(!require(devtools)) install.packages("devtools")'
+#RUN Rscript remotes::install_github("hojsgaard/pbkrtest", build_vignettes = TRUE)
+#RUN R -e 'install.packages(c("Matrix", "MatrixModels", "mvtnorm", "pbkrtest"))'
+#RUN Rscript -e 'devtools::install_github("kassambara/ggpubr")'
+RUN Rscript -e 'installed.packages()'
 
 RUN apt-get install -y texlive-latex-base texlive-fonts-recommended texlive-fonts-extra texlive-latex-extra
 RUN apt-get install -y build-essential procps curl file git
