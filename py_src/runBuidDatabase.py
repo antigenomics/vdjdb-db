@@ -12,9 +12,8 @@ from SlimDBGenerator import generate_slim_db
 
 # reading and aggregating antigen nomenclature patches
 antigen_df = pd.read_csv("../patches/antigen_epitope_species_gene.dict", sep='\t', index_col=0)
-aggregated_species = antigen_df.groupby(level=0)['antigen.species'].agg(
-    lambda x: x.iloc[0] if len(x) == 1 else tuple(x))
-aggregated_gene = antigen_df.groupby(level=0)['antigen.gene'].agg(lambda x: x.iloc[0] if len(x) == 1 else tuple(x))
+aggregated_species = antigen_df['antigen.species'].to_dict()
+aggregated_gene = antigen_df['antigen.gene'].to_dict()
 
 
 if __name__ == '__main__':
@@ -43,12 +42,11 @@ if __name__ == '__main__':
             warn_message = f"There were errors processing {chunk_file}"
             warnings.warn(warn_message)
 
-        chunk_df['antigen.species'] = chunk_df['antigen.epitope'].apply(
-            lambda x: aggregated_species[x] if x in aggregated_species else x
-        )
-        chunk_df['antigen.gene'] = chunk_df['antigen.epitope'].apply(
-            lambda x: aggregated_gene[x] if x in aggregated_gene else x
-        )
+        chunk_df['antigen.species'] = chunk_df.T.apply(lambda x: aggregated_species.get(x['antigen.epitope'])
+            if aggregated_species.get(x['antigen.epitope']) else x['antigen.species'])
+        chunk_df['antigen.gene'] = chunk_df.T.apply(lambda x: aggregated_gene.get(x['antigen.epitope'])
+            if aggregated_gene.get(x['antigen.epitope']) else x['antigen.gene'])
+
 
         chunk_df_list.append(chunk_df)
 
