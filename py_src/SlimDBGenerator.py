@@ -15,6 +15,10 @@ SUMMARY_COLS = ["complex.id",
                 "reference.id", "vdjdb.score"]
 
 
+def _aggregating_function(x):
+    return ','.join(sorted(set(x.dropna().apply(str))))
+
+
 def generate_slim_db(default_db: pd.DataFrame) -> None:
     """
     Slim db generator. Write it to /database/ folder
@@ -23,5 +27,5 @@ def generate_slim_db(default_db: pd.DataFrame) -> None:
     slim_db = default_db[COMPLEX_SLIM_ANNOT_COLS + SUMMARY_COLS]
     slim_db['j.start'] = default_db['cdr3fix'].apply(lambda x: x['jStart'] if not x == '' else x)
     slim_db['v.end'] = default_db['cdr3fix'].apply(lambda x: x['vEnd'] if not x == '' else x)
-    slim_db.drop_duplicates(subset=COMPLEX_SLIM_ANNOT_COLS, inplace=True)
-    slim_db.to_csv('../database/vdjdb.slim.txt', sep='\t')
+    slim_db = slim_db.groupby(COMPLEX_SLIM_ANNOT_COLS).agg(_aggregating_function).reset_index()
+    slim_db.set_index('gene').to_csv('../database/vdjdb.slim.txt', sep='\t')
