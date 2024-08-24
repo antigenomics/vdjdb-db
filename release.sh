@@ -29,7 +29,7 @@ else
   echo "'vdjdb-motifs' folder is missing. Skipping..."
 fi
 
-# Gather database
+# Gather database_
 
 cd database/
 DD=`date +%F`
