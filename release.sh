@@ -31,6 +31,10 @@ fi
 
 # Gather database_
 
+ls ../vdjdb-motifs/
+ls ../vdjdb-motifs/tcrnet
+ls ../vdjdb-motifs/vdjdb_export
+
 cd database/
 DD=`date +%F`
 mkdir vdjdb-$DD
