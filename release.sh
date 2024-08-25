@@ -33,7 +33,7 @@ fi
 
 ls ../vdjdb-motifs/
 ls ../vdjdb-motifs/tcrnet
-ls ../vdjdb-motifs/vdjdb_export
+#ls ../vdjdb-motifs/vdjdb_export
 
 cd database/
 DD=`date +%F`
