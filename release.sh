@@ -32,8 +32,11 @@ fi
 # Gather database_
 
 ls ../vdjdb-motifs/
+echo '_____'
+ls ../vdjdb-motifs/vdjdb_export
+echo '_____'
 ls ../vdjdb-motifs/tcrnet
-#ls ../vdjdb-motifs/vdjdb_export
+
 
 cd database/
 DD=`date +%F`
