@@ -317,6 +317,8 @@ If you have [Docker Desktop](https://www.docker.com/products/docker-desktop) ins
 docker build -t vdjdbdb .
 ```
 
+**NOTE** You may need `sudo` to run docker.
+
 In order to build the database using the newly created local Docker image create some folder (e.g. `/tmp/output`) and use it as a external volume when running Docker image. Docker image always puts the result in `/root/output` folder within docker container.
 
 **NOTE**: Host path, e.g. `/tmp/output`, should be absolute.
@@ -328,3 +330,4 @@ mkdir -p /tmp/output
 docker run -v /tmp/output:/root/output vdjdbdb
 ```
 
+Pre-built images can be found at [DockerHub](https://hub.docker.com/r/mikessh/vdjdb), N.B. replace `vdjdb` with `mikessh/vdjdb:legacy` if running this image.
