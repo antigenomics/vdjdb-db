@@ -1,18 +1,18 @@
 chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
-1	CAFGGTSYGKLTF	TRAV29/DV5		CSARPWETTEAFF	TRBV20-1				HLA-B*27 	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		Healthy					PBMC			
-2	CAVDSPGTYKYIF	TRAV39		CASSLGKFGNQPQHF	TRBV7-9				HLA-B*27 	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
-3	CGIALIGSGAGSYQLTF	TRAV21		CASSPATYSTDTQYF	TRBV9				HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
-4	CAVLSNAGGTSYGKLTF	TRAV21		CASNLGTSGPGDTQYF	TRBV6-2				HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
-5	CAVGPPSNFGNEKLTF	TRAV8-3		CASSPDSLNEKLFF	TRBV5-5				HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
-6	CAVSANYGGSQGNLIF	TRAV21		CASSLAYYSTDTQYF	TRBV9				HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
-7	CAVDSFNTQGAQKLVF	TRAV21		CASSPWGTYSTDTQYF	TRBV9				HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
-8	CAALSQGGSEKLVF	TRAV21		CASSVAYYSTDTQYF	TRBV9				HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
-9	CAFMKLMYSGGGADGLTF	TRAV38-1		CASSLEGGDSYGYTF	TRBV13				HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU-alone					PBMC			
-10	CAVLGFQKLVF	TRAV21		CASSLEVYSTDTQYF	TRBV5-1				HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
-11	CAVGGFGGGSNYKLTF	TRAV21		CASSSSYSTDTQYF	TRBV7-6				HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
-12	CAVRGFNQAGTALIF	TRAV21		CASSLATYSTDTQYF	TRBV5-5				HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
-13	CAVNSPSYSGAGSYQLTF	TRAV21		CASSPGTFSTDTQYF	TRBV9				HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
-14	CAVRSNQAGTALIF	TRAV21		CASSFGLYSTDTQYF	TRBV5-4				HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
-15	CAYRSPNAGNNRKLIW	TRAV38-2/DV8		CASSLGRYSSYEQYF	TRBV5-5				HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
-16	CAAPYGGSQGNLIF	TRAV21		CASSVAYYSTDTQYF	TRBV9				HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
-17	CAASSGYALNF	TRAV21		CASSDGYSTDTQYF	TRBV5-1				HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
+1	CAFGGTSYGKLTF	TRAV29/DV5		CSARPWETTEAFF	TRBV20-1			HomoSapiens	HLA-B*27 	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		Healthy					PBMC			
+2	CAVDSPGTYKYIF	TRAV39		CASSLGKFGNQPQHF	TRBV7-9			HomoSapiens	HLA-B*27 	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
+3	CGIALIGSGAGSYQLTF	TRAV21		CASSPATYSTDTQYF	TRBV9			HomoSapiens	HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
+4	CAVLSNAGGTSYGKLTF	TRAV21		CASNLGTSGPGDTQYF	TRBV6-2			HomoSapiens	HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
+5	CAVGPPSNFGNEKLTF	TRAV8-3		CASSPDSLNEKLFF	TRBV5-5			HomoSapiens	HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
+6	CAVSANYGGSQGNLIF	TRAV21		CASSLAYYSTDTQYF	TRBV9			HomoSapiens	HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
+7	CAVDSFNTQGAQKLVF	TRAV21		CASSPWGTYSTDTQYF	TRBV9			HomoSapiens	HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
+8	CAALSQGGSEKLVF	TRAV21		CASSVAYYSTDTQYF	TRBV9			HomoSapiens	HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
+9	CAFMKLMYSGGGADGLTF	TRAV38-1		CASSLEGGDSYGYTF	TRBV13			HomoSapiens	HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU-alone					PBMC			
+10	CAVLGFQKLVF	TRAV21		CASSLEVYSTDTQYF	TRBV5-1			HomoSapiens	HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
+11	CAVGGFGGGSNYKLTF	TRAV21		CASSSSYSTDTQYF	TRBV7-6			HomoSapiens	HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
+12	CAVRGFNQAGTALIF	TRAV21		CASSLATYSTDTQYF	TRBV5-5			HomoSapiens	HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
+13	CAVNSPSYSGAGSYQLTF	TRAV21		CASSPGTFSTDTQYF	TRBV9			HomoSapiens	HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
+14	CAVRSNQAGTALIF	TRAV21		CASSFGLYSTDTQYF	TRBV5-4			HomoSapiens	HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
+15	CAYRSPNAGNNRKLIW	TRAV38-2/DV8		CASSLGRYSSYEQYF	TRBV5-5			HomoSapiens	HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
+16	CAAPYGGSQGNLIF	TRAV21		CASSVAYYSTDTQYF	TRBV9			HomoSapiens	HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
+17	CAASSGYALNF	TRAV21		CASSDGYSTDTQYF	TRBV5-1			HomoSapiens	HLA-B*27	B2M	MHCI	LRVMMLAPF	yeiH	E.Coli	doi:10.1172/jci.insight.174776	tetramer-sort		yes	amplicon-seq			CD8+		B27AAU/r-axSpA					PBMC			
