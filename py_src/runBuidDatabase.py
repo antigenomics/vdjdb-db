@@ -5,7 +5,7 @@ import warnings
 from termcolor import cprint
 
 
-from ChunkQC import ChunkQC, ALL_COLS, gene_match_check
+from ChunkQC import ChunkQC, ALL_COLS, gene_match_check, alleles_match_check
 from Cdr3Fixer import Cdr3Fixer
 from DefaultDBGenerator import generate_default_db
 from SlimDBGenerator import generate_slim_db
@@ -84,16 +84,22 @@ if __name__ == '__main__':
     master_table.to_pickle('../database/vdjdb_full.pkl', )
 
     mask_gene_list = []
+    mask_alleles_list = []
     for gene in ['alpha', 'beta']:
         mask_gene_list.append(master_table[f'v.{gene}'].apply(gene_match_check))
         mask_gene_list.append(master_table[f'j.{gene}'].apply(gene_match_check))
+        mask_alleles_list.append(master_table[f'v.{gene}'].apply(alleles_match_check))
+        mask_alleles_list.append(master_table[f'j.{gene}'].apply(alleles_match_check))
+
     final_mask = mask_gene_list[0]
-
-    for mask in mask_gene_list[1:]:
+    final_mask_alleles = mask_alleles_list[0]
+    for mask, allele_mask in zip(mask_gene_list[1:], mask_alleles_list[1:]):
         final_mask = final_mask & mask
+        final_mask_alleles = final_mask_alleles & allele_mask
 
-    master_table.loc[final_mask].set_index('cdr3.alpha').to_csv('../database/vdjdb_full_gene_clear.txt', sep='\t')
+    master_table.loc[final_mask & final_mask_alleles].set_index('cdr3.alpha').to_csv('../database/vdjdb_full_gene_clear.txt', sep='\t')
     master_table.loc[~final_mask].set_index('cdr3.alpha').to_csv('../database/vdjdb_full_gene_broken.txt', sep='\t')
+    master_table.loc[~final_mask_alleles].set_index('cdr3.alpha').to_csv('../database/vdjdb_full_allele_broken.txt', sep='\t')
 
     cprint("Generating and writing default database", 'magenta')
     default_db = generate_default_db(master_table)
