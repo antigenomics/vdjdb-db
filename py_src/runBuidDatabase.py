@@ -97,6 +97,9 @@ if __name__ == '__main__':
         final_mask = final_mask & mask
         final_mask_alleles = final_mask_alleles & allele_mask
 
+    final_mask_alleles = final_mask_alleles | (master_table['species'] != 'HomoSapiens')
+    final_mask = final_mask | (master_table['species'] != 'HomoSapiens')
+
     master_table.loc[final_mask & final_mask_alleles].set_index('cdr3.alpha').to_csv('../database/vdjdb_full_gene_clear.txt', sep='\t')
     master_table.loc[~final_mask].set_index('cdr3.alpha').to_csv('../database/vdjdb_full_gene_broken.txt', sep='\t')
     master_table.loc[~final_mask_alleles].set_index('cdr3.alpha').to_csv('../database/vdjdb_full_allele_broken.txt', sep='\t')
