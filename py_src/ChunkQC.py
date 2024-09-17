@@ -178,14 +178,14 @@ class ChunkQC:
 
 
 def gene_match_check(gene_name: str) -> bool:
-    if isinstance(gene_name, str):
+    if isinstance(gene_name, str) and not gene_name == '':
         gene_name = gene_name.split('*')[0]
         return gene_name in nomenclature_set
     return True
 
 
 def alleles_match_check(gene_name: str) -> bool:
-    if isinstance(gene_name, str):
+    if isinstance(gene_name, str) and not gene_name == '':
         gene = gene_name.split('*')[0]
         if len(gene_name.split('*')) > 1:
             allele = gene_name.split('*')[1]
