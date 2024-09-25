@@ -2,9 +2,12 @@ stages:
   - build_db
 
 building:
+  tags:
+    - 5cece4a3-ba37-48db-9427-d1229be0a2e6
   stage: build_db
   script:
     - echo "A new file in the ./chunks folder has changed!"
+    - hostname
     # Add your processing commands here
   rules:
     - changes:
