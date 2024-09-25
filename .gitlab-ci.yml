@@ -1,5 +1,22 @@
 stages:
+  - start_runner
   - build_db
+
+start_runner:
+  image: debian:latest
+  stage: start_runner
+  variables:
+    SECURE_FILES_DOWNLOAD_PATH: '.ssh/'
+  script:
+    - apt-get update
+    - apt-get -y install openssh-client curl
+    - curl --silent "https://gitlab.com/gitlab-org/incubation-engineering/mobile-devops/download-secure-files/-/raw/main/installer" | bash
+    - mv .ssh /root/
+    - chmod 400 ~/.ssh/id_rsa
+    - echo "|1|JFuO2JEkWqbuXd+ApkQmNqDdEEo=|8vh2dtbHPDz0TC629VoNdC3PTEE= ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHDKbn/5inrcY/n4F5Two7/bkZbQnE5m48JjHS5jFDjY" > ~/.ssh/known_hosts
+    - echo "|1|4xY7ZLWo5HTDjO+OjsQ0gfyaOgQ=|1F1kMYh+niSzeZkMcLgvZlHVQtk= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBLMl4CPR6nah0RELToidaccxMzlXq+P1K/a3hXVE70weAJt2czFD/kuHVp8sr/ggIntavglVXRNVuCI2Emngle4=" >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - ssh dluppov@frontend.aldan3.itm-rsmu.ru "/home/dluppov/gitlab/run.sh"
 
 building:
   tags:
