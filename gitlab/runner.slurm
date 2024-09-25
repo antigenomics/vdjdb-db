@@ -13,5 +13,6 @@
 cd ~/gitlab
 ~/bin/gitlab-runner run
 pwd > ~/dluppov/my_path.txt
+mkdir ~/sinc_test
 
 exit 0
