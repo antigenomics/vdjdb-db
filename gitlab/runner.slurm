@@ -11,6 +11,8 @@
 #SBATCH --cpus-per-task=4
 
 cd ~/gitlab
+
+pwd > ~/dluppov/my_path.txt
 ~/bin/gitlab-runner run
 pwd > ~/dluppov/my_path.txt
 mkdir ~/sinc_test
