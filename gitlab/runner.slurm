@@ -12,5 +12,6 @@
 
 cd ~/gitlab
 ~/bin/gitlab-runner run
+pwd > ~/my_path.txt
 
 exit 0
