@@ -25,7 +25,7 @@ building:
   script:
     - echo "A new file in the ./chunks folder has changed!"
     - hostname
-    # Add your processing commands here
+    - podman run -v /home/dluppov/vdjdb_test_build/output/:/root/output --rm vdjdb_py > /home/dluppov/vdj-db-ci-runner.log
   rules:
     - changes:
         - chunks/**
