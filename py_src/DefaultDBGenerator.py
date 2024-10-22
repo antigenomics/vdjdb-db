@@ -103,5 +103,5 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
                                                                 and clone_compact["cdr3fix"]["jStart"] else "yes"
 
                 clones_list.append(clone_compact)
-    pd.DataFrame(clones_list).set_index("complex.id").to_csv("../database/vdjdb.txt", sep="\t")
+    pd.DataFrame(clones_list).set_index("complex.id").to_csv("../database/vdjdb.txt", sep="\t", quotechar='"')
     return pd.DataFrame(clones_list)

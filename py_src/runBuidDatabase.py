@@ -80,8 +80,7 @@ if __name__ == "__main__":
         master_table[f"j.{gene}"] = fixer_results.apply(lambda x: x.jId if x else None)
         master_table[f"cdr3fix.{gene}"] = fixer_results.apply(lambda x: x.results_to_dict() if x else None)
 
-    master_table.set_index("cdr3.alpha").to_csv("../database/vdjdb_full.txt", sep="\t")
-    master_table.to_pickle("../database/vdjdb_full.pkl", )
+    master_table.set_index("cdr3.alpha").to_csv("../database/vdjdb_full.txt", sep="\t", quotechar='"')
 
     cprint("Generating and writing default database", "magenta")
     default_db = generate_default_db(master_table)
