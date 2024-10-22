@@ -1,0 +1,22 @@
+name	type	visible	searchable	autocomplete	data.type	title	comment
+complex.id	txt	0	0	0	complex.id	complex.id	TCR alpha and beta chain records having the same complex identifier belong to the same T-cell clone.
+gene	txt	1	1	1	factor	Gene	TCR chain: alpha or beta.
+cdr3	seq	1	1	0	cdr3	CDR3	TCR complementarity determining region 3 (CDR3) amino acid sequence.
+v.segm	txt	1	1	1	factor	V	TCR Variable segment allele.
+j.segm	txt	1	1	1	factor	J	TCR Joining segment allele.
+species	txt	1	1	1	factor	Species	TCR parent species.
+mhc.a	txt	1	1	1	factor	MHC A	First MHC chain allele.
+mhc.b	txt	1	1	1	factor	MHC B	Second MHC chain allele (defaults to Beta2Microglobulin for MHC class I).
+mhc.class	txt	1	1	1	factor	MHC class	MHC class (I or II).
+antigen.epitope	seq	1	1	1	peptide	Epitope	Amino acid sequence of the epitope.
+antigen.gene	txt	1	1	1	factor	Epitope gene	Representative parent gene of the epitope.
+antigen.species	txt	1	1	1	factor	Epitope species	Representative parent species of the epitope.
+reference.id	txt	1	1	1	url	Reference	Pubmed reference / URL / or submitter details in case unpublished.
+method	txt	1	0	0	method.json	Method	Details on method used to assay TCR specificity.
+meta	txt	1	0	0	meta.json	Meta	Various meta-information: cell subset, donor status, etc.
+cdr3fix	txt	1	0	0	fixer.json	CDR3fix	Details on CDR3 sequence fixing (if applied) and consistency between V, J and reported CDR3 sequence.
+vdjdb.score	txt	1	1	0	uint	Score	VDJdb confidence score, the higher is the score the more confidence we have in the antigen specificity annotation of a given TCR clonotype/clone. Zero score indicates that there are insufficient method details to draw any conclusion.
+web.method	txt	0	0	1	0	factor	Internal
+web.method.seq	txt	0	0	1	0	factor	Internal
+web.cdr3fix.nc	txt	0	0	1	0	factor	Internal
+web.cdr3fix.unmp	txt	0	0	1	0	factor	Internal
