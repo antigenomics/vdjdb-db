@@ -1,4 +1,6 @@
 import pandas as pd
+import json
+import csv
 from ChunkQC import SIGNATURE_COLS, METHOD_COLUMNS, META_COLUMNS
 
 
@@ -85,8 +87,8 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
 
                 clone_compact["method"] = {coll.split("method.")[1]: clone[coll] for coll in METHOD_COLUMNS}
                 clone_compact["meta"] = {coll.split("meta.")[1]: clone[coll] for coll in META_COLUMNS}
-                clone_compact["meta"]["samples.found"] = sample_counts.loc[tuple(clone[coll] for coll
-                                                                                 in SIGNATURE_COLS_PER_SAMPLE)]
+                clone_compact["meta"]["samples.found"] = int(sample_counts.loc[tuple(clone[coll] for coll
+                                                                                 in SIGNATURE_COLS_PER_SAMPLE)])
                 clone_compact["meta"]["studies.found"] \
                     = len(study_counts.loc[tuple(clone[coll]
                                                  for coll in
@@ -103,5 +105,9 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
                                                                 and clone_compact["cdr3fix"]["jStart"] else "yes"
 
                 clones_list.append(clone_compact)
-    pd.DataFrame(clones_list).set_index("complex.id").to_csv("../database/vdjdb.txt", sep="\t", quotechar='"')
+    default_db = pd.DataFrame(clones_list).set_index("complex.id")
+    for complex_col in ["method", "meta", "cdr3fix"]:
+        default_db[complex_col] = default_db[complex_col].apply(lambda x: json.dumps(x))
+
+    default_db.to_csv("../database/vdjdb.txt", sep="\t", quoting=csv.QUOTE_NONE)
     return pd.DataFrame(clones_list)
