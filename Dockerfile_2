@@ -41,7 +41,7 @@ RUN apt-get update && \
 RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN python3 --version && pip --version
 
-RUN python3 -m pip install 'pandas==2.2.2' 'numpy==2.0.0'
+RUN python3 -m pip install 'pandas==2.2.2' 'numpy==2.0.0' 'olga==1.2.4'
 RUN python3 -m pip install 'termcolor==2.1.0'
 
 
@@ -87,6 +87,8 @@ RUN mkdir -p /software/bin/
 RUN unzip vdjtools-1.2.1.zip
 RUN cp -r vdjtools-1.2.1/* /software/bin/
 RUN chmod +x /software/bin/vdjtools
+RUN cd /software/bin/
+RUN git clone https://github.com/antigenomics/mirpy.git
 
 ENV PATH="/usr/lib/jvm/java-8-openjdk-amd64/bin:${PATH}"
 ENV PATH="/software/bin:${PATH}"

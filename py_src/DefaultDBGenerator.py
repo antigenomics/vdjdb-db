@@ -2,6 +2,29 @@ import pandas as pd
 import json
 import csv
 from ChunkQC import SIGNATURE_COLS, METHOD_COLUMNS, META_COLUMNS
+import sys
+
+sys.path.append('/software/bin/')
+sys.path.append('/software/bin/mirpy')
+
+from mirpy.mir.basic import pgen
+
+olga_pgen_human_trb = pgen.OlgaModel(model = '../mirpy/mir/resources/olga/default_models/human_T_beta')
+olga_pgen_human_tra = pgen.OlgaModel(model = '../mirpy/mir/resources/olga/default_models/human_T_alpha')
+olga_pgen_mouse_trb = pgen.OlgaModel(model = '../mirpy/mir/resources/olga/default_models/mouse_T_beta')
+olga_pgen_mouse_tra = pgen.OlgaModel(model = '../mirpy/mir/resources/olga/default_models/mouse_T_alpha')
+
+
+models_dict = {
+    'homosapiens_beta': olga_pgen_human_trb,
+    'homosapiens_alpha': olga_pgen_human_tra,
+    'musmusculus_beta': olga_pgen_mouse_trb,
+    'musmusculus_alpha': olga_pgen_mouse_tra
+}
+
+
+def calc_pgen(cdr3aa, gene, specie):
+
 
 
 def get_web_method(method_identification: str) -> str:
