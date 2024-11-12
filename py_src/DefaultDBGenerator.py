@@ -9,10 +9,10 @@ sys.path.append('/software/bin/mirpy')
 
 from mirpy.mir.basic import pgen
 
-olga_pgen_human_trb = pgen.OlgaModel(model = '../mirpy/mir/resources/olga/default_models/human_T_beta')
-olga_pgen_human_tra = pgen.OlgaModel(model = '../mirpy/mir/resources/olga/default_models/human_T_alpha')
-olga_pgen_mouse_trb = pgen.OlgaModel(model = '../mirpy/mir/resources/olga/default_models/mouse_T_beta')
-olga_pgen_mouse_tra = pgen.OlgaModel(model = '../mirpy/mir/resources/olga/default_models/mouse_T_alpha')
+olga_pgen_human_trb = pgen.OlgaModel(model='../mirpy/mir/resources/olga/default_models/human_T_beta')
+olga_pgen_human_tra = pgen.OlgaModel(model='../mirpy/mir/resources/olga/default_models/human_T_alpha')
+olga_pgen_mouse_trb = pgen.OlgaModel(model='../mirpy/mir/resources/olga/default_models/mouse_T_beta')
+olga_pgen_mouse_tra = pgen.OlgaModel(model='../mirpy/mir/resources/olga/default_models/mouse_T_alpha')
 
 
 models_dict = {
@@ -24,7 +24,9 @@ models_dict = {
 
 
 def calc_pgen(cdr3aa, gene, specie):
-
+    model = models_dict[f'{specie}_{gene}']
+    p_gen = model.compute_pgen_cdr3aa(cdr3aa)
+    return p_gen
 
 
 def get_web_method(method_identification: str) -> str:
@@ -103,7 +105,9 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
                     "gene": "TRA" if chain == "alpha" else "TRB",
                     "cdr3": clone[f"cdr3.{chain}"],
                     "v.segm": clone[f"v.{chain}"],
-                    "j.segm": clone[f"j.{chain}"], }
+                    "j.segm": clone[f"j.{chain}"],
+                    "pgen": calc_pgen(clone[f"cdr3.{chain}"], chain, clone['species'])
+                }
 
                 for coll in COMPLEX_ANNOT_COLS:
                     clone_compact[coll] = clone[coll]
