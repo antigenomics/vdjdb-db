@@ -4,8 +4,8 @@ import csv
 from ChunkQC import SIGNATURE_COLS, METHOD_COLUMNS, META_COLUMNS
 import sys
 
-sys.path.append('/software/bin/')
-sys.path.append('/software/bin/mirpy')
+sys.path.append('../../')
+sys.path.append('../../mirpy')
 
 from mirpy.mir.basic import pgen
 

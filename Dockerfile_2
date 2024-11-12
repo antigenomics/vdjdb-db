@@ -87,8 +87,8 @@ RUN mkdir -p /software/bin/
 RUN unzip vdjtools-1.2.1.zip
 RUN cp -r vdjtools-1.2.1/* /software/bin/
 RUN chmod +x /software/bin/vdjtools
-RUN cd /software/bin/
-RUN git clone https://github.com/antigenomics/mirpy.git
+#RUN cd /software/bin/
+#RUN git clone https://github.com/antigenomics/mirpy.git
 
 ENV PATH="/usr/lib/jvm/java-8-openjdk-amd64/bin:${PATH}"
 ENV PATH="/software/bin:${PATH}"
