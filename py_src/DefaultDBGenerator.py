@@ -4,15 +4,15 @@ import csv
 from ChunkQC import SIGNATURE_COLS, METHOD_COLUMNS, META_COLUMNS
 import sys
 
-sys.path.append('/software/bin/')
-sys.path.append('/software/bin/mirpy')
+sys.path.append('../../')
+sys.path.append('../../mirpy')
 
 from mirpy.mir.basic import pgen
 
-olga_pgen_human_trb = pgen.OlgaModel(model='../mirpy/mir/resources/olga/default_models/human_T_beta')
-olga_pgen_human_tra = pgen.OlgaModel(model='../mirpy/mir/resources/olga/default_models/human_T_alpha')
-olga_pgen_mouse_trb = pgen.OlgaModel(model='../mirpy/mir/resources/olga/default_models/mouse_T_beta')
-olga_pgen_mouse_tra = pgen.OlgaModel(model='../mirpy/mir/resources/olga/default_models/mouse_T_alpha')
+olga_pgen_human_trb = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/human_T_beta')
+olga_pgen_human_tra = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/human_T_alpha')
+olga_pgen_mouse_trb = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/mouse_T_beta')
+olga_pgen_mouse_tra = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/mouse_T_alpha')
 
 
 models_dict = {
