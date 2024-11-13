@@ -108,7 +108,7 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
                     "cdr3": clone[f"cdr3.{chain}"],
                     "v.segm": clone[f"v.{chain}"],
                     "j.segm": clone[f"j.{chain}"],
-                    "pgen": calc_pgen(clone[f"cdr3.{chain}"], chain, clone['species'])
+                    "pgen": calc_pgen(clone[f"cdr3.{chain}"], chain, clone['species'].lower())
                 }
 
                 for coll in COMPLEX_ANNOT_COLS:
