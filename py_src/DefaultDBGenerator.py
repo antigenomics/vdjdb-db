@@ -10,9 +10,11 @@ sys.path.append('../../mirpy')
 from mirpy.mir.basic import pgen
 
 olga_pgen_human_trb = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/human_T_beta')
-olga_pgen_human_tra = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/human_T_alpha')
+olga_pgen_human_tra = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/human_T_alpha',
+                                     is_d_present=False)
 olga_pgen_mouse_trb = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/mouse_T_beta')
-olga_pgen_mouse_tra = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/mouse_T_alpha')
+olga_pgen_mouse_tra = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/mouse_T_alpha',
+                                     is_d_present=False)
 
 
 models_dict = {
