@@ -3,6 +3,7 @@ import json
 import csv
 from ChunkQC import SIGNATURE_COLS, METHOD_COLUMNS, META_COLUMNS
 import sys
+from multiprocessing import Pool
 
 sys.path.append('../../')
 sys.path.append('../../mirpy')
@@ -18,14 +19,17 @@ olga_pgen_mouse_tra = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/defau
 
 
 models_dict = {
-    'homosapiens_beta': olga_pgen_human_trb,
-    'homosapiens_alpha': olga_pgen_human_tra,
-    'musmusculus_beta': olga_pgen_mouse_trb,
-    'musmusculus_alpha': olga_pgen_mouse_tra
+    'homosapiens_TRB': olga_pgen_human_trb,
+    'homosapiens_TRA': olga_pgen_human_tra,
+    'musmusculus_TRB': olga_pgen_mouse_trb,
+    'musmusculus_TRA': olga_pgen_mouse_tra
 }
 
 
-def calc_pgen(cdr3aa, gene, specie):
+def calc_pgen(multiargument):
+    cdr3aa = multiargument[0]
+    gene = multiargument[1]
+    specie = multiargument[1]
     model = models_dict[f'{specie}_{gene}']
     p_gen = model.compute_pgen_cdr3aa(cdr3aa)
     return p_gen
@@ -108,7 +112,7 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
                     "cdr3": clone[f"cdr3.{chain}"],
                     "v.segm": clone[f"v.{chain}"],
                     "j.segm": clone[f"j.{chain}"],
-                    "pgen": calc_pgen(clone[f"cdr3.{chain}"], chain, clone['species'].lower())
+                #    "pgen": calc_pgen(clone[f"cdr3.{chain}"], chain, clone['species'].lower())
                 }
 
                 for coll in COMPLEX_ANNOT_COLS:
@@ -138,5 +142,10 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
     for complex_col in ["method", "meta", "cdr3fix"]:
         default_db[complex_col] = default_db[complex_col].apply(lambda x: json.dumps(x))
 
+    with Pool(24) as p:
+        pgens = list(p.map(calc_pgen, [(x.cdr3, x.gene, x.species) for _, x in default_db.iterrows()]))
+
+    default_db['pgen'] = pgens
+
     default_db.to_csv("../database/vdjdb.txt", sep="\t", quoting=csv.QUOTE_NONE)
-    return pd.DataFrame(clones_list)
+    return default_db
