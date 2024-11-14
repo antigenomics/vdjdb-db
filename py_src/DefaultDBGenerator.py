@@ -29,7 +29,7 @@ models_dict = {
 def calc_pgen(multiargument):
     cdr3aa = multiargument[0]
     gene = multiargument[1]
-    specie = multiargument[2]
+    specie = multiargument[2].lower()
     model = models_dict[f'{specie}_{gene}']
     p_gen = model.compute_pgen_cdr3aa(cdr3aa)
     return p_gen
