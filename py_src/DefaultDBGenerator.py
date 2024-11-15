@@ -140,7 +140,7 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
                                                                 and clone_compact["cdr3fix"]["jStart"] else "yes"
 
                 clones_list.append(clone_compact)
-    default_db = pd.DataFrame(clones_list).set_index("complex.id")
+    default_db = pd.DataFrame(clones_list)
     for complex_col in ["method", "meta", "cdr3fix"]:
         default_db[complex_col] = default_db[complex_col].apply(lambda x: json.dumps(x))
 
@@ -149,5 +149,5 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
 
     default_db['pgen'] = pgens
 
-    default_db.to_csv("../database/vdjdb.txt", sep="\t", quoting=csv.QUOTE_NONE)
+    default_db.set_index("complex.id").to_csv("../database/vdjdb.txt", sep="\t", quoting=csv.QUOTE_NONE)
     return default_db
