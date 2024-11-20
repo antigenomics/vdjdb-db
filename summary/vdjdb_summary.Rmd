@@ -387,7 +387,7 @@ Legend: 0 - low confidence, 1 - medium confidence, 2 - high confidence, 3 - very
 Note that this scoring system is currently deprecated due to large amounts of deep multimer+ repertoire sequencing data and 10X scRNAseq with ImmuDEX dextramer multiplex that are almost impossible to validate independently. We suggest applying methods like TCRNET to [infer high-confidence TCR motifs](https://github.com/antigenomics/vdjdb-motifs) from VDJdb.
 
 ```{r message=FALSE, warning=FALSE}
-df.score <- df %>%
+df.score <- df[!is.na(ft_$vdjdb.score),] %>%
   group_by(mhc.class, gene, vdjdb.score) %>%
   summarize(total = n())
 
