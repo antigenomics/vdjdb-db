@@ -26,9 +26,13 @@ models_dict = {
     'musmusculus_TRA': olga_pgen_mouse_tra
 }
 
-VERY_HIGH_CONFIDENCE_CUTOFF = -7.3
-HIGH_CONFIDENCE_CUTOFF = -12.1
-MEDIUM_CONFIDENCE_CUTOFF = -15.6
+VERY_HIGH_CONFIDENCE_CUTOFF_B = -7.3
+HIGH_CONFIDENCE_CUTOFF_B = -12.1
+MEDIUM_CONFIDENCE_CUTOFF_B = -15.6
+
+VERY_HIGH_CONFIDENCE_CUTOFF_A = -5.7
+HIGH_CONFIDENCE_CUTOFF_A = -10.1
+MEDIUM_CONFIDENCE_CUTOFF_A = -15.1
 
 def calc_pgen(multiargument):
     cdr3aa = multiargument[0]
@@ -119,7 +123,6 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
                     "cdr3": clone[f"cdr3.{chain}"],
                     "v.segm": clone[f"v.{chain}"],
                     "j.segm": clone[f"j.{chain}"],
-                #    "pgen": calc_pgen(clone[f"cdr3.{chain}"], chain, clone['species'].lower())
                 }
 
                 for coll in COMPLEX_ANNOT_COLS:
@@ -135,7 +138,6 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
                                                  SIGNATURE_COLS)].index.get_level_values(14).unique())
 
                 clone_compact["cdr3fix"] = clone[f"cdr3fix.{chain}"]
-                clone_compact["vdjdb.score"] = 1  #placeholder for tests
                 clone_compact["web.method"] = get_web_method(clone["method.identification"])
                 clone_compact["web.method.seq"] = get_web_method_seq(clone)
                 if clone_compact["cdr3fix"] != "":
@@ -153,8 +155,17 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
         log_10_pgens = list(p.map(calc_pgen, [(x.cdr3, x.gene, x.species) for _, x in default_db.iterrows()]))
 
     default_db['log_10_pgen'] = log_10_pgens
-    default_db['vdjdb.score'] = log_10_pgens
 
+    homosapiens_beta_score = pd.cut(default_db[(default_db.species == 'HomoSapiens') & (default_db.gene == 'TRB')].pgen,
+                              [-500, MEDIUM_CONFIDENCE_CUTOFF_B, HIGH_CONFIDENCE_CUTOFF_B,
+                               VERY_HIGH_CONFIDENCE_CUTOFF_B, 0], labels=[0, 1, 2, 3], )
+    homosapiens_alpha_score = pd.cut(default_db[(default_db.species == 'HomoSapiens') & (default_db.gene == 'TRA')].pgen,
+                               [-500, MEDIUM_CONFIDENCE_CUTOFF_A, HIGH_CONFIDENCE_CUTOFF_A,
+                                VERY_HIGH_CONFIDENCE_CUTOFF_A, 0], labels=[0, 1, 2, 3], )
+
+    vdj_db_score = pd.concat([homosapiens_beta_score, homosapiens_alpha_score])
+    vdj_db_score.name = 'vdjdb.score'
+    default_db['vdjdb.score'] = vdj_db_score
 
     default_db.set_index("complex.id").to_csv("../database/vdjdb.txt", sep="\t", quoting=csv.QUOTE_NONE)
     return pd.DataFrame(clones_list)
