@@ -4,6 +4,7 @@ import csv
 from ChunkQC import SIGNATURE_COLS, METHOD_COLUMNS, META_COLUMNS
 import sys
 from multiprocessing import Pool
+import numpy as np
 
 sys.path.append('../../')
 sys.path.append('../../mirpy')
@@ -25,6 +26,9 @@ models_dict = {
     'musmusculus_TRA': olga_pgen_mouse_tra
 }
 
+VERY_HIGH_CONFIDENCE_CUTOFF = -7.3
+HIGH_CONFIDENCE_CUTOFF = -12.1
+MEDIUM_CONFIDENCE_CUTOFF = -15.6
 
 def calc_pgen(multiargument):
     cdr3aa = multiargument[0]
@@ -34,7 +38,8 @@ def calc_pgen(multiargument):
         return None
     model = models_dict[f'{specie}_{gene}']
     p_gen = model.compute_pgen_cdr3aa(cdr3aa)
-    return p_gen
+    log10_pgen = np.log10(p_gen)
+    return log10_pgen
 
 
 def get_web_method(method_identification: str) -> str:
@@ -145,9 +150,11 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
         default_db[complex_col] = default_db[complex_col].apply(lambda x: json.dumps(x))
 
     with Pool(24) as p:
-        pgens = list(p.map(calc_pgen, [(x.cdr3, x.gene, x.species) for _, x in default_db.iterrows()]))
+        log_10_pgens = list(p.map(calc_pgen, [(x.cdr3, x.gene, x.species) for _, x in default_db.iterrows()]))
 
-    default_db['pgen'] = pgens
+    default_db['log_10_pgen'] = log_10_pgens
+    default_db['vdjdb.score'] = log_10_pgens
+
 
     default_db.set_index("complex.id").to_csv("../database/vdjdb.txt", sep="\t", quoting=csv.QUOTE_NONE)
     return pd.DataFrame(clones_list)
