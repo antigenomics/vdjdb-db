@@ -148,8 +148,6 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
 
                 clones_list.append(clone_compact)
     default_db = pd.DataFrame(clones_list)
-    for complex_col in ["method", "meta", "cdr3fix"]:
-        default_db[complex_col] = default_db[complex_col].apply(lambda x: json.dumps(x))
 
     with Pool(24) as p:
         log_10_pgens = list(p.map(calc_pgen, [(x.cdr3, x.gene, x.species) for _, x in default_db.iterrows()]))
@@ -167,5 +165,10 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
     vdj_db_score.name = 'vdjdb.score'
     default_db['vdjdb.score'] = vdj_db_score
 
-    default_db.set_index("complex.id").to_csv("../database/vdjdb.txt", sep="\t", quoting=csv.QUOTE_NONE)
+    default_db_to_write = default_db.copy()
+
+    for complex_col in ["method", "meta", "cdr3fix"]:
+        default_db_to_write[complex_col] = default_db_to_write[complex_col].apply(lambda x: json.dumps(x))
+
+    default_db_to_write.set_index("complex.id").to_csv("../database/vdjdb.txt", sep="\t", quoting=csv.QUOTE_NONE)
     return default_db
