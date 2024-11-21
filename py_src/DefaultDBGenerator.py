@@ -168,4 +168,4 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
     default_db['vdjdb.score'] = vdj_db_score
 
     default_db.set_index("complex.id").to_csv("../database/vdjdb.txt", sep="\t", quoting=csv.QUOTE_NONE)
-    return pd.DataFrame(clones_list)
+    return default_db
