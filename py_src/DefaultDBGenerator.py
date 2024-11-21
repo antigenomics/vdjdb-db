@@ -159,7 +159,7 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
     homosapiens_beta_score = pd.cut(default_db[(default_db.species == 'HomoSapiens') & (default_db.gene == 'TRB')].log_10_pgen,
                               [-500, MEDIUM_CONFIDENCE_CUTOFF_B, HIGH_CONFIDENCE_CUTOFF_B,
                                VERY_HIGH_CONFIDENCE_CUTOFF_B, 0], labels=[0, 1, 2, 3], )
-    homosapiens_alpha_score = pd.cut(default_db[(default_db.species == 'HomoSapiens') & (default_db.gene == 'TRA')].log_10_pgenт,
+    homosapiens_alpha_score = pd.cut(default_db[(default_db.species == 'HomoSapiens') & (default_db.gene == 'TRA')].log_10_pgen,
                                [-500, MEDIUM_CONFIDENCE_CUTOFF_A, HIGH_CONFIDENCE_CUTOFF_A,
                                 VERY_HIGH_CONFIDENCE_CUTOFF_A, 0], labels=[0, 1, 2, 3], )
 
