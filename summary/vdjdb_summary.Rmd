@@ -384,7 +384,7 @@ kable(format = "html",
 
 Legend: 0 - low confidence, 1 - medium confidence, 2 - high confidence, 3 - very high confidence.
 
-Note that this scoring system is currently deprecated due to large amounts of deep multimer+ repertoire sequencing data and 10X scRNAseq with ImmuDEX dextramer multiplex that are almost impossible to validate independently. We suggest applying methods like TCRNET to [infer high-confidence TCR motifs](https://github.com/antigenomics/vdjdb-motifs) from VDJdb.
+Note that this scoring system is based on generation probabilities acquired via [OLGA model](https://github.com/statbiophys/OLGA). You might apply alternative methods such as TCRNET to [infer high-confidence TCR motifs](https://github.com/antigenomics/vdjdb-motifs) from VDJdb.
 
 ```{r message=FALSE, warning=FALSE}
 df.score <- df[!is.na(df$vdjdb.score),] %>%
