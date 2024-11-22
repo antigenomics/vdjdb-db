@@ -116,7 +116,7 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
             complex_id = 0
 
         for chain in ["alpha", "beta"]:
-            if clone[f"cdr3.{chain}"]:
+            if clone[f"cdr3.{chain}"] and clone[f"v.{chain}"] and clone[f"j.{chain}"]:
                 clone_compact = {
                     "complex.id": complex_id,
                     "gene": "TRA" if chain == "alpha" else "TRB",
