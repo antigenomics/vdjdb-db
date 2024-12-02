@@ -164,7 +164,10 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
     vdj_db_score = pd.concat([homosapiens_beta_score, homosapiens_alpha_score])
     vdj_db_score.name = 'vdjdb.score'
     default_db['vdjdb.score'] = vdj_db_score
+    default_db['vdjdb.score'] = default_db['vdjdb.score'].fillna(0)
+    default_db['vdjdb.score'] = default_db['vdjdb.score'].apply(int)
 
+    default_db = default_db.drop('log_10_pgen', axis=1) # delete after front fix
     default_db_to_write = default_db.copy()
 
     for complex_col in ["method", "meta", "cdr3fix"]:

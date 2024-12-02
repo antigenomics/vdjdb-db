@@ -387,7 +387,7 @@ Legend: 0 - low confidence, 1 - medium confidence, 2 - high confidence, 3 - very
 Note that this scoring system is based on generation probabilities acquired via [OLGA model](https://github.com/statbiophys/OLGA). You might apply alternative methods such as TCRNET to [infer high-confidence TCR motifs](https://github.com/antigenomics/vdjdb-motifs) from VDJdb.
 
 ```{r message=FALSE, warning=FALSE}
-df.score <- df[!is.na(df$vdjdb.score),] %>%
+df.score <- df[df$species=='HomoSapiens',] %>%
   group_by(mhc.class, gene, vdjdb.score) %>%
   summarize(total = n())
 
