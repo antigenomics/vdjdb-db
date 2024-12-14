@@ -1,0 +1,741 @@
+
+Species	IMGT/GENE-DB	IMGT gene functionality	IMGT and HGNC gene definition	Number of alleles	Chromosomal localization	IMGT/LIGM-DB reference sequence(s) for allele *01	HGNC gene symbol	HGNC database	NCBI Gene	Ensembl	GenAtlas	GeneCards	UniProt
+Homo sapiens	IGHA1	F	Homo sapiens immunoglobulin heavy constant alpha 1	4	14q32.33	BK063801	IGHA1	5478	3493	ENSG00000211895	2549	IGHA1	P01876
+Homo sapiens	IGHA2	F	Homo sapiens immunoglobulin heavy constant alpha 2 (A2m marker)	6	14q32.33	BK063800	IGHA2	5479	3494	ENSG00000211890	275	IGHA2	P01877
+Homo sapiens	IGHD	F	Homo sapiens immunoglobulin heavy constant delta	5	14q32.33	K02875 K02876 K02877 K02878 K02879 K02880 K02881 K02882	IGHD	5480	3495	ENSG00000211898	21803	IGHD	P01880
+Homo sapiens	IGHD1-1	F	Homo sapiens immunoglobulin heavy diversity 1-1	1	14q32.33	X97051	IGHD1-1	5482	28510	ENSG00000236170	27489	IGHD1-1	P0DOY5
+Homo sapiens	IGHD1-14	ORF	Homo sapiens immunoglobulin heavy diversity 1-14	1	14q32.33	X13972	IGHD1-14	5483	28508	ENSG00000227108	27490	IGHD1-14	
+Homo sapiens	IGHD1-20	F	Homo sapiens immunoglobulin heavy diversity 1-20	1	14q32.33	X97051	IGHD1-20	5484	28507	ENSG00000237020	27491	IGHD1-20	
+Homo sapiens	IGHD1-26	F	Homo sapiens immunoglobulin heavy diversity 1-26	1	14q32.33	X97051	IGHD1-26	5485	28506	ENSG00000211907	27492	IGHD1-26	
+Homo sapiens	IGHD1-7	F	Homo sapiens immunoglobulin heavy diversity 1-7	1	14q32.33	X13972	IGHD1-7	5486	28509	ENSG00000237197	27493	IGHD1-7	
+Homo sapiens	IGHD1/OR15-1a	ORF	Homo sapiens immunoglobulin heavy diversity 1/OR15-1a	1	15q11.2	X55575	IGHD1OR15-1A	5487	28335	ENSG00000271336	27494	IGHD1OR15-1A	
+Homo sapiens	IGHD1/OR15-1b	ORF	Homo sapiens immunoglobulin heavy diversity 1/OR15-1b	1	15q11.2	X55576	IGHD1OR15-1B	5488	28334	ENSG00000270185	27495	IGHD1OR15-1B	
+Homo sapiens	IGHD2-15	F	Homo sapiens immunoglobulin heavy diversity 2-15	1	14q32.33	J00234	IGHD2-15	5489	28503	ENSG00000211918	27496	IGHD2-15	
+Homo sapiens	IGHD2-2	F	Homo sapiens immunoglobulin heavy diversity 2-2	3	14q32.33	J00232	IGHD2-2	5490	28505	ENSG00000211931	27497	IGHD2-2	
+Homo sapiens	IGHD2-21	F	Homo sapiens immunoglobulin heavy diversity 2-21	2	14q32.33	J00235	IGHD2-21	5491	28502	ENSG00000211912	27498	IGHD2-21	
+Homo sapiens	IGHD2-8	F	Homo sapiens immunoglobulin heavy diversity 2-8	2	14q32.33	X13972	IGHD2-8	5492	28504	ENSG00000211925	27499	IGHD2-8	
+Homo sapiens	IGHD2/OR15-2a	ORF	Homo sapiens immunoglobulin heavy diversity 2/OR15-2a	1	15q11.2	X55577	IGHD2OR15-2A	5493	28333	ENSG00000282599	27500	IGHD2OR15-2A	
+Homo sapiens	IGHD2/OR15-2b	ORF	Homo sapiens immunoglobulin heavy diversity 2/OR15-2b	1	15q11.2	X55578	IGHD2OR15-2B	5494	28332	ENSG00000282268	27501	IGHD2OR15-2B	
+Homo sapiens	IGHD3-10	F	Homo sapiens immunoglobulin heavy diversity 3-10	3	14q32.33	X13972	IGHD3-10	5495	28499	ENSG00000211923	27502	IGHD3-10	
+Homo sapiens	IGHD3-16	F	Homo sapiens immunoglobulin heavy diversity 3-16	3	14q32.33	X93614	IGHD3-16	5496	28498	ENSG00000211917	27503	IGHD3-16	
+Homo sapiens	IGHD3-22	F	Homo sapiens immunoglobulin heavy diversity 3-22	1	14q32.33	X93616	IGHD3-22	5497	28497	ENSG00000211911	27504	IGHD3-22	
+Homo sapiens	IGHD3-3	F	Homo sapiens immunoglobulin heavy diversity 3-3	2	14q32.33	X13972	IGHD3-3	5498	28501	ENSG00000211930	27505	IGHD3-3	
+Homo sapiens	IGHD3-9	F	Homo sapiens immunoglobulin heavy diversity 3-9	1	14q32.33	X13972	IGHD3-9	5499	28500	ENSG00000211924	27506	IGHD3-9	
+Homo sapiens	IGHD3/OR15-3a	ORF	Homo sapiens immunoglobulin heavy diversity 3/OR15-3a	1	15q11.2	X55579	IGHD3OR15-3A	5500	28331	ENSG00000282520	27507	IGHD3OR15-3A	
+Homo sapiens	IGHD3/OR15-3b	ORF	Homo sapiens immunoglobulin heavy diversity 3/OR15-3b	1	15q11.2	X55580	IGHD3OR15-3B	5501	28330	ENSG00000282089	27508	IGHD3OR15-3B	
+Homo sapiens	IGHD4-11	ORF	Homo sapiens immunoglobulin heavy diversity 4-11	1	14q32.33	X13972	IGHD4-11	5502	28495	ENSG00000232543	27509	IGHD4-11	
+Homo sapiens	IGHD4-17	F	Homo sapiens immunoglobulin heavy diversity 4-17	1	14q32.33	X97051	IGHD4-17	5503	28494	ENSG00000227800	27510	IGHD4-17	
+Homo sapiens	IGHD4-23	ORF	Homo sapiens immunoglobulin heavy diversity 4-23	1	14q32.33	X97051	IGHD4-23	5504	28493	ENSG00000227196	27511	IGHD4-23	
+Homo sapiens	IGHD4-4	F	Homo sapiens immunoglobulin heavy diversity 4-4	1	14q32.33	X13972	IGHD4-4	5505	28496	ENSG00000233655	27512	IGHD4-4	
+Homo sapiens	IGHD4/OR15-4a	ORF	Homo sapiens immunoglobulin heavy diversity 4/OR15-4a	1	15q11.2	X55581	IGHD4OR15-4A	5506	28329	ENSG00000271317	27513	IGHD4OR15-4A	
+Homo sapiens	IGHD4/OR15-4b	ORF	Homo sapiens immunoglobulin heavy diversity 4/OR15-4b	1	15q11.2	X55582	IGHD4OR15-4B	5507	28328	ENSG00000270451	27514	IGHD4OR15-4B	
+Homo sapiens	IGHD5-12	F	Homo sapiens immunoglobulin heavy diversity 5-12	1	14q32.33	X13972	IGHD5-12	5508	28491	ENSG00000211921	27515	IGHD5-12	
+Homo sapiens	IGHD5-18	ORF F	Homo sapiens immunoglobulin heavy diversity 5-18	2	14q32.33	X97051	IGHD5-18	5509	28490	ENSG00000211915	27516	IGHD5-18	
+Homo sapiens	IGHD5-24	ORF	Homo sapiens immunoglobulin heavy diversity 5-24	1	14q32.33	X97051	IGHD5-24	5510	28489	ENSG00000211909	27517	IGHD5-24	
+Homo sapiens	IGHD5-5	F	Homo sapiens immunoglobulin heavy diversity 5-5	1	14q32.33	X13972	IGHD5-5	5511	28492	ENSG00000211928	27518	IGHD5-5	
+Homo sapiens	IGHD5/OR15-5a	ORF	Homo sapiens immunoglobulin heavy diversity 5/OR15-5a	1	15q11.2	X55583	IGHD5OR15-5A	5512	28327	ENSG00000270961	27519	IGHD5OR15-5A	
+Homo sapiens	IGHD5/OR15-5b	ORF	Homo sapiens immunoglobulin heavy diversity 5/OR15-5b	1	15q11.2	X55584	IGHD5OR15-5B	5513	28326	ENSG00000270824	27520	IGHD5OR15-5B	
+Homo sapiens	IGHD6-13	F	Homo sapiens immunoglobulin heavy diversity 6-13	1	14q32.33	X13972	IGHD6-13	5514	28487	ENSG00000211920	27521	IGHD6-13	
+Homo sapiens	IGHD6-19	F	Homo sapiens immunoglobulin heavy diversity 6-19	1	14q32.33	X97051	IGHD6-19	5515	28486	ENSG00000211914	27522	IGHD6-19	
+Homo sapiens	IGHD6-25	F	Homo sapiens immunoglobulin heavy diversity 6-25	1	14q32.33	X97051	IGHD6-25	5516	28485	ENSG00000225825	27523	IGHD6-25	
+Homo sapiens	IGHD6-6	F	Homo sapiens immunoglobulin heavy diversity 6-6	1	14q32.33	X13972	IGHD6-6	5517	28488	ENSG00000228131	27524	IGHD6-6	
+Homo sapiens	IGHD7-27	F	Homo sapiens immunoglobulin heavy diversity 7-27	1	14q32.33	J00256	IGHD7-27	5518	28484	ENSG00000236597	27525	IGHD7-27	
+Homo sapiens	IGHE	F	Homo sapiens immunoglobulin heavy constant epsilon	7	14q32.33	J00222 X63693	IGHE	5522	3497	ENSG00000211891	2553	IGHE	P01854
+Homo sapiens	IGHEP1	P	Homo sapiens immunoglobulin heavy constant epsilon P1	8	14q32.33	J00223	IGHEP1	5523	3498	ENSG00000253692	2554	IGHEP1	
+Homo sapiens	IGHEP2	P	Homo sapiens immunoglobulin heavy constant epsilon P2	2	9p24.2-p24.1	K01241	IGHEP2	5524	3499	ENSG00000254017	4798	IGHEP2	
+Homo sapiens	IGHG1	F (F)	Homo sapiens immunoglobulin heavy constant gamma 1 (G1m marker)	17	14q32.33	J00228 X52847	IGHG1	5525	3500	ENSG00000211896	2558	IGHG1	P01857
+Homo sapiens	IGHG2	F	Homo sapiens immunoglobulin heavy constant gamma 2 (G2m marker)	18	14q32.33	AB006775 AB006776 J00230	IGHG2	5526	3501	ENSG00000211893	2559	IGHG2	P01859
+Homo sapiens	IGHG3	P F	Homo sapiens immunoglobulin heavy constant gamma 3 (G3m marker)	30	14q32.33	D78345	IGHG3	5527	3502	ENSG00000211897	2560	IGHG3	P01860
+Homo sapiens	IGHG4	P F	Homo sapiens immunoglobulin heavy constant gamma 4 (G4m marker)	10	14q32.33	IMGT000175	IGHG4	5528	3503	ENSG00000211892	2561	IGHG4	P01861
+Homo sapiens	IGHG4A	P F	Homo sapiens Immunoglobulin heavy constant gamma 4A	3	14q32.33	BK063800							
+Homo sapiens	IGHGP	P ORF	Homo sapiens immunoglobulin heavy constant gamma P	7	14q32.33	X06766 X52848 X52849	IGHGP	5529	3505	ENSG00000253755	2562	IGHGP	
+Homo sapiens	IGHJ1	F	Homo sapiens immunoglobulin heavy joining 1	1	14q32.33	J00256	IGHJ1	5532	28483	ENSG00000211905	27526	IGHJ1	A0A0C4DH62
+Homo sapiens	IGHJ1P	P	Homo sapiens immunoglobulin heavy joining 1P	2	14q32.33	J00256	IGHJ1P	5533	28482	ENSG00000227335	27527	IGHJ1P	
+Homo sapiens	IGHJ2	F	Homo sapiens immunoglobulin heavy joining 2	1	14q32.33	J00256	IGHJ2	5534	28481	ENSG00000211904	27528	IGHJ2	
+Homo sapiens	IGHJ2P	P	Homo sapiens immunoglobulin heavy joining 2P	2	14q32.33	J00256	IGHJ2P	5535	28480	ENSG00000237547	27529	IGHJ2P	
+Homo sapiens	IGHJ3	F	Homo sapiens immunoglobulin heavy joining 3	2	14q32.33	J00256	IGHJ3	5536	28479	ENSG00000242887	27530	IGHJ3	
+Homo sapiens	IGHJ3P	P	Homo sapiens immunoglobulin heavy joining 3P	3	14q32.33	J00256	IGHJ3P	5537	28478	ENSG00000237111	27531	IGHJ3P	
+Homo sapiens	IGHJ4	F	Homo sapiens immunoglobulin heavy joining 4	3	14q32.33	J00256	IGHJ4	5538	28477	ENSG00000240041	27532	IGHJ4	
+Homo sapiens	IGHJ5	P F	Homo sapiens immunoglobulin heavy joining 5	4	14q32.33	J00256	IGHJ5	5539	28476	ENSG00000242472	27533	IGHJ5	
+Homo sapiens	IGHJ6	F	Homo sapiens immunoglobulin heavy joining 6	5	14q32.33	J00256	IGHJ6	5540	28475	ENSG00000211900	27534	IGHJ6	
+Homo sapiens	IGHM	F	Homo sapiens immunoglobulin heavy constant mu	8	14q32.33	X14939 X14940	IGHM	5541	3507	ENSG00000211899	2570	IGHM	P01871
+Homo sapiens	IGHV(II)-1-1	P	Homo sapiens immunoglobulin heavy variable (II)-1-1	1	14q32.33	AB019441	IGHVII-1-1	5670	28377	ENSG00000254279	26540	IGHVII-1-1	
+Homo sapiens	IGHV(II)-12-1	P	Homo sapiens Immunoglobulin heavy variable (II)-12-1	2	14q32.33	BK063799							
+Homo sapiens	IGHV(II)-15-1	P	Homo sapiens immunoglobulin heavy variable (II)-15-1	2	14q32.33	AB019440	IGHVII-15-1	5671	28376	ENSG00000253458	26541	IGHVII-15-1	
+Homo sapiens	IGHV(II)-20-1	P	Homo sapiens immunoglobulin heavy variable (II)-20-1	3	14q32.33	IMGT000197	IGHVII-20-1	5672	28375		26542	IGHVII-20-1	
+Homo sapiens	IGHV(II)-22-1	P	Homo sapiens immunoglobulin heavy variable (II)-22-1	2	14q32.33	AB019439	IGHVII-22-1	5673	28374	ENSG00000253345	26543	IGHVII-22-1	
+Homo sapiens	IGHV(II)-22-1D	P	Homo sapiens immunoglobulin heavy variable (II)-22-1D	2	14q32.33	AC244492							
+Homo sapiens	IGHV(II)-26-2	P	Homo sapiens immunoglobulin heavy variable (II)-26-2	1	14q32.33	AC245166	IGHVII-26-2	5674	28373	ENSG00000253482	26544	IGHVII-26-2	
+Homo sapiens	IGHV(II)-28-1	P	Homo sapiens immunoglobulin heavy variable (II)-28-1	3	14q32.33	AB019439	IGHVII-28-1	5675	28372	ENSG00000253149	26545	IGHVII-28-1	
+Homo sapiens	IGHV(II)-30-1	P	Homo sapiens immunoglobulin heavy variable (II)-30-1	3	14q32.33	AB019439	IGHVII-30-1	5676	28371	ENSG00000253491	26546	IGHVII-30-1	
+Homo sapiens	IGHV(II)-30-21	P	Homo sapiens Immunoglobulin heavy variable (II)-30-21	3	14q32.33	AC245166	IGHVII-30-21	52400	107548099	ENSG00000283607		IGHVII-30-21	
+Homo sapiens	IGHV(II)-30-32	P	Homo sapiens Immunoglobulin heavy variable (II)-30-32	2	14q32.33	AC244456							
+Homo sapiens	IGHV(II)-30-41	P	Homo sapiens Immunoglobulin heavy variable (II)-30-41	3	14q32.33	AC244456							
+Homo sapiens	IGHV(II)-30-51	P	Homo sapiens Immunoglobulin heavy variable (II)-30-51	2	14q32.33	AC244456							
+Homo sapiens	IGHV(II)-31-1	P	Homo sapiens immunoglobulin heavy variable (II)-31-1	2	14q32.33	AB019439	IGHVII-31-1	5677	28370		26547	IGHVII-31-1	
+Homo sapiens	IGHV(II)-33-1	P	Homo sapiens immunoglobulin heavy variable (II)-33-1	2	14q32.33	AC245166	IGHVII-33-1	5678	28369	ENSG00000254203	26548	IGHVII-33-1	
+Homo sapiens	IGHV(II)-4-2		Homo sapiens Immunoglobulin heavy variable (II)-4-2	0	-								
+Homo sapiens	IGHV(II)-4-4	P	Homo sapiens Immunoglobulin heavy variable (II)-4-4	1	14q32.33	BK063799							
+Homo sapiens	IGHV(II)-40-1	P	Homo sapiens immunoglobulin heavy variable (II)-40-1	1	14q32.33	AB019438	IGHVII-40-1	5679	28368	ENSG00000253294	26549	IGHVII-40-1	
+Homo sapiens	IGHV(II)-43-1	P	Homo sapiens immunoglobulin heavy variable (II)-43-1	3	14q32.33	AB019438	IGHVII-43-1	5680	28367	ENSG00000283195	26550	IGHVII-43-1	
+Homo sapiens	IGHV(II)-43-1D	P	Homo sapiens immunoglobulin heavy variable (II)-43-1D	2	14q32.33	AC233755							
+Homo sapiens	IGHV(II)-44-2	P	Homo sapiens immunoglobulin heavy variable (II)-44-2	1	14q32.33	AB019438	IGHVII-44-2	5681	28366	ENSG00000253895	26551	IGHVII-44-2	
+Homo sapiens	IGHV(II)-46-1	P	Homo sapiens immunoglobulin heavy variable (II)-46-1	2	14q32.33	AB019438	IGHVII-46-1	5682	28365	ENSG00000253808	26552	IGHVII-46-1	
+Homo sapiens	IGHV(II)-49-1	P	Homo sapiens immunoglobulin heavy variable (II)-49-1	1	14q32.33	AB019438	IGHVII-49-1	5683	28364	ENSG00000253386	26553	IGHVII-49-1	
+Homo sapiens	IGHV(II)-51-2	P	Homo sapiens immunoglobulin heavy variable (II)-51-2	2	14q32.33	AB019438	IGHVII-51-2	5684	28363	ENSG00000253941	26554	IGHVII-51-2	
+Homo sapiens	IGHV(II)-53-1	P	Homo sapiens immunoglobulin heavy variable (II)-53-1	4	14q32.33	AB019438	IGHVII-53-1	5685	28362	ENSG00000253714	26555	IGHVII-53-1	
+Homo sapiens	IGHV(II)-60-1	P	Homo sapiens immunoglobulin heavy variable (II)-60-1	5	14q32.33	AB019437	IGHVII-60-1	5686	28361	ENSG00000254329	26556	IGHVII-60-1	
+Homo sapiens	IGHV(II)-62-1	P	Homo sapiens immunoglobulin heavy variable (II)-62-1	4	14q32.33	AB019437	IGHVII-62-1	5687	28360	ENSG00000253747	26557	IGHVII-62-1	
+Homo sapiens	IGHV(II)-65-1	P	Homo sapiens immunoglobulin heavy variable (II)-65-1	3	14q32.33	AB019437	IGHVII-65-1	5688	28359	ENSG00000253169	26558	IGHVII-65-1	
+Homo sapiens	IGHV(II)-67-1	P	Homo sapiens immunoglobulin heavy variable (II)-67-1	2	14q32.33	AB019437	IGHVII-67-1	5689	28358	ENSG00000253820	26559	IGHVII-67-1	
+Homo sapiens	IGHV(II)-7-1	P	Homo sapiens Immunoglobulin heavy variable (II)-7-1	1	14q32.33	BK063799							
+Homo sapiens	IGHV(II)-74-1	P	Homo sapiens immunoglobulin heavy variable (II)-74-1	2	14q32.33	AB019437	IGHVII-74-1	5690	28357	ENSG00000254134	26560	IGHVII-74-1	
+Homo sapiens	IGHV(II)-78-1	P	Homo sapiens immunoglobulin heavy variable (II)-78-1	2	14q32.33	AB019437	IGHVII-78-1	5691	28356	ENSG00000253674	26561	IGHVII-78-1	
+Homo sapiens	IGHV(III)-10-2	P	Homo sapiens Immunoglobulin heavy variable (III)-10-2	1	14q32.33	BK063799							
+Homo sapiens	IGHV(III)-11-1	P	Homo sapiens immunoglobulin heavy variable (III)-11-1	3	14q32.33	AB019440	IGHVIII-11-1	5692	28352	ENSG00000254215	26562	IGHVIII-11-1	
+Homo sapiens	IGHV(III)-13-1	P	Homo sapiens immunoglobulin heavy variable (III)-13-1	2	14q32.33	AB019440	IGHVIII-13-1	5693	28351	ENSG00000253412	26563	IGHVIII-13-1	
+Homo sapiens	IGHV(III)-16-1	P	Homo sapiens immunoglobulin heavy variable (III)-16-1	3	14q32.33	AB019440	IGHVIII-16-1	5694	28350	ENSG00000283948	26564	IGHVIII-16-1	
+Homo sapiens	IGHV(III)-2-1	P	Homo sapiens immunoglobulin heavy variable (III)-2-1	3	14q32.33	AB019441	IGHVIII-2-1	5695	28355	ENSG00000253780	26565	IGHVIII-2-1	
+Homo sapiens	IGHV(III)-22-2	P	Homo sapiens immunoglobulin heavy variable (III)-22-2	1	14q32.33	AB019439	IGHVIII-22-2	5696	28349	ENSG00000254045	26566	IGHVIII-22-2	
+Homo sapiens	IGHV(III)-22-2D	P	Homo sapiens immunoglobulin heavy variable (III)-22-2D	1	14q32.33	AC244492							
+Homo sapiens	IGHV(III)-25-1	P	Homo sapiens immunoglobulin heavy variable (III)-25-1	5	14q32.33	AB019439	IGHVIII-25-1	5697	28348	ENSG00000253367	26567	IGHVIII-25-1	
+Homo sapiens	IGHV(III)-26-1	P	Homo sapiens immunoglobulin heavy variable (III)-26-1	2	14q32.33	AB019439	IGHVIII-26-1	5698	28347	ENSG00000253462	26568	IGHVIII-26-1	
+Homo sapiens	IGHV(III)-38-1	P	Homo sapiens immunoglobulin heavy variable (III)-38-1	3	14q32.33	AB019439	IGHVIII-38-1	5699	28346	ENSG00000253989	26569	IGHVIII-38-1	
+Homo sapiens	IGHV(III)-38-1D	P	Homo sapiens immunoglobulin heavy variable (III)-38-1D	1	14q32.33	AC241995							
+Homo sapiens	IGHV(III)-44	P	Homo sapiens immunoglobulin heavy variable (III)-44	1	14q32.33	M99673	IGHVIII-44	5700	28345	ENSG00000283562	26570	IGHVIII-44	
+Homo sapiens	IGHV(III)-44D	P	Homo sapiens immunoglobulin heavy variable (III)-44D	1	14q32.33	AC233755							
+Homo sapiens	IGHV(III)-47-1	P	Homo sapiens immunoglobulin heavy variable (III)-47-1	1	14q32.33	AB019438	IGHVIII-47-1	5701	28344	ENSG00000253862	26571	IGHVIII-47-1	
+Homo sapiens	IGHV(III)-5-1	P	Homo sapiens immunoglobulin heavy variable (III)-5-1	1	14q32.33	AB019440	IGHVIII-5-1	5702	28354	ENSG00000253387	26572	IGHVIII-5-1	
+Homo sapiens	IGHV(III)-5-2	P	Homo sapiens immunoglobulin heavy variable (III)-5-2	1	14q32.33	AB019440	IGHVIII-5-2	5703	28353	ENSG00000254053	26573	IGHVIII-5-2	
+Homo sapiens	IGHV(III)-67-2	P	Homo sapiens immunoglobulin heavy variable (III)-67-2	1	14q32.33	AB019437	IGHVIII-67-2	5705	28342	ENSG00000254036	26575	IGHVIII-67-2	
+Homo sapiens	IGHV(III)-67-3	P	Homo sapiens immunoglobulin heavy variable (III)-67-3	3	14q32.33	AB019437	IGHVIII-67-3	5706	28341	ENSG00000253635	26576	IGHVIII-67-3	
+Homo sapiens	IGHV(III)-67-3D	P	Homo sapiens Immunoglobulin heavy variable (III)-67-3D	1	14q32.33								
+Homo sapiens	IGHV(III)-67-4	P	Homo sapiens immunoglobulin heavy variable (III)-67-4	4	14q32.33	AB019437	IGHVIII-67-4	5707	28340	ENSG00000254052	26577	IGHVIII-67-4	
+Homo sapiens	IGHV(III)-67-4D	P	Homo sapiens Immunoglobulin heavy variable (III)-67-4D	1	14q32.33								
+Homo sapiens	IGHV(III)-76-1	P	Homo sapiens immunoglobulin heavy variable (III)-76-1	1	14q32.33	AB019437	IGHVIII-76-1	5708	28339	ENSG00000253310	26578	IGHVIII-76-1	
+Homo sapiens	IGHV(III)-82	P	Homo sapiens immunoglobulin heavy variable (III)-82	1	14q32.33	AB019437	IGHVIII-82	5709	28338	ENSG00000253303	26579	IGHVIII-82	
+Homo sapiens	IGHV(III)/OR16-25	P	Homo sapiens Immunoglobulin heavy variable (III)/OR16-25	1	16p11.2	IMGT000069							
+Homo sapiens	IGHV(III)/OR16-27	P	Homo sapiens Immunoglobulin heavy variable (III)/OR16-27	1	16p11.2	IMGT000069							
+Homo sapiens	IGHV(III)/OR16-28	P	Homo sapiens Immunoglobulin heavy variable (III)/OR16-28	1	16p11.2	IMGT000069							
+Homo sapiens	IGHV(IV)-44-1	P	Homo sapiens immunoglobulin heavy variable (IV)-44-1	2	14q32.33	AB019438	IGHVIV-44-1	5710	28337	ENSG00000253465	26580	IGHVIV-44-1	
+Homo sapiens	IGHV1-12	P	Homo sapiens immunoglobulin heavy variable 1-12	3	14q32.33	X92210	IGHV1-12	5546	28471	ENSG00000254174	26488	IGHV1-12	
+Homo sapiens	IGHV1-14	P	Homo sapiens immunoglobulin heavy variable 1-14	3	14q32.33	AB019440	IGHV1-14	5547	28470	ENSG00000253709	26489	IGHV1-14	
+Homo sapiens	IGHV1-17	P	Homo sapiens immunoglobulin heavy variable 1-17	4	14q32.33	M99640	IGHV1-17	5548	28469	ENSG00000254046	26490	IGHV1-17	
+Homo sapiens	IGHV1-18	F	Homo sapiens immunoglobulin heavy variable 1-18	4	14q32.33	M99641	IGHV1-18	5549	28468	ENSG00000211945	26424	IGHV1-18	A0A0C4DH31
+Homo sapiens	IGHV1-2	F	Homo sapiens immunoglobulin heavy variable 1-2	8	14q32.33	X07448	IGHV1-2	5550	28474	ENSG00000211934	26425	IGHV1-2	P23083
+Homo sapiens	IGHV1-24	F	Homo sapiens immunoglobulin heavy variable 1-24	1	14q32.33	M99642	IGHV1-24	5551	28467	ENSG00000211950	26426	IGHV1-24	A0A0C4DH33
+Homo sapiens	IGHV1-3	F (F)	Homo sapiens immunoglobulin heavy variable 1-3	5	14q32.33	X62109	IGHV1-3	5552	28473	ENSG00000211935	26427	IGHV1-3	A0A0C4DH29
+Homo sapiens	IGHV1-38-4	ORF	Homo sapiens immunoglobulin heavy variable 1-38-4	1	14q32.33	KF698736	&IGHV1-38-4	5560	28460		26433	&IGHV1-38-4	
+Homo sapiens	IGHV1-45	F	Homo sapiens immunoglobulin heavy variable 1-45	3	14q32.33	X92209	IGHV1-45	5553	28466	ENSG00000211961	26428	IGHV1-45	A0A0A0MS14
+Homo sapiens	IGHV1-46	F	Homo sapiens immunoglobulin heavy variable 1-46	4	14q32.33	X92343	IGHV1-46	5554	28465	ENSG00000211962	26429	IGHV1-46	P01743
+Homo sapiens	IGHV1-58	F (F)	Homo sapiens immunoglobulin heavy variable 1-58	3	14q32.33	M29809	IGHV1-58	5555	28464	ENSG00000211968	26430	IGHV1-58	A0A0C4DH39
+Homo sapiens	IGHV1-67	P	Homo sapiens immunoglobulin heavy variable 1-67	3	14q32.33	AB019437	IGHV1-67	5556	28463	ENSG00000253274	26491	IGHV1-67	
+Homo sapiens	IGHV1-68	P	Homo sapiens immunoglobulin heavy variable 1-68	4	14q32.33	AB019437	IGHV1-68	5557	28462	ENSG00000253703	26492	IGHV1-68	
+Homo sapiens	IGHV1-68D	P	Homo sapiens Immunoglobulin heavy variable 1-68D	2	14q32.33								
+Homo sapiens	IGHV1-69	F (F)	Homo sapiens immunoglobulin heavy variable 1-69	20	14q32.33	L22582	IGHV1-69	5558	28461	ENSG00000211973	26431	IGHV1-69	P01742
+Homo sapiens	IGHV1-69-2	F	Homo sapiens immunoglobulin heavy variable 1-69-2	2	14q32.33	KF698734	&IGHV1-69-2	5562	28458	ENSG00000281990	26434	&IGHV1-69-2	A0A0G2JMI3
+Homo sapiens	IGHV1-69D	F	Homo sapiens immunoglobulin heavy variable 1-69D	2	14q32.33	KC713934	IGHV1-69D	49601	102723169	ENSG00000280411		IGHV1-69D	A0A0B4J2H0
+Homo sapiens	IGHV1-8	F	Homo sapiens immunoglobulin heavy variable 1-8	3	14q32.33	M99637	IGHV1-8	5559	28472		26432	IGHV1-8	P0DP01
+Homo sapiens	IGHV1-NL1	P	Homo sapiens immunoglobulin heavy variable 1-NL1, not localized	1	14q32.33	M13911	IGHV1-NL1					IGHV1-NL1	
+Homo sapiens	IGHV1/OR15-1	ORF	Homo sapiens immunoglobulin heavy variable 1/OR15-1	4	15q11.2	Z29631	IGHV1OR15-1	5563	388077	ENSG00000270505	26435	IGHV1OR15-1	
+Homo sapiens	IGHV1/OR15-2	P	Homo sapiens immunoglobulin heavy variable 1/OR15-2	3	15q11.2	L25543	IGHV1OR15-2	5564	100287128	ENSG00000259337	26493	IGHV1OR15-2	
+Homo sapiens	IGHV1/OR15-3	P	Homo sapiens immunoglobulin heavy variable 1/OR15-3	3	15q11.2	Z29595	IGHV1OR15-3	5565	646370	ENSG00000271288	26436	IGHV1OR15-3	
+Homo sapiens	IGHV1/OR15-4	P	Homo sapiens immunoglobulin heavy variable 1/OR15-4	1	15q11.2	Z29596	IGHV1OR15-4	5566	646379	ENSG00000270356	26494	IGHV1OR15-4	
+Homo sapiens	IGHV1/OR15-5	ORF	Homo sapiens immunoglobulin heavy variable 1/OR15-5	2	15q11.2	Z29633	IGHV1OR15-5	5567	100384884		26437	IGHV1OR15-5	
+Homo sapiens	IGHV1/OR15-6	P	Homo sapiens immunoglobulin heavy variable 1/OR15-6	2	15q11.2	HM855943	IGHV1OR15-6	5568	28320	ENSG00000270685	26495	IGHV1OR15-6	
+Homo sapiens	IGHV1/OR15-9	ORF	Homo sapiens immunoglobulin heavy variable 1/OR15-9	1	15q11.2	L25542	IGHV1OR15-9	5569	390531	ENSG00000188403	26438	IGHV1OR15-9	
+Homo sapiens	IGHV1/OR16-1	P	Homo sapiens immunoglobulin heavy variable 1/OR16-1	1	16p11.2	IMGT000069	IGHV1OR16-1	5570	28315	ENSG00000261704	26496	IGHV1OR16-1	
+Homo sapiens	IGHV1/OR16-2	P	Homo sapiens immunoglobulin heavy variable 1/OR16-2	1	16p11.2	IMGT000069	IGHV1OR16-2	5571	28314	ENSG00000259852	26497	IGHV1OR16-2	
+Homo sapiens	IGHV1/OR16-21	P	Homo sapiens Immunoglobulin heavy variable 1/OR16-21	1	16p11.2	IMGT000069							
+Homo sapiens	IGHV1/OR16-22	P	Homo sapiens Immunoglobulin heavy variable 1/OR16-22	1	16p11.2	IMGT000069							
+Homo sapiens	IGHV1/OR16-24	P	Homo sapiens Immunoglobulin heavy variable 1/OR16-24	1	16p11.2	IMGT000069							
+Homo sapiens	IGHV1/OR16-26	P	Homo sapiens Immunoglobulin heavy variable 1/OR16-26	1	16p11.2	IMGT000069							
+Homo sapiens	IGHV1/OR16-3	P	Homo sapiens immunoglobulin heavy variable 1/OR16-3	1	16p11.2	IMGT000069	IGHV1OR16-3	5572	28313	ENSG00000260048	26498	IGHV1OR16-3	
+Homo sapiens	IGHV1/OR16-4	P	Homo sapiens immunoglobulin heavy variable 1/OR16-4	2	16p11.2	IMGT000069	IGHV1OR16-4	5573	28312	ENSG00000259997	26499	IGHV1OR16-4	
+Homo sapiens	IGHV1/OR21-1	ORF	Homo sapiens immunoglobulin heavy variable 1/OR21-1	1	21p11.2	AF254982	IGHV1OR21-1	38040	390530	ENSG00000277282		IGHV1OR21-1	
+Homo sapiens	IGHV2-10	P	Homo sapiens immunoglobulin heavy variable 2-10	2	14q32.33	M99647	IGHV2-10	5574	28456		26500	IGHV2-10	
+Homo sapiens	IGHV2-26	F	Homo sapiens immunoglobulin heavy variable 2-26	5	14q32.33	M99648	IGHV2-26	5575	28455	ENSG00000211951	26439	IGHV2-26	A0A0B4J1V2
+Homo sapiens	IGHV2-5	F	Homo sapiens immunoglobulin heavy variable 2-5	9	14q32.33	X62111	IGHV2-5	5576	28457	ENSG00000211937	26440	IGHV2-5	P01817
+Homo sapiens	IGHV2-70	ORF F	Homo sapiens immunoglobulin heavy variable 2-70	22	14q32.33	BK063799	IGHV2-70	5577	28454	ENSG00000274576	26441	IGHV2-70	P01814
+Homo sapiens	IGHV2-70D	ORF F	Homo sapiens immunoglobulin heavy variable 2-70D	3	14q32.33		IGHV2-70D	49602	102723168	ENSG00000211974		IGHV2-70D	
+Homo sapiens	IGHV2/OR16-23	P	Homo sapiens Immunoglobulin heavy variable 2/OR16-23	1	16p11.2	IMGT000069							
+Homo sapiens	IGHV2/OR16-5	ORF	Homo sapiens immunoglobulin heavy variable 2/OR16-5	1	16p11.2	L25544	IGHV2OR16-5	5579	100129631	ENSG00000259303	26442	IGHV2OR16-5	
+Homo sapiens	IGHV3-11	P F	Homo sapiens immunoglobulin heavy variable 3-11	6	14q32.33	M99652	IGHV3-11	5580	28450	ENSG00000211941	26443	IGHV3-11	P01762
+Homo sapiens	IGHV3-13	F	Homo sapiens immunoglobulin heavy variable 3-13	6	14q32.33	X92217	IGHV3-13	5581	28449	ENSG00000211942	26444	IGHV3-13	P01766
+Homo sapiens	IGHV3-15	F	Homo sapiens immunoglobulin heavy variable 3-15	9	14q32.33	X92216	IGHV3-15	5582	28448	ENSG00000211943	26445	IGHV3-15	A0A0B4J1V0
+Homo sapiens	IGHV3-16	ORF	Homo sapiens immunoglobulin heavy variable 3-16	4	14q32.33	M99655	IGHV3-16	5583	28447	ENSG00000211944	26446	IGHV3-16	
+Homo sapiens	IGHV3-19	P	Homo sapiens immunoglobulin heavy variable 3-19	2	14q32.33	M99656	IGHV3-19	5584	28446	ENSG00000253883	26501	IGHV3-19	
+Homo sapiens	IGHV3-20	ORF F	Homo sapiens immunoglobulin heavy variable 3-20	4	14q32.33	M99657	IGHV3-20	5585	28445	ENSG00000211946	26447	IGHV3-20	A0A0C4DH32
+Homo sapiens	IGHV3-21	F (F)	Homo sapiens immunoglobulin heavy variable 3-21	8	14q32.33	AB019439	IGHV3-21	5586	28444	ENSG00000211947	26448	IGHV3-21	A0A0B4J1V1
+Homo sapiens	IGHV3-22	P	Homo sapiens immunoglobulin heavy variable 3-22	2	14q32.33	M99659	IGHV3-22	5587	28443	ENSG00000253957	26502	IGHV3-22	
+Homo sapiens	IGHV3-23	F	Homo sapiens immunoglobulin heavy variable 3-23	5	14q32.33	M99660	IGHV3-23	5588	28442	ENSG00000211949	26449	IGHV3-23	P01764
+Homo sapiens	IGHV3-23D	F	Homo sapiens immunoglobulin heavy variable 3-23D	1	14q32.33	AC244492							
+Homo sapiens	IGHV3-25	P ORF	Homo sapiens immunoglobulin heavy variable 3-25	5	14q32.33	M99661	IGHV3-25	5589	28441	ENSG00000253441	26503	IGHV3-25	
+Homo sapiens	IGHV3-29	P	Homo sapiens immunoglobulin heavy variable 3-29	2	14q32.33	AB019439	IGHV3-29	5590	28440	ENSG00000270474	26504	IGHV3-29	
+Homo sapiens	IGHV3-30	P F (F)	Homo sapiens immunoglobulin heavy variable 3-30	21	14q32.33	M83134	IGHV3-30	5591	28439	ENSG00000270550	26450	IGHV3-30	P01768
+Homo sapiens	IGHV3-30-2	P	Homo sapiens immunoglobulin heavy variable 3-30-2	2	14q32.33	AB019439	IGHV3-30-2	5592	28438	ENSG00000253587	26505	IGHV3-30-2	
+Homo sapiens	IGHV3-30-22	P	Homo sapiens Immunoglobulin heavy variable 3-30-22	1	14q32.33	KC162924							
+Homo sapiens	IGHV3-30-3	F	Homo sapiens immunoglobulin heavy variable 3-30-3	3	14q32.33	AC244456	IGHV3-30-3	5593	57290		26451	IGHV3-30-3	P0DP02
+Homo sapiens	IGHV3-30-33	P	Homo sapiens Immunoglobulin heavy variable 3-30-33	2	14q32.33	AC244456							
+Homo sapiens	IGHV3-30-42	P	Homo sapiens Immunoglobulin heavy variable 3-30-42	3	14q32.33	AC244456							
+Homo sapiens	IGHV3-30-5	P F	Homo sapiens immunoglobulin heavy variable 3-30-5	4	14q32.33	AC244456	IGHV3-30-5	5594	89770		27536	IGHV3-30-5	P0DP03
+Homo sapiens	IGHV3-30-52	P	Homo sapiens Immunoglobulin heavy variable 3-30-52	1	14q32.33	AC244456							
+Homo sapiens	IGHV3-32	P	Homo sapiens immunoglobulin heavy variable 3-32	2	14q32.33	AB019439	IGHV3-32	5595	28435	ENSG00000254289	26506	IGHV3-32	
+Homo sapiens	IGHV3-33	P F	Homo sapiens immunoglobulin heavy variable 3-33	9	14q32.33	AB019439	IGHV3-33	5596	28434	ENSG00000211955	26452	IGHV3-33	P01772
+Homo sapiens	IGHV3-33-2	P	Homo sapiens immunoglobulin heavy variable 3-33-2	1	14q32.33	AB019439	IGHV3-33-2	5597	28433	ENSG00000253440	26507	IGHV3-33-2	
+Homo sapiens	IGHV3-35	ORF F	Homo sapiens immunoglobulin heavy variable 3-35	2	14q32.33	M99666	IGHV3-35	5598	28432	ENSG00000211957	26453	IGHV3-35	
+Homo sapiens	IGHV3-36	P	Homo sapiens immunoglobulin heavy variable 3-36	3	14q32.33	M99667	IGHV3-36	5599	28431	ENSG00000253240	26508	IGHV3-36	
+Homo sapiens	IGHV3-37	P	Homo sapiens immunoglobulin heavy variable 3-37	2	14q32.33	M99668	IGHV3-37	5600	28430	ENSG00000253359	26509	IGHV3-37	
+Homo sapiens	IGHV3-38	ORF	Homo sapiens immunoglobulin heavy variable 3-38	3	14q32.33	M99669	IGHV3-38	5601	28429	ENSG00000211958	26454	IGHV3-38	
+Homo sapiens	IGHV3-38-3	ORF	Homo sapiens immunoglobulin heavy variable 3-38-3	2	14q32.33	KF698732	&IGHV3-38-3	5629	28404		26466	&IGHV3-38-3	
+Homo sapiens	IGHV3-41	P	Homo sapiens immunoglobulin heavy variable 3-41	2	14q32.33	M99670	IGHV3-41	5602	28428	ENSG00000278473	26510	IGHV3-41	
+Homo sapiens	IGHV3-42	P	Homo sapiens immunoglobulin heavy variable 3-42	4	14q32.33	M99671	IGHV3-42	5603	28427	ENSG00000254228	26511	IGHV3-42	
+Homo sapiens	IGHV3-42D	P	Homo sapiens immunoglobulin heavy variable 3-42D	2	14q32.33	AC233755							
+Homo sapiens	IGHV3-43	F	Homo sapiens immunoglobulin heavy variable 3-43	2	14q32.33	M99672	IGHV3-43	5604	28426	ENSG00000232216	26455	IGHV3-43	A0A0B4J1X8
+Homo sapiens	IGHV3-43D	F	Homo sapiens immunoglobulin heavy variable 3-43D	4	14q32.33		IGHV3-43D	50322	103106901			IGHV3-43D	P0DP04
+Homo sapiens	IGHV3-47	P	Homo sapiens immunoglobulin heavy variable 3-47	3	14q32.33	BK063799	IGHV3-47	5605	28425	ENSG00000229092	26512	IGHV3-47	
+Homo sapiens	IGHV3-48	F	Homo sapiens immunoglobulin heavy variable 3-48	4	14q32.33	M99675	IGHV3-48	5606	28424	ENSG00000211964	26456	IGHV3-48	P01763
+Homo sapiens	IGHV3-49	F	Homo sapiens immunoglobulin heavy variable 3-49	5	14q32.33	M99676	IGHV3-49	5607	28423	ENSG00000211965	26457	IGHV3-49	A0A0A0MS15
+Homo sapiens	IGHV3-50	P	Homo sapiens immunoglobulin heavy variable 3-50	1	14q32.33	AB019438	IGHV3-50	5608	28422	ENSG00000253241	26513	IGHV3-50	
+Homo sapiens	IGHV3-52	P	Homo sapiens immunoglobulin heavy variable 3-52	3	14q32.33	M99678	IGHV3-52	5609	28421	ENSG00000253545	26514	IGHV3-52	
+Homo sapiens	IGHV3-53	P F (F)	Homo sapiens immunoglobulin heavy variable 3-53	7	14q32.33	M99679	IGHV3-53	5610	28420	ENSG00000211967	26458	IGHV3-53	P01767
+Homo sapiens	IGHV3-54	P	Homo sapiens immunoglobulin heavy variable 3-54	6	14q32.33	M99680	IGHV3-54	5611	28419	ENSG00000275475	26515	IGHV3-54	
+Homo sapiens	IGHV3-57	P	Homo sapiens immunoglobulin heavy variable 3-57	4	14q32.33	M29815	IGHV3-57	5612	28418	ENSG00000253759	26516	IGHV3-57	
+Homo sapiens	IGHV3-6	P	Homo sapiens immunoglobulin heavy variable 3-6	2	14q32.33	M99650	IGHV3-6	5613	28453	ENSG00000253763	26517	IGHV3-6	
+Homo sapiens	IGHV3-60	P	Homo sapiens immunoglobulin heavy variable 3-60	6	14q32.33	AB019438	IGHV3-60	5614	28417	ENSG00000253742	26518	IGHV3-60	
+Homo sapiens	IGHV3-62	P ORF F	Homo sapiens immunoglobulin heavy variable 3-62	7	14q32.33	AB019437	IGHV3-62	5615	28416	ENSG00000253132	26519	IGHV3-62	
+Homo sapiens	IGHV3-63	P	Homo sapiens immunoglobulin heavy variable 3-63	3	14q32.33	M99681	IGHV3-63	5616	28415	ENSG00000253936	26520	IGHV3-63	
+Homo sapiens	IGHV3-64	F	Homo sapiens immunoglobulin heavy variable 3-64	6	14q32.33	M99682	IGHV3-64	5617	28414	ENSG00000223648	26459	IGHV3-64	A0A075B6Q5
+Homo sapiens	IGHV3-64D	F	Homo sapiens immunoglobulin heavy variable 3-64D	3	14q32.33		IGHV3-64D	49603	102723170	ENSG00000282639		IGHV3-64D	
+Homo sapiens	IGHV3-65	P	Homo sapiens immunoglobulin heavy variable 3-65	3	14q32.33	IMGT000111	IGHV3-65	5618	28413	ENSG00000253209	26521	IGHV3-65	
+Homo sapiens	IGHV3-66	F	Homo sapiens immunoglobulin heavy variable 3-66	4	14q32.33	X92218	IGHV3-66	5619	28412	ENSG00000211972	26460	IGHV3-66	A0A0C4DH42
+Homo sapiens	IGHV3-69-1	P	Homo sapiens immunoglobulin heavy variable 3-69-1	2	14q32.33	AJ879484	IGHV3-H	5631	28402	ENSG00000282600	27537	IGHV3-H	
+Homo sapiens	IGHV3-7	F	Homo sapiens immunoglobulin heavy variable 3-7	5	14q32.33	M99649	IGHV3-7	5620	28452	ENSG00000211938	26461	IGHV3-7	P01780
+Homo sapiens	IGHV3-7-2	P	Homo sapiens Immunoglobulin heavy variable 3-7-2	2	14q32.33	BK063799							
+Homo sapiens	IGHV3-71	P	Homo sapiens immunoglobulin heavy variable 3-71	4	14q32.33	AB019437	IGHV3-71	5621	28411	ENSG00000254056	26522	IGHV3-71	
+Homo sapiens	IGHV3-72	F	Homo sapiens immunoglobulin heavy variable 3-72	2	14q32.33	X92206	IGHV3-72	5622	28410	ENSG00000225698	26462	IGHV3-72	A0A0B4J1Y9
+Homo sapiens	IGHV3-73	F	Homo sapiens immunoglobulin heavy variable 3-73	2	14q32.33	X70197	IGHV3-73	5623	28409	ENSG00000211976	26463	IGHV3-73	A0A0B4J1V6
+Homo sapiens	IGHV3-74	F	Homo sapiens immunoglobulin heavy variable 3-74	3	14q32.33	AB019437	IGHV3-74	5624	28408	ENSG00000224650	26464	IGHV3-74	A0A0B4J1X5
+Homo sapiens	IGHV3-75	P	Homo sapiens immunoglobulin heavy variable 3-75	3	14q32.33	AB019437	IGHV3-75	5625	28407	ENSG00000254176	26523	IGHV3-75	
+Homo sapiens	IGHV3-76	P	Homo sapiens immunoglobulin heavy variable 3-76	4	14q32.33	AB019437	IGHV3-76	5626	28406	ENSG00000253247	26524	IGHV3-76	
+Homo sapiens	IGHV3-79	P	Homo sapiens immunoglobulin heavy variable 3-79	3	14q32.33	AB019437	IGHV3-79	5627	28405	ENSG00000275747	26525	IGHV3-79	
+Homo sapiens	IGHV3-9	F	Homo sapiens immunoglobulin heavy variable 3-9	4	14q32.33	M99651	IGHV3-9	5628	28451		26465	IGHV3-9	P01782
+Homo sapiens	IGHV3-NL1	F	Homo sapiens immunoglobulin heavy variable 3-NL1	1	14q32.33	HM855939							
+Homo sapiens	IGHV3/OR15-7	P ORF	Homo sapiens immunoglobulin heavy variable 3/OR15-7	5	15q11.2	Z29597	IGHV3OR15-7	5633	28318	ENSG00000259490	26467	IGHV3OR15-7	
+Homo sapiens	IGHV3/OR16-10	ORF	Homo sapiens immunoglobulin heavy variable 3/OR16-10	3	16p11.2	IMGT000069	IGHV3OR16-10	5634	28306	ENSG00000233732	26468	IGHV3OR16-10	
+Homo sapiens	IGHV3/OR16-11	P	Homo sapiens immunoglobulin heavy variable 3/OR16-11	1	16p11.2	IMGT000069	IGHV3OR16-11	5635	28305	ENSG00000270318	26527	IGHV3OR16-11	
+Homo sapiens	IGHV3/OR16-12	ORF	Homo sapiens immunoglobulin heavy variable 3/OR16-12	1	16p11.2	IMGT000069	IGHV3OR16-12	5636	28304	ENSG00000270467	26469	IGHV3OR16-12	
+Homo sapiens	IGHV3/OR16-13	ORF	Homo sapiens immunoglobulin heavy variable 3/OR16-13	1	16p11.2	IMGT000069	IGHV3OR16-13	5637	100287372	ENSG00000271178	26470	IGHV3OR16-13	
+Homo sapiens	IGHV3/OR16-14	P	Homo sapiens immunoglobulin heavy variable 3/OR16-14	1	16p11.2	Z29611	IGHV3OR16-14	5638	100568447		26528	IGHV3OR16-14	
+Homo sapiens	IGHV3/OR16-15	P	Homo sapiens immunoglobulin heavy variable 3/OR16-15	3	16p11.2	L25546	IGHV3OR16-15	5639	28300	ENSG00000261834	26529	IGHV3OR16-15	
+Homo sapiens	IGHV3/OR16-16	P	Homo sapiens immunoglobulin heavy variable 3/OR16-16	3	16p11.2	IMGT000069	IGHV3OR16-16	5640	28301	ENSG00000259842	26530	IGHV3OR16-16	
+Homo sapiens	IGHV3/OR16-17	ORF	Homo sapiens Immunoglobulin heavy variable 3/OR16-17	1	16p11.2	IMGT000069							
+Homo sapiens	IGHV3/OR16-18	P	Homo sapiens Immunoglobulin heavy variable 3/OR16-18	1	16p11.2	IMGT000069							
+Homo sapiens	IGHV3/OR16-19	P	Homo sapiens Immunoglobulin heavy variable 3/OR16-19	1	16p11.2	IMGT000069							
+Homo sapiens	IGHV3/OR16-20	ORF	Homo sapiens Immunoglobulin heavy variable 3/OR16-20	1	16p11.2	IMGT000069							
+Homo sapiens	IGHV3/OR16-6	P ORF	Homo sapiens immunoglobulin heavy variable 3/OR16-6	3	16p11.2	L25545	IGHV3OR16-6	5641	647187	ENSG00000270864	26531	IGHV3OR16-6	
+Homo sapiens	IGHV3/OR16-7	P	Homo sapiens immunoglobulin heavy variable 3/OR16-7	3	16p11.2	IMGT000069	IGHV3OR16-7	5642	28309	ENSG00000271620	26532	IGHV3OR16-7	
+Homo sapiens	IGHV3/OR16-8	ORF	Homo sapiens immunoglobulin heavy variable 3/OR16-8	2	16p11.2	IMGT000069	IGHV3OR16-8	5643	388255	ENSG00000271130	26471	IGHV3OR16-8	
+Homo sapiens	IGHV3/OR16-9	ORF	Homo sapiens immunoglobulin heavy variable 3/OR16-9	1	16p11.2	IMGT000069	IGHV3OR16-9	5644	28307	ENSG00000270472	26472	IGHV3OR16-9	
+Homo sapiens	IGHV4-28	F	Homo sapiens immunoglobulin heavy variable 4-28	7	14q32.33	X05714	IGHV4-28	5645	28400	ENSG00000211952	26473	IGHV4-28	A0A0C4DH34
+Homo sapiens	IGHV4-30-1	F	Homo sapiens immunoglobulin heavy variable 4-30-1	1	14q32.33		IGHV4-30-1	5646	28399		27538	IGHV4-30-1	
+Homo sapiens	IGHV4-30-2	F	Homo sapiens immunoglobulin heavy variable 4-30-2	7	14q32.33	AC245166	IGHV4-30-2	5647	28398		26474	IGHV4-30-2	A0A087WSY4
+Homo sapiens	IGHV4-30-4	F (F)	Homo sapiens immunoglobulin heavy variable 4-30-4	10	14q32.33	AC244456	IGHV4-30-4	5648	28397		26475	IGHV4-30-4	P0DP06
+Homo sapiens	IGHV4-31	F (F)	Homo sapiens immunoglobulin heavy variable 4-31	12	14q32.33	L10098	IGHV4-31	5649	28396	ENSG00000231475	26476	IGHV4-31	P0DP07
+Homo sapiens	IGHV4-34	F	Homo sapiens immunoglobulin heavy variable 4-34	13	14q32.33	AB019439	IGHV4-34	5650	28395	ENSG00000211956	26477	IGHV4-34	P06331
+Homo sapiens	IGHV4-38-2	F	Homo sapiens immunoglobulin heavy variable 4-38-2	3	14q32.33	AC242184	IGHV4-B	5657	28389		26481	IGHV4-B	P0DP08
+Homo sapiens	IGHV4-39	F (F)	Homo sapiens immunoglobulin heavy variable 4-39	9	14q32.33	AB019439	IGHV4-39	5651	28394	ENSG00000211959	26478	IGHV4-39	P01824
+Homo sapiens	IGHV4-4	F (F)	Homo sapiens immunoglobulin heavy variable 4-4	11	14q32.33	X05713	IGHV4-4	5652	28401	ENSG00000276775	26479	IGHV4-4	A0A075B6R2
+Homo sapiens	IGHV4-55	P	Homo sapiens immunoglobulin heavy variable 4-55	9	14q32.33	M99685	IGHV4-55	5653	28393	ENSG00000254395	26533	IGHV4-55	
+Homo sapiens	IGHV4-59	F (F)	Homo sapiens immunoglobulin heavy variable 4-59	12	14q32.33	AB019438	IGHV4-59	5654	28392	ENSG00000224373	26480	IGHV4-59	P01825
+Homo sapiens	IGHV4-61	ORF F (F)	Homo sapiens immunoglobulin heavy variable 4-61	12	14q32.33	M29811	IGHV4-61	5655	28391	ENSG00000211970	27539	IGHV4-61	A0A0C4DH41
+Homo sapiens	IGHV4-80	P	Homo sapiens immunoglobulin heavy variable 4-80	3	14q32.33	AB019437	IGHV4-80	5656	28390	ENSG00000283906	26534	IGHV4-80	
+Homo sapiens	IGHV4/OR15-8	ORF	Homo sapiens immunoglobulin heavy variable 4/OR15-8	3	15q11.2	HM855539	IGHV4OR15-8	5658	28317	ENSG00000259261	26482	IGHV4OR15-8	
+Homo sapiens	IGHV5-10-1	F	Homo sapiens immunoglobulin heavy variable 5-10-1	4	14q32.33	BK063801	IGHV5-A	5661	28386	ENSG00000282651	26484	IGHV5-A	A0A0J9YXX1
+Homo sapiens	IGHV5-51	F (F)	Homo sapiens immunoglobulin heavy variable 5-51	7	14q32.33	M99686	IGHV5-51	5659	28388	ENSG00000211966	26483	IGHV5-51	A0A0C4DH38
+Homo sapiens	IGHV5-78	P	Homo sapiens immunoglobulin heavy variable 5-78	2	14q32.33	X92213	IGHV5-78	5660	28387	ENSG00000211978	26535	IGHV5-78	
+Homo sapiens	IGHV6-1	P F	Homo sapiens immunoglobulin heavy variable 6-1	3	14q32.33	J04097	IGHV6-1	5662	28385	ENSG00000211933	26485	IGHV6-1	A0A0B4J1U7
+Homo sapiens	IGHV7-27	P	Homo sapiens immunoglobulin heavy variable 7-27	1	14q32.33	M99643	IGHV7-27	5663	28383	ENSG00000254326	26536	IGHV7-27	
+Homo sapiens	IGHV7-34-1	P	Homo sapiens immunoglobulin heavy variable 7-34-1	4	14q32.33	AB019439	IGHV7-34-1	5664	28382	ENSG00000253325	26537	IGHV7-34-1	
+Homo sapiens	IGHV7-4-1	F	Homo sapiens immunoglobulin heavy variable 7-4-1	5	14q32.33	BK063799	IGHV7-4-1	5665	57289	ENSG00000282122	26486	IGHV7-4-1	A0A0J9YVY3
+Homo sapiens	IGHV7-40	P	Homo sapiens immunoglobulin heavy variable 7-40	4	14q32.33	M99644	IGHV7-40	5666	28381	ENSG00000253467	26538	IGHV7-40	
+Homo sapiens	IGHV7-40D	P	Homo sapiens immunoglobulin heavy variable 7-40D	1	14q32.33	AC233755							
+Homo sapiens	IGHV7-56	P	Homo sapiens immunoglobulin heavy variable 7-56	2	14q32.33	M29810	IGHV7-56	5667	28380	ENSG00000253131	26539	IGHV7-56	
+Homo sapiens	IGHV7-77	-	Homo sapiens immunoglobulin heavy variable 7-77 (provisional)	1	14q32.33		IGHV7-77	5668	338451		27540	IGHV7-77	
+Homo sapiens	IGHV7-81	ORF	Homo sapiens immunoglobulin heavy variable 7-81	2	14q32.33	AB019437	IGHV7-81	5669	28378	ENSG00000211979	26487	IGHV7-81	
+Homo sapiens	IGHV7-NL1	P	Homo sapiens immunoglobulin heavy variable 7-NL1, not localized	5	14q32.33	X92291	IGHV7-NL1					IGHV7-NL1	
+Homo sapiens	IGHV8-51-1	P ORF	Homo sapiens Immunoglobulin heavy variable 8-51-1	5	14q32.33	AB019438	IGHV8-51-1	5704	28343	ENSG00000254167		IGHV8-51-1	
+Homo sapiens	IGKC	F (F)	Homo sapiens immunoglobulin kappa constant	5	2p11.2	J00241	IGKC	5716	3514	ENSG00000211592	3525	IGKC	
+Homo sapiens	IGKJ1	F	Homo sapiens immunoglobulin kappa joining 1	1	2p11.2	J00242	IGKJ1	5719	28950	ENSG00000211597	27544	IGKJ1	A0A0A0MT89
+Homo sapiens	IGKJ2	F (F)	Homo sapiens immunoglobulin kappa joining 2	4	2p11.2	J00242	IGKJ2	5720	28949	ENSG00000211596	27545	IGKJ2	
+Homo sapiens	IGKJ3	F	Homo sapiens immunoglobulin kappa joining 3	1	2p11.2	J00242	IGKJ3	5721	28948	ENSG00000211595	27546	IGKJ3	
+Homo sapiens	IGKJ4	F (F)	Homo sapiens immunoglobulin kappa joining 4	2	2p11.2	J00242	IGKJ4	5722	28947	ENSG00000211594	27547	IGKJ4	
+Homo sapiens	IGKJ5	F	Homo sapiens immunoglobulin kappa joining 5	1	2p11.2	J00242	IGKJ5	5723	28946	ENSG00000211593	27548	IGKJ5	
+Homo sapiens	IGKV1-12	F	Homo sapiens immunoglobulin kappa variable 1-12	2	2p11.2	V01577	IGKV1-12	5730	28940	ENSG00000243290	26581	IGKV1-12	A0A0C4DH73
+Homo sapiens	IGKV1-13	P F	Homo sapiens immunoglobulin kappa variable 1-13	2	2p11.2	Z00010	IGKV1-13	5731	28939	ENSG00000253497	26582	IGKV1-13	P0DP09
+Homo sapiens	IGKV1-16	[F] F	Homo sapiens immunoglobulin kappa variable 1-16	2	2p11.2	J00248	IGKV1-16	5732	28938	ENSG00000240864	26583	IGKV1-16	P04430
+Homo sapiens	IGKV1-17	F	Homo sapiens immunoglobulin kappa variable 1-17	3	2p11.2	X72808	IGKV1-17	5733	28937	ENSG00000240382	26584	IGKV1-17	P01599
+Homo sapiens	IGKV1-22	P	Homo sapiens immunoglobulin kappa variable 1-22	1	2p11.2	X71885	IGKV1-22	5734	28936	ENSG00000253578	26628	IGKV1-22	
+Homo sapiens	IGKV1-27	F	Homo sapiens immunoglobulin kappa variable 1-27	3	2p11.2	X63398	IGKV1-27	5735	28935	ENSG00000244575	26585	IGKV1-27	A0A075B6S5
+Homo sapiens	IGKV1-32	P	Homo sapiens immunoglobulin kappa variable 1-32	1	2p11.2	X71883	IGKV1-32	5736	28934	ENSG00000253870	26629	IGKV1-32	
+Homo sapiens	IGKV1-33	F	Homo sapiens immunoglobulin kappa variable 1-33	1	2p11.2	M64856	IGKV1-33	5737	28933	ENSG00000242076	26586	IGKV1-33	P01594
+Homo sapiens	IGKV1-35	P	Homo sapiens immunoglobulin kappa variable 1-35	2	2p11.2	X71890	IGKV1-35	5738	28932	ENSG00000253461	26630	IGKV1-35	
+Homo sapiens	IGKV1-37	ORF	Homo sapiens immunoglobulin kappa variable 1-37	1	2p11.2	X59316	IGKV1-37	5739	28931	ENSG00000239862	26587	IGKV1-37	
+Homo sapiens	IGKV1-39	P F	Homo sapiens immunoglobulin kappa variable 1-39	2	2p11.2	X59315	IGKV1-39	5740	28930	ENSG00000242371	26588	IGKV1-39	P01597
+Homo sapiens	IGKV1-5	F	Homo sapiens immunoglobulin kappa variable 1-5	5	2p11.2	Z00001	IGKV1-5	5741	28299	ENSG00000243466	26589	IGKV1-5	P01602
+Homo sapiens	IGKV1-6	F	Homo sapiens immunoglobulin kappa variable 1-6	2	2p11.2	M64858	IGKV1-6	5742	28943	ENSG00000239855	26590	IGKV1-6	A0A0C4DH72
+Homo sapiens	IGKV1-8	F	Homo sapiens immunoglobulin kappa variable 1-8	4	2p11.2	Z00014	IGKV1-8	5743	28942	ENSG00000240671	26591	IGKV1-8	A0A0C4DH67
+Homo sapiens	IGKV1-9	F	Homo sapiens immunoglobulin kappa variable 1-9	3	2p11.2	Z00013	IGKV1-9	5744	28941	ENSG00000241755	26592	IGKV1-9	A0A0C4DH69
+Homo sapiens	IGKV1-NL1	F	Homo sapiens immunoglobulin kappa variable 1-NL1, not localized	1	2p11.2	Y14865							
+Homo sapiens	IGKV1/OR-2	P	Homo sapiens immunoglobulin kappa variable 1/OR-2	1	-	X64640	IGKV1OR-2	5761	3532	ENSG00000156755	26636	IGKV1OR-2	
+Homo sapiens	IGKV1/OR-3	P	Homo sapiens immunoglobulin kappa variable 1/OR-3	1	-	X64641	IGKV1OR-3	5762	644731	ENSG00000204776	26637	IGKV1OR-3	
+Homo sapiens	IGKV1/OR-4	P	Homo sapiens immunoglobulin kappa variable 1/OR-4	1	-	X64642	IGKV1OR-4	5763	3534		26638	IGKV1OR-4	
+Homo sapiens	IGKV1/OR1-1	P	Homo sapiens immunoglobulin kappa variable 1/OR1-1	1	1 pter-1qter	M20809	IGKV1OR1-1	5764	3525	ENSG00000276674	2568	IGKV1OR1-1	
+Homo sapiens	IGKV1/OR10-1	P	Homo sapiens immunoglobulin kappa variable 1/OR10-1	1	10q11.21	AL031601	IGKV1OR10-1	44978	642424	ENSG00000237592		IGKV1OR10-1	
+Homo sapiens	IGKV1/OR15-118	P	Homo sapiens immunoglobulin kappa variable 1/OR15-118	1	15 pter-15qter	M20812	IGKV1OR15-118	5765	100312985		2569	IGKV1OR15-118	
+Homo sapiens	IGKV1/OR2-0	ORF	Homo sapiens immunoglobulin kappa variable 1/OR2-0	1	2p11.2	Y08392	IGKV1OR2-0	5766	28867		26604	IGKV1OR2-0	
+Homo sapiens	IGKV1/OR2-1	P	Homo sapiens immunoglobulin kappa variable 1/OR2-1	1	2p11.1	M20813	IGKV1OR-1	5760	3531	ENSG00000235235	26635	IGKV1OR-1	
+Homo sapiens	IGKV1/OR2-108	ORF	Homo sapiens immunoglobulin kappa variable 1/OR2-108	1	2q12-2q14	X51887	IGKV1OR2-108	5767	28862	ENSG00000231292	3557	IGKV1OR2-108	
+Homo sapiens	IGKV1/OR2-11	P	Homo sapiens immunoglobulin kappa variable 1/OR2-11	1	2q11.2	X51885	IGKV1OR2-11	5768	28863	ENSG00000270187	26640	IGKV1OR2-11	
+Homo sapiens	IGKV1/OR2-118	P	Homo sapiens immunoglobulin kappa variable 1/OR2-118	1	2p11.1	AC018696	IGKV1OR2-118	37488	339562	ENSG00000270999		IGKV1OR2-118	
+Homo sapiens	IGKV1/OR2-2	P	Homo sapiens immunoglobulin kappa variable 1/OR2-2	1	2p11.1	AC128677	IGKV1OR2-2	49465		ENSG00000223816		IGKV1OR2-2	
+Homo sapiens	IGKV1/OR2-3	P	Homo sapiens immunoglobulin kappa variable 1/OR2-3	1	2q11.2	X05102	IGKV1OR2-3	5769	28866	ENSG00000204670	26641	IGKV1OR2-3	
+Homo sapiens	IGKV1/OR2-6	P	Homo sapiens immunoglobulin kappa variable 1/OR2-6	1	2q11.2	X05103	IGKV1OR2-6	5770	28865	ENSG00000271569	26642	IGKV1OR2-6	
+Homo sapiens	IGKV1/OR2-9	P	Homo sapiens immunoglobulin kappa variable 1/OR2-9	1	2q11.2	X51879	IGKV1OR2-9	5771	28864	ENSG00000271351	26643	IGKV1OR2-9	
+Homo sapiens	IGKV1/OR22-1	P	Homo sapiens immunoglobulin kappa variable 1/OR22-1	1	22q11	Z00040	IGKV1OR22-1	5772	3530	ENSG00000253481	26644	IGKV1OR22-1	
+Homo sapiens	IGKV1/OR22-5	P	Homo sapiens immunoglobulin kappa variable 1/OR22-5	2	22q11	Z00003	IGKV1OR22-5	5773	28850	ENSG00000230481	9767	IGKV1OR22-5	
+Homo sapiens	IGKV1/OR9-1	P	Homo sapiens immunoglobulin kappa variable 1/OR9-1	1	9q21.11	AL512605	IGKV1OR9-1	49473	103352540	ENSG00000204780		IGKV1OR9-1	
+Homo sapiens	IGKV1/OR9-2	P	Homo sapiens immunoglobulin kappa variable 1/OR9-2	1	9p12	AC129778	IGKV1OR9-2	49466	106480274	ENSG00000225380		IGKV1OR9-2	
+Homo sapiens	IGKV1/ORY-1	P	Homo sapiens immunoglobulin kappa variable 1/ORY-1	1	Y	AC134879	IGKV1ORY-1	37729	439957			IGKV1ORY-1	
+Homo sapiens	IGKV1D-12	F	Homo sapiens immunoglobulin kappa variable 1D-12	2	2p11.2	X17263	IGKV1D-12	5746	28903	ENSG00000278857	26593	IGKV1D-12	P01611
+Homo sapiens	IGKV1D-13	F	Homo sapiens immunoglobulin kappa variable 1D-13	2	2p11.2	X17262	IGKV1D-13	5747	28902	ENSG00000276566	26594	IGKV1D-13	A0A0B4J2D9
+Homo sapiens	IGKV1D-16	F	Homo sapiens immunoglobulin kappa variable 1D-16	2	2p11.2	K01323	IGKV1D-16	5748	28901	ENSG00000241244	26595	IGKV1D-16	P01601
+Homo sapiens	IGKV1D-17	F	Homo sapiens immunoglobulin kappa variable 1D-17	1	2p11.2	X63392	IGKV1D-17	5749	28900	ENSG00000242766	26596	IGKV1D-17	A0A075B6S4
+Homo sapiens	IGKV1D-22	P	Homo sapiens immunoglobulin kappa variable 1D-22	1	2p11.2	X71887	IGKV1D-22	5750	28899	ENSG00000253365	26631	IGKV1D-22	
+Homo sapiens	IGKV1D-27	P	Homo sapiens immunoglobulin kappa variable 1D-27	1	2p11.2	Z00004	IGKV1D-27	5751	28898	ENSG00000224607	26632	IGKV1D-27	
+Homo sapiens	IGKV1D-32	P	Homo sapiens immunoglobulin kappa variable 1D-32	1	2p11.2	X71896	IGKV1D-32	5752	28897	ENSG00000253191	26633	IGKV1D-32	
+Homo sapiens	IGKV1D-33	F	Homo sapiens immunoglobulin kappa variable 1D-33	1	2p11.2	M64855	IGKV1D-33	5753	28896	ENSG00000239975	26597	IGKV1D-33	P01593
+Homo sapiens	IGKV1D-35	P	Homo sapiens immunoglobulin kappa variable 1D-35	2	2p11.2	X71894	IGKV1D-35	5754	28895	ENSG00000232747	26634	IGKV1D-35	
+Homo sapiens	IGKV1D-37	ORF	Homo sapiens immunoglobulin kappa variable 1D-37	1	2p11.2	X71893	IGKV1D-37	5755	28894	ENSG00000250036	26598	IGKV1D-37	
+Homo sapiens	IGKV1D-39	F	Homo sapiens immunoglobulin kappa variable 1D-39	1	2p11.2	X59312	IGKV1D-39	5756	28893	ENSG00000251546	26599	IGKV1D-39	P04432
+Homo sapiens	IGKV1D-42	ORF	Homo sapiens immunoglobulin kappa variable 1D-42	2	2p11.2	X72816	IGKV1D-42	5757	28892	ENSG00000211633	26600	IGKV1D-42	
+Homo sapiens	IGKV1D-43	F	Homo sapiens immunoglobulin kappa variable 1D-43	1	2p11.2	X72817	IGKV1D-43	5758	28891	ENSG00000242580	26601	IGKV1D-43	A0A0B4J1Z2
+Homo sapiens	IGKV1D-8	F (F)	Homo sapiens immunoglobulin kappa variable 1D-8	4	2p11.2	Z00008	IGKV1D-8	5759	28904	ENSG00000239819	26602	IGKV1D-8	A0A087WSZ0
+Homo sapiens	IGKV2-10	P	Homo sapiens immunoglobulin kappa variable 2-10	2	2p11.2	Z00012	IGKV2-10	5776	28928	ENSG00000253278	26645	IGKV2-10	
+Homo sapiens	IGKV2-14	P	Homo sapiens immunoglobulin kappa variable 2-14	1	2p11.2	X72810	IGKV2-14	5777	28927	ENSG00000253265	26646	IGKV2-14	
+Homo sapiens	IGKV2-18	P	Homo sapiens immunoglobulin kappa variable 2-18	1	2p11.2	X63400	IGKV2-18	5778	28926	ENSG00000254157	26647	IGKV2-18	
+Homo sapiens	IGKV2-19	P	Homo sapiens immunoglobulin kappa variable 2-19	1	2p11.2	X12692	IGKV2-19	5779	28925	ENSG00000253732	26648	IGKV2-19	
+Homo sapiens	IGKV2-23	P	Homo sapiens immunoglobulin kappa variable 2-23	1	2p11.2	X71885	IGKV2-23	5780	28924	ENSG00000253625	26649	IGKV2-23	
+Homo sapiens	IGKV2-24	F	Homo sapiens immunoglobulin kappa variable 2-24	2	2p11.2	X12684	IGKV2-24	5781	28923	ENSG00000241294	26605	IGKV2-24	A0A0C4DH68
+Homo sapiens	IGKV2-26	P	Homo sapiens immunoglobulin kappa variable 2-26	1	2p11.2	X71884	IGKV2-26	5782	28922	ENSG00000254098	26650	IGKV2-26	
+Homo sapiens	IGKV2-28	F	Homo sapiens immunoglobulin kappa variable 2-28	1	2p11.2	X63397	IGKV2-28	5783	28921	ENSG00000244116	26606	IGKV2-28	A0A075B6P5
+Homo sapiens	IGKV2-29	P F	Homo sapiens immunoglobulin kappa variable 2-29	3	2p11.2	X63396	IGKV2-29	5784	28920	ENSG00000253998	26607	IGKV2-29	A2NJV5
+Homo sapiens	IGKV2-30	[F] F	Homo sapiens immunoglobulin kappa variable 2-30	2	2p11.2	X63403	IGKV2-30	5785	28919	ENSG00000243238	26608	IGKV2-30	P06310
+Homo sapiens	IGKV2-36	P	Homo sapiens immunoglobulin kappa variable 2-36	2	2p11.2	X71889	IGKV2-36	5786	28918	ENSG00000253487	26651	IGKV2-36	
+Homo sapiens	IGKV2-38	P	Homo sapiens immunoglobulin kappa variable 2-38	2	2p11.2	X71888	IGKV2-38	5787	28917	ENSG00000253592	26652	IGKV2-38	
+Homo sapiens	IGKV2-4	P	Homo sapiens immunoglobulin kappa variable 2-4	2	2p11.2	X72814	IGKV2-4	5788	28929	ENSG00000253435	26653	IGKV2-4	
+Homo sapiens	IGKV2-40	F	Homo sapiens immunoglobulin kappa variable 2-40	2	2p11.2	X59314	IGKV2-40	5789	28916	ENSG00000273962	26609	IGKV2-40	A0A087WW87
+Homo sapiens	IGKV2/OR2-1	P	Homo sapiens immunoglobulin kappa variable 2/OR2-1	1	2q11.2	X05101	IGKV2OR2-1	5805	28861	ENSG00000270748	27549	IGKV2OR2-1	
+Homo sapiens	IGKV2/OR2-10	P	Homo sapiens immunoglobulin kappa variable 2/OR2-10	1	2q11.2	X51886	IGKV2OR2-10	5806	28855	ENSG00000276050	26662	IGKV2OR2-10	
+Homo sapiens	IGKV2/OR2-2	P	Homo sapiens immunoglobulin kappa variable 2/OR2-2	1	2q11.2	X51884	IGKV2OR2-2	5808	28859	ENSG00000271402	26663	IGKV2OR2-2	
+Homo sapiens	IGKV2/OR2-4	P	Homo sapiens immunoglobulin kappa variable 2/OR2-4	1	2q11.2	X51883	IGKV2OR2-4	5809	28858		27550	IGKV2OR2-4	
+Homo sapiens	IGKV2/OR2-7	P	Homo sapiens immunoglobulin kappa variable 2/OR2-7	1	2q11.2	X51881	IGKV2OR2-7	5810	652873	ENSG00000270450	26665	IGKV2OR2-7	
+Homo sapiens	IGKV2/OR2-7D	P	Homo sapiens immunoglobulin kappa variable 2/OR2-7D	1	2q11.2	AC092683	IGKV2OR2-7D	37489	100310869	ENSG00000271015		IGKV2OR2-7D	
+Homo sapiens	IGKV2/OR2-8	P	Homo sapiens immunoglobulin kappa variable 2/OR2-8	1	2q11.2	X51880	IGKV2OR2-8	5811	100996600	ENSG00000278537	26666	IGKV2OR2-8	
+Homo sapiens	IGKV2/OR22-3	P	Homo sapiens immunoglobulin kappa variable 2/OR22-3	1	22q11	Z00041	IGKV2OR22-3	5812	3529	ENSG00000253460	7424	IGKV2OR22-3	
+Homo sapiens	IGKV2/OR22-4	P	Homo sapiens immunoglobulin kappa variable 2/OR22-4	1	22q11	M20707	IGKV2OR22-4	5813	28847	ENSG00000253691	26668	IGKV2OR22-4	
+Homo sapiens	IGKV2D-10	P	Homo sapiens immunoglobulin kappa variable 2D-10	1	2p11.2	X17265	IGKV2D-10	5792	28890	ENSG00000253906	25733	IGKV2D-10	
+Homo sapiens	IGKV2D-14	P	Homo sapiens immunoglobulin kappa variable 2D-14	1	2p11.2	X72811	IGKV2D-14	5793	28889	ENSG00000254292	26655	IGKV2D-14	
+Homo sapiens	IGKV2D-18	P	Homo sapiens immunoglobulin kappa variable 2D-18	1	2p11.2	X63395	IGKV2D-18	5794	28888	ENSG00000254220	26656	IGKV2D-18	
+Homo sapiens	IGKV2D-19	P	Homo sapiens immunoglobulin kappa variable 2D-19	1	2p11.2	X71882	IGKV2D-19	5795	28887	ENSG00000253765	26657	IGKV2D-19	
+Homo sapiens	IGKV2D-23	P	Homo sapiens immunoglobulin kappa variable 2D-23	1	2p11.2	X71887	IGKV2D-23	5796	28886	ENSG00000254345	26658	IGKV2D-23	
+Homo sapiens	IGKV2D-24	ORF	Homo sapiens immunoglobulin kappa variable 2D-24	1	2p11.2	X63401	IGKV2D-24	5797	28885	ENSG00000241566	26610	IGKV2D-24	
+Homo sapiens	IGKV2D-26	F	Homo sapiens immunoglobulin kappa variable 2D-26	3	2p11.2	AP001216	IGKV2D-26	5798	28884	ENSG00000211623	26659	IGKV2D-26	A0A0A0MRZ7
+Homo sapiens	IGKV2D-28	F	Homo sapiens immunoglobulin kappa variable 2D-28	1	2p11.2	X12691	IGKV2D-28	5799	28883	ENSG00000242534	26611	IGKV2D-28	P01615
+Homo sapiens	IGKV2D-29	F	Homo sapiens immunoglobulin kappa variable 2D-29	2	2p11.2	M31952	IGKV2D-29	5800	28882	ENSG00000243264	26612	IGKV2D-29	A0A075B6S2
+Homo sapiens	IGKV2D-30	F	Homo sapiens immunoglobulin kappa variable 2D-30	1	2p11.2	X63402	IGKV2D-30	5801	28881	ENSG00000239571	26613	IGKV2D-30	A0A075B6S6
+Homo sapiens	IGKV2D-36	P	Homo sapiens immunoglobulin kappa variable 2D-36	1	2p11.2	X71893	IGKV2D-36	5802	28880	ENSG00000253127	26660	IGKV2D-36	
+Homo sapiens	IGKV2D-38	P	Homo sapiens immunoglobulin kappa variable 2D-38	1	2p11.2	X71892	IGKV2D-38	5803	28879	ENSG00000254009	26661	IGKV2D-38	
+Homo sapiens	IGKV2D-40	F	Homo sapiens immunoglobulin kappa variable 2D-40	1	2p11.2	X59311	IGKV2D-40	5804	28878	ENSG00000251039	26614	IGKV2D-40	P01614
+Homo sapiens	IGKV3-11	F	Homo sapiens immunoglobulin kappa variable 3-11	2	2p11.2	X01668	IGKV3-11	5815	28914	ENSG00000241351	26615	IGKV3-11	P04433
+Homo sapiens	IGKV3-15	F	Homo sapiens immunoglobulin kappa variable 3-15	2	2p11.2	M23090	IGKV3-15	5816	28913	ENSG00000244437	26616	IGKV3-15	P01624
+Homo sapiens	IGKV3-20	F	Homo sapiens immunoglobulin kappa variable 3-20	2	2p11.2	X12686	IGKV3-20	5817	28912	ENSG00000239951	26617	IGKV3-20	P01619
+Homo sapiens	IGKV3-25	P	Homo sapiens immunoglobulin kappa variable 3-25	1	2p11.2	X06583	IGKV3-25	5818	28911	ENSG00000253202	26669	IGKV3-25	
+Homo sapiens	IGKV3-31	P	Homo sapiens immunoglobulin kappa variable 3-31	1	2p11.2	X71883	IGKV3-31	5819	28910	ENSG00000253158	26670	IGKV3-31	
+Homo sapiens	IGKV3-34	P	Homo sapiens immunoglobulin kappa variable 3-34	1	2p11.2	X71891	IGKV3-34	5820	28909	ENSG00000253860	26671	IGKV3-34	
+Homo sapiens	IGKV3-7	ORF [ORF]	Homo sapiens immunoglobulin kappa variable 3-7	6	2p11.2	X02725	IGKV3-7	5821	28915	ENSG00000243063	26618	IGKV3-7	
+Homo sapiens	IGKV3/OR2-268	ORF	Homo sapiens immunoglobulin kappa variable 3/OR2-268	2	2p12	X74459	IGKV3OR2-268	5830	3523	ENSG00000233999	7707	IGKV3OR2-268	
+Homo sapiens	IGKV3/OR2-5	P	Homo sapiens immunoglobulin kappa variable 3/OR2-5	1	2q11.2	X51882	IGKV3OR2-5	5832	28854	ENSG00000270252	26675	IGKV3OR2-5	
+Homo sapiens	IGKV3/OR22-2	P	Homo sapiens immunoglobulin kappa variable 3/OR22-2	1	22q11	Z00042	IGKV3OR22-2	5833	3527	ENSG00000254264	26676	IGKV3OR22-2	
+Homo sapiens	IGKV3D-11	F	Homo sapiens immunoglobulin kappa variable 3D-11	3	2p11.2	X17264	IGKV3D-11	5823	28876	ENSG00000211632	26619	IGKV3D-11	A0A0A0MRZ8
+Homo sapiens	IGKV3D-15	P F	Homo sapiens immunoglobulin kappa variable 3D-15	3	2p11.2	X72815	IGKV3D-15	5824	28875	ENSG00000224041	26620	IGKV3D-15	A0A087WSY6
+Homo sapiens	IGKV3D-20	ORF F	Homo sapiens immunoglobulin kappa variable 3D-20	2	2p11.2	X12687	IGKV3D-20	5825	28874	ENSG00000211625	26621	IGKV3D-20	A0A0C4DH25
+Homo sapiens	IGKV3D-25	P	Homo sapiens immunoglobulin kappa variable 3D-25	1	2p11.2	X71886	IGKV3D-25	5826	28873	ENSG00000254097	26672	IGKV3D-25	
+Homo sapiens	IGKV3D-31	P	Homo sapiens immunoglobulin kappa variable 3D-31	2	2p11.2	X71896	IGKV3D-31	5827	28872	ENSG00000253999	26673	IGKV3D-31	
+Homo sapiens	IGKV3D-34	P	Homo sapiens immunoglobulin kappa variable 3D-34	1	2p11.2	X71895	IGKV3D-34	5828	28871	ENSG00000253501	26674	IGKV3D-34	
+Homo sapiens	IGKV3D-7	F	Homo sapiens immunoglobulin kappa variable 3D-7	1	2p11.2	X72820	IGKV3D-7	5829	28877	ENSG00000228325	26622	IGKV3D-7	A0A0C4DH55
+Homo sapiens	IGKV4-1	F	Homo sapiens immunoglobulin kappa variable 4-1	3	2p11.2	Z00023	IGKV4-1	5834	28908	ENSG00000211598	26623	IGKV4-1	P06312
+Homo sapiens	IGKV5-2	F	Homo sapiens immunoglobulin kappa variable 5-2	2	2p11.2	X02485	IGKV5-2	5835	28907	ENSG00000211599	26624	IGKV5-2	P06315
+Homo sapiens	IGKV6-21	F	Homo sapiens immunoglobulin kappa variable 6-21	2	2p11.2	X63399	IGKV6-21	5836	28906	ENSG00000211611	26625	IGKV6-21	A0A0C4DH24
+Homo sapiens	IGKV6D-21	F	Homo sapiens immunoglobulin kappa variable 6D-21	2	2p11.2	X12683	IGKV6D-21	5837	28870	ENSG00000225523	26626	IGKV6D-21	A0A0A0MT36
+Homo sapiens	IGKV6D-41	ORF	Homo sapiens immunoglobulin kappa variable 6D-41	1	2p11.2	M27751	IGKV6D-41	5838	28869	ENSG00000211626	26627	IGKV6D-41	
+Homo sapiens	IGKV7-3	P	Homo sapiens immunoglobulin kappa variable 7-3	2	2p11.2	X12682	IGKV7-3	5839	28905	ENSG00000197794	26677	IGKV7-3	
+Homo sapiens	IGLC/OR22-1	P	Homo sapiens immunoglobulin lambda constant /OR22-1	1	22q12.2-22q12.3	AL008723	IGLCOR22-1	15696	84096	ENSG00000254127	25850	IGLCOR22-1	
+Homo sapiens	IGLC/OR22-2	P	Homo sapiens immunoglobulin lambda constant /OR22-2	1	22q12.2-22q12.3	AL021937	IGLCOR22-2	15697	84086	ENSG00000271093	25851	IGLCOR22-2	
+Homo sapiens	IGLC1	ORF F	Homo sapiens immunoglobulin lambda constant 1	2	22q11.2	J00252	IGLC1	5855	3537	ENSG00000211675	3530	IGLC1	
+Homo sapiens	IGLC2	F	Homo sapiens immunoglobulin lambda constant 2	3	22q11.2	J00253	IGLC2	5856	3538	ENSG00000211677	3531	IGLC2	
+Homo sapiens	IGLC2A		Homo sapiens immunoglobulin lambda constant 2A	0	22q11.2								
+Homo sapiens	IGLC2B		Homo sapiens immunoglobulin lambda constant 2B	0	22q11.2								
+Homo sapiens	IGLC2C		Homo sapiens immunoglobulin lambda constant 2C	0	22q11.2								
+Homo sapiens	IGLC2D		Homo sapiens immunoglobulin lambda constant 2D	0	22q11.2								
+Homo sapiens	IGLC3	F	Homo sapiens immunoglobulin lambda constant 3	4	22q11.2	J00254	IGLC3	5857	3539	ENSG00000211679	3532	IGLC3	
+Homo sapiens	IGLC4	P	Homo sapiens immunoglobulin lambda constant 4	2	22q11.2	J03009	IGLC4	5858	3540	ENSG00000254029	3533	IGLC4	
+Homo sapiens	IGLC5	P	Homo sapiens immunoglobulin lambda constant 5	2	22q11.2	J03010	IGLC5	5859	3541	ENSG00000254030	3534	IGLC5	
+Homo sapiens	IGLC6	P F	Homo sapiens immunoglobulin lambda constant 6	5	22q11.2	J03011	IGLC6	5860	3542	ENSG00000222037	3535	IGLC6	
+Homo sapiens	IGLC7	F	Homo sapiens immunoglobulin lambda constant 7	3	22q11.2	X51755	IGLC7	5861	28834	ENSG00000211685	3637	IGLC7	
+Homo sapiens	IGLJ-C/OR18	P ORF	Homo sapiens immunoglobulin lambda processed joining-constant /OR18	2	18 p11.31	AP001025	IGLJCOR18	28614	204777	ENSG00000265243		IGLJCOR18	
+Homo sapiens	IGLJ1	F	Homo sapiens immunoglobulin lambda joining 1	1	22q11.2	X04457	IGLJ1	5863	28833	ENSG00000211674	3539	IGLJ1	A0A0A0MT76
+Homo sapiens	IGLJ2	F	Homo sapiens immunoglobulin lambda joining 2	1	22q11.2	M15641	IGLJ2	5864	28832	ENSG00000211676	3540	IGLJ2	
+Homo sapiens	IGLJ2A		Homo sapiens immunoglobulin lambda joining 2A	0	22q11.2								
+Homo sapiens	IGLJ2B		Homo sapiens immunoglobulin lambda joining 2B	0	22q11.2								
+Homo sapiens	IGLJ2C		Homo sapiens immunoglobulin lambda joining 2C	0	22q11.2								
+Homo sapiens	IGLJ2D		Homo sapiens immunoglobulin lambda joining 2D	0	22q11.2								
+Homo sapiens	IGLJ3	F	Homo sapiens immunoglobulin lambda joining 3	2	22q11.2	M15642	IGLJ3	5865	28831	ENSG00000211678	3541	IGLJ3	
+Homo sapiens	IGLJ4	ORF	Homo sapiens immunoglobulin lambda joining 4	1	22q11.2	X51755	IGLJ4	5866	28830	ENSG00000211680	25846	IGLJ4	
+Homo sapiens	IGLJ5	ORF	Homo sapiens immunoglobulin lambda joining 5	2	22q11.2	X51755	IGLJ5	5867	28829	ENSG00000211681	25847	IGLJ5	
+Homo sapiens	IGLJ6	F	Homo sapiens immunoglobulin lambda joining 6	1	22q11.2	M18338	IGLJ6	5868	28828	ENSG00000211682	3542	IGLJ6	
+Homo sapiens	IGLJ7	F	Homo sapiens immunoglobulin lambda joining 7	2	22q11.2	X51755	IGLJ7	5869	28827	ENSG00000211684	3638	IGLJ7	
+Homo sapiens	IGLV(I)-11-1	P	Homo sapiens Immunoglobulin lambda variable (I)-11-1	1	22q11.2	AC279423							
+Homo sapiens	IGLV(I)-20	P	Homo sapiens immunoglobulin lambda variable (I)-20	2	22q11.2	D87007	IGLVI-20	5934	28769	ENSG00000254240	26736	IGLVI-20	
+Homo sapiens	IGLV(I)-38	P	Homo sapiens immunoglobulin lambda variable (I)-38	2	22q11.2	D87009	IGLVI-38	5935	28768	ENSG00000253889	26737	IGLVI-38	
+Homo sapiens	IGLV(I)-42	P	Homo sapiens immunoglobulin lambda variable (I)-42	1	22q11.2	X14613	IGLVI-42	5936	28767	ENSG00000254175	26738	IGLVI-42	
+Homo sapiens	IGLV(I)-56	P	Homo sapiens immunoglobulin lambda variable (I)-56	1	22q11.2	D86996	IGLVI-56	5937	28766	ENSG00000253126	26739	IGLVI-56	
+Homo sapiens	IGLV(I)-63	P	Homo sapiens immunoglobulin lambda variable (I)-63	1	22q11.2	D87022	IGLVI-63	5938	28765	ENSG00000253752	26740	IGLVI-63	
+Homo sapiens	IGLV(I)-68	P	Homo sapiens immunoglobulin lambda variable (I)-68	1	22q11.2	D86993	IGLVI-68	5939	28764	ENSG00000254355	26741	IGLVI-68	
+Homo sapiens	IGLV(I)-70	P	Homo sapiens immunoglobulin lambda variable (I)-70	1	22q11.2	D86993	IGLVI-70	5940	28763	ENSG00000253239	26742	IGLVI-70	
+Homo sapiens	IGLV(II)-24-1	P	Homo sapiens Immunoglobulin lambda variable (II)-24-1	1	22q11.2	D86994							
+Homo sapiens	IGLV(III)-59-1	P	Homo sapiens Immunoglobulin lambda variable (III)-59-1	2	22q11.2	D87000							
+Homo sapiens	IGLV(III)-60-1	P	Homo sapiens Immunoglobulin lambda variable (III)-60-1	2	22q11.2	D87000							
+Homo sapiens	IGLV(IV)-53	P	Homo sapiens immunoglobulin lambda variable (IV)-53	3	22q11.2	D86996	IGLVIV-53	5941	28762	ENSG00000253935	26743	IGLVIV-53	
+Homo sapiens	IGLV(IV)-55-1	P	Homo sapiens Immunoglobulin lambda variable (IV)-55-1	1	22q11.2	D86996							
+Homo sapiens	IGLV(IV)-59	P	Homo sapiens immunoglobulin lambda variable (IV)-59	1	22q11.2	D87000	IGLVIV-59	5942	28761	ENSG00000254308	26744	IGLVIV-59	
+Homo sapiens	IGLV(IV)-64	P	Homo sapiens immunoglobulin lambda variable (IV)-64	1	22q11.2	D87022	IGLVIV-64	5943	28760	ENSG00000253242	26745	IGLVIV-64	
+Homo sapiens	IGLV(IV)-65	P	Homo sapiens immunoglobulin lambda variable (IV)-65	1	22q11.2	D87022	IGLVIV-65	5944	28759	ENSG00000254161	26746	IGLVIV-65	
+Homo sapiens	IGLV(IV)-66-1	P	Homo sapiens immunoglobulin lambda variable (IV)-66-1	1	22q11.2	D87004	IGLVIV-66-1	15692	84097	ENSG00000253874	26752	IGLVIV-66-1	
+Homo sapiens	IGLV(IV)/OR22-1	P	Homo sapiens immunoglobulin lambda variable (IV)/OR22-1	1	22q11.2-22q12.1		IGLVIVOR22-1	15694	84088	ENSG00000271138	26753	IGLVIVOR22-1	
+Homo sapiens	IGLV(IV)/OR22-2	P	Homo sapiens immunoglobulin lambda variable (IV)/OR22-2	1	22q12.2-22q12.3		IGLVIVOR22-2	15695	84087	ENSG00000243519	26754	IGLVIVOR22-2	
+Homo sapiens	IGLV(V)-58	P	Homo sapiens immunoglobulin lambda variable (V)-58	3	22q11.2	D87000	IGLVV-58	5945	28758	ENSG00000253637	26747	IGLVV-58	
+Homo sapiens	IGLV(V)-66	P	Homo sapiens immunoglobulin lambda variable (V)-66	1	22q11.2	D87004	IGLVV-66	5946	28757	ENSG00000254075	26748	IGLVV-66	
+Homo sapiens	IGLV(VI)-22-1	P	Homo sapiens immunoglobulin lambda variable (VI)-22-1	3	22q11.2	X71351	IGLVVI-22-1	15689	84091	ENSG00000253546	26749	IGLVVI-22-1	
+Homo sapiens	IGLV(VI)-25-1	P	Homo sapiens immunoglobulin lambda variable (VI)-25-1	1	22q11.2	D86994	IGLVVI-25-1	15690	84090	ENSG00000253779	26750	IGLVVI-25-1	
+Homo sapiens	IGLV(VII)-41-1	P	Homo sapiens immunoglobulin lambda variable (VII)-41-1	1	22q11.2	X99568	IGLVVII-41-1	15691	84089	ENSG00000254073	26751	IGLVVII-41-1	
+Homo sapiens	IGLV/OR8-2		Homo sapiens immunoglobulin lambda variable/OR8-2	0	8q11.2		IGLVOR8-2					IGLVOR8-2	
+Homo sapiens	IGLV1-36	F	Homo sapiens immunoglobulin lambda variable 1-36	1	22q11.2	D87010	IGLV1-36	5876	28826	ENSG00000211655	26678	IGLV1-36	A0A0B4J1U3
+Homo sapiens	IGLV1-40	F	Homo sapiens immunoglobulin lambda variable 1-40	3	22q11.2	D87010	IGLV1-40	5877	28825	ENSG00000211653	26679	IGLV1-40	P01703
+Homo sapiens	IGLV1-41	P ORF	Homo sapiens immunoglobulin lambda variable 1-41	2	22q11.2	M94118	IGLV1-41	5878	28824	ENSG00000253818	26680	IGLV1-41	
+Homo sapiens	IGLV1-44	F	Homo sapiens immunoglobulin lambda variable 1-44	4	22q11.2	AC279207	IGLV1-44	5879	28823	ENSG00000211651	26681	IGLV1-44	P01699
+Homo sapiens	IGLV1-47	F	Homo sapiens immunoglobulin lambda variable 1-47	3	22q11.2	Z73663	IGLV1-47	5880	28822	ENSG00000211648	26682	IGLV1-47	P01700
+Homo sapiens	IGLV1-50	ORF	Homo sapiens immunoglobulin lambda variable 1-50	1	22q11.2	M94112	IGLV1-50	5881	28821	ENSG00000211645	26683	IGLV1-50	
+Homo sapiens	IGLV1-51	F	Homo sapiens immunoglobulin lambda variable 1-51	2	22q11.2	D87018	IGLV1-51	5882	28820	ENSG00000211644	26684	IGLV1-51	P01701
+Homo sapiens	IGLV1-62	P	Homo sapiens immunoglobulin lambda variable 1-62	1	22q11.2	D87022	IGLV1-62	5883	28819	ENSG00000253823	26718	IGLV1-62	
+Homo sapiens	IGLV10-54	P F	Homo sapiens immunoglobulin lambda variable 10-54	6	22q11.2	Z73676	IGLV10-54	5884	28772	ENSG00000211642	26685	IGLV10-54	A0A075B6I4
+Homo sapiens	IGLV10-67	P	Homo sapiens immunoglobulin lambda variable 10-67	2	22q11.2	D86993	IGLV10-67	5885	28771	ENSG00000253794	26719	IGLV10-67	
+Homo sapiens	IGLV11-55	P ORF	Homo sapiens immunoglobulin lambda variable 11-55	3	22q11.2	D86996	IGLV11-55	5886	28770	ENSG00000211641	26686	IGLV11-55	
+Homo sapiens	IGLV2-11	F	Homo sapiens immunoglobulin lambda variable 2-11	3	22q11.2	AC279423	IGLV2-11	5887	28816	ENSG00000211668	26687	IGLV2-11	P01706
+Homo sapiens	IGLV2-14	F	Homo sapiens immunoglobulin lambda variable 2-14	5	22q11.2	D87015	IGLV2-14	5888	28815	ENSG00000211666	26688	IGLV2-14	P01704
+Homo sapiens	IGLV2-18	F	Homo sapiens immunoglobulin lambda variable 2-18	4	22q11.2	D87007	IGLV2-18	5889	28814	ENSG00000211664	26689	IGLV2-18	A0A075B6J9
+Homo sapiens	IGLV2-23	F	Homo sapiens immunoglobulin lambda variable 2-23	4	22q11.2	X14616	IGLV2-23	5890	28813	ENSG00000211660	26690	IGLV2-23	P01705
+Homo sapiens	IGLV2-28	P	Homo sapiens immunoglobulin lambda variable 2-28	1	22q11.2	AC279318	IGLV2-28	5891	28812	ENSG00000253451	26720	IGLV2-28	
+Homo sapiens	IGLV2-33	ORF	Homo sapiens immunoglobulin lambda variable 2-33	3	22q11.2	D87014	IGLV2-33	5892	28811	ENSG00000211656	26691	IGLV2-33	
+Homo sapiens	IGLV2-34	P	Homo sapiens immunoglobulin lambda variable 2-34	2	22q11.2	D87013	IGLV2-34	5893	28810	ENSG00000253120	26721	IGLV2-34	
+Homo sapiens	IGLV2-5	P	Homo sapiens immunoglobulin lambda variable 2-5	2	22q11.2	D87024	IGLV2-5	5894	28818	ENSG00000253234	26722	IGLV2-5	
+Homo sapiens	IGLV2-8	F	Homo sapiens immunoglobulin lambda variable 2-8	4	22q11.2	X97462	IGLV2-8	5895	28817	ENSG00000278196	26692	IGLV2-8	P01709
+Homo sapiens	IGLV3-1	F	Homo sapiens immunoglobulin lambda variable 3-1	2	22q11.2	X57826	IGLV3-1	5896	28809	ENSG00000211673	26693	IGLV3-1	P01715
+Homo sapiens	IGLV3-10	F	Homo sapiens immunoglobulin lambda variable 3-10	3	22q11.2	D87021	IGLV3-10	5897	28803	ENSG00000211669	26694	IGLV3-10	A0A075B6K4
+Homo sapiens	IGLV3-12	P F	Homo sapiens immunoglobulin lambda variable 3-12	2	22q11.2	AC279423	IGLV3-12	5898	28802	ENSG00000211667	26695	IGLV3-12	A0A075B6K2
+Homo sapiens	IGLV3-13	P	Homo sapiens immunoglobulin lambda variable 3-13	2	22q11.2	X97463	IGLV3-13	5899	28801	ENSG00000253590	26723	IGLV3-13	
+Homo sapiens	IGLV3-15	P	Homo sapiens immunoglobulin lambda variable 3-15	1	22q11.2	D87015	IGLV3-15	5900	28800	ENSG00000253786	26724	IGLV3-15	
+Homo sapiens	IGLV3-16	F	Homo sapiens immunoglobulin lambda variable 3-16	1	22q11.2	D87015	IGLV3-16	5901	28799	ENSG00000211665	26696	IGLV3-16	A0A075B6K0
+Homo sapiens	IGLV3-17	P	Homo sapiens immunoglobulin lambda variable 3-17	1	22q11.2	M94117	IGLV3-17	5902	28798	ENSG00000253152	26725	IGLV3-17	
+Homo sapiens	IGLV3-19	F	Homo sapiens immunoglobulin lambda variable 3-19	2	22q11.2	X56178	IGLV3-19	5903	28797	ENSG00000211663	26697	IGLV3-19	P01714
+Homo sapiens	IGLV3-2	P	Homo sapiens immunoglobulin lambda variable 3-2	3	22q11.2	X97468	IGLV3-2	5904	28808	ENSG00000253963	26726	IGLV3-2	
+Homo sapiens	IGLV3-21	F	Homo sapiens immunoglobulin lambda variable 3-21	4	22q11.2	X71966	IGLV3-21	5905	28796	ENSG00000211662	26698	IGLV3-21	P80748
+Homo sapiens	IGLV3-22	P F	Homo sapiens immunoglobulin lambda variable 3-22	3	22q11.2	AC279210	IGLV3-22	5906	28795	ENSG00000211661	26699	IGLV3-22	A0A075B6J6
+Homo sapiens	IGLV3-24	P	Homo sapiens immunoglobulin lambda variable 3-24	4	22q11.2	X71968	IGLV3-24	5907	28794	ENSG00000253822	26727	IGLV3-24	
+Homo sapiens	IGLV3-25	F	Homo sapiens immunoglobulin lambda variable 3-25	3	22q11.2	X97474	IGLV3-25	5908	28793	ENSG00000211659	26700	IGLV3-25	P01717
+Homo sapiens	IGLV3-26	P	Homo sapiens immunoglobulin lambda variable 3-26	1	22q11.2	AC279318	IGLV3-26	5909	28792	ENSG00000253913	26728	IGLV3-26	
+Homo sapiens	IGLV3-27	F	Homo sapiens immunoglobulin lambda variable 3-27	1	22q11.2	D86994	IGLV3-27	5910	28791	ENSG00000211658	26701	IGLV3-27	P01718
+Homo sapiens	IGLV3-29	P	Homo sapiens immunoglobulin lambda variable 3-29	1	22q11.2	AC279318	IGLV3-29	5911	28790	ENSG00000253338	26729	IGLV3-29	
+Homo sapiens	IGLV3-30	P	Homo sapiens immunoglobulin lambda variable 3-30	2	22q11.2	Z73646	IGLV3-30	5912	28789	ENSG00000253329	26730	IGLV3-30	
+Homo sapiens	IGLV3-31	P	Homo sapiens immunoglobulin lambda variable 3-31	2	22q11.2	D87014	IGLV3-31	5913	28788	ENSG00000253920	26731	IGLV3-31	
+Homo sapiens	IGLV3-32	ORF	Homo sapiens immunoglobulin lambda variable 3-32	1	22q11.2	D87014	IGLV3-32	5914	28787	ENSG00000211657	26702	IGLV3-32	
+Homo sapiens	IGLV3-4	P	Homo sapiens immunoglobulin lambda variable 3-4	1	22q11.2	D87024	IGLV3-4	5915	28807	ENSG00000226420	26732	IGLV3-4	
+Homo sapiens	IGLV3-6	P	Homo sapiens immunoglobulin lambda variable 3-6	2	22q11.2	X97465	IGLV3-6	5916	28806	ENSG00000253448	26733	IGLV3-6	
+Homo sapiens	IGLV3-7	P	Homo sapiens immunoglobulin lambda variable 3-7	1	22q11.2	X97470	IGLV3-7	5917	28805	ENSG00000254077	26734	IGLV3-7	
+Homo sapiens	IGLV3-9	P F	Homo sapiens immunoglobulin lambda variable 3-9	3	22q11.2	AC279221	IGLV3-9	5918	28804	ENSG00000211670	26703	IGLV3-9	
+Homo sapiens	IGLV4-3	F	Homo sapiens immunoglobulin lambda variable 4-3	1	22q11.2	X57828	IGLV4-3	5919	28786	ENSG00000211672	26704	IGLV4-3	A0A075B6K6
+Homo sapiens	IGLV4-60	P F	Homo sapiens immunoglobulin lambda variable 4-60	4	22q11.2	Z73667	IGLV4-60	5920	28785	ENSG00000211639	26705	IGLV4-60	A0A075B6I1
+Homo sapiens	IGLV4-69	F	Homo sapiens immunoglobulin lambda variable 4-69	2	22q11.2	D86993	IGLV4-69	5921	28784	ENSG00000211637	26706	IGLV4-69	A0A075B6H9
+Homo sapiens	IGLV5-37	F	Homo sapiens immunoglobulin lambda variable 5-37	3	22q11.2	Z73672	IGLV5-37	5922	28783	ENSG00000211654	26707	IGLV5-37	A0A075B6J1
+Homo sapiens	IGLV5-39	F	Homo sapiens immunoglobulin lambda variable 5-39	2	22q11.2	Z73668	IGLV5-39	5923	28782		26708	IGLV5-39	A0A0G2JS06
+Homo sapiens	IGLV5-45	F	Homo sapiens immunoglobulin lambda variable 5-45	5	22q11.2	Z73670	IGLV5-45	5924	28781	ENSG00000211650	26709	IGLV5-45	A0A087WSX0
+Homo sapiens	IGLV5-48	P ORF	Homo sapiens immunoglobulin lambda variable 5-48	2	22q11.2	Z73649	IGLV5-48	5925	28780	ENSG00000211647	26710	IGLV5-48	
+Homo sapiens	IGLV5-52	F	Homo sapiens immunoglobulin lambda variable 5-52	1	22q11.2	D87018 Z73669	IGLV5-52	5926	28779	ENSG00000211643	26711	IGLV5-52	A0A0A0MRZ9
+Homo sapiens	IGLV6-57	P F	Homo sapiens immunoglobulin lambda variable 6-57	5	22q11.2	Z73673	IGLV6-57	5927	28778	ENSG00000211640	26712	IGLV6-57	P01721
+Homo sapiens	IGLV7-35	P	Homo sapiens immunoglobulin lambda variable 7-35	1	22q11.2	Z73660	IGLV7-35	5928	28777	ENSG00000253631	26735	IGLV7-35	
+Homo sapiens	IGLV7-43	F	Homo sapiens immunoglobulin lambda variable 7-43	1	22q11.2	X14614	IGLV7-43	5929	28776	ENSG00000211652	26713	IGLV7-43	P04211
+Homo sapiens	IGLV7-46	P F	Homo sapiens immunoglobulin lambda variable 7-46	5	22q11.2	Z73674	IGLV7-46	5930	28775	ENSG00000211649	26714	IGLV7-46	A0A075B6I9
+Homo sapiens	IGLV8-61	F	Homo sapiens immunoglobulin lambda variable 8-61	3	22q11.2	D87022	IGLV8-61	5931	28774	ENSG00000211638	26715	IGLV8-61	A0A075B6I0
+Homo sapiens	IGLV8/OR8-1	P ORF	Homo sapiens immunoglobulin lambda variable 8/OR8-1	2	8q11.2	Y08831	IGLV8OR8-1	5932	28756	ENSG00000215177	26716	IGLV8OR8-1	
+Homo sapiens	IGLV9-49	P F	Homo sapiens immunoglobulin lambda variable 9-49	4	22q11.2	AC279207	IGLV9-49	5933	28773	ENSG00000223350	26717	IGLV9-49	A0A0B4J1Y8
+Homo sapiens	TRAC	F	Homo sapiens T cell receptor alpha constant	1	14q11.2	X02883	TRAC	12029	28755	ENSG00000277734	1667	TRAC	
+Homo sapiens	TRAJ1	ORF	Homo sapiens T cell receptor alpha joining 1	1	14q11.2	X02884	TRAJ1	12037	28754	ENSG00000211888	27638	TRAJ1	
+Homo sapiens	TRAJ10	F	Homo sapiens T cell receptor alpha joining 10	1	14q11.2	M94081	TRAJ10	12038	28745	ENSG00000211879	29016	TRAJ10	
+Homo sapiens	TRAJ11	F	Homo sapiens T cell receptor alpha joining 11	1	14q11.2	M94081	TRAJ11	12039	28744	ENSG00000211878	29017	TRAJ11	
+Homo sapiens	TRAJ12	F	Homo sapiens T cell receptor alpha joining 12	1	14q11.2	X02885	TRAJ12	12040	28743	ENSG00000211877	29018	TRAJ12	
+Homo sapiens	TRAJ13	F	Homo sapiens T cell receptor alpha joining 13	2	14q11.2	M94081	TRAJ13	12041	28742	ENSG00000211876	29019	TRAJ13	
+Homo sapiens	TRAJ14	F	Homo sapiens T cell receptor alpha joining 14	1	14q11.2	M94081	TRAJ14	12042	28741	ENSG00000211875	29020	TRAJ14	
+Homo sapiens	TRAJ15	F	Homo sapiens T cell receptor alpha joining 15	2	14q11.2	X05775	TRAJ15	12043	28740		29021	TRAJ15	
+Homo sapiens	TRAJ16	F	Homo sapiens T cell receptor alpha joining 16	2	14q11.2	M94081	TRAJ16	12044	28739	ENSG00000211873	29022	TRAJ16	
+Homo sapiens	TRAJ17	F	Homo sapiens T cell receptor alpha joining 17	1	14q11.2	X05773	TRAJ17	12045	28738	ENSG00000211872	29023	TRAJ17	
+Homo sapiens	TRAJ18	F	Homo sapiens T cell receptor alpha joining 18	1	14q11.2	M94081	TRAJ18	12046	28737	ENSG00000211871	29024	TRAJ18	
+Homo sapiens	TRAJ19	ORF	Homo sapiens T cell receptor alpha joining 19	1	14q11.2	M94081	TRAJ19	12047	28736	ENSG00000211870	29067	TRAJ19	
+Homo sapiens	TRAJ2	ORF	Homo sapiens T cell receptor alpha joining 2	1	14q11.2	X02884	TRAJ2	12048	28753	ENSG00000211887	29068	TRAJ2	
+Homo sapiens	TRAJ20	F	Homo sapiens T cell receptor alpha joining 20	1	14q11.2	M94081	TRAJ20	12049	28735	ENSG00000211869	29025	TRAJ20	
+Homo sapiens	TRAJ21	F	Homo sapiens T cell receptor alpha joining 21	1	14q11.2	M94081	TRAJ21	12050	28734	ENSG00000211868	29026	TRAJ21	
+Homo sapiens	TRAJ22	F	Homo sapiens T cell receptor alpha joining 22	1	14q11.2	X02886	TRAJ22	12051	28733	ENSG00000211867	29027	TRAJ22	
+Homo sapiens	TRAJ23	F	Homo sapiens T cell receptor alpha joining 23	2	14q11.2	M94081	TRAJ23	12052	28732	ENSG00000211866	29028	TRAJ23	
+Homo sapiens	TRAJ24	F	Homo sapiens T cell receptor alpha joining 24	3	14q11.2	X02887	TRAJ24	12053	28731	ENSG00000211865	29029	TRAJ24	
+Homo sapiens	TRAJ25	ORF	Homo sapiens T cell receptor alpha joining 25	1	14q11.2	X02888	TRAJ25	12054	28730	ENSG00000211864	29069	TRAJ25	
+Homo sapiens	TRAJ26	F	Homo sapiens T cell receptor alpha joining 26	1	14q11.2	M94081	TRAJ26	12055	28729	ENSG00000211863	29030	TRAJ26	
+Homo sapiens	TRAJ27	F	Homo sapiens T cell receptor alpha joining 27	1	14q11.2	M94081	TRAJ27	12056	28728	ENSG00000211862	29031	TRAJ27	
+Homo sapiens	TRAJ28	F	Homo sapiens T cell receptor alpha joining 28	1	14q11.2	M94081	TRAJ28	12057	28727	ENSG00000211861	29032	TRAJ28	
+Homo sapiens	TRAJ29	F	Homo sapiens T cell receptor alpha joining 29	1	14q11.2	M94081	TRAJ29	12058	28726	ENSG00000211860	29033	TRAJ29	
+Homo sapiens	TRAJ3	F	Homo sapiens T cell receptor alpha joining 3	1	14q11.2	X02884	TRAJ3	12059	28752	ENSG00000211886	29034	TRAJ3	
+Homo sapiens	TRAJ30	F	Homo sapiens T cell receptor alpha joining 30	1	14q11.2	M94081	TRAJ30	12060	28725	ENSG00000211859	29035	TRAJ30	
+Homo sapiens	TRAJ31	F	Homo sapiens T cell receptor alpha joining 31	1	14q11.2	M94081	TRAJ31	12061	28724	ENSG00000211858	29036	TRAJ31	
+Homo sapiens	TRAJ32	F	Homo sapiens T cell receptor alpha joining 32	2	14q11.2	M94081	TRAJ32	12062	28723	ENSG00000211857	29037	TRAJ32	
+Homo sapiens	TRAJ33	F	Homo sapiens T cell receptor alpha joining 33	1	14q11.2	M94081	TRAJ33	12063	28722	ENSG00000211856	29038	TRAJ33	
+Homo sapiens	TRAJ34	F	Homo sapiens T cell receptor alpha joining 34	1	14q11.2	M35622	TRAJ34	12064	28721	ENSG00000211855	29039	TRAJ34	
+Homo sapiens	TRAJ35	F	Homo sapiens T cell receptor alpha joining 35	1	14q11.2	M94081	TRAJ35	12065	28720	ENSG00000211854	29074	TRAJ35	
+Homo sapiens	TRAJ36	F	Homo sapiens T cell receptor alpha joining 36	1	14q11.2	M94081	TRAJ36	12066	28719	ENSG00000276699	29040	TRAJ36	
+Homo sapiens	TRAJ37	F	Homo sapiens T cell receptor alpha joining 37	2	14q11.2	M94081	TRAJ37	12067	28718	ENSG00000278661	29041	TRAJ37	
+Homo sapiens	TRAJ38	F	Homo sapiens T cell receptor alpha joining 38	1	14q11.2	M94081	TRAJ38	12068	28717	ENSG00000211851	29042	TRAJ38	
+Homo sapiens	TRAJ39	F	Homo sapiens T cell receptor alpha joining 39	1	14q11.2	M94081	TRAJ39	12069	28716	ENSG00000211850	29043	TRAJ39	
+Homo sapiens	TRAJ4	F	Homo sapiens T cell receptor alpha joining 4	1	14q11.2	M94081	TRAJ4	12070	28751	ENSG00000211885	29044	TRAJ4	
+Homo sapiens	TRAJ40	F	Homo sapiens T cell receptor alpha joining 40	1	14q11.2	M35620	TRAJ40	12071	28715	ENSG00000211849	29066	TRAJ40	
+Homo sapiens	TRAJ41	F	Homo sapiens T cell receptor alpha joining 41	1	14q11.2	M94081	TRAJ41	12072	28714	ENSG00000211848	29045	TRAJ41	
+Homo sapiens	TRAJ42	F	Homo sapiens T cell receptor alpha joining 42	1	14q11.2	M94081	TRAJ42	12073	28713	ENSG00000211847	29046	TRAJ42	
+Homo sapiens	TRAJ43	F	Homo sapiens T cell receptor alpha joining 43	1	14q11.2	M94081	TRAJ43	12074	28712	ENSG00000211846	29047	TRAJ43	
+Homo sapiens	TRAJ44	F	Homo sapiens T cell receptor alpha joining 44	1	14q11.2	M35619	TRAJ44	12075	28711	ENSG00000211845	29048	TRAJ44	
+Homo sapiens	TRAJ45	F	Homo sapiens T cell receptor alpha joining 45	1	14q11.2	M94081	TRAJ45	12076	28710	ENSG00000211844	29049	TRAJ45	
+Homo sapiens	TRAJ46	F	Homo sapiens T cell receptor alpha joining 46	1	14q11.2	M94081	TRAJ46	12077	28709	ENSG00000211843	29050	TRAJ46	
+Homo sapiens	TRAJ47	F (F)	Homo sapiens T cell receptor alpha joining 47	2	14q11.2	M94081	TRAJ47	12078	28708	ENSG00000211842	29051	TRAJ47	
+Homo sapiens	TRAJ48	F	Homo sapiens T cell receptor alpha joining 48	1	14q11.2	M94081	TRAJ48	12079	28707	ENSG00000211841	29052	TRAJ48	
+Homo sapiens	TRAJ49	F	Homo sapiens T cell receptor alpha joining 49	1	14q11.2	M94081	TRAJ49	12080	28706	ENSG00000211840	29053	TRAJ49	
+Homo sapiens	TRAJ5	F	Homo sapiens T cell receptor alpha joining 5	1	14q11.2	M94081	TRAJ5	12081	28750	ENSG00000211884	29054	TRAJ5	
+Homo sapiens	TRAJ50	F	Homo sapiens T cell receptor alpha joining 50	1	14q11.2	M94081	TRAJ50	12082	28705	ENSG00000211839	29055	TRAJ50	
+Homo sapiens	TRAJ51	P	Homo sapiens T cell receptor alpha joining 51	1	14q11.2	M94081	TRAJ51	12083	28704	ENSG00000248366	29078	TRAJ51	
+Homo sapiens	TRAJ52	F	Homo sapiens T cell receptor alpha joining 52	1	14q11.2	M94081	TRAJ52	12084	28703	ENSG00000211838	29059	TRAJ52	
+Homo sapiens	TRAJ53	F	Homo sapiens T cell receptor alpha joining 53	1	14q11.2	M94081	TRAJ53	12085	28702	ENSG00000211837	29058	TRAJ53	
+Homo sapiens	TRAJ54	F	Homo sapiens T cell receptor alpha joining 54	1	14q11.2	M94081	TRAJ54	12086	28701	ENSG00000211836	29057	TRAJ54	
+Homo sapiens	TRAJ55	P	Homo sapiens T cell receptor alpha joining 55	1	14q11.2	M94081	TRAJ55	12087	28700	ENSG00000250688	27688	TRAJ55	
+Homo sapiens	TRAJ56	F	Homo sapiens T cell receptor alpha joining 56	1	14q11.2	M94081	TRAJ56	12088	28699	ENSG00000211835	29060	TRAJ56	
+Homo sapiens	TRAJ57	F	Homo sapiens T cell receptor alpha joining 57	1	14q11.2	M94081	TRAJ57	12089	28698	ENSG00000211834	29061	TRAJ57	
+Homo sapiens	TRAJ58	ORF	Homo sapiens T cell receptor alpha joining 58	1	14q11.2	M94081	TRAJ58	12090	28697	ENSG00000211833	29075	TRAJ58	
+Homo sapiens	TRAJ59	ORF	Homo sapiens T cell receptor alpha joining 59	1	14q11.2	M94081	TRAJ59	12091	28696	ENSG00000211832	29076	TRAJ59	
+Homo sapiens	TRAJ6	F	Homo sapiens T cell receptor alpha joining 6	1	14q11.2	M16747	TRAJ6	12092	28749	ENSG00000211883	29062	TRAJ6	
+Homo sapiens	TRAJ60	P	Homo sapiens T cell receptor alpha joining 60	1	14q11.2	M94081	TRAJ60	12093	28695	ENSG00000249446	27694	TRAJ60	
+Homo sapiens	TRAJ61	ORF	Homo sapiens T cell receptor alpha joining 61	1	14q11.2	M94081	TRAJ61	12094	28694	ENSG00000211831	29077	TRAJ61	
+Homo sapiens	TRAJ7	F	Homo sapiens T cell receptor alpha joining 7	1	14q11.2	M94081	TRAJ7	12095	28748	ENSG00000211882	29063	TRAJ7	
+Homo sapiens	TRAJ8	P F	Homo sapiens T cell receptor alpha joining 8	2	14q11.2	M94081	TRAJ8	12096	28747	ENSG00000211881	29064	TRAJ8	
+Homo sapiens	TRAJ9	F	Homo sapiens T cell receptor alpha joining 9	1	14q11.2	M94081	TRAJ9	12097	28746	ENSG00000211880	29065	TRAJ9	
+Homo sapiens	TRAV1-1	F (F)	Homo sapiens T cell receptor alpha variable 1-1	2	14q11.2	AE000658	TRAV1-1	12101	28693	ENSG00000255569	27699	TRAV1-1	
+Homo sapiens	TRAV1-2	[F] F	Homo sapiens T cell receptor alpha variable 1-2	3	14q11.2	AE000658	TRAV1-2	12102	28692	ENSG00000256553	29125	TRAV1-2	
+Homo sapiens	TRAV10	F	Homo sapiens T cell receptor alpha variable 10	2	14q11.2	AE000659	TRAV10	12103	28676	ENSG00000211784	29126	TRAV10	
+Homo sapiens	TRAV11	P	Homo sapiens T cell receptor alpha variable 11	1	14q11.2	AE000659	TRAV11	12104	28675	ENSG00000256474	29174	TRAV11	
+Homo sapiens	TRAV11-1	P	Homo sapiens T cell receptor alpha variable 11-1	1	14q11.2	AE000659							
+Homo sapiens	TRAV12-1	F (F)	Homo sapiens T cell receptor alpha variable 12-1	2	14q11.2	AE000659	TRAV12-1	12105	28674	ENSG00000211785	29127	TRAV12-1	
+Homo sapiens	TRAV12-2	F (F)	Homo sapiens T cell receptor alpha variable 12-2	3	14q11.2	AE000659	TRAV12-2	12106	28673	ENSG00000211789	29128	TRAV12-2	
+Homo sapiens	TRAV12-3	F (F)	Homo sapiens T cell receptor alpha variable 12-3	2	14q11.2	AE000659	TRAV12-3	12107	28672	ENSG00000211794	29129	TRAV12-3	
+Homo sapiens	TRAV13-1	[F] F (F)	Homo sapiens T cell receptor alpha variable 13-1	3	14q11.2	AE000659	TRAV13-1	12108	28671	ENSG00000211788	29130	TRAV13-1	
+Homo sapiens	TRAV13-2	F (F)	Homo sapiens T cell receptor alpha variable 13-2	2	14q11.2	AE000659	TRAV13-2	12109	28670	ENSG00000211791	29131	TRAV13-2	
+Homo sapiens	TRAV14-1	P	Homo sapiens T cell receptor alpha variable 14-1	2	14q11.2	AE000659							
+Homo sapiens	TRAV14/DV4	[F] F (F)	Homo sapiens T cell receptor alpha variable 14/delta variable 4	4	14q11.2	M21626	TRAV14DV4	12110	28669	ENSG00000211792	29132	TRAV14DV4	
+Homo sapiens	TRAV15	P	Homo sapiens T cell receptor alpha variable 15	1	14q11.2	AE000659	TRAV15	12111	28668	ENSG00000258482	29175	TRAV15	
+Homo sapiens	TRAV16	F	Homo sapiens T cell receptor alpha variable 16	1	14q11.2	AE000659	TRAV16	12112	28667	ENSG00000211796	29133	TRAV16	
+Homo sapiens	TRAV17	F	Homo sapiens T cell receptor alpha variable 17	1	14q11.2	AE000660	TRAV17	12113	28666	ENSG00000211797	29248	TRAV17	
+Homo sapiens	TRAV18	F	Homo sapiens T cell receptor alpha variable 18	1	14q11.2	AE000660	TRAV18	12114	28665	ENSG00000211798	29135	TRAV18	
+Homo sapiens	TRAV19	F	Homo sapiens T cell receptor alpha variable 19	1	14q11.2	AE000660	TRAV19	12115	28664	ENSG00000211799	29136	TRAV19	
+Homo sapiens	TRAV2	F (F)	Homo sapiens T cell receptor alpha variable 2	2	14q11.2	AE000658	TRAV2	12116	28691	ENSG00000211776	29137	TRAV2	
+Homo sapiens	TRAV20	F (F)	Homo sapiens T cell receptor alpha variable 20	4	14q11.2	AE000660	TRAV20	12117	28663	ENSG00000211800	29143	TRAV20	
+Homo sapiens	TRAV21	F (F)	Homo sapiens T cell receptor alpha variable 21	2	14q11.2	AE000660	TRAV21	12118	28662	ENSG00000211801	29144	TRAV21	
+Homo sapiens	TRAV22	F	Homo sapiens T cell receptor alpha variable 22	1	14q11.2	AE000660	TRAV22	12119	28661	ENSG00000211802	29145	TRAV22	
+Homo sapiens	TRAV23/DV6	[F] F (F)	Homo sapiens T cell receptor alpha variable 23/delta variable 6	5	14q11.2	AE000660	TRAV23DV6	12120	28660	ENSG00000211803	29169	TRAV23DV6	
+Homo sapiens	TRAV24	F (F)	Homo sapiens T cell receptor alpha variable 24	2	14q11.2	AE000660	TRAV24	12121	28659	ENSG00000211805	29147	TRAV24	
+Homo sapiens	TRAV25	F	Homo sapiens T cell receptor alpha variable 25	1	14q11.2	AE000660	TRAV25	12122	28658	ENSG00000211806	29148	TRAV25	
+Homo sapiens	TRAV26-1	F (F)	Homo sapiens T cell receptor alpha variable 26-1	3	14q11.2	AE000660	TRAV26-1	12123	28657	ENSG00000211807	29167	TRAV26-1	
+Homo sapiens	TRAV26-2	[F] F	Homo sapiens T cell receptor alpha variable 26-2	2	14q11.2	AE000660	TRAV26-2	12124	28656	ENSG00000211812	29168	TRAV26-2	
+Homo sapiens	TRAV27	F (F)	Homo sapiens T cell receptor alpha variable 27	3	14q11.2	AE000660	TRAV27	12125	28655	ENSG00000211809	29149	TRAV27	
+Homo sapiens	TRAV28	P	Homo sapiens T cell receptor alpha variable 28	2	14q11.2	AE000660	TRAV28	12126	28654	ENSG00000258835	29176	TRAV28	
+Homo sapiens	TRAV29/DV5	P F	Homo sapiens T cell receptor alpha variable 29/delta variable 5	4	14q11.2	AE000660	TRAV29DV5	12127	28653	ENSG00000211810	29170	TRAV29DV5	
+Homo sapiens	TRAV3	(P) F	Homo sapiens T cell receptor alpha variable 3	2	14q11.2	AE000658	TRAV3	12128	28690	ENSG00000211777	29138	TRAV3	
+Homo sapiens	TRAV30	[F] F (F)	Homo sapiens T cell receptor alpha variable 30	5	14q11.2	AE000660	TRAV30	12129	28652	ENSG00000259092	29150	TRAV30	
+Homo sapiens	TRAV31	P	Homo sapiens T cell receptor alpha variable 31	2	14q11.2	AE000660	TRAV31	12130	28651	ENSG00000249048	29177	TRAV31	
+Homo sapiens	TRAV32	P	Homo sapiens T cell receptor alpha variable 32	1	14q11.2	AE000660	TRAV32	12131	28650	ENSG00000258905	29178	TRAV32	
+Homo sapiens	TRAV33	P	Homo sapiens T cell receptor alpha variable 33	2	14q11.2	AE000660	TRAV33	12132	28649	ENSG00000258812	29179	TRAV33	
+Homo sapiens	TRAV34	F	Homo sapiens T cell receptor alpha variable 34	1	14q11.2	AE000660	TRAV34	12133	28648	ENSG00000211813	29151	TRAV34	
+Homo sapiens	TRAV35	P F (F)	Homo sapiens T cell receptor alpha variable 35	3	14q11.2	AE000660	TRAV35	12134	28647	ENSG00000211814	29152	TRAV35	
+Homo sapiens	TRAV36/DV7	F (F)	Homo sapiens T cell receptor alpha variable 36/delta variable 7	5	14q11.2	AE000660	TRAV36DV7	12135	28646	ENSG00000211815	29171	TRAV36DV7	
+Homo sapiens	TRAV37	P	Homo sapiens T cell receptor alpha variable 37	1	14q11.2	AE000661	TRAV37	12136	28645	ENSG00000259068	29180	TRAV37	
+Homo sapiens	TRAV38-1	F (F)	Homo sapiens T cell receptor alpha variable 38-1	4	14q11.2	AE000661	TRAV38-1	12137	28644	ENSG00000211816	29157	TRAV38-1	
+Homo sapiens	TRAV38-2/DV8	F	Homo sapiens T cell receptor alpha variable 38-2/delta variable 8	1	14q11.2	AE000661	TRAV38-2DV8	12138	28643	ENSG00000211817	29172	TRAV38-2DV8	
+Homo sapiens	TRAV39	F	Homo sapiens T cell receptor alpha variable 39	1	14q11.2	AE000661	TRAV39	12139	28642	ENSG00000211818	29154	TRAV39	
+Homo sapiens	TRAV4	F	Homo sapiens T cell receptor alpha variable 4	1	14q11.2	AE000658	TRAV4	12140	28689	ENSG00000211778	29139	TRAV4	
+Homo sapiens	TRAV40	F	Homo sapiens T cell receptor alpha variable 40	1	14q11.2	X73521	TRAV40	12141	28641	ENSG00000211819	29155	TRAV40	
+Homo sapiens	TRAV41	F	Homo sapiens T cell receptor alpha variable 41	1	14q11.2	AE000661	TRAV41	12142	28640	ENSG00000211820	29156	TRAV41	
+Homo sapiens	TRAV46	P	Homo sapiens T cell receptor alpha variable 46	1	14q11.2	AE000661							
+Homo sapiens	TRAV5	F	Homo sapiens T cell receptor alpha variable 5	1	14q11.2	AE000659	TRAV5	12143	28688	ENSG00000211779	29140	TRAV5	
+Homo sapiens	TRAV6	[F] F (F)	Homo sapiens T cell receptor alpha variable 6	7	14q11.2	AE000659	TRAV6	12144	6956	ENSG00000211780	29141	TRAV6	
+Homo sapiens	TRAV7	F	Homo sapiens T cell receptor alpha variable 7	1	14q11.2	AE000659	TRAV7	12145	28686	ENSG00000211781	29142	TRAV7	
+Homo sapiens	TRAV8-1	[F] F	Homo sapiens T cell receptor alpha variable 8-1	2	14q11.2	AE000659	TRAV8-1	12146	28685	ENSG00000211782	29159	TRAV8-1	
+Homo sapiens	TRAV8-2	F (F)	Homo sapiens T cell receptor alpha variable 8-2	3	14q11.2	AE000659	TRAV8-2	12147	28684	ENSG00000211786	29160	TRAV8-2	
+Homo sapiens	TRAV8-3	F (F)	Homo sapiens T cell receptor alpha variable 8-3	3	14q11.2	AE000659	TRAV8-3	12148	28683	ENSG00000211787	29161	TRAV8-3	
+Homo sapiens	TRAV8-4	F (F)	Homo sapiens T cell receptor alpha variable 8-4	7	14q11.2	AE000659	TRAV8-4	12149	28682	ENSG00000211790	29162	TRAV8-4	
+Homo sapiens	TRAV8-5	P	Homo sapiens T cell receptor alpha variable 8-5	1	14q11.2	AE000659	TRAV8-5	12150	28681	ENSG00000256379	29163	TRAV8-5	
+Homo sapiens	TRAV8-6	F	Homo sapiens T cell receptor alpha variable 8-6	2	14q11.2	X02850	TRAV8-6	12151	28680	ENSG00000211795	29164	TRAV8-6	
+Homo sapiens	TRAV8-6-1	P	Homo sapiens T cell receptor alpha variable 8-6-1	1	14q11.2	AE000660							
+Homo sapiens	TRAV8-7	P	Homo sapiens T cell receptor alpha variable 8-7	2	14q11.2	AE000660	TRAV8-7	12152	28679	ENSG00000211808	29173	TRAV8-7	
+Homo sapiens	TRAV9-1	F	Homo sapiens T cell receptor alpha variable 9-1	1	14q11.2	AE000659	TRAV9-1	12153	28678	ENSG00000211783	29165	TRAV9-1	
+Homo sapiens	TRAV9-2	F (F)	Homo sapiens T cell receptor alpha variable 9-2	4	14q11.2	AE000659	TRAV9-2	12154	28677	ENSG00000211793	29166	TRAV9-2	
+Homo sapiens	TRAVA	P	Homo sapiens T cell receptor alpha variable A	2	14q11.2	AE000659							
+Homo sapiens	TRAVB	P	Homo sapiens T cell receptor alpha variable B	2	14q11.2	AE000659							
+Homo sapiens	TRAVC	P	Homo sapiens T cell receptor alpha variable C	1	14q11.2	AE000660							
+Homo sapiens	TRBC1	F	Homo sapiens T cell receptor beta constant 1	3	7q34	M12887	TRBC1	12156	28639	ENSG00000211751	4865	TRBC1	
+Homo sapiens	TRBC2	F	Homo sapiens T cell receptor beta constant 2	3	7q34	M12888	TRBC2	12157	28638	ENSG00000211772	4903	TRBC2	
+Homo sapiens	TRBD1	F	Homo sapiens T cell receptor beta diversity 1	1	7q34	K02545	TRBD1	12158	28637	ENSG00000282431	4866	TRBD1	
+Homo sapiens	TRBD2	F	Homo sapiens T cell receptor beta diversity 2	2	7q34	X02987	TRBD2	12159	28636		4904	TRBD2	
+Homo sapiens	TRBJ1-1	F	Homo sapiens T cell receptor beta joining 1-1	1	7q34	K02545	TRBJ1-1	12162	28635	ENSG00000282320	29087	TRBJ1-1	
+Homo sapiens	TRBJ1-2	F	Homo sapiens T cell receptor beta joining 1-2	1	7q34	K02545	TRBJ1-2	12163	28634	ENSG00000282420	29088	TRBJ1-2	
+Homo sapiens	TRBJ1-3	F	Homo sapiens T cell receptor beta joining 1-3	1	7q34	M14158	TRBJ1-3	12164	28633	ENSG00000282133	29089	TRBJ1-3	
+Homo sapiens	TRBJ1-4	F	Homo sapiens T cell receptor beta joining 1-4	1	7q34	M14158	TRBJ1-4	12165	28632	ENSG00000281958	29090	TRBJ1-4	
+Homo sapiens	TRBJ1-5	F	Homo sapiens T cell receptor beta joining 1-5	1	7q34	M14158	TRBJ1-5	12166	28631	ENSG00000282173	29103	TRBJ1-5	
+Homo sapiens	TRBJ1-6	F	Homo sapiens T cell receptor beta joining 1-6	2	7q34	M14158	TRBJ1-6	12167	28630	ENSG00000282780	29091	TRBJ1-6	
+Homo sapiens	TRBJ2-1	F	Homo sapiens T cell receptor beta joining 2-1	1	7q34	X02987	TRBJ2-1	12168	28629	ENSG00000211764	29092	TRBJ2-1	
+Homo sapiens	TRBJ2-2	F	Homo sapiens T cell receptor beta joining 2-2	1	7q34	X02987	TRBJ2-2	12169	28628	ENSG00000211765	29112	TRBJ2-2	
+Homo sapiens	TRBJ2-2P	ORF	Homo sapiens T cell receptor beta joining 2-2P	1	7q34	X02987	TRBJ2-2P	12170	28627	ENSG00000211766	29118	TRBJ2-2P	
+Homo sapiens	TRBJ2-3	F	Homo sapiens T cell receptor beta joining 2-3	1	7q34	X02987	TRBJ2-3	12171	28626	ENSG00000211767	29113	TRBJ2-3	
+Homo sapiens	TRBJ2-4	F	Homo sapiens T cell receptor beta joining 2-4	1	7q34	X02987	TRBJ2-4	12172	28625	ENSG00000211768	29114	TRBJ2-4	
+Homo sapiens	TRBJ2-5	F	Homo sapiens T cell receptor beta joining 2-5	1	7q34	X02987	TRBJ2-5	12173	28624	ENSG00000211769	29115	TRBJ2-5	
+Homo sapiens	TRBJ2-6	F	Homo sapiens T cell receptor beta joining 2-6	1	7q34	X02987	TRBJ2-6	12174	28623	ENSG00000211770	29116	TRBJ2-6	
+Homo sapiens	TRBJ2-7	ORF F	Homo sapiens T cell receptor beta joining 2-7	2	7q34	M14159	TRBJ2-7	12175	28622	ENSG00000211771	29117	TRBJ2-7	
+Homo sapiens	TRBV1	P	Homo sapiens T cell receptor beta variable 1	1	7q34	L36092	TRBV1	12176	28621	ENSG00000242736	29236	TRBV1	
+Homo sapiens	TRBV10-1	F [P]	Homo sapiens T cell receptor beta variable 10-1	3	7q34	L36092	TRBV10-1	12177	28585	ENSG00000211717	29181	TRBV10-1	
+Homo sapiens	TRBV10-2	F	Homo sapiens T cell receptor beta variable 10-2	2	7q34	L36092	TRBV10-2	12178	28584	ENSG00000229769	29182	TRBV10-2	
+Homo sapiens	TRBV10-3	[F] F	Homo sapiens T cell receptor beta variable 10-3	4	7q34	U03115	TRBV10-3	12179	28583	ENSG00000275791	29183	TRBV10-3	
+Homo sapiens	TRBV11-1	F	Homo sapiens T cell receptor beta variable 11-1	1	7q34	M33233	TRBV11-1	12180	28582	ENSG00000211720	29184	TRBV11-1	
+Homo sapiens	TRBV11-2	[F] F	Homo sapiens T cell receptor beta variable 11-2	3	7q34	L36092	TRBV11-2	12181	28581	ENSG00000241657	29185	TRBV11-2	
+Homo sapiens	TRBV11-3	F (F)	Homo sapiens T cell receptor beta variable 11-3	4	7q34	U03115	TRBV11-3	12182	28580	ENSG00000276597	29186	TRBV11-3	
+Homo sapiens	TRBV12-1	P	Homo sapiens T cell receptor beta variable 12-1	1	7q34	X07224	TRBV12-1	12183	28579	ENSG00000244661	29237	TRBV12-1	
+Homo sapiens	TRBV12-2	P	Homo sapiens T cell receptor beta variable 12-2	1	7q34	X06936	TRBV12-2	12184	28578	ENSG00000211739	27775	TRBV12-2	
+Homo sapiens	TRBV12-3	F	Homo sapiens T cell receptor beta variable 12-3	1	7q34	X07192	TRBV12-3	12185	28577	ENSG00000274752	29187	TRBV12-3	
+Homo sapiens	TRBV12-4	F (F)	Homo sapiens T cell receptor beta variable 12-4	2	7q34	K02546	TRBV12-4	12186	28576	ENSG00000276953	29188	TRBV12-4	
+Homo sapiens	TRBV12-5	F	Homo sapiens T cell receptor beta variable 12-5	1	7q34	X07223	TRBV12-5	12187	28575	ENSG00000275158	29189	TRBV12-5	
+Homo sapiens	TRBV13	F (F)	Homo sapiens T cell receptor beta variable 13	2	7q34	U03115	TRBV13	12188	28574	ENSG00000276405	29190	TRBV13	
+Homo sapiens	TRBV14	F (F)	Homo sapiens T cell receptor beta variable 14	2	7q34	X06154	TRBV14	12189	28573	ENSG00000275743	29191	TRBV14	
+Homo sapiens	TRBV15	F (F)	Homo sapiens T cell receptor beta variable 15	3	7q34	U03115	TRBV15	12190	28572	ENSG00000276819	29192	TRBV15	
+Homo sapiens	TRBV16	P F (F)	Homo sapiens T cell receptor beta variable 16	3	7q34	L26231	TRBV16	12191	28571	ENSG00000275243	29193	TRBV16	
+Homo sapiens	TRBV17	ORF	Homo sapiens T cell receptor beta variable 17	2	7q34	U03115	TRBV17	12192	28570	ENSG00000277880	29249	TRBV17	
+Homo sapiens	TRBV18	F	Homo sapiens T cell receptor beta variable 18	1	7q34	L36092	TRBV18	12193	28569	ENSG00000276557	29194	TRBV18	
+Homo sapiens	TRBV19	F (F)	Homo sapiens T cell receptor beta variable 19	3	7q34	L36092	TRBV19	12194	28568	ENSG00000211746	29195	TRBV19	
+Homo sapiens	TRBV2	F (F)	Homo sapiens T cell receptor beta variable 2	3	7q34	L36092	TRBV2	12195	28620	ENSG00000226660	29234	TRBV2	
+Homo sapiens	TRBV20-1	F (F)	Homo sapiens T cell receptor beta variable 20-1	7	7q34	M11955	TRBV20-1	12196	28567	ENSG00000211747	29203	TRBV20-1	
+Homo sapiens	TRBV20/OR9-2	ORF [ORF]	Homo sapiens T cell receptor beta variable 20/OR9-2	3	9p21	L05149	TRBV20OR9-2	12197	6962	ENSG00000205274	6802	TRBV20OR9-2	
+Homo sapiens	TRBV21-1	P	Homo sapiens T cell receptor beta variable 21-1	2	7q34	L36092	TRBV21-1	12198	28566	ENSG00000251578	29238	TRBV21-1	
+Homo sapiens	TRBV21/OR9-2	P	Homo sapiens T cell receptor beta variable 21/OR9-2	1	9p21	AF029308	TRBV21OR9-2	12199	6959	ENSG00000183938	29264	TRBV21OR9-2	
+Homo sapiens	TRBV22-1	P	Homo sapiens T cell receptor beta variable 22-1	1	7q34	L36092	TRBV22-1	12200	28565	ENSG00000240578	29239	TRBV22-1	
+Homo sapiens	TRBV22/OR9-2	P	Homo sapiens T cell receptor beta variable 22/OR9-2	1	9p21	AF029308	TRBV22OR9-2	18740	246283	ENSG00000234122	29261	TRBV22OR9-2	
+Homo sapiens	TRBV23-1	ORF	Homo sapiens T cell receptor beta variable 23-1	1	7q34	L36092	TRBV23-1	12201	28564	ENSG00000211749	29250	TRBV23-1	
+Homo sapiens	TRBV23/OR9-2	P ORF	Homo sapiens T cell receptor beta variable 23/OR9-2	2	9p21	AF029308	TRBV23OR9-2	12202	28552	ENSG00000229063	29255	TRBV23OR9-2	
+Homo sapiens	TRBV24-1	F	Homo sapiens T cell receptor beta variable 24-1	2	7q34	M11951	TRBV24-1	12203	28563	ENSG00000211750	29202	TRBV24-1	
+Homo sapiens	TRBV24/OR9-2	P ORF	Homo sapiens T cell receptor beta variable 24/OR9-2	3	9p21	L05153	TRBV24OR9-2	12204	6961	ENSG00000215206	29265	TRBV24OR9-2	
+Homo sapiens	TRBV25-1	F	Homo sapiens T cell receptor beta variable 25-1	1	7q34	L36092	TRBV25-1	12205	28562	ENSG00000282499	29201	TRBV25-1	
+Homo sapiens	TRBV25/OR9-2	P	Homo sapiens T cell receptor beta variable 25/OR9-2	2	9p21	L05152	TRBV25OR9-2	12206	6960	ENSG00000240215	29260	TRBV25OR9-2	
+Homo sapiens	TRBV26	P	Homo sapiens T cell receptor beta variable 26	1	7q34	L36092	TRBV26	12207	28561	ENSG00000249912	29240	TRBV26	
+Homo sapiens	TRBV26/OR9-2	P	Homo sapiens T cell receptor beta variable 26/OR9-2	2	9p21	AF029308	TRBV26OR9-2	15485	246285	ENSG00000231165	29262	TRBV26OR9-2	
+Homo sapiens	TRBV27	F	Homo sapiens T cell receptor beta variable 27	1	7q34	L36092	TRBV27	12208	28560	ENSG00000211752	29198	TRBV27	
+Homo sapiens	TRBV28	F	Homo sapiens T cell receptor beta variable 28	1	7q34	U08314	TRBV28	12209	28559	ENSG00000211753	29199	TRBV28	
+Homo sapiens	TRBV29-1	F (F)	Homo sapiens T cell receptor beta variable 29-1	3	7q34	L36092	TRBV29-1	12210	28558	ENSG00000232869	29200	TRBV29-1	
+Homo sapiens	TRBV29/OR9-2	ORF	Homo sapiens T cell receptor beta variable 29/OR9-2	2	9p21	L05150	TRBV29OR9-2	12211	6958	ENSG00000223394	29266	TRBV29OR9-2	
+Homo sapiens	TRBV3-1	F (F)	Homo sapiens T cell receptor beta variable 3-1	2	7q34	U07977	TRBV3-1	12212	28619	ENSG00000237702	29235	TRBV3-1	
+Homo sapiens	TRBV3-2	P (P)	Homo sapiens T cell receptor beta variable 3-2	3	7q34	L36092	TRBV3-2	12213	28618		29241	TRBV3-2	
+Homo sapiens	TRBV30	P F (F)	Homo sapiens T cell receptor beta variable 30	5	7q34	L36092	TRBV30	12214	28557	ENSG00000237254	29204	TRBV30	
+Homo sapiens	TRBV4-1	F (F)	Homo sapiens T cell receptor beta variable 4-1	2	7q34	U07977	TRBV4-1	12215	28617	ENSG00000211710	29205	TRBV4-1	
+Homo sapiens	TRBV4-2	F (F)	Homo sapiens T cell receptor beta variable 4-2	2	7q34	U07975	TRBV4-2	12216	28616	ENSG00000211745	29206	TRBV4-2	
+Homo sapiens	TRBV4-3	F (F)	Homo sapiens T cell receptor beta variable 4-3	4	7q34	U07978	TRBV4-3	12217	28615		29207	TRBV4-3	
+Homo sapiens	TRBV5-1	F (F)	Homo sapiens T cell receptor beta variable 5-1	2	7q34	L36092	TRBV5-1	12218	28614	ENSG00000211734	29233	TRBV5-1	
+Homo sapiens	TRBV5-2	P	Homo sapiens T cell receptor beta variable 5-2	1	7q34	L36092	TRBV5-2	12219	28613	ENSG00000242771	29242	TRBV5-2	
+Homo sapiens	TRBV5-3	ORF	Homo sapiens T cell receptor beta variable 5-3	2	7q34	X61439	TRBV5-3	12220	28612	ENSG00000211715	29251	TRBV5-3	
+Homo sapiens	TRBV5-4	F (F)	Homo sapiens T cell receptor beta variable 5-4	4	7q34	L36092	TRBV5-4	12221	28611	ENSG00000230099	29208	TRBV5-4	
+Homo sapiens	TRBV5-5	F (F)	Homo sapiens T cell receptor beta variable 5-5	3	7q34	L36092	TRBV5-5	12222	28610	ENSG00000211725	29209	TRBV5-5	
+Homo sapiens	TRBV5-6	F	Homo sapiens T cell receptor beta variable 5-6	1	7q34	L36092	TRBV5-6	12223	28609	ENSG00000211728	29210	TRBV5-6	
+Homo sapiens	TRBV5-7	ORF	Homo sapiens T cell receptor beta variable 5-7	1	7q34	L36092	TRBV5-7	12224	28608	ENSG00000211731	29252	TRBV5-7	
+Homo sapiens	TRBV5-8	F (F)	Homo sapiens T cell receptor beta variable 5-8	2	7q34	L36092	TRBV5-8	12225	28607		29211	TRBV5-8	
+Homo sapiens	TRBV6-1	F	Homo sapiens T cell receptor beta variable 6-1	1	7q34	X61446	TRBV6-1	12226	28606	ENSG00000211706	29212	TRBV6-1	
+Homo sapiens	TRBV6-2	F	Homo sapiens T cell receptor beta variable 6-2	1	7q34	X61445	TRBV6-2	12227	28605	ENSG00000283063	29213	TRBV6-2	
+Homo sapiens	TRBV6-3	F	Homo sapiens T cell receptor beta variable 6-3	1	7q34	U07978	TRBV6-3	12228	28604		29214	TRBV6-3	
+Homo sapiens	TRBV6-4	F	Homo sapiens T cell receptor beta variable 6-4	2	7q34	X61653	TRBV6-4	12229	28603	ENSG00000211713	29228	TRBV6-4	
+Homo sapiens	TRBV6-5	F	Homo sapiens T cell receptor beta variable 6-5	1	7q34	L36092	TRBV6-5	12230	28602	ENSG00000211721	29229	TRBV6-5	
+Homo sapiens	TRBV6-6	F (F)	Homo sapiens T cell receptor beta variable 6-6	5	7q34	L36092	TRBV6-6	12231	28601	ENSG00000211724	29230	TRBV6-6	
+Homo sapiens	TRBV6-7	ORF	Homo sapiens T cell receptor beta variable 6-7	1	7q34	L36092	TRBV6-7	12232	28600	ENSG00000253188	29253	TRBV6-7	
+Homo sapiens	TRBV6-8	F	Homo sapiens T cell receptor beta variable 6-8	1	7q34	L36092	TRBV6-8	12233	28599	ENSG00000253534	29231	TRBV6-8	
+Homo sapiens	TRBV6-9	F	Homo sapiens T cell receptor beta variable 6-9	1	7q34	X61447	TRBV6-9	12234	28598		29232	TRBV6-9	
+Homo sapiens	TRBV7-1	ORF	Homo sapiens T cell receptor beta variable 7-1	1	7q34	X61444	TRBV7-1	12235	28597	ENSG00000211707	29254	TRBV7-1	
+Homo sapiens	TRBV7-2	F (F)	Homo sapiens T cell receptor beta variable 7-2	4	7q34	X61442	TRBV7-2	12236	28596	ENSG00000282939	29220	TRBV7-2	
+Homo sapiens	TRBV7-3	ORF F (F)	Homo sapiens T cell receptor beta variable 7-3	5	7q34	X61440	TRBV7-3	12237	28595	ENSG00000211714		TRBV7-3	
+Homo sapiens	TRBV7-4	F [P]	Homo sapiens T cell receptor beta variable 7-4	2	7q34	L36092	TRBV7-4	12238	28594	ENSG00000253409	29222	TRBV7-4	
+Homo sapiens	TRBV7-5	P	Homo sapiens T cell receptor beta variable 7-5	2	7q34	L36092	TRBV7-5	12239	28593	ENSG00000227550	29243	TRBV7-5	
+Homo sapiens	TRBV7-6	F (F)	Homo sapiens T cell receptor beta variable 7-6	2	7q34	L36092	TRBV7-6	12240	28592	ENSG00000211727	29223	TRBV7-6	
+Homo sapiens	TRBV7-7	F (F)	Homo sapiens T cell receptor beta variable 7-7	2	7q34	L36092	TRBV7-7	12241	28591	ENSG00000253291	29224	TRBV7-7	
+Homo sapiens	TRBV7-8	F (F)	Homo sapiens T cell receptor beta variable 7-8	3	7q34	M11953	TRBV7-8	12242	28590		29225	TRBV7-8	
+Homo sapiens	TRBV7-9	F (F)	Homo sapiens T cell receptor beta variable 7-9	7	7q34	L36092	TRBV7-9	12243	28589	ENSG00000278030	29226	TRBV7-9	
+Homo sapiens	TRBV8-1	P	Homo sapiens T cell receptor beta variable 8-1	2	7q34	L36092	TRBV8-1	12244	28588	ENSG00000243889	29244	TRBV8-1	
+Homo sapiens	TRBV8-2	P	Homo sapiens T cell receptor beta variable 8-2	2	7q34	L36092	TRBV8-2	12245	28587	ENSG00000239944	29245	TRBV8-2	
+Homo sapiens	TRBV9	F (F)	Homo sapiens T cell receptor beta variable 9	3	7q34	L36092	TRBV9	12246	28586	ENSG00000211716	29227	TRBV9	
+Homo sapiens	TRBVA	P	Homo sapiens T cell receptor beta variable A	2	7q34	L36092	TRBVA	12247	28556	ENSG00000239992	29246	TRBVA	
+Homo sapiens	TRBVA/OR9-2	P	Homo sapiens T cell receptor beta variable A/OR9-2	1	9p21	AF029308	TRBVAOR9-2	18741	246286		29263	TRBVAOR9-2	
+Homo sapiens	TRBVB	P	Homo sapiens T cell receptor beta variable B	2	7q34	L36092	TRBVB	12248	28555	ENSG00000241911	29247	TRBVB	
+Homo sapiens	TRBVC	P	Homo sapiens T cell receptor beta variable C	1	7q34	L36092	TRBVC	50321	103106900			TRBVC	
+Homo sapiens	TRDC	F	Homo sapiens T cell receptor delta constant	1	14q11.2	M22148 M22149 M22150 M22151	TRDC	12253	28526	ENSG00000211829	29122	TRDC	
+Homo sapiens	TRDD1	F	Homo sapiens T cell receptor delta diversity 1	1	14q11.2	M23325	TRDD1	12254	28525	ENSG00000223997	29286	TRDD1	
+Homo sapiens	TRDD2	F	Homo sapiens T cell receptor delta diversity 2	1	14q11.2	M22153	TRDD2	12255	28524	ENSG00000237235	29287	TRDD2	
+Homo sapiens	TRDD3	F	Homo sapiens T cell receptor delta diversity 3	1	14q11.2	M22152	TRDD3	12256	28523	ENSG00000228985	29288	TRDD3	
+Homo sapiens	TRDJ1	F	Homo sapiens T cell receptor delta joining 1	1	14q11.2	M20289	TRDJ1	12257	28522	ENSG00000211825	29098	TRDJ1	
+Homo sapiens	TRDJ2	F	Homo sapiens T cell receptor delta joining 2	1	14q11.2	L36386	TRDJ2	12258	28521	ENSG00000211827	29099	TRDJ2	
+Homo sapiens	TRDJ3	F	Homo sapiens T cell receptor delta joining 3	1	14q11.2	M21508	TRDJ3	12259	28520	ENSG00000211828	29100	TRDJ3	
+Homo sapiens	TRDJ4	F	Homo sapiens T cell receptor delta joining 4	1	14q11.2	AJ249814	TRDJ4	12260	28519	ENSG00000211826	29101	TRDJ4	
+Homo sapiens	TRDV1	F	Homo sapiens T cell receptor delta variable 1	1	14q11.2	M22198	TRDV1	12262	28518	ENSG00000211804	29267	TRDV1	
+Homo sapiens	TRDV2	F	Homo sapiens T cell receptor delta variable 2	3	14q11.2	X15207 X15275	TRDV2	12263	28517	ENSG00000211821	29270	TRDV2	
+Homo sapiens	TRDV3	F	Homo sapiens T cell receptor delta variable 3	2	14q11.2	M23326	TRDV3	12264	28516	ENSG00000256590	29271	TRDV3	
+Homo sapiens	TRGC1	F (F)	Homo sapiens T cell receptor gamma constant 1	5	7p14	M14996 M14997 M14998	TRGC1	12275	6966	ENSG00000211689	29123	TRGC1	
+Homo sapiens	TRGC2	F (F)	Homo sapiens T cell receptor gamma constant 2	8	7p14	M13231 M15002	TRGC2	12276	6967	ENSG00000227191	29124	TRGC2	
+Homo sapiens	TRGJ1	F	Homo sapiens T cell receptor gamma joining 1	2	7p14	M12960	TRGJ1	12277	6968	ENSG00000211690	29102	TRGJ1	
+Homo sapiens	TRGJ2	F	Homo sapiens T cell receptor gamma joining 2	1	7p14	M12961	TRGJ2	12278	6969	ENSG00000211687	29105	TRGJ2	
+Homo sapiens	TRGJP	F	Homo sapiens T cell receptor gamma joining P	1	7p14	M12950	TRGJP	12279	6970	ENSG00000211691	29106	TRGJP	
+Homo sapiens	TRGJP1	F	Homo sapiens T cell receptor gamma joining P1	1	7p14	X08084	TRGJP1	12280	6971	ENSG00000211692	29110	TRGJP1	
+Homo sapiens	TRGJP2	F	Homo sapiens T cell receptor gamma joining P2	1	7p14	M16016	TRGJP2	12281	6972	ENSG00000211688	29111	TRGJP2	
+Homo sapiens	TRGV1	ORF	Homo sapiens T cell receptor gamma variable 1	1	7p14	M12949	TRGV1	12284	6973	ENSG00000211701	29278	TRGV1	
+Homo sapiens	TRGV10	ORF	Homo sapiens T cell receptor gamma variable 10	2	7p14	X07206	TRGV10	12285	6984	ENSG00000211694	29279	TRGV10	
+Homo sapiens	TRGV11	ORF	Homo sapiens T cell receptor gamma variable 11	2	7p14	Y11227	TRGV11	12286	6985	ENSG00000211693	29280	TRGV11	
+Homo sapiens	TRGV2	F (F)	Homo sapiens T cell receptor gamma variable 2	3	7p14	M13429	TRGV2	12287	6974	ENSG00000233306	29272	TRGV2	
+Homo sapiens	TRGV3	F	Homo sapiens T cell receptor gamma variable 3	2	7p14	M13430	TRGV3	12288	6976	ENSG00000211699	29273	TRGV3	
+Homo sapiens	TRGV3P	-	Homo sapiens T cell receptor gamma variable 3P	1	7p14								
+Homo sapiens	TRGV4	F	Homo sapiens T cell receptor gamma variable 4	2	7p14	X15272	TRGV4	12289	6977	ENSG00000211698	29274	TRGV4	
+Homo sapiens	TRGV5	F	Homo sapiens T cell receptor gamma variable 5	1	7p14	X13355	TRGV5	12290	6978	ENSG00000211697	29275	TRGV5	
+Homo sapiens	TRGV5P	P	Homo sapiens T cell receptor gamma variable 5P	2	7p14	M13431	TRGV5P	12291	6979	ENSG00000228668	29281	TRGV5P	
+Homo sapiens	TRGV6	P	Homo sapiens T cell receptor gamma variable 6	2	7p14	M13432	TRGV6	12292	6980	ENSG00000226212	29282	TRGV6	
+Homo sapiens	TRGV7	P	Homo sapiens T cell receptor gamma variable 7	1	7p14	M13433	TRGV7	12293	6981	ENSG00000249978	29283	TRGV7	
+Homo sapiens	TRGV8	F	Homo sapiens T cell receptor gamma variable 8	1	7p14	M13434	TRGV8	12294	6982	ENSG00000211696	29276	TRGV8	
+Homo sapiens	TRGV9	F	Homo sapiens T cell receptor gamma variable 9	2	7p14	X07205	TRGV9	12295	6983	ENSG00000211695	29277	TRGV9	
+Homo sapiens	TRGVA	P	Homo sapiens T cell receptor gamma variable A	1	7p14	X07208	TRGVA	12296	6986	ENSG00000225992	29284	TRGVA	
+Homo sapiens	TRGVB	P	Homo sapiens T cell receptor gamma variable B	2	7p14	X07209	TRGVB	12297	6987	ENSG00000231202	29285	TRGVB	

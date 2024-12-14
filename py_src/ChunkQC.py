@@ -2,6 +2,10 @@ import re
 import pandas as pd
 from collections import defaultdict
 
+nomenclature_df = pd.read_csv('../patches/IGM_nomenclature_table.tsv', sep='\t')
+nomenclature_set = set(nomenclature_df['IMGT/GENE-DB'])
+alleles_dict = nomenclature_df.set_index('IMGT/GENE-DB')['Number of alleles'].to_dict()
+
 COMPLEX_COLUMNS = [
     "cdr3.alpha",
     "v.alpha",
@@ -171,3 +175,25 @@ class ChunkQC:
             chunk_error_messages[tuple(empty_row_index)].append('no.mhc')
 
         return chunk_error_messages
+
+
+def gene_match_check(gene_name: str) -> bool:
+    if isinstance(gene_name, str) and not gene_name == '':
+        gene_name = gene_name.split('*')[0]
+        return gene_name in nomenclature_set
+    return True
+
+
+def alleles_match_check(gene_name: str) -> bool:
+    if isinstance(gene_name, str) and not gene_name == '':
+        gene = gene_name.split('*')[0]
+        if len(gene_name.split('*')) > 1:
+            allele = gene_name.split('*')[1]
+        else:
+            return True
+        if gene not in nomenclature_set:
+            return True
+        else:
+            return int(allele) <= alleles_dict[gene]
+    else:
+        return True
