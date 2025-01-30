@@ -80,7 +80,7 @@ if __name__ == "__main__":
         master_table[f"j.{gene}"] = fixer_results.apply(lambda x: x.jId if x else None)
         master_table[f"cdr3fix.{gene}"] = fixer_results.apply(lambda x: x.results_to_dict() if x else None)
 
-    master_table.set_index("cdr3.alpha").to_csv("../database/vdjdb_full.txt", sep="\t", quotechar='"')
+    master_table.set_index("cdr3.alpha").to_csv("../database/vdjdb_full_unfiltered.txt", sep="\t", quotechar='"')
 
     mask_gene_list = []
     mask_alleles_list = []
@@ -99,10 +99,11 @@ if __name__ == "__main__":
     final_mask_alleles = final_mask_alleles | (master_table['species'] != 'HomoSapiens')
     final_mask = final_mask | (master_table['species'] != 'HomoSapiens')
 
-    master_table.loc[final_mask & final_mask_alleles].set_index('cdr3.alpha').to_csv('../database/vdjdb_full_gene_clear.txt', sep='\t')
+    master_table.loc[final_mask & final_mask_alleles].set_index('cdr3.alpha').to_csv('../database/vdjdb_full.txt', sep='\t')
     master_table.loc[~final_mask].set_index('cdr3.alpha').to_csv('../database/vdjdb_full_gene_broken.txt', sep='\t')
     master_table.loc[~final_mask_alleles].set_index('cdr3.alpha').to_csv('../database/vdjdb_full_allele_broken.txt', sep='\t')
 
+    master_table = master_table.loc[final_mask & final_mask_alleles]
     cprint("Generating and writing default database", 'magenta')
     default_db = generate_default_db(master_table)
 
