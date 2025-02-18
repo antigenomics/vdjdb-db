@@ -109,8 +109,6 @@ if __name__ == "__main__":
     master_table.loc[~final_mask_alleles].set_index('cdr3.alpha').to_csv('../database/vdjdb_full_allele_broken.txt', sep='\t')
     master_table.loc[~final_mask_biological_cdr3].set_index('cdr3.alpha').to_csv('../database/vdjdb_full_cdr3aa_broken.txt', sep='\t')
 
-
-
     master_table = master_table.loc[final_mask & final_mask_alleles & final_mask_biological_cdr3]
     cprint("Generating and writing default database", 'magenta')
     default_db = generate_default_db(master_table)
