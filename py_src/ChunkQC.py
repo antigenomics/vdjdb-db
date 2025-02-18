@@ -197,3 +197,10 @@ def alleles_match_check(gene_name: str) -> bool:
             return int(allele) <= alleles_dict[gene]
     else:
         return True
+
+
+def is_qq_seq_biologically_valid(aa_seq: str) -> bool:
+    if not isinstance(aa_seq, str):
+        return True
+    else:
+        return aa_seq.startswith('C') and (aa_seq.endswith('W') or aa_seq.endswith('F'))
