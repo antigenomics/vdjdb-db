@@ -5,7 +5,7 @@ import warnings
 from termcolor import cprint
 
 
-from ChunkQC import ChunkQC, ALL_COLS, gene_match_check, alleles_match_check
+from ChunkQC import ChunkQC, ALL_COLS, gene_match_check, alleles_match_check, is_qq_seq_biologically_valid
 from Cdr3Fixer import Cdr3Fixer
 from DefaultDBGenerator import generate_default_db
 from SlimDBGenerator import generate_slim_db
@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
     mask_biological_cdr3_list = []
     for gene in ['alpha', 'beta']:
-        mask_biological_cdr3_list.append(master_table[f'cdr3.{gene}'].apply(gene_match_check))
+        mask_biological_cdr3_list.append(master_table[f'cdr3.{gene}'].apply(is_qq_seq_biologically_valid))
     final_mask_biological_cdr3 = mask_biological_cdr3_list[0] & mask_biological_cdr3_list[1]
 
     master_table.loc[final_mask & final_mask_alleles & final_mask_biological_cdr3].set_index('cdr3.alpha').to_csv('../database/vdjdb_full.txt', sep='\t')
