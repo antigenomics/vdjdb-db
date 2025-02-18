@@ -38,6 +38,7 @@ if __name__ == "__main__":
         chunk_error_messages = chunk_qc.process_chunk()
 
         if chunk_error_messages.keys():
+            print(chunk_file)
             print(dict(chunk_error_messages))
             warn_message = f"There were errors processing {chunk_file}"
             warnings.warn(warn_message)
@@ -46,7 +47,6 @@ if __name__ == "__main__":
             if aggregated_species.get(x["antigen.epitope"]) else x["antigen.species"])
         chunk_df["antigen.gene"] = chunk_df.T.apply(lambda x: aggregated_gene.get(x["antigen.epitope"])
             if aggregated_gene.get(x["antigen.epitope"]) else x["antigen.gene"])
-
 
         chunk_df_list.append(chunk_df)
 
