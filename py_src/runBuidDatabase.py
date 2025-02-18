@@ -111,7 +111,7 @@ if __name__ == "__main__":
 
 
 
-    master_table = master_table.loc[final_mask & final_mask_alleles]
+    master_table = master_table.loc[final_mask & final_mask_alleles & final_mask_biological_cdr3]
     cprint("Generating and writing default database", 'magenta')
     default_db = generate_default_db(master_table)
 
