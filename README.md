@@ -260,34 +260,14 @@ field | description
 
 ### VDJdb scoring
 
-At the final stage of database processing, TCR:peptide:MHC complexes are assigned with confidence scores. Scores are computed according to reported **method** entries.
+At the final stage of database processing, TCR:peptide:MHC complexes are assigned with confidence scores. Scores are computed according to the generation probability (pgen) of CDR3 calculated via the **OLGA** model.
 
-VDJdb scoring is performed by evaluating TCR sequence, identification and verification confidence based on the following criteria:
+Pgen cutoffs were calculated as quantiles of the Dubble Positive thymocytes log10(pgen) distribution. The following cutoff quantiles were chosen: 0.9, 0.2, 0.05.
 
-1. Ensuring TCR sequence is correctly identified according to ``method.sequencing`` and ``method.singlecell`` (1-3 points)
-    * sanger - several cells sequenced (2+ cells sequenced according to ``method.frequency``) - 2 points, otherwise 1
-    * amplicon-seq - frequency is higher than ``0.01`` - 2 points, otherwise 0
-    * single-cell - 3 points if performed
-2. Initial identification of TCR:pMHC is correct according to ``method.identification`` (0-1 point)
-    * sort-based - frequency is higher than ``0.1`` according to ``method.frequency``)
-    * culture-based - frequency is higher than ``0.5``
-    * limiting dilution/culture prior to sequencing - the ``method.frequency`` becomes somewhat ambigous, check if it is higher than ``0.5``
-3. Verification T-cell specificity (0-3 points)
-    * direct method - 3 points, e.g. has PDB id (``meta.structure.id`` is not empty) or some other method that directly evaluates TCR:pMHC binding
-    * target stimulation-based - 2 points
-    * staining-based - 1 points
-    * If verification is performed, then the TCR sequence is assumed to be known, so score from ``1.`` is set to 3
-
-The final score is then calculated as minimal between score from part ``1.`` and sum of scores from part ``2.`` and part ``3.``.
-
-Maximal score is then selected among different records (independent submissions, replicas, etc) pointing to the same unique complex entry (i.e. set of unique **complex** fields).
-
-score | description
-------|----------------------
-0     | Low confidence/no information - a critical aspect of sequencing/specificity validation is missing
-1     | Moderate confidence - no verification / poor TCR sequence confidence
-2     | High confidence - has some specificity verification, good TCR sequence confidence
-3     | Very high confidence - has extensive verification or structural data
+* The score **3** was assigned if log10(pgen) of TCR was larger than -7.3 for CDR3 beta and -5.7 for CDR3 alpha.
+* The score **2** was assigned if log10(pgen) of TCR was in the interval (-7.3, -12.1] for CDR3 beta and (-5.7, -10.1] for CDR3 alpha.
+* The score **1** was assigned if log10(pgen) of TCR was in the interval (-12.1, -15.6] for CDR3 beta and (-10.1, -15.1] for CDR3 alpha.
+* The score **0** was assigned if log10(pgen) of TCR was ess then -15.6 for CDR3 beta and less then -15.1 for CDR3 alpha.
 
 ## Database build contents
 
