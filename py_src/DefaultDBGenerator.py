@@ -34,6 +34,14 @@ VERY_HIGH_CONFIDENCE_CUTOFF_A = -5.7
 HIGH_CONFIDENCE_CUTOFF_A = -10.1
 MEDIUM_CONFIDENCE_CUTOFF_A = -15.1
 
+VERY_HIGH_CONFIDENCE_CUTOFF_MOUSE_B = -5.4
+HIGH_CONFIDENCE_CUTOFF_MOUSE_B = -6.6
+MEDIUM_CONFIDENCE_CUTOFF_MOUSE_B = -8.2
+
+VERY_HIGH_CONFIDENCE_CUTOFF_MOUSE_A = -4.5
+HIGH_CONFIDENCE_CUTOFF_MOUSE_A = -8.3
+MEDIUM_CONFIDENCE_CUTOFF_MOUSE_A = -10
+
 def calc_pgen(multiargument):
     cdr3aa = multiargument[0]
     gene = multiargument[1]
@@ -160,13 +168,19 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
     homosapiens_alpha_score = pd.cut(default_db[(default_db.species == 'HomoSapiens') & (default_db.gene == 'TRA')].log_10_pgen,
                                [-500, MEDIUM_CONFIDENCE_CUTOFF_A, HIGH_CONFIDENCE_CUTOFF_A,
                                 VERY_HIGH_CONFIDENCE_CUTOFF_A, 0], labels=[0, 1, 2, 3], )
-
-    vdj_db_score = pd.concat([homosapiens_beta_score, homosapiens_alpha_score])
+    musmusculus_beta_score = pd.cut(default_db[(default_db.species == 'MusMusculus') & (default_db.gene == 'TRB')].log_10_pgen,
+                              [-500, MEDIUM_CONFIDENCE_CUTOFF_MOUSE_B, HIGH_CONFIDENCE_CUTOFF_MOUSE_B,
+                               VERY_HIGH_CONFIDENCE_CUTOFF_MOUSE_B, 0], labels=[0, 1, 2, 3], )
+    musmusculus_alpha_score = pd.cut(default_db[(default_db.species == 'MusMusculus') & (default_db.gene == 'TRA')].log_10_pgen,
+                               [-500, MEDIUM_CONFIDENCE_CUTOFF_A, HIGH_CONFIDENCE_CUTOFF_A,
+                                VERY_HIGH_CONFIDENCE_CUTOFF_A, 0], labels=[0, 1, 2, 3], )
+    vdj_db_score = pd.concat([homosapiens_beta_score, homosapiens_alpha_score,
+                              musmusculus_beta_score, musmusculus_alpha_score])
     vdj_db_score.name = 'vdjdb.score'
     default_db['vdjdb.score'] = vdj_db_score
     default_db['vdjdb.score'] = default_db['vdjdb.score'].fillna(0)
     default_db['vdjdb.score'] = default_db['vdjdb.score'].apply(int)
-
+    default_db.to_pickle('../database/vdjvd.pkl')
     default_db = default_db.drop('log_10_pgen', axis=1) # delete after front fix
     default_db_to_write = default_db.copy()
 
