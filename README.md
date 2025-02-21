@@ -262,12 +262,12 @@ field | description
 
 At the final stage of database processing, TCR:peptide:MHC complexes are assigned with confidence scores. Scores are computed according to the generation probability (pgen) of CDR3 calculated via the **OLGA** model.
 
-Pgen cutoffs were calculated as quantiles of the Dubble Positive thymocytes log10(pgen) distribution. The following cutoff quantiles were chosen: 0.9, 0.2, 0.05.
+Pgen cutoffs were calculated as quantiles of the Dubble Positive thymocytes log10(pgen) distribution for HomoSapiens and as quantiles of the **OLGA** generated log10(pgen) distribution for MusMusculus. The following cutoff quantiles were chosen: 0.9, 0.2, 0.05.
 
-* The score **3** was assigned if log10(pgen) of TCR was larger than -7.3 for CDR3 beta and -5.7 for CDR3 alpha.
-* The score **2** was assigned if log10(pgen) of TCR was in the interval (-7.3, -12.1] for CDR3 beta and (-5.7, -10.1] for CDR3 alpha.
-* The score **1** was assigned if log10(pgen) of TCR was in the interval (-12.1, -15.6] for CDR3 beta and (-10.1, -15.1] for CDR3 alpha.
-* The score **0** was assigned if log10(pgen) of TCR was ess then -15.6 for CDR3 beta and less then -15.1 for CDR3 alpha.
+* The score **3** was assigned if log10(pgen) of TCR was larger than -7.3 for TCR beta and -5.7 for TCR alpha. For MusMusculus these values were -5.4 and -4.5 for beta and alpha respectively. 
+* The score **2** was assigned if log10(pgen) of TCR was in the interval (-7.3, -12.1] for TCR beta and (-5.7, -10.1] for TCR alpha. For MusMusculus these intervals were (-5.4, -6.6] and (-4.5, -8.3] for alpha and beta respectively.
+* The score **1** was assigned if log10(pgen) of TCR was in the interval (-12.1, -15.6] for TCR beta and (-10.1, -15.1] for TCR alpha. For MusMusculus these intervals were (-6.6, -8.2] and (-8.3, -10] for alpha and beta respectively.
+* The score **0** was assigned if log10(pgen) of TCR was ess then -15.6 for TCR beta and less then -15.1 for TCR alpha. For MusMusculus these values were -8.2 and -10 for beta and alpha respectively.
 
 ## Database build contents
 
