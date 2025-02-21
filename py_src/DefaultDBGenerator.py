@@ -180,7 +180,6 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
     default_db['vdjdb.score'] = vdj_db_score
     default_db['vdjdb.score'] = default_db['vdjdb.score'].fillna(0)
     default_db['vdjdb.score'] = default_db['vdjdb.score'].apply(int)
-    default_db.to_pickle('../database/vdjbd.pkl.txt')
     default_db = default_db.drop('log_10_pgen', axis=1) # delete after front fix
     default_db_to_write = default_db.copy()
 
