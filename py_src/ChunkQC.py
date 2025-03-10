@@ -108,6 +108,7 @@ validators = {
     'mhc.b': is_MHC_valid,
     'mhc.class': lambda x: x == 'MHCI' or x == 'MHCII',
     'antigen.epitope': is_aa_seq_valid,
+    'antigen.gene': lambda x: pd.notnull(x),
     'reference.id': lambda x: x.startswith('PMID:') or x.startswith('doi:') or x.startswith('http://')
                               or x.startswith('https://') or 'unpublished' in x.lower() if not pd.isnull(x) else True
 
