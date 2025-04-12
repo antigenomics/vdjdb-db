@@ -5,7 +5,7 @@ import warnings
 from termcolor import cprint
 
 
-from ChunkQC import ChunkQC, ALL_COLS, gene_match_check, alleles_match_check, is_qq_seq_biologically_valid
+from ChunkQC import ChunkQC, ALL_COLS, SIGNATURE_COLS,gene_match_check, alleles_match_check, is_qq_seq_biologically_valid
 from Cdr3Fixer import Cdr3Fixer
 from DefaultDBGenerator import generate_default_db
 from SlimDBGenerator import generate_slim_db
@@ -34,6 +34,7 @@ if __name__ == "__main__":
     chunk_df_list = []
     for chunk_file in chunk_files:
         chunk_df = pd.read_csv(f"../chunks/{chunk_file}", sep="\t", encoding_errors="ignore")
+        chunk_df = chunk_df.drop_duplicates(subset=SIGNATURE_COLS)
         chunk_qc = ChunkQC(chunk_df)
         chunk_error_messages = chunk_qc.process_chunk()
 
