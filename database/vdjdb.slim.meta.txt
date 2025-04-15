@@ -1,0 +1,17 @@
+name	type
+gene	txt
+cdr3	seq
+species	txt
+antigen.epitope	seq
+antigen.gene	txt
+antigen.species	txt
+complex.id	txt
+v.segm	txt
+j.segm	txt
+v.end	txt
+j.start	txt
+mhc.a	txt
+mhc.b	txt
+mhc.class	txt
+reference.id	txt
+vdjdb.score	txt
