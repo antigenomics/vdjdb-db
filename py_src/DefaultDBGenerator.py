@@ -85,7 +85,9 @@ COMPLEX_ANNOT_COLS = [
     "antigen.epitope",
     "antigen.gene",
     "antigen.species",
-    "reference.id"]
+    "reference.id",
+    "vdjdb.legacy.score"
+]
 
 SIGNATURE_COLS_PER_SAMPLE = [
     "cdr3.alpha",
@@ -135,7 +137,6 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
 
                 for coll in COMPLEX_ANNOT_COLS:
                     clone_compact[coll] = clone[coll]
-
                 clone_compact["method"] = {coll.split("method.")[1]: clone[coll] for coll in METHOD_COLUMNS}
                 clone_compact["meta"] = {coll.split("meta.")[1]: clone[coll] for coll in META_COLUMNS}
                 clone_compact["meta"]["samples.found"] = int(sample_counts.loc[tuple(clone[coll] for coll
