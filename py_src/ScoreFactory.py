@@ -23,19 +23,22 @@ class VdjdbScoreFactory:
 
                     # Sequencing score
                     seq_score = 1
-                    single_cell = row["method.singlecell"].strip().lower() if pd.notnull(row["method.singlecell"]) else row["method.singlecell"]
+                    single_cell = row["method.singlecell"].strip().lower() if pd.notnull(row["method.singlecell"]) else \
+                    row["method.singlecell"]
 
                     if pd.notnull(row["method.singlecell"]) and single_cell != "no":
                         seq_score = 3
                     else:
-                        sequencing_method = row["method.sequencing"].strip().lower() if pd.notnull(row["method.sequencing"]) else row["method.sequencing"]
+                        sequencing_method = row["method.sequencing"].strip().lower() if pd.notnull(
+                            row["method.sequencing"]) else row["method.sequencing"]
                         if sequencing_method == "sanger":
                             seq_score = 3 if count >= 2 else 2
                         elif sequencing_method == "amplicon-seq":
                             seq_score = 3 if freq >= 0.01 else 1
 
                     # Moderate confidence regarding specificity
-                    identify_method = row["method.identification"].lower().strip() if pd.notnull(row["method.identification"]) else row["method.identification"]
+                    identify_method = row["method.identification"].lower().strip() if pd.notnull(
+                        row["method.identification"]) else row["method.identification"]
                     spec_score1 = 0
 
                     if self.culture_based_identification(identify_method):
@@ -47,7 +50,8 @@ class VdjdbScoreFactory:
                             spec_score1 = 1 if freq >= 0.25 else 0
 
                     # High confidence regarding specificity
-                    verify_method = row["method.verification"].lower() if pd.notnull(row["method.verification"]) else row["method.verification"]
+                    verify_method = row["method.verification"].lower() if pd.notnull(row["method.verification"]) else \
+                    row["method.verification"]
                     spec_score2 = 0
 
                     if self.direct_verification(verify_method):
@@ -70,7 +74,7 @@ class VdjdbScoreFactory:
 
     @staticmethod
     def get_number_of_cells(freq):
-        if  pd.isnull(freq):
+        if pd.isnull(freq) or not isinstance(freq, str):
             return 0
         return int(re.split(r'/+', freq)[0]) if "/" in freq else 0
 
