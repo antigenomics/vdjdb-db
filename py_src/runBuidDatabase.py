@@ -9,6 +9,7 @@ from ChunkQC import ChunkQC, ALL_COLS, SIGNATURE_COLS,gene_match_check, alleles_
 from Cdr3Fixer import Cdr3Fixer
 from DefaultDBGenerator import generate_default_db
 from SlimDBGenerator import generate_slim_db
+from ScoreFactory import VdjdbScoreFactory
 
 # reading and aggregating antigen nomenclature patches
 antigen_df = pd.read_csv("../patches/antigen_epitope_species_gene.dict", sep="\t", index_col=0)
@@ -80,6 +81,9 @@ if __name__ == "__main__":
         master_table[f"v.{gene}"] = fixer_results.apply(lambda x: x.vId if x else None)
         master_table[f"j.{gene}"] = fixer_results.apply(lambda x: x.jId if x else None)
         master_table[f"cdr3fix.{gene}"] = fixer_results.apply(lambda x: x.results_to_dict() if x else None)
+
+    score_factory = VdjdbScoreFactory(master_table)
+    master_table['vdjdb.legacy.score'] = master_table.T.apply(lambda x: score_factory.get_score(x))
 
     master_table.set_index("cdr3.alpha").to_csv("../database/vdjdb_full_unfiltered.txt", sep="\t", quotechar='"')
 
