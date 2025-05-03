@@ -78,11 +78,12 @@ class VdjdbScoreFactory:
     def get_frequency(freq):
         if pd.isnull(freq):
             return 0.0
-        if "/" in freq:
-            x = [float(x) for x in re.split(r'/+', freq)]
-            return x[0] / x[1]
-        elif freq.endswith("%") and len(freq) > 1:
-            return float(freq[:-1]) / 100.0
+        elif isinstance(freq, str):
+            if "/" in freq:
+                x = [float(x) for x in re.split(r'/+', freq)]
+                return x[0] / x[1]
+            elif freq.endswith("%") and len(freq) > 1:
+                return float(freq[:-1]) / 100.0
         return float(freq)
 
     @staticmethod
