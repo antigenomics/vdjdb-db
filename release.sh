@@ -29,6 +29,10 @@ else
   echo "'vdjdb-motifs' folder is missing. Skipping..."
 fi
 
+cd py_src/
+python MotifsScoresAssembler.py
+cd ..
+
 # Gather database_
 
 ls ../vdjdb-motifs/
