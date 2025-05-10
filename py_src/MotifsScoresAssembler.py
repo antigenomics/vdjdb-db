@@ -1,6 +1,6 @@
 import pandas as pd
 
-vdjdb_full = pd.read_csv('../database/vdjdb_full.txt', sep='\t', index_col=0)
+vdjdb_full = pd.read_csv('../database/vdjdb_full.txt', sep='\t',)
 cluster_members = pd.read_csv('../database/cluster_members.txt', sep='\t')
 
 vdjdb_full_clusters = vdjdb_full.copy()
