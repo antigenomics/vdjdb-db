@@ -30,7 +30,7 @@ cluster_members_trb = cluster_members[cluster_members['gene'] == 'TRB']
 for _, cluster_member in cluster_members_trb.iterrows():
     vdjdb_full_clusters.loc[tuple(cluster_member[cluster_index_col[:-1] + ['cdr3aa']]), "cluster_member"] = 1
 
-vdjdb_full_clusters = vdjdb_full_clusters.reset_index()[vdjdb_full.columns]
+vdjdb_full_clusters = vdjdb_full_clusters.reset_index()[list(vdjdb_full.columns) + ['cluster_member']]
 vdjdb_full_clusters.to_csv('../database/vdjdb_full_scored.txt', sep='\t')
 
 slim_db = pd.read_csv('../database/vdjdb.slim.txt', sep='\t',)
@@ -45,8 +45,19 @@ slim_db_scored = slim_db.copy()
 slim_db_scored = slim_db_scored.set_index(cluster_index_col)
 slim_db_scored['cluster_member'] = 0
 
-for _, cluster_member in cluster_members_tra.iterrows():
+for _, cluster_member in cluster_members.iterrows():
     slim_db_scored.loc[tuple(cluster_member[cluster_index_col]), 'cluster_member'] = 1
 
-slim_db_scored = slim_db_scored.reset_index()[slim_db.columns]
+slim_db_scored = slim_db_scored.reset_index()[list(slim_db.columns) + ['cluster_member']]
 slim_db_scored.to_csv('../database/vdjdb.slim.scored.txt', sep='\t',)
+
+default_db = pd.read_csv('../database/vdjdb.txt', sep='\t', index_col=0)
+
+default_db['cluster_member'] = 0
+
+default_db = default_db.set_index(cluster_index_col)
+
+for _, cluster_member in cluster_members.iterrows():
+    default_db.loc[tuple(cluster_member[cluster_index_col]), 'cluster_member'] = 1
+
+default_db.to_csv('../database/vdjdb.scored.txt', sep='\t',)
