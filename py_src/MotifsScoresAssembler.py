@@ -51,7 +51,7 @@ for _, cluster_member in cluster_members.iterrows():
 slim_db_scored = slim_db_scored.reset_index()[list(slim_db.columns) + ['cluster.member']]
 slim_db_scored.set_index('gene').to_csv('../database/vdjdb.slim.scored.txt', sep='\t',)
 
-default_db = pd.read_csv('../database/vdjdb.txt', sep='\t', index_col=0)
+default_db = pd.read_csv('../database/vdjdb.txt', sep='\t',)
 
 default_db['cluster.member'] = 0
 
