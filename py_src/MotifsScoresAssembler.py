@@ -46,7 +46,7 @@ slim_db_scored = slim_db_scored.set_index(cluster_index_col)
 slim_db_scored['cluster.member'] = 0
 
 for _, cluster_member in cluster_members.iterrows():
-    slim_db_scored.loc[tuple(cluster_member[cluster_index_col]), 'cluster_member'] = 1
+    slim_db_scored.loc[tuple(cluster_member[cluster_index_col]), 'cluster.member'] = 1
 
 slim_db_scored = slim_db_scored.reset_index()[list(slim_db.columns) + ['cluster.member']]
 slim_db_scored.set_index('gene').to_csv('../database/vdjdb.slim.scored.txt', sep='\t',)
