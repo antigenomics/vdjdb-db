@@ -16,8 +16,8 @@ method	txt	1	0	0	method.json	Method	Details on method used to assay TCR specific
 meta	txt	1	0	0	meta.json	Meta	Various meta-information: cell subset, donor status, etc.
 cdr3fix	txt	1	0	0	fixer.json	CDR3fix	Details on CDR3 sequence fixing (if applied) and consistency between V, J and reported CDR3 sequence.
 vdjdb.score	txt	1	1	0	uint	Score	VDJdb confidence score, which indicates the rarity of a given CDR3. Extremely rare CDR3 sequences are marked with score 0, indicating their low likelihood of occurrence. Such CDR3 sequences could occur from method errors.
-vdjdb.legacy.score  1   0   0   unit Score.legacy   VDJdb legacy score
-cluster.member  1    0   0   unit    Motif   CDR3 is a part of motif assigned to the antigen
+vdjdb.legacy.score	txt 1	0	0	unit	Score.legacy	VDJdb legacy score
+cluster.member	txt	1	0	0	unit	Motif	CDR3 is a part of motif assigned to the antigen
 web.method	txt	0	0	1	0	factor	Internal
 web.method.seq	txt	0	0	1	0	factor	Internal
 web.cdr3fix.nc	txt	0	0	1	0	factor	Internal

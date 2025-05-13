@@ -15,5 +15,5 @@ mhc.b	txt
 mhc.class	txt
 reference.id	txt
 vdjdb.score	txt
-vdjdb.legacy.score  txt
-cluster.member txt
+vdjdb.legacy.score	txt
+cluster.member	txt
