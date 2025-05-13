@@ -60,4 +60,5 @@ default_db = default_db.set_index(cluster_index_col)
 for _, cluster_member in cluster_members.iterrows():
     default_db.loc[tuple(cluster_member[cluster_index_col]), 'cluster.member'] = 1
 
+default_db.reset_index(inplace=True)
 default_db.set_index('complex.id').to_csv('../database/vdjdb.scored.txt', sep='\t',)
