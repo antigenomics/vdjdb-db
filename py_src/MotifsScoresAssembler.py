@@ -1,4 +1,5 @@
 import pandas as pd
+import csv
 
 vdjdb_full = pd.read_csv('../database/vdjdb_full.txt', sep='\t',)
 cluster_members = pd.read_csv('../database/cluster_members.txt', sep='\t')
@@ -31,7 +32,8 @@ for _, cluster_member in cluster_members_trb.iterrows():
     vdjdb_full_clusters.loc[tuple(cluster_member[cluster_index_col[:-1] + ['cdr3aa']]), "cluster.member"] = 1
 
 vdjdb_full_clusters = vdjdb_full_clusters.reset_index()[list(vdjdb_full.columns) + ['cluster.member']]
-vdjdb_full_clusters.set_index('cdr3.alpha').to_csv('../database/vdjdb_full_scored.txt', sep='\t')
+vdjdb_full_clusters.set_index('cdr3.alpha').to_csv('../database/vdjdb_full_scored.txt', sep='\t',
+                                                   quoting=csv.QUOTE_NONE)
 
 slim_db = pd.read_csv('../database/vdjdb.slim.txt', sep='\t',)
 
@@ -49,7 +51,7 @@ for _, cluster_member in cluster_members.iterrows():
     slim_db_scored.loc[tuple(cluster_member[cluster_index_col]), 'cluster.member'] = 1
 
 slim_db_scored = slim_db_scored.reset_index()[list(slim_db.columns) + ['cluster.member']]
-slim_db_scored.set_index('gene').to_csv('../database/vdjdb.slim.scored.txt', sep='\t',)
+slim_db_scored.set_index('gene').to_csv('../database/vdjdb.slim.scored.txt', sep='\t', quoting=csv.QUOTE_NONE)
 
 default_db = pd.read_csv('../database/vdjdb.txt', sep='\t',)
 col_order = list(default_db.columns)
@@ -61,4 +63,5 @@ for _, cluster_member in cluster_members.iterrows():
     default_db.loc[tuple(cluster_member[cluster_index_col]), 'cluster.member'] = 1
 
 default_db.reset_index(inplace=True)
-default_db[col_order + ['cluster.member']].set_index('complex.id').to_csv('../database/vdjdb.scored.txt', sep='\t',)
+default_db[col_order + ['cluster.member']].set_index('complex.id').to_csv('../database/vdjdb.scored.txt',
+                                                                          sep='\t', quoting=csv.QUOTE_NONE)
