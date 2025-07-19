@@ -119,7 +119,7 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
 
     for _, clone in master_table.iterrows():
 
-        if not (clone["cdr3.alpha"] == "") or (clone["cdr3.beta"] == ""):
+        if not ((clone["cdr3.alpha"] == "") or (clone["cdr3.beta"] == "")):
             complex_id_count += 1
             complex_id = complex_id_count
         else:
