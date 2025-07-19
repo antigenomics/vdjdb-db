@@ -85,7 +85,7 @@ if __name__ == "__main__":
     score_factory = VdjdbScoreFactory(master_table)
     master_table['vdjdb.legacy.score'] = master_table.T.apply(lambda x: score_factory.get_score(x))
 
-    master_table.set_index("cdr3.alpha").to_csv("../database/vdjdb_full_unfiltered.txt", sep="\t", quotechar='"')
+    master_table.set_index("cdr3.alpha").to_csv("../database/vdjdb_full.txt", sep="\t", quotechar='"')
 
     mask_gene_list = []
     mask_alleles_list = []
@@ -109,12 +109,12 @@ if __name__ == "__main__":
         mask_biological_cdr3_list.append(master_table[f'cdr3.{gene}'].apply(is_qq_seq_biologically_valid))
     final_mask_biological_cdr3 = mask_biological_cdr3_list[0] & mask_biological_cdr3_list[1]
 
-    master_table.loc[final_mask & final_mask_alleles & final_mask_biological_cdr3].set_index('cdr3.alpha').to_csv('../database/vdjdb_full.txt', sep='\t')
+    master_table.loc[final_mask & final_mask_alleles & final_mask_biological_cdr3].set_index('cdr3.alpha').to_csv('../database/vdjdb_full_filtered.txt', sep='\t')
     master_table.loc[~final_mask].set_index('cdr3.alpha').to_csv('../database/vdjdb_full_gene_broken.txt', sep='\t')
     master_table.loc[~final_mask_alleles].set_index('cdr3.alpha').to_csv('../database/vdjdb_full_allele_broken.txt', sep='\t')
     master_table.loc[~final_mask_biological_cdr3].set_index('cdr3.alpha').to_csv('../database/vdjdb_full_cdr3aa_broken.txt', sep='\t')
 
-    master_table = master_table.loc[final_mask & final_mask_alleles & final_mask_biological_cdr3]
+    #master_table = master_table.loc[final_mask & final_mask_alleles & final_mask_biological_cdr3]
     cprint("Generating and writing default database", 'magenta')
     default_db = generate_default_db(master_table)
 
