@@ -83,7 +83,7 @@ if __name__ == "__main__":
         master_table[f"cdr3fix.{gene}"] = fixer_results.apply(lambda x: x.results_to_dict() if x else None)
 
     score_factory = VdjdbScoreFactory(master_table)
-    master_table['vdjdb.legacy.score'] = master_table.T.apply(lambda x: score_factory.get_score(x))
+    master_table['vdjdb.score'] = master_table.T.apply(lambda x: score_factory.get_score(x))
 
     master_table.set_index("cdr3.alpha").to_csv("../database/vdjdb_full.txt", sep="\t", quotechar='"')
 

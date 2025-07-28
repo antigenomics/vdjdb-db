@@ -86,7 +86,7 @@ COMPLEX_ANNOT_COLS = [
     "antigen.gene",
     "antigen.species",
     "reference.id",
-    "vdjdb.legacy.score"
+    "vdjdb.score"
 ]
 
 SIGNATURE_COLS_PER_SAMPLE = [
@@ -111,6 +111,14 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
     :return: default vdj db table
     """
     master_table.fillna("", inplace=True)
+
+    master_table_gene_not_empty_mask = master_table.T.apply(
+        lambda x: (bool(x['v.alpha']) and bool(x['j.alpha']) if bool(x['cdr3.alpha']) else True) and (
+            bool(x['v.alpha']) and bool(x['j.alpha']) if bool(x['cdr3.alpha']) else True
+        ))
+
+    master_table = master_table.loc[master_table_gene_not_empty_mask]
+
     complex_id_count = 0
 
     sample_counts = master_table.value_counts(subset=SIGNATURE_COLS_PER_SAMPLE)
@@ -177,10 +185,10 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
                                 VERY_HIGH_CONFIDENCE_CUTOFF_A, 0], labels=[0, 1, 2, 3], )
     vdj_db_score = pd.concat([homosapiens_beta_score, homosapiens_alpha_score,
                               musmusculus_beta_score, musmusculus_alpha_score])
-    vdj_db_score.name = 'vdjdb.score'
-    default_db['vdjdb.score'] = vdj_db_score
-    default_db['vdjdb.score'] = default_db['vdjdb.score'].fillna(0)
-    default_db['vdjdb.score'] = default_db['vdjdb.score'].apply(int)
+    vdj_db_score.name = 'vdjdb.pgen.score'
+    default_db['vdjdb.pgen.score'] = vdj_db_score
+    default_db['vdjdb.pgen.score'] = default_db['vdjdb.pgen.score'].fillna(0)
+    default_db['vdjdb.pgen.score'] = default_db['vdjdb.pgen.score'].apply(int)
     default_db = default_db.drop('log_10_pgen', axis=1) # delete after front fix
     default_db_to_write = default_db.copy()
 
