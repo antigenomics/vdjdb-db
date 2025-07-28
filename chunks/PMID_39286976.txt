@@ -7,26 +7,26 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 6	CAEPSGNTGKLIF	TRAV5*01	TRAJ37*01	CASSLHHEQYF	TRBV7-9*03		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	EYLPLFPLL	Putative protein	FusariumOxysporum	PMID:39286976	tetramer-stain		yes	rna-seq										PBMC				
 7	CAEPSGNTGKLIF	TRAV5*01	TRAJ37*01	CASSLHHEQYF	TRBV7-9*03		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	SLMRLFPLL	Putative protein	FusariumOxysporum	PMID:39286976	tetramer-stain		yes	rna-seq										PBMC				
 8	CAEPSGNTGKLIF	TRAV5*01	TRAJ37*01	CASSLHHEQYF	TRBV7-9*03		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	LLPRLFGLF	Cytoplasmic protein	CryptococcusNeoforman	PMID:39286976	tetramer-stain		yes	rna-seq										PBMC				
-9	CAEPSGNTGKLIF	TRAV5*01	TRAJ37*01	CASSLHHEQYF	TRBV7-9*03		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-stain		yes	rna-seq										PBMC				
-10	CAEPSGNTGKLIF	TRAV5*01	TRAJ37*01	CASSLHHEQYF	TRBV7-9*03		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYPRLFGIV	KlebsiellaOxytoca	fes	PMID:39286976	tetramer-stain		yes	rna-seq										PBMC				
-11	CAVRGGDDKIIF	TRAV1-1	TRAJ30					HomoSapiens	HLA-A*24:03	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-12				CSARDDRGLLRGYNEQFF	TRBV20-1		TRBJ2-1	HomoSapiens	HLA-A*24:04	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-13	CGADIGDYKLSF	TRAV34	TRAJ20					HomoSapiens	HLA-A*24:05	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-14				CAISESVVHTDTQYF	TRBV10-3		TRBJ2-3	HomoSapiens	HLA-A*24:06	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-15	CAYSHSGNTPLVF	TRAV38-2	TRAJ29					HomoSapiens	HLA-A*24:07	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-16	CAVSPAAGNKLTF	TRAV5	TRAJ17					HomoSapiens	HLA-A*24:08	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-17	CIVRVRGGSSNTGKLIF	TRAV26-1	TRAJ37*02					HomoSapiens	HLA-A*24:09	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-18	CAVNSGGFGNVLHC	TRAV12-2	TRAJ35					HomoSapiens	HLA-A*24:10	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-19				CASSPGQGYQETQYF	TRBV9		TRBJ2-5	HomoSapiens	HLA-A*24:11	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-20				CASSVVGTSGPYLTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-A*24:12	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-21				CASSYIGGDEQYF	TRBV5-4		TRBJ2-7	HomoSapiens	HLA-A*24:13	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-22				CASSPGTYLWETQYF	TRBV6-1		TRBJ2-5	HomoSapiens	HLA-A*24:14	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-23	CAVGPPYGGSQGNLIF	TRAV20	TRAJ42					HomoSapiens	HLA-A*24:15	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-24				CASSSSPLASAMEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*24:16	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-25				CASSYTGWGSKETQYF	TRBV6-5		TRBJ2-5	HomoSapiens	HLA-A*24:17	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-26				CASSQDGETQYF	TRBV4-1		TRBJ2-5	HomoSapiens	HLA-A*24:18	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-27				CASSLVRSNYGYTF	TRBV5-6		TRBJ1-2	HomoSapiens	HLA-A*24:19	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
-28				CSARDTTGTSGAETQYF	TRBV20-1		TRBJ2-5	HomoSapiens	HLA-A*24:20	B2M	MHCI	SLPRLFPLL	KlebsiellaOxytoca	gsiA	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+9	CAEPSGNTGKLIF	TRAV5*01	TRAJ37*01	CASSLHHEQYF	TRBV7-9*03		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-stain		yes	rna-seq										PBMC				
+10	CAEPSGNTGKLIF	TRAV5*01	TRAJ37*01	CASSLHHEQYF	TRBV7-9*03		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYPRLFGIV	fes	KlebsiellaOxytoca	PMID:39286976	tetramer-stain		yes	rna-seq										PBMC				
+11	CAVRGGDDKIIF	TRAV1-1	TRAJ30					HomoSapiens	HLA-A*24:03	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+12				CSARDDRGLLRGYNEQFF	TRBV20-1		TRBJ2-1	HomoSapiens	HLA-A*24:04	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+13	CGADIGDYKLSF	TRAV34	TRAJ20					HomoSapiens	HLA-A*24:05	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+14				CAISESVVHTDTQYF	TRBV10-3		TRBJ2-3	HomoSapiens	HLA-A*24:06	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+15	CAYSHSGNTPLVF	TRAV38-2	TRAJ29					HomoSapiens	HLA-A*24:07	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+16	CAVSPAAGNKLTF	TRAV5	TRAJ17					HomoSapiens	HLA-A*24:08	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+17	CIVRVRGGSSNTGKLIF	TRAV26-1	TRAJ37*02					HomoSapiens	HLA-A*24:09	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+18	CAVNSGGFGNVLHC	TRAV12-2	TRAJ35					HomoSapiens	HLA-A*24:10	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+19				CASSPGQGYQETQYF	TRBV9		TRBJ2-5	HomoSapiens	HLA-A*24:11	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+20				CASSVVGTSGPYLTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-A*24:12	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+21				CASSYIGGDEQYF	TRBV5-4		TRBJ2-7	HomoSapiens	HLA-A*24:13	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+22				CASSPGTYLWETQYF	TRBV6-1		TRBJ2-5	HomoSapiens	HLA-A*24:14	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+23	CAVGPPYGGSQGNLIF	TRAV20	TRAJ42					HomoSapiens	HLA-A*24:15	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+24				CASSSSPLASAMEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*24:16	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+25				CASSYTGWGSKETQYF	TRBV6-5		TRBJ2-5	HomoSapiens	HLA-A*24:17	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+26				CASSQDGETQYF	TRBV4-1		TRBJ2-5	HomoSapiens	HLA-A*24:18	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+27				CASSLVRSNYGYTF	TRBV5-6		TRBJ1-2	HomoSapiens	HLA-A*24:19	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
+28				CSARDTTGTSGAETQYF	TRBV20-1		TRBJ2-5	HomoSapiens	HLA-A*24:20	B2M	MHCI	SLPRLFPLL	gsiA	KlebsiellaOxytoca	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
 29	CAVRGGDDKIIF	TRAV1-1	TRAJ30					HomoSapiens	HLA-A*24:03	B2M	MHCI	LWMRLLPLL	INS	HomoSapiens	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
 30				CSARDDRGLLRGYNEQFF	TRBV20-1		TRBJ2-1	HomoSapiens	HLA-A*24:04	B2M	MHCI	LWMRLLPLL	INS	HomoSapiens	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
 31	CGADIGDYKLSF	TRAV34	TRAJ20					HomoSapiens	HLA-A*24:05	B2M	MHCI	LWMRLLPLL	INS	HomoSapiens	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC				
