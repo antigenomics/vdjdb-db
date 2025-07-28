@@ -1,0 +1,13 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	comment
+1	CAVTTGDYKLSF	TRAV8-4*03	TRAJ20*01	CASSYEGAGNQPQHF	TRBV6-6*02	TRBD1*01	TRBJ1-5*01	HomoSapiens	HLA-A*01:01	B2M	MHCI	ATDALMTGF	NS3	HCV	PMID:38855806	dextramer-sort		yes	rna-seq						CL-MCRL								
+2	CAVRPTGGFKTIF	TRAV21*01	TRAJ9*01	CASSLVGQLDEQYF	TRBV7-2*01	TRBD2*01	TRBJ2-5*01	HomoSapiens	HLA-A*01:01	B2M	MHCI	ATDALMTGF	NS3	HCV	PMID:38855806	dextramer-sort		yes	rna-seq						CL-MCRL								
+3	CAYFSLYGGSQGNLIF	TRAV38-2/DV8*01	TRAJ42*01					HomoSapiens	HLA-A*01:01	B2M	MHCI	ATDALMTGF	NS3	HCV	PMID:38855806	dextramer-sort		yes	rna-seq						CL-MCRL								
+4	CASGSGGNSKLIF	TRAV3*01	TRAJ4*01					HomoSapiens	HLA-A*01:01	B2M	MHCI	ATDALMTGF	NS3	HCV	PMID:38855806	dextramer-sort		yes	rna-seq						CL-MCRL								
+5	CAVSMGYQKVTF	TRAV8-3*01	TRAJ13*01	CASSRDPSYNEQFF	TRBV2*01	TRBD1*01	TRBJ2-1*01	HomoSapiens	HLA-A*01:01	B2M	MHCI	ATDALMTGF	NS3	HCV	PMID:38855806	dextramer-sort		yes	rna-seq						CL-MCRL								
+6	CAVSLGAYKLIF	TRAV8-4*07	TRAJ20*01					HomoSapiens	HLA-A*01:01	B2M	MHCI	ATDALMTGF	NS3	HCV	PMID:38855806	dextramer-sort		yes	rna-seq						CL-MCRL								
+7	CAVRAYGQNFVF	TRAV3*01	TRAJ26*01	CASSQAPPGQGVDIQYF	TRBV4-3*01	TRBD1*01	TRBJ2-4*01	HomoSapiens	HLA-B*07:02	B2M	MHCI	GPRLGVRAT	CORE	HCV	PMID:38855806	dextramer-sort		yes	rna-seq						CL-MCRL								
+8	CAVLSSGGSYIPTF	TRAV1-2*01	TRAJ6*01					HomoSapiens	HLA-B*07:02	B2M	MHCI	GPRLGVRAT	CORE	HCV	PMID:38855806	dextramer-sort		yes	rna-seq						CL-3089								
+9	CAVRGPMNTGFQKLVF	TRAV3*01	TRAJ8*01	CASSTQENTEAFL	TRBV27*01		TRBJ1-1*01	HomoSapiens	HLA-B*07:02	B2M	MHCI	GPRLGVRAT	CORE	HCV	PMID:38855806	dextramer-sort		yes	rna-seq						CL-3089								
+10	CAARRETGGSYILTF	TRAV8-4*07	TRAJ6*01	CASSVARDRASTDTQYF	TRBV9*01		TRBJ2-3*01	HomoSapiens	HLA-B*07:02	B2M	MHCI	GPRLGVRAT	CORE	HCV	PMID:38855806	dextramer-sort		yes	rna-seq						CL-3089								
+11	CAVLSSGGSYIPTF	TRAV1-2*01	TRAJ6*01	CASSKFRDSSYEQYF	TRBV28*01	TRBD1*01	TRBJ2-7*01	HomoSapiens	HLA-B*07:02	B2M	MHCI	GPRLGVRAT	CORE	HCV	PMID:38855806	dextramer-sort		yes	rna-seq						CL-3089								
+12	CAVRATGQNFVF			CASSQAPPGQGVDIQYF				HomoSapiens	HLA-B*07:02	B2M	MHCI	GPRLGVRAT	CORE	HCV	PMID:38855806	dextramer-sort	171/174	yes	rna-seq						CL-MCRL								
