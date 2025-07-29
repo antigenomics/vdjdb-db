@@ -114,7 +114,7 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
 
     master_table_gene_not_empty_mask = master_table.T.apply(
         lambda x: (bool(x['v.alpha']) and bool(x['j.alpha']) if bool(x['cdr3.alpha']) else True) and (
-            bool(x['v.alpha']) and bool(x['j.alpha']) if bool(x['cdr3.alpha']) else True
+            bool(x['v.beta']) and bool(x['j.beta']) if bool(x['cdr3.beta']) else True
         ))
 
     master_table = master_table.loc[master_table_gene_not_empty_mask]
