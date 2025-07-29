@@ -180,6 +180,8 @@ p1=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = tcr_count, color = cha
   annotate("text", x = 2017, y = 21500, label = "AIRR-seq for tet+", hjust = 1, vjust = 1) +
   annotate("segment", x = 2019, xend = 2019, y = 0, yend = 27000, linetype="solid", color = "grey25", size = 0.3) +
   annotate("text", x = 2019, y = 31000, label = "10X & dCODE", hjust = 1, vjust = 1) +
+  annotate("segment", x = 2025, xend = 2025, y = 0, yend = 67000, linetype="solid", color = "grey25", size = 0.3) + 
+  annotate("text", x = 2025, y = 71000, label = "phage\ndisplays", hjust = 1, vjust = 1) + 
   geom_line() +
   geom_point() +
   ylab("") +
