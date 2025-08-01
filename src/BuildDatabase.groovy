@@ -147,7 +147,7 @@ def readChunk = { File chunkFile ->
 
 def isAASeqValid = { String str ->
     (str == "" || str.length() >= 3) && // if CDR3 is specified, it should be at least 3AA long
-            str =~ /^[ARNDCQEGHILKMFPSTWYV]+$/
+            str =~ /^[ARNDCQEGHILKMFPSTWYVX]+$/
 }
 
 def isMhcValid = { String str ->
