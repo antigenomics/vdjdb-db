@@ -34,7 +34,13 @@ if __name__ == "__main__":
     cprint(f"Total number of chunks: {len(chunk_files)}", "magenta")
     chunk_df_list = []
     for chunk_file in chunk_files:
-        chunk_df = pd.read_csv(f"../chunks/{chunk_file}", sep="\t", encoding_errors="ignore")
+        chunk_df = pd.read_csv(
+            f"../chunks/{chunk_file}",
+            sep="\t",
+            encoding_errors="ignore",
+            keep_default_na=False,
+            na_values=['']
+                               )
         chunk_df = chunk_df.drop_duplicates(subset=SIGNATURE_COLS)
         chunk_qc = ChunkQC(chunk_df)
         chunk_error_messages = chunk_qc.process_chunk()
