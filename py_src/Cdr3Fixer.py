@@ -144,7 +144,7 @@ class Cdr3Fixer:
                                               hit.match_size
                                               )
                 else:
-                    return OneSideFixerResult(segment_seq,
+                    return OneSideFixerResult(cdr3,
                                               closest_id,
                                               FailedReplace,
                                               )
