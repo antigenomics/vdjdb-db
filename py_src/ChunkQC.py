@@ -165,15 +165,15 @@ class ChunkQC:
         empty_cdr3_rows = self.chunk_df[self.chunk_df.T.apply(lambda x: pd.isnull(x["cdr3.alpha"])
                                                                         and pd.isnull(x["cdr3.beta"]))]
         for empty_row_ind in empty_cdr3_rows.index:
-            chunk_error_messages[tuple(empty_row_ind)].append('no.cdr3')
+            chunk_error_messages[empty_row_ind].append('no.cdr3')
 
         empty_epitope_rows = self.chunk_df[self.chunk_df["antigen.epitope"].apply(pd.isnull)]
         for empty_row_ind in empty_epitope_rows.index:
-            chunk_error_messages[tuple(empty_row_ind)].append('no.antigen.seq')
+            chunk_error_messages[empty_row_ind].append('no.antigen.seq')
 
         empty_mhc_rows = self.chunk_df[self.chunk_df.T.apply(lambda x: pd.isnull(x["mhc.a"]) or pd.isnull(x["mhc.b"]))]
         for empty_row_index in empty_mhc_rows.index:
-            chunk_error_messages[tuple(empty_row_index)].append('no.mhc')
+            chunk_error_messages[empty_row_index].append('no.mhc')
 
         return chunk_error_messages
 
