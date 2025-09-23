@@ -5,6 +5,8 @@ from ChunkQC import SIGNATURE_COLS, METHOD_COLUMNS, META_COLUMNS
 import sys
 from multiprocessing import Pool
 import numpy as np
+import warnings
+warnings.filterwarnings('ignore')  # Place this at the top of your script
 
 sys.path.append('../../')
 sys.path.append('../../mirpy')
