@@ -17,7 +17,7 @@ with open("vdjdb_summary_embed.html", "w") as pw:
 
                 line = line.replace("<table>",
                                     "<table class=\"ui unstackable single line celled stripped compact small table\">")
-                line = line.replace('width="100%"', 'width="100%"')  # This line might be redundant
+                line = line.replace('width="1152"', 'width="672"')
 
                 pw.write(line)
 
