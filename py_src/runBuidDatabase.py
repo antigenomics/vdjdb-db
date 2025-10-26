@@ -3,13 +3,33 @@ import argparse
 import pandas as pd
 import warnings
 from termcolor import cprint
-
+import hashlib
 
 from ChunkQC import ChunkQC, ALL_COLS, SIGNATURE_COLS,gene_match_check, alleles_match_check, is_qq_seq_biologically_valid
 from Cdr3Fixer import Cdr3Fixer
 from DefaultDBGenerator import generate_default_db
 from SlimDBGenerator import generate_slim_db
 from ScoreFactory import VdjdbScoreFactory
+
+def hash_string(input_string: str) -> str:
+    """
+    Computes a SHA-256 hash of the input string and returns it as a hexadecimal string.
+
+    This provides a consistent, deterministic hash across different Python runs.
+    Note: Python's built-in hash() function is not consistent due to hash randomization.
+
+    Args:
+        input_string (str): The string to hash.
+
+    Returns:
+        str: The hexadecimal representation of the hash.
+    """
+    encoded = input_string.encode('utf-8')
+
+    sha256_hash = hashlib.sha256()
+
+    sha256_hash.update(encoded)
+    return sha256_hash.hexdigest()
 
 # reading and aggregating antigen nomenclature patches
 antigen_df = pd.read_csv("../patches/antigen_epitope_species_gene.dict", sep="\t", index_col=0)
@@ -91,6 +111,15 @@ if __name__ == "__main__":
     score_factory = VdjdbScoreFactory(master_table)
     master_table['vdjdb.score'] = master_table.T.apply(lambda x: score_factory.get_score(x))
 
+    master_table['index_seq'] = master_table['cdr3.alpha'] + master_table['v.alpha'] + master_table[
+        'j.alpha'] + master_table['cdr3.beta'] + master_table['v.beta'] + master_table['j.beta'] + \
+                                    master_table['mhc.a'] + master_table['mhc.b'] + master_table['antigen.epitope']
+
+    master_table['TCR_hash'] = None
+    master_table.loc[master_table.index_seq.apply(pd.notnull), 'TCR_hash'] = master_table.loc[
+                                                         master_table.index_seq.apply(pd.notnull), 'index_seq'].apply(hash_string)
+
+    master_table.drop('index_seq', axis = 1, inplace = True)
     master_table.set_index("cdr3.alpha").to_csv("../database/vdjdb_full.txt", sep="\t", quotechar='"')
 
     mask_gene_list = []

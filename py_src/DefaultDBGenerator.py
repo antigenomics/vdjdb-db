@@ -88,7 +88,8 @@ COMPLEX_ANNOT_COLS = [
     "antigen.gene",
     "antigen.species",
     "reference.id",
-    "vdjdb.score"
+    "vdjdb.score",
+    'TCR_hash'
 ]
 
 SIGNATURE_COLS_PER_SAMPLE = [
