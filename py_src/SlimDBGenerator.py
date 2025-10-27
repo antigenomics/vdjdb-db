@@ -12,7 +12,7 @@ COMPLEX_SLIM_ANNOT_COLS = [
 SUMMARY_COLS = ["complex.id",
                 "v.segm", "j.segm",
                 "mhc.a", "mhc.b", "mhc.class",
-                "reference.id", "vdjdb.score", "vdjdb.pgen.score"]
+                "reference.id", "vdjdb.score", "vdjdb.pgen.score", "TCR_hash"]
 
 
 def _aggregating_function(x):
