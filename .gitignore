@@ -89,3 +89,4 @@ output
 summary/*.pdf
 summary/*.html
 summary/*.txt
+/processing/raw_data/
