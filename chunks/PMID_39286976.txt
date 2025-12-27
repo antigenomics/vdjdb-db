@@ -2,7 +2,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1	CAEPSGNTGKLIF	TRAV5*01	TRAJ37*01	CASSLHHEQYF	TRBV7-9*03		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	LWMRLLPLL	INS	HomoSapiens	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC			7NMG	
 2	CAEPSGNTGKLIF	TRAV5*01	TRAJ37*01	CASSLHHEQYF	TRBV7-9*03		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	QLPRLFPLL	synthetic	synthetic	PMID:39286976	tetramer-sort		yes	rna-seq										PBMC			7NME	
 3	CAEPSGNTGKLIF	TRAV5*01	TRAJ37*01	CASSLHHEQYF	TRBV7-9*03		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	QLPPLFPIV	Ubiquitin-like activating enzyme	AspergillusOryzae	PMID:39286976	tetramer-stain		yes	rna-seq										PBMC				
-4	CAEPSGNTGKLIF	TRAV5*01	TRAJ37*01	CASSLHHEQYF	TRBV7-9*03		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYPPLVPIM	Unnamed protein product	AspergillusOryzae 	PMID:39286976	tetramer-stain		yes	rna-seq										PBMC				
+4	CAEPSGNTGKLIF	TRAV5*01	TRAJ37*01	CASSLHHEQYF	TRBV7-9*03		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYPPLVPIM	Unnamed protein product	AspergillusOryzae	PMID:39286976	tetramer-stain		yes	rna-seq										PBMC				
 5	CAEPSGNTGKLIF	TRAV5*01	TRAJ37*01	CASSLHHEQYF	TRBV7-9*03		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	ALPPLFPIA	Putative protein	AspergillusOryzae	PMID:39286976	tetramer-stain		yes	rna-seq										PBMC				
 6	CAEPSGNTGKLIF	TRAV5*01	TRAJ37*01	CASSLHHEQYF	TRBV7-9*03		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	EYLPLFPLL	Putative protein	FusariumOxysporum	PMID:39286976	tetramer-stain		yes	rna-seq										PBMC				
 7	CAEPSGNTGKLIF	TRAV5*01	TRAJ37*01	CASSLHHEQYF	TRBV7-9*03		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	SLMRLFPLL	Putative protein	FusariumOxysporum	PMID:39286976	tetramer-stain		yes	rna-seq										PBMC				
