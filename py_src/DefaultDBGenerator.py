@@ -11,14 +11,14 @@ warnings.filterwarnings('ignore')  # Place this at the top of your script
 sys.path.append('../../')
 sys.path.append('../../mirpy')
 
-from mirpy.mir.basic import pgen
+#from mirpy.mir.basic import pgen
 
-olga_pgen_human_trb = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/human_T_beta')
-olga_pgen_human_tra = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/human_T_alpha',
-                                     is_d_present=False)
-olga_pgen_mouse_trb = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/mouse_T_beta')
-olga_pgen_mouse_tra = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/mouse_T_alpha',
-                                     is_d_present=False)
+#olga_pgen_human_trb = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/human_T_beta')
+#olga_pgen_human_tra = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/human_T_alpha',
+#                                     is_d_present=False)
+#olga_pgen_mouse_trb = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/mouse_T_beta')
+#olga_pgen_mouse_tra = pgen.OlgaModel(model='../../mirpy/mir/resources/olga/default_models/mouse_T_alpha',
+#                                     is_d_present=False)
 
 
 models_dict = {
@@ -44,16 +44,16 @@ VERY_HIGH_CONFIDENCE_CUTOFF_MOUSE_A = -4.5
 HIGH_CONFIDENCE_CUTOFF_MOUSE_A = -8.3
 MEDIUM_CONFIDENCE_CUTOFF_MOUSE_A = -10
 
-def calc_pgen(multiargument):
-    cdr3aa = multiargument[0]
-    gene = multiargument[1]
-    specie = multiargument[2].lower()
-    if specie not in {'musmusculus', 'homosapiens'}:
-        return None
-    model = models_dict[f'{specie}_{gene}']
-    p_gen = model.compute_pgen_cdr3aa(cdr3aa)
-    log10_pgen = np.log10(p_gen)
-    return log10_pgen
+# def calc_pgen(multiargument):
+#     cdr3aa = multiargument[0]
+#     gene = multiargument[1]
+#     specie = multiargument[2].lower()
+#     if specie not in {'musmusculus', 'homosapiens'}:
+#         return None
+#     model = models_dict[f'{specie}_{gene}']
+#     p_gen = model.compute_pgen_cdr3aa(cdr3aa)
+#     log10_pgen = np.log10(p_gen)
+#     return log10_pgen
 
 
 def get_web_method(method_identification: str) -> str:
@@ -169,30 +169,30 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
                 clones_list.append(clone_compact)
     default_db = pd.DataFrame(clones_list)
 
-    with Pool(24) as p:
-        log_10_pgens = list(p.map(calc_pgen, [(x.cdr3, x.gene, x.species) for _, x in default_db.iterrows()]))
-
-    default_db['log_10_pgen'] = log_10_pgens
-
-    homosapiens_beta_score = pd.cut(default_db[(default_db.species == 'HomoSapiens') & (default_db.gene == 'TRB')].log_10_pgen,
-                              [-500, MEDIUM_CONFIDENCE_CUTOFF_B, HIGH_CONFIDENCE_CUTOFF_B,
-                               VERY_HIGH_CONFIDENCE_CUTOFF_B, 0], labels=[0, 1, 2, 3], )
-    homosapiens_alpha_score = pd.cut(default_db[(default_db.species == 'HomoSapiens') & (default_db.gene == 'TRA')].log_10_pgen,
-                               [-500, MEDIUM_CONFIDENCE_CUTOFF_A, HIGH_CONFIDENCE_CUTOFF_A,
-                                VERY_HIGH_CONFIDENCE_CUTOFF_A, 0], labels=[0, 1, 2, 3], )
-    musmusculus_beta_score = pd.cut(default_db[(default_db.species == 'MusMusculus') & (default_db.gene == 'TRB')].log_10_pgen,
-                              [-500, MEDIUM_CONFIDENCE_CUTOFF_MOUSE_B, HIGH_CONFIDENCE_CUTOFF_MOUSE_B,
-                               VERY_HIGH_CONFIDENCE_CUTOFF_MOUSE_B, 0], labels=[0, 1, 2, 3], )
-    musmusculus_alpha_score = pd.cut(default_db[(default_db.species == 'MusMusculus') & (default_db.gene == 'TRA')].log_10_pgen,
-                               [-500, MEDIUM_CONFIDENCE_CUTOFF_A, HIGH_CONFIDENCE_CUTOFF_A,
-                                VERY_HIGH_CONFIDENCE_CUTOFF_A, 0], labels=[0, 1, 2, 3], )
-    vdj_db_score = pd.concat([homosapiens_beta_score, homosapiens_alpha_score,
-                              musmusculus_beta_score, musmusculus_alpha_score])
-    vdj_db_score.name = 'vdjdb.pgen.score'
-    default_db['vdjdb.pgen.score'] = vdj_db_score
-    default_db['vdjdb.pgen.score'] = default_db['vdjdb.pgen.score'].fillna(0)
-    default_db['vdjdb.pgen.score'] = default_db['vdjdb.pgen.score'].apply(int)
-    default_db = default_db.drop('log_10_pgen', axis=1) # delete after front fix
+    # with Pool(24) as p:
+    #     log_10_pgens = list(p.map(calc_pgen, [(x.cdr3, x.gene, x.species) for _, x in default_db.iterrows()]))
+    #
+    # default_db['log_10_pgen'] = log_10_pgens
+    #
+    # homosapiens_beta_score = pd.cut(default_db[(default_db.species == 'HomoSapiens') & (default_db.gene == 'TRB')].log_10_pgen,
+    #                           [-500, MEDIUM_CONFIDENCE_CUTOFF_B, HIGH_CONFIDENCE_CUTOFF_B,
+    #                            VERY_HIGH_CONFIDENCE_CUTOFF_B, 0], labels=[0, 1, 2, 3], )
+    # homosapiens_alpha_score = pd.cut(default_db[(default_db.species == 'HomoSapiens') & (default_db.gene == 'TRA')].log_10_pgen,
+    #                            [-500, MEDIUM_CONFIDENCE_CUTOFF_A, HIGH_CONFIDENCE_CUTOFF_A,
+    #                             VERY_HIGH_CONFIDENCE_CUTOFF_A, 0], labels=[0, 1, 2, 3], )
+    # musmusculus_beta_score = pd.cut(default_db[(default_db.species == 'MusMusculus') & (default_db.gene == 'TRB')].log_10_pgen,
+    #                           [-500, MEDIUM_CONFIDENCE_CUTOFF_MOUSE_B, HIGH_CONFIDENCE_CUTOFF_MOUSE_B,
+    #                            VERY_HIGH_CONFIDENCE_CUTOFF_MOUSE_B, 0], labels=[0, 1, 2, 3], )
+    # musmusculus_alpha_score = pd.cut(default_db[(default_db.species == 'MusMusculus') & (default_db.gene == 'TRA')].log_10_pgen,
+    #                            [-500, MEDIUM_CONFIDENCE_CUTOFF_A, HIGH_CONFIDENCE_CUTOFF_A,
+    #                             VERY_HIGH_CONFIDENCE_CUTOFF_A, 0], labels=[0, 1, 2, 3], )
+    # vdj_db_score = pd.concat([homosapiens_beta_score, homosapiens_alpha_score,
+    #                           musmusculus_beta_score, musmusculus_alpha_score])
+    # vdj_db_score.name = 'vdjdb.pgen.score'
+    # default_db['vdjdb.pgen.score'] = vdj_db_score
+    # default_db['vdjdb.pgen.score'] = default_db['vdjdb.pgen.score'].fillna(0)
+    # default_db['vdjdb.pgen.score'] = default_db['vdjdb.pgen.score'].apply(int)
+    # default_db = default_db.drop('log_10_pgen', axis=1) # delete after front fix
     default_db_to_write = default_db.copy()
 
     for complex_col in ["method", "meta", "cdr3fix"]:
