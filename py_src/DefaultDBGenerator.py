@@ -21,12 +21,12 @@ sys.path.append('../../mirpy')
 #                                     is_d_present=False)
 
 
-models_dict = {
-    'homosapiens_TRB': olga_pgen_human_trb,
-    'homosapiens_TRA': olga_pgen_human_tra,
-    'musmusculus_TRB': olga_pgen_mouse_trb,
-    'musmusculus_TRA': olga_pgen_mouse_tra
-}
+# models_dict = {
+#     'homosapiens_TRB': olga_pgen_human_trb,
+#     'homosapiens_TRA': olga_pgen_human_tra,
+#     'musmusculus_TRB': olga_pgen_mouse_trb,
+#     'musmusculus_TRA': olga_pgen_mouse_tra
+# }
 
 VERY_HIGH_CONFIDENCE_CUTOFF_B = -7.3
 HIGH_CONFIDENCE_CUTOFF_B = -12.1
