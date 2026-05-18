@@ -61,7 +61,7 @@ else
   echo "Overwriting"
 fi
 
-cp ../LICENSE.txt vdjdb-$DD/
+cp ../LICENSE vdjdb-$DD/
 cp ../latest-version.txt vdjdb-$DD/
 
 # ZIP together
