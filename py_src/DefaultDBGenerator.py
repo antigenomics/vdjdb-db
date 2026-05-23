@@ -28,21 +28,21 @@ sys.path.append('../../mirpy')
 #     'musmusculus_TRA': olga_pgen_mouse_tra
 # }
 
-VERY_HIGH_CONFIDENCE_CUTOFF_B = -7.3
-HIGH_CONFIDENCE_CUTOFF_B = -12.1
-MEDIUM_CONFIDENCE_CUTOFF_B = -15.6
-
-VERY_HIGH_CONFIDENCE_CUTOFF_A = -5.7
-HIGH_CONFIDENCE_CUTOFF_A = -10.1
-MEDIUM_CONFIDENCE_CUTOFF_A = -15.1
-
-VERY_HIGH_CONFIDENCE_CUTOFF_MOUSE_B = -5.4
-HIGH_CONFIDENCE_CUTOFF_MOUSE_B = -6.6
-MEDIUM_CONFIDENCE_CUTOFF_MOUSE_B = -8.2
-
-VERY_HIGH_CONFIDENCE_CUTOFF_MOUSE_A = -4.5
-HIGH_CONFIDENCE_CUTOFF_MOUSE_A = -8.3
-MEDIUM_CONFIDENCE_CUTOFF_MOUSE_A = -10
+# VERY_HIGH_CONFIDENCE_CUTOFF_B = -7.3
+# HIGH_CONFIDENCE_CUTOFF_B = -12.1
+# MEDIUM_CONFIDENCE_CUTOFF_B = -15.6
+#
+# VERY_HIGH_CONFIDENCE_CUTOFF_A = -5.7
+# HIGH_CONFIDENCE_CUTOFF_A = -10.1
+# MEDIUM_CONFIDENCE_CUTOFF_A = -15.1
+#
+# VERY_HIGH_CONFIDENCE_CUTOFF_MOUSE_B = -5.4
+# HIGH_CONFIDENCE_CUTOFF_MOUSE_B = -6.6
+# MEDIUM_CONFIDENCE_CUTOFF_MOUSE_B = -8.2
+#
+# VERY_HIGH_CONFIDENCE_CUTOFF_MOUSE_A = -4.5
+# HIGH_CONFIDENCE_CUTOFF_MOUSE_A = -8.3
+# MEDIUM_CONFIDENCE_CUTOFF_MOUSE_A = -10
 
 # def calc_pgen(multiargument):
 #     cdr3aa = multiargument[0]
@@ -98,6 +98,7 @@ SIGNATURE_COLS_PER_SAMPLE = [
     "j.alpha",
     "cdr3.beta",
     "v.beta",
+    "d.beta"
     "j.beta",
     "species",
     "mhc.a",
@@ -155,7 +156,7 @@ def generate_default_db(master_table: pd.DataFrame) -> pd.DataFrame:
                 clone_compact["meta"]["studies.found"] \
                     = len(study_counts.loc[tuple(clone[coll]
                                                  for coll in
-                                                 SIGNATURE_COLS)].index.get_level_values(14).unique())
+                                                 SIGNATURE_COLS_PER_SAMPLE)].index.get_level_values(2).unique())
 
                 clone_compact["cdr3fix"] = clone[f"cdr3fix.{chain}"]
                 clone_compact["web.method"] = get_web_method(clone["method.identification"])
