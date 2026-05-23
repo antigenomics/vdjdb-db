@@ -98,7 +98,7 @@ SIGNATURE_COLS_PER_SAMPLE = [
     "j.alpha",
     "cdr3.beta",
     "v.beta",
-    "d.beta"
+    "d.beta",
     "j.beta",
     "species",
     "mhc.a",
