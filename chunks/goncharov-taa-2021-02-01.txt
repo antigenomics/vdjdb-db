@@ -24,7 +24,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 23	CAVNSGNQFYF	TRAV12-2	TRAJ49	CASSYLGMGQPQHF	TRBV6		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
 24	CAVNSGNQFYF	TRAV12-2	TRAJ49	CASSLGDVDEYF	TRBV12		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
 25	CAVSAAGNKLTF	TRAV12-2	TRAJ17	CASRSLGQGAEKLFF	TRBV27		TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MART-1	HomoSapiens	PMID:19786555	multimer-sort			sanger	antigen-loaded-targets		CD8+							PBMC			
-26				CASSRGTLHYGYTF	TRBV5 -6*01		TRBJ1-2*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	FYGKTILWF	ARMT1	HomoSapiens	PMID:30880120	tetramer-sort			amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
+26				CASSRGTLHYGYTF	TRBV5-6*01		TRBJ1-2*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	FYGKTILWF	ARMT1	HomoSapiens	PMID:30880120	tetramer-sort			amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
 27				CASSLGQGCSNQPQHF	TRBV11-3*01		TRBJ1-5*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	FYGKTILWF	ARMT1	HomoSapiens	PMID:30880120	tetramer-sort			amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
 28				CASSLGAAPQETQYF	TRBV5-6*01		TRBJ2-5*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	FYGKTILWF	ARMT1	HomoSapiens	PMID:30880120	tetramer-sort			amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
 29				CASSTRVVAGNNEQFF	TRBV4-1*02		TRBJ2-1*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	FYGKTILWF	ARMT1	HomoSapiens	PMID:30880120	tetramer-sort			amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
