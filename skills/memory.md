@@ -20,6 +20,24 @@ This file is the **full running log** for all Claude Code sessions working on th
 **Summary:** [1–3 sentences describing what was done and outcome]
 -->
 
+### [2026-05-27] Issue #495 — fix Arden/space/dual-usage gene names in chunks
+
+**Skills used:** none (bulk fix + documentation session)
+**Source:** GitHub issue #495 (reporter: JamieHeather), `antigenomics/vdjdb-db`
+**Input files:** All `chunks/*.txt` files; `patches/nomenclature.conversions`; IMGT TRAV/TRBV nomenclature tables (online); `proofreading/imgt_alleles.tsv.gz`
+**Output files:**
+- 26 `chunks/*.txt` files modified (530 total field changes)
+- `chunks/PMID_24906112.txt` additionally deduplicated (49→46 rows; 3 trailing-space duplicates removed)
+- `patches/nomenclature.conversions` updated (29 new Arden→IMGT conversions appended)
+- `proofreading/arden.tsv` created (comprehensive Arden→IMGT conversion table, ~123 rows)
+- `proofreading/imgt.md` updated (Section 9.1 expanded; TRBJ2 dual-numbering documented; CDR3-verified TRAJ entries; arden.tsv reference added)
+**Summary:** Fixed three categories of gene name errors reported in issue #495: (1) trailing/internal whitespace stripped from gene names across all chunks; (2) Arden 1995 nomenclature names with spurious TR-prefix (e.g., `TRAV32S1`→`TRAV25`, `TRAV18S1`→`TRAV24`) converted to IMGT using IMGT TRAV/TRBV nomenclature tables; (3) incomplete dual-usage names corrected (`TRAV14`→`TRAV14/DV4`, `TRAV23`→`TRAV23/DV6`, `TRBV17-1`→`TRBV17`). Three TRAJ Arden names without IMGT table coverage were resolved via CDR3 motif cross-referencing within VDJdb (`TRAJ4S1`→`TRAJ58`, `TRAJ17S8`→`TRAJ48`, `TRAJ1S8`→`TRAJ33`). TRBJ2 cluster-relative numbering (PMID_16237109: `TRBJ2S1`–`TRBJ2S6`) documented separately from global Arden numbering (`TRBJ2S7`–`TRBJ2S13`). TRAV23S1→TRAV27 retained despite IMGT table suggesting TRAV21 (established in previous issues #298/#299).
+
+**Key decisions:**
+- `TRAV23S1→TRAV27` retained (existing VDJdb conversion from issues #298/#299 takes precedence over IMGT table discrepancy)
+- `PDB_Database.txt` false-positive duplicate (rows 258/259, differ only in `meta.structure.id`) left as-is; root cause is Gap #3 (meta.structure.id not in SIGNATURE_COLS)
+- 3 genuine duplicates in `PMID_24906112.txt` removed (were masked by trailing spaces in `j.beta`)
+
 ### [2026-05-26] IMGT allele expansion, Arden nomenclature, HLA resolution, gzip
 **Skills used:** none (skills update session)
 **Source:** N/A

@@ -1,0 +1,123 @@
+arden_name	imgt_name	locus	segment	notes	source
+TRAV1S1	TRAV8-1	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV1S2	TRAV8-6,TRAV8-4	TRA	V	Arden human TRAV; ambiguous primer	patches/nomenclature.conversions
+TRAV1S3	TRAV8-6	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV1S4	TRAV8-3	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table (issue #495)
+TRAV1S5	TRAV8-2	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV2S1	TRAV12-2	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table (issue #495)
+TRAV2S2	TRAV9-2	TRA	V	Arden human TRAV	patches/nomenclature.conversions
+TRAV2S3	TRAV12-1	TRA	V	Arden human TRAV	patches/nomenclature.conversions
+TRAV3S1	TRAV17	TRA	V	Arden human TRAV	patches/nomenclature.conversions
+TRAV3S2	TRAV12-1	TRA	V	Arden human TRAV	patches/nomenclature.conversions
+TRAV4S1	TRAV26-2	TRA	V	Arden human TRAV	patches/nomenclature.conversions
+TRAV4S2	TRAV26-1	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV5S1	TRAV6	TRA	V	Arden human TRAV	patches/nomenclature.conversions
+TRAV6S1	TRAV14/DV4	TRA	V	Arden human TRAV; dual-use gene	IMGT TRAV nomenclature table (issue #495)
+TRAV7S1	TRAV1-1	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV7S2	TRAV1-2	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV8S1	TRAV13-1,TRAV23/DV6,TRAV29/DV5	TRA	V	Arden human TRAV; ambiguous primer	patches/nomenclature.conversions
+TRAV9S1	TRAV16	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV10S1	TRAV27	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV10S2	TRAV27	TRA	V	Arden human TRAV; primer variant	patches/nomenclature.conversions
+TRAV11S1	TRAV2	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV12S1	TRAV19	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table (issue #495)
+TRAV13S1	TRAV22	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table (issue #495)
+TRAV14S1	TRAV38-2/DV8	TRA	V	Arden human TRAV; dual-use gene	IMGT TRAV nomenclature table
+TRAV14S2	TRAV38-1	TRA	V	Arden human TRAV	patches/nomenclature.conversions
+TRAV15S1	TRAV5,TRAV13-2	TRA	V	Arden human TRAV; ambiguous primer	patches/nomenclature.conversions
+TRAV16S1	TRAV3	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table (issue #495)
+TRAV17S1	TRAV18	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV18S1	TRAV24	TRA	V	Arden human TRAV; Jamie Heather sequence-verified	IMGT TRAV nomenclature table (issue #495)
+TRAV19S1	TRAV41	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table (issue #495)
+TRAV20S1	TRAV4	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV21S1	TRAV13-1,TRAV23/DV6,TRAV29/DV5	TRA	V	Arden human TRAV; ambiguous primer	patches/nomenclature.conversions
+TRAV22S1	TRAV9-2	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV23S1	TRAV27	TRA	V	Arden human TRAV; note: IMGT table maps Arden 23S1→TRAV21; existing VDJdb conversion retained	patches/nomenclature.conversions
+TRAV24S1	TRAV10	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV25S1	TRAV35	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table (issue #495)
+TRAV26S1	TRAV34	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV26S2	TRAV26-2	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV27S1	TRAV39	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table (issue #495)
+TRAV28S1	TRAV36/DV7	TRA	V	Arden human TRAV; dual-use gene	IMGT TRAV nomenclature table
+TRAV29S1	TRAV30	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV30S1	TRAV20	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV31S1	TRAV40	TRA	V	Arden human TRAV	IMGT TRAV nomenclature table
+TRAV32S1	TRAV25	TRA	V	Arden human TRAV; Jamie Heather sequence-verified	IMGT TRAV nomenclature table (issue #495)
+TRAJ1S3	TRAJ20	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ1S7	TRAJ43	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ1S8	TRAJ33	TRA	J	Arden human TRAJ; CDR3 QLIW motif verified	CDR3 cross-reference (issue #495)
+TRAJ3S2	TRAJ31	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ4S1	TRAJ58	TRA	J	Arden human TRAJ; CDR3 RLTF motif verified	CDR3 cross-reference (issue #495)
+TRAJ8S1	TRAJ13	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ9S4	TRAJ30	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ9S11	TRAJ42	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ9S12	TRAJ56	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ9S14	TRAJ29	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ9S15	TRAJ11	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ14S1	TRAJ37	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ14S2	TRAJ23	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ14S3	TRAJ52	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ15S1	TRAJ16	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ16S1	TRAJ3	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ16S5	TRAJ12	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ16S6	TRAJ5	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ17S1	TRAJ34	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ17S5	TRAJ36	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRAJ17S8	TRAJ48	TRA	J	Arden human TRAJ; CDR3 cross-reference verified	CDR3 cross-reference (issue #495)
+TRAJ17S10	TRAJ40	TRA	J	Arden human TRAJ	patches/nomenclature.conversions
+TRBV1S1	TRBV9	TRB	V	Arden human TRBV	patches/nomenclature.conversions
+TRBV2S1	TRBV20-1	TRB	V	Arden human TRBV	patches/nomenclature.conversions
+TRBV3S1	TRBV28	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table (issue #495)
+TRBV4S1	TRBV29-1	TRB	V	Arden human TRBV	patches/nomenclature.conversions
+TRBV5S1	TRBV5-1	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table
+TRBV5S2	TRBV5-6	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table
+TRBV5S3	TRBV5-3	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table
+TRBV5S4	TRBV5-8	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table
+TRBV5S5	TRBV5-5	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table
+TRBV5S6	TRBV5-6	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table
+TRBV5S7	TRBV5-7	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table
+TRBV6S1	TRBV6-1	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table
+TRBV6S2	TRBV7-8	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table (issue #495)
+TRBV6S3	TRBV7-6	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table (issue #495)
+TRBV6S4	TRBV7-9	TRB	V	Arden human TRBV	patches/nomenclature.conversions
+TRBV6S5	TRBV6-5	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table
+TRBV6S6	TRBV6-6	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table
+TRBV6S7	TRBV7-1	TRB	V	Arden human TRBV	patches/nomenclature.conversions
+TRBV6S8	TRBV6-8	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table
+TRBV6S9	TRBV6-9	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table
+TRBV7S1	TRBV4-1	TRB	V	Arden human TRBV	patches/nomenclature.conversions
+TRBV7S2	TRBV4-3	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table (issue #495)
+TRBV7S3	TRBV7-3	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table
+TRBV8S1	TRBV12-3	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table (issue #495)
+TRBV9S1	TRBV9	TRB	V	Arden human TRBV (alt mapping)	IMGT TRBV nomenclature table
+TRBV13S1	TRBV6-5	TRB	V	Arden human TRBV	patches/nomenclature.conversions
+TRBV13S2	TRBV6-2,TRBV6-3	TRB	V	Arden human TRBV; ambiguous	patches/nomenclature.conversions
+TRBV13S3	TRBV6-1	TRB	V	Arden human TRBV	patches/nomenclature.conversions
+TRBV13S4	TRBV6-9	TRB	V	Arden human TRBV	patches/nomenclature.conversions
+TRBV14S1	TRBV27	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table (issue #495)
+TRBV15S1	TRBV24-1	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table (issue #495)
+TRBV16S1	TRBV14	TRB	V	Arden human TRBV	patches/nomenclature.conversions
+TRBV17S1	TRBV19	TRB	V	Arden human TRBV	patches/nomenclature.conversions
+TRBV18S1	TRBV18	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table
+TRBV19S1	TRBV19	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table
+TRBV20S1	TRBV30	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table (issue #495)
+TRBV21S3	TRBV11-2	TRB	V	Arden human TRBV	patches/nomenclature.conversions
+TRBV22S1	TRBV2	TRB	V	Arden human TRBV	patches/nomenclature.conversions
+TRBV23S1	TRBV13	TRB	V	Arden human TRBV	IMGT TRBV nomenclature table (issue #495)
+TRBJ1S1	TRBJ1-1	TRB	J	Arden human TRBJ (global numbering: J1 cluster starts at S1)	patches/nomenclature.conversions
+TRBJ1S2	TRBJ1-2	TRB	J	Arden human TRBJ	patches/nomenclature.conversions
+TRBJ1S3	TRBJ1-3	TRB	J	Arden human TRBJ	patches/nomenclature.conversions
+TRBJ1S4	TRBJ1-4	TRB	J	Arden human TRBJ	patches/nomenclature.conversions
+TRBJ1S5	TRBJ1-5	TRB	J	Arden human TRBJ	patches/nomenclature.conversions
+TRBJ2S1	TRBJ2-1	TRB	J	Cluster-relative numbering (PMID_16237109); NOT Arden global (which uses S7-S13)	issue #495
+TRBJ2S2	TRBJ2-2	TRB	J	Cluster-relative numbering (PMID_16237109)	issue #495
+TRBJ2S3	TRBJ2-3	TRB	J	Cluster-relative numbering (PMID_16237109)	issue #495
+TRBJ2S4	TRBJ2-4	TRB	J	Cluster-relative numbering (PMID_16237109)	issue #495
+TRBJ2S5	TRBJ2-5	TRB	J	Cluster-relative numbering (PMID_16237109)	issue #495
+TRBJ2S6	TRBJ2-6	TRB	J	Cluster-relative numbering (PMID_16237109)	issue #495
+TRBJ2S7	TRBJ2-1	TRB	J	Arden global numbering: J2 cluster starts at S7 (after 6 J1 genes)	patches/nomenclature.conversions
+TRBJ2S8	TRBJ2-2	TRB	J	Arden global numbering	patches/nomenclature.conversions
+TRBJ2S9	TRBJ2-3	TRB	J	Arden global numbering	patches/nomenclature.conversions
+TRBJ2S10	TRBJ2-4	TRB	J	Arden global numbering	patches/nomenclature.conversions
+TRBJ2S11	TRBJ2-5	TRB	J	Arden global numbering	patches/nomenclature.conversions
+TRBJ2S13	TRBJ2-7	TRB	J	Arden global numbering (S12 not observed in VDJdb data)	patches/nomenclature.conversions

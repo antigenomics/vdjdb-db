@@ -178,20 +178,57 @@ gzip -dc proofreading/imgt_alleles.tsv.gz | awk -F'\t' '$3=="TRBV7-9*08" {print 
 - Mouse: Arden B, Clark SP, Kabelitz D, Mak TW. *"Mouse T-cell receptor variable gene segment families."* Immunogenetics. 1995;42(6):501-30. **PMID:8550093** doi:10.1007/BF00172177
 
 **How Arden names work:**
-The Arden papers named V gene segments by subfamily and discovery order: `TR<LOCUS>V<SUBFAMILY>S<SEQUENTIAL>`. The sequential numbering was within each subfamily:
+The Arden papers named V gene segments by subfamily and discovery order: `TR<LOCUS>V<SUBFAMILY>S<SEQUENTIAL>`. The same pattern applies to J genes. Sequential numbering is within each subfamily:
 
-| Arden name | Current IMGT name |
-|---|---|
-| `TRBV1S1` | `TRBV9` |
-| `TRBV2S1` | `TRBV20-1` |
-| `TRBV4S1` | `TRBV29-1` |
-| `TRBV6S4` | `TRBV7-9` |
-| `TRBV6S7` | `TRBV7-1` |
-| `TRBV7S1` | `TRBV4-1` |
-| `TRAV23S1` | `TRAV27` |
-| `TRAV15S1` | `TRAV5` or `TRAV13-2` |
+| Arden name | Current IMGT name | Notes |
+|---|---|---|
+| `TRBV1S1` | `TRBV9` | — |
+| `TRBV2S1` | `TRBV20-1` | — |
+| `TRBV4S1` | `TRBV29-1` | — |
+| `TRBV6S4` | `TRBV7-9` | — |
+| `TRBV6S7` | `TRBV7-1` | — |
+| `TRBV7S1` | `TRBV4-1` | — |
+| `TRAV23S1` | `TRAV27` | ⚠ Discrepancy: IMGT TRAV table maps Arden 23S1→TRAV21; existing VDJdb conversion (→TRAV27) retained from issues #298/#299 |
+| `TRAV15S1` | `TRAV5,TRAV13-2` | Ambiguous primer — comma-separated list |
+| `TRAV6S1` | `TRAV14/DV4` | Dual-usage gene |
+| `TRAV18S1` | `TRAV24` | Sequence-verified (issue #495) |
+| `TRAV32S1` | `TRAV25` | Sequence-verified (issue #495) |
 
-**Conversion:** See `patches/nomenclature.conversions` for all known mappings (human and mouse V, J genes). Note that some Arden names map to **multiple** IMGT genes (ambiguous primer sets); when this occurs, document the ambiguity in the extraction log rather than picking one.
+**Comprehensive conversion table:** `proofreading/arden.tsv`
+All known human Arden→IMGT conversions in TSV format with columns: `arden_name | imgt_name | locus | segment | notes | source`. Use this as the primary lookup; `patches/nomenclature.conversions` is the machine-readable form used by fix scripts.
+
+**TRAJ conversion — CDR3-verified entries:**
+The IMGT TRAJ nomenclature table was not accessible during issue #495 processing. Three TRAJ Arden names were resolved via CDR3 sequence cross-referencing within VDJdb:
+
+| Arden name | IMGT name | CDR3 evidence |
+|---|---|---|
+| `TRAJ4S1` | `TRAJ58` | CDR3 `CAVSKANGSRLTF` — RLTF motif matches TRAJ58 in all other entries |
+| `TRAJ17S8` | `TRAJ48` | CDR3 `CAVLFGNEKLTF` — cross-entry with TRAV13-2/TRAJ48 |
+| `TRAJ1S8` | `TRAJ33` | CDR3 `CILRVLGSNYQLIW` — QLIW motif matches TRAJ33 in all other entries |
+
+**TRBJ2 dual-numbering issue:**
+Two incompatible numbering schemes exist for TRBJ2 cluster genes:
+
+| Scheme | Range | Used in |
+|---|---|---|
+| Arden 1995 **global** numbering | `TRBJ2S7`–`TRBJ2S13` | Most 1990s papers; the S-numbers are globally sequential across J1+J2 (J1 has 6 members, so J2 starts at S7) |
+| **Cluster-relative** numbering | `TRBJ2S1`–`TRBJ2S6` | PMID:16237109 and some later papers; S1 = first member of J2 cluster = TRBJ2-1 |
+
+Both map to the same IMGT genes:
+
+| Global Arden | Cluster-relative Arden | IMGT name |
+|---|---|---|
+| `TRBJ2S7` | `TRBJ2S1` | `TRBJ2-1` |
+| `TRBJ2S8` | `TRBJ2S2` | `TRBJ2-2` |
+| `TRBJ2S9` | `TRBJ2S3` | `TRBJ2-3` |
+| `TRBJ2S10` | `TRBJ2S4` | `TRBJ2-4` |
+| `TRBJ2S11` | `TRBJ2S5` | `TRBJ2-5` |
+| — | `TRBJ2S6` | `TRBJ2-6` |
+| `TRBJ2S13` | — | `TRBJ2-7` |
+
+When a paper uses `TRBJ2S1`–`TRBJ2S6`, confirm whether it also uses `TRBJ1S1`–`TRBJ1S5` for J1 (cluster-relative) or `TRBJ1S1`–`TRBJ1S5` and `TRBJ2S7`+ for J2 (global). Check `patches/nomenclature.conversions` — both row sets are present.
+
+**Conversion:** See `proofreading/arden.tsv` for the comprehensive table and `patches/nomenclature.conversions` for the machine-readable mapping. Note that some Arden names map to **multiple** IMGT genes (ambiguous primer sets); when this occurs, document the ambiguity in the extraction log rather than picking one.
 
 ### 9.2 Author-specific labels
 
@@ -221,7 +258,10 @@ Some older multiplex RT-PCR-based experiments use primers that detect multiple V
 - IMGT/GENE-DB web interface: https://www.imgt.org/genedb/
 - IMGT Repertoire (human TR loci and genes): https://www.imgt.org/IMGTrepertoire/LocusGenes/listIG_TR/TR/human/Hu_TRgroup.html
 - IMGT nomenclature rules: https://www.imgt.org/IMGTScientificChart/Nomenclature/IMGTnomenclature.php
+- IMGT TRAV nomenclature table (Arden→IMGT column): https://www.imgt.org/IMGTrepertoire/index.php?section=LocusGenes&repertoire=nomenclatures&species=human&group=TRAV
+- IMGT TRBV nomenclature table (Arden→IMGT column): https://www.imgt.org/IMGTrepertoire/index.php?section=LocusGenes&repertoire=nomenclatures&species=human&group=TRBV
 - genedb-releases (data source for `imgt_alleles.tsv.gz`): https://github.com/JamieHeather/genedb-releases
 - Arden human paper: https://doi.org/10.1007/BF00172176 (PMID:8550092)
 - Arden mouse paper: https://doi.org/10.1007/BF00172177 (PMID:8550093)
-- Conversion table: `patches/nomenclature.conversions`
+- Comprehensive Arden conversion table: `proofreading/arden.tsv`
+- Machine-readable conversion table: `patches/nomenclature.conversions`

@@ -1610,7 +1610,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1609	CVLRPGVNNLF	TRAV22						MacacaMulatta	Mamu-A*01	B2M	MHCI	TTPESANL	Tat	SIV	PMID:15589168	tetramer-sort	2/100		sanger						887	5wk						
 1610	CVLRRDDKII	TRAV22						MacacaMulatta	Mamu-A*01	B2M	MHCI	TTPESANL	Tat	SIV	PMID:15589168	tetramer-sort	2/100		sanger						887	5wk						
 1611	CVLSINYKYI	TRAV22						MacacaMulatta	Mamu-A*01	B2M	MHCI	TTPESANL	Tat	SIV	PMID:15589168	tetramer-sort	2/100		sanger						887	5wk						
-1612	CAVKGSGGSYQKVT	TRAV23						MacacaMulatta	Mamu-A*01	B2M	MHCI	TTPESANL	Tat	SIV	PMID:15589168	tetramer-sort	2/100		sanger						887	5wk						
+1612	CAVKGSGGSYQKVT	TRAV23/DV6						MacacaMulatta	Mamu-A*01	B2M	MHCI	TTPESANL	Tat	SIV	PMID:15589168	tetramer-sort	2/100		sanger						887	5wk						
 1613	CATNASSNTGKLI	TRAV3						MacacaMulatta	Mamu-A*01	B2M	MHCI	TTPESANL	Tat	SIV	PMID:15589168	tetramer-sort	14/100		sanger						895	5wk						
 1614	CAVRNNNDRVI	TRAV13						MacacaMulatta	Mamu-A*01	B2M	MHCI	TTPESANL	Tat	SIV	PMID:15589168	tetramer-sort	14/100		sanger						895	5wk						
 1615	CVLKEGGNNRLA	TRAV22						MacacaMulatta	Mamu-A*01	B2M	MHCI	TTPESANL	Tat	SIV	PMID:15589168	tetramer-sort	12/100		sanger						895	5wk						

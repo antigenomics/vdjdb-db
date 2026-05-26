@@ -1,7 +1,7 @@
 # VDJdb Skills — Memory (Compressed)
 
-**Last compressed:** 2026-05-26 (rev 2)
-**Covers sessions through:** 2026-05-26
+**Last compressed:** 2026-05-26 (rev 3)
+**Covers sessions through:** 2026-05-27
 **Full log:** `skills/memory.md`
 
 ---
@@ -30,8 +30,10 @@
 |---|---|---|
 | `imgt_alleles.tsv.gz` is primary gene authority | 2026-05-26 | Allele-level (one row per allele); supersedes `patches/IGM_nomenclature_table.tsv` |
 | `mhc_alleles.tsv.gz` is primary HLA authority (human only) | 2026-05-26 | Non-human MHC rules documented in `proofreading/mhc.md` |
-| Both TSV files gzip-compressed; use `zcat` in queries | 2026-05-26 | User requested; 286K+2.2M → 29K+322K |
+| Both TSV files gzip-compressed; use `gzip -dc` in queries | 2026-05-26 | User requested; 286K+2.2M → 29K+322K |
 | `meta.subset.frequency` gap left open | 2026-05-26 | Missing from `ChunkQC.py` META_COLUMNS but present in all real chunks; Gap #8 |
+| `TRAV23S1→TRAV27` retained despite IMGT table discrepancy | 2026-05-27 | IMGT TRAV table says Arden 23S1→TRAV21; existing VDJdb conversion (→TRAV27) from issues #298/#299 takes precedence |
+| `PDB_Database.txt` rows 258/259 left as-is despite QC duplicate flag | 2026-05-27 | Differ only in `meta.structure.id` (7sg1 vs 7sg2); root cause is Gap #3 (meta.structure.id not in SIGNATURE_COLS) |
 
 ---
 
@@ -84,11 +86,12 @@ Standard AA only: `ARNDCQEGHILKMFPSTWYV` | Starts `C` | Ends `F` or `W` | Length
 ### Reference files
 | File | Purpose |
 |---|---|
-| `proofreading/imgt_alleles.tsv.gz` | IMGT allele authority — **allele-level** (5,342 TR alleles; 492 human; release 2026-05-25) |
+| `proofreading/imgt_alleles.tsv.gz` | IMGT allele authority — **allele-level** (5,342 TR alleles; 492 human; release 2026-05-25_GENEDB_202621-7) |
 | `proofreading/imgt.md` | IMGT nomenclature + Arden 1995 nomenclature documentation |
 | `proofreading/mhc_alleles.tsv.gz` | HLA allele authority (46,005 rows; IPD-IMGT/HLA 3.64.0) |
 | `proofreading/mhc.md` | MHC/HLA naming, non-conventional HLA (serological, old format, high-res, expression suffixes) |
-| `patches/nomenclature.conversions` | Arden / old-style → IMGT gene name conversions |
+| `proofreading/arden.tsv` | Comprehensive Arden 1995 → IMGT conversion table (~123 rows; TRAV, TRAJ, TRBV, TRBJ; includes CDR3-verified TRAJ entries and TRBJ2 dual-numbering notes) |
+| `patches/nomenclature.conversions` | Machine-readable Arden / old-style → IMGT gene name conversions (used by fix scripts) |
 | `patches/antigen_epitope_species_gene.dict` | Known epitope → gene/species mappings |
 | `py_src/ChunkQC.py` | QC implementation (run from `py_src/` directory) |
 | `py_src/ScoreFactory.py` | Confidence score computation |

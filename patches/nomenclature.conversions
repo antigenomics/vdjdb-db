@@ -58,3 +58,43 @@ TRBJ2S7	TRBJ2-1
 TRBJ2S8	TRBJ2-2
 TRBJ2S9	TRBJ2-3
 TRBV6S4	TRBV7-9
+# --- additions from issue #495 (2026-05-27) ---
+# Source: IMGT TRAV nomenclature table (Arden et al. column)
+# https://www.imgt.org/IMGTrepertoire/index.php?section=LocusGenes&repertoire=nomenclatures&species=human&group=TRAV
+TRAV1S4	TRAV8-3
+TRAV2S1	TRAV12-2
+TRAV6S1	TRAV14/DV4
+TRAV12S1	TRAV19
+TRAV13S1	TRAV22
+TRAV16S1	TRAV3
+TRAV18S1	TRAV24
+TRAV19S1	TRAV41
+TRAV25S1	TRAV35
+TRAV27S1	TRAV39
+TRAV32S1	TRAV25
+# Source: IMGT TRBV nomenclature table (Arden et al. column)
+# https://www.imgt.org/IMGTrepertoire/index.php?section=LocusGenes&repertoire=nomenclatures&species=human&group=TRBV
+TRBV3S1	TRBV28
+TRBV6S2	TRBV7-8
+TRBV6S3	TRBV7-6
+TRBV7S2	TRBV4-3
+TRBV8S1	TRBV12-3
+TRBV14S1	TRBV27
+TRBV15S1	TRBV24-1
+TRBV20S1	TRBV30
+TRBV23S1	TRBV13
+# Source: TRBJ2 cluster-relative numbering (used in PMID_16237109, confirmed by tidytcells)
+# Note: Arden 1995 global numbering uses TRBJ2S7-S13; PMID_16237109 uses cluster-relative TRBJ2S1-S6
+TRBJ2S1	TRBJ2-1
+TRBJ2S2	TRBJ2-2
+TRBJ2S3	TRBJ2-3
+TRBJ2S4	TRBJ2-4
+TRBJ2S5	TRBJ2-5
+TRBJ2S6	TRBJ2-6
+# Source: CDR3 sequence cross-reference against VDJdb (see issue #495)
+# TRAJ4S1: CDR3 CAVSKANGSRLTF (RLTF motif) → TRAJ58
+TRAJ4S1	TRAJ58
+# TRAJ17S8: CDR3 CAVLFGNEKLTF → TRAJ48 (cross-ref: TRAV13-2/TRAJ48 in database)
+TRAJ17S8	TRAJ48
+# TRAJ1S8: CDR3 CILRVLGSNYQLIW (QLIW motif) → TRAJ33
+TRAJ1S8	TRAJ33
