@@ -1,6 +1,6 @@
 # VDJdb Skills — Memory (Compressed)
 
-**Last compressed:** 2026-05-26
+**Last compressed:** 2026-05-26 (rev 2)
 **Covers sessions through:** 2026-05-26
 **Full log:** `skills/memory.md`
 
@@ -28,9 +28,10 @@
 
 | Decision | Date | Summary |
 |---|---|---|
-| `imgt_alleles.tsv` is primary gene authority | 2026-05-26 | Supersedes `patches/IGM_nomenclature_table.tsv` for validation; use IGM file as fallback |
-| `mhc_alleles.tsv` is primary HLA authority (human only) | 2026-05-26 | Non-human MHC rules documented in `proofreading/mhc.md` |
-| `meta.subset.frequency` gap left open | 2026-05-26 | Missing from `ChunkQC.py` META_COLUMNS but present in all real chunks; documented as Gap #8 |
+| `imgt_alleles.tsv.gz` is primary gene authority | 2026-05-26 | Allele-level (one row per allele); supersedes `patches/IGM_nomenclature_table.tsv` |
+| `mhc_alleles.tsv.gz` is primary HLA authority (human only) | 2026-05-26 | Non-human MHC rules documented in `proofreading/mhc.md` |
+| Both TSV files gzip-compressed; use `zcat` in queries | 2026-05-26 | User requested; 286K+2.2M → 29K+322K |
+| `meta.subset.frequency` gap left open | 2026-05-26 | Missing from `ChunkQC.py` META_COLUMNS but present in all real chunks; Gap #8 |
 
 ---
 
@@ -83,11 +84,11 @@ Standard AA only: `ARNDCQEGHILKMFPSTWYV` | Starts `C` | Ends `F` or `W` | Length
 ### Reference files
 | File | Purpose |
 |---|---|
-| `proofreading/imgt_alleles.tsv` | IMGT gene authority (4,693 TR gene rows; release 2026-05-25) |
-| `proofreading/imgt.md` | IMGT nomenclature documentation |
-| `proofreading/mhc_alleles.tsv` | HLA allele authority (46,005 rows; IPD-IMGT/HLA 3.64.0) |
-| `proofreading/mhc.md` | MHC/HLA nomenclature documentation |
-| `patches/nomenclature.conversions` | Old gene name → IMGT conversions |
+| `proofreading/imgt_alleles.tsv.gz` | IMGT allele authority — **allele-level** (5,342 TR alleles; 492 human; release 2026-05-25) |
+| `proofreading/imgt.md` | IMGT nomenclature + Arden 1995 nomenclature documentation |
+| `proofreading/mhc_alleles.tsv.gz` | HLA allele authority (46,005 rows; IPD-IMGT/HLA 3.64.0) |
+| `proofreading/mhc.md` | MHC/HLA naming, non-conventional HLA (serological, old format, high-res, expression suffixes) |
+| `patches/nomenclature.conversions` | Arden / old-style → IMGT gene name conversions |
 | `patches/antigen_epitope_species_gene.dict` | Known epitope → gene/species mappings |
 | `py_src/ChunkQC.py` | QC implementation (run from `py_src/` directory) |
 | `py_src/ScoreFactory.py` | Confidence score computation |
@@ -106,10 +107,10 @@ Standard AA only: `ARNDCQEGHILKMFPSTWYV` | Starts `C` | Ends `F` or `W` | Length
 | 6 | DOI URL prefix | `reference.id` starting with `https://doi.org/` should use `doi:` prefix | open |
 | 7 | Single-cell+Sanger | `method.singlecell=yes` + `method.sequencing=sanger` is biologically inconsistent | open |
 | 8 | `meta.subset.frequency` | Present in all real chunk files but missing from `META_COLUMNS` in `ChunkQC.py` | open |
-| 9 | Pseudogene V/J | Gene `functionality = P` in `imgt_alleles.tsv` | open |
-| 10 | Invalid allele | Allele number > `allele_count` in `imgt_alleles.tsv` | open |
-| 11 | HLA not in IMGTHLA | Human MHC allele not found in `mhc_alleles.tsv` | open |
-| 12 | Unconfirmed HLA | Allele has `confirmed = Unconfirmed` in `mhc_alleles.tsv` | open |
+| 9 | Pseudogene V/J | Gene `functionality = P` in `imgt_alleles.tsv.gz` | open |
+| 10 | Invalid allele | Allele number > `allele_count` in `imgt_alleles.tsv.gz` | open |
+| 11 | HLA not in IMGTHLA | Human MHC allele not found in `mhc_alleles.tsv.gz` | open |
+| 12 | Unconfirmed HLA | Allele has `confirmed = Unconfirmed` in `mhc_alleles.tsv.gz` | open |
 
 ---
 
@@ -124,7 +125,7 @@ Standard AA only: `ARNDCQEGHILKMFPSTWYV` | Starts `C` | Ends `F` or `W` | Length
 
 ## Reference Data Update Schedule
 
-| File | Source | Update trigger |
-|---|---|---|
-| `proofreading/imgt_alleles.tsv` | genedb-releases (weekly) | Re-extract when a gene name fails lookup |
-| `proofreading/mhc_alleles.tsv` | ANHIG/IMGTHLA (quarterly: Jan/Apr/Jul/Oct) | Re-extract after each major release |
+| File | Source | Update trigger | Re-extract command hint |
+|---|---|---|---|
+| `proofreading/imgt_alleles.tsv.gz` | genedb-releases (weekly) | Allele name fails lookup in `imgt_allele_id` | Download latest FASTA from genedb-releases → filter TR headers → gzip |
+| `proofreading/mhc_alleles.tsv.gz` | ANHIG/IMGTHLA (quarterly: Jan/Apr/Jul/Oct) | HLA allele name fails lookup | Fetch Allelelist.txt + Allele_status.txt from IMGTHLA Latest → join → gzip |

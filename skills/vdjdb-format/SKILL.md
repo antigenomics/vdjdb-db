@@ -40,7 +40,7 @@ If a species is not in the above list:
 
 ### 2. IMGT V/D/J Gene IDs
 
-**Primary authority:** `proofreading/imgt_alleles.tsv` (column `imgt_gene_id`)
+**Primary authority:** `proofreading/imgt_alleles.tsv.gz` (column `imgt_gene_id`)
 **Conversion table:** `patches/nomenclature.conversions`
 **Secondary fallback:** `patches/IGM_nomenclature_table.tsv`
 
@@ -48,17 +48,17 @@ If a species is not in the above list:
 
 1. **Strip whitespace**: remove all spaces within the gene name (`TRBV 7` → `TRBV7`, `TRAV 12-2` → `TRAV12-2`)
 
-2. **Look up in `imgt_alleles.tsv`** (strip allele suffix `*NN` before lookup):
+2. **Look up in `imgt_alleles.tsv.gz`** (strip allele suffix `*NN` before lookup):
    - If found → keep (or correct capitalisation to match)
    - If not found → check `patches/nomenclature.conversions` for a mapping
    - If found in conversions → apply the conversion and log `old_name → new_name`
    - If not found in either → flag as unresolvable; ask user
 
-3. **Validate allele number** (if present, e.g., `TRBV12-3*02`):
-   - Look up `allele_count` for that gene in `proofreading/imgt_alleles.tsv`
-   - If allele number > `allele_count`: flag as invalid allele; suggest dropping the allele suffix or contacting IMGT
+3. **Validate allele** (if present, e.g., `TRBV12-3*02`):
+   - Look up the full allele name in `imgt_allele_id` column: `gzip -dc proofreading/imgt_alleles.tsv.gz | awk -F'\t' '$3=="TRBV12-3*02"'`
+   - If not found as a complete allele: flag as invalid; check whether the gene itself exists (gene-level lookup)
 
-4. **Check functionality**: if `functionality` is `P` (pseudogene) in `imgt_alleles.tsv`: flag as biologically suspicious
+4. **Check functionality**: if `functionality` is `P` (pseudogene) in `imgt_alleles.tsv.gz`: flag as biologically suspicious
 
 5. **Consistency check against existing chunks**:
    ```bash
@@ -66,13 +66,13 @@ If a species is not in the above list:
    ```
    If the same gene appears with different notation in existing chunks (e.g., `TRAV13-1` vs `TRAV13`), standardise to the IMGT-canonical form.
 
-6. **Multiple gene possibilities** (comma-separated ambiguous assignments): check each against `imgt_alleles.tsv`, keep all valid candidates comma-separated without spaces (e.g., `TRBV7-2,TRBV7-3`)
+6. **Multiple gene possibilities** (comma-separated ambiguous assignments): check each against `imgt_alleles.tsv.gz`, keep all valid candidates comma-separated without spaces (e.g., `TRBV7-2,TRBV7-3`)
 
 ---
 
 ### 3. MHC Alleles
 
-**Primary authority:** `proofreading/mhc_alleles.tsv` (column `allele_name`)
+**Primary authority:** `proofreading/mhc_alleles.tsv.gz` (column `allele_name`)
 **Reference:** `proofreading/mhc.md`
 
 #### Human MHC (HLA)
@@ -82,10 +82,12 @@ Target format: `HLA-<GENE>*<FIELD1>:<FIELD2>` (e.g., `HLA-A*02:01`)
 | Problem | Fix |
 |---|---|
 | `A02`, `A0201` (old serological) | → `HLA-A*02:01` if unambiguous; flag if ambiguous |
-| `HLA-A*02` (low resolution, no field 2) | Keep as-is; note in log that higher resolution preferred |
-| `https://doi.org/...` prefix on allele | Remove prefix |
+| `A*0201` (old format, no colon) | → `HLA-A*02:01` (add prefix + insert colon) |
+| `HLA-A*02` (low resolution, 1-field) | Keep as-is; note in log that higher resolution preferred |
+| `HLA-A*02:01:01` or `*02:01:01:01` (high-res) | Keep full string as-is |
 | `HLA-A 02:01` (space) | → `HLA-A*02:01` |
-| Confirmed in `mhc_alleles.tsv` | Log confirmation status from `confirmed` column |
+| `HLA-A*02:01N`, `*02:01L` (expression suffix) | Keep suffix; note in log |
+| Confirmed status from `mhc_alleles.tsv.gz` | `gzip -dc proofreading/mhc_alleles.tsv.gz \| awk -F'\t' '$2=="HLA-A*02:01"{print $3}'` |
 
 **MHC-I second chain**: always normalise to literal `B2M` — never `beta-2-microglobulin`, `β2m`, `b2m`, `B2M*01`, etc.
 
@@ -174,13 +176,13 @@ Suggested placement: `chunks_unformatted/` if uncertain about QC status; `chunks
 
 Write `<output_basename>_format_log.txt` containing:
 
-1. **Changes made**: for each change — field name, old value, new value, source of normalisation (imgt_alleles.tsv / mhc_alleles.tsv / nomenclature.conversions / manual)
+1. **Changes made**: for each change — field name, old value, new value, source of normalisation (imgt_alleles.tsv.gz / mhc_alleles.tsv.gz / nomenclature.conversions / manual)
 2. **Unresolvable fields**: fields that could not be normalised and why
 3. **Vocabulary gaps**: novel method/verification terms encountered
-4. **Allele resolution notes**: alleles that exist in `mhc_alleles.tsv` at low resolution only
+4. **Allele resolution notes**: alleles that exist in `mhc_alleles.tsv.gz` at low resolution only
 5. **Consistency discrepancies**: naming differences found vs existing `chunks/` files
-6. **Pseudogene warnings**: gene names whose `functionality = P` in `imgt_alleles.tsv`
-7. **Unconfirmed HLA alleles**: alleles present in `mhc_alleles.tsv` with `confirmed = Unconfirmed`
+6. **Pseudogene warnings**: gene names whose `functionality = P` in `imgt_alleles.tsv.gz`
+7. **Unconfirmed HLA alleles**: alleles present in `mhc_alleles.tsv.gz` with `confirmed = Unconfirmed`
 
 ---
 
@@ -188,9 +190,9 @@ Write `<output_basename>_format_log.txt` containing:
 
 | File | Role |
 |---|---|
-| `proofreading/imgt_alleles.tsv` | **Primary** IMGT V/D/J gene authority |
+| `proofreading/imgt_alleles.tsv.gz` | **Primary** IMGT V/D/J gene authority |
 | `proofreading/imgt.md` | IMGT nomenclature rules |
-| `proofreading/mhc_alleles.tsv` | **Primary** HLA allele authority |
+| `proofreading/mhc_alleles.tsv.gz` | **Primary** HLA allele authority |
 | `proofreading/mhc.md` | MHC/HLA naming rules, class I vs II, non-human |
 | `patches/nomenclature.conversions` | Old → current IMGT gene name mappings |
 | `patches/IGM_nomenclature_table.tsv` | Secondary IMGT fallback (existing repo file) |

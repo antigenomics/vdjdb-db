@@ -1,11 +1,11 @@
 # MHC / HLA Nomenclature Reference
 
-> **Authority file:** `proofreading/mhc_alleles.tsv`
+> **Authority file:** `proofreading/mhc_alleles.tsv.gz`
 > **Sources:**
 > - [IPD-IMGT/HLA Database](https://www.ebi.ac.uk/ipd/imgt/hla/) via [ANHIG/IMGTHLA](https://github.com/ANHIG/IMGTHLA)
 > - WHO Nomenclature Committee report: *Nomenclature for Factors of the HLA System, 2026* (Marsh et al., HLA, 2026; 107:e70595; doi:10.1111/tan.70595)
-> **IMGTHLA release used:** 3.64.0 (2026-04-16); `mhc_alleles.tsv` contains **46,005 allele entries**
-> **Update cadence:** IPD-IMGT/HLA releases quarterly (January, April, July, October). Re-extract `mhc_alleles.tsv` after each major release.
+> **IMGTHLA release used:** 3.64.0 (2026-04-16); `mhc_alleles.tsv.gz` contains **46,005 allele entries**
+> **Update cadence:** IPD-IMGT/HLA releases quarterly (January, April, July, October). Re-extract `mhc_alleles.tsv.gz` after each major release.
 
 ---
 
@@ -205,11 +205,76 @@ For mouse class II: `mhc.b` = β-chain allele (e.g., `I-Ab`), `mhc.class = MHCII
 | HLA-DPA1 | ~100 | Nearly monomorphic α-chain |
 
 **Total as of IPD-IMGT/HLA 3.63.0 (January 2026): 43,758 alleles**
-**Total as of IPD-IMGT/HLA 3.64.0 (April 2026): 46,005 alleles in `mhc_alleles.tsv`**
+**Total as of IPD-IMGT/HLA 3.64.0 (April 2026): 46,005 alleles in `mhc_alleles.tsv.gz`**
 
 ---
 
-## 9. How to Use `mhc_alleles.tsv` for Validation
+## 9. Non-Conventional and Historical HLA Naming
+
+Papers (especially pre-2000) may use non-standard HLA nomenclature. These must be normalised to the canonical `HLA-<GENE>*<FIELD1>:<FIELD2>` format.
+
+### 9.1 Old serological antigen names
+
+Before molecular typing, alleles were named by the antigen they defined. These appear without the `HLA-` prefix, without `*`, and without `:`.
+
+| Serological name | Modern canonical name | Notes |
+|---|---|---|
+| `A2`, `HLA-A2` | `HLA-A*02` (low res) or `HLA-A*02:01` (if context known) | Most common HLA-A allele globally |
+| `A3` | `HLA-A*03:01` | |
+| `B7` | `HLA-B*07:02` | |
+| `B27` | `HLA-B*27:05` (most common) | Many B27 subtypes exist — do NOT assume 05 |
+| `DR4` | `HLA-DRB1*04:XX` | Very ambiguous — multiple DRB1*04 alleles |
+| `DQ2` | Usually `HLA-DQB1*02:01` or `*02:02` | Ambiguous without typing |
+| `B44` | `HLA-B*44:02` or `*44:03` | Two common subtypes |
+
+> **Rule:** When a serological antigen name is given without molecular typing, record at low resolution (e.g., `HLA-A*02`) and note in the extraction log that higher resolution was not available.
+
+### 9.2 Old molecular format (no colon separator, no field 2)
+
+Older publications (mid-1990s to mid-2000s) sometimes use:
+- `A*0201` → normalise to `HLA-A*02:01` (insert `HLA-` prefix and colon after field 1)
+- `DRB1*0401` → `HLA-DRB1*04:01`
+- `B*0702` → `HLA-B*07:02`
+
+Pattern: `<GENE>*<4-digit>` → `HLA-<GENE>*<2-digit>:<2-digit>`
+
+### 9.3 WHO serology notation (no `*`)
+
+Some databases use `A0201`, `B0702` — no `*`, no `HLA-`:
+- `A0201` → `HLA-A*02:01`
+- `B0702` → `HLA-B*07:02`
+- `DRB10401` → `HLA-DRB1*04:01`
+
+### 9.4 High-resolution (3- and 4-field) alleles
+
+Modern NGS typing produces up to 4-field resolution. VDJdb accepts and stores the full string:
+| Format | Example | Resolution level |
+|---|---|---|
+| 1-field | `HLA-A*02` | Antigen group only — acceptable, note in log |
+| 2-field | `HLA-A*02:01` | Protein level — **preferred** |
+| 3-field | `HLA-A*02:01:01` | Synonymous coding changes |
+| 4-field | `HLA-A*02:01:01:01` | Non-coding differences — accepted, store full string |
+
+When looking up 3- or 4-field alleles in `mhc_alleles.tsv.gz`, match on the full string in `allele_name`. When looking up low-resolution (1-field), use prefix matching.
+
+### 9.5 Null, low-expression, and aberrant alleles
+
+Alleles with expression suffixes:
+| Suffix | Meaning | Action |
+|---|---|---|
+| `N` | Null — not expressed (e.g., `HLA-A*01:01:01:02N`) | Include suffix; note in log |
+| `L` | Low surface expression | Include suffix; note |
+| `S`, `C`, `A`, `Q` | Secreted / cytoplasm / aberrant / questionable | Include suffix; note |
+
+### 9.6 Non-HLA naming in context of human class I
+
+Some older literature refers to non-classical class I molecules without full allele typing:
+- `HLA-E` (no allele) → leave as-is; note single known common allele is `HLA-E*01:01` or `HLA-E*01:03`
+- `MICA`, `MICB` → these are MHC-class-I-related chains, NOT HLA; should appear in `mhc.a` for NKT or innate studies; flag for review
+
+---
+
+## 10. How to Use `mhc_alleles.tsv.gz` for Validation
 
 ### Column reference
 ```
@@ -221,33 +286,49 @@ allele_id  allele_name  confirmed  sequence_type  partial  cell_count  group_cou
 - `sequence_type`: `gDNA` or `cDNA`
 - `partial`: `Full` or `Partial`
 
-### Validation queries
+> **Important:** All entries in `mhc_alleles.tsv.gz` are stored at full (4-field) resolution (e.g., `HLA-A*02:01:01:01`). A VDJdb entry like `HLA-A*02:01` (2-field) will **not** exact-match any row — use **prefix matching** (`$2 ~ /^HLA-A\*02:01:/`) to validate it. There are 504 rows starting with `HLA-A*02:01:` confirming this protein group exists.
 
-**Look up a specific allele (human):**
+### Validation queries (decompress on-the-fly with gzip -dc)
+
+**Look up a specific 2-field allele (prefix match — all entries in file are at 4-field resolution):**
 ```bash
-grep -P "\tHLA-A\*02:01\t" proofreading/mhc_alleles.tsv
+gzip -dc proofreading/mhc_alleles.tsv.gz | awk -F'\t' '$2 ~ /^HLA-A\*02:01:/'
 ```
 
-**Check if an allele is confirmed:**
+**Look up an exact 4-field allele:**
 ```bash
-awk -F'\t' '$2 == "HLA-A*02:01" {print $3}' proofreading/mhc_alleles.tsv
+gzip -dc proofreading/mhc_alleles.tsv.gz | awk -F'\t' '$2 == "HLA-A*02:01:01:01"'
 ```
 
-**Find all alleles at a locus:**
+**Check if an allele is confirmed (use prefix match for 2-field):**
 ```bash
-awk -F'\t' '$2 ~ /^HLA-DRB1/ {print $2, $3}' proofreading/mhc_alleles.tsv | head -20
+gzip -dc proofreading/mhc_alleles.tsv.gz | awk -F'\t' '$2 ~ /^HLA-A\*02:01:/ {print $2, $3}' | head -3
+```
+
+**Find all alleles at a locus (prefix match):**
+```bash
+gzip -dc proofreading/mhc_alleles.tsv.gz | awk -F'\t' '$2 ~ /^HLA-DRB1/ {print $2, $3}' | head -20
+```
+
+**Low-resolution lookup (1-field, e.g., HLA-A*02):**
+```bash
+gzip -dc proofreading/mhc_alleles.tsv.gz | awk -F'\t' '$2 ~ /^HLA-A\*02:/' | head -5
+# If any rows are returned, the antigen group exists
 ```
 
 ### Validation rules for VDJdb
-1. For human entries where `mhc.a` starts with `HLA-`: look up in `mhc_alleles.tsv`
-   - If not found: may be low-resolution (e.g., `HLA-A*02` without second field) — flag but acceptable
-   - If found but `confirmed = Unconfirmed`: note in log
+1. For human entries where `mhc.a` starts with `HLA-`: look up in `mhc_alleles.tsv.gz`
+   - **4-field allele** (e.g., `HLA-A*02:01:01:01`): exact match on `allele_name`
+   - **2- or 3-field allele** (e.g., `HLA-A*02:01`): use **prefix match** (`$2 ~ /^HLA-A\*02:01:/`) — file stores only 4-field entries
+   - **Low-resolution** (1-field, e.g., `HLA-A*02`): prefix match acceptable (`$2 ~ /^HLA-A\*02:/`); flag and note in log
+   - **Not found**: check for common naming variants (sections 9.1–9.3); flag if truly absent
+   - **Unconfirmed**: note in log
 2. For non-human entries: use species-specific naming rules above (not validated against this file)
 3. `mhc.b = B2M` is never in the allele list (it is not an HLA allele) — this is correct
 
 ---
 
-## 10. Reference Information
+## 11. Reference Information
 
 - **WHO Nomenclature Report 2026:** Marsh et al., *HLA* 2026; 107:e70595. doi:10.1111/tan.70595
 - **IPD-IMGT/HLA Database:** https://www.ebi.ac.uk/ipd/imgt/hla/

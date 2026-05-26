@@ -113,9 +113,9 @@ SUGGESTED FIX: <specific action>
 **Common fixes:**
 | Error | Suggested fix |
 |---|---|
-| `bad v.alpha` (doesn't start with TRAV) | Check `patches/nomenclature.conversions`; look up in `proofreading/imgt_alleles.tsv`; confirm gene is TCR alpha V-gene |
+| `bad v.alpha` (doesn't start with TRAV) | Check `patches/nomenclature.conversions`; look up in `proofreading/imgt_alleles.tsv.gz`; confirm gene is TCR alpha V-gene |
 | `bad species` | Normalise to exact VDJdb value (see `proofreading/mhc.md` section 7); check for typos |
-| `bad mhc.a` | Check `proofreading/mhc_alleles.tsv`; ensure `HLA-` prefix and `*` separator; see `proofreading/mhc.md` |
+| `bad mhc.a` | Check `proofreading/mhc_alleles.tsv.gz`; ensure `HLA-` prefix and `*` separator; see `proofreading/mhc.md` |
 | `bad mhc.class` | Must be exactly `MHCI` or `MHCII` — check capitalisation and spelling |
 | `bad reference.id` | Convert to `PMID:`, `doi:`, or full preprint URL format |
 | `no.cdr3` | Both CDR3 fields are null — at least one is required; check if data was extracted correctly |
@@ -127,20 +127,30 @@ SUGGESTED FIX: <specific action>
 
 ## Step 4 — Enhanced Gene Validation Against IMGT
 
-For each non-null V/D/J field, run the following checks using `proofreading/imgt_alleles.tsv` (more authoritative than `patches/IGM_nomenclature_table.tsv`):
+For each non-null V/D/J field, run the following checks using `proofreading/imgt_alleles.tsv.gz`
+(more authoritative than `patches/IGM_nomenclature_table.tsv`).
+
+Columns: `species | imgt_gene_id | imgt_allele_id | functionality | region_type | accession`
 
 ```bash
-# Check gene exists in IMGT
-awk -F'\t' -v gene="TRBV12-3" '$2 == gene {print "FOUND:", $1, $3}' proofreading/imgt_alleles.tsv
+# Check gene exists in IMGT (gene-level, strip allele suffix first)
+gzip -dc proofreading/imgt_alleles.tsv.gz | awk -F'\t' '$2=="TRBV12-3" && $1=="Homo sapiens" {print "FOUND:", $3, $4; exit}'
 
-# Check allele count
-awk -F'\t' -v gene="TRBV12-3" '$2 == gene {print "Max allele:", $5}' proofreading/imgt_alleles.tsv
+# Check a specific allele exists
+gzip -dc proofreading/imgt_alleles.tsv.gz | awk -F'\t' '$3=="TRBV12-3*02" {print "FOUND:", $4; exit}'
+
+# List all alleles for a gene (human)
+gzip -dc proofreading/imgt_alleles.tsv.gz | awk -F'\t' '$2=="TRBV12-3" && $1=="Homo sapiens" {print $3, $4}'
+
+# Check functionality of a specific allele
+gzip -dc proofreading/imgt_alleles.tsv.gz | awk -F'\t' '$3=="TRBV7-9*08" {print $4}'
 ```
 
 Report:
-- Gene name not found in `imgt_alleles.tsv` (even if prefix is correct)
-- Gene found but functionality is `P` (pseudogene) — flag as biologically suspicious
-- Allele number exceeds `allele_count` — flag as invalid allele
+- Gene name not found in `imgt_gene_id` column (even if prefix is correct) — flag
+- Gene found but allele has `functionality = P` — flag as biologically suspicious
+- Specific allele string not found in `imgt_allele_id` — flag as invalid allele; check `patches/nomenclature.conversions` for Arden names (pattern: `TRxVnSn`, e.g., `TRBV1S1`)
+- Arden-style names (containing `S` digit) — look up in `patches/nomenclature.conversions` and convert
 
 ---
 
@@ -167,7 +177,7 @@ These checks are **not** performed by `ChunkQC.py` — apply them manually:
 | MHC-II / B2M mismatch | If `mhc.class = MHCII`, then `mhc.b` must NOT be `B2M` | Fill correct β-chain allele |
 | mhc.a → class inference | If `mhc.a` starts with `HLA-A/B/C/E/F/G`, class must be `MHCI` | Correct `mhc.class` |
 | mhc.a → class inference | If `mhc.a` starts with `HLA-DR/DQ/DP/DO/DM`, class must be `MHCII` | Correct `mhc.class` |
-| HLA allele in mhc_alleles.tsv | Human `mhc.a/mhc.b` starting with `HLA-` should exist in `proofreading/mhc_alleles.tsv` | Note if not found |
+| HLA allele in mhc_alleles.tsv.gz | Human `mhc.a/mhc.b` starting with `HLA-` should exist in `proofreading/mhc_alleles.tsv.gz` | Note if not found |
 
 ---
 
@@ -212,10 +222,10 @@ Document any data quality problem that `ChunkQC.py` does NOT currently detect. U
 | 6 | DOI URL prefix | `reference.id` starts with `https://doi.org/` instead of `doi:` | `lambda x: not x.startswith('https://doi.org/') if pd.notnull(x) else True` |
 | 7 | Single-cell + Sanger | `method.singlecell == 'yes'` and `method.sequencing == 'sanger'` is biologically inconsistent | Cross-field check |
 | 8 | `meta.subset.frequency` missing from `META_COLUMNS` | Present in all actual chunk files (column 24) but absent from `ChunkQC.py`'s `META_COLUMNS` list | Add `"meta.subset.frequency"` to `META_COLUMNS` after `"meta.cell.subset"` |
-| 9 | Pseudogene V/J assignment | Gene name resolves to `functionality = P` in `proofreading/imgt_alleles.tsv` | Query imgt_alleles.tsv |
-| 10 | Invalid allele number | Allele number exceeds `allele_count` in `proofreading/imgt_alleles.tsv` | Query imgt_alleles.tsv |
-| 11 | HLA allele not in IPD-IMGT/HLA | Human `mhc.a/mhc.b` (starting with `HLA-`) not found in `proofreading/mhc_alleles.tsv` | Query mhc_alleles.tsv |
-| 12 | Unconfirmed HLA allele | Allele in `proofreading/mhc_alleles.tsv` with `confirmed = Unconfirmed` | Query mhc_alleles.tsv |
+| 9 | Pseudogene V/J assignment | Gene name resolves to `functionality = P` in `proofreading/imgt_alleles.tsv.gz` | Query imgt_alleles.tsv.gz |
+| 10 | Invalid allele number | Allele number exceeds `allele_count` in `proofreading/imgt_alleles.tsv.gz` | Query imgt_alleles.tsv.gz |
+| 11 | HLA allele not in IPD-IMGT/HLA | Human `mhc.a/mhc.b` (starting with `HLA-`) not found in `proofreading/mhc_alleles.tsv.gz` | Query mhc_alleles.tsv.gz |
+| 12 | Unconfirmed HLA allele | Allele in `proofreading/mhc_alleles.tsv.gz` with `confirmed = Unconfirmed` | Query mhc_alleles.tsv.gz |
 
 For each new gap found during this session:
 - Document: check description, example failing row, suggested Python code
@@ -267,9 +277,9 @@ Optionally write this to `<input_basename>_proofread_report.txt` if the user req
 |---|---|
 | `py_src/ChunkQC.py` | Primary QC implementation; run this first |
 | `py_src/ScoreFactory.py` | Confidence score computation |
-| `proofreading/imgt_alleles.tsv` | IMGT V/D/J gene authority (beyond ChunkQC) |
+| `proofreading/imgt_alleles.tsv.gz` | IMGT V/D/J gene authority (beyond ChunkQC) |
 | `proofreading/imgt.md` | IMGT nomenclature rules |
-| `proofreading/mhc_alleles.tsv` | HLA allele authority (beyond ChunkQC) |
+| `proofreading/mhc_alleles.tsv.gz` | HLA allele authority (beyond ChunkQC) |
 | `proofreading/mhc.md` | MHC/HLA naming rules |
 | `patches/IGM_nomenclature_table.tsv` | Secondary IMGT fallback (used by ChunkQC internally) |
 | `chunks/` | 175+ validated reference chunks |

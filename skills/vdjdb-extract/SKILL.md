@@ -179,9 +179,9 @@ Write `<output_basename>_extraction_log.txt` containing:
 
 | File | Purpose |
 |---|---|
-| `proofreading/imgt_alleles.tsv` | **Primary** V/D/J gene ID authority — check all extracted gene names here first |
+| `proofreading/imgt_alleles.tsv.gz` | **Primary** V/D/J gene ID authority — check all extracted gene names here first |
 | `proofreading/imgt.md` | IMGT nomenclature rules and gene structure explanation |
-| `proofreading/mhc_alleles.tsv` | **Primary** HLA allele authority — check all extracted human MHC alleles here |
+| `proofreading/mhc_alleles.tsv.gz` | **Primary** HLA allele authority — check all extracted human MHC alleles here |
 | `proofreading/mhc.md` | MHC/HLA naming rules, class I vs II, non-human conventions |
 | `patches/IGM_nomenclature_table.tsv` | Secondary V/D/J fallback (existing repo file) |
 | `patches/nomenclature.conversions` | Old-style → IMGT gene name conversions |
