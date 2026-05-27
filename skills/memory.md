@@ -20,6 +20,26 @@ This file is the **full running log** for all Claude Code sessions working on th
 **Summary:** [1–3 sentences describing what was done and outcome]
 -->
 
+### [2026-05-27] Extract/format/proofread: chihiro26 (3 SARS-CoV-2 papers)
+
+**Skills used:** /extract, /format, /proofread
+**Source:** Submitter Chihiro; XLSX `Summary of TCR clonotypes 260522 Chihiro.xlsx` + `readme.md` at `/Users/aekoneva/data/vdjdb-papers/chihiro26`
+**Input files:** `Summary of TCR clonotypes 260522 Chihiro.xlsx` (3 sheets), `readme.md`
+**Output files:**
+- `chunks/PMID_41842944.txt` (285 rows — NF9/HLA-A*24:02, vaccinated donors, PMID:41842944)
+- `chunks/PMID_42125653.txt` (168 rows — QI9/HLA-A*24:02, mixed vaccinated/convalescent, PMID:42125653)
+- `chunks/PMID_40877317.txt` (166 rows — KF9/HLA-C*12:02, convalescent, 52 paired + 114 beta-only, PMID:40877317)
+**Summary:** Three SARS-CoV-2 CD8+ tetramer-sort datasets curated from a single submitter XLSX. Sheet 3 had a dual-section structure (paired alpha+beta on the left; beta-only from a second experiment on the right). All three sheets had embedded sub-header rows repeated mid-table. TRBJ/TRBD columns were swapped in sheets 2 and 3 right-section. Two gene cells contained allele+functionality code (`TRAV16*01 F`). One cell had an Excel formula artifact (`TRAJ3+D107:D1082`). 36 rows excluded total; 25 CDR3 sequences flagged as non-canonical (kept in chunks — handled by VDJdb build process).
+
+**Key decisions:**
+- `tetramer-sort` used (not `multimer-sort`) — papers explicitly used tetramers; tetramer-sort is most common in VDJdb (~50K rows)
+- Non-canonical CDR3s (no leading C, ends with C/L/P) kept in chunks/ — downstream build marks them; NOT moved to chunks_with_unconventional_aa/ (that directory is only for non-20-AA characters)
+- Rows with `#`/`X` in CDR3 excluded (non-20-AA → data artefacts)
+- TRBJ/TRBD swap corrected by gene name prefix detection
+- Sheet 3 right section (beta-only): alpha columns left empty; valid VDJdb rows with only beta chain
+
+**Pitfalls documented:** Excel sub-header row filtering, `*01 F` allele stripping, formula artifacts, TRBJ/TRBD swap, `tetramer-sort` vs `multimer-sort` distinction, CDR3 non-canonical handling.
+
 ### [2026-05-27] Adaptive Biotech ImmunoSEQ naming — fix zero-padded gene names
 
 **Skills used:** none (bulk fix + documentation session)

@@ -26,15 +26,38 @@ The input may be a folder or individual file(s) containing any mix of:
 
 If the user limits scope (e.g., "only beta chains", "skip MHC data"), respect that limit and note it in the extraction log.
 
+### Excel-specific pitfalls (apply when source is .xlsx/.xls)
+
+1. **Embedded sub-header rows**: Submitters often repeat column headers mid-table to mark new donors or groups. These appear as rows where gene columns contain `TCRα`, `TCRβ`, `TRAV`, `TRBV`, `CDR3α`, `CDR3β`, `CDR3` (literal text). **Filter by checking both CDR3 and gene columns** — some sub-header rows have blank CDR3 cells and `TCRα`/`TCRβ` only in gene columns; the simpler "check CDR3 column for header text" filter will miss them.
+
+2. **Allele suffix with functionality code**: Some cells contain the gene name formatted as `TRAV16*01 F` (allele + space + IMGT functionality code). Standard regex `\*\d+\s*$` fails because `F` follows the space. Use `re.sub(r'\*.*$', '', v).strip()` to strip everything from `*` onwards.
+
+3. **Excel formula artifacts**: Cell merging or formula errors can produce values like `TRAJ3+D107:D1082` (gene name + cell reference). Strip everything after `+` to recover the gene: `val.split('+')[0].strip()`.
+
+4. **TRBJ/TRBD column swap**: Submitters sometimes place TRBJ before TRBD in their table despite the column header saying the opposite. **Always verify by gene name prefix** (e.g., `TRBJ2-7*01` starting with `TRBJ` → it is a J gene regardless of which column it's in). Apply swap correction when prefix contradicts column header.
+
+5. **Non-standard characters in CDR3**: Excel auto-correct, copy-paste artefacts, or annotation notations can introduce characters like `#`, `X`, `*` in CDR3 fields. Exclude rows containing non-20-AA characters; log the exclusion.
+
+6. **Frequency as Excel formula**: Cells like `=I4/26*100` appear as literal strings if the workbook is loaded without `data_only=True`. Always use `data_only=True` in openpyxl to get cached computed values.
+
 ---
 
 ## ⚠️ Absolute Requirements (Non-Negotiable)
 
 ### CDR3 sequences
 - Must contain **only standard amino acids**: `ARNDCQEGHILKMFPSTWYV`
-- Must be **canonical**: starts with `C`, ends with `F` or `W`
+- Canonical form: starts with `C`, ends with `F` or `W`
 - Minimum length: **4 residues**
-- If a CDR3 fails the canonical check: **flag it explicitly** in the log and ask the user whether to include it in `chunks_with_unconventional_aa/` instead of `chunks/`. Never silently drop or silently accept.
+
+**Handling non-standard CDR3s:**
+| Case | Action |
+|---|---|
+| Contains non-20-AA character (`X`, `B`, `#`, `*`, etc.) | **Exclude the row** — log it; likely a data artefact |
+| Does not start with `C` | **Keep in `chunks/`** — flag in extraction log; VDJdb build marks it non-canonical automatically |
+| Ends with residue other than `F`/`W` | **Keep in `chunks/`** — flag in extraction log |
+| Contains genuine modified/non-natural residues | **Move to `chunks_with_unconventional_aa/`** after confirming with user |
+
+> `chunks_with_unconventional_aa/` is **only** for non-standard amino acids (beyond the 20 canonical). Non-canonical start/end residues stay in `chunks/`.
 
 ### Epitope sequences
 - Must be **standard amino acids only**

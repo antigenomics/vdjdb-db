@@ -126,15 +126,19 @@ For mouse class II: `mhc.b` = the β-chain name (e.g., `I-Ab`)
 
 Normalise `method.identification` and `method.verification` to VDJdb-recognised terms.
 
-**Common normalizations:**
-| Author writes | Normalise to | Notes |
+**The governing rule: use what the source says.** Do not upgrade or downgrade based on prevalence in VDJdb.
+
+| Author writes | Normalise to | Reasoning |
 |---|---|---|
-| `FACS sort with pMHC tetramer` | `tetramer-sort` | |
-| `pMHC multimer sort` | `tetramer-sort` | |
-| `dextramer sort` | `dextramer-sort` | |
-| `pentamer sort` | `pentamer-sort` or `pelimer-sort` | Confirm which reagent |
+| `tetramer`, `pMHC tetramer`, `tetramer sort` | `tetramer-sort` | Source specifies tetramers |
+| `dextramer`, `dextramer sort` | `dextramer-sort` | Source specifies dextramers |
+| `pentamer`, `pentamer sort` | `pentamer-sort` | Source specifies pentamers |
+| `multimer`, `pMHC multimer`, `multimer sort` | `multimer-sort` | Source gives no more specific reagent type |
+| Reagent type not stated (only "sort" or "FACS") | `multimer-sort` | Cannot assume tetramer; use generic |
 | `ELISpot` | Do NOT map automatically | Log and ask user |
 | `51Cr release assay` | Do NOT map automatically | Log and ask user |
+
+> **Example:** A readme that says only "tetramer-sort" → `tetramer-sort`. A readme that says only "multimer-sort" with no other information → `multimer-sort`, even if tetramers are the most common reagent in VDJdb. Never infer the reagent type from context or database prevalence.
 
 **Rule:** If an identification or verification method has no close equivalent in the current VDJdb vocabulary, do NOT force it. Instead:
 1. Leave a descriptive string in the field (for reference)

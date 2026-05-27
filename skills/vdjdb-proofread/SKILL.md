@@ -167,14 +167,23 @@ Report:
 
 ## Step 5 — Canonical CDR3 Biology Check
 
-For every non-null CDR3 (`cdr3.alpha`, `cdr3.beta`), verify using `is_qq_seq_biologically_valid()`:
+For every non-null CDR3 (`cdr3.alpha`, `cdr3.beta`), verify:
 - Starts with `C`
 - Ends with `F` or `W`
 - Length is biologically reasonable: 8–20 AA for alpha chain, 10–20 AA for beta chain (flag outside these ranges)
 
-If a CDR3 fails the canonical check but has valid amino acid composition:
-- Suggest moving the row to `chunks_with_unconventional_aa/` rather than `chunks/`
-- Ask the user to confirm
+**Critical rule — when to use `chunks_with_unconventional_aa/`:**
+> `chunks_with_unconventional_aa/` is reserved **exclusively** for CDR3 sequences containing **non-standard amino acids** — i.e., residues outside the canonical 20 (e.g., `X`, `B`, `Z`, `U`, modified residues, L-amino acid designators). It is **NOT** for CDR3s that start without `C`, end with something other than `F/W`, or have unusual lengths — those are canonical composition failures, not non-standard amino acid failures.
+
+| CDR3 issue | Action |
+|---|---|
+| Contains non-20-AA character (`X`, `B`, `#`, etc.) | Exclude the row entirely (invalid data — likely sequencing noise or data entry artefact) |
+| Does not start with `C` | Keep in `chunks/` — flag in extraction log; downstream VDJdb build/web marks it as non-canonical |
+| Ends with residue other than `F`/`W` (e.g., `C`, `L`, `P`) | Keep in `chunks/` — flag in extraction log; downstream build marks it as non-canonical |
+| Unusual length (< 8 or > 20 AA) but valid composition | Keep in `chunks/` — flag in extraction log |
+| **Contains modified residues or non-standard chemistry** | Move to `chunks_with_unconventional_aa/` — confirm with user first |
+
+**Report** all non-canonical CDR3s in the proofread log with a count per category; do **not** remove them or move them to `chunks_with_unconventional_aa/` unless they contain non-20-AA characters.
 
 ---
 

@@ -13,14 +13,15 @@
 | Chunk file | Source | Stage | Blocker |
 |---|---|---|---|
 
-*None — pipeline just set up.*
+*None.*
 
 ### Recently Completed Chunks
 
 | Chunk file | PMID | Completed date | Notes |
 |---|---|---|---|
-
-*None yet.*
+| `PMID_41842944.txt` | 41842944 | 2026-05-27 | NF9/HLA-A*24:02; 285 rows; vaccinated donors; tetramer-sort; Sanger |
+| `PMID_42125653.txt` | 42125653 | 2026-05-27 | QI9/HLA-A*24:02; 168 rows; mixed vaccinated/convalescent |
+| `PMID_40877317.txt` | 40877317 | 2026-05-27 | KF9/HLA-C*12:02; 166 rows (52 paired + 114 beta-only); convalescent |
 
 ---
 
