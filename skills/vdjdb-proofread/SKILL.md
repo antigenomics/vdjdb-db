@@ -123,6 +123,16 @@ SUGGESTED FIX: <specific action>
 | `no.mhc` | `mhc.a` or `mhc.b` is null — both required if MHC data is known |
 | `duplicate` | Exact duplicate of another row on SIGNATURE_COLS — check if intentional (different samples); if so, fill a differentiating meta field |
 
+**Gene not found in IMGT — diagnosis flowchart:**
+1. Does it contain spaces? → strip all spaces
+2. Does it start with `TCRB`/`TCRA`/`TCRG`/`TCRD`? → Adaptive prefix; replace with `TRB`/`TRA`/`TRG`/`TRD`
+3. Does the subgroup number have a leading zero (e.g., `TRBV06-`)? → strip leading zero → `TRBV6-`
+4. Does the cluster number have a leading zero (e.g., `-06`, `-02`, `-01`)? → strip leading zero
+5. Does the result still not exist in IMGT? → try dropping the cluster suffix entirely (Adaptive adds `-01` to all genes, but many IMGT genes have no cluster suffix)
+6. Does it match `TRxVnSn` (Arden pattern with TR prefix)? → look up in `patches/nomenclature.conversions` / `proofreading/arden.tsv`
+7. Does it match `BVnSn` (Arden without TR prefix)? → prepend `TR` and check conversions
+8. Still unresolved? → flag, report to curator, ask user
+
 ---
 
 ## Step 4 — Enhanced Gene Validation Against IMGT
@@ -147,10 +157,11 @@ gzip -dc proofreading/imgt_alleles.tsv.gz | awk -F'\t' '$3=="TRBV7-9*08" {print 
 ```
 
 Report:
-- Gene name not found in `imgt_gene_id` column (even if prefix is correct) — flag
+- Gene name not found in `imgt_gene_id` column (even if prefix is correct) — flag; then apply diagnosis flowchart above
+- **Adaptive ImmunoSEQ pattern detected** (starts with `TCRB`/`TCRA`, or has zero-padded subgroup like `TRBV06-`, or has zero-padded cluster like `TRBV7-06`/`TRBV4-01`) — convert per `proofreading/imgt.md` §9.2; see format skill §2 for algorithm
 - Gene found but allele has `functionality = P` — flag as biologically suspicious
 - Specific allele string not found in `imgt_allele_id` — flag as invalid allele; check `patches/nomenclature.conversions` for Arden names (pattern: `TRxVnSn`, e.g., `TRBV1S1`)
-- Arden-style names (containing `S` digit) — look up in `patches/nomenclature.conversions` and convert
+- Arden-style names (containing `S` digit after gene type letter) — look up in `patches/nomenclature.conversions` / `proofreading/arden.tsv` and convert
 
 ---
 

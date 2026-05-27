@@ -230,11 +230,46 @@ When a paper uses `TRBJ2S1`–`TRBJ2S6`, confirm whether it also uses `TRBJ1S1`�
 
 **Conversion:** See `proofreading/arden.tsv` for the comprehensive table and `patches/nomenclature.conversions` for the machine-readable mapping. Note that some Arden names map to **multiple** IMGT genes (ambiguous primer sets); when this occurs, document the ambiguity in the extraction log rather than picking one.
 
-### 9.2 Author-specific labels
+### 9.2 Adaptive Biotech ImmunoSEQ Naming Convention
+
+**Source:** Adaptive Biotech (immunoSEQ instrument / Immunoverse platform). Documentation: https://tcrdist3.readthedocs.io/en/latest/adaptive.html
+
+Adaptive uses an expanded gene naming convention designed for alphanumeric sorting. It differs from IMGT in three ways:
+
+| Feature | Adaptive | IMGT |
+|---|---|---|
+| Locus prefix | `TCRB`, `TCRA`, `TCRG`, `TCRD` | `TRB`, `TRA`, `TRG`, `TRD` |
+| Subgroup number | Zero-padded to 2+ digits: `TCRBV06-05` | No zero-padding: `TRBV6-5` |
+| Cluster number | Zero-padded; always present (adds `-01` even for single-cluster genes) | Only present when multiple clusters exist; no zero-padding |
+| Allele | `*02` (same as IMGT) | `*02` |
+
+**Patterns seen in VDJdb chunks:**
+
+| Form | Example | Origin | Correct IMGT |
+|---|---|---|---|
+| Full Adaptive (TCR prefix) | `TCRBV06-05` | Raw ImmunoSEQ export | `TRBV6-5` |
+| Hybrid: IMGT prefix + zero-padded subgroup | `TRBV06-5` | Manual stripping of TCR prefix | `TRBV6-5` |
+| Hybrid: IMGT prefix + zero-padded cluster | `TRBV7-06`, `TRBV4-01` | Partially formatted data | `TRBV7-6`, `TRBV4-1` |
+| Single-cluster gene + zero-padded `-01` | `TRBV19-01`, `TRBV9-01`, `TRAV21-01` | Adaptive always adds cluster | `TRBV19`, `TRBV9`, `TRAV21` |
+| Single-cluster gene + `-02` (allele ref) | `TRBV15-02` | Ambiguous: may be allele 2 | `TRBV15` (drop cluster/allele info) |
+
+**Conversion algorithm:**
+1. Replace `TCRB` → `TRB`, `TCRA` → `TRA`, `TCRG` → `TRG`, `TCRD` → `TRD`
+2. Strip leading zeros from subgroup: `\bTR([ABGD][VDJC])0+(\d)` → `TR\1\2`
+3. Strip leading zeros from cluster: `-0+(\d+)` → `-\1`
+4. If resulting `gene-cluster` is not in `imgt_alleles.tsv.gz` for the species, try the bare gene name (without cluster): many IMGT genes have no cluster suffix
+5. Allele `*NN`: keep as-is (IMGT uses same zero-padded 2-digit allele format); or drop allele if VDJdb record doesn't require allele-level resolution
+
+**Key verification:** After any Adaptive→IMGT conversion, look up the result in `imgt_alleles.tsv.gz`:
+```bash
+gzip -dc proofreading/imgt_alleles.tsv.gz | awk -F'\t' '$1=="Homo sapiens" && $2=="TRBV7-6"'
+```
+
+### 9.3 Author-specific labels
 
 Papers from the 1990s–2000s sometimes use non-IMGT labels (e.g., `BV20S1`, `AV2S1`, `hVβ2`, `Vβ17`). These usually follow the Arden pattern but may also be author-specific. Always check `patches/nomenclature.conversions` first, then search the literature if not found.
 
-### 9.3 Primer-derived ambiguities
+### 9.4 Primer-derived ambiguities
 
 Some older multiplex RT-PCR-based experiments use primers that detect multiple V genes. In this case the `v.beta` field may list multiple IMGT names comma-separated (e.g., `TRBV6-2,TRBV6-3`). This is acceptable in VDJdb — do not reduce to a single gene.
 
@@ -250,6 +285,11 @@ Some older multiplex RT-PCR-based experiments use primers that detect multiple V
 | `Vβ17` | Informal label | Not mappable without species context; ask user |
 | `TRAV14/DV4` | Dual-usage gene, looks wrong | Correct — this is a legitimate IMGT name for a dual-usage gene |
 | `TRBVS1` | Unmapped gene (old IMGT notation) | May exist in `imgt_alleles.tsv.gz`; check |
+| `TCRBV06-05` | Full Adaptive ImmunoSEQ name | Replace `TCRB`→`TRB`, strip leading zeros → `TRBV6-5`; see Section 9.2 |
+| `TRBV06-5` | Hybrid: IMGT prefix + zero-padded subgroup | Strip leading zero → `TRBV6-5` |
+| `TRBV7-06` | Hybrid: IMGT prefix + zero-padded cluster | Strip leading zero → `TRBV7-6` |
+| `TRBV19-01` | Adaptive single-cluster padding (TRBV19 has no cluster) | Drop cluster suffix → `TRBV19` |
+| `TRBV11-02` | Adaptive zero-padded cluster (TRBV11 has clusters 1/2/3) | Strip leading zero → `TRBV11-2` |
 
 ---
 

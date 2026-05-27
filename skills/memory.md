@@ -20,6 +20,19 @@ This file is the **full running log** for all Claude Code sessions working on th
 **Summary:** [1–3 sentences describing what was done and outcome]
 -->
 
+### [2026-05-27] Adaptive Biotech ImmunoSEQ naming — fix zero-padded gene names
+
+**Skills used:** none (bulk fix + documentation session)
+**Source:** GitHub issue #495 follow-up; `chunks/PMID_40577481.txt` user-flagged; tcrdist3 docs https://tcrdist3.readthedocs.io/en/latest/adaptive.html
+**Input files:** `chunks/PMID_40577481.txt`, `chunks/goncharov-taa-2020-11-02.txt`, `chunks/goncharov-gluten-2023-05-06.txt`, `chunks/goncharov-taa-2020-11-24.txt`; `proofreading/imgt_alleles.tsv.gz` (verification)
+**Output files:**
+- 4 `chunks/*.txt` files modified (17 total field changes)
+- `proofreading/imgt.md` updated (new Section 9.2: Adaptive ImmunoSEQ naming; Section 10 table expanded)
+- `skills/vdjdb-format/SKILL.md` updated (Adaptive detection as step 2 in gene normalisation)
+- `skills/vdjdb-proofread/SKILL.md` updated (gene diagnosis flowchart; Adaptive pattern in enhanced validation)
+- `skills/vdjdb-extract/SKILL.md` updated (Adaptive listed as input source type)
+**Summary:** Fixed Adaptive Biotech ImmunoSEQ-style gene names across 4 chunk files: (1) zero-padded subgroup (`TRBV06-5`→`TRBV6-5`, `TRBV06-8`→`TRBV6-8`); (2) zero-padded cluster (`TRBV7-06`→`TRBV7-6`, `TRBV4-01`→`TRBV4-1`, `TRBV5-04`→`TRBV5-4`, `TRBV11-02`→`TRBV11-2`, `TRBV25-01`→`TRBV25-1`); (3) spurious cluster on single-cluster genes (`TRBV19-01`→`TRBV19`, `TRBV9-01`→`TRBV9`, `TRBV15-02`→`TRBV15`, `TRAV21-01`→`TRAV21`). All conversions verified in `imgt_alleles.tsv.gz`. Documented Adaptive convention in `imgt.md` §9.2 and added conversion algorithm to all three skill files.
+
 ### [2026-05-27] Issue #495 — fix Arden/space/dual-usage gene names in chunks
 
 **Skills used:** none (bulk fix + documentation session)

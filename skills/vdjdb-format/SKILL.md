@@ -48,7 +48,19 @@ If a species is not in the above list:
 
 1. **Strip whitespace**: remove all spaces within the gene name (`TRBV 7` → `TRBV7`, `TRAV 12-2` → `TRAV12-2`)
 
-2. **Look up in `imgt_alleles.tsv.gz`** (strip allele suffix `*NN` before lookup):
+2. **Detect and convert Adaptive Biotech ImmunoSEQ names** (see `proofreading/imgt.md` §9.2 for full details):
+   - **Full Adaptive prefix** (`TCRB`, `TCRA`, `TCRG`, `TCRD`): replace with `TRB`, `TRA`, `TRG`, `TRD`
+     - `TCRBV06-05*01` → strip `TCR` prefix → `TRBV06-05*01`
+   - **Zero-padded subgroup**: strip leading zeros from subgroup number
+     - `TRBV06-5` → `TRBV6-5`
+   - **Zero-padded cluster**: strip leading zeros from cluster number
+     - `TRBV7-06` → `TRBV7-6`, `TRBV4-01` → `TRBV4-1`
+   - **Verify result in `imgt_alleles.tsv.gz`**: if `gene-cluster` is not found, try the bare gene name (Adaptive always appends `-01` to single-cluster genes that IMGT names without a cluster)
+     - `TRBV19-01` → `TRBV19-1` not found → `TRBV19` found ✓
+     - `TRBV11-02` → `TRBV11-2` found ✓
+   - When source is Adaptive, note in format log: `ADAPTIVE_NAME → IMGT_NAME (Adaptive ImmunoSEQ normalisation)`
+
+3. **Look up in `imgt_alleles.tsv.gz`** (strip allele suffix `*NN` before lookup):
    - If found → keep (or correct capitalisation to match)
    - If not found → check `patches/nomenclature.conversions` for a mapping
    - If found in conversions → apply the conversion and log `old_name → new_name`

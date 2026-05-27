@@ -21,6 +21,7 @@ The input may be a folder or individual file(s) containing any mix of:
 - Plain-text files (FASTA, exported tables)
 - 10X Genomics `filtered_contig_annotations.csv` / clonotype files
 - AIRR-format TSV files (`productive`, `v_call`, `j_call`, `cdr3_aa` columns)
+- **Adaptive Biotech ImmunoSEQ** exports (TSV; gene columns use `TCRB`/`TCRA` prefix with zero-padded numbers like `TCRBV06-05*01` — flag all gene names for conversion in `/format`)
 - Jupyter notebooks or scripts used by the authors
 
 If the user limits scope (e.g., "only beta chains", "skip MHC data"), respect that limit and note it in the extraction log.
