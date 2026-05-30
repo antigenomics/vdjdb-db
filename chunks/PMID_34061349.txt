@@ -1,15 +1,15 @@
 chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
-1	CAVSVNTGNQFYF	TRAV8-4	TRAJ49	CASRDQDRGHQPQHF	TRBV28		TRBJ1-5	HomoSapiens	HLA class II		MHCII	NCTFEYVSQPFLMDL	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P54-17, P54-74					
-2				CASSLQQGAGTDTQYF	TRBV7-8		TRBJ2-3	HomoSapiens	HLA class II		MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-492, P91-550					
-3				CASSLSGGNNEQFF	TRBV5-1		TRBJ2-1	HomoSapiens	HLA class II		MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-572					
-4				CASSLVGGNPSTTTYEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA class II		MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-536					
-5				CASSPRTLTVPRGTDTQYF	TRBV19		TRBJ2-3	HomoSapiens	HLA class II		MHCII	AALALLLLDRLNQLE	Nucleocapsid	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-453					
-6				CASSSGEGGETQYF	TRBV19		TRBJ2-5	HomoSapiens	HLA class II		MHCII	NCTFEYVSQPFLMDL	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P54-11					
-7				CASSVDSSSGNTIYF	TRBV2		TRBJ1-3	HomoSapiens	HLA class II		MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-533					
-8				CASSYIHRSNTEAFF	TRBV6-5		TRBJ1-1	HomoSapiens	HLA class II		MHCII	NCTFEYVSQPFLMDL	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P54-9, P54-15					
-9				CAWRRMNTEAFF	TRBV30		TRBJ1-1	HomoSapiens	HLA class II		MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-491					
-10				CAWSEGQGVGQPQHF	TRBV30		TRBJ1-5	HomoSapiens	HLA class II		MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-459					
-11				CAWSGPAGSMSGELFF	TRBV30		TRBJ2-2	HomoSapiens	HLA class II		MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-502					
-12				CSASGSGSTYNEQFF	TRBV20-1		TRBJ2-1	HomoSapiens	HLA class II		MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-155, P91-579					
-13				CAISDPGGRSNEQFF	TRBV10-3		TRBJ2-1	HomoSapiens	HLA class II		MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-530					
-14				CASSGLVGAGSSYNSPLHF	TRBV7-2		TRBJ1-6	HomoSapiens	HLA class II		MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-158					
+1	CAVSVNTGNQFYF	TRAV8-4	TRAJ49	CASRDQDRGHQPQHF	TRBV28		TRBJ1-5	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*03:01	MHCII	NCTFEYVSQPFLMDL	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P54-17, P54-74					
+2				CASSLQQGAGTDTQYF	TRBV7-8		TRBJ2-3	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*03:01	MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-492, P91-550					
+3				CASSLSGGNNEQFF	TRBV5-1		TRBJ2-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*03:01	MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-572					
+4				CASSLVGGNPSTTTYEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*03:01	MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-536					
+5				CASSPRTLTVPRGTDTQYF	TRBV19		TRBJ2-3	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*03:01	MHCII	AALALLLLDRLNQLE	Nucleocapsid	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-453					
+6				CASSSGEGGETQYF	TRBV19		TRBJ2-5	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*03:01	MHCII	NCTFEYVSQPFLMDL	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P54-11					
+7				CASSVDSSSGNTIYF	TRBV2		TRBJ1-3	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*03:01	MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-533					
+8				CASSYIHRSNTEAFF	TRBV6-5		TRBJ1-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*03:01	MHCII	NCTFEYVSQPFLMDL	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P54-9, P54-15					
+9				CAWRRMNTEAFF	TRBV30		TRBJ1-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*03:01	MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-491					
+10				CAWSEGQGVGQPQHF	TRBV30		TRBJ1-5	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*03:01	MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-459					
+11				CAWSGPAGSMSGELFF	TRBV30		TRBJ2-2	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*03:01	MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-502					
+12				CSASGSGSTYNEQFF	TRBV20-1		TRBJ2-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*03:01	MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-155, P91-579					
+13				CAISDPGGRSNEQFF	TRBV10-3		TRBJ2-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*03:01	MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-530					
+14				CASSGLVGAGSSYNSPLHF	TRBV7-2		TRBJ1-6	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*03:01	MHCII	VGGNYNYLYRLFRKSNLKP	Spike	SARS-CoV-2	PMID:34061349	antigen-loaded-targets											P91-158					
