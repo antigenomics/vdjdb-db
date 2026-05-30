@@ -1,0 +1,139 @@
+# Free-text antigen source molecule name → VDJdb canonical antigen.gene
+# Strip "[species]" suffix and trailing " protein"/" glycoprotein" before lookup.
+# Exact string match after stripping. Lines starting with # are comments and are ignored.
+source_name	vdjdb_name
+BMLF1 protein	BMLF1
+EBNA-3B nuclear protein	EBNA3B
+Epstein-Barr nuclear antigen 3	EBNA3B
+nuclear antigen EBNA-3	EBNA3B
+EBNA3A nuclear protein	EBNA3A
+Replication and transcription activator	BRLF1
+EBNA-1 protein	EBNA1
+EBNA3C latent protein	EBNA3C
+latent membrane protein 1	LMP1
+Latent membrane protein 2	LMP2A
+Lytic switch protein BZLF1	BZLF1
+tegument protein VP22	VP22
+HCMVUL83	pp65
+tegument protein pp65	pp65
+65 kDa phosphoprotein	pp65
+UL123; IE1	IE1
+55 kDa immediate-early protein 1	IE1
+Regulatory protein IE1	IE1
+regulatory protein IE1	IE1
+DNA processivity factor	UL44
+Immediate-early protein 3 (IE3)	IE3
+pM45	M45
+Matrix protein 1	M1
+Nucleoprotein	Nucleocapsid
+nucleoprotein	NP
+nucleocapsid protein	NP
+Neuraminidase	NA
+Matrix M2	M2
+Matrix protein	M
+Protein PB1-F2	PB1-F2
+RNA-directed RNA polymerase catalytic subunit	PB1
+RNA-directed RNA polymerase subunit P1 (Polymerase basic protein 1) (PB1)	PB1
+Polymerase acidic protein	PA
+Hemagglutinin precursor	HA
+Hemagglutinin	HA
+hemagglutinin	HA
+hemagglutinin HA1	HA
+HA1	HA
+HA2	HA
+Spike glycoprotein	Spike
+spike glycoprotein	Spike
+Chain A, Spike glycoprotein	Spike
+surface glycoprotein	Spike
+Replicase polyprotein 1a	ORF1ab
+Replicase polyprotein 1ab	ORF1ab
+orf1ab polyprotein	ORF1ab
+ORF1ab polyprotein	ORF1ab
+ORF3a protein	ORF3a
+ORF7a protein	ORF7a
+ORF7b protein	ORF7b
+ORF8 protein	ORF8
+Putative ORF10 protein	ORF10
+Membrane protein	Matrix
+Envelope small membrane protein	E
+protein I	I
+Nef protein	Nef
+Protein Nef	Nef
+GAG protein	Gag
+Gag polyprotein	Gag
+gag polyprotein	Gag
+pol protein	Pol
+Genome polyprotein	Polyprotein
+Nonstructural protein NS3	NS3
+nonstructural protein 3	NS3
+NS3	NS3
+nonstructural protein 1	NS1
+Non-structural protein 1	NS1
+polyprotein precursor	Polyprotein
+precore/core protein	HBcAg
+Protein P	Pol
+transcriptional activator Tax	Tax
+Pre-glycoprotein polyprotein GP complex	GPC
+glycoprotein	GPC
+Uncharacterized protein MT1568	Rv1518
+branched-chain alpha-keto acid dehydrogenase subunit E2	Rv1518
+10 kDa culture filtrate antigen EsxB	CFP10
+10 KDA CULTURE FILTRATE ANTIGEN ESXB (LHP) (CFP10)	CFP10
+ESAT-6-like protein esxH	EsxH
+Antigen 85-B	Ag85B
+E1A	E1A
+Early E1A 32 kDa protein	E1A
+Hexon protein	Hexon
+Protein E7	E7
+E7 protein	E7
+Protein E6	E6
+Envelope glycoprotein D	gD
+glycoprotein B	gB
+large T antigen	LT
+ovalbumin	OVA
+Insulin-1	Ins1
+Insulin-2	Ins2
+Melanoma antigen recognized by T-cells 1	MLANA
+Chain C, Melanocyte protein PMEL	PMEL
+Melanocyte protein PMEL	PMEL
+Bone marrow stromal antigen 2	BST2
+islet-specific glucose-6-phosphatase-related protein isoform 1	IGRP
+Cancer/testis antigen 1	NY-ESO-1
+Apolipoprotein B-100	ApoB
+Fibronectin type III domain-containing protein 3B	FNDC3B
+Kinetochore protein Nuf2	NUF2
+Lymphocyte antigen 6K	LY6K
+Insulin-like growth factor 2 mRNA-binding protein 2	IGF2BP2
+Neutral alpha-glucosidase AB	GANAB
+transcription factor NYD-sp10	KIF20A
+Insulin	INS
+proinsulin precursor	INS
+insulin	INS
+Orexin	HCRT
+orexin precursor	HCRT
+Myelin proteolipid protein	PLP
+myelin/oligodendrocyte glycoprotein	MOG
+Myelin basic protein	MBP
+MBP protein	MBP
+Glypican-3	GPC3
+Receptor tyrosine-protein kinase erbB-2	HER2
+Wilms tumor protein	WT1
+Glutamate decarboxylase 2	GAD2
+G1/S-specific cyclin-D1	CCND1
+Cyclin-dependent kinase 4	CDK4
+Alpha-fetoprotein	AFP
+Coagulation factor VIII	F8
+Prostatic acid phosphatase	ACPP
+Protein SSX2	SSX2
+Fusion protein SYT-SSX2	SYT-SSX2
+Histone-lysine N-methyltransferase 2D	KMT2D
+zinc transporter 8 isoform a	SLC30A8
+Proton-coupled zinc antiporter SLC30A8	SLC30A8
+Integrin beta-3	ITGB3
+histocompatibility (minor) HA-1	HA-1
+K-ras oncogene protein	KRAS
+GPER protein	GPER
+Trophoblast glycoprotein	TPBG
+T-box transcription factor TBX3	TBX3
+Serine/threonine-protein phosphatase PP1-alpha catalytic subunit	PPP1CA
+Chromogranin-A	CHGA
