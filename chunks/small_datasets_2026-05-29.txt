@@ -8,8 +8,8 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 7				CASSRANYEQYF	TRBV12-1	TRBD1*01	 TRBJ2-7	MusMusculus	H2-Db	B2M	MHCI	ASNENMDAM	Nucleocapsid	InfluenzaA	PMID:10671225	antigen-loaded-targets											OT-I					
 8				CASSRANYEQYF	TRBV12-1	TRBD1*01	 TRBJ2-7	MusMusculus	H2-Kb	B2M	MHCI	SIINFEKL	OVA	GallusGallus	PMID:10671225	antigen-loaded-targets											OT-I					
 9				CASSPDREAGELFF	TRBV5-1		TRBJ2-2	HomoSapiens	HLA-DRB3*02:02		MHCII	ENPVVHFFKNIVTPR	MBP	HomoSapiens	PMID:10686174	antigen-loaded-targets,cultured-T-cells																
-10	CVVNMLAGNTDKLIF	TRAV12-1	TRAJ34	CSASIFRDLTHNEQFF	TRBV20-1		TRBJ2-1	HomoSapiens	HLA-A2	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:10925283	tetramer-sort																
-11				CASSQSPGGFQYF	TRBV14		TRBJ2-4	HomoSapiens	HLA-A2	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:10925283	tetramer-sort																
+10	CVVNMLAGNTDKLIF	TRAV12-1	TRAJ34	CSASIFRDLTHNEQFF	TRBV20-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:10925283	tetramer-sort																
+11				CASSQSPGGFQYF	TRBV14		TRBJ2-4	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:10925283	tetramer-sort																
 12	CAVTTDSWGKLQF	TRAV12-2*02	TRAJ24*02	CASRPGLAGGRPEQYF	TRBV6-5*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLFGYPVYV	Tax	HTLV-1	PMID:11238586	antigen-loaded-targets											A6					
 13				CASSQSPGGTQYF	TRBV14		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:11592365	tetramer-sort											Clone 7, 					
 14				CASSFSRNTGELFF	TRBV14		TRBJ2-2	HomoSapiens	HLA-B*08:01	B2M	MHCI	RAKFKQLL	BZLF1	EBV	PMID:11592365	tetramer-sort																
@@ -34,9 +34,9 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 33	CAVSESRPYLTF			CASGGGGTLYF	TRBV13-2*01			MusMusculus	H2-Kb	B2M	MHCI	EQYKFYSV	Ndufa4	MusMusculus	PMID:12469116	tetramer-sort											m80α					
 34	CAVSESRPYLTF			CASGGGGTLYF	TRBV13-2*01			MusMusculus	H2-Ld	B2M	MHCI	QLSPFPFDL	2-oxoglutarate dehydrogenase complex component E1	MusMusculus	PMID:12469116	tetramer-sort											m80α					
 35	CAVSESRPYLTF			CASGGGGTLYF	TRBV13-2*01			MusMusculus	H2-Kb	B2M	MHCI	SIYRYYGL	Synthetic	Synthetic	PMID:12469116	tetramer-sort											m80α					
-36				CASSQAGLAAYNEQFF	TRBV7-3		TRBJ2-1	HomoSapiens	HLA-A2	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:12504586	antigen-loaded-targets											EBV.GL9					
-37				CASSQDGAGGLGEQFF	TRBV7-3		TRBJ2-1	HomoSapiens	HLA-A2	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:12504586	antigen-loaded-targets											EBV.GL9					
-38				CASSLRNSYEQFF	TRBV3-1		TRBJ2-1	HomoSapiens	HLA-A2	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:12504586	antigen-loaded-targets											EBV.GL9					
+36				CASSQAGLAAYNEQFF	TRBV7-3		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:12504586	antigen-loaded-targets											EBV.GL9					
+37				CASSQDGAGGLGEQFF	TRBV7-3		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:12504586	antigen-loaded-targets											EBV.GL9					
+38				CASSLRNSYEQFF	TRBV3-1		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:12504586	antigen-loaded-targets											EBV.GL9					
 39				CASSSANYGYTF	TRBV8		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:12616496	antigen-loaded-targets											BV8					
 40				CATSDPLTASYEQFF	TRBV15		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:12616496	antigen-loaded-targets											BV15					
 41				CASGGGRGSYAEQFF	TRBV13-2		TRBJ2-1*01	MusMusculus	H2-IEd		MHCII	SFERFEIFPKE	HA	InfluenzaA	PMID:12682221	antigen-loaded-targets,cultured-T-cells											6.5					
@@ -52,7 +52,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 51				CASGGGRGSYAEQFF	TRBV13-2		TRBJ2-1*01	MusMusculus	H2-IEd		MHCII	SFERFEIFPKE	HA	InfluenzaA	PMID:15128793	antigen-loaded-targets,cultured-T-cells											6.5					
 52				CASSIGTEYEQYF	TRBV19*01 		TRBJ2-7*01	MusMusculus	H2-IAg7		MHCII	SLSVYDLESKAVIAEL	Guanine nucleotide-binding protein subunit beta-like	Leishmania major	PMID:15368281	antigen-loaded-targets											2D2 beta-chain					
 53				CASSRANYEQYF	TRBV12-1	TRBD1*01	TRBJ2-7	MusMusculus	H2-Kb	B2M	MHCI	SIINFEKL	OVA	GallusGallus	PMID:15379861	antigen-loaded-targets,cultured-T-cells											OT-III, OT-I					
-54	CALDSSASKIIF	TRAV19		CASSYLTGEGDYGYTF	TRBV6-5			HomoSapiens	HLA-A2	B2M	MHCI	YMDDVVLGA	Pol	HBV	PMID:15591521	tetramer-sort																
+54	CALDSSASKIIF	TRAV19		CASSYLTGEGDYGYTF	TRBV6-5			HomoSapiens	HLA-A*02	B2M	MHCI	YMDDVVLGA	Pol	HBV	PMID:15591521	tetramer-sort																
 55	CAMRESGGSNAKLAF	TRAV16	TRAJ42					MusMusculus	H2-Db	B2M	MHCI	ASNENMETM	NP	InfluenzaA	PMID:15611258	tetramer-sort											alpha chain C57BL/6 no. 4- 2					
 56	CAMRGSGGSNAKLAF	TRAV16	TRAJ42					MusMusculus	H2-Db	B2M	MHCI	ASNENMETM	NP	InfluenzaA	PMID:15611258	tetramer-sort											alpha chain C57BL/6 no. 2- 2					
 57	CAMRRGGGSNAKLAF	TRAV16	TRAJ42					MusMusculus	H2-Db	B2M	MHCI	ASNENMETM	NP	InfluenzaA	PMID:15611258	tetramer-sort											alpha chain C57BL/6 no. 1 - 3					
@@ -154,8 +154,8 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 153	CATDTTSGTYKYIF	TRAV17*01 	TRAJ40*01	CSARDLTSGANNEQFF	TRBV20-1*01		TRBJ2-1*01 	HomoSapiens	HLA-DRA*01:01/DRB1*15:01		MHCII	DFARVHFISALHGSG	GTP-binding protein EngA	Haemophilus influenzae	PMID:19303388												Ob.1A12					
 154	CATDTTSGTYKYIF	TRAV17*01 	TRAJ40*01	CSARDLTSGANNEQFF	TRBV20-1*01		TRBJ2-1*01 	HomoSapiens	HLA-DRA*01:01/DRB1*15:01		MHCII	ENPVVHFFKNIVTPR	MBP	HomoSapiens	PMID:19303388												Ob.1A12					
 155	CVLGDRQGGRALIF	TRAV6-1*02	TRAJ15*01	CASSSRTGGHAEQFF	TRBV16*04	TRBD2*01	TRBJ2-1*01	MusMusculus	H2-Db	B2M	MHCI	ASNENMDAM	Nucleocapsid	InfluenzaA	PMID:19342630	antigen-loaded-targets											F5					
-156				CASSLGTGALEQYF	TRBV14		TRBJ2-7	HomoSapiens	HLA-A2	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19403059	tetramer-sort											Clone 2					
-157				CASSLTGAFFNQDQHF	TRBV3		TRBJ1-5	HomoSapiens	HLA-A2	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19403059	tetramer-sort											Clone 1					
+156				CASSLGTGALEQYF	TRBV14		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19403059	tetramer-sort											Clone 2					
+157				CASSLTGAFFNQDQHF	TRBV3		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19403059	tetramer-sort											Clone 1					
 158				CASSQSPGGTQYF	TRBV14		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:19542443	tetramer-sort											Clone 7, 					
 159				CASPPAVSYEQYF	TRBV18		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:19542443	tetramer-sort											Clone 8					
 160				CASSLSVGSGGTNEKLFF	TRBV29		TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:19542443	tetramer-sort											Clone 12					
@@ -353,8 +353,8 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 352	CALRDDKIIF	TRAV16*01	TRAJ30*01	CATSPGLAGAYQETQYF	TRBV24-1*01	TRBD2*02	TRBJ2-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																
 353	CAVSYGNMLTF	TRAV3*01	TRAJ39*01	CASNPVAGLPGEQYF	TRBV27*01	TRBD2*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																
 354	CVVSDPGAGSYQLTF	TRAV8-2*01	TRAJ28*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																
-355	CAVQSGTSGSRLTF	TRAV20	TRAJ58	CASSVVAGFNEQFF	TRBV9		TRBJ2-1	HomoSapiens	HLA-A2	B2M	MHCI	ACDPHSGHFV	orf	HomoSapiens	PMID:26808500	antigen-loaded-targets											14/35					
-356	CAVQSGTSGSRLTF	TRAV20	TRAJ58	CASSVVAGFNEQFF	TRBV9		TRBJ2-1	HomoSapiens	HLA-A2	B2M	MHCI	ALDPHSGHFV			PMID:26808500	antigen-loaded-targets											14/35					
+355	CAVQSGTSGSRLTF	TRAV20	TRAJ58	CASSVVAGFNEQFF	TRBV9		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	ACDPHSGHFV	orf	HomoSapiens	PMID:26808500	antigen-loaded-targets											14/35					
+356	CAVQSGTSGSRLTF	TRAV20	TRAJ58	CASSVVAGFNEQFF	TRBV9		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	ALDPHSGHFV			PMID:26808500	antigen-loaded-targets											14/35					
 357	CAAEAGNNRIFF	TRAV4D-3*03	TRAJ31*01	CASGETGGNYAEQFF	TRBV13-2	TRBD2	TRBJ2-1	MusMusculus	H2-IAb		MHCII	MEVGWYRSPFSRVVHLYRNGK	MOG	MusMusculus	PMID:27192577	antigen-loaded-targets											T12-1359					
 358	CAAGNSAGNKLTF	TRAV4D-3*03	TRAJ17*01	CASGETGGNYAEQFF	TRBV13-2	TRBD2	TRBJ2-1	MusMusculus	H2-IAb		MHCII	MEVGWYRSPFSRVVHLYRNGK	MOG	MusMusculus	PMID:27192577	antigen-loaded-targets											T6-145					
 359	CAASGANTGKLTF	TRAV7D-2*02	TRAJ52*01	CASGETGGNYAEQFF	TRBV13-2	TRBD2	TRBJ2-1	MusMusculus	H2-IAb		MHCII	MEVGWYRSPFSRVVHLYRNGK	MOG	MusMusculus	PMID:27192577	antigen-loaded-targets											T6-71					
