@@ -20,8 +20,10 @@ influenza b	InfluenzaB
 h1n1	InfluenzaA
 h3n2	InfluenzaA
 h7n9	InfluenzaA
+sars-cov-2	SARS-CoV-2
 sars-cov2	SARS-CoV-2
 coronavirus 2	SARS-CoV-2
+sars-cov-1	SARS-CoV
 sars-cov1	SARS-CoV
 sars coronavirus	SARS-CoV
 sars-cov	SARS-CoV
@@ -55,4 +57,4 @@ salmonella enterica	SalmonellaTyphi
 homo sapiens	HomoSapiens
 mus musculus	MusMusculus
 gallus gallus	GallusGallus
-triticum aestivum	TriticumAestivum
+triticum aestivum	Wheat
