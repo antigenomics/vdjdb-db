@@ -1,6 +1,6 @@
 ---
 name: vdjdb-publish
-description: For each new or changed chunk in chunks/ (by git), find or create a GitHub issue for its PMID, then commit the chunk with "Closes #issue_id". Processes one chunk at a time, always asking user before creating issues or committing.
+description: For each new or changed chunk in chunks/ (by git), find or create a GitHub issue for its PMID, then commit the chunk with "Fixes #issue_id". Processes one chunk at a time, always asking user before creating issues or committing.
 ---
 
 # /vdjdb-publish — Publish VDJdb Chunks to GitHub
@@ -10,7 +10,7 @@ description: For each new or changed chunk in chunks/ (by git), find or create a
 Walk through every new or modified file in `chunks/` according to git, and for each one:
 1. Determine the PubMed ID from the filename.
 2. Find or create the matching GitHub issue (`PMID:$pubmedid`).
-3. Commit only that chunk with `Closes #$issue_id`.
+3. Commit only that chunk with `Fixes #$issue_id`.
 
 The skill processes chunks **one at a time**, always asking the user before creating an issue or committing.
 
@@ -75,7 +75,13 @@ Display to the user:
 - Issue URL
 - First ~200 chars of the body
 
-Ask: "Issue #$number already exists for PMID:$pubmedid. Do you want to commit `chunks/PMID_$pubmedid.txt` with `Closes #$number`? [y/n/skip]"
+**For modified (tracked) files**, always show a brief diff summary before asking:
+- Number of lines added/removed (`git diff HEAD -- <file> | diffstat`)
+- Key changes: column schema differences, row count delta, notable content changes (e.g. wrong reference.id, metadata cleared, gene naming style change)
+
+**For modified files with metadata cleared in the new version**, offer the user the option to merge: retain old rows (which have metadata) and append new-only rows (matched by `cdr3.beta` + `antigen.epitope`). If the user says yes, perform the merge programmatically (Python), then commit the merged result.
+
+Ask: "Issue #$number already exists for PMID:$pubmedid. Do you want to commit `chunks/PMID_$pubmedid.txt` with `Fixes #$number`? [y/n/skip]"
 
 - **y**: proceed to step 3 (commit).
 - **n / skip**: move to the next chunk without committing.
@@ -135,7 +141,7 @@ git add "chunks/PMID_$pubmedid.txt"
 Confirm to the user what will be committed (one line: filename + issue number + commit message), then:
 
 ```bash
-git commit -m "Closes #$issue_id"
+git commit -m "Fixes #$issue_id"
 ```
 
 After a successful commit, move on to the next chunk in the list.

@@ -178,12 +178,157 @@ For every non-null CDR3 (`cdr3.alpha`, `cdr3.beta`), verify:
 | CDR3 issue | Action |
 |---|---|
 | Contains non-20-AA character (`X`, `B`, `#`, etc.) | Exclude the row entirely (invalid data — likely sequencing noise or data entry artefact) |
-| Does not start with `C` | Keep in `chunks/` — flag in extraction log; downstream VDJdb build/web marks it as non-canonical |
-| Ends with residue other than `F`/`W` (e.g., `C`, `L`, `P`) | Keep in `chunks/` — flag in extraction log; downstream build marks it as non-canonical |
+| Does not start with `C` | Attempt germline repair (Step 5a); if repair fails, keep in `chunks/` — flag as non-canonical |
+| Ends with residue other than `F`/`W` (e.g., `C`, `L`, `P`) | Attempt germline repair (Step 5a); if repair fails, keep in `chunks/` — flag as non-canonical |
 | Unusual length (< 8 or > 20 AA) but valid composition | Keep in `chunks/` — flag in extraction log |
 | **Contains modified residues or non-standard chemistry** | Move to `chunks_with_unconventional_aa/` — confirm with user first |
 
 **Report** all non-canonical CDR3s in the proofread log with a count per category; do **not** remove them or move them to `chunks_with_unconventional_aa/` unless they contain non-20-AA characters.
+
+---
+
+## Step 5a — CDR3 Canonical Repair Using V/J Germline Context
+
+When a CDR3 fails the canonical check (missing leading `C`, missing terminal `F`/`W`, or single `F`/`W` where double is expected), attempt repair using V and J germline anchor sequences from the VDJdb chunk database before flagging the row as non-canonical.
+
+**This repair is applicable to data sources that systematically trim CDR3 boundaries** (e.g., IEDB dumps, Adaptive ImmunoSEQ exports, some older publications).
+
+### 5a.1 — J genes with double-terminal residues
+
+Certain J genes encode `FF` or `WW` at the end of the CDR3. If a CDR3 ends with a single `F` or `W` and the assigned J gene is in the double-terminal list, the trimmed terminal residue must be restored.
+
+**Beta chain double-terminal J genes** (end with `FF`):
+`TRBJ1-1`, `TRBJ1-4`, `TRBJ2-1`, `TRBJ2-2`
+
+**Alpha chain double-terminal J genes** (end with `FF`):
+`TRAJ36`
+
+To confirm: look up the J gene's germline CDR3 ending in the VDJdb chunks:
+
+```bash
+# Find all CDR3s assigned to this J gene in existing chunks
+grep -h "TRBJ1-1" chunks/*.txt | awk -F'\t' '{print $5}' | sort | uniq -c | sort -rn | head -20
+```
+
+**Repair rule for double-terminal:** if `CDR3[-1] == 'F'` (or `'W'`) and `CDR3[-3:-1]` matches the expected penultimate 2 AAs from the germline J (derived from existing VDJdb records for that J gene), append one `F` (or `W`).
+
+### 5a.2 — Missing terminal F/W (single instead of double, or completely absent)
+
+For any CDR3 that does not end with `F`/`W`:
+
+1. Extract the last 2–3 AAs of the CDR3: call them `tail`.
+2. Look up all VDJdb records with the same `j.beta` (or `j.alpha`) from existing `chunks/` to determine the expected J-gene anchor sequence (last 2–3 AAs before the terminal F/W).
+3. If `tail` matches the expected anchor (case-insensitive), the terminal `F` or `W` was trimmed — **append it**.
+4. If the J gene is double-terminal and the CDR3 ends with one `F`, apply 5a.1 to add the second `F`.
+
+```python
+import csv, glob, collections
+
+def get_j_anchors(j_gene, chain='beta', n=3):
+    """Return Counter of CDR3 endings (last n AAs before terminal F/W) for a given J gene."""
+    col = 'cdr3.beta' if chain == 'beta' else 'cdr3.alpha'
+    j_col = 'j.beta' if chain == 'beta' else 'j.alpha'
+    anchors = collections.Counter()
+    for f in glob.glob('chunks/*.txt'):
+        with open(f) as fh:
+            for row in csv.DictReader(fh, delimiter='\t'):
+                cdr3 = row.get(col, '').strip()
+                j = row.get(j_col, '').strip()
+                if j == j_gene and cdr3.endswith(('F', 'W')) and len(cdr3) >= n + 1:
+                    anchors[cdr3[-(n+1):-1]] += 1
+    return anchors
+
+# Example: check if CDR3 tail matches TRBJ1-4 anchor
+anchors = get_j_anchors('TRBJ1-4')
+most_common_anchor = anchors.most_common(1)[0][0]  # e.g. 'EKL'
+```
+
+If the CDR3's last `n` AAs match the most common anchor for that J gene → append `F` (or `W`, whichever the J gene uses).
+
+### 5a.3 — Missing leading C (V-gene conserved cysteine)
+
+For any CDR3 that does not start with `C`:
+
+1. Extract the first 2 AAs of the CDR3: call them `head`.
+2. Look up all VDJdb records with the same `v.beta` (or `v.alpha`) from existing `chunks/`.
+3. Determine the expected 2 AAs immediately following the conserved `C` (positions 2–3 of the germline CDR3 start).
+4. If `head` matches positions 2–3 of the expected V-gene anchor, the leading `C` was trimmed — **prepend it**.
+
+```python
+def get_v_anchors(v_gene, chain='beta', n=2):
+    """Return Counter of CDR3 starts (first n AAs after leading C) for a given V gene."""
+    col = 'cdr3.beta' if chain == 'beta' else 'cdr3.alpha'
+    v_col = 'v.beta' if chain == 'beta' else 'v.alpha'
+    anchors = collections.Counter()
+    for f in glob.glob('chunks/*.txt'):
+        with open(f) as fh:
+            for row in csv.DictReader(fh, delimiter='\t'):
+                cdr3 = row.get(col, '').strip()
+                v = row.get(v_col, '').strip()
+                if v == v_gene and cdr3.startswith('C') and len(cdr3) >= n + 1:
+                    anchors[cdr3[1:n+1]] += 1
+    return anchors
+
+# If CDR3 starts with 'AS' and TRBV6-2 anchor is 'AS' → prepend 'C'
+```
+
+### 5a.4 — Repair decision rules
+
+| Condition | Repair | Log entry |
+|---|---|---|
+| CDR3 missing leading `C`, head matches V anchor | Prepend `C` | `REPAIR leading-C: <old> → <new> (V-anchor match)` |
+| CDR3 missing terminal `F`/`W`, tail matches J anchor | Append `F` or `W` | `REPAIR terminal-FW: <old> → <new> (J-anchor match)` |
+| J gene is double-terminal, ends with single `F`, penultimate matches J anchor | Append second `F` | `REPAIR double-F: <old> → <new> (double-terminal J)` |
+| Head/tail does NOT match any anchor (< 10% frequency) | Do NOT repair | Flag as non-canonical, keep as-is |
+| CDR3 is already canonical after repair | Accept repaired form | |
+| Repaired CDR3 fails any other QC check | Reject repair, flag row | |
+
+**Always log every repair** — report count of repaired rows by repair type in Step 10 summary.
+
+### 5a.5 — Batch repair script
+
+For large chunks (>100 non-canonical rows), run as a batch rather than row-by-row:
+
+```python
+DOUBLE_TERMINAL_J_BETA = {'TRBJ1-1', 'TRBJ1-4', 'TRBJ2-1', 'TRBJ2-2'}
+DOUBLE_TERMINAL_J_ALPHA = {'TRAJ36'}
+
+def repair_cdr3(row, v_anchors_cache, j_anchors_cache):
+    repaired = dict(row)
+    for chain, cdr3_col, v_col, j_col, dbl_j in [
+        ('beta', 'cdr3.beta', 'v.beta', 'j.beta', DOUBLE_TERMINAL_J_BETA),
+        ('alpha', 'cdr3.alpha', 'v.alpha', 'j.alpha', DOUBLE_TERMINAL_J_ALPHA),
+    ]:
+        cdr3 = repaired.get(cdr3_col, '').strip()
+        v = repaired.get(v_col, '').strip()
+        j = repaired.get(j_col, '').strip()
+        if not cdr3:
+            continue
+        # Missing leading C
+        if not cdr3.startswith('C') and v:
+            anchors = v_anchors_cache.get(v) or get_v_anchors(v, chain)
+            v_anchors_cache[v] = anchors
+            if anchors and cdr3[:2] == anchors.most_common(1)[0][0]:
+                repaired[cdr3_col] = 'C' + cdr3
+                cdr3 = repaired[cdr3_col]
+        # Missing terminal F/W
+        if cdr3 and cdr3[-1] not in 'FW' and j:
+            anchors = j_anchors_cache.get(j) or get_j_anchors(j, chain)
+            j_anchors_cache[j] = anchors
+            terminal = 'F'  # default; inspect J gene name for W-terminal genes
+            if anchors and cdr3[-3:] == anchors.most_common(1)[0][0] + terminal:
+                pass  # already ends correctly with the tail
+            elif anchors and cdr3[-3:-1] in [a for a, _ in anchors.most_common(5)]:
+                repaired[cdr3_col] = cdr3 + terminal
+                cdr3 = repaired[cdr3_col]
+        # Double-terminal J: single F → FF
+        if cdr3 and cdr3.endswith('F') and not cdr3.endswith('FF') and j in dbl_j:
+            anchors = j_anchors_cache.get(j) or get_j_anchors(j, chain, n=3)
+            j_anchors_cache[j] = anchors
+            if anchors and cdr3[-4:-1] in [a for a, _ in anchors.most_common(5)]:
+                repaired[cdr3_col] = cdr3 + 'F'
+    return repaired
+```
 
 ---
 
