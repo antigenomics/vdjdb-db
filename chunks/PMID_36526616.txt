@@ -1,0 +1,83 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
+1	CVVPLGGSNYKLTF	TRAV12-1		CASRGAVDTQYF	TRBV19		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+2	CAALDNDMRF	TRAV13-1		CASRGAVDTQYF	TRBV19		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+3	CAVIYNQGGKLIF	TRAV1-2		CASSDSGADGYTF	TRBV6-4		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+4	CAVIYNQGGKLIF	TRAV1-2		CASSDSGTDGYTF	TRBV6-4		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+5	CAVIYNQGGKLIF	TRAV1-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+6	CAVVYNQGGKLIF	TRAV1-2		CASSDSGADGYTF	TRBV6-4		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+7	CAVVYNQGGKLIF	TRAV1-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+8	CAVLYNQGGKLIF	TRAV1-2		CASSDSGTDGYTF	TRBV6-4		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+9	CAGVSSNTGKLIF	TRAV8-3		CASSQEGIEQFF	TRBV3-1		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+10	CAETGTASKLTF	TRAV5		CASSQEGIEQFF	TRBV3-1		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+11	CAVTNQGGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+12	CAVASGNTGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+13	CASLRGPLVF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+14	CASKGNTGKLIF	TRAV12-3						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+15	CATDAKPGAGSYQLTF	TRAV17						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+16	CAEDSDTGRRALTF	TRAV5						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+17	CGTGPPSRGGADGLTF	TRAV30						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+18	CALGVSYNTDKLIF	TRAV16						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+19	CALGGGADGLTF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+20	CAVRDLDNFNKFYF	TRAV3						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+21	CAVQADRTGANNLFF	TRAV20						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+22	CAVAISYNTDKLIF	TRAV8-3						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+23	CAMRGNSGGSNYKLTF	TRAV12-3						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+24	CALGELVNDMRF	TRAV38-2/DV8						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+25	CGHLVDGQKLLF	TRAV30						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+26	CVVTNQGGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+27	CAVTNQRGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+28	CAMASGNTGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+29	CAVTNQGEKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+30	CAVASGNTDKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+31	CAVESGNTGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+32	CDVTNQGGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+33	CAVANQGGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+34	CAMTNQGGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+35	CVVASGNTGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+36	CAVASGNAGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+37	CAFMISTDKLIF	TRAV38-1						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+38	CAVNNQGGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+39	CARRRGSGNTGKLIF	TRAV6						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+40	CASLRGHLVF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+41	CAVTNQGRKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+42	CAVREEGQCRQSTF	TRAV20						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+43	CAVVSGNTGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+44	CAVASDNTGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+45	CASLRGTLVF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+46	CVVTDPFTGNQFYF	TRAV12-1						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+47	CALATDKLIF	TRAV36/DV7						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+48	CTVTNQGGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+49	CAVTSQGGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+50	CAVTNRGGKLIF	TRAV12-2						HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+51				CASGGDLTRGLYTEAFF	TRBV12-5		TRBJ1-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+52				CASSAGGFGYGYTF	TRBV7-8		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+53				CASGQEGIEQYF	TRBV3-1		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+54				CASNQEGIEQYF	TRBV3-1		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+55				CASRQEGIEQYF	TRBV3-1		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+56				CASSDSGADGYTF	TRBV6-4		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+57				CASSDSGTDGYTF	TRBV6-4		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+58				CASSDTGVDGYTF	TRBV6-4		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+59				CASSEQGVEQFF	TRBV3-1		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+60				CASSEQGVEQF	TRBV3-1		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+61				CASSEQGVEQYF	TRBV3-1		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+62				CASSFRSTDTQYF	TRBV27		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+63				CASSKEGIEQYF	TRBV3-1		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+64				CASSITPGQGSNSPLHF	TRBV9		TRBJ1-6	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+65				CASSLETGGTEELFF	TRBV27		TRBJ2-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+66				CASSLETGGTGELFF	TRBV27		TRBJ2-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+67				CASSLGTGGTGELFF	TRBV27		TRBJ2-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+68				CASSPWGGSDTDTQYF	TRBV7-9		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+69				CASSPPTSGYGYTF	TRBV7-8		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+70				CASSQEEIEQYF	TRBV3-1		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+71				CASSQEGIEQFF	TRBV3-1		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+72				CASSQEGIEQYF	TRBV3-1		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+73				CASSQEGIKQYF	TRBV3-1		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+74				CASSQEGVEQYF	TRBV3-1		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+75				CASSQGGIEQYF	TRBV3-1		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+76				CASSREGIEQYF	TRBV3-1		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+77				CASSSDRAPTGELFF	TRBV13		TRBJ2-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+78				CASSTDRRNYNEQFF	TRBV6-3		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+79				CASSTTLYGANEKLFF	TRBV27		TRBJ1-4	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+80				CASSVETGGTGELFF	TRBV27		TRBJ2-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+81				CAWNEIGGFYGYTF	TRBV30		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																
+82				CSVGTGHEKLFF	TRBV29-1		TRBJ1-4	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYRIGNYKL	Matrix	SARS-CoV-2	PMID:36526616	tetramer-sort																

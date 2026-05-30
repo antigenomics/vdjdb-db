@@ -1,6 +1,8 @@
+.claude/
 tmp/
 database/
 !database/dummy
+patches/*.pdf
 
 ## Groovy / Java
 

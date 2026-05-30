@@ -1,0 +1,58 @@
+# Source organism substring → VDJdb canonical antigen.species
+# Checked in order — first match wins. Longer/more-specific fragments must come first.
+# Lines starting with # are comments and are ignored.
+fragment	canonical
+human herpesvirus 4	EBV
+epstein barr	EBV
+epstein-barr	EBV
+murid betaherpesvirus 1	MCMV
+mouse cytomegalovirus	MCMV
+human herpesvirus 5	CMV
+cytomegalovirus	CMV
+human herpesvirus 1	HSV-1
+herpes simplex virus 1	HSV-1
+human herpesvirus 2	HSV-2
+herpes simplex virus 2	HSV-2
+human herpesvirus 3	VZV
+varicella	VZV
+influenza a	InfluenzaA
+influenza b	InfluenzaB
+h1n1	InfluenzaA
+h3n2	InfluenzaA
+h7n9	InfluenzaA
+sars-cov2	SARS-CoV-2
+coronavirus 2	SARS-CoV-2
+sars-cov1	SARS-CoV
+sars coronavirus	SARS-CoV
+sars-cov	SARS-CoV
+coronavirus oc43	HCoV-OC43
+coronavirus hku1	HCoV-HKU1
+human immunodeficiency virus 1	HIV-1
+hiv-1	HIV-1
+hepatitis c	HCV
+hepatitis b	HBV
+yellow fever	YFV
+dengue	DENV
+choriomeningitis	LCMV
+t-cell leukemia virus type i	HTLV-1
+t cell leukemia virus type 1	HTLV-1
+murine leukemia virus	MLV
+respiratory syncytial virus	RSV
+vesicular stomatitis	VSV
+coxsackievirus b	CoxsackievirusB
+coxsackie b virus	CoxsackievirusB
+vaccinia virus	VacciniaVirus
+merkel cell polyomavirus	MCPyV
+papillomavirus 16	HPV16
+papillomavirus 18	HPV18
+adenovirus 2	HAdV2
+adenovirus 5	HAdV5
+plasmodium berghei	PlasmodiumBerghei
+plasmodium falciparum	PlasmodiumFalciparum
+mycobacterium tuberculosis	M.tuberculosis
+mycobacterium avium	M.avium
+salmonella enterica	SalmonellaTyphi
+homo sapiens	HomoSapiens
+mus musculus	MusMusculus
+gallus gallus	GallusGallus
+triticum aestivum	TriticumAestivum

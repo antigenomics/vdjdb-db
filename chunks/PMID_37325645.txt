@@ -1,0 +1,128 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
+1				CASSDWGQNTLYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+2				CASSYRGEVFF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+3				CAWSHRGSAETLYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+4				CSALGVNYAEQFF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+5				CASGDSGNSDYTF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+6				CASRDWGGEQYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+7				CASSDAGFSNERLFF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+8				CASSDGGSYEQYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+9				CASSDWTDTEVFF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+10				CASSEYRDEQYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+11				CASSLAGGYAEQFF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+12				CASSLGAQDTQYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+13				CASSLGGNTEVFF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+14				CASSLGHQDTQYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+15				CASSLGTANSDYTF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+16				CASSLRQTEVFF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+17				CASSLSGNTLYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+18				CASSLSQNTLYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+19				CASSLWDNSPLYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+20				CASSPDWGTSAETLYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+21				CASSPGLGGYEQYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+22				CASSPGLGQDTQYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+23				CASSPGQQDTQYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+24				CASSPGTGGDTQYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+25				CASSQDRGDTQYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+26				CASSQERTGYEQYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+27				CASSRDWGDEQYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+28				CASSRDWGYAEQFF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+29				CASSSDWGQDTQYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+30				CASSWTGGNYAEQFF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+31				CAWSLEGSYNSPLYF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+32				CAWSLQGTEVFF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+33				CGARDPGQGNERLFF				MusMusculus	H2-Db	B2M	MHCI	CSANNSHHYI	GPC	LCMV	PMID:37325645	tetramer-sort																
+34				CASGDRDRGNYAEQFF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+35				CASGDAGGRDQDTQYF				MusMusculus	H2-IAb		MHCII	DIYKGVYQFKSV	GPC	LCMV	PMID:37325645	tetramer-sort																
+36				CASSDAGGAETLYF				MusMusculus	H2-IAb		MHCII	DIYKGVYQFKSV	GPC	LCMV	PMID:37325645	tetramer-sort																
+37				CASSDRNSGNTLYF				MusMusculus	H2-IAb		MHCII	DIYKGVYQFKSV	GPC	LCMV	PMID:37325645	tetramer-sort																
+38				CASSEGTGGDEQYF				MusMusculus	H2-IAb		MHCII	DIYKGVYQFKSV	GPC	LCMV	PMID:37325645	tetramer-sort																
+39				CASSEHNSGNTLYF				MusMusculus	H2-IAb		MHCII	DIYKGVYQFKSV	GPC	LCMV	PMID:37325645	tetramer-sort																
+40				CASSIQGAETLYF				MusMusculus	H2-IAb		MHCII	DIYKGVYQFKSV	GPC	LCMV	PMID:37325645	tetramer-sort																
+41				CASSLDWGAYEQYF				MusMusculus	H2-IAb		MHCII	DIYKGVYQFKSV	GPC	LCMV	PMID:37325645	tetramer-sort																
+42				CASSLEGGSYEQYF				MusMusculus	H2-IAb		MHCII	DIYKGVYQFKSV	GPC	LCMV	PMID:37325645	tetramer-sort																
+43				CASSLEGNSDYTF				MusMusculus	H2-IAb		MHCII	DIYKGVYQFKSV	GPC	LCMV	PMID:37325645	tetramer-sort																
+44				CASSLGGGSYEQYF				MusMusculus	H2-IAb		MHCII	DIYKGVYQFKSV	GPC	LCMV	PMID:37325645	tetramer-sort																
+45				CASSLSSYEQYF				MusMusculus	H2-IAb		MHCII	DIYKGVYQFKSV	GPC	LCMV	PMID:37325645	tetramer-sort																
+46				CASSPDWGGDTLYF				MusMusculus	H2-IAb		MHCII	DIYKGVYQFKSV	GPC	LCMV	PMID:37325645	tetramer-sort																
+47				CASSRLGGREQYF				MusMusculus	H2-IAb		MHCII	DIYKGVYQFKSV	GPC	LCMV	PMID:37325645	tetramer-sort																
+48				CASSSHNSGNTLYF				MusMusculus	H2-IAb		MHCII	DIYKGVYQFKSV	GPC	LCMV	PMID:37325645	tetramer-sort																
+49				CAWSLGAETLYF				MusMusculus	H2-IAb		MHCII	DIYKGVYQFKSV	GPC	LCMV	PMID:37325645	tetramer-sort																
+50				CASGDANWGGYEQYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+51				CASGDGISNERLFF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+52				CASGDHRGRDTQYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+53				CASRSDSSGNTLYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+54				CASSDAGQGNERLFF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+55				CASSDGGAGNTLYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+56				CASSDNTNTEVFF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+57				CASSDRGQDTQYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+58				CASSELGGYAEQFF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+59				CASSENTEVFF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+60				CASSFGNTEVFF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+61				CASSLDKSQNTLYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+62				CASSLDSSQNTLYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+63				CASSLEGQNTEVFF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+64				CASSLGGRDTQYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+65				CASSLGLGGYAEQFF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+66				CASSLGQANSDYTF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+67				CASSLGYAEQFF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+68				CASSLRDRDSDYTF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+69				CASSLTYEQYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+70				CASSLVGSGNTLYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+71				CASSPDSSYEQYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+72				CASSPDWGSQNTLYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+73				CASSPGLGAEQFF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+74				CASSPGQYNSPLYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+75				CASSPGTGEDTQYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+76				CASSPGTGNQAPLF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+77				CASSPNTGQLYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+78				CASSQDLGAETLYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+79				CASSQDWGSAETLYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+80				CASSQERANYAEQFF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+81				CASSQGLGDTQYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+82				CASSRTGGAREQYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+83				CASSRTGGYEQYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+84				CASSSGTGDTEVFF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+85				CASSSGTGDTQYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+86				CASSSNQDTQYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+87				CASSSSQNTLYF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+88				CASSWTGANTEVFF				MusMusculus	H2-Kb	B2M	MHCI	YTVKYPNL	Nucleocapsid	LCMV	PMID:37325645	tetramer-sort																
+89				CASGDRTGGSAETLYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+90				CASSDASEQYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+91				CASSDGNANSDYTF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+92				CASSDRGSQNTLYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+93				CASSDRVEQYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+94				CASSDSNNQAPLF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+95				CASSDWGANTGQLYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+96				CASSDWGNYAEQFF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+97				CASSEGNYNSPLYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+98				CASSHRDWGYEQYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+99				CASSIGNYNSPLYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+100				CASSLDDTQYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+101				CASSLDRGRTEVFF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+102				CASSLGTDYAEQFF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+103				CASSLRDNQDTQYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+104				CASSLSAETLYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+105				CASSPDRDEQYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+106				CASSPDSQNTLYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+107				CASSPDWGYEQYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+108				CASSPGGGQNTLYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+109				CASSPGGNYAEQFF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+110				CASSPGGRQDTQYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+111				CASSPGQANTEVFF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+112				CASSPGQGNSDYTF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+113				CASSPGQSNTEVFF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+114				CASSPGQYEQYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+115				CASSQGNTEVFF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+116				CASSRDNYAEQFF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+117				CASSSGGNYAEQFF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+118				CASSSGNSDYTF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+119				CASSVGQGNTEVFF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+120				CASSWDNSQNTLYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+121				CASSYQGANSDYTF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+122				CAWDWGGYEQYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+123				CAWSRDSNYAEQFF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+124				CGARDRDNSNERLFF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+125				CGARDRTGSNTEVFF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+126				CSADRNTLYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
+127				CSAGSAETLYF				MusMusculus	H2-Db	B2M	MHCI	FQPQNGQFI	NP	LCMV	PMID:37325645	tetramer-sort																
