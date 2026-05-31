@@ -1,54 +1,54 @@
 chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
-1				CSARDRVGNGYTF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-2	CAAHYGNKLVF			CASGGSNTGELF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-3	CAAPSGFQKLVF			CASKSGTYEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-4	CAARGGNQFYF			CATSRDFIGAAGNEQFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-5	CAARYGADGLTF			CASSGGDRRNQPQHF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-6	CAASSNARLMF			CSAMPAGAIGEKLFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-7	CAAYSSASKIIF			CASSGTGRGAGDEQF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-8	CAEMRNKLTF			CASGPGTNTEAFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-9	CAITGTASKLTF			CSASTSPRGDTQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-10	CALSEGGNTPLVF			CASSSGTGYGYTF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-11	CALSPGGSQGNLIF			CASSPDRLMQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-12	CANVSDGNKLVF			CASSYSSGAKDTQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-13	CATDAATQGGSEKLVF			CASGNRGGNEQFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-14	CAVGSTNAGKSTF			CASSLKGNNEQF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-15	CAVGSYSGGGADGLTF			CASSLTGQSSYEQF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-16	CAVGTTNAGKSTF			CASSLKGNNEQFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	antigen-loaded-targets																
-17	CAVRASGSRLTF			CASSADRLEQF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-18	CAVRDGNQFYF			CASGGGRHEQF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-19	CAVRWTARQLTF			CASSPSGGELF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-20	CAVSEGNKLTF			CATGRAGPKDTQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-21	CAVSILTGGGNKLTF			CASSDSRTGGRGEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-22	CAVTGTASKLTF			CASSLNPRVGASSYEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-23	CAVTGTASKLTF			CASSLSSGAKDTQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-24	CAVTTGNQFYF			CASSTERRSFSF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-25	CAYMNSGGYQKVTF			CASSESAGNQPQHF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-26	CILLNNAGNMLTF			CASSGWGGTDTQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-27	CVVIMSNAGNMLTF			CSASRPVRNGPYEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-28	CVVSDILAAGNKLTF			CASSLQGGAFNYGYTF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-29	CVVSETTGGFKTIF			CASSFTGGGQETQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-30	CVVSPRDQKVTF			CASSSEGGRMNTEAFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-31				CASSLGPGLNGYTF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-32				CASSLGVLAEGYNEQF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-33				CAIRNGTVTNEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-34				CASSLDRLAQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-35				CASSSLGKRGGQNTDTQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-36				CASSLAGAGSEAFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-37				CASSLGASGGAMNEQFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-38				CASSIRDKNEKLFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-39				CASSQSVMNTEAFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-40				CASSILGGDTQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-41				CASSWGQSSYEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-42				CAWSPVKNTEAFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-43				CAISDEGSYNSPLHF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-44				CASSILAGGPNEQFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-45				CASSSRAGTGNTIYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-46				CASSTGTGYYEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-47	CAVNAGYSTLTF							HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-48				CASSLGLNTEAFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-49				CASSLTGVGNEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-50				CASSPRAGSSNQPQHF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-51				CASSIFGLGTHYSYNEQFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-52				CASSQDGRGGSTDTQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
-53				CASSQGKIDSYEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	coxsackievirus B1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+1				CSARDRVGNGYTF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+2	CAAHYGNKLVF			CASGGSNTGELF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+3	CAAPSGFQKLVF			CASKSGTYEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+4	CAARGGNQFYF			CATSRDFIGAAGNEQFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+5	CAARYGADGLTF			CASSGGDRRNQPQHF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+6	CAASSNARLMF			CSAMPAGAIGEKLFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+7	CAAYSSASKIIF			CASSGTGRGAGDEQF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+8	CAEMRNKLTF			CASGPGTNTEAFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+9	CAITGTASKLTF			CSASTSPRGDTQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+10	CALSEGGNTPLVF			CASSSGTGYGYTF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+11	CALSPGGSQGNLIF			CASSPDRLMQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+12	CANVSDGNKLVF			CASSYSSGAKDTQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+13	CATDAATQGGSEKLVF			CASGNRGGNEQFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+14	CAVGSTNAGKSTF			CASSLKGNNEQF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+15	CAVGSYSGGGADGLTF			CASSLTGQSSYEQF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+16	CAVGTTNAGKSTF			CASSLKGNNEQFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	antigen-loaded-targets																
+17	CAVRASGSRLTF			CASSADRLEQF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+18	CAVRDGNQFYF			CASGGGRHEQF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+19	CAVRWTARQLTF			CASSPSGGELF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+20	CAVSEGNKLTF			CATGRAGPKDTQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+21	CAVSILTGGGNKLTF			CASSDSRTGGRGEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+22	CAVTGTASKLTF			CASSLNPRVGASSYEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+23	CAVTGTASKLTF			CASSLSSGAKDTQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+24	CAVTTGNQFYF			CASSTERRSFSF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+25	CAYMNSGGYQKVTF			CASSESAGNQPQHF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+26	CILLNNAGNMLTF			CASSGWGGTDTQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+27	CVVIMSNAGNMLTF			CSASRPVRNGPYEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+28	CVVSDILAAGNKLTF			CASSLQGGAFNYGYTF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+29	CVVSETTGGFKTIF			CASSFTGGGQETQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+30	CVVSPRDQKVTF			CASSSEGGRMNTEAFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+31				CASSLGPGLNGYTF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+32				CASSLGVLAEGYNEQF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+33				CAIRNGTVTNEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+34				CASSLDRLAQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+35				CASSSLGKRGGQNTDTQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+36				CASSLAGAGSEAFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+37				CASSLGASGGAMNEQFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+38				CASSIRDKNEKLFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+39				CASSQSVMNTEAFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+40				CASSILGGDTQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+41				CASSWGQSSYEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+42				CAWSPVKNTEAFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+43				CAISDEGSYNSPLHF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+44				CASSILAGGPNEQFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+45				CASSSRAGTGNTIYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+46				CASSTGTGYYEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+47	CAVNAGYSTLTF							HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+48				CASSLGLNTEAFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+49				CASSLTGVGNEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+50				CASSPRAGSSNQPQHF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+51				CASSIFGLGTHYSYNEQFF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+52				CASSQDGRGGSTDTQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																
+53				CASSQGKIDSYEQYF				HomoSapiens	HLA-A*03:01	B2M	MHCI	KINMPMSVK	VP1	CoxsackievirusB	PMID:38446892	tetramer-sort																

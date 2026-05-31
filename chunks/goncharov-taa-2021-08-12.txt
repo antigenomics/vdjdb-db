@@ -4,10 +4,10 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 3				CASSLSGGLLRTGELF	TRBV27*01		TRBJ2-2*01	HomoSapiens	HLA-C*03:03	B2M	MHCI	FVVPYMIYLL	PDS5A	HomoSapiens	PMID:26901407	antigen-expressing-targets			amplicon-seq	antigen-expressing-targets		CD8+						PDS5AY1000F;H1007Y	PBMC			
 4				CASSGRVTGGFYNEQF	TRBV9*01		TRBJ2-1*01	HomoSapiens	HLA-A*30:02	B2M	MHCI	VQIISCQY	MED13	HomoSapiens	PMID:26901407	antigen-expressing-targets			amplicon-seq	antigen-expressing-targets		CD8+						MED13P1691S	PBMC			
 5				CASSFGGAYEQY	TRBV27*01		TRBJ2-7*01	HomoSapiens	HLA-A*30:02	B2M	MHCI	VQIISCQY	MED13	HomoSapiens	PMID:26901407	antigen-expressing-targets			amplicon-seq	antigen-expressing-targets		CD8+						MED13P1691S	PBMC			
-6				CASSLILDSPLHF			TRBJ1-6	HomoSapiens	HLA-A*30:02	B2M	MHCI	MTLHGFMMY	PLCD3	HomoSapiens	PMID:31243155	tetramer-sort			amplicon-seq	tetramer-sort		CD8+						PLCD3	TIL			
-7				CASSVTFRTGPMYGYTF			TRBJ1-2	HomoSapiens	HLA-A*30:02	B2M	MHCI	MTLHGFMMY	PLCD3	HomoSapiens	PMID:31243155	tetramer-sort			amplicon-seq	tetramer-sort		CD8+						PLCD3	TIL			
-8				CASSLDLDSDGYTF			TRBJ1-2	HomoSapiens	HLA-A*30:02	B2M	MHCI	MTLHGFMMY	PLCD3	HomoSapiens	PMID:31243155	tetramer-sort			amplicon-seq	tetramer-sort		CD8+						PLCD3	TIL			
-9				CASSESENSYGYTF			TRBJ1-2	HomoSapiens	HLA-A*30:02	B2M	MHCI	MTLHGFMMY	PLCD3	HomoSapiens	PMID:31243155	tetramer-sort			amplicon-seq	tetramer-sort		CD8+						PLCD3	TIL			
+6				CASSLILDSPLHF			TRBJ1-6	HomoSapiens	HLA-A*30:02	B2M	MHCI	MTLHGFMMY	PLCD3	HomoSapiens	PMID:31243155	tetramer-sort			amplicon-seq	tetramer-stain		CD8+						PLCD3	TIL			
+7				CASSVTFRTGPMYGYTF			TRBJ1-2	HomoSapiens	HLA-A*30:02	B2M	MHCI	MTLHGFMMY	PLCD3	HomoSapiens	PMID:31243155	tetramer-sort			amplicon-seq	tetramer-stain		CD8+						PLCD3	TIL			
+8				CASSLDLDSDGYTF			TRBJ1-2	HomoSapiens	HLA-A*30:02	B2M	MHCI	MTLHGFMMY	PLCD3	HomoSapiens	PMID:31243155	tetramer-sort			amplicon-seq	tetramer-stain		CD8+						PLCD3	TIL			
+9				CASSESENSYGYTF			TRBJ1-2	HomoSapiens	HLA-A*30:02	B2M	MHCI	MTLHGFMMY	PLCD3	HomoSapiens	PMID:31243155	tetramer-sort			amplicon-seq	tetramer-stain		CD8+						PLCD3	TIL			
 10				CASSPTLYNEQFF	TRBV7-2		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	VYALIAGATL	PPM1	HomoSapiens	PMID:32660279	antigen-expressing-targets			amplicon-seq	antigen-loaded-targets		CD8+						PPM1	TIL			
 11				CASSLSYLNEQFF	TRBV5-1		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	VYALIAGATL	PPM1	HomoSapiens	PMID:32660279	antigen-expressing-targets			amplicon-seq	antigen-loaded-targets		CD8+						PPM1	TIL			
 12				CASHPVGSLTDTQYF	TRBV6-5		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	VYALIAGATL	PPM1	HomoSapiens	PMID:32660279	antigen-expressing-targets			amplicon-seq	antigen-loaded-targets		CD8+						PPM1	TIL			

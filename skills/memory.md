@@ -20,6 +20,23 @@ This file is the **full running log** for all Claude Code sessions working on th
 **Summary:** [1–3 sentences describing what was done and outcome]
 -->
 
+### [2026-05-31] method.identification + method.verification bulk proofreading (all chunks)
+
+**Skills used:** /proofread
+**Source:** All 230 `chunks/*.txt` files
+**Input files:** All chunks; PubMed abstracts fetched for ~50 PMIDs
+**Output files:** 9 `chunks/*.txt` files modified (717 blank rows filled + 18 pre-existing pre-2000 corrections)
+**Summary:** Systematic scan found 717 rows with blank `method.identification` across 9 files. Fixed by combining file-context inference, PubMed abstract research, and the swap/structural/pre-tetramer rules now documented in the proofread skill. Also corrected 18 pre-existing pre-2000 entries in `small_datasets_2026-05-29.txt` that had `antigen-loaded-targets` where `antigen-loaded-targets,limiting-dilution-cloning` is correct.
+
+**Key decisions:**
+- `PDB_Database.txt` blank identification rows → `structural` (both identification and verification). Also fixed `crystal structure` → `structural` and `tetramer sort` → `tetramer-sort`.
+- `PMID_35687696.txt`: all 222 rows had blank identification + `method.verification='antigen-loaded-targets'` — values were swapped; moved verification value to identification, blanked verification.
+- `PMID_30418433`, `30575715`, `37317804`, `37468623`, `40640147`: blank rows filled with `tetramer-sort` (consistent with rest of each file).
+- `PMID_34433824` (2 PDB rows): filled with `tetramer-sort` (tetramer-sort paper; PDB structures are additional verification context).
+- `small_datasets_2026-05-29.txt`: 46 PMIDs resolved via PubMed + file context. Key assignments: SCT tetramer / HLA-A24 tetramer / FACS tetramer papers → `tetramer-sort`; established T cell clones (A6/AS01/MBP/Tax-reactive), TCR-Tg studies, functional assay papers → `antigen-loaded-targets`; pre-2000 cloning papers → `antigen-loaded-targets,limiting-dilution-cloning`.
+- PMID:7964506 (1994, EBV FLRGRAYGL CTL clones): specifically changed from `antigen-loaded-targets` to `antigen-loaded-targets,limiting-dilution-cloning`.
+- PMID:9207000 in small_datasets: fixed to `limiting-dilution-cloning` to match its dedicated chunk file.
+
 ### [2026-05-27] Extract/format/proofread: chihiro26 (3 SARS-CoV-2 papers)
 
 **Skills used:** /extract, /format, /proofread
@@ -105,6 +122,9 @@ This file is the **full running log** for all Claude Code sessions working on th
 
 | Date | Decision | Rationale |
 |---|---|---|
+| 2026-05-31 | `method.identification` blank = swap candidate | If `method.verification` is non-blank and `method.identification` is blank, check for field swap: the verification value (e.g., `antigen-loaded-targets`) was likely entered in the wrong column. Move to identification; blank verification. Confirmed on PMID_35687696 (222 rows). |
+| 2026-05-31 | Pre-tetramer era (pre-2000) identification | Papers with PMID < ~10,500,000 reporting 1–5 T cell clones predate tetramer availability (1996+). Use `antigen-loaded-targets,limiting-dilution-cloning` for these entries. If the chunk file for the same PMID uses only `limiting-dilution-cloning`, match that. |
+| 2026-05-31 | PDB/structural entries identification | `PDB_Database.txt` rows (or any row with `meta.structure.id` and no other method info): set `method.identification = structural` AND `method.verification = structural`. Non-standard values `crystal structure` → `structural`; `tetramer sort` → `tetramer-sort`. |
 | 2026-05-26 | Use `proofreading/imgt_alleles.tsv.gz` as primary gene authority, with `patches/IGM_nomenclature_table.tsv` as secondary fallback | IMGT/GENE-DB via genedb-releases is more complete and up-to-date; covers all TR genes across all species at allele resolution |
 | 2026-05-26 | Use `proofreading/mhc_alleles.tsv.gz` (ANHIG/IMGTHLA) for human HLA validation; use `proofreading/mhc.md` for non-human MHC rules | IMGTHLA is the authoritative source for HLA alleles; non-human MHC is not in IMGTHLA so documented as rules |
 | 2026-05-26 | `meta.subset.frequency` gap in ChunkQC.py left unfixed for now; documented in proofread skill as Gap #8 | Fixing the script requires testing; flagged for maintainer attention |
@@ -159,9 +179,7 @@ Novel methods or field values encountered during extraction/formatting that are 
 
 | Date | Field | Proposed value | Example paper | Rationale | Status |
 |---|---|---|---|---|---|
-| | | | | | proposed / accepted / rejected |
-
-*No proposals yet.*
+| 2026-05-31 | `method.identification` | `structural` | `PDB_Database.txt` | Crystal structure entries lack a traditional sort/stimulation-based identification; `structural` signals the TCR was determined crystallographically. Also valid in `method.verification` for the same reason. | accepted (applied to 265 PDB rows) |
 
 ---
 
