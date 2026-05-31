@@ -134,13 +134,23 @@ Before harmonizing, scan the chunk and flag any rows where `antigen.gene` or `an
 |---|---|---|
 | Contains `[...]` species annotation | `pp65 [CMV]` | Strip annotation, re-lookup |
 | Ends with ` protein`, ` glycoprotein`, ` polyprotein`, ` precursor` | `Spike glycoprotein` | Strip suffix, canonical lookup |
-| Length > 30 characters | `RNA-directed RNA polymerase catalytic subunit` | Alias lookup; flag if no match |
+| Starts with `Probable `, `Putative `, `Chain [A-Z], `, `MULTISPECIES:` | `Probable ATP-dependent RNA helicase DDX5` | Strip prefix, canonical lookup |
+| Length > 25 characters | `RNA-directed RNA polymerase catalytic subunit` | Alias lookup; convert to HGNC symbol or abbreviation |
+| Contains `,` (comma) | `Sterol-4-alpha-carboxylate 3-dehydrogenase, decarboxylating` | Full description — look up in `proofreading/gene_aliases.tsv`, convert to gene symbol |
 | Contains spaces AND is not a known multi-word canonical name | `Nucleoprotein M1` | Flag for manual review |
 | Matches `Polyprotein` or `polyprotein` exactly | | Flag — epitopes from polyprotein should have specific gene assigned; look up by epitope in dict |
 | Null / empty | | Flag `no.antigen.gene` |
 
+**VDJdb gene naming conventions:**
+- Human/mouse genes: HGNC uppercase symbol (e.g., `PABPC1`, `SMC1A`, `COL18A1`)
+- Viral genes: use established short names from literature (e.g., `pp65`, `BMLF1`, `Gag`, `Pol`, `Tax`)
+- Bacterial/parasitic genes: use standard gene symbol or protein abbreviation (e.g., `glnA`, `GRA6`, `yeiH`)
+- Avoid: full UniProt protein descriptions, parenthetical qualifiers, `Chain [X],` prefixes from PDB entries
+- Special cases: `P protein` (HBV) → `Pol`; LCMV `Gp33(variant)` → `GPC`; `MULTISPECIES:` prefix → strip prefix then look up
+
 ```python
-KNOWN_MULTIWORD_GENES = {'PB1-F2', 'non-structural', 'Large T antigen'}  # extend as needed
+KNOWN_MULTIWORD_GENES = {'PB1-F2', 'non-structural', 'Large T antigen', 'HLA-DRB1',
+                          'HLA-DQB1', 'HLA-DPB1', 'NY-ESO-1', 'CORT_0A05310'}  # extend as needed
 
 def is_spurious_gene(gene: str) -> bool:
     if not gene: return True
@@ -155,10 +165,18 @@ def is_spurious_gene(gene: str) -> bool:
 
 | Pattern | Example | Action |
 |---|---|---|
-| Contains full scientific name with spaces | `Human herpesvirus 4` | Fragment match lookup |
+| Contains full scientific name with spaces | `Human herpesvirus 4` | Fragment match lookup in `proofreading/species_aliases.tsv` |
+| Contains parenthetical common name | `Columba livia (carrier pigeon)` | Strip parens, apply CamelCase: `ColumbaLivia` |
 | Known alias variants | `HIV`, `HTLV`, `Influenza`, `IAV` | Map to canonical |
 | Capitalization mismatch | `Epstein barr virus`, `influenzaA` | Normalise |
 | Not in known canonical set | anything not in the list below | Flag for review |
+
+**VDJdb species naming conventions:**
+- Two-word binomial names → CamelCase with no space: `Homo sapiens` → `HomoSapiens`, `Bacillus subtilis` → `BacillusSubtilis`
+- Common abbreviations for well-known pathogens: `EBV`, `CMV`, `HIV-1`, `SARS-CoV-2`, `InfluenzaA`, etc.
+- Strip parenthetical common names and former names: `Columba livia (carrier pigeon)` → `ColumbaLivia`; `Schinkia azotoformans (Bacillus azotiformans)` → `SchinkiaAzotoformans`
+- Genus-only entries (when species is unknown): keep as single CamelCase word: `Bacillus [genus]` → `Bacillus`
+- `PseudomonasFluorescens`, `PseudomonasAeruginosa` — already CamelCase but missing space between genus and species (both are acceptable as-is if already in database)
 
 **Known canonical `antigen.species` values** (derive from existing chunks):
 ```

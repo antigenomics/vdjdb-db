@@ -2,8 +2,8 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1	CAYRSVPKVSGSRLTF	TRAV38-2/DV8*01	TRAJ53	CASSLRGGQSYEQYF	TRBV12-4*01		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	MLYQHLLPL	INS-DRiP	HomoSapiens	PMID:34811538	tetramer-sort		yes	amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
 2	CAVSGNTGKLIF	TRAV20*01	TRAJ37	CASSQWDNQPQHF	TRBV4-1*01		TRBJ1-5	HomoSapiens	HLA-B*08:01	B2M	MHCI	WMRLLPLL	INS	HomoSapiens	PMID:34811538	tetramer-sort		yes	amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
 3	CAASLKTSYDKVIF	TRAV23/DV6*01	TRAJ50	CAISEGAPNTEAFF	TRBV10-3*01		TRBJ1-1	HomoSapiens	HLA-A*01:01	B2M	MHCI	FGDHPGHSY	PTPRN	HomoSapiens	PMID:34811538	tetramer-sort		yes	amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
-4	CAESTSGGKLIF	TRAV5*01	TRAJ37	CSVGTGGTNEKLFF	TRBV29-1*01		TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BLMF1	EBV	PMID:34811538	tetramer-sort		yes	amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
-5	CVVNGKDSSYKLIF	TRAV12-1*01	TRAJ12	CASSGGAVAPSEQFF	TRBV2*01		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BLMF1	EBV	PMID:34811538	tetramer-sort		yes	amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
+4	CAESTSGGKLIF	TRAV5*01	TRAJ37	CSVGTGGTNEKLFF	TRBV29-1*01		TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:34811538	tetramer-sort		yes	amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
+5	CVVNGKDSSYKLIF	TRAV12-1*01	TRAJ12	CASSGGAVAPSEQFF	TRBV2*01		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:34811538	tetramer-sort		yes	amplicon-seq	antigen-loaded-targets		CD8+							PBMC			
 6				CSARRGTEAFF	TRBV20		TRBJ1-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*15:01	MHCII	NLLLQYGSFCTQLNRAL	Spike	SARS-CoV-2	PMID:35314848	tetramer-sort		yes	amplicon-seq			CD4+							PBMC			
 7				CATSAPDRGNNQPQHF	TRBV24		TRBJ1-5	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*15:01	MHCII	NLLLQYGSFCTQLNRAL	Spike	SARS-CoV-2	PMID:35314848	tetramer-sort		yes	amplicon-seq			CD4+							PBMC			
 8				CATSDFRVGDNQPQHF	TRBV24		TRBJ1-5	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*15:01	MHCII	NLLLQYGSFCTQLNRAL	Spike	SARS-CoV-2	PMID:35314848	tetramer-sort		yes	amplicon-seq			CD4+							PBMC			
