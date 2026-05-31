@@ -1,21 +1,21 @@
 chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
-1	CAVSFPAGANSKLTF	TRAV21	TRAJ56	CASSGGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	LRVMMLAPF	UPF0324 inner membrane protein YeiH	SalmonellaTyphi	PMID:36477533	antigen-loaded-targets											AS9.1					
+1	CAVSFPAGANSKLTF	TRAV21	TRAJ56	CASSGGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	LRVMMLAPF	yeiH	SalmonellaTyphi	PMID:36477533	antigen-loaded-targets											AS9.1					
 2	CAVSFPAGANSKLTF	TRAV21	TRAJ56	CASSGGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	GQMWLLAPR	GPER	HomoSapiens	PMID:36477533	antigen-loaded-targets											AS9.1					
 3	CAVSFPAGANSKLTF	TRAV21	TRAJ56	CASSGGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	GQVMVVAPR	Ribonuclease H2 subunit B	HomoSapiens	PMID:36477533	antigen-loaded-targets											AS9.1					
-4	CAVSFPAGANSKLTF	TRAV21	TRAJ56	CASSGGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	TRLALIAPK	U4/U6 small nuclear ribonucleoprotein Prp3	HomoSapiens	PMID:36477533	antigen-loaded-targets											AS9.1					
+4	CAVSFPAGANSKLTF	TRAV21	TRAJ56	CASSGGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	TRLALIAPK	PRPF3	HomoSapiens	PMID:36477533	antigen-loaded-targets											AS9.1					
 5	CAVRPSDSWGKLQF	TRAV21	TRAJ24	CASSPGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	GQMWLLAPR	GPER	HomoSapiens	PMID:36477533	antigen-loaded-targets											AU1.2					
-6	CAVRPSDSWGKLQF	TRAV21	TRAJ24	CASSPGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	LRVMMLAPF	UPF0324 inner membrane protein YeiH	SalmonellaTyphi	PMID:36477533	antigen-loaded-targets											AU1.2					
-7	CAVRPSDSWGKLQF	TRAV21	TRAJ24	CASSPGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	TRLALIAPK	U4/U6 small nuclear ribonucleoprotein Prp3	HomoSapiens	PMID:36477533	antigen-loaded-targets											AU1.2					
+6	CAVRPSDSWGKLQF	TRAV21	TRAJ24	CASSPGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	LRVMMLAPF	yeiH	SalmonellaTyphi	PMID:36477533	antigen-loaded-targets											AU1.2					
+7	CAVRPSDSWGKLQF	TRAV21	TRAJ24	CASSPGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	TRLALIAPK	PRPF3	HomoSapiens	PMID:36477533	antigen-loaded-targets											AU1.2					
 8	CAVRPSDSWGKLQF	TRAV21	TRAJ24	CASSPGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	GQVMVVAPR	Ribonuclease H2 subunit B	HomoSapiens	PMID:36477533	antigen-loaded-targets											AU1.2					
 9	CAVMDQDGANSKLTF	TRAV21	TRAJ56	CASSVATYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	GQMWLLAPR	GPER	HomoSapiens	PMID:36477533	antigen-loaded-targets											AS8.5					
-10	CAVSSPQGGSEKLVF	TRAV21	TRAJ57	CASSVGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	LRVMMLAPF	UPF0324 inner membrane protein YeiH	SalmonellaTyphi	PMID:36477533	antigen-loaded-targets											AS4.1					
+10	CAVSSPQGGSEKLVF	TRAV21	TRAJ57	CASSVGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	LRVMMLAPF	yeiH	SalmonellaTyphi	PMID:36477533	antigen-loaded-targets											AS4.1					
 11	CAVSSPQGGSEKLVF	TRAV21	TRAJ57	CASSVGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	GQMWLLAPR	GPER	HomoSapiens	PMID:36477533	antigen-loaded-targets											AS4.1					
-12	CAVPNQAGTALIF	TRAV21	TRAJ15	CASSVGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	LRVMMLAPF	UPF0324 inner membrane protein YeiH	SalmonellaTyphi	PMID:36477533	antigen-loaded-targets											AS8.2					
+12	CAVPNQAGTALIF	TRAV21	TRAJ15	CASSVGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	LRVMMLAPF	yeiH	SalmonellaTyphi	PMID:36477533	antigen-loaded-targets											AS8.2					
 13	CAVPNQAGTALIF	TRAV21	TRAJ15	CASSVGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	GQVMVVAPR	Ribonuclease H2 subunit B	HomoSapiens	PMID:36477533	antigen-loaded-targets											AS8.2					
 14	CAVPNQAGTALIF	TRAV21	TRAJ15	CASSVGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	GQMWLLAPR	GPER	HomoSapiens	PMID:36477533	antigen-loaded-targets											AS8.2					
 15	CAATSPRRQGGSEKLVF	TRAV21	TRAJ57	CASSVGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	GQVMVVAPR	Ribonuclease H2 subunit B	HomoSapiens	PMID:36477533	antigen-loaded-targets											AS8.3					
 16	CAATSPRRQGGSEKLVF	TRAV21	TRAJ57	CASSVGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	GQMWLLAPR	GPER	HomoSapiens	PMID:36477533	antigen-loaded-targets											AS8.3					
-17	CAATSPRRQGGSEKLVF	TRAV21	TRAJ57	CASSVGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	LRVMMLAPF	UPF0324 inner membrane protein YeiH	SalmonellaTyphi	PMID:36477533	antigen-loaded-targets											AS8.3					
+17	CAATSPRRQGGSEKLVF	TRAV21	TRAJ57	CASSVGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	LRVMMLAPF	yeiH	SalmonellaTyphi	PMID:36477533	antigen-loaded-targets											AS8.3					
 18	CAVLMEYGNKLVF	TRAV21	TRAJ47	CASSVGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	GQMWLLAPR	GPER	HomoSapiens	PMID:36477533	antigen-loaded-targets											AS9.2					
-19	CAVLMEYGNKLVF	TRAV21	TRAJ47	CASSVGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	LRVMMLAPF	UPF0324 inner membrane protein YeiH	SalmonellaTyphi	PMID:36477533	antigen-loaded-targets											AS9.2					
+19	CAVLMEYGNKLVF	TRAV21	TRAJ47	CASSVGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	LRVMMLAPF	yeiH	SalmonellaTyphi	PMID:36477533	antigen-loaded-targets											AS9.2					
 20	CAVLMEYGNKLVF	TRAV21	TRAJ47	CASSVGLYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	GQVMVVAPR	Ribonuclease H2 subunit B	HomoSapiens	PMID:36477533	antigen-loaded-targets											AS9.2					

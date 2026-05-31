@@ -1,45 +1,45 @@
 chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
-1	CAAKAAGGGADGLTF	TRAV13-1*02	TRAJ45*01	CASSLGQGAPRGYGYTF	TRBV7-2*02		TRBJ1-2*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	P protein	HBV	PMID:34270940	antigen-loaded-targets											Clon J					
+1	CAAKAAGGGADGLTF	TRAV13-1*02	TRAJ45*01	CASSLGQGAPRGYGYTF	TRBV7-2*02		TRBJ1-2*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	Pol	HBV	PMID:34270940	antigen-loaded-targets											Clon J					
 2	CALNPGANSKLTF	TRAV9-2*01	TRAJ56*01	CASSAFSGGAYNEQFF	TRBV6-5*01		TRBJ2-1*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											Clon D					
-3	CAVLGPGGSYIPTF	TRAV5*01	TRAJ6*01	CATSPPPGGLDTDTQYF	TRBV24-1*01		TRBJ2-3*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	P protein	HBV	PMID:34270940	antigen-loaded-targets											Clon G					
+3	CAVLGPGGSYIPTF	TRAV5*01	TRAJ6*01	CATSPPPGGLDTDTQYF	TRBV24-1*01		TRBJ2-3*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	Pol	HBV	PMID:34270940	antigen-loaded-targets											Clon G					
 4	CASGVYSSASKIIF	TRAV24*01	TRAJ3*01	CASSYGLRVAGGTYEQYF	TRBV6-5*01		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											Clon F					
 5	CASGVYSSASKIIF	TRAV24*01	TRAJ3*01	CASSYGLRVAGGTYEQYF	TRBV6-5*01		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	EYLVSFGVW	Capsid	HBV	PMID:34270940	antigen-loaded-targets											Clon F					
 6	CASGVYSSASKIIF	TRAV24*01	TRAJ3*01	CASSLATGGAYNEQFF	TRBV5-6*01		TRBJ2-1*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											Clon B					
 7	CALIYSSASKIIF	TRAV9-2*01	TRAJ3*01	CASSPFSGGTYNEQFF	TRBV6-5*01		TRBJ2-1*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											Clon E					
-8	CATVAYYGNNRLAF	TRAV17*01	TRAJ7*01	CASSLEEVAFGDTEAFF	TRBV5-1*01		TRBJ1-1*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	P protein	HBV	PMID:34270940	antigen-loaded-targets											Clon I					
+8	CATVAYYGNNRLAF	TRAV17*01	TRAJ7*01	CASSLEEVAFGDTEAFF	TRBV5-1*01		TRBJ1-1*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	Pol	HBV	PMID:34270940	antigen-loaded-targets											Clon I					
 9	CAPSWYSSASKIIF	TRAV24*01	TRAJ3*01	CASSLQVGGSYNEQFF	TRBV7-3*01		TRBJ2-1*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											Clon C					
 10	CAFMKQRYASNQFYF	TRAV38-1*01	TRAJ49*01	CASSYGLRVAGGTYEQYF	TRBV6-5*01		TRBJ2-7*01	HomoSapiens	HLA-A*24:02	B2M	MHCI	EYLVSFGVW	Capsid	HBV	PMID:34270940	antigen-loaded-targets											Clon A					
 11	CAFMKQRYASNQFYF	TRAV38-1	TRAJ49					HomoSapiens	HLA-A*24:02	B2M	MHCI	EYLVSFGVW	Capsid	HBV	PMID:34270940	antigen-loaded-targets											α1					
 12	CAFMKQRYASNQFYF	TRAV38-1	TRAJ49					HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											α1					
 13	CASGVYSSASKIIF	TRAV24	TRAJ3					HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											α2					
-14	CASGVYSSASKIIF	TRAV24	TRAJ3					HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	P protein	HBV	PMID:34270940	antigen-loaded-targets											α2					
+14	CASGVYSSASKIIF	TRAV24	TRAJ3					HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	Pol	HBV	PMID:34270940	antigen-loaded-targets											α2					
 15	CASGVYSSASKIIF	TRAV24	TRAJ3					HomoSapiens	HLA-A*24:02	B2M	MHCI	EYLVSFGVW	Capsid	HBV	PMID:34270940	antigen-loaded-targets											α2					
 16	CAPSWYSSASKIIF	TRAV24	TRAJ3					HomoSapiens	HLA-A*24:02	B2M	MHCI	EYLVSFGVW	Capsid	HBV	PMID:34270940	antigen-loaded-targets											α3 					
 17	CAPSWYSSASKIIF	TRAV24	TRAJ3					HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											α3 					
 18	CASSGYSSASKIIF	TRAV24	TRAJ3					HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											α4					
-19	CALIYSSASKIIF	TRAV9-2	TRAJ3					HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	P protein	HBV	PMID:34270940	antigen-loaded-targets											α5					
+19	CALIYSSASKIIF	TRAV9-2	TRAJ3					HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	Pol	HBV	PMID:34270940	antigen-loaded-targets											α5					
 20	CALIYSSASKIIF	TRAV9-2	TRAJ3					HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											α5					
 21	CATVAYYGNNRLAF	TRAV17	TRAJ7					HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											α6					
-22	CATVAYYGNNRLAF	TRAV17	TRAJ7					HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	P protein	HBV	PMID:34270940	antigen-loaded-targets											α6					
-23	CATADYTGFQKLVF	TRAV17	TRAJ8					HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	P protein	HBV	PMID:34270940	antigen-loaded-targets											α7 					
+22	CATVAYYGNNRLAF	TRAV17	TRAJ7					HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	Pol	HBV	PMID:34270940	antigen-loaded-targets											α6					
+23	CATADYTGFQKLVF	TRAV17	TRAJ8					HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	Pol	HBV	PMID:34270940	antigen-loaded-targets											α7 					
 24	CALNPGANSKLTF	TRAV9-2	TRAJ56					HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											α9 					
-25	CAAKAAGGGADGLTF	TRAV13-1	TRAJ45					HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	P protein	HBV	PMID:34270940	antigen-loaded-targets											α10					
-26	CAVLGPGGSYIPTF	TRAV5	TRAJ6					HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	P protein	HBV	PMID:34270940	antigen-loaded-targets											α11					
+25	CAAKAAGGGADGLTF	TRAV13-1	TRAJ45					HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	Pol	HBV	PMID:34270940	antigen-loaded-targets											α10					
+26	CAVLGPGGSYIPTF	TRAV5	TRAJ6					HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	Pol	HBV	PMID:34270940	antigen-loaded-targets											α11					
 27	CAVLGPGGSYIPTF	TRAV5	TRAJ6					HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											α11					
 28				CASSYGLRVAGGTYEQYF	TRBV6-6		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	EYLVSFGVW	Capsid	HBV	PMID:34270940	antigen-loaded-targets											β1					
 29				CASSYGLRVAGGTYEQYF	TRBV6-6		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											β1					
 30				CASSAFSGGAYNEQFF	TRBV6-6		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											β2					
-31				CASSPFSGGTYNEQFF	TRBV6-6		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	P protein	HBV	PMID:34270940	antigen-loaded-targets											β3					
+31				CASSPFSGGTYNEQFF	TRBV6-6		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	Pol	HBV	PMID:34270940	antigen-loaded-targets											β3					
 32				CASSPFSGGTYNEQFF	TRBV6-6		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											β3					
-33				CATSPPPGGLDTDTQYF	TRBV24-1		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	P protein	HBV	PMID:34270940	antigen-loaded-targets											β4					
+33				CATSPPPGGLDTDTQYF	TRBV24-1		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	Pol	HBV	PMID:34270940	antigen-loaded-targets											β4					
 34				CATSPPPGGLDTDTQYF	TRBV24-1		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											β4					
 35				CATSPPPGGLDTDTQYF	TRBV24-1		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	EYLVSFGVW	Capsid	HBV	PMID:34270940	antigen-loaded-targets											β4					
 36				CASSLQVGGSYNEQFF	TRBV7-3		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											β5					
 37				CASSPMVGGAYNEQFF	TRBV5-6		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											β6					
-38				CASSLATGGAYNEQFF	TRBV5-6		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	P protein	HBV	PMID:34270940	antigen-loaded-targets											β7					
+38				CASSLATGGAYNEQFF	TRBV5-6		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	Pol	HBV	PMID:34270940	antigen-loaded-targets											β7					
 39				CASSLATGGAYNEQFF	TRBV5-6		TRBJ2-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	LWFHISCLTF	Capsid	HBV	PMID:34270940	antigen-loaded-targets											β7					
 40				CASSLADRGGEQYF	TRBV5-5		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	EYLVSFGVW	Capsid	HBV	PMID:34270940	antigen-loaded-targets											β8					
-41				CASSLEEVAFGDTEAFF	TRBV5-1		TRBJ1-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	P protein	HBV	PMID:34270940	antigen-loaded-targets											β9					
-42				CASSLGQGAPRGYGYTF	TRBV7-2		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	P protein	HBV	PMID:34270940	antigen-loaded-targets											β11					
+41				CASSLEEVAFGDTEAFF	TRBV5-1		TRBJ1-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	Pol	HBV	PMID:34270940	antigen-loaded-targets											β9					
+42				CASSLGQGAPRGYGYTF	TRBV7-2		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	KYTSFPWL	Pol	HBV	PMID:34270940	antigen-loaded-targets											β11					
 43				CASSFGGQGSYEQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	EYLVSFGVW	Capsid	HBV	PMID:34270940	antigen-loaded-targets											β12					
 44				CSARGPGLAGVAETQYF	TRBV20-1		TRBJ2-5	HomoSapiens	HLA-A*24:02	B2M	MHCI	EYLVSFGVW	Capsid	HBV	PMID:34270940	antigen-loaded-targets											β13					

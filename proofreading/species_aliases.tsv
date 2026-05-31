@@ -58,3 +58,22 @@ homo sapiens	HomoSapiens
 mus musculus	MusMusculus
 gallus gallus	GallusGallus
 triticum aestivum	Wheat
+# --- CamelCase species added during vdjdb-wide harmonization ---
+manduca sexta	ManducaSexta
+columba livia	ColumbaLivia
+haemophilus influenzae	HaemophilusInfluenzae
+sporosarcina newyorkensis	SporosarcinaNewyorkensis
+cryptococcus neoformans	CryptococcusNeoformans
+leishmania major	LeishmaniaMajor
+staphylococcus aureus	StaphylococcusAureus
+bacillus subtilis	BacillusSubtilis
+toxoplasma gondii	ToxoplasmaGondii
+enterococcus saccharolyticus	EnterococcusSaccharolyticus
+olsenella uli	OlsenellaUli
+schinkia azotoformans	SchinkiaAzotoformans
+halalkalibacter hemicellulosilyticus	HalalkalibacterHemicellulosilyticus
+alkalihalobacillus trypoxylicola	AlkalihalobacillusTrypoxylicola
+candida orthopsilosis	CandidaOrthopsilosis
+priestia koreensis	PriestiaKoreensis
+bacillus yapensis	BacillusYapensis
+aspergillus oryzae	AspergillusOryzae
