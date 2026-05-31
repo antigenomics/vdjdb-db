@@ -100,6 +100,48 @@ errors = qc.process_chunk()
 - `alleles_match_check(gene_name)`: allele number must not exceed known allele count for that gene
 - `is_qq_seq_biologically_valid(aa_seq)`: CDR3 must start with `C` and end with `F` or `W`
 
+**Method field validators** (apply after ChunkQC):
+
+| Field | Valid values | Common mistakes to fix |
+|---|---|---|
+| `method.singlecell` | `yes` or blank | Any other value (e.g. `no`, `true`, `single-cell`) → blank or `yes` |
+| `method.sequencing` | `sanger`, `amplicon-seq`, `rna-seq`, or blank | `illumina`, `nextseq`, `miseq` → `amplicon-seq` (those are platforms, not methods); `Single cell` → `rna-seq` + set `method.singlecell=yes`; `RNA-seq` → `rna-seq`; `amplicon` → `amplicon-seq` |
+| `method.verification` | tokens from the README set, comma-separated | Software names (`mixcr`, `cellranger`) → blank; sort methods misplaced here (`tetramer-sort`, `multimer-sort`) → replace with stain form (`tetramer-stain`, `multimer-stain`); `antigen-coated-targets` → `antigen-loaded-targets`; plain text descriptions → blank |
+
+```python
+VALID_SEQUENCING = {'sanger', 'amplicon-seq', 'rna-seq', ''}
+VALID_SINGLECELL = {'yes', ''}
+VALID_VERIF_TOKENS = {
+    'tetramer-stain','dextramer-stain','pelimer-stain','pentamer-stain',
+    'multimer-stain','beads','restimulation','co-culture',
+    'antigen-loaded-targets','antigen-expressing-targets','direct',
+}
+# Canonical software/platform → blank or correct method
+BAD_SEQ = {
+    'illumina': 'amplicon-seq', 'nextseq': 'amplicon-seq', 'miseq': 'amplicon-seq',
+    'amplicon': 'amplicon-seq', 'RNA-seq': 'rna-seq', 'Single cell': 'rna-seq',
+}
+BAD_VERIF = {
+    'mixcr': '', 'cellranger': '', 'CTL clone': '',
+    'tetramer-sort': 'tetramer-stain', 'multimer-sort': 'multimer-stain',
+    'pentamer-sort': 'pentamer-stain', 'dextramer-sort': 'dextramer-stain',
+    'antigen-coated-targets': 'antigen-loaded-targets',
+}
+
+for row in rows:
+    seq = (row.get('method.sequencing','') or '').strip()
+    sc  = (row.get('method.singlecell','') or '').strip()
+    ver = (row.get('method.verification','') or '').strip()
+    if seq not in VALID_SEQUENCING:
+        print(f"BAD method.sequencing={seq!r}")
+    if sc not in VALID_SINGLECELL:
+        print(f"BAD method.singlecell={sc!r}")
+    if ver:
+        for token in [t.strip() for t in ver.split(',')]:
+            if token and token not in VALID_VERIF_TOKENS:
+                print(f"BAD method.verification token={token!r}")
+```
+
 ---
 
 ## Step 3 — Report All Problems
