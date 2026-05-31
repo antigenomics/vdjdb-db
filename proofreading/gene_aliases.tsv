@@ -137,3 +137,55 @@ Trophoblast glycoprotein	TPBG
 T-box transcription factor TBX3	TBX3
 Serine/threonine-protein phosphatase PP1-alpha catalytic subunit	PPP1CA
 Chromogranin-A	CHGA
+# --- Additional mappings added during vdjdb-wide harmonization ---
+Sterol-4-alpha-carboxylate 3-dehydrogenase, decarboxylating	NSDHL
+Protein transport protein Sec24A	SEC24A
+HAUS augmin-like complex subunit 3	HAUS3
+WD repeat-containing protein 46	WDR46
+Phosphoglucomutase-like protein 5	PGM5
+UPF0324 inner membrane protein YeiH	yeiH
+2-oxoglutarate dehydrogenase complex component E1	OGDH
+HLA class II histocompatibility antigen, DRB1 beta chain	HLA-DRB1
+SWI/SNF-related matrix-associated actin-dependent regulator of chromatin subfamily D member 3	SMARCD3
+Neuroblastoma breakpoint family member 14	NBPF14
+Collagen alpha-1(XVIII) chain	COL18A1
+Collagen alpha-3(IV) chain	COL4A3
+peptidylarginine deiminase type IV	PADI4
+NADP-dependent malic enzyme	ME1
+BTB/POZ domain-containing protein 1	BTBD1
+Chain B, Structure Of Insulin	INS
+Small nuclear ribonucleoprotein-associated proteins B and B'	SNRPB
+Putative transcription factor Ovo-like 1	OVOL1
+Solute carrier family 15 member 2	SLC15A2
+Small nuclear ribonucleoprotein G	SNRPG
+U4/U6 small nuclear ribonucleoprotein Prp3	PRPF3
+Gp33(Y4A)	GPC
+Gp33(PA)	GPC
+Gp33(PF)	GPC
+MULTISPECIES: glutamine synthetase 1	glnA
+Melanoma-associated antigen 10	MAGEA10
+Melanoma-associated antigen C2	MAGEC2
+Polyadenylate-binding protein 1	PABPC1
+Proline-, glutamic acid- and leucine-rich protein 1	PELP1
+Probable ATP-dependent RNA helicase DDX5	DDX5
+V-type proton ATPase subunit S1	ATP6AP1
+Neuroblastoma breakpoint family member 1	NBPF1
+Monocarboxylate transporter 1	SLC16A1
+Ubiquitin-like activating enzyme	UBA1
+Guanine nucleotide-binding protein subunit beta-like	RACK1
+pristinamycin resistance protein VgaB	VgaB
+N-acetylmuramoyl-L-alanine amidase	AmiA
+dense granule antigen protein 6	GRA6
+DNA replication complex GINS protein PSF1	GINS2
+Cartilage intermediate layer protein 1	CILP
+Chain B, Hiv-1 Nef Protein In Complex With R96i Mutant Fyn Sh3 Domain	Nef
+MULTISPECIES: HAD family hydrolase	HAD
+PD-(D/E)XK nuclease family	PD-DXK
+hypothetical protein CORT_0A05310	CORT_0A05310
+Sodium/glucose cotransporter 4	SLC5A4
+Serine palmitoyltransferase small subunit B	SPTSSB
+Sodium/myo-inositol cotransporter 2	SLC5A11
+Sodium/glucose cotransporter 5	SLC5A5
+Solute carrier family 5 member 4	SLC5A4
+Vacuolar protein sorting-associated protein 8 homolog	VPS8
+Structural maintenance of chromosomes protein 1A	SMC1A
