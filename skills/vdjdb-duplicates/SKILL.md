@@ -135,7 +135,15 @@ for (r1, r2), cnt in pmid_pairs.most_common():
 
 ## Step 5 — High-Frequency Record Detection
 
-Within-file groups with frequency ≥50 from ≤3 distinct donors are suspicious. They often represent **sequencing read counts** rather than unique T cell clones.
+Within-file groups with frequency ≥50 from ≤3 distinct donors are suspicious. Distinguish two legitimate assay causes before flagging as data errors:
+
+**Pattern A — Single TCR tested against many epitopes (combinatorial assay):**
+The same CDR3 appears with many different epitopes in one study. Each row is a genuine specificity claim. High n within one epitope group from few donors still indicates read-depth, not clonal abundance.
+
+**Pattern B — Pool of TCRs tested against one epitope/pattern:**
+Many different CDR3s all assigned the same epitope from a single donor. Here n reflects different clones in the repertoire, not read inflation. This is biologically expected in large repertoire studies.
+
+Distinguishing them: if few donors but many distinct CDR3s → Pattern B (normal). If few donors with the SAME CDR3 repeated n times → Pattern A / read inflation.
 
 ```python
 FREQ_THRESHOLD = 50
@@ -145,22 +153,24 @@ for k, vs in sorted(dups_beta.items(), key=lambda x: -len(x[1])):
     files = {r['_file'] for r in vs}
     if len(files) > 1: continue   # only single-file
     donors = {v(r,'meta.subject.id') for r in vs}
+    clones = {v(r,'meta.clone.id') for r in vs if v(r,'meta.clone.id')}
     if len(vs) >= FREQ_THRESHOLD and len(donors) <= DONOR_THRESHOLD:
         cb, vb, ep = k
         refs = {v(r,'reference.id') for r in vs}
-        print(f"SUSPECT n={len(vs):4d} CDR3b={cb:22} ep={ep:15} donors={len(donors)} ref={list(refs)[0]}")
+        pattern = 'READ-INFLATION' if len(clones) <= 1 else 'DEEP-REPERTOIRE'
+        print(f"{pattern} n={len(vs):4d} CDR3b={cb:22} ep={ep:15} donors={len(donors)} ref={list(refs)[0]}")
 ```
 
 **Known confirmed cases from vdjdb-db audit (2026-05-31):**
 
-| File | Epitope | CDR3b | n | Donors | Cause |
-|---|---|---|---|---|---|
-| PMID_41315082 | VEALYLVCG | CASSEAGTGGYEQYF | 530 | 2 | Sequencing read depth, not clonal abundance |
-| PMID_39746936 | VISNDVCAQV | multiple | 160–271 | 1 | Read-count inflation from single donor |
-| PMID_34811538 | RAKFKQLL/CLGGLLTMV | multiple | 107–241 | 2–3 | High-throughput repertoire depth |
-| 10xgenomics-2019-07-09 | IVTDFSVIK/RAKFKQLL | multiple | 100–133 | 2 | 10x barcode multiplicity |
+| File | Epitope | CDR3b | n | Donors | Pattern | Cause |
+|---|---|---|---|---|---|---|
+| PMID_41315082 | VEALYLVCG | CASSEAGTGGYEQYF | 530 | 2 | A | scTCR-seq read depth; same clone seen many times across cells |
+| PMID_39746936 | VISNDVCAQV | multiple | 160–271 | 1 | A | Single donor deep-seq; each clone's frequency encoded as row count |
+| PMID_34811538 | RAKFKQLL/CLGGLLTMV | multiple | 107–241 | 2–3 | B | Bulk repertoire depth; many clones, legitimate |
+| 10xgenomics-2019-07-09 | IVTDFSVIK/RAKFKQLL | multiple | 100–133 | 2 | B | 10x Genomics multiplexed assay; cell barcodes give multiplicity |
 
-These records are **not errors** per se — the data is real — but users should be aware the count reflects sequencing depth, not number of independent T cells.
+**Interpretation:** Pattern A records represent sequencing read depth not unique T cells — flag in release notes but do not remove. Pattern B records are biologically valid and expected.
 
 ---
 
