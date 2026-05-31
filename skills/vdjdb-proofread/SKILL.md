@@ -104,22 +104,57 @@ errors = qc.process_chunk()
 
 | Field | Valid values | Common mistakes to fix |
 |---|---|---|
+| `method.identification` | tokens from README set + `structural`, comma-separated | Blank is an error (score penalty); `crystal structure` → `structural`; `tetramer sort` → `tetramer-sort`; see rules below |
 | `method.singlecell` | `yes` or blank | Any other value (e.g. `no`, `true`, `single-cell`) → blank or `yes` |
 | `method.sequencing` | `sanger`, `amplicon-seq`, `rna-seq`, or blank | `illumina`, `nextseq`, `miseq` → `amplicon-seq` (those are platforms, not methods); `Single cell` → `rna-seq` + set `method.singlecell=yes`; `RNA-seq` → `rna-seq`; `amplicon` → `amplicon-seq` |
 | `method.verification` | tokens from the README set, comma-separated | Software names (`mixcr`, `cellranger`) → blank; sort methods misplaced here (`tetramer-sort`, `multimer-sort`) → replace with stain form (`tetramer-stain`, `multimer-stain`); `antigen-coated-targets` → `antigen-loaded-targets`; plain text descriptions → blank |
 
+**`method.identification` — restoration rules (apply when blank):**
+
+```
+VALID_ID_TOKENS = {
+    'tetramer-sort', 'dextramer-sort', 'pelimer-sort', 'pentamer-sort',
+    'multimer-sort', 'cd8null-tetramer', 'tetramer-umi',
+    'antigen-loaded-targets', 'antigen-expressing-targets', 'beads',
+    'cultured-T-cells', 'limiting-dilution-cloning', 'structural',
+}
+BAD_ID = {
+    'crystal structure': 'structural',  # non-standard freetext → canonical
+    'tetramer sort':     'tetramer-sort',  # missing hyphen
+}
+```
+
+**Rule 1 — Swap detection:** If `method.verification` is non-blank AND `method.identification` is blank, the values are likely swapped. Move the verification value to identification and blank verification. Verify by checking the paper: identification = how the antigen-specific T cells were found; verification = how cloned TCRs were re-tested.
+
+**Rule 2 — PDB/structural entries:** If `meta.structure.id` is non-null and `method.identification` is blank (and the file is `PDB_Database.txt` or the chunk has no other method information), set both `method.identification = structural` and `method.verification = structural`.
+
+**Rule 3 — Pre-tetramer era (papers published before ~2000):** Tetramers became available in 1996 and were not widespread until ~2000. For blank identification in entries from papers with PMID < ~10,500,000 that report only 1–5 records (T cell clones), use `antigen-loaded-targets,limiting-dilution-cloning`. Use just `limiting-dilution-cloning` if the paper exclusively describes limiting-dilution steps without explicit antigen-stimulation detail.
+
+**Rule 4 — Infer from file context:** If all other rows in the same chunk use a single identification method and the blank row is isolated (no special MHC or epitope anomaly), fill with that method. Verify against the paper PMID if unsure.
+
+**Rule 5 — PubMed abstract lookup:** For ambiguous cases, fetch `https://pubmed.ncbi.nlm.nih.gov/<PMID>/` and look for: "tetramer", "sorted", "FACS" → `tetramer-sort`; "stimulated", "functional", "ELISpot", "IFN-γ", "killing assay" → `antigen-loaded-targets`; "expressing", "transfected", "transformed" → `antigen-expressing-targets`; "clone", "limiting dilution" + pre-2000 paper → `limiting-dilution-cloning`.
+
 ```python
 VALID_SEQUENCING = {'sanger', 'amplicon-seq', 'rna-seq', ''}
 VALID_SINGLECELL = {'yes', ''}
+VALID_ID_TOKENS = {
+    'tetramer-sort','dextramer-sort','pelimer-sort','pentamer-sort','multimer-sort',
+    'cd8null-tetramer','tetramer-umi','antigen-loaded-targets',
+    'antigen-expressing-targets','beads','cultured-T-cells',
+    'limiting-dilution-cloning','structural',
+}
 VALID_VERIF_TOKENS = {
     'tetramer-stain','dextramer-stain','pelimer-stain','pentamer-stain',
     'multimer-stain','beads','restimulation','co-culture',
-    'antigen-loaded-targets','antigen-expressing-targets','direct',
+    'antigen-loaded-targets','antigen-expressing-targets','direct','structural',
 }
 # Canonical software/platform → blank or correct method
 BAD_SEQ = {
     'illumina': 'amplicon-seq', 'nextseq': 'amplicon-seq', 'miseq': 'amplicon-seq',
     'amplicon': 'amplicon-seq', 'RNA-seq': 'rna-seq', 'Single cell': 'rna-seq',
+}
+BAD_ID = {
+    'crystal structure': 'structural', 'tetramer sort': 'tetramer-sort',
 }
 BAD_VERIF = {
     'mixcr': '', 'cellranger': '', 'CTL clone': '',
