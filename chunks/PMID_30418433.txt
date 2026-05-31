@@ -23,7 +23,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 22	CAALISNFGNEKLTF	TRAV29/DV5*01						HomoSapiens	HLA-A*02:01	B2M	MHCI	LLFGYPVYV	Tax	HTLV-1	PMID:30418433	tetramer-sort											AG9					
 23	CASISLDSNYQLIW	TRAV24*01						HomoSapiens	HLA-A*02:01	B2M	MHCI	LLFGYPVYV	Tax	HTLV-1	PMID:30418433	tetramer-sort											AH6					
 24	CTSRVSDGQKLLF	TRAV12-3*01						HomoSapiens	HLA-A*02:01	B2M	MHCI	LLFGYPVYV	Tax	HTLV-1	PMID:30418433	tetramer-sort											AE10					
-25	CVVNEYSSASKIIF	TRAV12-1*01		CASSQGWDEQYF	TRBV14*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	VLMGGVPGVE	Alanine dehydrogenase	M.tuberculosis	PMID:30418433	tetramer-sort											AE7					
+25	CVVNEYSSASKIIF	TRAV12-1*01		CASSQGWDEQYF	TRBV14*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	VLMGGVPGVE	ald	M.tuberculosis	PMID:30418433	tetramer-sort											AE7					
 26	CAVYSGGYNKLIF	TRAV12-2*01		CASSFVNTGELFF	TRBV27*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	LLGATCMFV	CCND1	HomoSapiens	PMID:30418433	tetramer-sort											BF8					
 27	CAVNDYKLSF	TRAV12-2*01		CASSWTGANYGYTF	TRBV27*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	LLGATCMFV	CCND1	HomoSapiens	PMID:30418433	tetramer-sort											AD11					
 28	CAVGIYNQGGKLIF	TRAV12-2*01		CASSPGLDYEQYF	TRBV4-1*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:30418433	tetramer-sort											AG10					
@@ -563,7 +563,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 562	CALDILISGGSYIPTF	TRAV6*01		CAGWDRTPYEQYF	TRBV30*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	FMLLTQARL	BTBD1	HomoSapiens	PMID:30418433	tetramer-sort											LE9					
 563	CALSSPTYNNNDMRF	TRAV19*01		CASSEDAGNYGYTF	TRBV2*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	FMLLTQARL	BTBD1	HomoSapiens	PMID:30418433	tetramer-sort											LF11					
 564	CAVGRRNSGGYQKVTF	TRAV8-3*01						HomoSapiens	HLA-A*02:01	B2M	MHCI	FMLLTQARL	BTBD1	HomoSapiens	PMID:30418433	tetramer-sort											KD9					
-565	CVVRGGYNKLIF	TRAV10*01		CASSSDRGEQFF	TRBV5-4*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	ALSYTPVEV	Protein Njmu-R1	HomoSapiens	PMID:30418433	tetramer-sort											JG8					
+565	CVVRGGYNKLIF	TRAV10*01		CASSSDRGEQFF	TRBV5-4*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	ALSYTPVEV	NJMU-R1	HomoSapiens	PMID:30418433	tetramer-sort											JG8					
 566	CAVYFQGGSEKLVF	TRAV21*01		CASSGRDRNF	TRBV2*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	LLSIIFFPA			PMID:30418433	tetramer-sort											FC10					
 567	CAMREGGDSSYKLIF	TRAV14/DV4*01						HomoSapiens	HLA-A*02:01	B2M	MHCI	TLFTIVGTV	Protocadherin-16	HomoSapiens	PMID:30418433	tetramer-sort											KC5					
 568	CAMRGGMDSSYKLIF	TRAV14/DV4*01						HomoSapiens	HLA-A*02:01	B2M	MHCI	TLFTIVGTV	Protocadherin-16	HomoSapiens	PMID:30418433	tetramer-sort											LA12					
@@ -628,7 +628,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 627				CASSLGQGGVGEKLFF	TRBV3-1*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	WLSLLVPFV	envelope	HBV	PMID:30418433	tetramer-sort											AF4					
 628				CASSQQGVWGTGELFF	TRBV28*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	WLSLLVPFV	envelope	HBV	PMID:30418433	tetramer-sort											BB1					
 629				CASSAGASIEQYF	TRBV28*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	LLFNILGGWV	polyprotein	HCV	PMID:30418433	tetramer-sort											AF2					
-630				CASSTLSGNYNEQFF	TRBV9*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	VLMGGVPGVE	Alanine dehydrogenase	M.tuberculosis	PMID:30418433	tetramer-sort											AE8					
+630				CASSTLSGNYNEQFF	TRBV9*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	VLMGGVPGVE	ald	M.tuberculosis	PMID:30418433	tetramer-sort											AE8					
 631				CASSGSRVPYEQYF	TRBV25-1*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:30418433	tetramer-sort											AH2					
 632				CASSLGWGYEQYF	TRBV27*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:30418433	tetramer-sort											AG1					
 633				CASSPIDRAGGPYEQYF	TRBV28*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	MLNIPSINV	pp65	CMV	PMID:30418433	tetramer-sort											AH8					
@@ -646,7 +646,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 645				CASSIVGNTEAFF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	YVLDHLIVV	BRLF1	EBV	PMID:30418433	tetramer-sort											VD2					
 646				CASSPLRGPADRTGTEAFF	TRBV3-1			HomoSapiens	HLA-A*02:01	B2M	MHCI	YVLDHLIVV	BRLF1	EBV	PMID:30418433	tetramer-sort											UH8					
 647				CSVDNKAGGGYTF	TRBV29-1			HomoSapiens	HLA-A*02:01	B2M	MHCI	YVLDHLIVV	BRLF1	EBV	PMID:30418433	tetramer-sort											VG3					
-648				CASSFWGLGELFF	TRBV7-8			HomoSapiens	HLA-A*02:01	B2M	MHCI	VLMGGVPGVE	Alanine dehydrogenase	M.tuberculosis	PMID:30418433	tetramer-sort											VD3					
+648				CASSFWGLGELFF	TRBV7-8			HomoSapiens	HLA-A*02:01	B2M	MHCI	VLMGGVPGVE	ald	M.tuberculosis	PMID:30418433	tetramer-sort											VD3					
 649				CASSPTGTGYNEQFF	TRBV4-3			HomoSapiens	HLA-A*02:01	B2M	MHCI	FMYSDFHFI	PA	InfluenzaA	PMID:30418433	tetramer-sort											VB3					
 650				CASSLPAGVGDTQYF	TRBV11-2			HomoSapiens	HLA-A*02:01	B2M	MHCI	SLPITVYYA	gD	HSV-1	PMID:30418433	tetramer-sort											UF2					
 651				CASSVDGGPQETQYF	TRBV9*01			HomoSapiens	HLA-A*02:01	B2M	MHCI	AVGSHVYSV	PGM5	HomoSapiens	PMID:30418433	tetramer-sort											BC7					
