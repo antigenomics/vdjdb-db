@@ -387,7 +387,7 @@ Document any data quality problem that `ChunkQC.py` does NOT currently detect. U
 | # | Resolution date | Details |
 |---|---|---|
 | 13 | June 2026 | Combined HLA α/β collapses (e.g., `HLA-DQA1*01:02/DQB1*06:02`) detected in 628 rows across 4 files (PMID_30541895, PMID_33837283, PMID_35675811, small_datasets_2026-05-29). Split using regex `r'^(HLA-\S+?)/([A-Z]\S+)$'`: mhc.a = part before slash, mhc.b = `HLA-` + part after slash. **✅ FULLY RESOLVED** |
-| 14 | In progress | Percentage-format frequencies (e.g., `36.1%`) identified in 36 files; flagged as likely group-level statistics when identical across all clones of one epitope. Not auto-fixed (requires editorial decision to move to `meta.subset.frequency` or blank). See `MHC_BLANK_RESOLUTION_REPORT.md` for details |
+| 14 | In progress | Percentage-format frequencies (e.g., `36.1%`) identified in 36 files; flag them as likely group-level statistics when identical across all clones of one epitope. Do not auto-convert to `N/M` unless the denominator is known. If the same percentage repeats for all clones of an epitope, move it to `meta.subset.frequency` and blank `method.frequency`; if it varies per clone from a sequencing experiment, keep the curation note and resolve from the source paper when possible. |
 | 15 | June 2026 | Blank mhc.a/mhc.b audit: implemented pre/post-proofread checks. Mouse MHCII blanks resolved (150 rows). Human MHCII blanks resolved (1048 rows total: 153 DRB→HLA-DRA*01:01 fill, 467 DP pairs from PubMed-validated canonical pairings, 428 DQ pairs from narcolepsy literature). **✅ FULLY RESOLVED** |
 | 16 | June 2026 | Mouse MHCII self-fill rule applied to 150 rows; validator confirmed all resolved. **✅ FULLY RESOLVED** |
 
