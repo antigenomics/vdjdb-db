@@ -8,7 +8,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 7	CATDDSAGNMLTF	TRAV17	TRAJ39					HomoSapiens	HLA-A*24:02	B2M	MHCI	RYCNLEGPPI	LY6K	HomoSapiens	PMID:29568993	tetramer-sort											3-U-CS1					
 8	CAVSDPGADGLTF	TRAV8-4	TRAJ45					HomoSapiens	HLA-A*24:02	B2M	MHCI	RYCNLEGPPI	LY6K	HomoSapiens	PMID:29568993	tetramer-sort											3-U-CS2					
 9	CAMRDPWAGSYQLTF	TRAV14	TRAJ28					HomoSapiens	HLA-A*24:02	B2M	MHCI	RYCNLEGPPI	LY6K	HomoSapiens	PMID:29568993	tetramer-sort											3-U-CS3					
-10	CLVGVWLPSNYQLIW	TRAV4	TRAJ33					HomoSapiens	HLA-A*24:02	B2M	MHCI	RYCNLEGPPI	LY6K	HomoSapiens	PMID:29568993	tetramer-sort											3-U-CS4 					
+10	CLVGVWLPSNYQLIW	TRAV4	TRAJ33					HomoSapiens	HLA-A*24:02	B2M	MHCI	RYCNLEGPPI	LY6K	HomoSapiens	PMID:29568993	tetramer-sort											3-U-CS4					
 11	CAVNMWNSGGYQKVTF	TRAV12-2	TRAJ13					HomoSapiens	HLA-A*24:02	B2M	MHCI	RYCNLEGPPI	LY6K	HomoSapiens	PMID:29568993	tetramer-sort											3-U-CS5					
 12	CALRFYGGSQGNLIF	TRAV6	TRAJ42					HomoSapiens	HLA-A*24:02	B2M	MHCI	RYCNLEGPPI	LY6K	HomoSapiens	PMID:29568993	tetramer-sort											3-U-CS6					
 13	CAAGGGAQKLVF	TRAV13-1	TRAJ54					HomoSapiens	HLA-A*24:02	B2M	MHCI	RYCNLEGPPI	LY6K	HomoSapiens	PMID:29568993	tetramer-sort																
