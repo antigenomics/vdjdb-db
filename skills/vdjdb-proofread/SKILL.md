@@ -108,6 +108,7 @@ errors = qc.process_chunk()
 | `method.singlecell` | `yes` or blank | Any other value (e.g. `no`, `true`, `single-cell`) → blank or `yes` |
 | `method.sequencing` | `sanger`, `amplicon-seq`, `rna-seq`, or blank | `illumina`, `nextseq`, `miseq` → `amplicon-seq` (those are platforms, not methods); `Single cell` → `rna-seq` + set `method.singlecell=yes`; `RNA-seq` → `rna-seq`; `amplicon` → `amplicon-seq` |
 | `method.verification` | tokens from the README set, comma-separated | Software names (`mixcr`, `cellranger`) → blank; sort methods misplaced here (`tetramer-sort`, `multimer-sort`) → replace with stain form (`tetramer-stain`, `multimer-stain`); `antigen-coated-targets` → `antigen-loaded-targets`; plain text descriptions → blank |
+| `method.frequency` | `N/M` (count/total, e.g. `1/56`) or blank | **Percentage format (`%`) is not valid**. A repeated identical `%` value across all clones for one epitope (e.g., `36.1%` on all NP-reactive rows) means it is a group-level figure (% of tetramer+ cells reactive to that epitope) — move to `meta.subset.frequency` and blank `method.frequency`. A varied `%` value per clone from a sequencing experiment (e.g., `2.40%`, `2.48%`) may be a per-clone repertoire fraction — note in extraction log; ideally convert to `N/M` using the paper's denominators, or blank if denominator is unknown. |
 
 **`method.identification` — restoration rules (apply when blank):**
 
@@ -316,6 +317,12 @@ These checks are **not** performed by `ChunkQC.py` — apply them manually:
 | mhc.a → class inference | If `mhc.a` starts with `HLA-A/B/C/E/F/G`, class must be `MHCI` | Correct `mhc.class` |
 | mhc.a → class inference | If `mhc.a` starts with `HLA-DR/DQ/DP/DO/DM`, class must be `MHCII` | Correct `mhc.class` |
 | HLA allele in mhc_alleles.tsv.gz | Human `mhc.a/mhc.b` starting with `HLA-` should exist in `proofreading/mhc_alleles.tsv.gz` | Note if not found |
+| **Combined α/β in `mhc.a`** (Gap #13) | `mhc.a` matches `HLA-DXA*/DYB*...` or similar (contains `/`), `mhc.b` is blank — both chains are collapsed into `mhc.a`. Applies to HLA-DQ, HLA-DP, HLA-DR heterodimers. | Split on `/`: `mhc.a` = prefix before slash (e.g., `HLA-DQA1*01:02`); `mhc.b` = `HLA-` + suffix after slash (e.g., `HLA-DQB1*06:02`). Detection: `bool(re.match(r'^HLA-\S+/\S+$', mhc_a)) and mhc_b == ''` |
+
+**Quick scan command** (run before proofreading any MHC-II chunk):
+```bash
+awk -F'\t' 'NR>1 && $10~/\// && ($11=="" || $11~/^\s*$/) {print NR, $10}' <chunk_file>
+```
 
 ---
 
@@ -364,6 +371,8 @@ Document any data quality problem that `ChunkQC.py` does NOT currently detect. U
 | 10 | Invalid allele number | Allele number exceeds `allele_count` in `proofreading/imgt_alleles.tsv.gz` | Query imgt_alleles.tsv.gz |
 | 11 | HLA allele not in IPD-IMGT/HLA | Human `mhc.a/mhc.b` (starting with `HLA-`) not found in `proofreading/mhc_alleles.tsv.gz` | Query mhc_alleles.tsv.gz |
 | 12 | Unconfirmed HLA allele | Allele in `proofreading/mhc_alleles.tsv.gz` with `confirmed = Unconfirmed` | Query mhc_alleles.tsv.gz |
+| 13 | Combined MHC-II α/β in `mhc.a` | `mhc.a` contains a `/` (e.g., `HLA-DQA1*01:02/DQB1*06:02`) with `mhc.b` blank — the α-chain and β-chain are collapsed into one field | Split on `/`: `mhc.a` = part before slash (including `HLA-` prefix); `mhc.b` = `HLA-` + part after slash. Check: `re.search(r'^(HLA-\S+?)/([A-Z]\S+)$', mhc_a)` where `mhc_b == ''` |
+| 14 | Percentage in `method.frequency` | `method.frequency` contains `%` instead of count/total (e.g., `36.1%` instead of `13/36`). Percentages are not a valid VDJdb frequency format. Particularly suspicious when the same percentage repeats across all clones for a given epitope (indicating it is a group-level statistic, not a per-clone frequency) | **Do not blindly convert to N/M** — the denominator is often unknown from the paper. Check: if the same value repeats for all clones of one epitope, it likely represents the frequency of that epitope-reactive fraction (e.g., % of tetramer-positive cells) and should be moved to `meta.subset.frequency`. If it is truly a per-clone repertoire frequency (e.g., from high-throughput sequencing), retain as a note in the extraction log and leave blank or convert if the count/total can be determined from the paper. |
 
 For each new gap found during this session:
 - Document: check description, example failing row, suggested Python code
