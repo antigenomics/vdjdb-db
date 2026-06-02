@@ -28,7 +28,8 @@ Matrix protein 1	M1
 Nucleoprotein	Nucleocapsid
 nucleoprotein	NP
 nucleocapsid protein	NP
-Neuraminidase	NA
+Neuraminidase	Neuraminidase
+neuraminidase	Neuraminidase
 Matrix M2	M2
 Matrix protein	M
 Protein PB1-F2	PB1-F2
