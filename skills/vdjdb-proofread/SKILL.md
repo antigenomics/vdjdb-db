@@ -592,12 +592,12 @@ gzip -dc proofreading/mhc_alleles.tsv.gz | awk -F'\t' '$2 == "HLA-A*02:01:01:01"
 
 Mouse entries do not use the IPD-IMGT/HLA database. Apply these rules instead.
 
-**Rule 1 — B2M for MHCI:**
-Any row with `species = MusMusculus` and `mhc.class = MHCI` must have `mhc.b = B2M`.
+**Rule 1 — B2M for mouse MHCI alleles:**
+Any row with `species = MusMusculus`, `mhc.class = MHCI`, and `mhc.a` starting with `H-2` or `H2-` must have `mhc.b = B2M`.
 Set it if blank; flag if set to anything else.
 
-**Rule 2 — Self-fill for MHCII:**
-Any row with `species = MusMusculus` and `mhc.class = MHCII` must have `mhc.b = mhc.a`.
+**Rule 2 — Self-fill for mouse MHCII alleles:**
+Any row with `species = MusMusculus`, `mhc.class = MHCII`, and `mhc.a` starting with `H2-I` or `I-` must have `mhc.b = mhc.a`.
 This is the canonical VDJdb convention for mouse class II (the same allele string fills both fields).
 Set `mhc.b = mhc.a` if `mhc.b` is blank or inconsistent.
 
