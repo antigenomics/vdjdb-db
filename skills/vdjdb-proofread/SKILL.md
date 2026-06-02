@@ -56,8 +56,13 @@ A column shift occurs when the file's header and data rows have different column
 ```python
 with open(chunk_file) as f:
     header = f.readline().rstrip('\n').split('\t')
-    data_cols = [len(f.readline().rstrip('\n').split('\t')) for _ in range(min(5, sum(1 for _ in f)))]
 
+    data_cols = []
+    for _ in range(5):
+        line = f.readline()
+        if not line:
+            break
+        data_cols.append(len(line.rstrip('\n').split('\t')))
 # Check 1: header vs data column count
 for n in data_cols:
     if n != len(header):
