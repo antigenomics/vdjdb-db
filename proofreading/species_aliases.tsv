@@ -31,6 +31,8 @@ coronavirus oc43	HCoV-OC43
 coronavirus hku1	HCoV-HKU1
 human immunodeficiency virus 1	HIV-1
 hiv-1	HIV-1
+# bare "HIV" without version qualifier → HIV-1 (canonical VDJdb form)
+hiv	HIV-1
 hepatitis c	HCV
 hepatitis b	HBV
 yellow fever	YFV
@@ -58,6 +60,17 @@ homo sapiens	HomoSapiens
 mus musculus	MusMusculus
 gallus gallus	GallusGallus
 triticum aestivum	Wheat
+# SARS-CoV-2 additional fragments (must come BEFORE generic sars-cov)
+coronavirus 2019	SARS-CoV-2
+# HPV aliases
+papillomavirus-16	HPV16
+hpv-16	HPV16
+papillomavirus-18	HPV18
+hpv-18	HPV18
+# E. coli
+escherichia coli	E.Coli
+e. coli	E.Coli
+e.coli	E.Coli
 # --- CamelCase species added during vdjdb-wide harmonization ---
 manduca sexta	ManducaSexta
 columba livia	ColumbaLivia

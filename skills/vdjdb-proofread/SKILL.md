@@ -93,6 +93,21 @@ with open(chunk_file) as f:
         if ref and not (ref.startswith('PMID:') or ref.startswith('doi:') or
                         ref.startswith('http') or 'unpublished' in ref):
             print(f"ROW {i+2}: reference.id={ref!r} — not a valid reference format")
+```
+
+**`reference.id` valid formats:**
+
+| Format | Example | Notes |
+|---|---|---|
+| `PMID:` prefix | `PMID:8906788` | PubMed ID — preferred |
+| `doi:` prefix | `doi:10.1038/ncomms3623` | DOI without https |
+| `https://` URL | `https://biorxiv.org/content/...` | arXiv, bioRxiv, other preprints |
+| `http://` URL | `https://www.rcsb.org/structure/1AO7` | PDB URL for unpublished structures |
+| `unpublished` | `unpublished` | Acceptable only if no DOI/PDB exists |
+
+**For PDB structures without a PMID**, use the canonical PDB URL: `https://www.rcsb.org/structure/{PDB_ID_UPPER}`. This is preferable to leaving blank or using `unpublished`.
+
+```python
         if i >= 9: break  # spot-check first 10 rows
 ```
 
@@ -692,6 +707,11 @@ Document any data quality problem that `ChunkQC.py` does NOT currently detect. U
 | 18 | Blank `antigen.species` | `antigen.species` is empty in non-synthetic records. `ChunkQC` currently flags blank `antigen.gene` (code `bad antigen.gene`) but does **not** flag blank `antigen.species`. Detected in 5 chunk files (1841 rows total): PMID_35667687.txt (1359 rows, MusMusculus/G6pc2), PMID_30418433.txt (346 rows, HomoSapiens neoantigens), PMID_31685621.txt (41 rows, HomoSapiens neoantigens), small_datasets_2026-05-29.txt (94 rows, mixed species). → **✅ RESOLVED June 2026** (IEDB lookup + per-epitope mapping applied; see `fix_antigen_fields.py` in session) |
 | 19 | Blank `antigen.gene` (non-synthetic) | `antigen.gene` is empty and `antigen.species` is not `Synthetic`. `ChunkQC` flags this as `bad antigen.gene` but provides no repair guidance. Fix via IEDB lookup (see Step 6a-i). Blanks are acceptable only when `antigen.species == 'Synthetic'`. → **✅ RESOLVED June 2026** (same batch as Gap #18) |
 | 20 | `antigen.species` casing: `synthetic` vs `Synthetic` | VDJdb uses CamelCase for all species values, so the canonical form is `Synthetic` (capital S). Found 47 records with lowercase `synthetic` across 3 files (PDB_Database.txt, PMID_29275860.txt, PMID_39286976.txt). Validator: `antigen.species.lower() == 'synthetic' and antigen.species != 'Synthetic'`. → **✅ RESOLVED June 2026** (47 rows normalized) |
+| 21 | Species non-canonical variants | Several species names used inconsistently: `HIV` (should be `HIV-1`), `HPV-16` (should be `HPV16`), `HPV-18` (should be `HPV18`), `TriticumAestivum` (should be `Wheat`), `MycobacteriumTuberculosis` (should be `M.tuberculosis`). All are now in `proofreading/species_aliases.tsv`. Scan: `antigen.species not in CANONICAL_SPECIES_SET` — use `is_spurious_species()` from `/harmonize`. → **✅ RESOLVED June 2026** (67 rows across 6 files) |
+| 22 | Blank antigen fields in PDB_Database | `antigen.species` or `antigen.gene` blank for PDB structural entries. These genuinely unknown values should be filled with `"Unknown"` to signal curated-but-unknown status vs unchecked blanks. → **✅ RESOLVED June 2026** (8 rows in PDB_Database.txt) |
+| 23 | Blank/unpublished `reference.id` in PDB_Database | 43 rows had blank or `"unpublished"` `reference.id`. For PDB structures with no publication, use the canonical PDB URL: `https://www.rcsb.org/structure/{PDB_ID_UPPER}`. → **✅ RESOLVED June 2026** (43 rows fixed) |
+| 24 | Gene name for viral nucleocapsid cross-species | `antigen.gene = "Nucleocapsid"` used for both SARS-CoV-2 (canonical VDJdb: `Nucleocapsid`) and InfluenzaA (canonical VDJdb: `NP`). The two should not be conflated. For InfluenzaA rows, `Nucleocapsid` → `NP`. → **✅ RESOLVED June 2026** (104 rows in PMID_31811120.txt) |
+| 25 | SARS-CoV mislabeled as SARS-CoV-2 | PMID_34793243.txt contained 2 SARS-CoV-2 epitopes (Spike + ORF1ab) labeled `SARS-CoV`. Confirmed via PubMed abstract (paper is about SARS-CoV-2 CD8 T cells). PMID_38866784.txt retains `SARS-CoV` deliberately — that paper explicitly studies cross-reactive T cells targeting SARS-CoV from COVID-19 convalescents. Always verify SARS-CoV vs SARS-CoV-2 via PubMed abstract before relabeling. → **✅ RESOLVED June 2026** (2 rows) |
 
 ### Resolved gaps
 
