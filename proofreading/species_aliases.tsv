@@ -23,6 +23,8 @@ h7n9	InfluenzaA
 sars-cov-2	SARS-CoV-2
 sars-cov2	SARS-CoV-2
 coronavirus 2	SARS-CoV-2
+# SARS-CoV-2 additional fragments (must come BEFORE generic sars-cov)
+coronavirus 2019	SARS-CoV-2
 sars-cov-1	SARS-CoV
 sars-cov1	SARS-CoV
 sars coronavirus	SARS-CoV
@@ -60,8 +62,6 @@ homo sapiens	HomoSapiens
 mus musculus	MusMusculus
 gallus gallus	GallusGallus
 triticum aestivum	Wheat
-# SARS-CoV-2 additional fragments (must come BEFORE generic sars-cov)
-coronavirus 2019	SARS-CoV-2
 # HPV aliases
 papillomavirus-16	HPV16
 hpv-16	HPV16
