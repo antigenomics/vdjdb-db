@@ -112,9 +112,7 @@ with open(chunk_file) as f:
 
 **For PDB structures without a PMID**, use the canonical PDB URL: `https://www.rcsb.org/structure/{PDB_ID_UPPER}`. This is preferable to leaving blank or using `unpublished`.
 
-```python
-        if i >= 9: break  # spot-check first 10 rows
-```
+Optionally stop after the first 10 rows by adding `if i >= 9: break` inside the loop above.
 
 If a shift is confirmed:
 1. Report the delta (header has N more columns than data, or vice versa).
