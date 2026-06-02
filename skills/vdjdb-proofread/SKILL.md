@@ -47,6 +47,61 @@ meta.donor.MHC.method | meta.structure.id | [comment]
 
 > Note: `meta.subset.frequency` (column 24) is present in all validated `chunks/` files but is **missing from `py_src/ChunkQC.py`'s `META_COLUMNS`**. This is a known gap (Gap #8 below).
 
+### Column-shift detection
+
+A column shift occurs when the file's header and data rows have different column counts, or when the header is missing the leading `chunk.id` column. This causes every field to map to the wrong column name — so `antigen.species` might contain a submitter name, `antigen.gene` might contain a reference ID, etc.
+
+**Detect before running ChunkQC:**
+
+```python
+with open(chunk_file) as f:
+    header = f.readline().rstrip('\n').split('\t')
+    data_cols = [len(f.readline().rstrip('\n').split('\t')) for _ in range(min(5, sum(1 for _ in f)))]
+
+# Check 1: header vs data column count
+for n in data_cols:
+    if n != len(header):
+        print(f"COLUMN SHIFT: header={len(header)} cols, data row={n} cols — delta={len(header)-n}")
+
+# Check 2: first header column should be 'chunk.id'
+if header[0] != 'chunk.id':
+    print(f"MISSING chunk.id: first column is {header[0]!r}")
+```
+
+**Confirm a shift with content-based sanity checks** — even when column counts match, a shift may be present if:
+
+```python
+import csv, re
+
+VALID_SPECIES  = {'HomoSapiens','MusMusculus','RattusNorvegicus','MacacaMulatta','GallusGallus'}
+VALID_ANTIGENS = re.compile(r'^[ARNDCQEGHILKMFPSTWYV]{4,}$')
+AA_ONLY        = re.compile(r'^[ARNDCQEGHILKMFPSTWYV]+$')
+
+with open(chunk_file) as f:
+    reader = csv.DictReader(f, delimiter='\t')
+    for i, row in enumerate(reader):
+        sp  = row.get('antigen.species', '')
+        epi = row.get('antigen.epitope', '')
+        ref = row.get('reference.id', '')
+        # red flags for column shift:
+        if sp and sp not in VALID_SPECIES and 'synthetic' not in sp.lower():
+            if not any(sp.startswith(p) for p in ('EBV','CMV','HIV','DENV','HCV','HSV','HBV',
+                                                    'HTLV','InfluenzaA','YFV','HPV','VSV','M.')):
+                print(f"ROW {i+2}: suspicious antigen.species={sp!r} — possible column shift")
+        if epi and not VALID_ANTIGENS.match(epi):
+            print(f"ROW {i+2}: antigen.epitope={epi!r} contains non-AA chars — possible shift")
+        if ref and not (ref.startswith('PMID:') or ref.startswith('doi:') or
+                        ref.startswith('http') or 'unpublished' in ref):
+            print(f"ROW {i+2}: reference.id={ref!r} — not a valid reference format")
+        if i >= 9: break  # spot-check first 10 rows
+```
+
+If a shift is confirmed:
+1. Report the delta (header has N more columns than data, or vice versa).
+2. Identify which extra header columns are spurious (e.g. `submitter`, `optional columns...`).
+3. Fix by either: (a) removing ghost header columns so counts match, or (b) prepending a missing `chunk.id` column to data rows.
+4. Re-run the full column validation after repair.
+
 ---
 
 ## Step 2 — Run ChunkQC
@@ -304,6 +359,104 @@ If **any** of these return non-empty results:
 2. Ask: "Run `/harmonize` to fix antigen.gene/species automatically? [y/n]"
 3. If yes: run `/harmonize [path]`, then re-run ChunkQC to verify no regressions.
 
+### 6a-i — Blank antigen.species / antigen.gene detection
+
+**Scan for blanks first** (separate from the spurious-value scan above):
+
+```python
+blank_species = [r for r in rows if not str(r.get('antigen.species', '')).strip()]
+blank_gene    = [r for r in rows if not str(r.get('antigen.gene', '')).strip()]
+# gene blank is acceptable only when antigen.species is 'Synthetic'
+real_blank_gene = [r for r in blank_gene if r.get('antigen.species', '') != 'Synthetic']
+```
+
+Report distinct `(antigen.epitope, reference.id)` pairs for each category.
+
+**Resolution procedure — IEDB lookup:**
+
+1. Collect all unique blank-species/gene epitope sequences from the chunk.
+
+2. **Choose lookup method** — ask the user which is available:
+   - **Local dump** (fast, requires the file): ask `"Do you have the IEDB epitope dump? If so, provide the path to epitope_full_v3.tsv.gz"`. Use the path provided.
+   - **IEDB API** (no local file needed): query `https://query-api.iedb.org/epitope_search` with `linear_sequence=<EPITOPE>` and parse JSON results.
+   - **PubMed MCP** (available in-session): use `mcp__claude_ai_PubMed__get_article_metadata` with the chunk's `reference.id` PMIDs; read the title/abstract for antigen context.
+
+3. **Local dump lookup** (preferred when available):
+
+```python
+import gzip, csv
+from collections import Counter
+
+def iedb_lookup(dump_path, epitopes):
+    target = {e.upper() for e in epitopes}
+    results = {}
+    with gzip.open(dump_path, 'rt') as f:
+        reader = csv.reader(f, delimiter='\t')
+        next(reader); next(reader)  # skip 2 header rows
+        for row in reader:
+            if len(row) < 3: continue
+            epi = row[2].strip().upper()
+            if epi not in target: continue
+            # natural source: cols 9,13; analog/mimotope: cols 24,28
+            gene = row[9].strip() or (row[24].strip() if len(row) > 24 else '')
+            org  = row[13].strip() or (row[28].strip() if len(row) > 28 else '')
+            results.setdefault(epi, []).append((gene, org))
+    return {
+        e: (Counter(h[0] for h in hits if h[0]).most_common(1)[0][0] if any(h[0] for h in hits) else '',
+            Counter(h[1] for h in hits if h[1]).most_common(1)[0][0] if any(h[1] for h in hits) else '')
+        for e, hits in results.items()
+    }
+```
+
+4. **IEDB API lookup** (when no local dump):
+
+```python
+import urllib.request, json
+
+def iedb_api_lookup(epitope):
+    url = f"https://query-api.iedb.org/epitope_search?linear_sequence={epitope}&limit=5"
+    with urllib.request.urlopen(url) as resp:
+        data = json.loads(resp.read())
+    hits = data.get('results', [])
+    if not hits: return ('', '')
+    h = hits[0]
+    gene = h.get('source_molecule_name', '') or h.get('molecule_parent_name', '')
+    org = h.get('source_organism_name', '')
+    return gene, org
+```
+
+5. Map IEDB organism names to VDJdb `antigen.species` CamelCase:
+
+| IEDB organism | VDJdb antigen.species |
+|---|---|
+| Homo sapiens | HomoSapiens |
+| Mus musculus | MusMusculus |
+| Gallus gallus | GallusGallus |
+| Human herpesvirus 4 / Epstein-Barr virus | EBV |
+| Human herpesvirus 5 / cytomegalovirus | CMV |
+| Dengue virus | DENV |
+| HIV / Human immunodeficiency virus | HIV |
+| Influenza A virus | InfluenzaA |
+| Columba livia | ColumbaLivia |
+| Manduca sexta | ManducaSexta |
+| Synthetic / mimotope (no natural source) | Synthetic |
+
+6. Map IEDB protein names to gene symbols (HGNC for human, MGI for mouse, standard virus gene names). The IEDB `Source Molecule` field (col 9) often contains synonyms — use the canonical gene symbol, not the full protein name.
+
+7. When IEDB has no match: use PubMed MCP to fetch the abstract for the chunk's `reference.id` PMID and infer from title/abstract context (cancer neoantigen study → HomoSapiens; cross-reactive T cell study → source species varies per epitope; autoantigen study → typically HomoSapiens or MusMusculus).
+
+8. For intentionally synthetic peptides (mimotopes, modified sequences, designed peptides): set `antigen.species = Synthetic`; leave `antigen.gene` blank — this is the only valid case for a blank gene.
+
+### 6a-ii — Synthetic casing normalization
+
+VDJdb uses CamelCase for all species values. Normalize any lowercase variant:
+
+```python
+for row in rows:
+    if row.get('antigen.species', '').lower() == 'synthetic':
+        row['antigen.species'] = 'Synthetic'
+```
+
 ---
 
 ## Step 6 — MHC Validation (Beyond ChunkQC)
@@ -536,6 +689,9 @@ Document any data quality problem that `ChunkQC.py` does NOT currently detect. U
 | 15 | Blank MHC fields not blocked early | Rows with blank `mhc.a` or `mhc.b` can persist unless explicitly scanned pre/post-proofread | Add explicit audit: `((mhc.a == '') or (mhc.b == ''))` and fail proofreading unless a deterministic repair rule is applied |
 | 16 | Mouse MHCII missing `mhc.b` | For `MusMusculus` + `MHCII`, rows often have `mhc.a` filled (e.g., `H2-IEd`) and blank `mhc.b`, despite canonical VDJdb representation using the same allele string in both fields in this dataset | Auto-repair validator: `if species == 'MusMusculus' and mhc.class == 'MHCII' and mhc.a and not mhc.b: mhc.b = mhc.a` → **✅ RESOLVED June 2026** (150 rows filled) |
 | 17 | MHC-II gene name digit errors | Three related issues: (a) `HLA-DPA*`/`HLA-DPB*`/`HLA-DQA*` missing trailing `1` (correct: `HLA-DPA1*`, `HLA-DPB1*`, `HLA-DQA1*`); (b) `HLA-DRA1*` with spurious `1` (correct: `HLA-DRA*` — DRA has no digit suffix); (c) `DPA1*`/`DPB1*` without `HLA-` prefix. See `proofreading/mhc.md` §11 for scan commands. → **✅ RESOLVED June 2026** (1417 rows across 5 files) |
+| 18 | Blank `antigen.species` | `antigen.species` is empty in non-synthetic records. `ChunkQC` currently flags blank `antigen.gene` (code `bad antigen.gene`) but does **not** flag blank `antigen.species`. Detected in 5 chunk files (1841 rows total): PMID_35667687.txt (1359 rows, MusMusculus/G6pc2), PMID_30418433.txt (346 rows, HomoSapiens neoantigens), PMID_31685621.txt (41 rows, HomoSapiens neoantigens), small_datasets_2026-05-29.txt (94 rows, mixed species). → **✅ RESOLVED June 2026** (IEDB lookup + per-epitope mapping applied; see `fix_antigen_fields.py` in session) |
+| 19 | Blank `antigen.gene` (non-synthetic) | `antigen.gene` is empty and `antigen.species` is not `Synthetic`. `ChunkQC` flags this as `bad antigen.gene` but provides no repair guidance. Fix via IEDB lookup (see Step 6a-i). Blanks are acceptable only when `antigen.species == 'Synthetic'`. → **✅ RESOLVED June 2026** (same batch as Gap #18) |
+| 20 | `antigen.species` casing: `synthetic` vs `Synthetic` | VDJdb uses CamelCase for all species values, so the canonical form is `Synthetic` (capital S). Found 47 records with lowercase `synthetic` across 3 files (PDB_Database.txt, PMID_29275860.txt, PMID_39286976.txt). Validator: `antigen.species.lower() == 'synthetic' and antigen.species != 'Synthetic'`. → **✅ RESOLVED June 2026** (47 rows normalized) |
 
 ### Resolved gaps
 
