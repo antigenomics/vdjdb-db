@@ -107,7 +107,7 @@ with open(chunk_file) as f:
 | `PMID:` prefix | `PMID:8906788` | PubMed ID — preferred |
 | `doi:` prefix | `doi:10.1038/ncomms3623` | DOI without https |
 | `https://` URL | `https://biorxiv.org/content/...` | arXiv, bioRxiv, other preprints |
-| `http://` URL | `https://www.rcsb.org/structure/1AO7` | PDB URL for unpublished structures |
+| `http(s)://` URL | `https://www.rcsb.org/structure/1AO7` | PDB URL for unpublished structures |
 | `unpublished` | `unpublished` | Acceptable only if no DOI/PDB exists |
 
 **For PDB structures without a PMID**, use the canonical PDB URL: `https://www.rcsb.org/structure/{PDB_ID_UPPER}`. This is preferable to leaving blank or using `unpublished`.
