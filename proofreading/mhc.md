@@ -328,7 +328,59 @@ gzip -dc proofreading/mhc_alleles.tsv.gz | awk -F'\t' '$2 ~ /^HLA-A\*02:/' | hea
 
 ---
 
-## 11. Reference Information
+## 11. Common MHC-II Gene Naming Errors (Data Entry)
+
+These errors have been observed in VDJdb chunks and must be corrected during proofreading.
+
+### 11.1 Missing digit in DP/DQ gene names
+
+Several HLA class II genes include a digit suffix (e.g., `DPA1`, `DPB1`, `DQA1`, `DQB1`). It is a common data-entry mistake to omit this digit:
+
+| Wrong form | Correct form | Gene | Notes |
+|---|---|---|---|
+| `HLA-DPA*01:03` | `HLA-DPA1*01:03` | DPA1 | DP α chain — missing `1` |
+| `HLA-DPB*04:01` | `HLA-DPB1*04:01` | DPB1 | DP β chain — missing `1` |
+| `HLA-DQA*01` | `HLA-DQA1*01` | DQA1 | DQ α chain — missing `1` |
+| `HLA-DQB*06:02` | `HLA-DQB1*06:02` | DQB1 | DQ β chain — missing `1` |
+
+**Note:** `HLA-DRA` is correct — DRA has no digit suffix (the gene is simply `DRA`, not `DRA1`). Do NOT write `HLA-DRA1*`.
+
+### 11.2 `HLA-DRA1*` — incorrect extra digit
+
+`HLA-DRA1*` is wrong. The gene name is `DRA` (no trailing digit). Always use `HLA-DRA*01:01` (or `HLA-DRA*01` for low-resolution).
+
+| Wrong form | Correct form |
+|---|---|
+| `HLA-DRA1*01` | `HLA-DRA*01` |
+| `HLA-DRA1*01:01` | `HLA-DRA*01:01` |
+
+### 11.3 Missing `HLA-` prefix in mhc.a / mhc.b
+
+Human MHC-II alleles in `mhc.a` and `mhc.b` must always include the `HLA-` prefix:
+
+| Wrong form | Correct form |
+|---|---|
+| `DPA1*02:02` | `HLA-DPA1*02:02` |
+| `DPB1*05:01` | `HLA-DPB1*05:01` |
+| `DRB1*15:01` | `HLA-DRB1*15:01` |
+| `DQB1*06:02` | `HLA-DQB1*06:02` |
+
+**Quick scan for all three error types:**
+
+```bash
+# Missing digit in DP/DQ gene names
+awk -F'\t' 'NR>1 && ($10 ~ /^HLA-DP[AB]\*/ || $11 ~ /^HLA-DP[AB]\*/ || $10 ~ /^HLA-DQ[AB]\*/ || $11 ~ /^HLA-DQ[AB]\*/) {print NR, $10, $11}' <chunk_file>
+
+# HLA-DRA1* (extra digit)
+awk -F'\t' 'NR>1 && ($10 ~ /^HLA-DRA1\*/ || $11 ~ /^HLA-DRA1\*/) {print NR, $10, $11}' <chunk_file>
+
+# Missing HLA- prefix (starts with DP/DQ/DR but not HLA-)
+awk -F'\t' 'NR>1 && ($10 ~ /^D[PQR][ABMNO]/ || $11 ~ /^D[PQR][ABMNO]/) {print NR, $10, $11}' <chunk_file>
+```
+
+---
+
+## 12. Reference Information
 
 - **WHO Nomenclature Report 2026:** Marsh et al., *HLA* 2026; 107:e70595. doi:10.1111/tan.70595
 - **IPD-IMGT/HLA Database:** https://www.ebi.ac.uk/ipd/imgt/hla/
