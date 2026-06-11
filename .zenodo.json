@@ -1,0 +1,44 @@
+{
+    "title": "VDJdb: a curated database of T-cell receptor sequences with known antigen specificity",
+    "description": "<p>VDJdb is a curated database of T-cell receptor (TCR) sequences with known antigen specificity, i.e. the ability to recognize certain epitopes in certain MHC contexts. Its primary goal is to facilitate access to existing information on TCR antigen specificities by aggregating the scarce TCR specificity data available and curating it into a consistent, validated repository.</p><p>Each record is assigned a single confidence score based on the experimental setup used to identify the antigen-specific TCR, and is automatically checked against a database of V/J germline sequences to ensure standardized reporting of V-J junctions and CDR3 sequences. This repository hosts the submissions to the database and the scripts used to check, fix and build the database.</p><p>The database can be queried via the <a href=\"https://github.com/antigenomics/vdjmatch\">vdjmatch</a> software, browsed using the <a href=\"https://github.com/antigenomics/vdjdb-web\">VDJdb-web</a> GUI, and accessed online at <a href=\"https://vdjdb.com\">https://vdjdb.com</a>.</p>",
+    "upload_type": "dataset",
+    "access_right": "open",
+    "license": "AGPL-3.0-only",
+    "language": "eng",
+    "keywords": [
+        "T-cell receptor",
+        "TCR",
+        "antigen specificity",
+        "epitope",
+        "MHC",
+        "CDR3",
+        "immunogenomics",
+        "adaptive immunity",
+        "immunology",
+        "curated database"
+    ],
+    "creators": [
+        { "name": "Shugay, Mikhail", "orcid": "0000-0001-7826-7942", "affiliation": "ISALGO laboratory (isalgo.dev)" },
+        { "name": "ISALGO laboratory", "affiliation": "isalgo.dev" }
+    ],
+    "related_identifiers": [
+        {
+            "identifier": "10.1038/s41592-022-01578-0",
+            "relation": "isSupplementTo",
+            "resource_type": "publication-article",
+            "scheme": "doi"
+        },
+        {
+            "identifier": "https://github.com/antigenomics/vdjdb-db",
+            "relation": "isSupplementTo",
+            "resource_type": "software",
+            "scheme": "url"
+        },
+        {
+            "identifier": "https://vdjdb.com",
+            "relation": "isIdenticalTo",
+            "resource_type": "dataset",
+            "scheme": "url"
+        }
+    ]
+}
