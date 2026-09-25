@@ -1919,8 +1919,9 @@ not. The funnel says where the remainder goes:
 | HomoSapiens | TRB | 121,966 | 6,149 | 167 | 39,504 | 34,330 | 37,154 |
 | MusMusculus | TRA | 7,279 | 193 | 15 | 1,043 | 777 | 1,688 |
 | MusMusculus | TRB | 8,448 | 425 | 27 | 1,042 | 799 | 1,367 |
-| MacacaMulatta | TRA | 74 | - | - | - | 0 | 0 |
-| MacacaMulatta | TRB | 1,365 | - | - | - | 0 | 0 |
+
+VDJdb does motifs for **human and mouse only**, which is the whole of the table above and the whole
+of the shipped files. The 1,439 macaque clonotypes in the database are out of scope, not a gap.
 
 Named causes, in order of size:
 
@@ -1936,8 +1937,6 @@ Named causes, in order of size:
    a motif or a multiple-testing correction.
 4. **`MIN_CLUSTER = 5`** removes 9,532 enriched clonotypes in components of fewer than five --
    the same floor the shipped files have, whose smallest `csz` is 5.
-5. **No macaque background**, so 1,439 macaque clonotypes get no motifs. The shipped files carry
-   only `HomoSapiens` and `MusMusculus`, so this is not a deviation.
 
 ⚠ **The BH correction is not a cause.** It was the obvious suspect and it is the wrong one: over
 185,738 scored clonotypes, BH `q <= 0.05` calls **53,609** enriched where the legacy's uncorrected
@@ -1950,4 +1949,103 @@ overall, which is what points at the background rather than the threshold.
 Section 8.2 predicted this and it held: the legacy TCRNET was **not** V/VJ/VJL-grouped
 (`CalcDegreeStats.groovy` defaults to `-g dummy`), so the grouping-free `tcrnet()` is an exact scope
 match. Nothing to reconcile.
+
+## 30. Motif optimisation — the open knobs, and why each one is open
+
+**The paratope motifs are a critical part of VDJdb**, and neither method is tuned yet. Phases 10 and
+11 deliver a *correct, measured, reproducible* pipeline; this section is the list of things that
+should make it *better*, each with the knob, the measurement that would settle it, and what is
+already known. Nothing here is speculative housekeeping -- every item is a parameter currently set
+to a defensible default that nobody has swept.
+
+⚠ **Ground rule.** Every sweep is scored on the section 11.1 independent-study objective and the
+vendored `metrics_lib`, never on TCRvdb (section 11.2), and the winner is recorded with its measured
+numbers before anything becomes a default.
+
+### 30.1 The giant component is the biggest single defect, and it is shared with the shipped files
+
+Measured on phase 10's output, 45,095 clustered records over 1,181 cids:
+
+| | |
+|---|---:|
+| largest single cluster | **19,908 records (44.1 % of everything clustered)** |
+| top 10 clusters | 60.4 % |
+| clusters with >= 100 members | 31, holding 66.9 % |
+| epitope-chains (>= 100 clustered) whose largest component holds > 50 % | **11 of 24** |
+
+The shipped `cluster_members.txt`'s largest cluster is **19,972**, so this is not a phase 10
+regression -- it is what connected components on a Hamming-1 graph do. A component that holds 44 %
+of the data is not a motif; it is percolation, and a PWM over it is close to the marginal residue
+frequency.
+
+**The knob: replace connected components with community detection.** Leiden (or Louvain) on the same
+graph, resolution swept, with modularity and the section 11.1 objective reported per resolution.
+`python-igraph` is already a dependency and carries `community_leiden`. The REDCEA production
+clustering is Leiden-based and does not have this failure mode -- its largest TRB cid is 2,882 over
+74,736 records (3.9 %) against our 44 % -- which is the strongest single argument for the change.
+⚠ Leiden is seeded; pin it to `config.SEED` and assert determinism, or cluster ids move every build.
+
+### 30.2 TCRNET background — three separate questions
+
+1. **Re-sampling.** The background is one seeded 1,000,000-clonotype uniform draw. Nobody has
+   measured how much of the call set is an artefact of *that* draw. The check is cheap and is the
+   first thing to run: re-score one chain at 5-10 seeds and report the distribution of the called
+   set's size and its Jaccard against the reference draw. A call set that moves by more than a few
+   percent between seeds means `M` is too small, not that the method is unstable.
+2. **Size.** `M` enters the statistic directly as `p = (n_control + 1) / (M + 1)`, and it is
+   currently **not uniform across chains**: human TRA and TRB get 1,000,000, mouse TRB 694,241 and
+   mouse TRA 272,827, because the source tables are smaller after the productive filter. So mouse is
+   being tested against a different null than human and the two chains' q-values are not on the same
+   scale. Sweep `M` in {250k, 1M, full} per chain and report where the call set stops moving.
+3. **In-silico backgrounds.** The natural null for "is this clonotype more public than chance" is a
+   *generative* one, not a sampled repertoire: `vdjtools.model` already supplies OLGA and arda
+   recombination models, and `pgen_aa_degenerate_batch` scores a thresholded PWM exactly. A
+   generated background can be matched to the sample's V/J usage and length distribution, which a
+   uniform draw from a pooled repertoire is not, and it removes the confound that the sampled
+   control carries its own donors' HLA-driven public clones. **It also dissolves the licence
+   problem**: `isalgo/airr_control` is CC-BY-NC-ND-4.0 against VDJdb's AGPL-3.0-only, which is why
+   no background may ship (section 8.7); a generated one has no such constraint and could be shipped
+   or regenerated by any consumer. ⚠ A generative null tests a different hypothesis -- "rarer than
+   recombination explains" rather than "rarer than real repertoires contain" -- so it is an
+   **addition** to report beside the sampled one, not a replacement, until the two are compared.
+4. **Human TRA is the open coverage item from phase 10** (section 29) and lands here: enrichment
+   calls 12,020 clonotypes where the shipped file clusters 15,427, and the gap is at the enrichment
+   step. TRA junctions are shorter and more germline-proximal, so they have more background
+   neighbours. Items 1-3 are exactly the measurements that would explain it.
+
+### 30.3 TCRNET parameters nobody has swept
+
+| Parameter | Now | Why it is open |
+|---|---|---|
+| `SCOPE` | `1,0,0,1` (one substitution) | The legacy scope, so phase 10 is comparable. An indel-tolerant ball (`1,1,1,1`) changes which sequences are neighbours *and* lets a cluster span CDR3 lengths, which is why the PWM would then need section 8.6's stratification. Two substitutions is the other direction and will percolate harder (30.1). |
+| `Q_THRESHOLD` | BH `q <= 0.05` | Measured: it is *more* permissive than the legacy's uncorrected `p <= 0.05` (53,609 against 48,418), because the p-value distribution is bottom-heavy. Sweep q, and decide whether the correction should be per-epitope (as now) or global. |
+| `MIN_SAMPLE` | 30 records | Removes 11,805 clonotypes over 1,814 epitope groups. Inherited from the benchmark cohort; never tested against the objective. |
+| `MIN_CLUSTER` | 5 | Matches the shipped files' smallest `csz`. Interacts with 30.1: under Leiden the right floor is probably different. |
+| `PSEUDOCOUNT` | 1.0 | Verbatim from `compute_motif_pwms.py`, kept for comparability. The cascade makes a proper Laplace (`+1` numerator, `+20` denominator) defensible instead; it would change every `freq.bg` and so every `I.norm`, so it is a deliberate break, not a tweak. |
+
+### 30.4 TCREMP parameters nobody has swept
+
+| Parameter | Now | Why it is open |
+|---|---|---|
+| `coef` | fitted per chain on section 11.1 | The one parameter that *is* fitted. `coef = 0.75` from the published benchmark does **not** transfer -- it was calibrated on a different embedding (standalone `tcremp`, ~3,000 OLGA prototypes, Smith-Waterman) (section 8.2). |
+| `MIN_SAMPLES` | 2 | The paper's Table-1 value. At 2 a cluster can be a pair, which is a weak motif. |
+| `N_COMPONENTS` | PCA 50 | The benchmark's front-end, applied uniformly so the representation is the only variable. Never swept on its own. |
+| `n_prototypes` | mirpy's per-chain preset (2,000 -> 6,000 dims) | Untested here. More prototypes is a finer metric and a linearly larger embedding. |
+| per-epitope vs pooled | per-epitope, chain-global `eps` | ⚠ **Purity is 1.000 by construction** -- a cid cannot span epitopes. That means cross-epitope contamination is *impossible*, not that none exists. The pooled clustering must run in the debug build as the honest measurement, with its cross-epitope confusion matrix a first-class artifact (section 8.4). |
+| DBSCAN vs graph | DBSCAN | A kNN graph in embedding space plus Leiden is the same change as 30.1 and should be swept with it, so both methods are judged under one clustering family. |
+| `mir.density` | not used | The graph-free continuous TCRNET/ALICE in embedding space. The obvious later upgrade; evaluate against the same three metric families before it replaces anything. |
+
+### 30.5 Caveats to carry into any write-up
+
+- **Purity numbers are not comparable across topologies.** Per-epitope clustering has purity 1.000 by
+  construction; pooled does not. Never quote one beside the other without saying which.
+- **`metrics_lib` and `mir.bench.metrics` are different metric families** -- `recall` over clustered
+  records only against unclustered folded into FN. Mixing them silently rescales everything
+  (section 8.9).
+- **`M` is not uniform across chains** today (30.2.2), so mouse and human q-values are not on one
+  scale.
+- **The published 0.941 / 0.569 / 0.709 is the shipped Leiden/REDCEA table re-scored**, not a
+  knee-DBSCAN result, and not a target this pipeline reproduces (section 8.2).
+- **Motifs are human and mouse only.** Macaque and rat records are out of scope, not a coverage gap.
+- **The background never ships** (section 8.7) until and unless an in-silico one replaces it (30.2.3).
 

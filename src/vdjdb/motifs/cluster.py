@@ -25,8 +25,9 @@ from ..config import SEED
 #: 5 over 1,928 cids -- below that there is no motif to read off a logo.
 MIN_CLUSTER = 5
 
-#: Species initial + chain initial, the legacy ``cid`` prefix (``H.B.GILGFVFTL.1``).
-_INITIAL = {"HomoSapiens": "H", "MusMusculus": "M", "RattusNorvegicus": "R", "MacacaMulatta": "Q"}
+#: Species initial + chain initial, the legacy ``cid`` prefix (``H.B.GILGFVFTL.1``). Human and
+#: mouse only: those are the two species VDJdb does motifs for, and the only two with a background.
+_INITIAL = {"HomoSapiens": "H", "MusMusculus": "M"}
 
 
 def _edges(seqs: list[str], scope: str) -> list[tuple[int, int]]:
@@ -116,7 +117,7 @@ def clusters(enriched: pl.DataFrame, *, scope: str = "1,0,0,1",
                       .with_row_index("__n", offset=1))
         if not order.height:
             continue
-        prefix = f"{_INITIAL.get(species, species[:1])}.{gene[-1]}.{epitope}"
+        prefix = f"{_INITIAL[species]}.{gene[-1]}.{epitope}"
         g = (g.join(order.select("__label", "csz", "__n"), on="__label", how="inner")
                .with_columns((pl.lit(prefix) + "." + pl.col("__n").cast(pl.Utf8)).alias("cid"))
                .drop("__label", "__n"))
