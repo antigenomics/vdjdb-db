@@ -61,6 +61,11 @@ jobs:
       # Fails the PR on any finding. The corpus is clean as of 2026-09-25 apart from CRLF line
       # endings on 99 legacy files, which the .tsv migration (#497) normalises; until that lands,
       # --no-strict keeps the gate advisory rather than blocking every unrelated submission.
+      # TCRvdb / MATCHMAKERS is proprietary and non-redistributable. This fails the build if a copy
+      # ever reaches the repository, by filename or by column fingerprint. See docs/outputs.md.
+      - name: Guard against proprietary data
+        run: uv run pytest tests/unit/test_guard.py -q
+
       - name: Chunk QC
         run: |
           if [ -s changed.txt ]; then
