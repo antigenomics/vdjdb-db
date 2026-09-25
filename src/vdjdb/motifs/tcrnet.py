@@ -151,7 +151,7 @@ def enriched_clonotypes(chains: pl.DataFrame, records: pl.DataFrame, *,
                         scope: str = SCOPE, q: float = Q_THRESHOLD,
                         min_sample: int = MIN_SAMPLE,
                         control_size: int = CONTROL_SIZE) -> pl.DataFrame:
-    """Every clonotype the background cannot explain, over the whole database.
+    """Every scored clonotype, flagged ``enriched`` where the background cannot explain its degree.
 
     Groups by ``(species, gene, antigen.epitope)`` -- the scope the legacy pipeline used, which
     ``CalcDegreeStats.groovy`` reached with ``-g dummy`` rather than the V/VJ/VJL grouping the plan
@@ -172,12 +172,17 @@ def enriched_clonotypes(chains: pl.DataFrame, records: pl.DataFrame, *,
             if sample.height < min_sample:
                 continue
             scored = enrich(sample, control, scope=scope)
-            out.append(scored.filter(pl.col("q.legacy") <= q).with_columns(
+            # Every scored clonotype is returned, flagged -- not only the ones that pass. The graph
+            # stage recruits a clonotype that is a neighbour of an enriched one even when it is not
+            # itself enriched, which is what the legacy Rmd's two-stage `compute_edges` does.
+            out.append(scored.with_columns(
+                (pl.col("q.legacy") <= q).alias("enriched"),
                 pl.lit(species).alias("species"), pl.lit(gene).alias("gene"),
                 pl.lit(epitope).alias("antigen.epitope")))
     if not out:
         return pl.DataFrame(schema={"species": pl.Utf8, "gene": pl.Utf8,
-                                    "antigen.epitope": pl.Utf8, "junction_aa": pl.Utf8})
+                                    "antigen.epitope": pl.Utf8, "junction_aa": pl.Utf8,
+                                    "enriched": pl.Boolean})
     # Sorted, because group_by order is the frame's and the caller keys on this (hard rule 7).
     return pl.concat(out, how="vertical").sort(
         "species", "gene", "antigen.epitope", "junction_aa", "v_call", "j_call")
