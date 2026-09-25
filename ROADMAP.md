@@ -186,6 +186,9 @@ drafts — do not re-derive them.
 | `arda.cdr3fix.markup_batch` throughput | 27 µs/record → **5.2 s** for 191,440 distinct keys | not vectorised internally, but fast enough that it does not matter |
 | `vdjtools.model.infer_nt` | **3.11 ms/record** → ~15 min for 284,546 rows | human TRB, warm, single-threaded |
 | `vdjdb.txt` row/field shape | 284,546 rows, **all exactly 22 fields**, zero empty `cdr3fix` | keep and assert; raggedness is not a live problem |
+| Quote characters in the release tables | present in **every** `method` / `meta` / `cdr3fix` cell — they are JSON. What is absent is a *quoted field*: no field begins with `"` | the plan's "zero `\"` characters" was wrong. `quote_style="never"` is still exact, and for the stronger reason: a default CSV writer would wrap every JSON cell and double its quotes |
+| `vdjdb_full.txt` rebuilt by the current pandas pipeline vs the 2026-06-03 release | **119,169,153 bytes both**, 192,755 lines both, **canonical digest identical**, raw digest differs | the reproduction contract holds on the largest table; the raw difference is exactly the `os.listdir` chunk order |
+| All five positional column orders, registry vs shipped release | `vdjdb.txt` 22 · `vdjdb.slim.txt` 17 · `vdjdb_full.txt` 35 · `cluster_members.txt` 19 · `motif_pwms.txt` 27, **order-for-order identical** | validates the phase-1 registry against the artifact consumers actually parse |
 | `vdjdb_full.txt` `cdr3fix.alpha` encoding | 122,930 non-empty cells, **100 % Python dict repr**, 0 JSON | live bug |
 | `web.cdr3fix.unmp` correctness | `(no,no)` 268,546 · `(yes,yes)` 8,002 · **`(no,yes)` 7,998** | `jStart` is only ever −1 (8,536) or > 0 (276,010); **0 never occurs** |
 | Murine MHC-II spellings | `I-Ab` **3,274** · `H2-IAb` 113 · `H2-Ab1` 9 · `H2-IAg7` 333 vs `H2-Ag7` 3 · `H2-Aa` 25 vs `H-2Aa` 19 · `H2-Eb1` 7 vs `H-2Eb1` 7 | mostly in `mhc.b`; class I is clean |
