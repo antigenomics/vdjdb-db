@@ -1168,3 +1168,46 @@ Never a pool of per-record tasks: dispatch on 114k one-row tasks would cost more
 The whole build goes from **16 s to 170 s** — inference is now 90 % of it. Still half the 344 s the
 pandas pipeline took to produce three files and no nucleotides, and nowhere near the runner budget,
 which is what makes "recompute every time" (hard rule 9) an easy rule to keep.
+
+
+## 20. Phase 8b result — the D segment, and how much to believe it
+
+Measured 2026-09-25 on the full corpus. Two sources, each used for the thing it is right about.
+
+**Geometry comes from the junction scenario.** `d.inferred`, `d.start` and `d.end` are taken from the
+same `infer_nt` result that produced `cdr3nt`, so the coordinates index the nucleotide sequence
+shipped beside them. Taking them from a second model — the original plan's `arda.dpost` — would ship
+positions that point at a different hypothetical sequence. 0-based half-open, `cdr3nt` space.
+
+**Confidence comes from `arda.dpost`.** `d.posterior` is the posterior for the gene `d.inferred`
+names — not for arda's own winner. The two models name the same D gene on only **78.5 %** of chains,
+and the number printed beside a call must be the probability of *that* call, so a disagreement shows
+up as a low posterior rather than as a confident wrong answer.
+
+| | Beta chains |
+|---|---|
+| with an inferred D | 155,019 of 163,117 (95.0 %) |
+| `d.posterior` median | 0.728 |
+| `d.posterior` below 0.6 | **53,599 (34.6 %)** |
+| `d.entropy` median | 0.796 |
+| `d.entropy` above 0.9 | **51,950 (33.5 %)** |
+| inferred D gene == curated `d.segm` gene | 32,052 of 40,892 (78.4 %) |
+
+**A third of beta D calls are close to undecidable**, which is what a short, heavily trimmed segment
+with two similar candidates actually looks like. `d.posterior` is therefore not a decoration: a
+consumer that filters on it is doing the only correct thing with a D call. The curated `d.segm` is
+left untouched — it is what the publication reported, and it is not this pipeline's to overwrite.
+
+Verified on every build: no `d.end` exceeds its `cdr3nt` length, no `d.start >= d.end`, and no TRA
+chain carries a D. arda returns no posterior on 180 of 155,019.
+
+Cost: 9,131 junctions/s, so 13 s on top of the junction inference — the full build is **183 s**.
+
+### The arda reference trap, again
+
+`arda.dpost.posterior_d` returned `None` for **all 200** junctions of the first measurement, because
+arda mistakes this repository for its own checkout and loads no anchors — the same defect
+`fix/source-root-marker` fixes upstream and `annotate/cdr3fix.ensure_reference()` works around here.
+It fails silently, by returning a legitimate-looking "no answer". `add_d_posterior` calls
+`ensure_reference()` for exactly this reason. **Any new arda entry point must do the same** until
+that release lands (§3 gates).
