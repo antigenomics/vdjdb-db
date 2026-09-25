@@ -13,7 +13,8 @@ from vdjdb.schema import CHAIN_COLUMNS, RECORD_COLUMNS, TABLES
 #: Columns whose dtype the legacy projection depends on: the rest are strings.
 _CHAIN_DTYPES = {"v.end": pl.Int64, "j.start": pl.Int64, "clonotype_id": pl.UInt64,
                  "fix.needed": pl.Boolean, "fix.good": pl.Boolean,
-                 "v.canonical": pl.Boolean, "j.canonical": pl.Boolean}
+                 "v.canonical": pl.Boolean, "j.canonical": pl.Boolean,
+                 "cdr3nt.pgen": pl.Float64, "cdr3nt.margin": pl.Float64}
 
 RECORDS = [
     {"record_id": "VDJDB0000000001", "species": "HomoSapiens", "mhc.a": "HLA-A*02:01",
@@ -37,9 +38,8 @@ CHAINS = [
 
 
 def _frame(rows: list[dict], columns: tuple[str, ...], dtypes: dict) -> pl.DataFrame:
-    filled = [{c: r.get(c, 0 if dtypes.get(c) is pl.Int64 else
-                        False if dtypes.get(c) is pl.Boolean else "") for c in columns}
-              for r in rows]
+    blank = {pl.Int64: 0, pl.Boolean: False, pl.Float64: None, pl.UInt64: 0}
+    filled = [{c: r.get(c, blank.get(dtypes.get(c), "")) for c in columns} for r in rows]
     return pl.DataFrame(filled, schema={c: dtypes.get(c, pl.String) for c in columns})
 
 
