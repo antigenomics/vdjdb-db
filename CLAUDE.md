@@ -34,14 +34,15 @@ release zip. The release is the product.
 ```bash
 uv sync
 uv run vdjdb qc                              # chunk validation, fail-fast
-uv run vdjdb build --out out/                # the definitive tables, then the legacy projection
+uv run vdjdb build --out out/                # the definitive tables, then every projection
+uv run vdjdb make legacy --tables out/tables # the legacy files, from the tables that shipped
 uv run vdjdb diff <reference.zip> out/legacy # the difference ledger
-uv run vdjdb schema --table vdjdb            # generated metadata
+uv run vdjdb schema --table records          # generated metadata, for any declared table
 uv run pytest -q
 ```
 
 Not yet implemented (the ROADMAP phase that delivers each is printed on invocation):
-`motifs`, `summary`, `release`, `make`, `convert`, `refs`, `changelog`.
+`motifs`, `summary`, `release`, `convert`, `refs`, `changelog`.
 
 Output goes to `out/`, **not** `build/` -- `build/` is already gitignored as a Python packaging
 convention and using it for release artifacts is confusing.

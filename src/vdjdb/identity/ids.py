@@ -331,7 +331,7 @@ def reconcile(
         first = seen_key.get(kh)
         if first is not None and assigned[first] is not None:
             assigned[i] = assigned[first]
-            report.duplicated.append((str(assigned[first]), str(rows[i].get("chunk.file") or "")))
+            report.replicated.append((str(assigned[first]), str(rows[i].get("chunk.file") or "")))
             continue
         seen_key[kh] = i
         row = rows[i]

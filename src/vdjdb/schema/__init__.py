@@ -1,16 +1,19 @@
 """Column declarations. Everything is a projection of :mod:`vdjdb.schema.fields`."""
 from .fields import (
     ALL_COLUMNS,
+    CHAIN_COLUMNS,
     CHUNK_DEDUP_KEY,
     CLUSTER_MEMBERS_COLUMNS,
     COMPLEX_COLUMNS,
     EVIDENCE_COLUMNS,
+    EVIDENCE_TABLE_COLUMNS,
     FIELDS,
     FULL_COLUMNS,
     KEPT_CURATION_COLUMNS,
     META_COLUMNS,
     METHOD_COLUMNS,
     MOTIF_PWMS_COLUMNS,
+    RECORD_COLUMNS,
     SLIM_COLUMNS,
     SPECIES,
     TABLES,
@@ -21,6 +24,7 @@ from .fields import (
     header,
     render_meta,
     render_slim_meta,
+    schema_json,
 )
 
 __all__ = [n for n in dir() if not n.startswith("_")]
