@@ -226,3 +226,38 @@ def test_the_chain_swap_is_not_declared_as_a_rename():
     report = pl.DataFrame({"issue": ["mhc-chain-order"], "column": ["mhc.a,mhc.b"],
                            "from": ["beta,alpha"], "to": ["alpha,beta"], "rows": [149]})
     assert N.render_mhc_renames(report) == ""
+
+
+# -- references (#347) ---------------------------------------------------------------------------
+
+def test_a_reference_with_a_pubmed_id_gets_it(tmp_path):
+    root = tmp_path
+    (root / "proofreading").mkdir()
+    (root / "proofreading" / "reference_ids.tsv").write_text(
+        "# a comment\nreference.id\tpmid\tnote\ndoi:10.1\tPMID:1\tx\n")
+    df = pl.DataFrame({"reference.id": ["doi:10.1", "PMID:9", "https://www.10xgenomics.com/x"]})
+    out, report = N.harmonise_references(df, root)
+    assert out["reference.id"].to_list() == ["PMID:1", "PMID:9", "https://www.10xgenomics.com/x"]
+    assert report["rows"].to_list() == [1]
+
+
+def test_a_reference_with_no_pubmed_id_is_left_alone(tmp_path):
+    """Most of #347's 30,977 non-PMID records cannot be resolved and should not be: a 10x
+    application note, a PDB entry and a direct submission's own issue are not papers."""
+    (tmp_path / "proofreading").mkdir()
+    (tmp_path / "proofreading" / "reference_ids.tsv").write_text("reference.id\tpmid\tnote\n")
+    df = pl.DataFrame({"reference.id": ["https://github.com/antigenomics/vdjdb-db/issues/193"]})
+    out, report = N.harmonise_references(df, tmp_path)
+    assert out["reference.id"][0].endswith("/193")
+    assert report.is_empty()
+
+
+def test_the_committed_table_resolves_what_it_claims():
+    """The table is a committed input, so its content is part of the build's correctness."""
+    from vdjdb.config import Paths
+
+    table = pl.read_csv(Paths.discover().root / "proofreading" / "reference_ids.tsv",
+                        separator="\t", infer_schema=False, comment_prefix="#")
+    assert table.height >= 3
+    assert all(p.startswith("PMID:") and p[5:].isdigit() for p in table["pmid"])
+    assert table["reference.id"].n_unique() == table.height

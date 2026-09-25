@@ -87,7 +87,12 @@ def read_chunk(path: Path) -> pl.DataFrame:
     present = [c for c in READABLE if c in df.columns]
     return (
         df.select(present)
-        .with_columns(pl.col(present).cast(pl.Utf8).fill_null("").str.strip_chars("\r"))
+        # Strip surrounding whitespace, not only the CR a CRLF file leaves behind. It is never
+        # meaningful in a TSV cell and it silently forks a value in two: measured, 758 record-cells
+        # across 8 columns, including `tetramer-sort ` appearing beside `tetramer-sort` (103 records)
+        # and `Nucleocapsid ` (171). `strip_chars()` with no argument also takes the non-breaking
+        # space that one J-gene call carried.
+        .with_columns(pl.col(present).cast(pl.Utf8).fill_null("").str.strip_chars())
         .with_columns(
             *(pl.lit("").alias(c) for c in READABLE if c not in present),
             pl.lit(path.name).alias("chunk.file"),
