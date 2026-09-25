@@ -1,0 +1,28 @@
+# MHC allele and molecule corrections, applied to `mhc.a` and `mhc.b` at build time.
+#
+# Patch semantics, like `antigen_epitope_species_gene.dict`: a declared lookup, reviewed as a diff,
+# never a rule in code. `reference.id` scopes a correction to the publication it was verified
+# against; `*` means the correction holds wherever the value appears.
+#
+# The authority for HLA is IPD-IMGT/HLA (https://www.ebi.ac.uk/ipd/imgt/hla/), mirrored at
+# `proofreading/mhc_alleles.tsv.gz`, 46,005 alleles. Murine names have no such authority, so those
+# corrections cite `proofreading/mhc.md` and the spelling that dominates the corpus.
+mhc	replacement	reference.id	note
+HLA-A*24:01	HLA-A*24:02	*	#467; no A*24:01 exists in IPD-IMGT/HLA (0 rows against 342 for A*24:02) and doi:10.1016/j.xcrm.2023.101017 reports testing in *24:02
+HLA-A*24:09	HLA-A*24:02	PMID:39286976	the paper is titled "HLA A*24:02-restricted T cell receptors cross-recognize bacterial and preproinsulin peptides"; only the null allele A*24:09N exists
+HLA-A*24:11	HLA-A*24:02	PMID:39286976	as above; only the null allele A*24:11N exists
+HLA-A*24:12	HLA-A*24:02	PMID:39286976	as above; A*24:12 is not an allele at two-field resolution
+HLA-A*24:16	HLA-A*24:02	PMID:39286976	as above; A*24:16 is not an allele at two-field resolution
+H2-IAb	I-Ab	*	murine class II is I-<locus><haplotype> per proofreading/mhc.md, and I-Ab dominates 1,368 : 113
+H2-Ag7	H2-IAg7	*	the I dropped; H2-IAg7 dominates 333 : 3
+H2-Ed	H2-IEd	*	the I dropped; H2-IEd dominates 30 : 2
+H-2Aa	H2-Aa	*	hyphen placement only
+H-2Eb1	H2-Eb1	*	hyphen placement only
+# Checked and deliberately NOT corrected:
+# HLA-A*08:01  74 records, epitope HPVTKYIM (HCV).  HLA-A*08 does not exist at any resolution, so
+#              the call is certainly wrong, but the chunk carries no reference.id to resolve it
+#              against and no source states the intended allele.  Curation, not a patch.
+# HLA-B*12     1 record, PMID:9971792.  A broad serological antigen that splits into B44 and B45;
+#              the paper reports several pp65 epitopes and the abstract does not pin this one.
+# H2-Ab1       9 records.  The IMGT gene symbol for the I-A beta chain, carrying no haplotype, so
+#              mapping it to a molecule needs the paired mhc.a.

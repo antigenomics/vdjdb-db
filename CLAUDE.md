@@ -17,9 +17,9 @@ release zip. The release is the product.
 | Path | Role |
 |---|---|
 | `chunks/` | **input, the data.** One file per publication, `PMID_<id>.txt` (230 files, ~203k rows) |
-| `patches/` | input. `antigen_epitope_species_gene.dict`, `nomenclature.conversions`, `IGM_nomenclature_table.tsv` |
+| `patches/` | input, **declared corrections**. `antigen_epitope_species_gene.dict` (epitope → gene, species), `mhc.dict` (allele corrections, optionally scoped to one `reference.id`), `nomenclature.conversions`, `IGM_nomenclature_table.tsv` |
 | `res/` | input. `segments.txt`, `segments.aaparts.txt` — germline references for the legacy fixer (retired in phase 5, see `ROADMAP.md`) |
-| `proofreading/` | input, **skills-only today** — no build code reads it. Alias and IMGT/HLA reference tables |
+| `proofreading/` | input, **the authority tables**. IMGT TCR alleles, IPD-IMGT/HLA alleles, Arden and antigen aliases — read by `curate/nomenclature.py` since phase 9 |
 | `withheld/` | input, quarantined. Old-format submissions excluded from the build |
 | `chunks_negative/`, `chunks_unformatted/`, `chunks_with_unconventional_aa/` | **excluded from the build.** Only `chunks/` is read |
 | `chunks2/` | empty and untracked. Dead — do not add to it |

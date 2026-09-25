@@ -449,15 +449,27 @@ class Rename:
     #: the 38 it does not, so an unconditional rename would rewrite both.
     when_columns: tuple[str, ...] = ()
     when_contains: str = ""
+    #: Exact alternative to ``when_contains``. Required when the evidence column holds peptides: a
+    #: 9-mer epitope really is a substring of a 10-mer one (`SPRWYFYYL` inside `LSPRWYFYYL`), so a
+    #: substring predicate would fire on the wrong rows.
+    when_equals: str = ""
 
     @property
     def id(self) -> str:
         base = f"{self.from_} -> {self.to}"
-        return f"{base} [{self.when_contains}]" if self.when_contains else base
+        evidence = self.when_contains or self.when_equals
+        return f"{base} [{evidence}]" if evidence else base
 
     @property
     def conditional(self) -> bool:
-        return bool(self.when_columns and self.when_contains)
+        return bool(self.when_columns and (self.when_contains or self.when_equals))
+
+    def evidence_expr(self, columns: list[str]) -> pl.Expr:
+        """True where one of ``columns`` carries the declared evidence."""
+        if self.when_equals:
+            return pl.any_horizontal(*[pl.col(c) == self.when_equals for c in columns])
+        return pl.any_horizontal(
+            *[pl.col(c).str.contains(self.when_contains, literal=True) for c in columns])
 
     def applies_to(self, file: str) -> bool:
         return not self.files or file in self.files
@@ -472,7 +484,8 @@ def load_renames(path: Path) -> list[Rename]:
                    files=tuple(f.strip() for f in r.get("files", "").split(",") if f.strip()),
                    when_columns=tuple(c.strip() for c in r.get("when_columns", "").split(",")
                                       if c.strip()),
-                   when_contains=r.get("when_contains", ""))
+                   when_contains=r.get("when_contains", ""),
+                   when_equals=r.get("when_equals", ""))
             for r in raw.get("rename", [])]
 
 
@@ -499,8 +512,7 @@ def _apply_renames(name: str, df: pl.DataFrame,
             evidence = [c for c in r.when_columns if c in df.columns]
             if not evidence:
                 continue
-            mask = mask & pl.any_horizontal(
-                *[pl.col(c).str.contains(r.when_contains, literal=True) for c in evidence])
+            mask = mask & r.evidence_expr(evidence)
             conditional.append(r)
         else:
             for c in cols:
@@ -526,9 +538,8 @@ def _apply_renames(name: str, df: pl.DataFrame,
                 evidence = [snap[e] for e in r.when_columns if e in snap]
                 if not evidence:
                     continue
-                expr = pl.when((pl.col(snap[c]) == r.from_) & pl.any_horizontal(
-                    *[pl.col(e).str.contains(r.when_contains, literal=True) for e in evidence])
-                ).then(pl.lit(r.to)).otherwise(expr)
+                expr = pl.when((pl.col(snap[c]) == r.from_) & r.evidence_expr(evidence)
+                               ).then(pl.lit(r.to)).otherwise(expr)
             df = df.with_columns(expr.alias(c))
         df = df.drop(list(snap.values()))
     return df, counts

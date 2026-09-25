@@ -45,10 +45,14 @@ def _frame(rows: list[dict], columns: tuple[str, ...], dtypes: dict) -> pl.DataF
 
 @pytest.fixture
 def tables() -> dict[str, pl.DataFrame]:
+    from vdjdb.assemble.epitopes import build_epitopes, build_restriction
+
     records = _frame(RECORDS, RECORD_COLUMNS, {"vdjdb.score": pl.Int64, "chunk.row": pl.Int64})
     chains = _frame(CHAINS, CHAIN_COLUMNS, _CHAIN_DTYPES)
     return {"records": records, "chains": chains,
-            "evidence": build_evidence(records, chains, release="v1")}
+            "evidence": build_evidence(records, chains, release="v1"),
+            "epitopes": build_epitopes(records, chains),
+            "restriction": build_restriction(records)}
 
 
 def test_the_view_declares_every_evidence_column_even_without_a_producer(tables):
