@@ -2389,6 +2389,7 @@ dev = [
 ]
 motifs = [
     { name = "mirpy-lib", extra = ["bench"] },
+    { name = "pandas" },
     { name = "python-igraph" },
     { name = "scikit-learn" },
 ]
@@ -2405,6 +2406,7 @@ requires-dist = [
     { name = "hypothesis", marker = "extra == 'test'", specifier = ">=6" },
     { name = "mirpy-lib", extras = ["bench"], marker = "extra == 'motifs'", specifier = ">=3.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.11" },
+    { name = "pandas", marker = "extra == 'motifs'", specifier = ">=2.0" },
     { name = "polars", specifier = ">=1.20" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8" },
     { name = "python-igraph", marker = "extra == 'motifs'", specifier = ">=0.11" },

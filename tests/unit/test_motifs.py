@@ -81,12 +81,33 @@ def test_cluster_numbering_follows_content_not_vertex_order():
     assert a.filter(pl.col("junction_aa") == "CWWWW").height == 0     # below MIN_CLUSTER
 
 
+#: `H.B.ALSKGVHFV.1` position 8 of the 2026-06-03 release: counts N1 G1 D3 S4 over csz 9, with the
+#: `freq.bg` the file ships beside them. Both information columns are pinned to it.
+_SHIPPED_POSITION = (("N", 1, 0.0194423126119212), ("G", 1, 0.252408970751258),
+                     ("D", 3, 0.0237912509593246), ("S", 4, 0.143898695318496))
+
+
+def _shipped_column() -> tuple[np.ndarray, np.ndarray]:
+    freq, bg = np.zeros(20), np.zeros(20)
+    for aa, c, q in _SHIPPED_POSITION:
+        freq[P.ALPHABET.index(aa)] = c
+        bg[P.ALPHABET.index(aa)] = q
+    return freq / freq.sum(), bg
+
+
 def test_information_reproduces_the_shipped_value():
-    """`H.B.ALSKGVHFV.1` position 8 of the 2026-06-03 release: counts N1 G1 D3 S4 over csz 9."""
-    f = np.zeros(20)
-    for aa, c in (("N", 1), ("G", 1), ("D", 3), ("S", 4)):
-        f[P.ALPHABET.index(aa)] = c
-    assert P._information(f / f.sum()) == pytest.approx(0.594459870571867, rel=1e-12)
+    freq, _ = _shipped_column()
+    assert P._information(freq) == pytest.approx(0.594459870571867, rel=1e-12)
+
+
+def test_normalised_information_is_the_halved_cross_entropy_the_file_ships():
+    """Not ``I`` minus the background's own information -- that is the natural guess and is wrong.
+
+    `vdjdb-motifs/scripts/compute_motif_pwms.py`: ``-sum(p log q) / log 20 / 2``.
+    """
+    freq, bg = _shipped_column()
+    assert P._information_norm(freq, bg) == pytest.approx(0.450398191673246, rel=1e-12)
+    assert P._information_norm(freq, bg) != pytest.approx(P._information(freq) - P._information(bg))
 
 
 def test_information_is_zero_for_uniform_and_one_for_determined():

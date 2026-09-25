@@ -15,9 +15,14 @@ logo. ``need.impute`` was computed *after* the filter, so it was ``FALSE`` on al
 imputation machinery was dead code. ROADMAP section 8.5.
 
 :func:`cluster_pwms` replaces the filter with a three-level cascade -- ``(v, j, len)`` -> ``(len)``
--> uniform -- taking the finest level that has any observation at that position, with a Laplace
-pseudocount so no background frequency is ever zero. Nothing is dropped, ``freq`` sums to 1 by
+-> uniform -- taking the finest level that has any observation at that position. The legacy already
+had the ``+1`` pseudocount; what it lacked was a level to fall back **to**, so a missing stratum
+meant a deleted row rather than a coarser prior. Nothing is dropped, ``freq`` sums to 1 by
 construction, and ``need.impute`` records which level was actually used.
+
+Every formula here is `vdjdb-motifs/scripts/compute_motif_pwms.py`'s, verbatim, so the two files'
+columns mean the same thing. That matters most for ``I.norm``, which is a halved cross-entropy
+against the background and not the difference of two informations.
 
 ⚠ **Assert the sign, do not chase the shipped numbers.** At the 253 affected clusters the new
 ``sum(I)`` must come out *lower* than the shipped value, because the shipped one was computed over a
@@ -40,9 +45,10 @@ for _i, _a in enumerate(ALPHABET):
 #: ``log(20)`` -- information is reported on a 0..1 scale where 1 is a fully determined column.
 _LOG_N = math.log(len(ALPHABET))
 
-#: Laplace pseudocount added to every background cell before it becomes a frequency. One
-#: observation per residue: enough that an unseen residue is rare rather than impossible, small
-#: enough that it does not move a stratum with thousands of observations.
+#: Pseudocount on the background frequency, ``(count.bg + 1) / (total.bg + 1)``. Taken verbatim
+#: from `vdjdb-motifs/scripts/compute_motif_pwms.py`, which is what the shipped `freq.bg` column
+#: means, so the two files' numbers stay comparable. ⚠ It is **not** a normalised distribution --
+#: over the 20 residues it sums to slightly more than 1 -- but `I.norm` is defined against it.
 PSEUDOCOUNT = 1.0
 
 #: Which level of the cascade supplied a column's background, recorded per row so the provenance is
@@ -121,9 +127,25 @@ def _background_column(bg: dict, v: str, j: str, length: int,
 
 
 def _information(freq: np.ndarray) -> float:
-    """``1 + sum(p log p) / log 20`` -- 0 for a uniform column, 1 for a fully determined one."""
+    """``1 + sum(p log p) / log 20`` -- 0 for a uniform column, 1 for a fully determined one.
+
+    `compute_motif_pwms.py`'s ``info``. Reproduces the shipped `H.B.ALSKGVHFV.1` position 8 value
+    0.594459870571867 to 15 digits.
+    """
     nz = freq[freq > 0]
     return 1.0 + float((nz * np.log(nz)).sum()) / _LOG_N
+
+
+def _information_norm(freq: np.ndarray, freq_bg: np.ndarray) -> float:
+    """``-sum(p log q) / log 20 / 2`` -- the column's cross-entropy against the background, halved.
+
+    `compute_motif_pwms.py`'s ``info_norm``, verbatim. **Not** ``I`` minus the background's own
+    information, which is the natural guess and gives a different number; the shipped column is a
+    cross-entropy, and the halving is the source's, not a derivation. Only residues the cluster
+    shows contribute, so the sum runs over the observed support.
+    """
+    obs = freq > 0
+    return -float((freq[obs] * np.log(freq_bg[obs])).sum()) / _LOG_N / 2.0
 
 
 def cluster_pwms(members: pl.DataFrame, background: pl.DataFrame) -> pl.DataFrame:
@@ -154,9 +176,9 @@ def cluster_pwms(members: pl.DataFrame, background: pl.DataFrame) -> pl.DataFram
             freq = col / col.sum()
             bg_col, coarse_col, level = _background_column(bg, v, j, length, pos)
             total_bg = float(bg_col.sum())
-            freq_bg = (bg_col + PSEUDOCOUNT) / (total_bg + PSEUDOCOUNT * len(ALPHABET))
+            freq_bg = (bg_col + PSEUDOCOUNT) / (total_bg + PSEUDOCOUNT)
             info = _information(freq)
-            info_norm = info - _information(freq_bg)
+            info_norm = _information_norm(freq, freq_bg)
 
             for k, aa in enumerate(ALPHABET):
                 if not col[k]:
