@@ -51,7 +51,7 @@ rows = 4
 id = "legacy-melt-ambiguity-complex-id"
 file = "vdjdb.txt"
 column = "complex.id"
-rows = 20310
+rows = 20312
 
 [[rule]]
 id = "legacy-melt-ambiguity-cdr3fix"
@@ -114,7 +114,7 @@ rows = 1796
 id = "pandas-na-gene-symbol"
 file = "vdjdb_full.txt"
 column = "antigen.gene"
-rows = 185
+rows = 10949
 
 # The same pandas coercions seen through the meta JSON of vdjdb.txt -- and there they are worse,
 # because the damage reaches the JSON *type*. pandas inferred these identifier columns as numbers,
@@ -154,7 +154,7 @@ rows = 91
 id = "pandas-na-gene-symbol-melted"
 file = "vdjdb.txt"
 column = "antigen.gene"
-rows = 318
+rows = 15589
 
 # --- declared row deltas -----------------------------------------------------------------------
 # vdjdb.slim.txt groups on antigen.gene, so restoring the influenza neuraminidase symbol `NA` --
@@ -162,8 +162,8 @@ rows = 318
 # is no cell to attribute: one row leaves and another arrives.
 [[row_delta]]
 file = "vdjdb.slim.txt"
-added = 946
-removed = 956
+added = 685
+removed = 744
 note = "pandas-na-gene-symbol, seen through the slim grouping key"
 
 # The melt ambiguity of ROADMAP section 14, seen as rows rather than cells: where two
@@ -183,7 +183,7 @@ note = "legacy melt ambiguity; see ROADMAP section 14"
 id = "nomenclature-slim-complex-id-renumber"
 file = "vdjdb.slim.txt"
 column = "complex.id"
-rows = 112569
+rows = 117700
 
 [[rule]]
 id = "nomenclature-vend-full-alpha"
@@ -207,7 +207,7 @@ rows = 1412
 id = "nomenclature-jstart-slim"
 file = "vdjdb.slim.txt"
 column = "j.start"
-rows = 816
+rows = 820
 
 [[rule]]
 id = "nomenclature-now-mapped"
@@ -227,7 +227,7 @@ rows = 2225
 id = "nomenclature-tcr-hash-slim"
 file = "vdjdb.slim.txt"
 column = "TCR_hash"
-rows = 1940
+rows = 1947
 
 [[rule]]
 id = "nomenclature-tcr-hash-full"
@@ -294,6 +294,51 @@ id = "whitespace-method-identification"
 file = "vdjdb_full.txt"
 column = "method.identification"
 rows = 103
+
+# The confidence score is a maximum over a signature that does not contain `antigen.gene`, but the
+# slim table groups on it -- so merging two spellings of one gene merges two slim rows, and the
+# survivor carries the higher of their scores.
+[[rule]]
+id = "patch-antigen-score-slim"
+file = "vdjdb.slim.txt"
+column = "vdjdb.score"
+rows = 1
+
+[[rule]]
+id = "patch-antigen-gene-default"
+file = "vdjdb.txt"
+column = "antigen.gene"
+rows = 0
+
+[[rule]]
+id = "patch-antigen-gene-full"
+file = "vdjdb_full.txt"
+column = "antigen.gene"
+rows = 0
+
+[[rule]]
+id = "patch-antigen-species-default"
+file = "vdjdb.txt"
+column = "antigen.species"
+rows = 0
+
+[[rule]]
+id = "patch-antigen-species-full"
+file = "vdjdb_full.txt"
+column = "antigen.species"
+rows = 0
+
+[[rule]]
+id = "patch-antigen-gene-slim"
+file = "vdjdb.slim.txt"
+column = "antigen.gene"
+rows = 0
+
+[[rule]]
+id = "patch-antigen-species-slim"
+file = "vdjdb.slim.txt"
+column = "antigen.species"
+rows = 0
 
 # BEGIN generated renames -- `vdjdb rules` writes this block; review it, do not edit it
 [[rename]]
@@ -497,15 +542,39 @@ when_contains = "WGKLQF"
 records = 1047
 [[rename]]
 columns = "mhc.a"
+from = "H2-IAb"
+to = "I-Ab"
+records = 61
+
+[[rename]]
+columns = "mhc.a"
 from = "HLA-A*24:01"
 to = "HLA-A*24:02"
 records = 80
 
 [[rename]]
 columns = "mhc.a"
-from = "H2-IAb"
-to = "I-Ab"
-records = 61
+from = "HLA-A*24:09"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:11"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:12"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:16"
+to = "HLA-A*24:02"
+records = 2
 
 [[rename]]
 columns = "mhc.b"
@@ -554,6 +623,2213 @@ columns = "reference.id"
 from = "https://www.biorxiv.org/content/10.1101/2025.11.05.686789v1.full"
 to = "PMID:41279151"
 records = 254
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "AALALLLLDRLNQLE"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "AEVQIDRLI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "AIKLDDKDP"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "MART1"
+to = "MLANA"
+when_columns = "antigen.epitope"
+when_equals = "ALAGIGILTV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "ALALLLLDR"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "ALLAVFQSA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "ALNTLVKQL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "ALNTPKDHI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "ALQIPFAMQM"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "ALSKGVHFV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "ALVYFLQSI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "APATVCGPK"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "APGQTGVIA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "APHGVVFLH"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "APRITFGGL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "APSASAFFG"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "DQ8-GLIA-ALPHA1"
+to = "Gliadin"
+when_columns = "antigen.epitope"
+when_equals = "APSGEGSFQPSQENPQ"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "NP"
+when_columns = "antigen.epitope"
+when_equals = "ASNENMDAM"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "NP"
+when_columns = "antigen.epitope"
+when_equals = "ASNENMDTM"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "ATSRMLSYY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "ATSRTLSYY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "CSNLLLQYGSFCTQL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = ""
+to = "NA"
+when_columns = "antigen.epitope"
+when_equals = "CVNGSCFTV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "DDKDPQFKD"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "DKDPNFKDQ"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "DKDPQFKDN"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "DLFMRIFTI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "DNVILLNKH"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "DPNFKDQVI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "DQVILLNKH"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "DRLNQLESK"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "ETALALLLL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "FAMQMAYRF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "NP"
+when_columns = "antigen.epitope"
+when_equals = "FEDLRLLSF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "NP"
+when_columns = "antigen.epitope"
+when_equals = "FEDLRVSSF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "FIAGLIAIV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "FIASFRLFA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "FKDNVILLN"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "FKDQVILLN"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Envelope"
+to = "E"
+when_columns = "antigen.epitope"
+when_equals = "FLAFVVFLL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "FLCWHTNCY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "FLCWHTSCY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "FLHVTYVPA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "FLPFFSDVT"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "FLPFFSNVT"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "FLVLLPLVS"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "FLWLLWPVT"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "FNFNGLTGTGVLTES"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "FPNITNLCP"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "FPQSAPHGVVF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "FSDVTWFHA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "FSNVTWFHA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "FTISVTTEI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "FTSDYYQLY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "FVFLVLLPL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "FVLAAVYRI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Envelope"
+to = "E"
+when_columns = "antigen.epitope"
+when_equals = "FVSEETGTL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "FVSNGTHWF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "FVTVYSHLL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Envelope"
+to = "E"
+when_columns = "antigen.epitope"
+when_equals = "FVVFLLVTL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "GAIKLDDKD"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "GDAALALLL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "GGETALALL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "GLIAIVMVT"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "GLMWLSYFI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "GLMWLSYFV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "GLTVLPPLL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "DQ8.5-GLIA-GAMMA1"
+to = "Gliadin"
+when_columns = "antigen.epitope"
+when_equals = "GPQQSFPEQEA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "HGAIKLDDK"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "HLLLVAAGL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "HLMSFPQSA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "HLRMAGHSL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "HSYFTSDYY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "HWFVTQRNFYEPQII"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "IDRLITGRLQSLQTY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "IFLWLLWPV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "IITTDNTFV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "IKLDDKDPN"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "IKLDDKDPQ"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "ILPDPSKPS"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "IMLCCMTSC"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "IPIQASLPF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "IPIQASLSF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "IPTDFTISV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "IPTNFTISV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "ITSGWTFGA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Envelope"
+to = "E"
+when_columns = "antigen.epitope"
+when_equals = "IVNSVLLFL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "KAYDVTQAF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "KAYNVTQAF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "KCYGVSPTK"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "KDNVILLNK"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "KDPQFKDNV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "KIYSKHTPI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "KKFLPFQQFGRDIAD"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "KLDDKDPNF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "KLDDKDPQF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "KLPDDFTGC"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "KLPDDFTGCV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "KPRQKRTAT"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "KPRQKRTAT"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "KQIYKTPPI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "KQLSSNFGA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "KTFPPTEPK"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "KTQSLLIVNNATNVV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "KWPWYIWLG"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "LACFVLAAV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "LDDKDPNFK"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "LDDKDPQFK"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "LDRLNQLES"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "LFFSDVTWF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "LITGRLQSL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "LLALHRSYL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "LLDRLNQLE"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "LLFNKVTLA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "LLLDRLNQL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "LLLDRLNQL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "LLNKHIDAY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "LLWPVTLAC"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "LLYDANYFL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "LMWLSYFIA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "LNKHIDAYK"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "LPDDFMGCV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "LPDDFTGCV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "NP"
+when_columns = "antigen.epitope"
+when_equals = "LPFDKPTIM"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "NP"
+when_columns = "antigen.epitope"
+when_equals = "LPFDRPTIM"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "NP"
+when_columns = "antigen.epitope"
+when_equals = "LPFDRTTIM"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "NP"
+when_columns = "antigen.epitope"
+when_equals = "LPFERATVM"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "LPKEITVAT"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "LPNNTASWF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "LPPANTNSF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "LPPAYTNSF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "LPPSYTNSF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "LPPVYTNSF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "LQSLQTYVTQQLIRA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "LSPRWYFYY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Envelope"
+to = "E"
+when_columns = "antigen.epitope"
+when_equals = "LTALRLCAY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "LTDEMIAQY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "LTYHGAIKL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "LVGLMWLSY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "LWLLWPVTL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "LYALVYFLH"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "LYALVYFLQ"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "LYDANYFLC"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "MASGGGETA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "MEVTPSGTWL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "MIAQYTSAL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "NASVVNIQKEIDRLN"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "NCTFEYVSQPFLMDL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "NFSQILPDPSKPSKR"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "NLDESLIDL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "NLLLQYGSFCTQLNRAL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "NLNESLIDL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "NNSYECDIPIGAGIC"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "NPANNAAIV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "NPANNASIV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "NPANNVAIV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "NQKLIANAF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "NQKLIANQF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "NSAIGKIQY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "NSTRFASVY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "NTNSSPDDQIGYY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "NVILLNKHI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "NVTWFHAIHVSGTNG"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "NYNYLYRLF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "PPAYTNSFTRGVYYP"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "PQFKDNVIL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Gluten"
+to = "Gliadin"
+when_columns = "antigen.epitope"
+when_equals = "PQPELPYPQPQL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "PVTLACFVL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "QELIRQGTDY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Alpha-gliadin"
+to = "Gliadin"
+when_columns = "antigen.epitope"
+when_equals = "QLIPCMDVV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Gluten"
+to = "Gliadin"
+when_columns = "antigen.epitope"
+when_equals = "QLQPFPQPELPY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "QNVLYENQKLIANQF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "GLIA"
+to = "Gliadin"
+when_columns = "antigen.epitope"
+when_equals = "QPPASEQEQPVLP"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "DQ8.5-GLIA-GAMMA1"
+to = "Gliadin"
+when_columns = "antigen.epitope"
+when_equals = "QPQQSFPEQEA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "QPYRVVVLS"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "QVILLNKHI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "QWNLVIGFL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "QYIKWPWYI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "QYIKWPWYVW"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "RARSVASQSI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "RFLYIIKLI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "RIRGGDGKM"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "RIRGGDGKM"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "RISNCVADYSVLYNS"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Envelope"
+to = "E"
+when_columns = "antigen.epitope"
+when_equals = "RLCAYCCNI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "RLDKVEAEV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "RLFARTRSM"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "RLITGRLQSL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "RLNEVAKNL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "RLNQLESKM"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "RLNQLESKV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "RLQSLQIYV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "RLQSLQTYV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "RPQGLSNNT"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "NP"
+when_columns = "antigen.epitope"
+when_equals = "RSALILRGSVAHKSC"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "RSFIEDLLFNKVTLA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "RSRNSSRNL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "RTATKAYNV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "RTATKQYNV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "RVAGDSGFAAY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "RVVVLSFEL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "RYRIGNYKL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "SANNCTFEY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "SFIEDLLFNKVTLAD"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "SGGGETALA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Neuraminidase"
+to = "NA"
+when_columns = "antigen.epitope"
+when_equals = "SGPDNGAVAV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Neuraminidase"
+to = "NA"
+when_columns = "antigen.epitope"
+when_equals = "SGPDNGAVAVL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "SIIAYTMSL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "SIVAYTMSL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "SLPFGWLIV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "SLSSTASAL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "SMWSFNPET"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "SPRRARSVA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "SPRWYFYYL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "SPRWYFYYL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "SSDNIALLV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "STDTVVEHV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "STECSNLLL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Envelope"
+to = "E"
+when_columns = "antigen.epitope"
+when_equals = "SVLLFLAFV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "SVTTEILPV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "SWMESEFRV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "TALALLLLD"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "TFEYVSQPFLMDLE"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "TGAIKLDDK"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "TLACFVLAA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "TLDSKTQSL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Envelope"
+to = "E"
+when_columns = "antigen.epitope"
+when_equals = "TLIVNSVLL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid"
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "TLSGTWLTY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "TPINLVRDL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "TRGVYYPDKVFRSSV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "TSNEVAVLY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "TSNQVAVLY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "TVYSHLLLV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "TWLTYTGAI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "TYHGAIKLD"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "VFLVLLPLV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "VFLVLWPLV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "VGGNYNYLYRLFRKS"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "VGGNYNYLYRLFRKSNLKP"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Envelope"
+to = "E"
+when_columns = "antigen.epitope"
+when_equals = "VLLFLAFVV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "VLNDILSRL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "VLSFELLHA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "VLYENQKLI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "VSDGTHWFV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Envelope"
+to = "E"
+when_columns = "antigen.epitope"
+when_equals = "VTLAILTAL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "VTWFHAIHV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "VVFLHVTYV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "VYAWNRKRI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "VYFLQSINF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "VYSTGSNVF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "WICLLQFAY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "WLIVGVALL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "WLLWPVTLA"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "WLTYHGAIK"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "WLTYTGAIK"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "WMESEFRVY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "WPLVSSQCV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "WPVTLACFV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "WPWYIWLGF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "WTAGAAAYY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Matrix"
+to = "M"
+when_columns = "antigen.epitope"
+when_equals = "YANRNRFLY"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "YENQKLIANQFNSAI"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "YFLQSINFV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "YFTSDYYQL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "YGFQPTNGV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Nucleocapsid "
+to = "N"
+when_columns = "antigen.epitope"
+when_equals = "YHGAIKLDD"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "YLQPRTFLL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "YLRPRTFLL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "YLYALVYFL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "YPDKVFRSSV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "YQDVDCTEV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "YQDVNCTEV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "YSSANNCTF"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Spike"
+to = "S"
+when_columns = "antigen.epitope"
+when_equals = "YTNSFTRGV"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "Envelope"
+to = "E"
+when_columns = "antigen.epitope"
+when_equals = "YVYSRVKNL"
+files = "vdjdb.slim.txt"
+
+[[rename]]
+columns = "antigen.gene"
+from = "ORF3"
+to = "ORF3a"
+when_columns = "antigen.epitope"
+when_equals = "YYQLYSTQL"
+files = "vdjdb.slim.txt"
 # END generated renames
 [[row_delta]]
 file = "vdjdb_full.txt"

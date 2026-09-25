@@ -153,6 +153,8 @@ def rules(
     chunks: Path | None = typer.Option(None, help="Chunk directory; default chunks/."),
     out: Path = typer.Option(Path("rules/expected_diffs.toml"), help="Ledger rule file."),
     report: Path | None = typer.Option(None, help="Also write the harmonisation report as TSV."),
+    reference: Path | None = typer.Option(None, help="Reference bundle the ledger compares against; "
+                                                     "antigen renames are derived from it."),
 ) -> None:
     """Regenerate the ledger's declared renames from the nomenclature harmonisation.
 
@@ -174,7 +176,9 @@ def rules(
     from .io.chunks import chunk_files, read_chunks
 
     paths = chunk_files(chunks) if chunks else None
-    harmonised, rep = harmonise_segments(apply_antigen_patch(read_chunks(paths)))
+    raw = read_chunks(paths)
+    patched = apply_antigen_patch(raw)
+    harmonised, rep = harmonise_segments(patched)
     allele_fixed, alleles = disambiguate_alleles(harmonised)
     mhc_fixed, mhc = harmonise_mhc(allele_fixed)
     _, refs = harmonise_references(mhc_fixed)
@@ -182,7 +186,14 @@ def rules(
         mhc = pl.concat([mhc, refs.select(pl.lit("#347").alias("issue"),
                                          pl.lit("reference.id").alias("column"),
                                          "from", "to", "rows")], how="vertical")
-    n = write_renames(rep, out, legacy_resolver(), alleles, mhc)
+    from .compare.diff import Bundle, _read_table
+    from .curate.patch import render_patch_renames
+
+    antigen_block = ""
+    if reference is not None:
+        ref_table = _read_table(Bundle(reference).read_bytes("vdjdb.txt"))
+        antigen_block = render_patch_renames(ref_table, patched)
+    n = write_renames(rep, out, legacy_resolver(), alleles, mhc, (antigen_block,))
     typer.echo(f"{n} renames, {rep['rows'].sum():,} spelling + {alleles['rows'].sum():,} allele "
                f"+ {mhc['rows'].sum():,} MHC records, written to {out}")
     if report:

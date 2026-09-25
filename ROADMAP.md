@@ -642,6 +642,45 @@ count. The counts are already in §7 — do not re-measure:
 
 **Closes when:** every rule fires exactly its declared count and nothing else moves.
 
+### Phase 9e — validate the epitope catalogue with `mhcmatch`
+
+`~/vcs/code/mhcmatch` is ours, it is on PyPI, and it already models exactly the table phase 9d
+ships: which peptide a given MHC presents. It turns the epitope catalogue from a summary into a
+**checked** one, and it goes further than a name lookup can — IPD-IMGT/HLA says whether an allele
+*exists*; `mhcmatch` says whether that allele could present that peptide.
+
+Four checks, in increasing strength, each a column on `restriction` and an advisory QC finding:
+
+1. **`pseudoseq.normalize_allele`** on every `mhc.a` / `mhc.b`. It maps a call to a
+   pseudosequence-FASTA key, so a call that does not normalise has no 34-mer binding groove and
+   nothing downstream can reason about it. Stricter than the IPD-IMGT/HLA prefix check, which only
+   asks whether the name is in the registry.
+2. **`pseudoseq.load_pseudo("I")` / `load_pseudo("II")`** give the allele's class. Cross-check it
+   against the recorded `mhc.class`: a class-I allele on an `MHCII` record is a defect the current
+   build cannot see.
+3. **`store.infer_class(peptide)`** infers the class from epitope length (MHC-I at ≤ 11). Disagreement
+   with `mhc.class` catches a 15-mer filed as MHCI and a 9-mer as MHCII — independent of the allele,
+   so it cross-checks check 2 rather than repeating it.
+4. **The restriction itself.** `mhcmatch.predict` / `ligand.presented_span` score presentation, and
+   `store.Restriction` carries `p_present`, `rank` and `band`. An epitope the recorded allele cannot
+   plausibly present is either a wrong `mhc.a` or a wrong `antigen.epitope`, and neither is visible
+   to any nomenclature rule. **Advisory and never a rewrite**: a presentation model is evidence about
+   a pair, not authority over a publication, and its false-positive rate has to be stated with any
+   threshold.
+
+Checks 1–3 are deterministic string and length work and belong in the build. Check 4 needs a model
+and its reference data (fetched from `isalgo/pmhc_data` on first use), so it runs as its own CI job
+over the 2,381 `(epitope, MHC)` pairs and publishes a report — not inside `vdjdb build`, whose
+offline determinism (hard rule 9) must not depend on a download.
+
+**What it would already have caught**, from phase 9d's own findings: `HLA-A*08:01` on 74 records (no
+HLA-A\*08 locus exists, so no pseudosequence), the four null/nonexistent `HLA-A*24:*` calls, and
+`HLA-B*12` (a serological antigen with no molecular groove). The IPD-IMGT/HLA prefix check found
+those; `mhcmatch` would also have ranked the 74 `HPVTKYIM` records against `HLA-A*08:01` and said the
+peptide is not presented, which is the part that points at the *fix* rather than only the error.
+
+Adds a dependency on `mhcmatch` for the validation extra only, not for the assembly build.
+
 ### Phase 10 — `feature/motifs-tcrnet`
 
 1. `motifs/background.py` — `seqtree.control.load_control` against `isalgo/airr_control`, the
@@ -1582,3 +1621,155 @@ That is a reader change, so it is global and it removed 52 of the segment rename
 only to undo it.
 
 **Phase 9 verdict: PASS**, 0 unattributed cells, 43 renames, 3 row deltas, 301 tests.
+
+
+## 27. Phase 9d(ii) result — the epitope catalogue, and the patch's own defects
+
+VDJdb now ships **its own list of epitopes and the MHCs that present them**, as two tidy tables:
+
+| Table | Key | Rows |
+|---|---|---|
+| `epitopes` | `(antigen.epitope, antigen.species)` | **2,132** |
+| `restriction` | `(antigen.epitope, antigen.species, mhc.a, mhc.b)` | **2,373** |
+
+`epitopes` carries the antigen gene, the peptide length, the MHC class, and what supports it —
+records, chains, distinct clonotypes and **distinct references**. 379 epitopes are reported by two or
+more publications.
+
+**The key is the epitope *and* the species**, and that is the point rather than a detail: 13 epitopes
+in the corpus are reported under two organisms and none of them is an error — `VEALYLVCG` is insulin
+B in both `HomoSapiens`/`INS` and `MusMusculus`/`Ins2`, `LPRWYFYYL` is shared between HCoV-HKU1 and
+HCoV-OC43, `KLPDDFMGC` between SARS-CoV and SARS-CoV-2.
+`patches/antigen_epitope_species_gene.dict` is keyed on the peptide alone and **cannot express any of
+them**; forcing one species through it silently rewrote 79 HCoV-OC43 records to HCoV-HKU1 on the
+first attempt. The catalogue can, which is why it is a table and not a view over the patch.
+
+Each allele is checked against IPD-IMGT/HLA (<https://www.ebi.ac.uk/ipd/imgt/hla/>, mirrored at
+`proofreading/mhc_alleles.tsv.gz`) by **prefix**, because a VDJdb call is two-field and the authority
+stores four: 2,236 pairs `known`, 135 `unchecked` (murine and macaque names, which have no such
+authority), **2 `unknown`** — down from 10 before the corrections below.
+
+Two checks the catalogue makes possible immediately, ahead of phase 9e's `mhcmatch` work: **20
+epitopes are recorded as MHCI but are longer than 11 residues, and 42 as MHCII but shorter than 12.**
+Peptide length and MHC class are independent evidence about each other, and they disagree on 62 of
+2,132 epitopes.
+
+### Gene symbols, from the source (#368's other half)
+
+According to PubMed, four lookups settled the protein-name-instead-of-gene-symbol cases:
+
+* influenza A nucleoprotein epitopes are **NP** — "HLA-B\*37:01-restricted NP … and HLA-A\*01:01-restricted NP"
+  ([DOI](https://doi.org/10.1038/s41467-018-07815-5));
+* influenza A neuraminidase epitopes are **NA** — "These neuraminidase-derived peptides, NA(SGPDNGAVAV)…"
+  ([DOI](https://doi.org/10.4049/jimmunol.2000689));
+* the LCMV epitope is nucleoprotein ([DOI](https://doi.org/10.3389/fimmu.2023.1199064)), and VDJdb
+  already writes `NP` on 477 LCMV records;
+* the chicken antigen of the D10 structure is **conalbumin**, i.e. ovotransferrin — its MeSH term
+  ([DOI](https://doi.org/10.1126/science.286.5446.1913)). One record, no unambiguous short symbol, so
+  it is reported rather than renamed.
+
+Separately, the coronavirus genes are normalised to the NCBI RefSeq (NC_045512.2) symbols —
+`Spike` → `S`, `Nucleocapsid` → `N`, `Matrix` → `M`, `Envelope` → `E`, `ORF3` → `ORF3a` — **262 patch
+entries covering 10,563 records**. That was not a tidy-up: `YLQPRTFLL` was labelled both `S` and
+`Spike` on 2,398 records, `LLLDRLNQL` both `N` and `Nucleocapsid` on 1,750, and **39 epitopes carried
+two gene symbols under one species**, so a query on either name returned half the data.
+
+### The patch file had four dead entries and eight contradictions
+
+Repairing it was not optional bookkeeping:
+
+* **Four entries used a space where the tab belongs**, so the whole mangled string became the epitope
+  key and the entry had **never matched a single record**. One of them is `ALAGIGILTV` — MLANA, among
+  the most-studied human epitopes, 180 records — which is why `MART1` survived in the data.
+* **The file has no trailing newline**, so the first appended entry was glued onto the last existing
+  one. Caught by a parse error; a test now asserts both patch files are well-formed.
+* **Eight epitopes are listed twice with different answers**, and `keep="last"` lets file order
+  decide, silently. Two are pure nomenclature (`EBNA3B` = `EBNA4`, `EBNA3C` = `EBNA6`); three sit in
+  the HIV-1 Gag-Pol frameshift, where both readings are defensible; the rest need a curator. They are
+  named in `curate.patch.CONFLICTING_EPITOPES` and asserted, so the set can shrink but not grow.
+
+### MHC corrections became data (`patches/mhc.dict`)
+
+Patch semantics, with a `reference.id` scope so a correction verified against one publication does not
+leak to another:
+
+| From | To | Records | Source |
+|---|---|---|---|
+| `HLA-A*24:01` | `HLA-A*24:02` | 80 | no `A*24:01` in IPD-IMGT/HLA (0 rows against 342) |
+| `HLA-A*24:09/:11/:12/:16` | `HLA-A*24:02` | 8 | the paper is *titled* "HLA A\*24:02-restricted T cell receptors…" ([DOI](https://doi.org/10.1172/JCI164535)) |
+| the five murine class-II spellings | — | 141 | `proofreading/mhc.md`, and the dominant spelling |
+
+**Checked and deliberately not corrected**, recorded as comments in the file: `HLA-A*08:01` on 74
+records — there is no HLA-A\*08 locus at any resolution, so the call is certainly wrong, but the chunk
+carries **no `reference.id`** to resolve it against and no source states the intended allele; and
+`HLA-B*12` on 1 record, a serological antigen that splits into B44 and B45, which the paper's abstract
+does not pin ([DOI](https://doi.org/10.1128/JVI.73.3.2099-2108.1999)).
+
+### The ledger needed an exact-match predicate
+
+`antigen.gene` and `antigen.species` are part of `vdjdb.slim.txt`'s **grouping** key, so correcting a
+gene symbol splits and merges slim rows — 13,290 of them undeclared. Two things fixed that:
+
+1. **Renames are derived from the reference bundle, not from `chunks/`.** The release was built with
+   the patch as it stood then, so only the entries added since reach the ledger; generating against
+   the chunks declared hundreds of corrections the release already carried, and all 72 were stale.
+2. **`when_equals`, not `when_contains`.** A 9-mer epitope really is a substring of a 10-mer one
+   (`SPRWYFYYL` inside `LSPRWYFYYL`), so a substring predicate fires on the wrong rows.
+
+Slim's undeclared row delta fell from 13,290 to **744**. **Verdict: PASS**, 0 unattributed cells,
+323 renames.
+
+
+## 28. The arda re-measurement, after #327 and #389
+
+§16 measured `arda.cdr3fix` against the vendored k-mer scanner on a corpus whose allele calls were
+wrong, and the swap was held for that reason. Re-measured 2026-09-25 on the corrected corpus, both
+engines run through the same pipeline on all 192,753 records.
+
+### Agreement rose sharply
+
+| Field | §16, before | After #327 + #389 |
+|---|---|---|
+| `cdr3` (alpha) | 97.74 % | **99.91 %** |
+| `jFixType` | 96.09 % | 95.66 % (alpha) |
+| `vFixType` | 93.69 % | 96.47 % (alpha) |
+| `good` | 91.17 % | 93.41 % (beta) |
+
+The repaired sequence itself is now **99.91 %** identical between the two engines on alpha chains.
+§16's headline "arda changes 14,778 repaired CDR3s" was largely arda and the legacy disagreeing about
+sequences the legacy could not place at all.
+
+### Coverage: the alpha side closed, the beta V side did not
+
+| Chain | Field | both | legacy only | arda only | neither |
+|---|---|---|---|---|---|
+| alpha | `vEnd` | 118,217 | **370** | 3,776 | 567 |
+| alpha | `jStart` | 116,982 | 137 | **5,164** | 647 |
+| beta | `vEnd` | 152,139 | **7,969** | 1,629 | 1,346 |
+| beta | `jStart` | 160,682 | 138 | **1,904** | 359 |
+
+arda now **gains 7,068 J-start mappings and 5,405 V-end mappings**, and loses 275 J-starts. The alpha
+V-end loss that §16 reported has essentially closed — 370 chains. **The beta V-end loss has not: 7,969
+chains**, and that is the whole of the remaining objection.
+
+### What the 7,969 are
+
+Not a nomenclature problem, and not spread thin: **7,962 of 7,969 are `FailedBadSegment`** — arda
+declines the segment outright — while the legacy reports `NoFixNeeded` on 7,919 of them, i.e. it
+placed the CDR3 against the germline without changing a residue. They concentrate on common V genes
+(`TRBV20-1*01` 1,673, `TRBV3-1*01` 1,058, `TRBV6-1*01` 1,004, `TRBV11-2*01` 823) and on the species
+split 6,553 human / 826 mouse / 590 macaque.
+
+The tell is arda's own V call on those rows: `TRBV20`, `TRBV3`, `TRBV6`, `TRBV12-2+TRBV13-2` — **gene
+names and ambiguity groups, not alleles**. arda is collapsing the allele and then failing to find an
+anchor for the collapsed name. So this is an **arda reference-loading problem on TRBV, not a
+disagreement about the sequence** — the same class of defect as `fix/source-root-marker`, which also
+presented as a silent "no answer".
+
+### Recommendation
+
+**Do not swap yet, and do not re-litigate it against this corpus either.** The gate §16 named has
+been cleared — the allele calls are right, agreement is 99.91 %, and arda is ahead on three of the
+four coverage measures. What remains is one upstream defect with a clear signature, and the right
+next step is to reproduce those 7,962 `FailedBadSegment` beta V calls in `arda` directly and fix them
+there. Then the swap is a one-line default change with nothing left to weigh.
