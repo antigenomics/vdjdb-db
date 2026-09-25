@@ -2204,3 +2204,99 @@ The second half of the acceptance criterion -- that the result is stable to the 
 to the parameters -- is **not measured**. Section 30.2 and 30.3/30.4 name the sweeps. Until they are
 run, every number above is a point estimate with no spread beside it.
 
+## 32. Stability sweeps — the second half of phase 11's acceptance criterion
+
+Run 2026-09-25, human, both chains, every variant clustered and scored in
+`vdjdb.validate.motif_bench` under the vendored `metrics_lib` on one fixed cohort. `*` marks the
+current default.
+
+### 32.1 The background: the call set is stable, and 1M is well inside the flat region
+
+Six reservoir seeds at `M = 1,000,000`, then `M` from 250k to the whole table at the reference seed.
+
+| chain | varied | enriched | Jaccard vs reference draw | retention | purity |
+|---|---|---|---|---|---|
+| TRA | seed x6 | 11,469–11,482 (**0.11 %** spread) | **0.979–0.982** | 0.2386–0.2392 | 0.8761–0.8764 |
+| TRB | seed x6 | 34,542–34,564 (**0.06 %**) | **0.9956–0.9964** | 0.3381–0.3383 | 0.9780–0.9783 |
+| TRA | M 250k → 2,266,274 (all) | 11,457–11,482 | 0.960 → 0.986 | 0.2388–0.2390 | 0.8762–0.8764 |
+| TRB | M 250k → 5,000,000 | 33,383 → 34,641 | 0.964 → 0.998 | 0.3358 → 0.3384 | flat at 0.9781 |
+
+✅ **The result does not depend on which repertoire you happen to draw.** Re-drawing the background
+moves the called set by under a fifth of a percent and every downstream metric in the fourth decimal.
+✅ **`M` is flat from 500k up.** 250k costs 3.5 % of the TRB call set (Jaccard 0.964); 500k already
+reaches 0.994 and 2M reaches 0.997. The 1M default sits in the flat region with margin.
+✅ **So the non-uniform `M` noted in section 30.2.2 matters less than feared** -- mouse TRB at
+694,241 and mouse TRA at 272,827 are at or above where the curve has flattened. It is still worth
+making uniform, but it is not distorting the current numbers.
+
+### 32.2 TCRNET parameters
+
+| chain | knob | range swept | retention | purity | note |
+|---|---|---|---|---|---|
+| TRA | `p` | 0.005 → 0.2 | 0.2285 → 0.2479 | 0.8752 → 0.8768 | **insensitive**: 40x the threshold, +8.5 % retention |
+| TRB | `p` | 0.005 → 0.2 | 0.3328 → 0.3384 | 0.9790 → 0.9781 | saturates by `p = 0.1` |
+| both | `min_degree` | 1 vs 2 | **identical** | identical | ⚠ see below |
+| TRA | `min_degree` | 3, 5 | 0.2342, 0.1936 | 0.8745, 0.8708 | costs coverage, buys nothing |
+| TRB | `min_degree` | 3, 5 | 0.3281, 0.2973 | 0.9798, 0.9834 | buys purity at real cost |
+| TRA | `min_cluster` | 3 → 20 | **0.2712** → 0.1597 | **0.8820** → 0.8705 | ✅ 3 **strictly dominates** 5 |
+| TRB | `min_cluster` | 3 → 20 | 0.3721 → 0.2846 | 0.9758 → 0.9851 | 3 trades 0.0023 purity for +0.034 retention |
+| both | `min_sample` | 10, 20, 30 | within **0.0002** | within 0.0001 | ⚠ see below |
+| TRA | `scope` | `2,0,0,2` | **0.3931** | **0.8882** | ✅ **strictly dominates** `1,0,0,1` |
+| TRB | `scope` | `2,0,0,2` | 0.4993 | 0.9607 | +0.161 retention for −0.017 purity |
+| both | `scope` | `1,1,1,1` | +0.05 / +0.024 | −0.002 / −0.004 | indels buy little |
+
+⚠ **`min_degree = 2` is a no-op at `p = 0.05`.** It selects exactly the same clonotypes as
+`min_degree = 1`, on both chains, because a clonotype with no within-sample neighbour gets `p = 1`
+and never clears the threshold anyway. The legacy's `degree.s >= 2` condition is therefore doing
+nothing, and reproducing it is free rather than load-bearing.
+
+⚠ **The epitope floor does not matter.** `MIN_SAMPLE` at 10, 20 or 30 moves retention by 0.0002 and
+purity by 0.0001. Section 31 said the benchmark's 30 "cost 13 epitopes their motifs" -- true of the
+epitope count, but those epitopes carry so few records that **no aggregate metric can see them**.
+The 10 is still right (it is the legacy's) but nothing rests on it.
+
+✅ **Two free wins available, neither taken as a default here.** `min_cluster = 3` gives TRA more
+retention *and* better purity *and* better precision than 5; `scope = 2,0,0,2` does the same,
+larger. Both would take TCRNET past REDCEA's retention on TRA. Left at the legacy values because
+`min_cluster = 5` is what the shipped files' smallest `csz` is and `1,0,0,1` is the legacy scope --
+changing either is a one-line decision, not a discovery, and it is the author's.
+
+### 32.3 TCREMP parameters
+
+| chain | knob | range swept | retention | purity | beats REDCEA |
+|---|---|---|---|---|---|
+| TRA | `coef` | 2.0 → 4.0 | 0.2722 → 0.5347 | 0.9101 → 0.8916 | yes for 2.6–3.4 |
+| TRB | `coef` | 2.0 → 4.0 | 0.4738 → 0.7916 | 0.9693 → 0.9452 | yes for 2.6–4.0 |
+| both | `min_samples` | 2 vs 3 | **identical** | identical | — |
+| TRA | `min_samples` | 5, 10 | 0.3788, 0.2981 | 0.9038, 0.9030 | no |
+| TRB | `min_samples` | 5, 10 | 0.6942, 0.6137 | 0.9499, 0.9548 | yes |
+| TRA | `min_cluster` | **3** | **0.4737** | **0.9081** | ✅ **dominates 5** |
+| TRB | `min_cluster` | **3** | **0.7667** | 0.9479 | yes |
+| TRA | `n_components` | 20 / 50 / 100 | 0.3386 / 0.3904 / 0.4566 | 0.9051 / 0.9041 / 0.8994 | 100 breaks purity |
+| TRB | `n_components` | 20 / 50 / 100 | 0.6149 / 0.7092 / 0.7669 | 0.9560 / 0.9494 / 0.9463 | all yes |
+| TRA | scaler/PCA fit seed | x4 | **0.3904–0.3910** | **0.9040–0.9042** | yes |
+| TRB | scaler/PCA fit seed | x4 | **0.7092–0.7104** | **0.9491–0.9494** | yes |
+
+✅ **The 25k seeded subsample the scaler and PCA are fitted on does not matter** -- four seeds move
+retention in the fourth decimal. The subsampling in section 8.8 is a memory decision with no
+statistical cost.
+✅ **The `coef` win is not knife-edge.** TRB beats REDCEA across the whole of 2.6–4.0 and TRA across
+2.6–3.4; the default 3.0 sits mid-plateau on both, not at an edge.
+⚠ **`min_samples = 2` and `3` are identical** on both chains -- no cluster depends on a bare pair.
+⚠ **`min_cluster = 3` is again a free win on TRA** (retention +0.083, purity +0.004, precision
++0.008) and nearly free on TRB. Same decision as 32.2, same reason for leaving it.
+
+### 32.4 What the sweeps say overall
+
+The two methods have opposite sensitivity profiles, and that is the useful summary:
+
+- **TCRNET is insensitive to its statistical knobs and sensitive to its geometric ones.** `p` over a
+  40x range moves retention by under 9 %; `scope` and `min_cluster` move it by 65 % and 70 %. The
+  threshold is not where the method's behaviour lives -- the neighbourhood definition is.
+- **TCREMP is sensitive to `coef` and to nothing else much.** `min_samples`, the fit seed and (on
+  TRB) `n_components` barely move it; `coef` spans retention 0.47→0.79. One knob, on a plateau.
+- **Neither is sensitive to the background.** That was the open worry and it is answered.
+
+**Still not done:** the **in-silico background** of section 30.2.3, which tests a different
+hypothesis rather than the same one differently, and **Leiden** (section 30.1). Both remain open.
+

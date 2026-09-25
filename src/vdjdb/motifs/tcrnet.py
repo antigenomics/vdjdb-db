@@ -89,7 +89,7 @@ MIN_DEGREE = 2
 MIN_SAMPLE = 10
 
 
-def control_for(species: str, gene: str, size: int = CONTROL_SIZE):
+def control_for(species: str, gene: str, size: int = CONTROL_SIZE, seed: int = SEED):
     """The background index for one ``(species, gene)``, or ``None`` if there is no background.
 
     Delegates to ``seqtree.control.load_control``, which streams from ``isalgo/airr_control``,
@@ -101,7 +101,7 @@ def control_for(species: str, gene: str, size: int = CONTROL_SIZE):
     if name is None:
         return None
     from seqtree.control import load_control
-    return load_control(name, size=size, seed=SEED)
+    return load_control(name, size=size, seed=seed)
 
 
 def legacy_pvalue(degree: pl.Expr, n_control: pl.Expr, n_sample: int, m_control: int) -> pl.Expr:
@@ -161,7 +161,8 @@ def enrich(sample: pl.DataFrame, control, *, scope: str = SCOPE) -> pl.DataFrame
 def enriched_clonotypes(chains: pl.DataFrame, records: pl.DataFrame, *,
                         scope: str = SCOPE, p: float = P_THRESHOLD,
                         min_degree: int = MIN_DEGREE, min_sample: int = MIN_SAMPLE,
-                        control_size: int = CONTROL_SIZE) -> pl.DataFrame:
+                        control_size: int = CONTROL_SIZE,
+                        control_seed: int = SEED) -> pl.DataFrame:
     """Every scored clonotype, flagged ``enriched`` where the background cannot explain its degree.
 
     Groups by ``(species, gene, antigen.epitope)`` -- the scope the legacy pipeline used, which
@@ -175,7 +176,7 @@ def enriched_clonotypes(chains: pl.DataFrame, records: pl.DataFrame, *,
     df = _samples(chains, records)
     out: list[pl.DataFrame] = []
     for (species, gene), chain in df.group_by(["species", "gene"], maintain_order=True):
-        control = control_for(species, gene, control_size)
+        control = control_for(species, gene, control_size, control_seed)
         if control is None:
             continue
         for (epitope,), grp in chain.group_by(["antigen.epitope"], maintain_order=True):
