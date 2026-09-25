@@ -85,6 +85,7 @@ def test_added_and_removed_rows_are_counted_separately(tmp_path: Path, base: lis
     f = r.files[0]
     assert (f.only_in_reference, f.only_in_candidate) == (1, 1)
     assert f.changed_rows == 0, "different keys are not a change, they are a removal plus an add"
+    assert not r.ok, "a rebuild of the same data must not gain or lose rows"
 
 
 def test_rows_sharing_a_key_are_compared_as_a_multiset(tmp_path: Path) -> None:
@@ -229,3 +230,53 @@ def test_rule_matches_on_every_declared_facet() -> None:
     assert Rule("r", file="vdjdb.txt", column="web.cdr3fix.unmp", from_="no", to="yes").matches(c)
     assert not Rule("r", file="other.txt").matches(c)
     assert not Rule("r", to="maybe").matches(c)
+
+
+# --------------------------------------------------------------------------------------------
+# Surrogate keys
+# --------------------------------------------------------------------------------------------
+
+def _paired(tmp: Path, name: str, pairs: list[tuple[str, str, str]]) -> Path:
+    """A bundle whose rows carry the given ``(complex.id, cdr3, gene)`` triples."""
+    d = tmp / name
+    d.mkdir()
+    rows = []
+    for cid, cdr3, gene in pairs:
+        f = _row(cdr3).split("\t")
+        f[0], f[1] = cid, gene
+        rows.append("\t".join(f))
+    (d / "vdjdb.txt").write_text(HEADER + "\n" + "\n".join(rows) + "\n")
+    return d
+
+
+def test_complex_id_renumbering_is_not_a_difference(tmp_path: Path) -> None:
+    """``complex.id`` follows the order ``os.listdir`` returned; its values carry no information.
+
+    Comparing it by value made 185,868 of 284,546 rows "changed" on the first real run.
+    """
+    a = _paired(tmp_path, "a", [("1", "CASSA", "TRA"), ("1", "CASSB", "TRB"),
+                                ("2", "CASSC", "TRA"), ("2", "CASSD", "TRB")])
+    b = _paired(tmp_path, "b", [("7", "CASSC", "TRA"), ("7", "CASSD", "TRB"),
+                                ("9", "CASSA", "TRA"), ("9", "CASSB", "TRB")])
+    r = diff(a, b)
+    assert r.ok, "the same clones grouped the same way, only numbered differently"
+    assert r.files[0].changed_rows == 0
+
+
+def test_a_real_regrouping_is_still_caught(tmp_path: Path) -> None:
+    """Renumbering must not hide a chain moving between clones."""
+    a = _paired(tmp_path, "a", [("1", "CASSA", "TRA"), ("1", "CASSB", "TRB"),
+                                ("2", "CASSC", "TRA"), ("2", "CASSD", "TRB")])
+    b = _paired(tmp_path, "b", [("1", "CASSA", "TRA"), ("1", "CASSD", "TRB"),
+                                ("2", "CASSC", "TRA"), ("2", "CASSB", "TRB")])
+    r = diff(a, b)
+    assert not r.ok
+    assert {c.column for c in r.unattributed} == {"complex.id"}
+
+
+def test_unpaired_rows_keep_complex_id_zero(tmp_path: Path) -> None:
+    a = _paired(tmp_path, "a", [("0", "CASSA", "TRB"), ("1", "CASSB", "TRA"),
+                                ("1", "CASSC", "TRB")])
+    b = _paired(tmp_path, "b", [("0", "CASSA", "TRB"), ("4", "CASSB", "TRA"),
+                                ("4", "CASSC", "TRB")])
+    assert diff(a, b).ok

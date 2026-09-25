@@ -32,11 +32,19 @@ from ..schema import FULL_COLUMNS, SLIM_COLUMNS, VDJDB_COLUMNS
 
 #: Row identity per tabular file. Keys are **not** unique -- one paper reporting the same TCR in
 #: several donors is several rows -- so rows are compared as a multiset within each key group.
+#:
+#: The key must mirror the record identity, not merely the receptor. A narrower key was tried first
+#: and produced 15,561 spurious cell differences against a build whose ``vdjdb_full.txt`` was
+#: canonically identical: rows sharing a key were paired arbitrarily, so every field that
+#: distinguishes two donors of one study reported as changed. Every one of those fields is in
+#: :data:`CHUNK_DEDUP_KEY`, which is why the key now mirrors it.
 KEYS: dict[str, tuple[str, ...]] = {
     "vdjdb.txt": ("gene", "cdr3", "v.segm", "j.segm", "species",
-                  "mhc.a", "mhc.b", "antigen.epitope", "reference.id"),
+                  "mhc.a", "mhc.b", "mhc.class", "antigen.epitope", "antigen.gene",
+                  "antigen.species", "reference.id"),
     "vdjdb.slim.txt": ("gene", "cdr3", "v.segm", "j.segm", "species",
-                       "mhc.a", "mhc.b", "antigen.epitope", "reference.id"),
+                       "mhc.a", "mhc.b", "mhc.class", "antigen.epitope", "antigen.gene",
+                       "antigen.species", "reference.id"),
     "vdjdb_full.txt": ("cdr3.alpha", "v.alpha", "j.alpha", "cdr3.beta", "v.beta", "j.beta",
                        "species", "mhc.a", "mhc.b", "antigen.epitope", "reference.id"),
     "cluster_members.txt": ("cid", "cdr3aa", "gene", "species", "antigen.epitope"),
@@ -57,6 +65,23 @@ WIDTHS: dict[str, int] = {
 
 #: Compared line-by-line rather than row-by-row: they are short, and their rows are the schema.
 LINEWISE = ("vdjdb.meta.txt", "vdjdb.slim.meta.txt", "latest-version.txt")
+
+#: Identity fields that live inside a JSON column rather than in a column of their own. They are
+#: the seven ``meta.*`` members of :data:`CHUNK_DEDUP_KEY`: without them a study reporting one TCR
+#: in several donors is one key group, and its rows pair arbitrarily.
+JSON_KEYS: dict[str, tuple[str, tuple[str, ...]]] = {
+    "vdjdb.txt": ("meta", ("study.id", "cell.subset", "subject.cohort", "subject.id",
+                           "replica.id", "clone.id", "tissue")),
+}
+
+#: Surrogate keys: values carry no information, only the partition they induce does.
+#:
+#: ``complex.id`` is a counter allocated while walking the master table, so its values follow the
+#: chunk order ``os.listdir`` happened to return. Comparing it by value made 185,868 of 284,546
+#: rows "changed" in the first real run -- 58 % of the table, none of it a difference in the data.
+#: It is instead **renumbered canonically** on both sides before comparison, so a genuine change in
+#: which chains are grouped into one clone still shows up, and a reshuffle does not.
+SURROGATE: dict[str, str] = {"vdjdb.txt": "complex.id", "vdjdb.slim.txt": "complex.id"}
 
 
 # ---------------------------------------------------------------------------------------------
@@ -86,6 +111,9 @@ class FileReport:
     changed_rows: int = 0
     cells: tuple[CellDiff, ...] = ()
     note: str = ""
+    #: Whether a row-level comparison ran. When it did, its result is authoritative and a differing
+    #: canonical digest is informational -- surrogate renumbering alone changes the digest.
+    compared_rows: bool = False
 
 
 @dataclass
@@ -105,9 +133,15 @@ class DiffReport:
 
     @property
     def ok(self) -> bool:
-        return not (self.missing or self.added or self.unattributed or self.miscounted_rules
-                    or any(not f.canonical_equal and not f.cells and f.name not in LINEWISE
-                           for f in self.files))
+        if self.missing or self.added or self.unattributed or self.miscounted_rules:
+            return False
+        for f in self.files:
+            if f.only_in_reference or f.only_in_candidate:
+                return False
+            # A file we could not compare row by row is judged on its canonical digest alone.
+            if not f.compared_rows and not f.canonical_equal:
+                return False
+        return True
 
 
 # ---------------------------------------------------------------------------------------------
@@ -157,12 +191,70 @@ def _read_table(data: bytes) -> pl.DataFrame:
 # Row-level comparison
 # ---------------------------------------------------------------------------------------------
 
-def _rows_by_key(df: pl.DataFrame, key: tuple[str, ...]) -> dict[str, list[tuple[str, ...]]]:
-    present = [c for c in key if c in df.columns]
-    keys = df.select(pl.concat_str(present, separator="\x1f")).to_series().to_list()
+def _key_expr(name: str, df: pl.DataFrame, key: tuple[str, ...]) -> pl.Expr:
+    parts: list[pl.Expr] = [pl.col(c) for c in key if c in df.columns]
+    col, fields = JSON_KEYS.get(name, ("", ()))
+    if col and col in df.columns:
+        struct = pl.Struct([pl.Field(f, pl.Utf8) for f in fields])
+        decoded = pl.col(col).str.json_decode(dtype=struct)
+        parts += [decoded.struct.field(f).fill_null("") for f in fields]
+    return pl.concat_str(parts, separator="\x1f")
+
+
+def _rows_by_key(name: str, df: pl.DataFrame, key: tuple[str, ...]) -> dict[str, list[tuple[str, ...]]]:
+    keys = df.select(_key_expr(name, df, key)).to_series().to_list()
     out: dict[str, list[tuple[str, ...]]] = defaultdict(list)
     for k, row in zip(keys, df.iter_rows(), strict=True):
         out[k].append(row)
+    return out
+
+
+def _canonical_surrogate(name: str, df: pl.DataFrame, col: str,
+                         key: tuple[str, ...]) -> pl.DataFrame:
+    """Renumber ``col`` so equal groupings get equal numbers, whatever order they were allocated in.
+
+    Each group is labelled by the sorted row identities of its members; groups are then numbered by
+    that label. ``0`` means "not grouped" (an unpaired chain) and is left alone.
+    """
+    label = (df.with_row_index("__i")
+               .with_columns(_key_expr(name, df, key).alias("__k"))
+               .group_by(col)
+               .agg(pl.col("__k").sort().str.join("\x1e").alias("__label")))
+    order = (label.filter(pl.col(col) != "0").sort("__label")
+                  .with_row_index("__n")
+                  .with_columns((pl.col("__n") + 1).cast(pl.Utf8).alias("__new")))
+    return (df.join(order.select(col, "__new"), on=col, how="left")
+              .with_columns(pl.col("__new").fill_null("0").alias(col))
+              .drop("__new"))
+
+
+#: Above this many unmatched rows in one key group, pair by sort order instead of by best match.
+#: The quadratic search is worth it at 2-10 rows and pointless at 1,000.
+_PAIR_LIMIT = 24
+
+
+def _pair(left: list[tuple[str, ...]],
+          right: list[tuple[str, ...]]) -> list[tuple[tuple[str, ...], tuple[str, ...]]]:
+    """Pair rows that share a key but are not identical, minimising the reported difference.
+
+    Sort order is the wrong correspondence: two rows of one study that differ in a field outside
+    the identity key get crossed, and then *every* field that distinguishes them reports as changed.
+    Greedy nearest-match instead pairs each row with the candidate it differs from least, so the
+    ledger reports the smallest set of differences consistent with the data rather than an artifact
+    of collation.
+    """
+    if not left or not right:
+        return []
+    if max(len(left), len(right)) > _PAIR_LIMIT:
+        return list(zip(left, right, strict=False))
+    free = list(range(len(right)))
+    out = []
+    for lrow in left:
+        if not free:
+            break
+        j = min(free, key=lambda i: sum(a != b for a, b in zip(lrow, right[i], strict=True)))
+        free.remove(j)
+        out.append((lrow, right[j]))
     return out
 
 
@@ -189,7 +281,12 @@ def _compare_table(name: str, ref: bytes, cand: bytes) -> FileReport:
         return FileReport(name, raw_r == raw_c, can_r == can_c, a.height, b.height,
                           note="no identity key declared; digest comparison only")
 
-    ref_rows, cand_rows = _rows_by_key(a, key), _rows_by_key(b, key)
+    surrogate = SURROGATE.get(name)
+    if surrogate and surrogate in a.columns:
+        a = _canonical_surrogate(name, a, surrogate, key)
+        b = _canonical_surrogate(name, b, surrogate, key)
+
+    ref_rows, cand_rows = _rows_by_key(name, a, key), _rows_by_key(name, b, key)
     cols = a.columns
     only_ref = only_cand = changed = 0
     cells: list[CellDiff] = []
@@ -197,17 +294,17 @@ def _compare_table(name: str, ref: bytes, cand: bytes) -> FileReport:
     for k in set(ref_rows) | set(cand_rows):
         left, right = Counter(ref_rows.get(k, [])), Counter(cand_rows.get(k, []))
         common = left & right                      # identical rows, in multiset arithmetic
-        left, right = sorted((left - common).elements()), sorted((right - common).elements())
-        # Pair what is left positionally: same key, same count, differing content is a change.
-        for lrow, rrow in zip(left, right, strict=False):
+        lrows = sorted((left - common).elements())
+        rrows = sorted((right - common).elements())
+        for lrow, rrow in _pair(lrows, rrows):
             changed += 1
             cells.extend(CellDiff(name, c, lv, rv, k)
                          for c, lv, rv in zip(cols, lrow, rrow, strict=True) if lv != rv)
-        only_ref += max(len(left) - len(right), 0)
-        only_cand += max(len(right) - len(left), 0)
+        only_ref += max(len(lrows) - len(rrows), 0)
+        only_cand += max(len(rrows) - len(lrows), 0)
 
     return FileReport(name, raw_r == raw_c, can_r == can_c, a.height, b.height,
-                      only_ref, only_cand, changed, tuple(cells))
+                      only_ref, only_cand, changed, tuple(cells), compared_rows=True)
 
 
 def _compare_lines(name: str, ref: bytes, cand: bytes) -> FileReport:
@@ -218,7 +315,8 @@ def _compare_lines(name: str, ref: bytes, cand: bytes) -> FileReport:
     cells = tuple(CellDiff(name, "line", old, new, str(i))
                   for i, (old, new) in enumerate(zip(a, b, strict=False)) if old != new)
     return FileReport(name, raw_r == raw_c, can_r == can_c, len(a), len(b),
-                      max(len(a) - len(b), 0), max(len(b) - len(a), 0), len(cells), cells)
+                      max(len(a) - len(b), 0), max(len(b) - len(a), 0), len(cells), cells,
+                      compared_rows=True)
 
 
 def _compare_opaque(name: str, ref: bytes, cand: bytes) -> FileReport:
