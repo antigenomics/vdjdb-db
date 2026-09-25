@@ -47,6 +47,7 @@ import polars as pl
 
 from ..annotate.dgene import D_COLUMNS
 from ..annotate.junction import NT_COLUMNS
+from ..annotate.segments import INFERRED_COLUMNS
 from ..config import SEED
 from ..schema import CHAIN_COLUMNS, RECORD_COLUMNS
 
@@ -103,7 +104,8 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
         )
     # The junction-nucleotide columns are added afterwards, by `vdjdb.annotate.junction`: they need
     # the species, which lives on `records`, and a model load per (species, locus).
-    produced = [c for c in CHAIN_COLUMNS if c not in (*NT_COLUMNS, *D_COLUMNS)]
+    produced = [c for c in CHAIN_COLUMNS
+                if c not in (*NT_COLUMNS, *D_COLUMNS, *INFERRED_COLUMNS)]
     # Sorted by the key, so the table has one order and it is the key's.
     return (pl.concat(parts, how="vertical")
             # 34 rows are a D call with no CDR3, so the fixer was never handed anything and left no
@@ -125,11 +127,14 @@ def build_tables(master: pl.DataFrame, *, release: str = "dev") -> dict[str, pl.
     """The definitive tables, keyed by name."""
     from ..annotate.dgene import add_d_posterior
     from ..annotate.junction import add_junction_nt
+    from ..annotate.segments import add_inferred_segments
     from .evidence import build_evidence
 
 
     records, chains = build_records(master), build_chains(master)
-    chains = add_d_posterior(add_junction_nt(chains, records), records).select(CHAIN_COLUMNS)
+    chains = add_junction_nt(chains, records)
+    chains = add_d_posterior(chains, records)
+    chains = add_inferred_segments(chains, records).select(CHAIN_COLUMNS)
     return {
         "records": records,
         "chains": chains,
