@@ -1,0 +1,58 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vdjdb-db"
+version = "0.1.0"
+description = "Build, proofread and release the VDJdb T-cell receptor specificity database"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "AGPL-3.0-only" }
+authors = [{ name = "Mikhail Shugay", email = "mikhail.shugay@gmail.com" }]
+keywords = ["immunology", "tcr", "vdjdb", "airr", "epitope", "bioinformatics"]
+
+dependencies = [
+    "polars>=1.20",
+    "typer>=0.12",
+    # arda is imported directly for cdr3fix / germline anchors / D inference. vdjtools pulls it
+    # transitively, but a direct import deserves a direct dependency.
+    "arda-mapper>=2.27",
+    # vdjtools supplies the AIRR schema/IO, the recombination model (junction-nt inference, Pgen)
+    # and TCRNET. Its own core deps are arda-mapper, seqtree and vdjmatch.
+    "vdjtools>=3.13",
+]
+
+[project.optional-dependencies]
+# Motif inference only. mirpy pulls kneed/matplotlib/seaborn/lifelines via its own [bench] extra,
+# which the data build has no use for -- keep them out of the assembly container.
+motifs = ["mirpy-lib[bench]>=3.0", "python-igraph>=0.11", "scikit-learn>=1.4"]
+test = ["pytest>=8", "hypothesis>=6", "airr>=1.5"]
+dev = ["ruff>=0.6", "mypy>=1.11"]
+
+[project.scripts]
+vdjdb = "vdjdb.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vdjdb"]
+
+[tool.ruff]
+line-length = 110
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.11"
+# Strict only where correctness is load-bearing: the column registry every output projects from,
+# and the coordinate conversions between the four spaces documented in CLAUDE.md.
+files = ["src/vdjdb/schema", "src/vdjdb/convert"]
+strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "release: compares against a real VDJdb release zip; needs VDJDB_REFERENCE_ZIP. Nightly only.",
+    "benchmark: runtime and peak-RSS budgets; needs RUN_BENCHMARK=1.",
+]
