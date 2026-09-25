@@ -37,13 +37,14 @@ uv run vdjdb qc                              # chunk validation, fail-fast
 uv run vdjdb build --out out/                # the definitive tables, then every projection
 uv run vdjdb make legacy --tables out/tables # the legacy files, from the tables that shipped
 uv run vdjdb convert airr --tables out/tables # AIRR Rearrangement + Reactivity
+uv run vdjdb motifs --tables out/tables      # TCRNET: cluster_members.txt + motif_pwms.txt
 uv run vdjdb diff <reference.zip> out/legacy # the difference ledger
 uv run vdjdb schema --table records          # generated metadata, for any declared table
 uv run pytest -q
 ```
 
 Not yet implemented (the ROADMAP phase that delivers each is printed on invocation):
-`motifs`, `summary`, `release`, `refs`, `changelog`.
+`summary`, `release`, `refs`, `changelog`. `motifs` currently ships TCRNET only; TCREMP is phase 11.
 
 Output goes to `out/`, **not** `build/` -- `build/` is already gitignored as a Python packaging
 convention and using it for release artifacts is confusing.
