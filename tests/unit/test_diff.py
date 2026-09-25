@@ -317,3 +317,42 @@ def test_only_restricts_the_comparison(tmp_path: Path, base: list[str]) -> None:
     b = _bundle(tmp_path, "b", base)
     assert diff(a, b).missing == ["motif_pwms.txt"]
     assert diff(a, b, only=["vdjdb.txt"]).ok
+
+
+# -- declared renames ---------------------------------------------------------------------------
+
+def test_renames_are_applied_simultaneously_not_in_sequence():
+    """With `A -> B` and `B -> C` declared, a cell that was already `B` must stay `B`.
+
+    Applying them one after another chained them and moved 6,334 reference rows onto keys nothing
+    matched -- in the reference, where nothing had changed.
+    """
+    import polars as pl
+
+    from vdjdb.compare.diff import Rename, _apply_renames
+
+    df = pl.DataFrame({"v.segm": ["A", "B", "C"]})
+    renames = [Rename(("v.segm",), "A", "B"), Rename(("v.segm",), "B", "C")]
+    out, counts = _apply_renames("vdjdb.txt", df, renames)
+    assert out["v.segm"].to_list() == ["B", "C", "C"]
+    assert counts == {"A -> B": 1, "B -> C": 1}
+
+
+def test_a_rename_only_touches_the_columns_it_names():
+    import polars as pl
+
+    from vdjdb.compare.diff import Rename, _apply_renames
+
+    df = pl.DataFrame({"v.segm": ["X"], "j.segm": ["X"]})
+    out, _ = _apply_renames("vdjdb.txt", df, [Rename(("v.segm",), "X", "Y")])
+    assert out.row(0) == ("Y", "X")
+
+
+def test_a_rename_scoped_to_another_file_does_not_fire():
+    import polars as pl
+
+    from vdjdb.compare.diff import Rename, _apply_renames
+
+    df = pl.DataFrame({"v.segm": ["X"]})
+    out, counts = _apply_renames("vdjdb.txt", df, [Rename(("v.segm",), "X", "Y", ("slim.txt",))])
+    assert out["v.segm"].to_list() == ["X"] and counts == {}

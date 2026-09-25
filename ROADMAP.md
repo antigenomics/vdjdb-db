@@ -117,6 +117,31 @@ output has a single attributable cause.
 **Every phase has a step-by-step subplan in §12.** A phase is not startable until its subplan names
 the files it creates, the facts it needs (already measured, in §7/§8), and the check that closes it.
 
+## 4a. What the issue tracker actually is
+
+Measured 2026-09-25 with `gh`: **440 issues, 130 open.** Grouped by label, the open ones are
+
+| Category | Open | What they are |
+|---|---|---|
+| **data intake** | **103 (79 %)** | pending papers (79), preprints (9), paper-pending (3), meta-papers (4), 10x/Immudex sets (5), associations (9), other databases (1), correspondence (2) |
+| curation quality | 22 | formatting & proofreading (18), typos, structural, validation |
+| build infrastructure | 13 | the build, the summary, maintenance |
+
+Some issues carry more than one label, so the columns overlap slightly.
+
+**Four out of five open issues are a submission queue, not a defect list.** This migration closes
+issues from the bottom two rows only -- thirteen of them -- and nothing it does shortens the first
+row. That matters for three decisions already taken:
+
+* `chunk-check.yml`'s **three-minute budget is the one that matters**, because it is the job the
+  submission queue runs through. The full build's 185 s is paid on `dev` and nightly, by nobody
+  waiting.
+* the **curation skills** (`/vdjdb-extract`, `-format`, `-proofread`, `-publish`) are the tooling with
+  the largest backlog pointed at it, and they read `proofreading/`, which until phase 9 no build code
+  touched.
+* a phase that closes an issue number is not thereby reducing the tracker. Progress on the queue is
+  curation throughput, and it is measured separately.
+
 ## 5. The difference ledger
 
 `vdjdb diff <reference-zip> <candidate-dir>` compares in three passes: file set → two digests per file
@@ -1294,3 +1319,266 @@ on. Two hashes, two purposes, both kept (#463 keeps the legacy one as-is).
 
 **Phase 8 is complete**: `cdr3nt` + Pgen + margin, D geometry and confidence, V/J inference for
 curation gaps, and the AIRR Receptor. Build 185 s, ledger PASS.
+
+
+## 23. Phase 9a result — IMGT segment nomenclature (#389)
+
+`proofreading/imgt_alleles.tsv.gz` has been in the repository, unread by any build code, since the
+`proofreading/` directory was created. This is what makes it the authority it was collected to be.
+
+**Nothing is invented and nothing is guessed between two candidates.** A call IMGT already knows is
+left alone; otherwise a small set of mechanical respellings is generated and the call is rewritten
+**only if exactly one of them is an IMGT name for that species**. Of 2,478 non-IMGT calls, 1,928 are
+resolved that way — 2,325 records, 105 distinct rewrites.
+
+| Respelling | Example | Records |
+|---|---|---|
+| restore the `/DV` name IMGT uses for both loci | `TRAV14` → `TRAV14/DV4` | 1,377 |
+| drop a D gene's `-1` | `TRBD2-1*01` → `TRBD2*01` | 224 |
+| `-DV` → `/DV` | `TRAV21-DV12` → `TRAV21/DV12` | 181 |
+| sort a multi-call | `TRBD2,TRBD1` → `TRBD1,TRBD2` | 89 |
+| `.` → `-` | `TRBJ1.2` → `TRBJ1-2` | 21 |
+| insert the missing slash | `TRAV29DV5` → `TRAV29/DV5` | 10 |
+| `TCR` → `TR` | `TCRBD2*02` → `TRBD2*02` | 5 |
+| strip a space, including a non-breaking one | `TRAJ12*01 ` → `TRAJ12*01` | 6 |
+
+The 550 calls left are **not spelling problems** and are reported rather than forced: 438 macaque V
+calls (1,333 of 1,771 macaque V calls are valid rhesus IMGT, 206 are valid *human* names applied to
+macaque records, 232 are neither — rewriting a human gene name to a rhesus one asserts an orthology
+this build has no basis for), and names with several IMGT candidates (`TRBV8`, `TRBV7`, `TRAV15`) or
+none at all (`TRAJ16.5`).
+
+### What it cascades into, and why that is the point
+
+Correcting the name lets the CDR3 fixer find the germline it never could:
+
+| | Chains |
+|---|---|
+| V call changed | 1,950 |
+| J call changed | 32 |
+| **V-end mappings gained** (was `-1`) | **1,511** |
+| V-end mappings lost | **0** |
+| repaired CDR3 changed | 2 |
+
+`get_closest_id` tries the name, then `<name>*01`, then `<name>-1*01` … `<name>-100*01`. `TRAV14/DV4*01`
+is on none of those paths, so 1,032 chains were shipping with no V germline at all. One-directional
+gain, 1,511 to 0.
+
+It also moves `TCR_hash` (1,502 cells across the three files, since the hash includes `v.alpha`),
+`web.cdr3fix.unmp` (1,340 rows now correctly mapped), `samples.found` (267, the sample signature
+includes `v.alpha`), and `vdjdb.score` on 8 records — 2 gaining a score from a neighbour they now
+share a signature with, **3 losing one they were being credited with by a record that is not in fact
+the same clonotype**. The losses are the more interesting half.
+
+### A new ledger primitive: declared renames
+
+A correction to a column that is part of the identity key produces no changed cell — it removes a row
+and adds one, and the cell machinery has nothing to attribute. `[[rename]]` declarations are applied
+to the **reference** before keying, so the ledger goes on measuring what *else* moved. Three things
+were needed to make that sound, and each was a real failure first:
+
+1. **Apply them simultaneously, per column.** Sequentially, `A → B` and `B → C` chain, and a cell
+   that was already `B` comes out `C`: that silently moved mouse `TRAV6-1*01` rows and turned a clean
+   comparison into 6,334 phantom unmatched rows in the reference.
+2. **Declare the post-fixer value, not the intermediate.** The fixer writes the resolved name back,
+   so harmonising `TRAV14` puts `TRAV14/DV4*01` in the file, not `TRAV14/DV4`. A rename declaring the
+   intermediate rewrites the reference and rescues no row at all — worse than declaring nothing.
+3. **Only declare *injective* renames.** When the fixer does not leave the old spelling alone it has
+   already mapped it onto a real allele — `TRAV6-7-DV9` simplifies to `TRAV6` and lands on
+   `TRAV6-1*01` — so the reference is indistinguishable from records that genuinely carry that
+   allele, and the rename would rewrite both. Those become a declared row delta instead: 430 rows in
+   `vdjdb.txt`, 373 in `vdjdb_full.txt`, 356/355 in `vdjdb.slim.txt`.
+
+A rename that matches **nothing** fails the run, so a declaration cannot outlive the data it
+describes. That caught 53 stale multi-call declarations immediately: `fix_both` splits a multi-call
+and keeps the best member, so what ships is a selection, not a rename.
+
+`vdjdb rules` regenerates the block from a build; the reviewable artifact is its diff in a curation
+pull request, and the ledger's complementary job is proving nothing else moved. **Verdict: PASS** with
+28 declared rules, 32 renames and 3 row deltas.
+
+
+## 24. Phase 9b result — TRAJ24*01 vs *02 (#327), the arda gate
+
+`TRAJ24*01` encodes `…GGK**FE**F…` and `*02` `…GGK**LQ**F…`: two residues apart, both inside the
+junction, so **the sequence is evidence and the submitted call is not.**
+
+Measured on the corpus, human, across the whole TRAJ24 family (1,444 records):
+
+| `j.alpha` as submitted | Records | carrying `WGKLQF` (*02) | carrying `WGKFEF` (*01) |
+|---|---|---|---|
+| `TRAJ24` (no allele) | 1,298 | 974 | **0** |
+| `TRAJ24*01` | 111 | **73** | **0** |
+| `TRAJ24*02` | 34 | 33 | **0** |
+| `TRAJ24-1` | 1 | 0 | 0 |
+
+**`WGKFEF` appears zero times in the entire corpus.** The original report was that about two thirds of
+explicit `*01` calls are probably `*02`; the sequence says it more strongly — not one of the 111 carries
+the `*01` signature, and 73 carry the other one. The 364 with neither have a CDR3 trimmed short of the
+anchor: no evidence, no correction.
+
+**1,047 records corrected, and every one of them gains a J germline mapping:**
+
+| | Chains |
+|---|---|
+| `j.segm` changed | 1,047 |
+| **`j.start` mappings gained** (was `-1`) | **1,047** |
+| `j.start` mappings lost | **0** |
+| repaired CDR3 changed | **0** |
+
+Afterwards `TRAJ24*02` has 1,081 chains of which 1,080 map (99.9 %), while `TRAJ24*01` keeps 439 of
+which only 66 map — those are the no-signature records, whose CDR3 genuinely does not reach the
+anchor. The correction did not need to alter a single sequence; the repair simply could not place them
+against the wrong allele.
+
+`res/segments.txt` carries both alleles, so nothing is lost. OLGA's model carries only `TRAJ24*01`, so
+the 1,047 now marginalise over J in junction-nucleotide inference rather than pinning it — a small,
+recorded cost of being right.
+
+### This is the gate §16 named
+
+The arda swap was held because *"repairing against a wrong allele call is what produces the worst of
+these differences, and phase 9 fixes the calls."* It is now fixed, together with #389's 1,511 gained
+V-end mappings. The swap can be re-measured against a corpus whose allele calls are correct, which is
+what it was always waiting for.
+
+### Conditional renames
+
+An allele correction is **not injective on value alone**: the fixer resolves a bare `TRAJ24` to
+`*01`, so the reference ships the same `TRAJ24*01` for the 1,047 records the CDR3 corrects and the 38
+it does not. So a rename may now carry the **same predicate the rule used** —
+`when_columns = "cdr3,cdr3.alpha"`, `when_contains = "WGKLQF"` — and the ledger applies it to the
+reference under the same evidence. Conditional renames are evaluated against a snapshot taken before
+any of them apply, for the same reason the unconditional ones share one mapping: otherwise they chain.
+
+**Verdict: PASS**, 0 unattributed cells, with 11 extra row-delta rows per file where correcting the
+allele changed the repair enough to break injectivity.
+
+
+## 25. Phase 9c result — MHC (#467, #564, and the fragmentation)
+
+`proofreading/mhc.md` states the convention and `proofreading/mhc_alleles.tsv.gz` (46,005 alleles) is
+the authority. Neither had been read by build code. Three corrections, 372 records, each with its own
+evidence.
+
+### #564 is already fixed — the issue is stale
+
+`HLA-DPA*01:03` against `HLA-DPA1*…`, and `HLA-DRA1*…` against `HLA-DRA*…`. Measured on `chunks/`:
+**zero rows carry a malformed class-II gene symbol.** The records use `HLA-DQA1` (8,596), `HLA-DRA`
+(3,125) and `HLA-DPA1` (1,519), which are exactly the authority's symbols — note `HLA-DRA` has no
+digit and `HLA-DPA1` does. Fixed in the corpus in June 2026, 1,417 rows across 5 chunks. **#564 can be
+closed.**
+
+### #467 — an allele that does not exist
+
+All **80** `HLA-A*24:01` records come from one reference, `doi:10.1016/j.xcrm.2023.101017`, which
+reports testing in `A*24:02`. IPD-IMGT/HLA lists **no `A*24:01` at any resolution** — 0 rows against
+342 for `A*24:02`. Corrected. (The same 80 records are also #347's, since that reference is a DOI.)
+
+### Murine class-II fragmentation
+
+`vdjdb-web` groups motifs by the MHC string, so several spellings of one molecule split its records
+and cost the smaller groups their motif badge. Collapsed onto the spelling that both `mhc.md`'s
+convention and the data already prefer, so nothing new is introduced:
+
+| From | To | Records | Why |
+|---|---|---|---|
+| `H2-IAb` | `I-Ab` | 113 | `mhc.md` names class II `I-<locus><haplotype>`, and `I-Ab` dominates 1,368 : 113 |
+| `H-2Aa` | `H2-Aa` | 18 | hyphen placement only |
+| `H-2Eb1` | `H2-Eb1` | 7 | hyphen placement only |
+| `H2-Ag7` | `H2-IAg7` | 3 | the `I` dropped; `H2-IAg7` dominates 333 : 3 |
+| `H2-Ed` | `H2-IEd` | 2 | likewise, 30 : 2 |
+
+`H2-Ab1` (9 records in `mhc.b`) is **not** touched: it is the IMGT *gene* symbol for the I-A beta
+chain and carries no haplotype, so mapping it to a molecule would need the paired `mhc.a`. Reported,
+not guessed.
+
+### The class-II chain order — a finding, not a listed issue
+
+**149 records carry a beta-chain gene in `mhc.a` and an alpha-chain gene in `mhc.b`** — the pair the
+wrong way round, led by `(HLA-DRB1*01:01, HLA-DRA*01:01)` on 48. The gene symbol says which chain it
+is, so the correction needs no judgement and is applied. A donor typed on the alpha chain would never
+have matched those records.
+
+### Two things still open, for the author
+
+1. **Murine class I is `H2-Db` in the data and `H-2Db` in `proofreading/mhc.md`** — 2,451 `H2-Db`,
+   2,334 `H2-Kb`, 1,422 `H2-Kd`, and `H-2Db` appears **zero** times. `vdjdb-web` carries a spelling
+   repair for exactly this pair. Two authorities disagree about ~6,200 records and the answer changes
+   what a user searches for, so it is not taken here.
+2. **7,543 mouse records carry `HLA-DQA1*03:01` / `HLA-DQB1*03:02`.** Those are HLA-transgenic mice
+   and the combination is correct; any future "species must match the MHC" check has to allow it.
+
+### Swapping two columns at once
+
+A rename declares one column, so the chain-order fix cannot be one. It could have been two
+conditional renames — each testing the other column — which is why conditionals now read **both** the
+target and the evidence from the pre-rename snapshot: otherwise the second would test a column the
+first had already rewritten and the declaration order would decide the answer. The swap is declared
+as a row delta regardless, because it is cleaner to read.
+
+**Verdict: PASS**, 0 unattributed cells, 40 renames.
+
+
+## 26. Phase 9d result — references, the identical-chain report, and input hygiene
+
+### #347 is mostly not a PMID problem
+
+30,977 records carry a non-PMID `reference.id`. Counted by kind:
+
+| Kind | Distinct | Records | Has a PMID? |
+|---|---|---|---|
+| 10x Genomics application note | 1 | 20,358 | no — a vendor note |
+| `github.com/antigenomics/vdjdb-db/issues/*` | 8 | 4,366 | no — **direct submissions**, where the issue *is* the reference |
+| DOIs | 4 | 787 | 3 of 4 |
+| preprint URLs (bioRxiv, arXiv) | 2 | 322 | 1 of 2 |
+| `rcsb.org/structure/*` | 42 | 42 | no — a PDB entry |
+| a TUM thesis | 1 | 3 | no |
+
+So the issue's real scope is **668 records across 3 references**, now resolved:
+
+| Reference | PMID |
+|---|---|
+| `https://doi.org/10.1016/j.xcrm.2023.101017` | PMID:37030296 |
+| `https://www.biorxiv.org/content/10.1101/2025.11.05.686789v1.full` | PMID:41279151 |
+| `doi:10.1172/jci.insight.174776` | PMID:39024572 |
+
+The bioRxiv preprint had **acquired a PMID since it was submitted**, which is exactly the drift a
+committed table catches. `https://doi.org/10.1101/2020.05.04.20085779` is a medRxiv preprint that was
+never indexed, and it is recorded as checked-and-unmapped so nobody looks again.
+
+`proofreading/reference_ids.tsv` is a **committed, reviewed input** — the build is offline and
+deterministic, so no lookup happens at build time (hard rule 9). Refreshing it is re-running the
+resolver and reviewing the diff.
+
+### #561 reports, it does not repair
+
+**99 records carry the same CDR3 on both chains** — the beta sequence copied into the alpha field
+with the V and J calls left correct. 98 of them come from two references (PMID:34811538 with 71,
+PMID:41610844 with 27). Which chain is wrong cannot be known from the row, so this is an **advisory
+QC rule**: it is reported on every `vdjdb qc` run and does not fail the build, because a defect only
+a curator can fix must not block a submission.
+
+### #368 is already fixed, for the half that was mechanical
+
+Zero records have `antigen.gene` holding a species name. The other half of the issue — *"sometimes a
+human protein name is used instead of a gene symbol"* — is still visible on 9 values, led by
+`Trans-sialidase` (284 records), `Nucleocapsid` (171) and `Neuraminidase` (39), and
+`proofreading/gene_aliases.tsv` covers only the last. Choosing a gene symbol for the other eight is
+curation, not a mechanical rule, so they are reported rather than invented.
+
+Separately, **15 `antigen.species` values sit outside `proofreading/species_aliases.tsv`**, led by
+`SIV` (1,771 records), `RotavirusA` (80) and `Synthetic` (62). The vocabulary is incomplete, not the
+data wrong; the file should gain them.
+
+### Input hygiene: whitespace forks a value in two
+
+**758 record-cells across 8 columns carried leading or trailing whitespace** — `tetramer-sort `
+beside `tetramer-sort` (103 records), `Nucleocapsid ` (171), `HLA-DRB1*15 ` in `meta.donor.MHC`
+(336), and one J-gene call with a **non-breaking space**. The reader stripped only the `\r` a CRLF
+file leaves; it now strips all surrounding whitespace, which is never meaningful in a TSV cell.
+
+That is a reader change, so it is global and it removed 52 of the segment renames that had existed
+only to undo it.
+
+**Phase 9 verdict: PASS**, 0 unattributed cells, 43 renames, 3 row deltas, 301 tests.

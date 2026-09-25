@@ -149,6 +149,51 @@ def make(
 
 
 @app.command()
+def rules(
+    chunks: Path | None = typer.Option(None, help="Chunk directory; default chunks/."),
+    out: Path = typer.Option(Path("rules/expected_diffs.toml"), help="Ledger rule file."),
+    report: Path | None = typer.Option(None, help="Also write the harmonisation report as TSV."),
+) -> None:
+    """Regenerate the ledger's declared renames from the nomenclature harmonisation.
+
+    A nomenclature correction to an identity column removes a row and adds one, so it has no cell to
+    attribute. The generated block tells the ledger to apply the same rewrite to the reference before
+    keying; what a reviewer reads is this block's diff.
+    """
+    import polars as pl
+
+    from .curate.nomenclature import (
+        disambiguate_alleles,
+        harmonise_mhc,
+        harmonise_references,
+        harmonise_segments,
+        legacy_resolver,
+        write_renames,
+    )
+    from .curate.patch import apply_antigen_patch
+    from .io.chunks import chunk_files, read_chunks
+
+    paths = chunk_files(chunks) if chunks else None
+    harmonised, rep = harmonise_segments(apply_antigen_patch(read_chunks(paths)))
+    allele_fixed, alleles = disambiguate_alleles(harmonised)
+    mhc_fixed, mhc = harmonise_mhc(allele_fixed)
+    _, refs = harmonise_references(mhc_fixed)
+    if not refs.is_empty():
+        mhc = pl.concat([mhc, refs.select(pl.lit("#347").alias("issue"),
+                                         pl.lit("reference.id").alias("column"),
+                                         "from", "to", "rows")], how="vertical")
+    n = write_renames(rep, out, legacy_resolver(), alleles, mhc)
+    typer.echo(f"{n} renames, {rep['rows'].sum():,} spelling + {alleles['rows'].sum():,} allele "
+               f"+ {mhc['rows'].sum():,} MHC records, written to {out}")
+    if report:
+        report.parent.mkdir(parents=True, exist_ok=True)
+        rep.write_csv(report, separator="\t")
+        alleles.write_csv(report.with_name("alleles.tsv"), separator="\t")
+        mhc.write_csv(report.with_name("mhc.tsv"), separator="\t")
+        typer.echo(f"reports -> {report.parent}/")
+
+
+@app.command()
 def convert(
     what: str = typer.Argument("airr", help="Target format: airr."),
     tables: Path | None = typer.Option(None, help="A built new-format directory."),
