@@ -1,0 +1,26 @@
+# Declared differences between a candidate build and the reference release.
+#
+# Every changed cell must match a rule here, AND every rule must fire exactly its declared `rows`
+# count. The second half is what makes a rule a measurement rather than a description: without it,
+# a regression that happened to touch a declared column would pass silently.
+#
+# Omit `rows` only where a count is genuinely not yet measured; such a rule attributes cells but
+# does not gate. Every rule should carry one by the time its phase merges.
+#
+# Phase 2 ships this file EMPTY on purpose: the current build must diff to zero before any
+# behaviour change lands, or there is no instrument to attribute later differences with.
+
+# --- phase 1, feature/schema: the generated metadata fixes three shipped defects ---------------
+# Enable these when phase 4 starts emitting generated metadata. Until then the build still ships
+# the static files and they must not fire.
+#
+# [[rule]] id = "meta-tcr-hash-row"    file = "vdjdb.meta.txt"      column = "line"
+# [[rule]] id = "meta-score-position"  file = "vdjdb.meta.txt"      column = "line"
+# [[rule]] id = "slim-meta-tcr-hash"   file = "vdjdb.slim.meta.txt" column = "line"
+
+# --- phase 4, feature/pipeline-core -----------------------------------------------------------
+# jStart == -1 is truthy in Python, where the Groovy tested jStart > -1, so unmapped records are
+# labelled mapped. 7,998 of 284,546 rows; see ROADMAP section 7.
+#
+# [[rule]] id = "web-unmp-jstart-minus1" file = "vdjdb.txt" column = "web.cdr3fix.unmp"
+#          from = "no" to = "yes" rows = 7998
