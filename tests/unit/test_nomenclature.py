@@ -167,3 +167,62 @@ def test_the_allele_rename_carries_its_evidence_into_the_ledger():
     assert 'from = "TRAJ24*01"' in block and 'to = "TRAJ24*02"' in block
     assert 'when_contains = "WGKLQF"' in block
     assert "records = 1047" in block
+
+
+# -- MHC ----------------------------------------------------------------------------------------
+
+def _mhc(a, b, species=None):
+    n = len(a)
+    return pl.DataFrame({"species": species or ["MusMusculus"] * n, "mhc.a": a, "mhc.b": b})
+
+
+def test_murine_class_two_spellings_collapse_onto_one_molecule():
+    """Three spellings of I-A(b) split one molecule's records three ways in the motif grouping."""
+    out, report = N.harmonise_mhc(_mhc(["H2-IAb", "I-Ab"], ["H2-IAb", "I-Ab"]))
+    assert out["mhc.a"].to_list() == ["I-Ab", "I-Ab"]
+    assert out["mhc.b"].to_list() == ["I-Ab", "I-Ab"]
+    assert report.filter(pl.col("issue") == "murine-mhc2")["rows"].sum() == 2
+
+
+@pytest.mark.parametrize("old,new", [("H-2Aa", "H2-Aa"), ("H-2Eb1", "H2-Eb1"),
+                                     ("H2-Ag7", "H2-IAg7"), ("H2-Ed", "H2-IEd")])
+def test_the_other_murine_respellings(old, new):
+    out, _ = N.harmonise_mhc(_mhc([""], [old]))
+    assert out["mhc.b"].to_list() == [new]
+
+
+def test_an_allele_absent_from_imgt_is_corrected_to_the_one_the_paper_reported():
+    """#467: 0 rows for `A*24:01` in IPD-IMGT/HLA against 342 for `A*24:02`, and all 80 records come
+    from one reference that reports testing in `*24:02`."""
+    out, report = N.harmonise_mhc(_mhc(["HLA-A*24:01"], ["B2M"], ["HomoSapiens"]))
+    assert out["mhc.a"].to_list() == ["HLA-A*24:02"]
+    assert report.filter(pl.col("issue") == "#467")["rows"].sum() == 1
+
+
+def test_the_class_two_chains_are_put_in_order():
+    """`mhc.a` is the first chain. The gene symbol says which chain it is, so this needs no
+    judgement -- 149 records had them the wrong way round."""
+    out, report = N.harmonise_mhc(
+        _mhc(["HLA-DRB1*01:01"], ["HLA-DRA*01:01"], ["HomoSapiens"]))
+    assert out["mhc.a"].to_list() == ["HLA-DRA*01:01"]
+    assert out["mhc.b"].to_list() == ["HLA-DRB1*01:01"]
+    assert report.filter(pl.col("issue") == "mhc-chain-order")["rows"].sum() == 1
+
+
+def test_a_pair_already_in_order_is_not_swapped_back():
+    out, report = N.harmonise_mhc(_mhc(["HLA-DRA*01:01"], ["HLA-DRB1*01:01"], ["HomoSapiens"]))
+    assert out["mhc.a"].to_list() == ["HLA-DRA*01:01"]
+    assert report.filter(pl.col("issue") == "mhc-chain-order").is_empty()
+
+
+def test_a_class_one_pair_is_left_alone():
+    out, report = N.harmonise_mhc(_mhc(["HLA-A*02:01"], ["B2M"], ["HomoSapiens"]))
+    assert out.row(0) == ("HomoSapiens", "HLA-A*02:01", "B2M")
+    assert report.is_empty()
+
+
+def test_the_chain_swap_is_not_declared_as_a_rename():
+    """It rewrites two columns at once; the ledger takes it as a declared row delta."""
+    report = pl.DataFrame({"issue": ["mhc-chain-order"], "column": ["mhc.a,mhc.b"],
+                           "from": ["beta,alpha"], "to": ["alpha,beta"], "rows": [149]})
+    assert N.render_mhc_renames(report) == ""

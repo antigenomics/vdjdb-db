@@ -1453,3 +1453,68 @@ any of them apply, for the same reason the unconditional ones share one mapping:
 
 **Verdict: PASS**, 0 unattributed cells, with 11 extra row-delta rows per file where correcting the
 allele changed the repair enough to break injectivity.
+
+
+## 25. Phase 9c result — MHC (#467, #564, and the fragmentation)
+
+`proofreading/mhc.md` states the convention and `proofreading/mhc_alleles.tsv.gz` (46,005 alleles) is
+the authority. Neither had been read by build code. Three corrections, 372 records, each with its own
+evidence.
+
+### #564 is already fixed — the issue is stale
+
+`HLA-DPA*01:03` against `HLA-DPA1*…`, and `HLA-DRA1*…` against `HLA-DRA*…`. Measured on `chunks/`:
+**zero rows carry a malformed class-II gene symbol.** The records use `HLA-DQA1` (8,596), `HLA-DRA`
+(3,125) and `HLA-DPA1` (1,519), which are exactly the authority's symbols — note `HLA-DRA` has no
+digit and `HLA-DPA1` does. Fixed in the corpus in June 2026, 1,417 rows across 5 chunks. **#564 can be
+closed.**
+
+### #467 — an allele that does not exist
+
+All **80** `HLA-A*24:01` records come from one reference, `doi:10.1016/j.xcrm.2023.101017`, which
+reports testing in `A*24:02`. IPD-IMGT/HLA lists **no `A*24:01` at any resolution** — 0 rows against
+342 for `A*24:02`. Corrected. (The same 80 records are also #347's, since that reference is a DOI.)
+
+### Murine class-II fragmentation
+
+`vdjdb-web` groups motifs by the MHC string, so several spellings of one molecule split its records
+and cost the smaller groups their motif badge. Collapsed onto the spelling that both `mhc.md`'s
+convention and the data already prefer, so nothing new is introduced:
+
+| From | To | Records | Why |
+|---|---|---|---|
+| `H2-IAb` | `I-Ab` | 113 | `mhc.md` names class II `I-<locus><haplotype>`, and `I-Ab` dominates 1,368 : 113 |
+| `H-2Aa` | `H2-Aa` | 18 | hyphen placement only |
+| `H-2Eb1` | `H2-Eb1` | 7 | hyphen placement only |
+| `H2-Ag7` | `H2-IAg7` | 3 | the `I` dropped; `H2-IAg7` dominates 333 : 3 |
+| `H2-Ed` | `H2-IEd` | 2 | likewise, 30 : 2 |
+
+`H2-Ab1` (9 records in `mhc.b`) is **not** touched: it is the IMGT *gene* symbol for the I-A beta
+chain and carries no haplotype, so mapping it to a molecule would need the paired `mhc.a`. Reported,
+not guessed.
+
+### The class-II chain order — a finding, not a listed issue
+
+**149 records carry a beta-chain gene in `mhc.a` and an alpha-chain gene in `mhc.b`** — the pair the
+wrong way round, led by `(HLA-DRB1*01:01, HLA-DRA*01:01)` on 48. The gene symbol says which chain it
+is, so the correction needs no judgement and is applied. A donor typed on the alpha chain would never
+have matched those records.
+
+### Two things still open, for the author
+
+1. **Murine class I is `H2-Db` in the data and `H-2Db` in `proofreading/mhc.md`** — 2,451 `H2-Db`,
+   2,334 `H2-Kb`, 1,422 `H2-Kd`, and `H-2Db` appears **zero** times. `vdjdb-web` carries a spelling
+   repair for exactly this pair. Two authorities disagree about ~6,200 records and the answer changes
+   what a user searches for, so it is not taken here.
+2. **7,543 mouse records carry `HLA-DQA1*03:01` / `HLA-DQB1*03:02`.** Those are HLA-transgenic mice
+   and the combination is correct; any future "species must match the MHC" check has to allow it.
+
+### Swapping two columns at once
+
+A rename declares one column, so the chain-order fix cannot be one. It could have been two
+conditional renames — each testing the other column — which is why conditionals now read **both** the
+target and the evidence from the pre-rename snapshot: otherwise the second would test a column the
+first had already rewritten and the declaration order would decide the answer. The swap is declared
+as a row delta regardless, because it is cleaner to read.
+
+**Verdict: PASS**, 0 unattributed cells, 40 renames.

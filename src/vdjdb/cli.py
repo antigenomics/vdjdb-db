@@ -162,6 +162,7 @@ def rules(
     """
     from .curate.nomenclature import (
         disambiguate_alleles,
+        harmonise_mhc,
         harmonise_segments,
         legacy_resolver,
         write_renames,
@@ -171,15 +172,17 @@ def rules(
 
     paths = chunk_files(chunks) if chunks else None
     harmonised, rep = harmonise_segments(apply_antigen_patch(read_chunks(paths)))
-    _, alleles = disambiguate_alleles(harmonised)
-    n = write_renames(rep, out, legacy_resolver(), alleles)
+    allele_fixed, alleles = disambiguate_alleles(harmonised)
+    _, mhc = harmonise_mhc(allele_fixed)
+    n = write_renames(rep, out, legacy_resolver(), alleles, mhc)
     typer.echo(f"{n} renames, {rep['rows'].sum():,} spelling + {alleles['rows'].sum():,} allele "
-               f"records, written to {out}")
+               f"+ {mhc['rows'].sum():,} MHC records, written to {out}")
     if report:
         report.parent.mkdir(parents=True, exist_ok=True)
         rep.write_csv(report, separator="\t")
         alleles.write_csv(report.with_name("alleles.tsv"), separator="\t")
-        typer.echo(f"report -> {report} and {report.with_name('alleles.tsv')}")
+        mhc.write_csv(report.with_name("mhc.tsv"), separator="\t")
+        typer.echo(f"reports -> {report.parent}/")
 
 
 @app.command()

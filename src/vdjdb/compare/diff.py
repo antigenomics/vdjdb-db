@@ -512,16 +512,21 @@ def _apply_renames(name: str, df: pl.DataFrame,
     if conditional:
         # Every conditional is evaluated against a snapshot taken before any of them apply, for the
         # same reason the unconditional ones share one mapping: otherwise they chain.
-        snap = {c: f"__snap\x1f{c}"
-                for c in sorted({c for r in conditional for c in r.columns if c in df.columns})}
+        # Both the target and the evidence are read from the snapshot, so a pair of renames that
+        # *swap* two columns works: without it the second would test a column the first has already
+        # rewritten, and the order of declaration would decide the answer.
+        touched = {c for r in conditional for c in (*r.columns, *r.when_columns) if c in df.columns}
+        snap = {c: f"__snap\x1f{c}" for c in sorted(touched)}
         df = df.with_columns(*[pl.col(c).alias(s) for c, s in snap.items()])
-        for c, s in snap.items():
+        for c in sorted(c for r in conditional for c in r.columns if c in snap):
             expr = pl.col(c)
             for r in conditional:
                 if c not in r.columns:
                     continue
-                evidence = [e for e in r.when_columns if e in df.columns]
-                expr = pl.when((pl.col(s) == r.from_) & pl.any_horizontal(
+                evidence = [snap[e] for e in r.when_columns if e in snap]
+                if not evidence:
+                    continue
+                expr = pl.when((pl.col(snap[c]) == r.from_) & pl.any_horizontal(
                     *[pl.col(e).str.contains(r.when_contains, literal=True) for e in evidence])
                 ).then(pl.lit(r.to)).otherwise(expr)
             df = df.with_columns(expr.alias(c))
