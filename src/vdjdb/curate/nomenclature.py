@@ -42,8 +42,10 @@ is normalised on arrival rather than on someone noticing.
 from __future__ import annotations
 
 import gzip
+import json
 import re
 from collections.abc import Callable
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
@@ -265,10 +267,47 @@ def legacy_resolver(root: Path | None = None) -> Callable[[str, str], str]:
     return resolve
 
 
+def render_allele_renames(report: pl.DataFrame,
+                          resolve: Callable[[str, str], str] | None = None) -> str:
+    """The ``[[rename]]`` lines for :func:`disambiguate_alleles`, carrying their evidence.
+
+    An allele correction is **not** injective on value alone -- the 1,047 TRAJ24 records the CDR3
+    identifies as ``*02`` ship the same ``TRAJ24*01`` as the 38 it does not, because the fixer
+    resolves a bare ``TRAJ24`` to ``*01``. So the rename carries the same predicate the rule used,
+    and the ledger applies it to the reference under the same evidence.
+    """
+    seen: dict[tuple[str, str, str, str], int] = {}
+    cdr3_for = {"j.alpha": "cdr3,cdr3.alpha", "j.beta": "cdr3,cdr3.beta",
+                "v.alpha": "cdr3,cdr3.alpha", "v.beta": "cdr3,cdr3.beta"}
+    out = []
+    for _issue, column, species, old, new, signature, n in report.iter_rows():
+        if resolve is not None:
+            old, new = resolve(species, old), resolve(species, new)
+        if old == new:
+            continue
+        key = (column, old, new, signature)
+        seen[key] = seen.get(key, 0) + int(n)
+    for (column, old, new, signature), n in sorted(seen.items()):
+        cols = ",".join(sorted(set(LEGACY_COLUMNS.get(column, (column,)))))
+        out += ["[[rename]]",
+                f"columns = {json.dumps(cols)}",
+                f"from = {json.dumps(old)}",
+                f"to = {json.dumps(new)}",
+                f"when_columns = {json.dumps(cdr3_for.get(column, 'cdr3'))}",
+                f"when_contains = {json.dumps(signature)}",
+                f"records = {n}",
+                ""]
+    return "\n".join(out)
+
+
 def write_renames(report: pl.DataFrame, path: Path,
-                  resolve: Callable[[str, str], str] | None = None) -> int:
+                  resolve: Callable[[str, str], str] | None = None,
+                  alleles: pl.DataFrame | None = None) -> int:
     """Replace the generated block in ``path`` (appending it if absent). Returns the rename count."""
     block = render_renames(report, resolve)
+    if alleles is not None and not alleles.is_empty():
+        extra = render_allele_renames(alleles, resolve)
+        block = block.replace(_END, extra + _END)
     text = path.read_text() if path.exists() else ""
     if _BEGIN in text and _END in text:
         head, rest = text.split(_BEGIN, 1)
@@ -278,3 +317,62 @@ def write_renames(report: pl.DataFrame, path: Path,
         text = text.rstrip("\n") + "\n\n" + block
     path.write_text(text)
     return block.count("[[rename]]")
+
+
+@dataclass(frozen=True, slots=True)
+class AlleleSignature:
+    """Two alleles of one gene that the CDR3 itself tells apart.
+
+    Where two alleles differ inside the junction, the sequence is evidence and the call is not: a
+    record whose CDR3 carries the ``*02`` residues *is* ``*02``, whatever the submitter wrote.
+    """
+
+    issue: str
+    species: str
+    column: str
+    cdr3: str
+    prefix: str
+    #: CDR3 substring -> the allele it proves. Substrings must be mutually exclusive; a CDR3
+    #: matching two of them is a contradiction and is left alone.
+    signatures: dict[str, str]
+
+
+#: #327. TRAJ24*01 encodes ``...GGK**FE**F...`` and *02 ``...GGK**LQ**F...``, two residues apart and
+#: both inside the junction. Measured on the corpus: **``WGKFEF`` appears zero times** and ``WGKLQF``
+#: 1,080 times across the TRAJ24 family, including in 73 of the 111 records explicitly called
+#: ``*01``. The original report was that about two thirds of explicit ``*01`` calls are probably
+#: ``*02``; the sequence says it more strongly than that -- not one of them carries the ``*01``
+#: signature. The 364 with neither signature have a CDR3 trimmed short of the anchor and are left
+#: alone: no evidence, no correction.
+ALLELE_SIGNATURES: tuple[AlleleSignature, ...] = (
+    AlleleSignature(issue="#327", species="HomoSapiens", column="j.alpha", cdr3="cdr3.alpha",
+                    prefix="TRAJ24",
+                    signatures={"WGKLQF": "TRAJ24*02", "WGKFEF": "TRAJ24*01"}),
+)
+
+
+def disambiguate_alleles(df: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFrame]:
+    """Set the allele from the CDR3 where the sequence decides it. Returns ``(frame, report)``."""
+    rows: list[dict[str, object]] = []
+    for sig in ALLELE_SIGNATURES:
+        if sig.column not in df.columns or sig.cdr3 not in df.columns:
+            continue
+        family = (pl.col("species") == sig.species) & pl.col(sig.column).str.starts_with(sig.prefix)
+        # A CDR3 carrying two signatures at once contradicts itself; leave it to a curator.
+        hits = [pl.col(sig.cdr3).str.contains(s, literal=True) for s in sig.signatures]
+        unambiguous = family & (pl.sum_horizontal(*[h.cast(pl.Int8) for h in hits]) == 1)
+        expr = pl.col(sig.column)
+        for substring, allele in sig.signatures.items():
+            mask = unambiguous & pl.col(sig.cdr3).str.contains(substring, literal=True)
+            changed = df.filter(mask & (pl.col(sig.column) != allele))
+            if not changed.is_empty():
+                rows.extend(
+                    {"issue": sig.issue, "column": sig.column, "species": sig.species,
+                     "from": f, "to": allele, "signature": substring, "rows": n}
+                    for f, n in changed.group_by(sig.column).len().sort(sig.column).iter_rows())
+            expr = pl.when(mask).then(pl.lit(allele)).otherwise(expr)
+        df = df.with_columns(expr.alias(sig.column))
+    report = pl.DataFrame(rows, schema={"issue": pl.String, "column": pl.String,
+                                        "species": pl.String, "from": pl.String, "to": pl.String,
+                                        "signature": pl.String, "rows": pl.UInt32})
+    return df, report.sort("issue", "column", "from")

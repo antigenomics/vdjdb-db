@@ -57,7 +57,7 @@ rows = 20306
 id = "legacy-melt-ambiguity-cdr3fix"
 file = "vdjdb.txt"
 column = "cdr3fix"
-rows = 1576
+rows = 2620
 
 # --- phase 4, feature/pipeline-core -----------------------------------------------------------
 # jStart == -1 is truthy in Python, where the Groovy tested jStart > -1, so unmapped records are
@@ -68,7 +68,7 @@ file = "vdjdb.txt"
 column = "web.cdr3fix.unmp"
 from = "no"
 to = "yes"
-rows = 7937
+rows = 6924
 
 # pandas type coercion on read. The new reader keeps every cell as the string a curator typed, so
 # these are all corrections of a lossy round-trip -- the reference value is the damaged one.
@@ -127,7 +127,7 @@ id = "json-id-type-subject"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "subject.id"
-rows = 42961
+rows = 42956
 
 [[rule]]
 id = "json-id-type-epitope"
@@ -162,16 +162,16 @@ rows = 28
 # is no cell to attribute: one row leaves and another arrives.
 [[row_delta]]
 file = "vdjdb.slim.txt"
-added = 355
-removed = 356
+added = 366
+removed = 367
 note = "pandas-na-gene-symbol, seen through the slim grouping key"
 
 # The melt ambiguity of ROADMAP section 14, seen as rows rather than cells: where two
 # indistinguishable records swap, best-match pairing sometimes leaves one on each side.
 [[row_delta]]
 file = "vdjdb.txt"
-added = 430
-removed = 430
+added = 441
+removed = 441
 note = "legacy melt ambiguity; see ROADMAP section 14"
 
 
@@ -183,13 +183,13 @@ note = "legacy melt ambiguity; see ROADMAP section 14"
 id = "nomenclature-slim-complex-id-renumber"
 file = "vdjdb.slim.txt"
 column = "complex.id"
-rows = 13071
+rows = 13080
 
 [[rule]]
 id = "nomenclature-vend-full-alpha"
 file = "vdjdb_full.txt"
 column = "cdr3fix.alpha"
-rows = 1585
+rows = 2629
 
 [[rule]]
 id = "nomenclature-vend-full-beta"
@@ -207,7 +207,7 @@ rows = 1413
 id = "nomenclature-jstart-slim"
 file = "vdjdb.slim.txt"
 column = "j.start"
-rows = 11
+rows = 820
 
 [[rule]]
 id = "nomenclature-now-mapped"
@@ -215,32 +215,32 @@ file = "vdjdb.txt"
 column = "web.cdr3fix.unmp"
 from = "yes"
 to = "no"
-rows = 1340
+rows = 1342
 
 [[rule]]
 id = "nomenclature-tcr-hash-default"
 file = "vdjdb.txt"
 column = "TCR_hash"
-rows = 679
+rows = 1975
 
 [[rule]]
 id = "nomenclature-tcr-hash-slim"
 file = "vdjdb.slim.txt"
 column = "TCR_hash"
-rows = 616
+rows = 1754
 
 [[rule]]
 id = "nomenclature-tcr-hash-full"
 file = "vdjdb_full.txt"
 column = "TCR_hash"
-rows = 207
+rows = 856
 
 [[rule]]
 id = "nomenclature-samples-found"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "samples.found"
-rows = 267
+rows = 271
 
 [[rule]]
 id = "nomenclature-d-multicall-order"
@@ -256,13 +256,13 @@ rows = 49
 id = "nomenclature-score-regrouped-default"
 file = "vdjdb.txt"
 column = "vdjdb.score"
-rows = 5
+rows = 7
 
 [[rule]]
 id = "nomenclature-score-regrouped-full"
 file = "vdjdb_full.txt"
 column = "vdjdb.score"
-rows = 3
+rows = 4
 
 # BEGIN generated renames -- `vdjdb rules` writes this block; review it, do not edit it
 [[rename]]
@@ -457,10 +457,16 @@ from = "TRBJ2.7"
 to = "TRBJ2-7*01"
 records = 1
 
+[[rename]]
+columns = "j.alpha,j.segm"
+from = "TRAJ24*01"
+to = "TRAJ24*02"
+when_columns = "cdr3,cdr3.alpha"
+when_contains = "WGKLQF"
+records = 1047
 # END generated renames
-
 [[row_delta]]
 file = "vdjdb_full.txt"
-added = 373
-removed = 373
+added = 384
+removed = 384
 note = "non-injective nomenclature corrections: the legacy fixer had resolved an odd spelling onto a real allele, so the reference cannot be told apart from records that genuinely carry it. See ROADMAP section 23"

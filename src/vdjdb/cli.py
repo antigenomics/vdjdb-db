@@ -160,18 +160,26 @@ def rules(
     attribute. The generated block tells the ledger to apply the same rewrite to the reference before
     keying; what a reviewer reads is this block's diff.
     """
-    from .curate.nomenclature import harmonise_segments, legacy_resolver, write_renames
+    from .curate.nomenclature import (
+        disambiguate_alleles,
+        harmonise_segments,
+        legacy_resolver,
+        write_renames,
+    )
     from .curate.patch import apply_antigen_patch
     from .io.chunks import chunk_files, read_chunks
 
     paths = chunk_files(chunks) if chunks else None
-    _, rep = harmonise_segments(apply_antigen_patch(read_chunks(paths)))
-    n = write_renames(rep, out, legacy_resolver())
-    typer.echo(f"{n} renames, {rep['rows'].sum():,} records, written to {out}")
+    harmonised, rep = harmonise_segments(apply_antigen_patch(read_chunks(paths)))
+    _, alleles = disambiguate_alleles(harmonised)
+    n = write_renames(rep, out, legacy_resolver(), alleles)
+    typer.echo(f"{n} renames, {rep['rows'].sum():,} spelling + {alleles['rows'].sum():,} allele "
+               f"records, written to {out}")
     if report:
         report.parent.mkdir(parents=True, exist_ok=True)
         rep.write_csv(report, separator="\t")
-        typer.echo(f"report -> {report}")
+        alleles.write_csv(report.with_name("alleles.tsv"), separator="\t")
+        typer.echo(f"report -> {report} and {report.with_name('alleles.tsv')}")
 
 
 @app.command()

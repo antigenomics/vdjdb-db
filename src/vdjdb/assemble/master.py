@@ -17,7 +17,7 @@ from pathlib import Path
 import polars as pl
 
 from ..config import Paths
-from ..curate.nomenclature import harmonise_segments
+from ..curate.nomenclature import disambiguate_alleles, harmonise_segments
 from ..curate.patch import apply_antigen_patch
 from ..io.chunks import read_chunks
 from ..schema import ALL_COLUMNS, FULL_COLUMNS
@@ -156,6 +156,9 @@ def build_master(paths: Iterable[Path] | None = None,
     # IMGT spelling before identity: a record is the same record whether the curator wrote
     # `TRAV14` or `TRAV14/DV4`, so harmonising afterwards would mint a new id for a rename.
     df, _ = harmonise_segments(df)
+    # Where two alleles differ inside the junction, the sequence is evidence and the submitted call
+    # is not (#327). Runs after the spelling pass so it sees IMGT names.
+    df, _ = disambiguate_alleles(df)
     # Identity is assigned on what the publications reported, before any repair. Afterwards, CDR3
     # fixing would have merged 215 pairs of records the publications reported separately -- two
     # trimmed sequences repaired to the same full one are still two observations.
