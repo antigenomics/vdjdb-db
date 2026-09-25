@@ -114,6 +114,9 @@ behaviour changes, or there is no instrument to attribute later differences with
 Phases 5, 8, 9, 10 and 11 each introduce exactly one source of deviation, so every difference in the
 output has a single attributable cause.
 
+**Every phase has a step-by-step subplan in §12.** A phase is not startable until its subplan names
+the files it creates, the facts it needs (already measured, in §7/§8), and the check that closes it.
+
 ## 5. The difference ledger
 
 `vdjdb diff <reference-zip> <candidate-dir>` compares in three passes: file set → two digests per file
@@ -428,3 +431,290 @@ melted and `min(padj)` per CDR3.
 Tuning on it would invalidate it, and two epitopes are too narrow a basis for a global
 hyperparameter. Only **aggregate** metrics may be reported — recall of MM+ at a fixed operating
 point, precision against MM-, AUROC. Per-record verdicts may never be emitted.
+
+## 12. Phase subplans
+
+One subplan per phase. Each names the files it creates, the facts it consumes (§7, §8 — already
+measured, never re-derived), and the single check that closes it. A phase whose check is green is
+merged to `dev` and struck here.
+
+Minor decisions taken while executing a subplan are recorded in §13 rather than escalated.
+
+### Phase 1 — `feature/schema`
+
+1. `src/vdjdb/schema/fields.py` — one `Field` record per column: `name`, `dtype`, the eight
+   `vdjdb.meta.txt` attributes (`type`, `visible`, `searchable`, `autocomplete`, `data.type`,
+   `title`, `comment`), and its position in each of the four positional orders (§2 of
+   `docs/outputs.md`). This is the single declaration the six duplicated column lists collapse into.
+2. `render_meta(table, legacy=True)` — emits `vdjdb.meta.txt` / `vdjdb.slim.meta.txt` as text.
+   `legacy=True` reproduces the two historical defects verbatim (the `web.method` space-for-tab and
+   the four `web.*` field shifts, §1); `legacy=False` emits them corrected plus the `TCR_hash` row.
+3. `header_for(table)` — the `vdjdb.txt` header derived from the same declaration, restoring the
+   `BuildDatabase.groovy:411` invariant the Python port dropped.
+4. Tests: parse `src/BuildDatabase.groovy`'s `METADATA_LINES` / `SLIM_METADATA_LINES` **at test time**
+   (never a copy) and assert `render_meta(legacy=True)` reproduces them byte-for-byte; assert
+   `header_for(t) == [f.name for f in meta_fields(t)]` for all three tables.
+5. `vdjdb schema --table {vdjdb,slim,full} --format {meta,header,json}` on the CLI.
+
+**Closes when:** `render_meta` is byte-identical to the Groovy constants and to the two tracked files
+in `database/`. No pipeline behaviour changes.
+
+### Phase 2 — `feature/golden-harness`
+
+1. `vdjdb fetch-reference --tag 2026-06-03-ZENODO --out ref/` — `gh release download`, unzip, cache.
+   `ref/` is gitignored; the harness takes a path, so CI passes an artifact instead.
+2. `src/vdjdb/compare/diff.py` — three passes: file set → raw + canonical sha256 per file → row-level
+   classification keyed on `gene|cdr3|v.segm|j.segm|species|mhc.a|mhc.b|antigen.epitope|reference.id`,
+   bucketed `only-in-reference` / `only-in-candidate` / `changed` / `identical`.
+3. `rules/expected_diffs.toml` — every changed cell must match a declared rule **and** the rule must
+   fire exactly its declared `rows` count. Seed it empty: phase 2's whole point is that it starts at
+   zero rules and zero diffs.
+4. `vdjdb diff <reference> <candidate> --report out/reports/diff-report.md`, exit 1 on any unattributed
+   difference.
+5. Run the **current pandas build** into a scratch dir and diff it against the reference zip.
+
+**Closes when:** the current pandas build diffs to zero against the 2026-06-03 release under canonical
+equality, with an empty rule file. Nothing downstream starts before this is green.
+
+### Phase 3 — `feature/io-qc`
+
+1. `src/vdjdb/io/chunks.py` — `read_chunks(dir)` → polars, `sorted(glob(...))` for determinism,
+   per-chunk dedup on `CHUNK_DEDUP_KEY`. Target: 192,753 rows (§7).
+2. Header normalisation as a one-shot migration commit: CRLF → LF on the 99 files, the prose column
+   name in `PMID_24512815.txt`, the bare leading tab in `PMID_40694338.txt`, `Comment` → `comment`,
+   and `.txt` → `.tsv` on all 230 (#497). One commit for the rename, one for the content, so
+   `git log --follow` still works.
+3. `vdjdb qc --strict` exits 1 on any error-level finding, restoring the Groovy behaviour that
+   `warnings.warn` replaced. Chunk-level rules ported from `ChunkQC.py` as polars expressions.
+4. `chunk-check.yml` switches to `--strict` once the migration commit lands.
+
+**Closes when:** the QC report matches the pandas report row-for-row, and the phase-2 harness is still
+zero after the `.tsv` migration.
+
+### Phase 4 — `feature/pipeline-core`
+
+1. `curate/patch.py` — the antigen patch as one join, replacing the per-chunk `T.apply`.
+2. `score/confidence.py` — `ScoreFactory` ported to polars expressions; the signature max becomes
+   `.max().over(CHUNK_DEDUP_KEY)`.
+3. `assemble/master.py` — pairing, `complex.id` allocation, `samples.found` / `studies.found` as
+   `len().over(...)` / `n_unique().over(...)`.
+4. `emit/legacy.py` — the three legacy tables. Two byte-compatibility helpers live here and nowhere
+   else, each carrying a comment saying so: `json_column()` (`map_elements(json.dumps)`, because
+   `struct.json_encode()` emits `{"a":"x"}` where the release has `{"a": "x"}`) and
+   `py_repr_column()` (`vdjdb_full.txt`'s `cdr3fix.*` are Python `dict` repr).
+5. Delete `py_src/` in the same commit that makes it redundant, not before.
+6. A peak-RSS test: the whole build under 8 GB, asserted with `resource.getrusage`.
+
+**Closes when:** the ledger shows only the 7,998 `web.cdr3fix.unmp` rows (§7) plus the meta-file fixes,
+each as a declared rule with its measured count.
+
+### Phase 5 — `feature/arda-cdr3fix`
+
+1. Dedupe to distinct `(species, cdr3, v, j)` — 191,440 keys — and make **one** `markup_batch` call
+   per organism, then join back. 5.2 s total (§7); never loop it.
+2. `Cdr3Markup.to_cdr3fix()` emits VDJdb's JSON key-for-key; `v_end` / `j_start` are junction-space,
+   which is what the `cdr3` column holds.
+3. Retire `res/segments.txt`, `res/segments.aaparts.txt`, `py_src/Cdr3Fixer.py`, `py_src/KmerScanner.py`.
+4. Measure the ledger delta, then **freeze it** as declared rule counts. Expected shape from §7:
+   `cdr3` ~2.2 % of rows, `jStart` ~9 %, all of it in the direction arda maps more and earlier.
+5. Assert the one-directional property as a test: arda never loses coverage a VDJdb mapping had.
+
+**Closes when:** the ledger's only new differences are inside the declared `arda-cdr3fix` rules, and
+the coverage-regression count is 0.
+
+### Phase 6 — `feature/new-format`
+
+1. `identity/` is already built (§10.1) — wire it into the build so every record carries `record_id`.
+2. `emit/vdjdb3.py` writes `records.parquet`, `chains.parquet`, `evidence.parquet` and the derived
+   `vdjdb.parquet`, plus a TSV projection of each (`docs/outputs.md` §3).
+3. `evidence.parquet`'s first producer is `independent_study` — the same computation as the §11.1
+   tuning signal, so one implementation serves both.
+4. `emit/legacy.py` is re-pointed to read the **new build directory**, never `chunks/`.
+5. `vdjdb.schema.json` generated from the phase-1 registry.
+
+**Closes when:** `vdjdb make legacy` from the new build still passes the phase-2 harness, proving the
+legacy export is a projection rather than a parallel implementation.
+
+### Phase 7 — `feature/airr`
+
+1. `convert/coords.py` — the only module that converts between the four coordinate spaces
+   (`CLAUDE.md`), with round-trip tests. Junction ↔ CDR3 is the two-anchor offset; everything else is
+   0-based/1-based and half-open/closed.
+2. `emit/airr.py` — Rearrangement + Receptor + Reactivity, both projections of the phase-1 registry's
+   AIRR mapping so the two converters cannot diverge.
+3. Validate with the `airr` package's own schema validator in CI.
+4. Property test: `legacy_to_airr(legacy) == vdjdb3_to_airr(new)` on the fields AIRR can represent.
+
+**Closes when:** `airr.validate_rearrangement` passes on the full table and the round-trip property
+holds.
+
+### Phase 8 — `feature/junction-nt`, `feature/segment-guess`, `feature/dgene`
+
+One branch each; all three write **new-format columns only**, so the harness stays green by
+construction.
+
+1. **junction-nt** (#461): `vdjtools.model.infer_nt` on the unique `(species, cdr3, v, j)` set, four
+   big contiguous slices, never a per-record pool. 3.11 ms/record → ~15 min (§7). Cache keyed on that
+   tuple. Test: the generated `cdr3nt` back-translates to the input `cdr3`.
+2. **segment-guess** (#462): kmer candidates vectorised, ties broken by one `pgen_aa_batch` call.
+3. **dgene**: `arda.dpost.posterior_d` (human IGH/TRB/TRD + mouse TRB only — it returns `None`
+   elsewhere rather than guessing, and that `None` must be preserved, not defaulted).
+4. **TCR_hash** (#463): keep the legacy hash as-is so structure evidence keeps resolving; the
+   re-keying on `record_id` is §10.2's deferred half.
+
+**Closes when:** each branch's new columns are populated, the harness is unchanged, and the
+back-translation test passes.
+
+### Phase 9 — `feature/harmonize-rules`
+
+One rule table, `curate/rules/`, one entry per defect, each with its own ledger rule and measured row
+count. The counts are already in §7 — do not re-measure:
+
+| Issue | Rule | Rows |
+|---|---|---|
+| #327 | `TRAJ24` → `*02` where CDR3 carries `WGKLQF` | 75 explicit `*01` + 978 bare `TRAJ24` |
+| #389 | `TRAJ24-1` and other malformed gene names | 1 known |
+| #564, #467 | MHC-II allele spelling (`DPA` → `DPA1`, `A*24:01`) | see §7 |
+| — | murine MHC-II: `I-Ab`/`H2-IAb`/`H2-Ab1` → one IMGT spelling | 3,396 |
+| #368 | `antigen.gene` / `antigen.species` in the uncovered 48,935-row tail | ~90 reported |
+| #347 | DOI/GitHub `reference.id` → PMID | to measure |
+| #561 | identical alpha and beta CDR3 | to measure |
+
+**Closes when:** every rule fires exactly its declared count and nothing else moves.
+
+### Phase 10 — `feature/motifs-tcrnet`
+
+1. `motifs/background.py` — `seqtree.control.load_control` against `isalgo/airr_control`, the
+   `*.aa.vdjtools.tsv.gz` builds (§8.7). **Never** let `tcrnet()` resolve its own background: its
+   `evalue.background(locus, species)` call takes no `size` and indexes the entire table.
+2. `motifs/tcrnet.py` — call `tcrnet()` for `n_control` only, then recompute the legacy statistic with
+   its pseudocount (§8.1), which is bit-faithful to `DegreeStatisticsAnnotator.computePValue`:
+   `p = (n_control + 1) / (M + 1)`, `p_legacy = binom.sf(d_s - 1, N, p) / (1 - (1 - p)**N)`.
+3. File the `E = 0` bug upstream against `vdjtools` in the same pass.
+4. `motifs/pwm.py` — the three-level Laplace cascade (`vj_len` → `len` → `uniform`, §8.5) so nothing
+   is dropped and `freq` sums to 1. **Assert the sign**: at the 253 affected clusters the new `Σ I`
+   must be *lower* than the shipped value. Reproducing the shipped numbers means reproducing the bug.
+5. Fix `MotifsScoresAssembler`'s `(epitope, species, gene)` indexing, which never keys on `cdr3`
+   (§8.5) and makes both `*_scored.txt` tables wrong.
+
+**Closes when:** the deviation report accounts for every difference against the shipped files by a
+named cause, and the 31 logo-less cids and the 1.00 % deleted letter mass are both gone.
+
+### Phase 11 — `feature/motifs-tcremp`
+
+1. `motifs/tcremp.py` — chunked embedding is **mandatory** (§8.8): fit `StandardScaler` + `PCA(50)` on
+   a 25k seeded subsample, then embed in 20k chunks. Unchunked peaks at 9.77 GB and OOMs a 16 GB
+   runner; chunked peaks at 3.26 GB. Chunks run sequentially, one internally-threaded `embed()` each.
+2. Per-epitope DBSCAN with a **chain-global** eps (§8.4): the eps comes from the pooled k-distance
+   curve, so it is never re-estimated on a per-epitope n of 30–300.
+3. `eps = coef × mean(1st-NN distance)`. Kneedle is a debug cross-check only — it returns knee 1 of
+   112,983 at production scale (§8.3). Stop calling the method Kneedle-based.
+4. Fit `coef` per chain against the §11.1 independent-study objective. **Never against TCRvdb.**
+5. Freeze the scaler + PCA as a version-pinned artifact and cache the 50-D vectors by `(cdr3, v, j)` —
+   22 MB, which also makes cluster ids stable across releases (today's igraph component numbers are
+   not, so every bookmarked motif URL breaks each release).
+6. Legacy projection: one legacy cid per `(cluster, stratum)`, `cid = H.B.<epitope>.<n>L<len>`, so
+   both files satisfy `vdjdb-web`'s `strict = true` path (§8.6). `--legacy-shared-cid` reproduces
+   today's shape.
+7. Validation, **once**, at the end: `$VDJDB_TCRVDB`, aggregate metrics only (§11.2).
+
+**Closes when:** the clustering beats the **shipped** `cluster_members_tcremp.txt` re-scored in our own
+harness under the vendored `metrics_lib` (§8.9) — not the 0.941/0.569/0.709 write-up, which is a
+different method's numbers.
+
+### Phase 12 — `feature/summary`
+
+1. Split `summary/vdjdb_summary.Rmd` at the existing `!summary_embed_end!` marker (line 567) into a
+   release dashboard and a paper-figures document. That drops `maps`, `scatterpie` and the never-used
+   `ggh4x` from the release path (§7).
+2. ggplot2 4.x fixes, all live breakages against the installed 4.0.2: `guide=F` → `guide="none"`,
+   `size=` → `linewidth=`, `..count..` → `after_stat(count)`, `as.tibble` → `as_tibble`, and the
+   `g_legend` grob-name grep → `cowplot::get_legend`.
+3. Kill the live NCBI eutils call: publication years become `summary/pubmed_years.tsv` (**`.tsv`, not
+   `.txt` — `summary/*.txt` is gitignored**), refreshed by a scheduled workflow that opens a PR.
+4. Data-drive the callouts into `summary/annotations.tsv` carrying `panel, year, label, hjust, vjust`
+   and **no coordinates** (#460).
+5. #460's actual bug: `grep -o 'width="[0-9]*"'` over the shipped embed HTML returns nothing, so
+   `MakeEmbedableHtml.py`'s width rewrite is dead code. Delete it; add
+   `style="max-width:100%;height:auto"` to the `<img>` tag instead.
+6. Pin rasterisation: `dpi=96, fig.retina=2`, `dev.args=list(type="cairo")` — explicitly cairo, not
+   ragg, which would change font rendering and break parity on day one.
+7. Replace the cumulative-by-year `expand.grid` cartesian join (~7M rows) with a first-appearance-year
+   `cumsum`. It is the only part of the render that could plausibly OOM at 16 GB.
+8. `summary/palette.py` is the single palette source for both renderers, emitting `palette.json` that
+   the Rmd reads with `jsonlite::fromJSON`.
+9. `summary/check_summary.py` — structural (ordered `<h4>`s, 5 tables, 8 base64 PNGs, IHDR-decoded
+   width×height, the three vdjdb-web contracts), style (ColorBrewer anchors within ΔE₇₆ < 3, plus an
+   anti-assertion against viridis), perceptual (SSIM vs the previous release, fail < 0.55, warn < 0.80).
+10. `summary/preview/index.html` pulls Semantic UI from a CDN and `fetch()`es the fragment, because
+    opening it directly shows unstyled tables — the classes come from vdjdb-web's bundle.
+
+**Closes when:** both dashboards render offline and all three check layers pass.
+
+### Phase 13 — `feature/docs`
+
+1. Sphinx + `pydata_sphinx_theme`, `conf.py` copied from `arda/docs/`.
+   `html_baseurl = "https://docs.isalgo.dev/vdjdb-db/"` — Pages is already provisioned, no setup step.
+2. `docs/_ext/vdjdb_schema.py` provides `.. vdjdb-schema::`, `.. vdjdb-vocabulary::` and
+   `.. vdjdb-score-rules::` as **directives importing the phase-1 registry at doc-build time**. No
+   generated `.rst` in the tree means the tables can never be stale.
+3. Structure: `getting-started/`, `standards/`, `submission/`, `builds/`, `dashboard/`, `reference/`.
+   `docs/outputs.md` becomes `standards/database-outputs.rst`.
+4. The dashboard tab is an `<iframe>`, not inline HTML — the fragment's Semantic UI classes and
+   plotly's CSS must not leak into the theme. Its inner document is the phase-12 preview harness.
+5. The dashboard artifact downloads from the last successful `build.yml` with `continue-on-error` and
+   a committed `placeholder.html`: a 30-minute database build must never block a typo fix in the docs.
+6. README shrinks to a ~60-line front door.
+
+**Closes when:** `sphinx-build -W --keep-going` is clean and Pages deploys.
+
+### Phase 14 — `feature/release-tooling`
+
+1. `io/manifest.py` decides what goes in each bundle — an explicit list, never `cp *.txt`, which is
+   how seven unshipped side tables nearly shipped (§1).
+2. The six-step release job: plan (derive tag, assert it does not exist) → prepare (rewrite
+   `latest-version.txt` in the working tree via temp-file + `os.replace`) → build (all zips embed that
+   same content) → verify (ledger + dashboard checks) → publish (`environment: release`, required
+   reviewer) → **finalize (commit `latest-version.txt`, then `curl -fsI` line 1 and fail on anything
+   but 200)**. Step 6 is the one that never happened.
+3. Tag scheme `v<YYYY>.<MM>.<PATCH>`; tag creation restricted by ruleset to the release environment.
+4. Zenodo via the REST API from the workflow (`newversion` → upload → `PUT` metadata → `publish`),
+   replacing the webhook that archives the source tarball rather than the assets. Add the missing
+   `version` field to `.zenodo.json`.
+5. `release/changelog.py` — reference diff between releases (#432), cheap because the phase-12 PubMed
+   cache already exists.
+6. `verify-latest` scheduled job: line 1 returns 200 **and** its tag equals `releases/latest`.
+7. Retire `.gitlab-ci.yml`, `.travis.yml`, `test.sh`, `release.sh`, `docker.sh`, `release_docker.sh`,
+   `gitlab/`, both Dockerfiles and the committed 3.7 MB `docker_build.log`. Move `src/*.groovy` to
+   `attic/` — it is the only correct specification for the meta files and phase 1 tests against it.
+
+**Closes when:** a full release dry-run produces three zips, a manifest and a clean ledger.
+
+### Phase 15 — `feature/aldan3-runner`
+
+1. Register aldan3 in a runner group scoped to this repo alone.
+2. Retarget with `runs-on: ${{ fromJSON(inputs.motifs-runner) }}` — callers pass `'"ubuntu-latest"'`
+   or `'["self-hosted","linux","x64","aldan3"]'`. The naive `runs-on: ${{ inputs.runner }}` cannot
+   express a multi-label self-hosted target.
+3. Guard every self-hostable job with
+   `github.event.pull_request.head.repo.full_name == github.repository`. `chunk-check.yml` stays
+   `ubuntu-latest` **always** — it is the job forks trigger.
+4. The existing GitLab runner cannot be reused: `gitlab/runner.slurm` asks for
+   `--time=00:10:00 --mem=4G`, and a GitHub Actions runner is a long-lived daemon, not an sbatch job.
+
+**Closes when:** a full build completes on both runners with identical canonical digests.
+
+### Bootstrap order — protections last
+
+Land the workflows on `master` → create `dev` → let one full `build.yml` run green on `dev` so the
+check names exist → **then** apply the `dev`, `master` and tag rulesets. A required check that has
+never run blocks every PR forever. Require linear history on `master`; with 85 accumulated branches
+that is the rule that stops it getting worse.
+
+## 13. Minor decisions taken while executing
+
+Recorded rather than escalated. Each is reversible and none changes a shipped contract.
+
+| Date | Decision | Why |
+|---|---|---|
+| 2026-09-25 | Scratch notes and one-off scripts are gitignored at the repo root (`/NOTES*.md`, `/test_*.py`, `/scratch/`, …), anchored so `tests/` and `docs/` are unaffected | keeps working files out of curation PRs |

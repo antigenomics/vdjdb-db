@@ -105,3 +105,19 @@ uv.lock.tmp
 *tcrvdb*
 *MATCHMAKERS*
 *matchmakers*
+
+## Scratch -- notes and one-off scripts. Anchored to the repo root so tests/ and docs/ are unaffected.
+/scratch/
+/NOTES*.md
+/notes*.md
+/TODO*.md
+/SCRATCH*.md
+/*.scratch.*
+/tmp_*.py
+/scratch_*.py
+/check_*.py
+/probe_*.py
+/measure_*.py
+/test_*.py
+/*.out
+/*.log
