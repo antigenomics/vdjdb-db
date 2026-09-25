@@ -4,69 +4,52 @@ _Last updated: 2026-09-25_
 
 ## In flight
 
-**Phase 0 — `feature/dev-baseline`** (merged) and **`feature/record-identity`** (on `dev`).
+**Phase 4 — `feature/pipeline-core`**, merging to `dev`.
 
-| Item | State |
-|---|---|
-| `ROADMAP.md` | done |
-| `CLAUDE.md` | done |
-| `STATUS.md` | done |
-| `pyproject.toml` | done (`uv.lock` still to generate — needs a network sync) |
-| `src/vdjdb/` skeleton + `vdjdb` CLI entry point | done |
-| `vdjdb qc` chunk lint + 15 unit tests | done — 230 chunks, 103 findings (99 CRLF) |
-| `.github/workflows/chunk-check.yml` | done |
-| `.github/workflows/branch-policy.yml` | done |
-| record identity + registry (`src/vdjdb/identity/`) | done — 192,753 rows → 192,734 records in 2.0 s, ids stable |
-| `docs/outputs.md` — spec of every produced file | done |
-| proprietary-data guard (`src/vdjdb/validate/`) | done — wired into `chunk-check.yml` |
-| 65 unit tests | passing |
-
-Nothing in phase 0 changes build behaviour. `release.sh` and the existing pandas pipeline still work
-untouched.
-
-## Branches
+| Phase | Branch | State |
+|---|---|---|
+| 0 | `feature/dev-baseline` | merged — docs, package skeleton, chunk lint, CI, identity, guard |
+| 1 | `feature/schema` | merged — the field registry every column order projects from |
+| 2 | `feature/golden-harness` | merged — `vdjdb diff`, reproducible, validated against the release |
+| 3 | `feature/io-qc` | merged — polars reader, vectorised QC, corpus normalised, CI gates `--strict` |
+| 4 | `feature/pipeline-core` | **ledger PASS**; `py_src/` retired |
 
 ```
-master                   3389001   (origin/master)
-dev                      711ede8   phase 0 merged
-feature/record-identity  f6dc4d4   ← current; identity + spec + guard
-feature/dev-baseline     99779ca   merged into dev
-hotfix                   a39fc86   1 commit ahead of master; unmerged
+uv run vdjdb build --out out/
+uv run vdjdb diff ref/vdjdb-2026-06-03.zip out/legacy \
+    --only vdjdb.txt,vdjdb.slim.txt,vdjdb_full.txt      # -> PASS
 ```
 
-Nothing is pushed yet. `dev` and the phase-0 commit are local.
+## Where the build stands
 
-`hotfix` carries `py_src/compute_pdb_cdr3fix.py` plus an untracked `py_src/pdb_cdr3fix.tsv`. Decide
-whether that lands on `dev` or is superseded by phase 5 (`arda.cdr3fix` makes the script redundant —
-the same lookup falls out of `markup_batch`).
+| | Legacy pandas | Now |
+|---|---|---|
+| Wall time | 344 s | **12 s** |
+| Peak RSS | 2.16 GB | ~1 GB |
+| Output | three files, assembled directly | two definitive tables, three files projected from them |
 
-## Decided since
+Every difference from the 2026-06-03 release is a declared rule in `rules/expected_diffs.toml`
+firing its exact measured count. The largest are the `web.cdr3fix.unmp` truthiness bug (7,973 rows)
+and a family of pandas type coercions the all-string reader undoes (~55k cells).
 
-All three questions are settled — see `ROADMAP.md` §9. The new format owns `evidence.*`; the five
-debug columns are kept; the side outputs are produced but not zipped.
+## Next
+
+1. **Phase 5** (`feature/arda-cdr3fix`) — replace `annotate/_legacy_fixer/` with `arda.cdr3fix`;
+   measure the ledger delta, then freeze it as declared rule counts.
+2. **Phase 6** (`feature/new-format`) — ship the definitive tables, add `evidence`.
+3. `uv lock`, push `dev`, let `chunk-check` run once **before** applying branch protection.
 
 ## Blocked / needs a decision
 
 | Item | Blocks | Question |
 |---|---|---|
-| `vdjmatch` `_zip_asset` patch | the first multi-zip release | Needs a patch + release in `antigenomics/vdjmatch` first. See `ROADMAP.md` §3.1 |
-| Motif `coef` calibration | phase 11 | Needs the motif pipeline running before it can be fitted against the study-support objective |
-
-## Next
-
-1. `uv lock` (needs network) and confirm the dependency set resolves — `vdjtools` and `arda-mapper`
-   are the only base deps; `mirpy-lib[bench]` is behind the `motifs` extra.
-2. Push `dev`, let `chunk-check` run once so the check name exists, **then** apply branch protection.
-   A required check that has never run blocks every PR forever.
-3. Phase 1 (`feature/schema`), then phase 2 (`feature/golden-harness`). **Phase 2 must show zero
-   diffs against the current pandas build before any behaviour changes land** — it is the instrument
-   every later phase is measured with.
+| `vdjmatch` `_zip_asset` patch | the first multi-zip release | needs a patch + release in `antigenomics/vdjmatch`. See `ROADMAP.md` §3.1 |
+| Motif `coef` calibration | phase 11 | needs the motif pipeline running before it can be fitted |
 
 ## Known, not yet fixed
 
-- 99 chunk files use CRLF line endings; one has a prose sentence as a column name
-  (`PMID_24512815.txt`) and one a bare leading tab (`PMID_40694338.txt`). `chunk-check` reports
-  these but does not fail on them yet — the `.tsv` migration (#497, phase 3) normalises them, and
-  until then a hard gate would block every unrelated submission.
-- `src/` is temporarily mixed: the retired Groovy sits beside the new `src/vdjdb/` package. Phase 14
-  moves the Groovy to `attic/`. Hatchling only packages `src/vdjdb`, so nothing breaks meanwhile.
+- 14 records are reported by two chunks with the same PDB id in different letter case, and one
+  `meta.epitope.id` carries a float. Both are phase 9 nomenclature work; both are visible in the
+  ledger today.
+- `hotfix` carries `compute_pdb_cdr3fix.py`, which phase 5 supersedes — the same lookup falls out
+  of `arda.markup_batch`.

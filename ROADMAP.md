@@ -525,7 +525,8 @@ zero after the `.tsv` migration.
    else, each carrying a comment saying so: `json_column()` (`map_elements(json.dumps)`, because
    `struct.json_encode()` emits `{"a":"x"}` where the release has `{"a": "x"}`) and
    `py_repr_column()` (`vdjdb_full.txt`'s `cdr3fix.*` are Python `dict` repr).
-5. Delete `py_src/` in the same commit that makes it redundant, not before.
+5. Delete `py_src/` in the same commit that makes it redundant, not before. (Done: the last
+   thing needed from it was the CDR3 fixer, vendored into `annotate/_legacy_fixer/` until phase 5.)
 6. A peak-RSS test: the whole build under 8 GB, asserted with `resource.getrusage`.
 
 **Closes when:** the ledger shows only the 7,998 `web.cdr3fix.unmp` rows (§7) plus the meta-file fixes,
@@ -537,7 +538,8 @@ each as a declared rule with its measured count.
    per organism, then join back. 5.2 s total (§7); never loop it.
 2. `Cdr3Markup.to_cdr3fix()` emits VDJdb's JSON key-for-key; `v_end` / `j_start` are junction-space,
    which is what the `cdr3` column holds.
-3. Retire `res/segments.txt`, `res/segments.aaparts.txt`, `py_src/Cdr3Fixer.py`, `py_src/KmerScanner.py`.
+3. Delete `src/vdjdb/annotate/_legacy_fixer/` -- the verbatim copy phase 4 bridged through --
+   together with `res/segments.txt` and `res/segments.aaparts.txt`.
 4. Measure the ledger delta, then **freeze it** as declared rule counts. Expected shape from §7:
    `cdr3` ~2.2 % of rows, `jStart` ~9 %, all of it in the direction arda maps more and earlier.
 5. Assert the one-directional property as a test: arda never loses coverage a VDJdb mapping had.

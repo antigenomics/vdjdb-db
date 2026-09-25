@@ -26,32 +26,29 @@ release zip. The release is the product.
 | `summary/` | the R dashboard. `.Rmd` and the extractor are input; `*.html`/`*.pdf`/`*.txt` are generated and gitignored |
 | `database/` | **generated output**, gitignored except `dummy` and the two `*.meta.txt` files |
 | `skills/` | curation workflows (`/vdjdb-extract`, `-format`, `-harmonize`, `-proofread`, `-duplicates`, `-publish`) |
-| `src/` | **retired Groovy.** Reference only — it is the one correct spec for the meta files |
-| `py_src/` | the current pandas pipeline, being replaced |
+| `src/*.groovy` | **retired Groovy.** Reference only — the one correct spec for the metadata, which phase 1 tests against. Moves to `attic/` in phase 14 |
+| `src/vdjdb/` | the build. `assemble/` is the database, `emit/` projects it, `compare/` measures it |
 
 ## Commands
 
-The rewrite is in progress. Until phase 4 lands, the old path is still the build:
-
-```bash
-cd py_src && python runBuidDatabase.py      # assembly (needs 64 GB RAM — see ROADMAP §1)
-bash release.sh                              # full release; requires a sibling ../vdjdb-motifs clone
-```
-
-The new package (see `ROADMAP.md` for which phases are live):
-
 ```bash
 uv sync
-uv run vdjdb qc chunks/                      # fail-fast chunk validation
-uv run vdjdb build --out out/                # the three formats
-uv run vdjdb motifs --out out/               # TCRNET + TCREMP
-uv run vdjdb summary --out out/              # both dashboards
-uv run vdjdb diff --against 2026-06-03       # the difference ledger
+uv run vdjdb qc                              # chunk validation, fail-fast
+uv run vdjdb build --out out/                # the definitive tables, then the legacy projection
+uv run vdjdb diff <reference.zip> out/legacy # the difference ledger
+uv run vdjdb schema --table vdjdb            # generated metadata
 uv run pytest -q
 ```
 
-Output goes to `out/`, **not** `build/` — `build/` is already gitignored as a Python packaging
+Not yet implemented (the ROADMAP phase that delivers each is printed on invocation):
+`motifs`, `summary`, `release`, `make`, `convert`, `refs`, `changelog`.
+
+Output goes to `out/`, **not** `build/` -- `build/` is already gitignored as a Python packaging
 convention and using it for release artifacts is confusing.
+
+The pandas pipeline in `py_src/` was retired in phase 4. The 2026-06-03 release zip is the
+reference the ledger measures against; `git show 2026-06-03:py_src/` still has the old build if it
+is ever needed.
 
 ## The data model — `README.md` is authoritative
 
