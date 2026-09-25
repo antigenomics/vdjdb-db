@@ -31,8 +31,13 @@ MODELS: dict[str, tuple[str, str]] = {
     "MusMusculus": ("arda", "mouse"),
 }
 
-#: The columns this stage adds to ``chains``.
-NT_COLUMNS: tuple[str, ...] = ("cdr3nt", "cdr3nt.pgen", "cdr3nt.margin")
+#: The columns this stage adds to ``chains``. The D geometry comes from the *same* scenario that
+#: produced ``cdr3nt``, which is the whole reason it lives here: ``d.start`` and ``d.end`` index that
+#: nucleotide sequence, so taking them from a second model would ship coordinates that do not point
+#: at the sequence beside them. ``arda.dpost`` supplies how much to believe the call
+#: (:mod:`vdjdb.annotate.dgene`), not where it sits.
+NT_COLUMNS: tuple[str, ...] = ("cdr3nt", "cdr3nt.pgen", "cdr3nt.margin",
+                               "d.inferred", "d.start", "d.end")
 
 #: Contiguous slices of the sorted key set, one per worker. Never a pool of per-record tasks: the
 #: native call releases the GIL only partly (measured 2.11x on 4 threads), and dispatch on 114k
@@ -77,9 +82,10 @@ def _infer_slice(rows: list[tuple[str | None, str | None, str]], model: object) 
     out = []
     for v, j, cdr3 in rows:
         s = infer_nt(model, cdr3, v=v, j=j)
-        out.append(("", None, None) if s is None else
+        out.append(("", None, None, "", None, None) if s is None else
                    (s.cdr3_nt, s.pgen,
-                    s.pgen / s.runner_up_pgen if s.runner_up_pgen else float("inf")))
+                    s.pgen / s.runner_up_pgen if s.runner_up_pgen else float("inf"),
+                    s.d_call or "", s.d_start, s.d_end))
     return out
 
 
@@ -93,7 +99,10 @@ def infer(keys: pl.DataFrame, species: str, gene: str, *, workers: int = SLICES)
 
     blank = keys.with_columns(pl.lit("").alias("cdr3nt"),
                               pl.lit(None, pl.Float64).alias("cdr3nt.pgen"),
-                              pl.lit(None, pl.Float64).alias("cdr3nt.margin"))
+                              pl.lit(None, pl.Float64).alias("cdr3nt.margin"),
+                              pl.lit("").alias("d.inferred"),
+                              pl.lit(None, pl.Int64).alias("d.start"),
+                              pl.lit(None, pl.Int64).alias("d.end"))
     if species not in MODELS or keys.is_empty():
         return blank
     source, organism = MODELS[species]
@@ -113,6 +122,11 @@ def infer(keys: pl.DataFrame, species: str, gene: str, *, workers: int = SLICES)
         pl.Series("cdr3nt", [r[0] for r in flat], dtype=pl.Utf8),
         pl.Series("cdr3nt.pgen", [r[1] for r in flat], dtype=pl.Float64),
         pl.Series("cdr3nt.margin", [r[2] for r in flat], dtype=pl.Float64),
+        # 0-based half-open, in the coordinate space of `cdr3nt` above -- vdjtools' Scenario space
+        # (CLAUDE.md). TRA has no D, so these stay empty there by construction.
+        pl.Series("d.inferred", [r[3] for r in flat], dtype=pl.Utf8),
+        pl.Series("d.start", [r[4] for r in flat], dtype=pl.Int64),
+        pl.Series("d.end", [r[5] for r in flat], dtype=pl.Int64),
     )
 
 
@@ -135,8 +149,11 @@ def add_junction_nt(chains: pl.DataFrame, records: pl.DataFrame,
               keyed.head(0).select("cdr3", "v.segm", "j.segm", "species", "gene",
                                    pl.lit("").alias("cdr3nt"),
                                    pl.lit(None, pl.Float64).alias("cdr3nt.pgen"),
-                                   pl.lit(None, pl.Float64).alias("cdr3nt.margin")))
+                                   pl.lit(None, pl.Float64).alias("cdr3nt.margin"),
+                                   pl.lit("").alias("d.inferred"),
+                                   pl.lit(None, pl.Int64).alias("d.start"),
+                                   pl.lit(None, pl.Int64).alias("d.end")))
     return (keyed.join(lookup, on=["species", "gene", "cdr3", "v.segm", "j.segm"], how="left")
-            .with_columns(pl.col("cdr3nt").fill_null(""))    # rule 6: one missing marker
+            .with_columns(pl.col("cdr3nt", "d.inferred").fill_null(""))   # rule 6
             .drop("species")
             .sort("record_id", "gene"))

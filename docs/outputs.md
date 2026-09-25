@@ -121,9 +121,10 @@ Primary key `(record_id, gene)`. This is the level `vdjdb.txt` is written at. Sp
 what keeps the schema non-redundant: folding chains into records forces either duplicated record
 fields (as `vdjdb.txt` does) or paired alpha/beta columns (as `vdjdb_full.txt` does).
 
-20 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `cdr3`, `v.segm`, `d.segm`, `j.segm`,
-`v.end`, `j.start`, `cdr3nt`, `cdr3nt.pgen`, `cdr3nt.margin`, `cdr3.original`, `fix.needed`,
-`fix.good`, `v.fix.type`, `j.fix.type`, `v.canonical`, `j.canonical`, `TCR_hash`.
+25 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `cdr3`, `v.segm`, `d.segm`, `j.segm`,
+`v.end`, `j.start`, `cdr3nt`, `cdr3nt.pgen`, `cdr3nt.margin`, `d.inferred`, `d.start`, `d.end`,
+`d.posterior`, `d.entropy`, `cdr3.original`, `fix.needed`, `fix.good`, `v.fix.type`, `j.fix.type`,
+`v.canonical`, `j.canonical`, `TCR_hash`.
 
 **`cdr3nt` is inferred, not observed** (#461): the most plausible nucleotide junction behind the
 amino-acid one, from the recombination model. 261,097 of 286,047 chains have one and every one of
@@ -144,7 +145,15 @@ same receptor chain share it, and it is the level motif evidence and the indepen
 count attach at. A hash rather than a counter, because a counter renumbers every clonotype the moment
 a chunk is added.
 
-`d.start` and `d.end` join this table with the rest of phase 8.
+`d.segm` is the **curated** D call, as the publication reported it. `d.inferred`, `d.start` and
+`d.end` describe the D of the recombination scenario that produced `cdr3nt`, so the coordinates index
+that sequence (0-based, half-open). They agree with the curated call at gene level on 78.4 % of the
+40,892 beta chains that have one.
+
+`d.posterior` is the probability of the gene `d.inferred` names, and `d.entropy` how decidable the D
+was at all. **A third of beta chains have a posterior below 0.6 and an entropy above 0.9** — TRBD1
+and TRBD2 are short, heavily trimmed and similar, so the junction often cannot choose between them.
+Filter on `d.posterior`; do not read `d.inferred` alone (ROADMAP §20).
 
 ### 3.3 `evidence.parquet` — long format, one row per piece of evidence
 
