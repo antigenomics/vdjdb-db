@@ -39,9 +39,18 @@ packages = ["src/vdjdb"]
 [tool.ruff]
 line-length = 110
 src = ["src", "tests"]
+# Retired Groovy-era Python and the pandas pipeline being replaced. Reference only -- reformatting
+# them would bury the real diff in noise. Both leave the tree in ROADMAP phases 5 and 14.
+exclude = ["src/*.py", "py_src"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+# typer declares options as call expressions in defaults; that is the framework's idiom, not a bug.
+ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+# re-export surface: the names are the point
+"src/vdjdb/schema/__init__.py" = ["F401"]
 
 [tool.mypy]
 python_version = "3.11"
