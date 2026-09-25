@@ -4,7 +4,7 @@ _Last updated: 2026-09-25_
 
 ## In flight
 
-**Phase 8 — `feature/junction-nt`**, merging to `dev`. `segment-guess` and `dgene` next.
+**Phase 8 — `feature/dgene`**, merging to `dev`. `segment-guess` (#462) next.
 
 | Phase | Branch | State |
 |---|---|---|
@@ -16,7 +16,8 @@ _Last updated: 2026-09-25_
 | 5 | `feature/arda-cdr3fix` | merged, **behind `engine="legacy"`** — the swap waits for #327 (agreed 2026-09-25) |
 | 6 | `feature/new-format` | merged — tables + evidence + `vdjdb.schema.json`; ledger PASS from the shipped tables |
 | 7 | `feature/airr` | merged — Rearrangement + Reactivity; `airr.validate_rearrangement` passes on all 286,047 rows |
-| 8a | `feature/junction-nt` | **261,097 `cdr3nt`, 0 back-translation mismatches** |
+| 8a | `feature/junction-nt` | merged — 261,097 `cdr3nt`, 0 back-translation mismatches |
+| 8b | `feature/dgene` | **D geometry from the junction scenario, confidence from `arda.dpost`** |
 
 ```
 uv run vdjdb build --out out/                          # tables + every projection, 15 s
@@ -32,7 +33,7 @@ VDJDB_REFERENCE_ZIP=ref/vdjdb-2026-06-03.zip VDJDB_TABLES=out/tables \
 
 | | Legacy pandas | Now |
 |---|---|---|
-| Wall time | 344 s | **170 s** (16 s without junction inference) |
+| Wall time | 344 s | **183 s** (16 s without junction and D inference) |
 | Peak RSS | 2.16 GB | ~1 GB |
 | Output | three files, assembled directly | three tidy tables + a joined view, with legacy and AIRR projected from them |
 
