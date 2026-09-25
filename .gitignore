@@ -97,3 +97,11 @@ summary/*.txt
 out/
 .venv/
 uv.lock.tmp
+
+## Proprietary held-out validation data -- TCRvdb / MATCHMAKERS is academic, non-commercial and
+## NON-REDISTRIBUTABLE. It must never be committed here. Read it via $VDJDB_TCRVDB instead.
+## Enforced by src/vdjdb/validate/guard.py and tests/unit/test_guard.py.
+*TCRvdb*
+*tcrvdb*
+*MATCHMAKERS*
+*matchmakers*
