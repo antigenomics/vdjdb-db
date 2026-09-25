@@ -92,3 +92,8 @@ summary/*.pdf
 summary/*.html
 summary/*.txt
 /processing/raw_data/
+
+## vdjdb build (rewrite)
+out/
+.venv/
+uv.lock.tmp
