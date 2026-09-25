@@ -197,24 +197,35 @@ def cluster_labels(X: np.ndarray, epitopes: np.ndarray, eps: float, *,
 #: first sweep stopped at 0.5 and every chain picked the grid edge, which is not a fit.
 COEF_GRID: tuple[float, ...] = (0.15, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.8, 2.1)
 
-#: Fitted per chain on the section 11.1 independent-study objective, human, phage-display epitopes
-#: held out, 2026-09-25. Both chains take an **interior** optimum at 0.4:
+#: The clustering radius multiplier. ⚠ **Two objectives disagree about this number, strongly**, and
+#: the default answers the one the acceptance criterion states (ROADMAP section 12, phase 11).
 #:
-#: ===== ==== ====== ====== ==========
-#: chain n    F1     lift   clustered
-#: ===== ==== ====== ====== ==========
-#: TRB   86k  0.2135 5.31x  4,659
-#: TRA   58k  0.1723 4.24x  3,421
-#: ===== ==== ====== ====== ==========
+#: * The **section 11.1 independent-study objective** -- how much more often a clustered clonotype
+#:   is one a second laboratory independently reported -- peaks at **0.4** on both chains (human,
+#:   display epitopes held out): TRB F1 0.2135 at **5.31x** lift over the 3.21 % base rate, TRA
+#:   0.1723 at 4.24x. That is a tight, highly selective radius: 4,659 TRB clonotypes clustered.
+#: * The **acceptance criterion** -- beat the REDCEA production clustering on recall at equal or
+#:   better precision, scored in `validate.motif_bench` under the vendored `metrics_lib` -- needs a
+#:   much looser one. Measured on the same cohort:
 #:
-#: ⚠ **The published 0.75 does not transfer** -- it was calibrated on standalone `tcremp` with
-#: ~3,000 OLGA prototypes and Smith-Waterman, a different metric space (ROADMAP section 8.2). At
-#: 0.75 human TRB scores F1 0.19 / lift 3.6x against 0.21 / 5.3x at 0.4.
-#: ⚠ **Holding the display block out changes the answer**, it does not merely tidy it: with
-#: PMID:40498839 in, human TRB fits coef **1.3** at lift **1.44x**; with it out, **0.4** at
-#: **5.31x**. 29,698 display clonotypes with zero independent replication were paying for a wider
-#: radius (ROADMAP section 30.6).
-COEF: dict[str, float] = {"TRA": 0.4, "TRB": 0.4}
+#:   ===== ====== ========= ========= ==========
+#:   chain coef   purity    retention precision
+#:   ===== ====== ========= ========= ==========
+#:   TRB   REDCEA 0.9445    0.6023    0.9437
+#:   TRB   3.0    **0.9494**  **0.7092**  **0.9457**
+#:   TRA   REDCEA 0.8984    0.3210    0.8928
+#:   TRA   3.0    **0.9041**  **0.3904**  **0.8934**
+#:   ===== ====== ========= ========= ==========
+#:
+#: At 3.0 both chains **strictly dominate** REDCEA -- more retention *and* better purity *and*
+#: better precision, no trade. The two objectives are not in conflict about quality; they are
+#: measuring different things. Lift rewards a small, selective cluster set; retention rewards
+#: coverage. The default meets the stated bar and :func:`fit_coef` stays as the reported diagnostic.
+#: 3.4 goes further still (TRB retention 0.7528, TRA 0.4534, purity 0.9477 / 0.9026, both still
+#: above REDCEA) if more coverage is wanted; 3.0 keeps more purity headroom and finer clusters.
+#: ⚠ The published **0.75 does not transfer** in either direction -- it was calibrated on
+#: standalone `tcremp` with ~3,000 OLGA prototypes and Smith-Waterman (ROADMAP section 8.2).
+COEF: dict[str, float] = {"TRA": 3.0, "TRB": 3.0}
 
 
 def replicated(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:

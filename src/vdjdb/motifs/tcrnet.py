@@ -69,13 +69,24 @@ ASSETS: dict[tuple[str, str], str] = {
 #: :mod:`vdjdb.motifs.cluster` is built over.
 SCOPE = "1,0,0,1"
 
-#: Benjamini-Hochberg FDR at which a clonotype is called enriched.
-Q_THRESHOLD = 0.05
+#: Threshold on the enrichment p-value. ⚠ **Applied to the raw p, not a BH-adjusted q**, because
+#: that is what the legacy does: `compute_vdjdb_motifs.Rmd` writes `mutate(p.adj = p.value.g)`,
+#: which is an identity -- the name says adjusted and the code adjusts nothing. Measured, the
+#: difference is not small in the direction anyone expects: over 185,738 scored clonotypes BH
+#: `q <= 0.05` calls **53,609** enriched where raw `p <= 0.05` calls **48,418**, because the
+#: p-value distribution is bottom-heavy enough that the step-up threshold rises well above 0.05.
+#: `q.legacy` is computed and carried regardless, so switching is a one-line change and a
+#: measurement (ROADMAP section 30.3).
+P_THRESHOLD = 0.05
 
-#: An epitope sample smaller than this cannot support a motif -- with fewer clonotypes than a
-#: cluster's minimum size there is nothing for the graph to find, and the multiple-testing
-#: correction is over a handful of tests.
-MIN_SAMPLE = 30
+#: Within-sample neighbours a clonotype needs before it can be called enriched, independent of its
+#: p-value: `enriched = degree.s >= 2 & p.adj < 0.05`. A single neighbour is not a neighbourhood.
+MIN_DEGREE = 2
+
+#: An epitope sample smaller than this many **unique clonotypes** is not scored. The legacy's
+#: `dt.epi.count %>% filter(total >= 10)`. The benchmark cohort's floor of 30 is a different
+#: number for a different purpose and using it here cost 13 epitopes their motifs.
+MIN_SAMPLE = 10
 
 
 def control_for(species: str, gene: str, size: int = CONTROL_SIZE):
@@ -148,8 +159,8 @@ def enrich(sample: pl.DataFrame, control, *, scope: str = SCOPE) -> pl.DataFrame
 
 
 def enriched_clonotypes(chains: pl.DataFrame, records: pl.DataFrame, *,
-                        scope: str = SCOPE, q: float = Q_THRESHOLD,
-                        min_sample: int = MIN_SAMPLE,
+                        scope: str = SCOPE, p: float = P_THRESHOLD,
+                        min_degree: int = MIN_DEGREE, min_sample: int = MIN_SAMPLE,
                         control_size: int = CONTROL_SIZE) -> pl.DataFrame:
     """Every scored clonotype, flagged ``enriched`` where the background cannot explain its degree.
 
@@ -176,7 +187,8 @@ def enriched_clonotypes(chains: pl.DataFrame, records: pl.DataFrame, *,
             # stage recruits a clonotype that is a neighbour of an enriched one even when it is not
             # itself enriched, which is what the legacy Rmd's two-stage `compute_edges` does.
             out.append(scored.with_columns(
-                (pl.col("q.legacy") <= q).alias("enriched"),
+                ((pl.col("p.legacy") <= p) & (pl.col("n_neighbors") >= min_degree))
+                .alias("enriched"),
                 pl.lit(species).alias("species"), pl.lit(gene).alias("gene"),
                 pl.lit(epitope).alias("antigen.epitope")))
     if not out:
@@ -199,7 +211,10 @@ def _samples(chains: pl.DataFrame, records: pl.DataFrame) -> pl.DataFrame:
     return (
         chains
         .join(records.select("record_id", "species", "antigen.epitope"), on="record_id")
-        .filter(pl.col("cdr3") != "")
+        # A clonotype with no V or J call is not a clonotype for this purpose: the legacy requires
+        # `v.segm != "", j.segm != "", !is.na(j.segm)` before it builds the sample, and the cluster's
+        # representative alleles are read off these columns.
+        .filter((pl.col("cdr3") != "") & (pl.col("v.segm") != "") & (pl.col("j.segm") != ""))
         .group_by(["species", "gene", "antigen.epitope",
                    pl.col("cdr3").alias("junction_aa"),
                    pl.col("v.segm").alias("v_call"), pl.col("j.segm").alias("j_call")],
