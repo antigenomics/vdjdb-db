@@ -67,13 +67,16 @@ def fix_cdr3(df: pl.DataFrame, engine: str = "legacy") -> pl.DataFrame:
     (``__vend.alpha``, ``__jfix.beta``, ...). The legacy ``cdr3fix`` JSON blob is **not** produced
     here: a blob is not a variable, and reassembling one is the legacy exporter's job.
 
-    Two engines, both measured against the 2026-06-03 release (ROADMAP §16):
+    Two engines, both measured on the corrected corpus with arda-mapper 2.29.0 (ROADMAP §28):
 
-    * ``legacy`` -- the vendored k-mer scanner. **The default**, and what the shipped build still
-      uses, because the swap is not yet accepted: it changes 14,778 repaired CDR3s and loses 7,807
-      V-end mappings the legacy found.
-    * ``arda`` -- ``arda.cdr3fix``. Aligns far more sensitively on the J side (+6,987 mappings,
-      -248) but less on the V side. Ready, characterised, and awaiting a decision.
+    * ``legacy`` -- the vendored k-mer scanner. **Still the default**, and what the shipped build
+      uses, pending the swap decision.
+    * ``arda`` -- ``arda.cdr3fix``. Agrees with the legacy on 99.91 % of repaired alpha sequences and
+      leads on all four coverage measures: it gains 3,781 alpha and 1,851 beta V-end mappings and
+      5,182 alpha and 1,904 beta J-start mappings, against 311 / 3,936 and 7 / 138 lost. The 3,936
+      beta V-ends it declines are calls that name a family with several functional genes, an
+      ambiguity group, or an allele with no shipped anchor -- a curation question, not a markup
+      failure.
 
     Both are called once per distinct ``(species, cdr3, v, j)`` -- 191,447 keys against 192,753
     rows -- and joined back. Both are deterministic in their arguments, so deduplicating cannot
