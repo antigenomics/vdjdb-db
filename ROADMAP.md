@@ -1900,49 +1900,48 @@ already had that pseudocount; what it lacked was a level to fall back **to**.
 bundled 250k control, and 619 still do against the 1M control -- `M` controls the zero-inflation,
 not the defect. The legacy pseudocount statistic returns **zero such rows**. Filed upstream.
 
-### Coverage: where we differ, and where the difference sits
+### Coverage, after the two-stage graph
 
-| | Shipped | Phase 10 |
-|---|---:|---:|
-| `cluster_members.txt` rows | 55,636 | 45,095 |
-| `motif_pwms.txt` rows | 40,061 | 29,293 |
-| distinct cids | 1,928 | 1,181 |
-| epitopes with at least one cluster | 117 | 94 |
-| distinct clonotypes clustered | 53,600 | 44,077 |
+The first pass built the motif graph over the enriched clonotypes alone. `vdjdb-motifs`'
+`tcrnet/compute_vdjdb_motifs.Rmd` builds it in **two stages**: `compute_edges(enriched, all)` --
+edges from each enriched CDR3 to every CDR3 in the sample -- then `compute_edges(from, to,
+combine = TRUE)` over everything that recruited. A clonotype one substitution from an enriched one
+joins the motif even when its own degree did not clear the threshold, because the motif is the
+neighbourhood and not the set of rows that passed a test. **That omission was the whole of the
+coverage gap**, not the background:
 
-We recover **43,978 of the 53,600 clonotypes the shipped file clusters (82.0 %)** and add 99 it does
-not. The funnel says where the remainder goes:
+| | Shipped | Enriched-only | With recruitment |
+|---|---:|---:|---:|
+| `cluster_members.txt` rows | 55,636 | 45,095 | **53,491** |
+| `motif_pwms.txt` rows | 40,061 | 29,293 | **43,240** |
+| distinct cids | 1,928 | 1,181 | **1,752** |
+| epitopes with a cluster | 117 | 94 | **104** |
+| clonotypes clustered | 53,600 | 44,077 | **51,682** |
+| **of the shipped clonotypes, recovered** | — | 43,978 (82.0 %) | **51,543 (96.2 %)** |
+| largest cluster | 19,972 | 19,908 | **19,972** |
 
-| Species | Chain | Unique clonotypes | Dropped, epitope < 30 | Epitope groups | Enriched | Clustered | Shipped |
-|---|---|---:|---:|---:|---:|---:|---:|
-| HomoSapiens | TRA | 62,670 | 5,038 | 109 | 12,020 | 9,189 | 15,427 |
-| HomoSapiens | TRB | 121,966 | 6,149 | 167 | 39,504 | 34,330 | 37,154 |
-| MusMusculus | TRA | 7,279 | 193 | 15 | 1,043 | 777 | 1,688 |
-| MusMusculus | TRB | 8,448 | 425 | 27 | 1,042 | 799 | 1,367 |
+The largest cluster now reproduces the shipped number **exactly**. `motif_pwms.txt` is *larger* than
+the shipped file (43,240 against 40,061) on fewer cids, which is the letter-deletion fix showing up
+as rows rather than as a percentage.
 
-VDJdb does motifs for **human and mouse only**, which is the whole of the table above and the whole
-of the shipped files. The 1,439 macaque clonotypes in the database are out of scope, not a gap.
+⚠ The same Rmd confirms two things that were inferred before: the legacy clustering is igraph
+`clusters()`, i.e. **connected components**, so nothing upstream is already solving the percolation
+of section 30.1; and `cid` is `cc$membership`, a **raw component number**, which is why the shipped
+ids move between releases and why ours are content-derived instead.
 
-Named causes, in order of size:
+**What still differs**, 2,145 rows and 13 epitopes, with no single named cause yet:
 
-1. **Human TRB is close** -- 34,330 against 37,154, 92 %. Whatever differs there is small.
-2. **Human TRA is where the gap is, and it is at the *enrichment* step, not the clustering step**:
-   12,020 clonotypes pass enrichment against 15,427 the shipped file clusters, so no clustering
-   parameter can close it. The candidate cause is the background: a TRA junction is shorter and far
-   more germline-proximal than a TRB one, so it has many more background neighbours and the
-   statistic is correspondingly harder to pass against a 1M uniform aa control. **Not yet measured**
-   -- the check is to re-score human TRA at several `M` and against the legacy's frozen control, and
-   it is the one open item this phase leaves.
-3. **`MIN_SAMPLE = 30`** removes 11,805 clonotypes across 1,814 epitope groups too small to support
-   a motif or a multiple-testing correction.
-4. **`MIN_CLUSTER = 5`** removes 9,532 enriched clonotypes in components of fewer than five --
-   the same floor the shipped files have, whose smallest `csz` is 5.
+1. **`MIN_SAMPLE = 30`** removes 11,805 clonotypes over 1,814 epitope groups. Inherited from the
+   benchmark cohort and never tested (section 30.3).
+2. **The background.** Ours is a seeded 1M uniform draw; the legacy's was a frozen control. Nobody
+   has measured how much of the call set moves between draws (section 30.2).
+3. **`MIN_CLUSTER = 5`** at the tail, where recruitment adds members to clusters that were just
+   below the floor.
 
-⚠ **The BH correction is not a cause.** It was the obvious suspect and it is the wrong one: over
+⚠ **The BH correction is not among them.** It was the obvious suspect and it is the wrong one: over
 185,738 scored clonotypes, BH `q <= 0.05` calls **53,609** enriched where the legacy's uncorrected
 `p <= 0.05` would call **48,418**. The p-value distribution is bottom-heavy enough that the step-up
-threshold rises well above 0.05. We are *more* permissive at the test and still more conservative
-overall, which is what points at the background rather than the threshold.
+threshold rises well above 0.05.
 
 ### What was not a deviation after all
 
@@ -1962,28 +1961,42 @@ to a defensible default that nobody has swept.
 vendored `metrics_lib`, never on TCRvdb (section 11.2), and the winner is recorded with its measured
 numbers before anything becomes a default.
 
-### 30.1 The giant component is the biggest single defect, and it is shared with the shipped files
+### 30.1 Percolation is real, but the pooled number is one display experiment
 
-Measured on phase 10's output, 45,095 clustered records over 1,181 cids:
+Measured on phase 10's output, and split because the pooled figure is misleading:
 
-| | |
-|---|---:|
-| largest single cluster | **19,908 records (44.1 % of everything clustered)** |
-| top 10 clusters | 60.4 % |
-| clusters with >= 100 members | 31, holding 66.9 % |
-| epitope-chains (>= 100 clustered) whose largest component holds > 50 % | **11 of 24** |
+| | All | Excluding SLLMWITQV |
+|---|---:|---:|
+| clustered clonotypes | 45,095 | 20,547 |
+| cids | 1,181 | 1,167 |
+| largest single cluster | 19,908 (**44.1 %**) | 948 (**4.6 %**) |
+| top 10 clusters | 60.4 % | 15.6 % |
+| epitope-chains (>= 100 clustered) whose largest component holds > 50 % | **11 of 24** | **10 of 23** |
+| median giant-component share, those epitope-chains | 0.41 | 0.40 |
 
-The shipped `cluster_members.txt`'s largest cluster is **19,972**, so this is not a phase 10
-regression -- it is what connected components on a Hamming-1 graph do. A component that holds 44 %
-of the data is not a motif; it is percolation, and a PWM over it is close to the marginal residue
-frequency.
+⚠ **The 44 % is not a defect and not percolation.** `H.B.SLLMWITQV.1` is 19,908 human TRB
+clonotypes at CDR3 length 14 against NY-ESO-1, and **29,715 of the 29,729 SLLMWITQV records are one
+paper, PMID:40498839, `method.identification = "phage display, magnetic beads"`**. A display library
+selected against one pMHC *is* a dense one-substitution neighbourhood; that is what the experiment
+produces. Nothing about it says connected components are the wrong clustering. The shipped
+`cluster_members.txt` has the same 19,972-member cluster for the same reason.
 
-**The knob: replace connected components with community detection.** Leiden (or Louvain) on the same
-graph, resolution swept, with modularity and the section 11.1 objective reported per resolution.
-`python-igraph` is already a dependency and carries `community_leiden`. The REDCEA production
-clustering is Leiden-based and does not have this failure mode -- its largest TRB cid is 2,882 over
-74,736 records (3.9 %) against our 44 % -- which is the strongest single argument for the change.
-⚠ Leiden is seeded; pin it to `config.SEED` and assert determinism, or cluster ids move every build.
+✅ **The case for community detection survives the correction, and is the right-hand column.** With
+the display epitope removed, **10 of 23 natural epitope-chains still have one component holding more
+than half their clustered clonotypes**, median share 0.40 -- barely different from 0.41 with it. So
+per-epitope percolation is a real property of the Hamming-1 graph on natural repertoires, and the
+pooled headline was simply measuring something else.
+
+**The knob: Leiden (or Louvain) over connected components**, resolution swept, modularity and the
+section 11.1 objective reported per resolution. `python-igraph` is already a dependency and carries
+`community_leiden`. REDCEA, which is Leiden-based, has a largest TRB cid of 2,882 over 74,736
+records (3.9 %). ⚠ Leiden is seeded; pin it to `config.SEED` and assert determinism, or cluster ids
+move every build.
+
+**The split is already correct and is not the answer here.** The graph is built inside one
+`(species, gene, epitope)` group, and a substitutions-only ball cannot join two lengths, so every
+cid is one epitope at one length -- verified, 0 of 1,181 cids span a length. No further splitting
+can break a component that is dense inside a single stratum.
 
 ### 30.2 TCRNET background — three separate questions
 
@@ -2048,4 +2061,37 @@ clustering is Leiden-based and does not have this failure mode -- its largest TR
   knee-DBSCAN result, and not a target this pipeline reproduces (section 8.2).
 - **Motifs are human and mouse only.** Macaque and rat records are out of scope, not a coverage gap.
 - **The background never ships** (section 8.7) until and unless an in-silico one replaces it (30.2.3).
+- **A quarter of the human TRB cohort is one phage-display paper** (30.6). Never quote a pooled
+  motif number without saying whether it is in.
 
+### 30.6 `method.identification` is a motif input, and nothing reads it yet
+
+Records from a **display selection** are not independent natural observations: a library selected
+against one pMHC yields thousands of receptors that are one substitution apart by construction, and
+treating them like sorted repertoire clonotypes distorts every aggregate the motif stage produces.
+
+Measured on the current corpus: display-derived records are **29,688 of 192,753 (15.4 %)**, and they
+are a single contained block -- **one epitope (SLLMWITQV), one reference (PMID:40498839), one method
+string (`phage display, magnetic beads`)**. They are **29,698 of the 116,053 human TRB motif-cohort
+clonotypes, 25.6 %**.
+
+Three consequences, none of them currently handled:
+
+1. **Aggregate motif metrics are a quarter one experiment** on human TRB, and 54 % of the *clustered*
+   set before the epitope is removed. Report pooled and display-excluded, or epitope-weighted.
+2. **The section 11.1 tuning objective is skewed by it.** A display paper is one `reference.id`, so
+   all 29,698 of those clonotypes contribute **zero** independently-replicated pairs while making up
+   a quarter of the denominator. The measured base rate of 2.39 % on human TRB, and therefore the
+   fitted `coef`, are both computed against an inflated negative set. Re-fit with the display block
+   held out and compare.
+3. **The decision is the author's, not the pipeline's.** Options, in increasing strength: flag them
+   in the output; exclude them from `coef` fitting only; exclude them from motif inference entirely.
+   Display data is real specificity evidence and belongs in the database -- whether it belongs in a
+   *convergent selection* motif is a different question, and it should be answered deliberately
+   rather than by the current silence.
+
+The vocabulary is the obstacle: `method.identification` has 10+ distinct strings for what is
+arguably a handful of categories (`tetramer-sort` 94,716 · `dextramer-sort` 34,818 ·
+`phage display, magnetic beads` 29,688 · `tetramer.sort` 2,203 beside `tetramer-sort`). A controlled
+vocabulary with a `display` / `sort` / `culture` / `structural` axis is a prerequisite and is
+curation work, not build work.

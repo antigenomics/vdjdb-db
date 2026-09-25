@@ -61,6 +61,15 @@ MIN_RECORDS = 30
 #: The species VDJdb infers motifs for, and their mirpy names. Human and mouse only.
 SPECIES: dict[str, str] = {"HomoSapiens": "human", "MusMusculus": "mouse"}
 
+#: ``method.identification`` substring marking a **display selection**. Those records are not
+#: independent natural observations -- a library selected against one pMHC yields thousands of
+#: receptors one substitution apart by construction -- and a display paper is a single
+#: ``reference.id``, so every one of its clonotypes contributes zero independently-replicated pairs
+#: while filling a quarter of the human TRB denominator. Measured: 29,688 of 192,753 records
+#: (15.4 %), all SLLMWITQV / PMID:40498839. Held out of :func:`fit_coef` for that reason; whether
+#: they should also be held out of the clustering is the author's call (ROADMAP section 30.6).
+DISPLAY = "display"
+
 
 def cohort(chains: pl.DataFrame, records: pl.DataFrame, *,
            min_records: int = MIN_RECORDS) -> pl.DataFrame:
@@ -82,7 +91,8 @@ def cohort(chains: pl.DataFrame, records: pl.DataFrame, *,
                          pl.col("cdr3").alias("junction_aa"),
                          pl.col("v.segm").alias("v_call"), pl.col("j.segm").alias("j_call")],
                         maintain_order=True)
-              .agg(pl.len().cast(pl.Int32).alias("duplicate_count"))
+              .agg(pl.len().cast(pl.Int32).alias("duplicate_count"),
+                   pl.col("clonotype_id").first())
               .sort("species", "gene", "antigen.epitope", "junction_aa", "v_call", "j_call"))
 
 
@@ -177,3 +187,156 @@ def cluster_labels(X: np.ndarray, epitopes: np.ndarray, eps: float, *,
         out[np.flatnonzero(m)[hit]] = lab[hit] + offset
         offset += int(lab.max()) + 1 if hit.any() else 0
     return out
+
+
+# ---------------------------------------------------------------------------------------------
+# Tuning
+# ---------------------------------------------------------------------------------------------
+
+#: ``coef`` values swept by :func:`fit_coef`. It has to reach well below the published 0.75: the
+#: first sweep stopped at 0.5 and every chain picked the grid edge, which is not a fit.
+COEF_GRID: tuple[float, ...] = (0.15, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.8, 2.1)
+
+#: Fitted per chain on the section 11.1 independent-study objective, human, phage-display epitopes
+#: held out, 2026-09-25. Both chains take an **interior** optimum at 0.4:
+#:
+#: ===== ==== ====== ====== ==========
+#: chain n    F1     lift   clustered
+#: ===== ==== ====== ====== ==========
+#: TRB   86k  0.2135 5.31x  4,659
+#: TRA   58k  0.1723 4.24x  3,421
+#: ===== ==== ====== ====== ==========
+#:
+#: ⚠ **The published 0.75 does not transfer** -- it was calibrated on standalone `tcremp` with
+#: ~3,000 OLGA prototypes and Smith-Waterman, a different metric space (ROADMAP section 8.2). At
+#: 0.75 human TRB scores F1 0.19 / lift 3.6x against 0.21 / 5.3x at 0.4.
+#: ⚠ **Holding the display block out changes the answer**, it does not merely tidy it: with
+#: PMID:40498839 in, human TRB fits coef **1.3** at lift **1.44x**; with it out, **0.4** at
+#: **5.31x**. 29,698 display clonotypes with zero independent replication were paying for a wider
+#: radius (ROADMAP section 30.6).
+COEF: dict[str, float] = {"TRA": 0.4, "TRB": 0.4}
+
+
+def replicated(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
+    """Clonotype-epitope pairs more than one publication reports. The tuning label.
+
+    Reuses :func:`vdjdb.assemble.evidence.support_counts`, so the objective and the shipped
+    ``independent_study`` evidence rows are the same computation and cannot drift (section 11.1).
+    """
+    from ..assemble.evidence import support_counts
+
+    return (support_counts(records, chains)
+            .select("clonotype_id", "antigen.epitope",
+                    (pl.col("studies") > 1).alias("replicated")))
+
+
+def _objective(labels: np.ndarray, is_replicated: np.ndarray) -> dict:
+    """Score "clustered" as a prediction of "independently replicated". F1, with its parts.
+
+    A clustering that finds real convergent selection should preferentially recover exactly the
+    clonotypes a second laboratory saw. Clustering everything wins recall and loses precision;
+    clustering nothing scores zero. F1 peaks where the clustering is being selective about the
+    right thing -- which is the whole of the objective, and the only number the sweep ranks on.
+    """
+    clustered = labels >= 0
+    tp = int((clustered & is_replicated).sum())
+    fp = int((clustered & ~is_replicated).sum())
+    fn = int((~clustered & is_replicated).sum())
+    precision = tp / (tp + fp) if tp + fp else 0.0
+    recall = tp / (tp + fn) if tp + fn else 0.0
+    f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+    base = float(is_replicated.mean())
+    return {"f1": f1, "precision": precision, "recall": recall,
+            # How much more often a clustered clonotype is independently replicated than one drawn
+            # at random. F1 ranks the grid; lift says whether there is any signal to rank -- an F1
+            # of 0.065 means nothing on its own when the base rate is 2.4 %.
+            "lift": precision / base if base else 0.0, "base_rate": base,
+            "clustered": int(clustered.sum()), "replicated": int(is_replicated.sum()),
+            "n_clusters": len(np.unique(labels[clustered])) if clustered.any() else 0}
+
+
+def fit_coef(cohort_chain: pl.DataFrame, X: np.ndarray, is_replicated: np.ndarray, *,
+             grid: tuple[float, ...] = COEF_GRID,
+             min_samples: int = MIN_SAMPLES) -> pl.DataFrame:
+    """Sweep ``coef`` for one chain and score each value on :func:`_objective`.
+
+    ⚠ **Never fitted against TCRvdb.** That set is held out, touched once, and only in aggregate
+    (ROADMAP section 11.2). Tuning on it would destroy the only independent read this project has.
+
+    The mean 1st-NN distance is computed once -- it does not depend on ``coef`` -- so the sweep
+    costs one DBSCAN pass per grid point, not one nearest-neighbour search per point.
+    """
+    epitopes = cohort_chain["antigen.epitope"].to_numpy()
+    base = mean_nn_distance(X)
+    rows = []
+    for coef in grid:
+        labels = cluster_labels(X, epitopes, round(base * coef, 3), min_samples=min_samples)
+        rows.append({"coef": coef, "eps": round(base * coef, 3),
+                     **_objective(labels, is_replicated)})
+    return pl.DataFrame(rows).sort("f1", descending=True)
+
+
+# ---------------------------------------------------------------------------------------------
+# Clustering
+# ---------------------------------------------------------------------------------------------
+
+def clusters(cohort_chain: pl.DataFrame, X: np.ndarray, eps: float, *,
+             min_samples: int = MIN_SAMPLES, min_cluster: int = 5) -> pl.DataFrame:
+    """Cluster one chain and label it in the shape :mod:`vdjdb.motifs.emit` expects.
+
+    ``cid`` carries a ``L<len>`` suffix -- **one legacy cid per (cluster, CDR3 length)**. A DBSCAN
+    cluster in embedding space may span lengths, where a PWM may not, and ``vdjdb-web`` splits every
+    cid by ``len`` before building a cluster anyway; without the suffix two display clusters would
+    share one ``clusterId`` and the reader's ``strict = true`` path would break. Measured on the
+    REDCEA production files, this is the common case and not an edge case: **809 of 847 TRA and
+    1,002 of 1,082 TRB cids span more than one length** (ROADMAP section 8.6).
+
+    ``x``/``y`` are the first two principal components -- the embedding's own layout, so no separate
+    force-directed pass is needed and the picture means something.
+    """
+    from .cluster import _INITIAL, _repr_allele
+
+    epitopes = cohort_chain["antigen.epitope"].to_numpy()
+    labels = cluster_labels(X, epitopes, eps, min_samples=min_samples)
+    g = (cohort_chain
+         .with_columns(pl.Series("__label", labels),
+                       pl.Series("x", X[:, 0]), pl.Series("y", X[:, 1]),
+                       pl.col("junction_aa").str.len_chars().alias("__len"))
+         .filter(pl.col("__label") >= 0))
+    if not g.height:
+        return g.drop("__label", "__len")
+
+    # The stratum, not the DBSCAN cluster, is what gets a cid -- so `csz` is unambiguous and
+    # `freq` in the PWM is a distribution.
+    sizes = g.group_by(["species", "gene", "antigen.epitope", "__label", "__len"]).agg(
+        pl.len().alias("csz"), pl.col("junction_aa").min().alias("__first"))
+    out = []
+    for (species, gene, epitope), grp in sizes.group_by(
+            ["species", "gene", "antigen.epitope"], maintain_order=True):
+        # Size descending then the smallest member: a number that follows the content, so a cluster
+        # whose membership is unchanged keeps its id without anything being stored (hard rule 9).
+        order = (grp.filter(pl.col("csz") >= min_cluster)
+                    .sort(["csz", "__first"], descending=[True, False])
+                    .with_row_index("__n", offset=1))
+        if order.height:
+            prefix = f"{_INITIAL[species]}.{gene[-1]}.{epitope}"
+            out.append(order.with_columns(
+                (pl.lit(prefix) + "." + pl.col("__n").cast(pl.Utf8)
+                 + "L" + pl.col("__len").cast(pl.Utf8)).alias("cid")).drop("__n", "__first"))
+    if not out:
+        return g.head(0).drop("__label", "__len")
+
+    g = g.join(pl.concat(out, how="vertical"),
+               on=["species", "gene", "antigen.epitope", "__label", "__len"], how="inner")
+    g = g.join(g.group_by("cid").agg(
+        pl.col("v_call").map_batches(_repr_allele, returns_scalar=True).alias("v.segm.repr"),
+        pl.col("j_call").map_batches(_repr_allele, returns_scalar=True).alias("j.segm.repr"),
+    ), on="cid")
+    return (g.drop("__label", "__len")
+             .sort("species", "gene", "antigen.epitope", "cid", "junction_aa", "v_call", "j_call"))
+
+
+def display_epitopes(records: pl.DataFrame) -> pl.Series:
+    """Epitopes whose records come from a display selection. See :data:`DISPLAY`."""
+    return (records.filter(pl.col("method.identification").str.contains(f"(?i){DISPLAY}"))
+                   ["antigen.epitope"].unique().sort())

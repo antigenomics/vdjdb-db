@@ -65,6 +65,25 @@ def test_components_label_the_connected_pieces():
     assert len(set(C._components(3, []))) == 3
 
 
+def test_a_neighbour_of_an_enriched_clonotype_joins_the_graph():
+    """The legacy Rmd's two-stage construction, and phase 10's whole coverage gap.
+
+    `CWWWWW` is not enriched but sits one substitution from `CWWWWA`, which is -- so it belongs to
+    the motif. `CYYYYY` is neither and stays out.
+    """
+    seqs = ["CWWWWA", "CWWWWC", "CWWWWD", "CWWWWE", "CWWWWF", "CWWWWW", "CYYYYY"]
+    enriched = [0, 1, 2, 3, 4]                       # not 5, not 6
+    keep = C._recruited(seqs, enriched, "1,0,0,1")
+    assert keep == [0, 1, 2, 3, 4, 5]
+    assert keep == sorted(keep)                      # order must not follow hit order
+
+
+def test_only_the_enriched_seed_the_graph():
+    """A clonotype two substitutions from every enriched one is not recruited."""
+    seqs = ["CWWWWA", "CWWWWC", "CYYYYY"]
+    assert C._recruited(seqs, [0, 1], "1,0,0,1") == [0, 1]
+
+
 def test_cluster_numbering_follows_content_not_vertex_order():
     """A counter would renumber on every reshuffle and break bookmarked motif URLs."""
     base = pl.DataFrame({
@@ -73,6 +92,7 @@ def test_cluster_numbering_follows_content_not_vertex_order():
         "junction_aa": ["CASSA", "CASSC", "CASSD", "CASSE", "CASSF", "CASSG",
                         "CYYYA", "CYYYC", "CYYYD", "CYYYE", "CYYYF", "CWWWW"],
         "v_call": ["TRBV1*01"] * 12, "j_call": ["TRBJ1*01"] * 12,
+        "enriched": [True] * 12,
     })
     a = C.clusters(base)
     b = C.clusters(base.sample(fraction=1.0, shuffle=True, seed=7))

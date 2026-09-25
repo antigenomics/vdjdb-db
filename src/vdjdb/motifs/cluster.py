@@ -46,6 +46,29 @@ def _edges(seqs: list[str], scope: str) -> list[tuple[int, int]]:
             for h in hits if i < h.ref_id]
 
 
+def _recruited(seqs: list[str], enriched: list[int], scope: str) -> list[int]:
+    """Vertices of the motif graph: the enriched clonotypes **and their neighbours**.
+
+    Stage I of the legacy Rmd's two-stage construction -- ``compute_edges(enriched, all)`` then
+    ``compute_edges(from, to, combine = TRUE)``. A clonotype that is one substitution from an
+    enriched one joins the graph even when its own degree did not clear the threshold, because the
+    motif is the neighbourhood, not the set of rows that passed a test. Omitting this was the whole
+    of phase 10's coverage gap against the shipped files.
+
+    Returned sorted, so the vertex order does not depend on hit order (CLAUDE.md hard rule 7).
+    """
+    import seqtree
+
+    subs, ins, dels, total = (int(x) for x in scope.split(","))
+    index = seqtree.Index.build(seqs)
+    params = seqtree.SearchParams(subs, ins, dels, total)
+    queries = [seqs[i] for i in enriched]
+    keep = set(enriched)
+    for hits in index.search_batch(queries, params):
+        keep.update(h.ref_id for h in hits)
+    return sorted(keep)
+
+
 def _components(n: int, edges: list[tuple[int, int]]) -> list[int]:
     """Connected-component label per vertex, by union-find. ``n`` vertices, ``edges`` undirected."""
     parent = list(range(n))
@@ -87,18 +110,27 @@ def _repr_allele(calls: pl.Series) -> str:
     return counts["c"][0] if counts.height else ""
 
 
-def clusters(enriched: pl.DataFrame, *, scope: str = "1,0,0,1",
+def clusters(scored: pl.DataFrame, *, scope: str = "1,0,0,1",
              min_cluster: int = MIN_CLUSTER) -> pl.DataFrame:
     """Cluster every ``(species, gene, epitope)`` group of :func:`~vdjdb.motifs.tcrnet.enriched_clonotypes`.
+
+    ``scored`` is every scored clonotype with an ``enriched`` flag, not only the ones that passed:
+    the graph is built over the enriched set **and its neighbours** (:func:`_recruited`).
 
     Returns one row per clustered clonotype with ``cid``, ``csz``, ``x``, ``y`` and the cluster's
     representative V and J alleles -- the shape ``cluster_members.txt`` needs, minus the record
     columns that :mod:`vdjdb.motifs.emit` joins back on.
     """
     out: list[pl.DataFrame] = []
-    for (species, gene, epitope), grp in enriched.group_by(
+    for (species, gene, epitope), grp in scored.group_by(
             ["species", "gene", "antigen.epitope"], maintain_order=True):
         grp = grp.sort("junction_aa", "v_call", "j_call")
+        hits = grp["enriched"].to_numpy().nonzero()[0].tolist() if "enriched" in grp.columns \
+            else list(range(grp.height))
+        if not hits:
+            continue
+        keep = _recruited(grp["junction_aa"].to_list(), hits, scope)
+        grp = grp[keep]
         seqs = grp["junction_aa"].to_list()
         edges = _edges(seqs, scope)
         labels = _components(len(seqs), edges)
