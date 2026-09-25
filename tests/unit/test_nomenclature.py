@@ -181,7 +181,7 @@ def test_murine_class_two_spellings_collapse_onto_one_molecule():
     out, report = N.harmonise_mhc(_mhc(["H2-IAb", "I-Ab"], ["H2-IAb", "I-Ab"]))
     assert out["mhc.a"].to_list() == ["I-Ab", "I-Ab"]
     assert out["mhc.b"].to_list() == ["I-Ab", "I-Ab"]
-    assert report.filter(pl.col("issue") == "murine-mhc2")["rows"].sum() == 2
+    assert report.filter(pl.col("issue") == "mhc.dict")["rows"].sum() == 2
 
 
 @pytest.mark.parametrize("old,new", [("H-2Aa", "H2-Aa"), ("H-2Eb1", "H2-Eb1"),
@@ -196,7 +196,7 @@ def test_an_allele_absent_from_imgt_is_corrected_to_the_one_the_paper_reported()
     from one reference that reports testing in `*24:02`."""
     out, report = N.harmonise_mhc(_mhc(["HLA-A*24:01"], ["B2M"], ["HomoSapiens"]))
     assert out["mhc.a"].to_list() == ["HLA-A*24:02"]
-    assert report.filter(pl.col("issue") == "#467")["rows"].sum() == 1
+    assert report.filter(pl.col("issue") == "mhc.dict")["rows"].sum() == 1
 
 
 def test_the_class_two_chains_are_put_in_order():
@@ -261,3 +261,41 @@ def test_the_committed_table_resolves_what_it_claims():
     assert table.height >= 3
     assert all(p.startswith("PMID:") and p[5:].isdigit() for p in table["pmid"])
     assert table["reference.id"].n_unique() == table.height
+
+
+def test_a_correction_scoped_to_one_reference_does_not_leak(tmp_path):
+    """`HLA-A*24:09` is corrected only for PMID:39286976, whose title states A*24:02. Elsewhere it
+    is left alone, because nothing has been checked about it there."""
+    (tmp_path / "patches").mkdir()
+    (tmp_path / "patches" / "mhc.dict").write_text(
+        "mhc\treplacement\treference.id\tnote\n"
+        "HLA-A*24:09\tHLA-A*24:02\tPMID:39286976\tthe paper says *24:02\n")
+    df = pl.DataFrame({"species": ["HomoSapiens"] * 2, "mhc.a": ["HLA-A*24:09"] * 2,
+                       "mhc.b": ["B2M"] * 2,
+                       "reference.id": ["PMID:39286976", "PMID:99999999"]})
+    out, report = N.harmonise_mhc(df, tmp_path)
+    assert out["mhc.a"].to_list() == ["HLA-A*24:02", "HLA-A*24:09"]
+    assert report["rows"].to_list() == [1]
+
+
+def test_the_shipped_mhc_patch_is_well_formed():
+    """A committed patch is part of the build's correctness. Four entries in the antigen patch had a
+    space where the tab belongs and had therefore never matched a single record -- including
+    `ALAGIGILTV` (MLANA), one of the most-studied human epitopes."""
+    from vdjdb.config import Paths
+
+    root = Paths.discover().root
+    for name, n_cols in (("mhc.dict", 4), ("antigen_epitope_species_gene.dict", 3)):
+        path = root / "patches" / name
+        body = [ln for ln in path.read_text().splitlines()[1:]
+                if ln and not ln.startswith("#")]
+        bad = [ln for ln in body if ln.count("\t") != n_cols - 1]
+        assert not bad, f"{name}: {bad[:3]}"
+        keys = [ln.split("\t")[0] for ln in body]
+        dupes = {k for k in keys if keys.count(k) > 1}
+        if name == "antigen_epitope_species_gene.dict":
+            from vdjdb.curate.patch import CONFLICTING_EPITOPES, conflicts
+            # A duplicate that gives the *same* answer twice is harmless; one that gives two is
+            # resolved by file order, silently. Those are declared, so the set cannot grow.
+            assert set(conflicts()["antigen.epitope"]) == set(CONFLICTING_EPITOPES)
+            assert set(CONFLICTING_EPITOPES) <= dupes
