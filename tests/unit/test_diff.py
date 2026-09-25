@@ -280,3 +280,40 @@ def test_unpaired_rows_keep_complex_id_zero(tmp_path: Path) -> None:
     b = _paired(tmp_path, "b", [("0", "CASSA", "TRB"), ("4", "CASSB", "TRA"),
                                 ("4", "CASSC", "TRB")])
     assert diff(a, b).ok
+
+
+# --------------------------------------------------------------------------------------------
+# Determinism
+# --------------------------------------------------------------------------------------------
+
+def _digest(r) -> str:
+    import hashlib
+    cells = sorted((c.file, c.column, c.old, c.new, c.key)
+                   for f in r.files for c in f.cells)
+    return hashlib.sha256(repr(cells).encode()).hexdigest()
+
+
+def test_the_ledger_is_reproducible_not_merely_repeatable(tmp_path: Path) -> None:
+    """Same inputs must give the same ledger, in every process and on every host.
+
+    An unstable sort over groups with identical labels once made this vary -- 158, 152, 158 changed
+    rows across three runs of the same comparison -- and a ledger that is not reproducible cannot
+    gate anything, because a rule's declared count is meaningless against a moving measurement.
+    """
+    ref = _paired(tmp_path, "a", [("1", "CASSA", "TRA"), ("1", "CASSB", "TRB"),
+                                  ("2", "CASSA", "TRA"), ("2", "CASSC", "TRB"),
+                                  ("3", "CASSD", "TRA"), ("3", "CASSE", "TRB")])
+    cand = _paired(tmp_path, "b", [("9", "CASSA", "TRA"), ("9", "CASSC", "TRB"),
+                                   ("8", "CASSA", "TRA"), ("8", "CASSB", "TRB"),
+                                   ("7", "CASSD", "TRA"), ("7", "CASSE", "TRB")])
+    digests = {_digest(diff(ref, cand)) for _ in range(5)}
+    assert len(digests) == 1, "the ledger is not reproducible"
+
+
+def test_only_restricts_the_comparison(tmp_path: Path, base: list[str]) -> None:
+    """An assembly-stage candidate has no motif or dashboard members yet."""
+    a = _bundle(tmp_path, "a", base)
+    (a / "motif_pwms.txt").write_text("cid\n1\n")
+    b = _bundle(tmp_path, "b", base)
+    assert diff(a, b).missing == ["motif_pwms.txt"]
+    assert diff(a, b, only=["vdjdb.txt"]).ok

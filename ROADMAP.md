@@ -742,3 +742,72 @@ Recorded rather than escalated. Each is reversible and none changes a shipped co
 | 2026-09-25 | `TOLERATED_DROPPED` renamed `KEPT_CURATION_COLUMNS` | §9 decided they are kept, so the old name asserted the opposite of the decision |
 | 2026-09-25 | The motif tables' own vocabulary (`cdr3aa`, `cid`, `csz`, the PWM columns) is declared in the registry too | they have no `.meta.txt`, so the registry is the only place a rename is caught before it mistypes a positionally-parsed file |
 | 2026-09-25 | ruff excludes `src/*.py` and `py_src/`, and ignores `B008` | reformatting code that leaves the tree in phases 5 and 14 would bury the real diff; `B008` is typer's idiom |
+
+## 14. Phase 2 result — what the ledger measures against the 2026-06-03 release
+
+Measured 2026-09-25 by rebuilding with the **unchanged** pandas pipeline and diffing against the
+release zip. `git diff 2026-06-03 dev -- py_src/ patches/ res/ chunks/` is empty, so the rebuild ran
+identical code on identical data; the only variable is the order `os.listdir` returned.
+
+| File | Raw digest | Canonical digest | Rows | Changed rows |
+|---|---|---|---|---|
+| `vdjdb_full.txt` | differs | **identical** | 192,753 = 192,753 | **0** |
+| `vdjdb.slim.txt` | differs | differs | 197,729 = 197,729 | **0** |
+| `vdjdb.meta.txt` | identical | identical | 22 = 22 | 0 |
+| `vdjdb.slim.meta.txt` | identical | identical | 17 = 17 | 0 |
+| `vdjdb.txt` | differs | differs | 284,546 = 284,546 | **28** (14 groups, 7 symmetric swaps) |
+
+Build cost, measured: **344 s wall, peak RSS 2.16 GB** — not the 64 GB the README claims. The 64 GB
+figure is wrong by a factor of 30; what the `T.apply` / `iterrows` hot spots cost is *time*, and the
+`.loc` lookups in `generate_default_db` are ~95 % of the 344 s.
+
+### The residue: 7 pairs of records the source data cannot distinguish
+
+28 rows of 284,546 differ, over **14 identity groups**, in **28 of 6.26 million cells (0.00045 %)** -- one cell per row -- and every difference is
+**symmetric** — A→B paired with B→A. They are seven swaps of two rows each:
+
+| What swaps | Pairs | Example |
+|---|---|---|
+| `complex.id` of two complexes | 5 | `12092` ↔ `12093`, `40847` ↔ `40848`, `43824` ↔ `43825`, `84536` ↔ `84537`, `84539` ↔ `84540` |
+| `meta.structure.id` letter case | 2 | `5EUO` ↔ `5euo`, `6AVF` ↔ `6avf` |
+| `meta.epitope.id` numeric form | 1 | `20354.0` ↔ `20354` |
+
+The cause is that `vdjdb.txt` writes **one row per chain**, so a paired record's TRA row carries
+nothing about its beta. Two records sharing an alpha and differing only in a field outside
+`CHUNK_DEDUP_KEY` melt to two TRA rows that no single-chain key tells apart, and the legacy build
+assigns their annotations in whatever order `os.listdir` returned.
+
+Two real data defects fall out of it, both for phase 9:
+
+- the same PDB entry curated in two letter cases (`5EUO`/`5euo`, `6AVF`/`6avf`);
+- a float leaking into `meta.epitope.id` (`20354.0` where every other row has `20354`).
+
+Declared as `legacy-melt-ambiguity-*` in `rules/expected_diffs.toml`. They attribute without a
+declared count, because the count is a property of the build host's readdir order rather than of the
+build. The new format removes the ambiguity outright: `records.parquet` keys on `record_id` and
+`chains.parquet` keys on `(record_id, gene)`, so no annotation is ever assigned by position.
+
+### The ledger had to be made reproducible before any of this could be measured
+
+The first three runs of the same comparison reported **158, 152 and 158** changed rows. Three causes,
+all of them "an order nobody chose":
+
+| Cause | Effect |
+|---|---|
+| `set(ref) \| set(cand)` iteration under `PYTHONHASHSEED` | cell order varied between processes |
+| `group_by` without `maintain_order=True`, then a sort whose ties are *exactly* the ambiguous groups | canonical `complex.id` numbering varied |
+| an unseeded row hash | group identity varied |
+
+Fixed with a sorted key iteration, an explicit positional tiebreak, `maintain_order=True`, and
+`SEED = 20260925` from `vdjdb.config`. The measured difference then fell from ~155 cells to 28 — the
+instability was manufacturing five times the real difference. Verified: identical cell digest across
+four `PYTHONHASHSEED` values, and a unit test asserts one digest over five runs.
+
+This is why `CLAUDE.md` hard rule 7 exists. A rule in the ledger declares a measured row count, and
+a count is meaningless against a measurement that moves.
+
+### Cost
+
+The row comparison first materialised 6.26 million Python tuples per table. Replaced with a hashed
+`(key, row)` group-count join in polars, so only the keys whose multisets actually disagree — **14 of
+208,447** — are ever pulled into Python. Wall time 7.6 s → **3.5 s** for a 425 MB bundle, at 222 % CPU.

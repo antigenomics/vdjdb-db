@@ -23,6 +23,7 @@ import hashlib
 import tomllib
 import zipfile
 from collections import Counter, defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -201,10 +202,31 @@ def _key_expr(name: str, df: pl.DataFrame, key: tuple[str, ...]) -> pl.Expr:
     return pl.concat_str(parts, separator="\x1f")
 
 
-def _rows_by_key(name: str, df: pl.DataFrame, key: tuple[str, ...]) -> dict[str, list[tuple[str, ...]]]:
-    keys = df.select(_key_expr(name, df, key)).to_series().to_list()
+def _contested(a: pl.DataFrame, b: pl.DataFrame) -> pl.Series:
+    """Identity keys whose row multisets differ, found without materialising a single Python row.
+
+    Materialising both tables costs 6.26 million tuples on ``vdjdb.txt`` and dominates the run.
+    Instead, hash each row once in polars, count ``(key, row hash)`` pairs on both sides, and keep
+    only the keys where some count disagrees. On a real rebuild that is 14 keys of 208,447, so the
+    Python-level pairing below runs on ~0.007 % of the table.
+    """
+    def counts(df: pl.DataFrame) -> pl.DataFrame:
+        return (df.group_by("__key", "__hash").len()
+                  .rename({"len": "n"}))
+
+    joined = counts(a).join(counts(b), on=["__key", "__hash"], how="full", coalesce=True)
+    differing = joined.filter(
+        pl.col("n").fill_null(0) != pl.col("n_right").fill_null(0)
+    )
+    return differing["__key"].unique()
+
+
+def _rows_by_key(df: pl.DataFrame, keys: pl.Series) -> dict[str, list[tuple[str, ...]]]:
+    """Materialise only the rows whose identity key is in ``keys``."""
+    sub = df.filter(pl.col("__key").is_in(keys.implode()))
     out: dict[str, list[tuple[str, ...]]] = defaultdict(list)
-    for k, row in zip(keys, df.iter_rows(), strict=True):
+    cols = [c for c in sub.columns if not c.startswith("__")]
+    for k, row in zip(sub["__key"].to_list(), sub.select(cols).iter_rows(), strict=True):
         out[k].append(row)
     return out
 
@@ -216,17 +238,27 @@ def _canonical_surrogate(name: str, df: pl.DataFrame, col: str,
     Each group is labelled by the sorted row identities of its members; groups are then numbered by
     that label. ``0`` means "not grouped" (an unpaired chain) and is left alone.
     """
-    label = (df.with_row_index("__i")
-               .with_columns(_key_expr(name, df, key).alias("__k"))
-               .group_by(col)
-               .agg(pl.col("__k").sort().str.join("\x1e").alias("__label")))
-    order = (label.filter(pl.col(col) != "0").sort("__label")
+    label = (df.with_columns(_key_expr(name, df, key).alias("__k"))
+               .with_row_index("__row")
+               .group_by(col, maintain_order=True)
+               .agg(pl.col("__k").sort().str.join("\x1e").alias("__label"),
+                    pl.col("__row").min().alias("__i")))
+    # `sort` must be stable and the tiebreak explicit: groups with an identical label are exactly
+    # the ambiguous ones, and an unstable sort there made the whole ledger non-reproducible
+    # (158 / 152 / 158 changed rows across three identical runs).
+    order = (label.filter(pl.col(col) != "0")
+                  .sort("__label", "__i", maintain_order=True)
                   .with_row_index("__n")
                   .with_columns((pl.col("__n") + 1).cast(pl.Utf8).alias("__new")))
     return (df.join(order.select(col, "__new"), on=col, how="left")
               .with_columns(pl.col("__new").fill_null("0").alias(col))
               .drop("__new"))
 
+
+#: Fixed so a row hash is the same value in every run, on every host, and in every process.
+#: polars seeds its hash from the value alone when given one, so this is what makes the ledger
+#: reproducible rather than merely repeatable.
+_HASH_SEED = 20260925
 
 #: Above this many unmatched rows in one key group, pair by sort order instead of by best match.
 #: The quadratic search is worth it at 2-10 rows and pointless at 1,000.
@@ -286,12 +318,21 @@ def _compare_table(name: str, ref: bytes, cand: bytes) -> FileReport:
         a = _canonical_surrogate(name, a, surrogate, key)
         b = _canonical_surrogate(name, b, surrogate, key)
 
-    ref_rows, cand_rows = _rows_by_key(name, a, key), _rows_by_key(name, b, key)
     cols = a.columns
+    ident = _key_expr(name, a, key)
+    a = a.with_columns(ident.alias("__key"),
+                       pl.concat_str(cols, separator="\x1f", ignore_nulls=True).hash(seed=_HASH_SEED)
+                       .alias("__hash"))
+    b = b.with_columns(_key_expr(name, b, key).alias("__key"),
+                       pl.concat_str(cols, separator="\x1f", ignore_nulls=True).hash(seed=_HASH_SEED)
+                       .alias("__hash"))
+
+    contested = _contested(a, b)
+    ref_rows, cand_rows = _rows_by_key(a, contested), _rows_by_key(b, contested)
     only_ref = only_cand = changed = 0
     cells: list[CellDiff] = []
 
-    for k in set(ref_rows) | set(cand_rows):
+    for k in sorted(set(ref_rows) | set(cand_rows)):
         left, right = Counter(ref_rows.get(k, [])), Counter(cand_rows.get(k, []))
         common = left & right                      # identical rows, in multiset arithmetic
         lrows = sorted((left - common).elements())
@@ -359,17 +400,26 @@ def load_rules(path: Path) -> list[Rule]:
 # Entry point
 # ---------------------------------------------------------------------------------------------
 
-def diff(reference: Path, candidate: Path, rules_path: Path | None = None) -> DiffReport:
-    """Compare two bundles and attribute every changed cell to a declared rule."""
+def diff(reference: Path, candidate: Path, rules_path: Path | None = None,
+         only: Iterable[str] | None = None) -> DiffReport:
+    """Compare two bundles and attribute every changed cell to a declared rule.
+
+    ``only`` restricts the comparison to the named members, for candidates that are deliberately
+    partial -- the assembly stage produces three tables, and the motif and dashboard members arrive
+    from later stages.
+    """
     ref, cand = Bundle(reference), Bundle(candidate)
+    wanted = set(only) if only else None
+    ref_names = [n for n in ref.names if wanted is None or n in wanted]
+    cand_names = [n for n in cand.names if wanted is None or n in wanted]
     rules = load_rules(rules_path) if rules_path else []
     report = DiffReport(
-        missing=[n for n in ref.names if n not in cand.names],
-        added=[n for n in cand.names if n not in ref.names],
+        missing=[n for n in ref_names if n not in cand_names],
+        added=[n for n in cand_names if n not in ref_names],
         rule_expected={r.id: r.rows for r in rules},
     )
 
-    for name in ref.names:
+    for name in ref_names:
         if name in report.missing:
             continue
         a, b = ref.read_bytes(name), cand.read_bytes(name)

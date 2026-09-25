@@ -117,12 +117,15 @@ def diff(
     rules: Path = typer.Option(Path("rules/expected_diffs.toml"),
                                help="Declared expected differences."),
     report: Path | None = typer.Option(None, help="Write the ledger here as Markdown."),
+    only: str | None = typer.Option(None, help="Comma-separated members to compare; "
+                                               "for deliberately partial candidates."),
 ) -> None:
     """Compare a candidate build against a released bundle and attribute every difference."""
     from .compare.diff import diff as run_diff
     from .compare.diff import render
 
-    result = run_diff(reference, candidate, rules if rules.exists() else None)
+    result = run_diff(reference, candidate, rules if rules.exists() else None,
+                      only=[s.strip() for s in only.split(",")] if only else None)
     text = render(result)
     if report:
         report.parent.mkdir(parents=True, exist_ok=True)
