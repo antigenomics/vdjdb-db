@@ -24,7 +24,6 @@ _PENDING = {
     "motifs": "10-11 (feature/motifs-*)",
     "summary": "12 (feature/summary)",
     "release": "14 (feature/release-tooling)",
-    "make": "6 (feature/new-format)",
     "convert": "7 (feature/airr)",
     "refs": "12 (feature/summary)",
     "changelog": "14 (feature/release-tooling)",
@@ -62,8 +61,9 @@ def qc(
 
 @app.command()
 def schema(
-    table: str = typer.Option("vdjdb", help="vdjdb, vdjdb-web, slim, full, "
-                                            "cluster_members or motif_pwms."),
+    table: str = typer.Option("vdjdb", help="Any declared table: vdjdb, vdjdb-web, slim, full, "
+                                            "records, chains, evidence, cluster_members, "
+                                            "motif_pwms."),
     format: str = typer.Option("meta", help="meta, header or json."),
 ) -> None:
     """Render a table's metadata, header or JSON schema from the field registry."""
@@ -95,29 +95,52 @@ def schema(
 def build(
     out: Path = typer.Option(Path("out"), help="Output directory."),
     chunks: Path | None = typer.Option(None, help="Chunk directory; default chunks/."),
-    tables: bool = typer.Option(True, help="Write the definitive tables."),
+    tables: bool = typer.Option(True, help="Write the definitive tables and the new format."),
     legacy: bool = typer.Option(True, help="Write the legacy projection."),
+    release: str = typer.Option("dev", help="Release tag recorded on new evidence rows."),
 ) -> None:
-    """Assemble the database: the definitive tables, and the legacy files derived from them."""
+    """Assemble the database: the definitive tables, and every format projected from them."""
     from .assemble.master import build_master
     from .assemble.tables import build_tables
-    from .emit.legacy import write_all
+    from .emit.legacy import write_all as write_legacy
+    from .emit.vdjdb3 import write_all as write_new
     from .io.chunks import chunk_files
 
     paths = chunk_files(chunks) if chunks else None
-    built = build_tables(build_master(paths))
+    built = build_tables(build_master(paths), release=release)
     out.mkdir(parents=True, exist_ok=True)
 
     if tables:
-        d = out / "tables"
-        d.mkdir(exist_ok=True)
         for name, frame in built.items():
-            frame.write_parquet(d / f"{name}.parquet")
             typer.echo(f"{name:10} {frame.height:>8,} rows  {len(frame.columns):>3} cols")
-    if legacy:
-        d = out / "legacy"
-        for name, path in write_all(built, d).items():
+        for name, path in write_new(built, out / "tables").items():
             typer.echo(f"{name:22} {path.stat().st_size:>12,} bytes")
+    if legacy:
+        for name, path in write_legacy(built, out / "legacy").items():
+            typer.echo(f"{name:22} {path.stat().st_size:>12,} bytes")
+
+
+@app.command()
+def make(
+    what: str = typer.Argument(..., help="Which projection: legacy."),
+    tables: Path = typer.Option(Path("out/tables"), help="A built new-format directory."),
+    out: Path | None = typer.Option(None, help="Output directory; default <tables>/../<what>."),
+) -> None:
+    """Project a shipped format out of an already-built database.
+
+    The point of the `make` split: the legacy export reads the **tables that shipped**, never
+    `chunks/`, so it cannot drift into a parallel implementation of the build.
+    """
+    from .emit.vdjdb3 import read_tables
+
+    if what != "legacy":
+        typer.secho(f"unknown projection {what!r}; known: legacy", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    from .emit.legacy import write_all as write_legacy
+
+    dest = out or tables.parent / what
+    for name, path in write_legacy(read_tables(tables), dest).items():
+        typer.echo(f"{name:22} {path.stat().st_size:>12,} bytes")
 
 
 @app.command()

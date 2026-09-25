@@ -201,6 +201,51 @@ FIELDS: dict[str, Field] = dict([
     _f("height.I.norm", data_type="float", title="Normalised letter height",
        comment="Sequence-logo letter height against the background, freq * I.norm."),
 
+    # -- the definitive tables (ROADMAP phase 6) -------------------------------------------------
+    # ``records``, ``chains`` and ``evidence`` *are* the database; every shipped file is a
+    # projection of them. Their columns are declared here with everything else so that one registry
+    # describes every table, and so a rename fails a test instead of drifting.
+    _f("record_id", searchable=0, autocomplete=0, title="Record id",
+       comment="Stable VDJdb record identifier. Assigned once, never reused, and it survives a "
+               "content change -- a curator fixing a typo amends a record rather than deleting one "
+               "and creating another."),
+    _f("clonotype_id", searchable=0, autocomplete=0, data_type="uint", title="Clonotype id",
+       comment="Identifies a receptor chain: a hash of species, gene, CDR3, V and J. Records "
+               "reporting the same chain share it, and motif evidence attaches at this level."),
+    _f("d.segm", title="D", comment="TCR Diversity segment allele."),
+    _f("cdr3.original", type=SEQ, autocomplete=0, data_type="cdr3", title="CDR3 as submitted",
+       comment="The CDR3 as the reference publication reported it, before repair."),
+    _f("fix.needed", searchable=0, autocomplete=0, data_type="bool", title="Fix needed",
+       comment="Whether the repaired CDR3 differs from the submitted one."),
+    _f("fix.good", searchable=0, autocomplete=0, data_type="bool", title="Fix good",
+       comment="Whether the CDR3 could be placed on both germline segments."),
+    _f("v.fix.type", searchable=0, title="V fix type",
+       comment="How the V side was repaired: NoFixNeeded, FixAdd, FixTrim, FixReplace, or a "
+               "Failed* reason."),
+    _f("j.fix.type", searchable=0, title="J fix type", comment="How the J side was repaired."),
+    _f("v.canonical", searchable=0, autocomplete=0, data_type="bool", title="V anchor canonical",
+       comment="Whether the CDR3 begins with the Cys104 the V germline predicts."),
+    _f("j.canonical", searchable=0, autocomplete=0, data_type="bool", title="J anchor canonical",
+       comment="Whether the CDR3 ends with the Phe/Trp118 the J germline predicts."),
+    _f("chunk.file", searchable=0, title="Chunk file",
+       comment="The chunk the record was read from. One chunk is one publication."),
+    _f("chunk.row", searchable=0, autocomplete=0, data_type="uint", title="Chunk row",
+       comment="0-based row within the chunk; with chunk.file it points at the curated line."),
+    _f("evidence_id", searchable=0, autocomplete=0, title="Evidence id",
+       comment="Identifies one piece of evidence within a record: a hash of its type, chain, "
+               "source and value, so the same evidence keeps the same id across releases."),
+    _f("evidence_type", title="Evidence type",
+       comment="independent_study, motif_tcrnet, motif_tcremp, structure_native or "
+               "structure_model."),
+    _f("evidence_source", title="Evidence source",
+       comment="Where the evidence came from: a release tag, PDB, or a model set identifier."),
+    _f("evidence_value", searchable=0, title="Evidence value",
+       comment="The evidence itself: the other reference ids, a cluster id, or a PDB id."),
+    _f("evidence_score", searchable=0, autocomplete=0, data_type="float", title="Evidence score",
+       comment="Its strength: distinct supporting references, cluster size, or model confidence."),
+    _f("first_seen_release", title="First seen release",
+       comment="The release in which this piece of evidence first appeared."),
+
     # -- curation provenance, kept (ROADMAP 9) ---------------------------------------------------
     _f("submitter", title="Submitter", comment="Kept for debugging; dropped by the legacy build."),
     _f("chunk.id", title="Chunk id", comment="Kept for debugging; dropped by the legacy build."),
@@ -257,6 +302,56 @@ SLIM_COLUMNS: tuple[str, ...] = (
 #: ``vdjdb_full.txt`` -- 35 columns: the 31 chunk columns plus four derived ones.
 FULL_COLUMNS: tuple[str, ...] = (*ALL_COLUMNS, "cdr3fix.alpha", "cdr3fix.beta", "vdjdb.score", "TCR_hash")
 
+# ---------------------------------------------------------------------------------------------
+# The definitive tables. Tidy: one observational unit per table, one variable per column. These are
+# the database -- see `vdjdb.assemble.tables` for what each unit is and why.
+# ---------------------------------------------------------------------------------------------
+
+#: The pMHC and its parent antigen -- what the receptor recognises.
+RECORD_ANTIGEN: tuple[str, ...] = (
+    "species", "mhc.a", "mhc.b", "mhc.class",
+    "antigen.epitope", "antigen.gene", "antigen.species",
+)
+
+#: The donor and sample a record was observed in. Part of its identity: the same TCR against the
+#: same epitope in two donors is two records, not one seen twice.
+RECORD_SAMPLE: tuple[str, ...] = (
+    "meta.study.id", "meta.cell.subset", "meta.subject.cohort", "meta.subject.id",
+    "meta.replica.id", "meta.clone.id", "meta.tissue",
+)
+
+#: Where the record was written down. Part of the record: one row, one paper, one report.
+RECORD_CURATION: tuple[str, ...] = ("chunk.file", "chunk.row", "chunk.id", "submitter", "comment")
+
+#: ``records`` -- one row per curated record, PK ``record_id``.
+RECORD_COLUMNS: tuple[str, ...] = (
+    "record_id", *RECORD_ANTIGEN, "reference.id", *RECORD_SAMPLE,
+    "meta.epitope.id", "meta.donor.MHC", "meta.donor.MHC.method", "meta.structure.id",
+    "meta.subset.frequency",
+    *METHOD_COLUMNS, "method.pairing",
+    "vdjdb.score",
+    *RECORD_CURATION,
+)
+
+#: ``chains`` -- one row per TCR chain, PK ``(record_id, gene)``. ``cdr3fix`` is flattened: every
+#: member of the legacy JSON blob is a column, because a blob is not a variable.
+CHAIN_COLUMNS: tuple[str, ...] = (
+    "record_id", "gene", "clonotype_id",
+    "cdr3", "v.segm", "d.segm", "j.segm",
+    "v.end", "j.start",
+    "cdr3.original", "fix.needed", "fix.good",
+    "v.fix.type", "j.fix.type", "v.canonical", "j.canonical",
+    "TCR_hash",
+)
+
+#: ``evidence`` -- one row per piece of evidence, PK ``(record_id, evidence_id)``. Long rather than
+#: wide: a record may carry any number of pieces of evidence of any number of kinds, and the wide
+#: form would be mostly empty.
+EVIDENCE_TABLE_COLUMNS: tuple[str, ...] = (
+    "record_id", "gene", "evidence_id", "evidence_type",
+    "evidence_source", "evidence_value", "evidence_score", "first_seen_release",
+)
+
 #: ``cluster_members.txt`` -- 19 columns, parsed positionally by ``Motifs.scala`` with a fixed
 #: ``Array[ColumnType]`` and no header check. Order is a contract.
 CLUSTER_MEMBERS_COLUMNS: tuple[str, ...] = (
@@ -300,6 +395,9 @@ TABLES: dict[str, tuple[str, ...]] = {
     "full": FULL_COLUMNS,
     "cluster_members": CLUSTER_MEMBERS_COLUMNS,
     "motif_pwms": MOTIF_PWMS_COLUMNS,
+    "records": RECORD_COLUMNS,
+    "chains": CHAIN_COLUMNS,
+    "evidence": EVIDENCE_TABLE_COLUMNS,
 }
 
 
@@ -330,3 +428,32 @@ def render_slim_meta(table: str = "slim") -> str:
     """``vdjdb.slim.meta.txt`` -- two columns only, which is all standalone clients read."""
     rows = "\n".join(f"{f.name}\t{f.type}" for f in fields(table))
     return f"name\ttype\n{rows}\n"
+
+
+def schema_json(dtypes: dict[str, dict[str, str]] | None = None, *, indent: int = 2) -> str:
+    """The whole registry, machine-readably: every column, its attributes and where it appears.
+
+    Ships in the new-format bundle as ``vdjdb.schema.json``. A consumer reading ``records.parquet``
+    can answer "what is this column, and which other tables carry it" without scraping the docs.
+
+    ``dtypes`` maps table name -> column name -> the physical dtype the build actually wrote, so the
+    declared schema and the shipped files cannot disagree: it is read off the frames, not asserted.
+    """
+    import json
+
+    dtypes = dtypes or {}
+    out = []
+    for name in sorted({c for cols in TABLES.values() for c in cols}):
+        f = FIELDS[name]
+        where = {t: cols.index(name) for t, cols in TABLES.items() if name in cols}
+        entry: dict[str, object] = {
+            "name": f.name, "type": f.type, "visible": f.visible, "searchable": f.searchable,
+            "autocomplete": f.autocomplete, "data_type": f.data_type, "title": f.title,
+            "comment": f.comment, "position": where,
+        }
+        seen = {dtypes[t][name] for t in where if name in dtypes.get(t, {})}
+        if seen:
+            entry["dtype"] = sorted(seen)[0] if len(seen) == 1 else sorted(seen)
+        out.append(entry)
+    return json.dumps({"tables": {t: list(c) for t, c in TABLES.items()}, "fields": out},
+                      indent=indent) + "\n"

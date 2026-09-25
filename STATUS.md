@@ -4,7 +4,7 @@ _Last updated: 2026-09-25_
 
 ## In flight
 
-**Phase 4 — `feature/pipeline-core`**, merging to `dev`.
+**Phase 6 — `feature/new-format`**, merging to `dev`.
 
 | Phase | Branch | State |
 |---|---|---|
@@ -12,44 +12,58 @@ _Last updated: 2026-09-25_
 | 1 | `feature/schema` | merged — the field registry every column order projects from |
 | 2 | `feature/golden-harness` | merged — `vdjdb diff`, reproducible, validated against the release |
 | 3 | `feature/io-qc` | merged — polars reader, vectorised QC, corpus normalised, CI gates `--strict` |
-| 4 | `feature/pipeline-core` | **ledger PASS**; `py_src/` retired |
+| 4 | `feature/pipeline-core` | merged — the definitive tables, legacy as a projection; `py_src/` retired |
+| 5 | `feature/arda-cdr3fix` | merged, **behind `engine="legacy"`** — the swap waits for #327 (agreed 2026-09-25) |
+| 6 | `feature/new-format` | **ledger PASS** from the shipped tables |
 
 ```
-uv run vdjdb build --out out/
-uv run vdjdb diff ref/vdjdb-2026-06-03.zip out/legacy \
-    --only vdjdb.txt,vdjdb.slim.txt,vdjdb_full.txt      # -> PASS
+uv run vdjdb build --out out/                          # tables + every projection, 15 s
+uv run vdjdb make legacy --tables out/tables --out out/legacy-made
+uv run vdjdb diff ref/vdjdb-2026-06-03.zip out/legacy-made \
+    --only vdjdb.txt,vdjdb.slim.txt,vdjdb_full.txt     # -> PASS
 ```
 
 ## Where the build stands
 
 | | Legacy pandas | Now |
 |---|---|---|
-| Wall time | 344 s | **12 s** |
+| Wall time | 344 s | **15 s** |
 | Peak RSS | 2.16 GB | ~1 GB |
-| Output | three files, assembled directly | two definitive tables, three files projected from them |
+| Output | three files, assembled directly | three tidy tables + a joined view, with legacy projected from them |
 
-Every difference from the 2026-06-03 release is a declared rule in `rules/expected_diffs.toml`
-firing its exact measured count. The largest are the `web.cdr3fix.unmp` truthiness bug (7,973 rows)
-and a family of pandas type coercions the all-string reader undoes (~55k cells).
+`records` 192,753 × 33 · `chains` 286,047 × 17 · `evidence` 53,913 × 8 · `vdjdb` (view) 286,047 × 54.
+All five legacy members are byte-identical whether projected from memory or read back from parquet.
+Every difference from the 2026-06-03 release is a declared rule in `rules/expected_diffs.toml` firing
+its exact measured count — largest are the `web.cdr3fix.unmp` truthiness bug (7,973 rows) and a family
+of pandas type coercions the all-string reader undoes (~55k cells). See `ROADMAP.md` §17.
 
 ## Next
 
-1. **Phase 5** (`feature/arda-cdr3fix`) — replace `annotate/_legacy_fixer/` with `arda.cdr3fix`;
-   measure the ledger delta, then freeze it as declared rule counts.
-2. **Phase 6** (`feature/new-format`) — ship the definitive tables, add `evidence`.
-3. `uv lock`, push `dev`, let `chunk-check` run once **before** applying branch protection.
+1. **Phase 7** (`feature/airr`) — `convert/coords.py` with round-trip tests, then `emit/airr.py` as a
+   projection of the same registry, validated by the `airr` package's own schema validator.
+2. **Phase 8** — `junction-nt` (#461), `segment-guess` (#462), `dgene`. These add the `chains` columns
+   phase 6 left declared-but-absent: `cdr3nt`, `cdr3nt.pgen`, `cdr3nt.margin`, `d.start`, `d.end`.
+3. **Phase 9** (`feature/harmonize-rules`) — **#327 lands here, and it gates the arda swap.**
+4. `uv lock`, push `dev`, let `chunk-check` run once **before** applying branch protection.
 
 ## Blocked / needs a decision
 
 | Item | Blocks | Question |
 |---|---|---|
 | `vdjmatch` `_zip_asset` patch | the first multi-zip release | needs a patch + release in `antigenomics/vdjmatch`. See `ROADMAP.md` §3.1 |
+| `arda` release with `fix/source-root-marker` | CI without the `$ARDA_HOME` workaround | `d40095c` is committed on a local branch in `~/vcs/code/arda`, not pushed |
 | Motif `coef` calibration | phase 11 | needs the motif pipeline running before it can be fitted |
 
 ## Known, not yet fixed
 
+- **`record_id` is stable across builds, not across releases.** The registry is not written or
+  committed; it reconciles against an empty one every build, so ids would shift the moment a chunk is
+  added. It becomes a release asset in phase 14 — 72.7 MB is too much to commit per curation PR
+  (`ROADMAP.md` §17). Do not lean on cross-release id stability until then.
 - 14 records are reported by two chunks with the same PDB id in different letter case, and one
   `meta.epitope.id` carries a float. Both are phase 9 nomenclature work; both are visible in the
   ledger today.
 - `hotfix` carries `compute_pdb_cdr3fix.py`, which phase 5 supersedes — the same lookup falls out
   of `arda.markup_batch`.
+- `summary/MakeEmbedableHtml.py` and `processing/*.ipynb` carry 7 ruff findings. Phase 12 owns them;
+  `src/vdjdb` and `tests/` are clean.
