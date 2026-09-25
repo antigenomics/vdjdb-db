@@ -49,12 +49,16 @@ from ..schema import ALL_COLUMNS, CHUNK_DEDUP_KEY
 #: The fields that identify a record. A change in any of these is an *amendment*; a change anywhere
 #: else is re-annotation that keeps the same record.
 #:
-#: This is exactly ``CHUNK_DEDUP_KEY`` -- the key the build already uses to decide that two chunk
-#: rows are the same record -- and it must stay identical to it, which ``test_identity`` asserts.
-#: An earlier, narrower version that stopped at ``reference.id`` collided on **20,769 of 192,753**
-#: real records: one paper reporting the same TCR against the same epitope in several donors is
-#: several records, and the meta fields are what tell them apart.
-NATURAL_KEY: tuple[str, ...] = CHUNK_DEDUP_KEY
+#: ``CHUNK_DEDUP_KEY`` **plus the chunk**. A chunk is one paper, so two rows in two chunks are
+#: independent reports rather than one record seen twice, however identical their fields (CLAUDE.md,
+#: the data model). Deduplication is within a chunk; identity is per curated line.
+#:
+#: Two earlier versions were wrong in opposite directions. A narrower key that stopped at
+#: ``reference.id`` collided on **20,769 of 192,753** records -- one paper reporting the same TCR
+#: against the same epitope in several donors is several records. Dropping ``chunk.file`` merged
+#: **19** pairs that are two papers' independent reports, which is exactly the signal phase 11
+#: tunes against.
+NATURAL_KEY: tuple[str, ...] = (*CHUNK_DEDUP_KEY, "chunk.file")
 
 ID_PREFIX = "VDJDB"
 ID_DIGITS = 10
@@ -140,13 +144,13 @@ class ReconcileReport:
     added: list[str] = field(default_factory=list)
     retired: list[str] = field(default_factory=list)
     #: (record_id, chunk_file) for rows that are a second submission of an existing record.
-    duplicated: list[tuple[str, str]] = field(default_factory=list)
+    replicated: list[tuple[str, str]] = field(default_factory=list)
 
     def summary(self) -> str:
         return (
             f"unchanged {self.unchanged}  annotated {self.annotated}  "
             f"amended {len(self.amended)}  added {len(self.added)}  retired {len(self.retired)}  "
-            f"duplicated {len(self.duplicated)}"
+            f"replicated {len(self.replicated)}"
         )
 
 
@@ -251,7 +255,7 @@ def reconcile(
     assigned: list[str | None] = [None] * len(rows)
 
     # Pass 1 -- exact natural key. Several rows may share one key: the same record submitted in two
-    # chunks is one record, and both rows take the same id (see `duplicated` in the report).
+    # chunk is one record; ``chunk.file`` is part of the key, so two chunks never collide.
     seen_key: dict[str, int] = {}
     for i, kh in enumerate(key_hashes):
         e = registry.get(kh)
@@ -259,7 +263,7 @@ def reconcile(
             first = seen_key.get(kh)
             if first is not None:
                 assigned[i] = assigned[first]
-                report.duplicated.append((str(assigned[first]), str(rows[i].get("chunk.file") or "")))
+                report.replicated.append((str(assigned[first]), str(rows[i].get("chunk.file") or "")))
                 continue
             seen_key[kh] = i
             assigned[i] = e.record_id

@@ -53,6 +53,40 @@ uv run pytest -q
 Output goes to `out/`, **not** `build/` — `build/` is already gitignored as a Python packaging
 convention and using it for release artifacts is confusing.
 
+## The data model — `README.md` is authoritative
+
+**`README.md` is the specification until `docs/standards/` replaces it** (ROADMAP phase 13). When
+the code and the README disagree, the README wins and the code is the bug. Do not infer the model
+from the shape of the data — the shape carries defects.
+
+What it says, and what follows:
+
+- **A chunk is one paper.** `chunks/PMID_<id>.txt` is that publication's report. Two rows in two
+  different chunks are **independent reports**, never duplicates, even when every field matches —
+  independent replication is a signal, and it is what phase 11 tunes motif clustering against.
+- **A chunk row is one record**, and it **reports paired chains**: the alpha and the beta of one
+  clone are columns of the same row. `chains` is derived from that, never the other way round.
+- **Identity** is the complex-information columns plus the id fields, per the README: *"duplicate
+  records (with identical complex information columns) are not allowed, but they will not be
+  considered as duplicates in case they have distinct id fields"* — plus the chunk, by the rule
+  above. Deduplication is therefore **within** a chunk only.
+- **`method.*` and `meta.*` describe the record**, not the act of curating it. They are what the
+  publication reports about how the specificity was established, so they belong on the record.
+  Only `submitter`, `comment` and `chunk.id` are properties of the curation.
+- **Record ids are assigned before CDR3 repair.** Two trimmed sequences that repair to the same
+  full one are still two observations; assigning after repair merged 215 pairs of records that the
+  publications reported separately.
+
+### The assembly line is tidy; the legacy shapes are projections
+
+`vdjdb.assemble.tables` produces flat tables linked by `record_id` — one observational unit each,
+one variable per column, no JSON blobs, no paired alpha/beta columns, no comma-joined sets. Those
+are the database.
+
+Every shipped file is a **join and a pivot** away from them, in `vdjdb.emit.*`. Nothing outside
+`emit/legacy.py` may know about `complex.id`, the `method`/`meta`/`cdr3fix` blobs, or the positional
+column orders. If a legacy quirk leaks into `assemble/`, that is the bug.
+
 ## Domain conventions
 
 **`cdr3` in VDJdb is junction space.** Cys104 through Phe/Trp118, **both anchors included**. That is
