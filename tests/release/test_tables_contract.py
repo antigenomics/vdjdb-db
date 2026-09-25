@@ -87,6 +87,15 @@ def test_the_d_posterior_is_a_probability_and_is_often_low(tables):
     assert (d["d.posterior"] < 0.6).sum() > 0
 
 
+def test_an_inferred_segment_never_sits_beside_a_curated_one(tables):
+    """#462 fills a gap; it does not second-guess a curator. 686 of the 711 chains with no V get a
+    call, which is material for the phase 9 decision, not a change to what ships today."""
+    chains = tables["chains"]
+    assert chains.filter((pl.col("v.segm") != "") & (pl.col("v.inferred") != "")).is_empty()
+    assert chains.filter((pl.col("j.segm") != "") & (pl.col("j.inferred") != "")).is_empty()
+    assert chains.filter((pl.col("v.segm") == "") & (pl.col("v.inferred") != "")).height > 0
+
+
 def test_no_string_column_is_ever_null(tables):
     """CLAUDE.md rule 6: empty string is the only missing marker.
 

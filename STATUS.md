@@ -4,7 +4,7 @@ _Last updated: 2026-09-25_
 
 ## In flight
 
-**Phase 8 — `feature/dgene`**, merging to `dev`. `segment-guess` (#462) next.
+**Phase 8 — `feature/segment-guess`**, merging to `dev`. AIRR `Receptor` closes phase 8.
 
 | Phase | Branch | State |
 |---|---|---|
@@ -17,7 +17,8 @@ _Last updated: 2026-09-25_
 | 6 | `feature/new-format` | merged — tables + evidence + `vdjdb.schema.json`; ledger PASS from the shipped tables |
 | 7 | `feature/airr` | merged — Rearrangement + Reactivity; `airr.validate_rearrangement` passes on all 286,047 rows |
 | 8a | `feature/junction-nt` | merged — 261,097 `cdr3nt`, 0 back-translation mismatches |
-| 8b | `feature/dgene` | **D geometry from the junction scenario, confidence from `arda.dpost`** |
+| 8b | `feature/dgene` | merged — D geometry from the junction scenario, confidence from `arda.dpost` |
+| 8c | `feature/segment-guess` | **the legacy V guesser has never worked; Pgen fills 686 of 711 gaps** |
 
 ```
 uv run vdjdb build --out out/                          # tables + every projection, 15 s
@@ -33,7 +34,7 @@ VDJDB_REFERENCE_ZIP=ref/vdjdb-2026-06-03.zip VDJDB_TABLES=out/tables \
 
 | | Legacy pandas | Now |
 |---|---|---|
-| Wall time | 344 s | **183 s** (16 s without junction and D inference) |
+| Wall time | 344 s | **185 s** (16 s without model inference) |
 | Peak RSS | 2.16 GB | ~1 GB |
 | Output | three files, assembled directly | three tidy tables + a joined view, with legacy and AIRR projected from them |
 
