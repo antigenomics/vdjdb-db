@@ -218,6 +218,7 @@ shipped files do not have.
 | File | Level | Rows (current corpus) |
 |---|---|---|
 | `vdjdb.rearrangement.tsv` | one row per chain — AIRR Rearrangement | 286,047 |
+| `vdjdb.receptor.tsv` | one row per paired record — AIRR Receptor | 81,003 |
 | `vdjdb.reactivity.tsv` | one row per record — AIRR Reactivity | 192,753 |
 | `airr.yaml` | the AIRR schema version the files conform to (2.0) | — |
 
@@ -238,14 +239,18 @@ confidence/quality level"*. `reactivity_method` is `MHC_peptide_multimer`, `nati
 alignments and the three cigars. The schema requires the column, not a value, and
 `airr.validate_rearrangement` passes on the full table today.
 
-**`Receptor` is not emitted yet.** It requires `receptor_variable_domain_{1,2}_aa`, the complete
-mature variable domain, non-nullable — which means stitching germline V and J around the junction.
-That lands with the nucleotide work in phase 8. `receptor_hash` is a sha256 over those stitched
-domains and is *not* VDJdb's `TCR_hash`.
+`Receptor` carries `receptor_variable_domain_{1,2}_aa` — the **complete mature variable domain**,
+non-nullable — so both are rebuilt by stitching germline V and J around the inferred nucleotide
+junction and translating (ROADMAP §22). Domain 1 is the beta chain, domain 2 the alpha, as the
+schema's controlled vocabularies require. `receptor_hash` is a sha256 over the two concatenated
+domains and is **not** VDJdb's `TCR_hash`, which hashes CDR3s, segments, MHC and epitope and is what
+the structure store keys on.
 
-Unpaired records get a Rearrangement row like any other and a Reactivity row of their own; nothing is
-dropped for being unpaired. In fact the AIRR export keeps **1,141 records and 1,501 chains that the
-legacy build discards** (ROADMAP §18).
+**A receptor is a two-domain object**, so only paired records appear there: 81,003 of the 93,294
+paired records have both domains rebuilt. An unpaired record is not dropped — its chain is in the
+Rearrangement file and it has a Reactivity row of its own, which is where AIRR puts a single
+rearranged sequence. Overall the AIRR export keeps **1,141 records and 1,501 chains that the legacy
+build discards** (ROADMAP §18).
 
 Validated in CI with the `airr` package's own schema validator — for Rearrangement. `airr` 2.0.0 has
 no `Receptor` or `Reactivity` validator, so the Reactivity file is gated against the field list read
