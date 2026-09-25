@@ -749,6 +749,11 @@ Recorded rather than escalated. Each is reversible and none changes a shipped co
 | 2026-09-25 | `database/vdjdb.meta.txt` and `.slim.meta.txt` stay tracked until phase 4 emits them | `database/` is gitignored and they were force-added; `git rm --cached` before the emitter exists breaks a fresh clone's legacy build |
 | 2026-09-25 | `TOLERATED_DROPPED` renamed `KEPT_CURATION_COLUMNS` | §9 decided they are kept, so the old name asserted the opposite of the decision |
 | 2026-09-25 | The motif tables' own vocabulary (`cdr3aa`, `cid`, `csz`, the PWM columns) is declared in the registry too | they have no `.meta.txt`, so the registry is the only place a rename is caught before it mistypes a positionally-parsed file |
+| 2026-09-25 | The definitive tables' column orders live in `schema/fields.py` with every other order, not in `assemble/tables.py` | one registry describes every table, so `vdjdb.schema.json` and `schema --table records` fall out for free |
+| 2026-09-25 | `clonotype_id` and `evidence_score` are a `UInt64` hash and a `Float64`; `evidence_id` is the readable `<type>:<gene>` | a hash needs no registry and is stable forever; `evidence_score` must hold a model confidence later, and widening a shipped column is worse than choosing the general type now |
+| 2026-09-25 | `vdjdb.parquet` declares all six `evidence.*` columns, `false` where no producer exists yet | the view's shape must not change as phases 8-11 land; absent evidence is an honest `false`, not a missing column |
+| 2026-09-25 | Record-level evidence (empty `gene`) raises rather than being dropped | nothing produces it yet, and a silent drop of structure evidence is exactly the class of bug the ledger cannot see |
+| 2026-09-25 | The record registry becomes a release asset, not a committed file | 72.7 MB per revision (19.8 MB gzipped) against a 42 MB `chunks/` corpus. See §17 |
 | 2026-09-25 | ruff excludes `src/*.py` and `py_src/`, and ignores `B008` | reformatting code that leaves the tree in phases 5 and 14 would bury the real diff; `B008` is typer's idiom |
 
 ## 14. Phase 2 result — what the ledger measures against the 2026-06-03 release
@@ -923,3 +928,82 @@ Fixed in `antigenomics/arda` on `fix/source-root-marker` (commit `d40095c`, 1,11
 empty dict. **Cross-repo gate:** that needs an arda release before CI can rely on it. Until then
 `vdjdb.annotate.cdr3fix.ensure_reference()` detects the condition and repoints `$ARDA_HOME` at the
 per-user cache, so the build is correct on either arda version.
+
+
+## 17. Phase 6 result — the definitive tables as they ship
+
+Measured 2026-09-25 on the full corpus, `engine="legacy"` (the arda swap waits for #327, §16).
+
+| Table | Rows | Cols | parquet | TSV |
+|---|---|---|---|---|
+| `records` | 192,753 | 33 | 1.2 MB | 45.8 MB |
+| `chains` | 286,047 | 17 | 9.2 MB | 54.0 MB |
+| `evidence` | 53,913 | 8 | 0.1 MB | 8.7 MB |
+| `vdjdb` (the joined view) | 286,047 | 54 | 10.8 MB | 129.4 MB |
+
+`vdjdb.schema.json` is 38.7 kB: every column of every declared table, its `vdjdb.meta.txt`
+attributes, its position in each table it appears in, and the dtype **read off the written frame**
+rather than declared, so the schema cannot claim a type the files do not have.
+
+### The closing criterion holds
+
+```
+vdjdb build --out out/                       # tables, then legacy from them
+vdjdb make legacy --tables out/tables        # legacy from the parquet that shipped
+vdjdb diff ref/vdjdb-2026-06-03.zip out/legacy-made   -> PASS
+```
+
+All five legacy members are **byte-identical** whether projected from the in-memory tables or read
+back from parquet, and the ledger verdict is unchanged: every difference is a declared rule firing
+its exact measured count. The legacy export is a projection of the database, not a second
+implementation of it.
+
+### `independent_study` — the first evidence producer
+
+The same computation as the §11.1 tuning objective, in one place, because "two papers found this
+receptor against this epitope" is both the strongest evidence a record carries and the signal a
+clustering must recover to be believed.
+
+| Scope | Clonotype-epitope pairs | With >= 2 distinct `reference.id` |
+|---|---|---|
+| human, on `chunks/` as submitted (§11.1) | 187,238 | 4,129 (2.21 %) |
+| human, on `chains` after CDR3 repair | 184,660 | 4,974 (2.69 %) |
+| all species, after repair | 201,825 | 5,047 (2.50 %) |
+
+The two human rows are the same definition at two stages: repair merges sequences, so pairs fall by
+2,578 and replication rises by 845. **The shipped evidence and the tuning objective both use the
+post-repair number**, because that is what the database contains; §11.1's figure stands as the
+`chunks/`-level measurement it was.
+
+That yields **53,913 evidence rows over 48,893 of 192,753 records (25.4 %)** — far above the 2.5 %
+of *pairs*, because the replicated clonotypes are the popular ones and each carries many records.
+`evidence_score` ranges 2 to 41 distinct references; `evidence_value` lists *the other* references,
+not the one the reader is already holding.
+
+### `clonotype_id`
+
+A seeded hash (`config.SEED`) of `(species, gene, cdr3, v.segm, j.segm)`, not a counter: a counter
+renumbers every clonotype the moment a chunk is added, and this id is what accumulated evidence
+joins on. **187,984 distinct ids for 187,984 distinct keys** — no collision, no split. Asserted on
+every real build (`tests/release/test_tables_contract.py`).
+
+### One defect the contract tests found
+
+34 `chains` rows were the tables' only nulls: a D-segment call with no CDR3, so the fixer was never
+handed anything and left no result. Filled — `-1` for the unmapped coordinates, `""` for the
+strings, `false` for the flags — because empty string is the only missing marker (CLAUDE.md rule 6)
+and a null in a shipped table is the pandas three-way ambiguity coming back. The legacy export gates
+all 34 on `cdr3 != ""`, so nothing shipped moved: verified byte-identical against the build made
+before the fix.
+
+### `record_id` is stable across builds, not yet across releases
+
+`registry/records.tsv` is not written by the build and not committed. The registry reconciles against
+an empty one every time, so ids are deterministic given the corpus but would shift the moment a chunk
+is added — which is the failure mode `identity/` exists to prevent.
+
+Measured: the registry is **72.7 MB** for 192,753 records (19.8 MB gzipped), and most of it is the
+packed previous natural key that amendment tracing needs. Committing it would add ~20 MB to the repo
+per curation PR, against a `chunks/` corpus of 42 MB. So it becomes a **release asset** that the
+build fetches, reviewed in the release diff rather than the PR diff — phase 14, where release assets
+already live. Until then, ship the tables without leaning on id stability across releases.
