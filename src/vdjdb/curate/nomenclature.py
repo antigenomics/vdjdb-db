@@ -300,14 +300,33 @@ def render_allele_renames(report: pl.DataFrame,
     return "\n".join(out)
 
 
+def render_mhc_renames(report: pl.DataFrame) -> str:
+    """The ``[[rename]]`` lines for :func:`harmonise_mhc`'s value substitutions.
+
+    Unconditional and injective: unlike a segment call, an MHC string is not touched by the CDR3
+    fixer, so what the reference ships is what the chunk wrote. The chain-order swap is **not** here
+    -- it rewrites two columns at once and lands in a declared row delta instead.
+    """
+    out = []
+    for _issue, column, old, new, n in report.iter_rows():
+        if "," in column:
+            continue
+        out += ["[[rename]]", f"columns = {json.dumps(column)}", f"from = {json.dumps(old)}",
+                f"to = {json.dumps(new)}", f"records = {n}", ""]
+    return "\n".join(out)
+
+
 def write_renames(report: pl.DataFrame, path: Path,
                   resolve: Callable[[str, str], str] | None = None,
-                  alleles: pl.DataFrame | None = None) -> int:
+                  alleles: pl.DataFrame | None = None,
+                  mhc: pl.DataFrame | None = None) -> int:
     """Replace the generated block in ``path`` (appending it if absent). Returns the rename count."""
     block = render_renames(report, resolve)
-    if alleles is not None and not alleles.is_empty():
-        extra = render_allele_renames(alleles, resolve)
-        block = block.replace(_END, extra + _END)
+    for extra in (render_allele_renames(alleles, resolve) if alleles is not None
+                  and not alleles.is_empty() else "",
+                  render_mhc_renames(mhc) if mhc is not None and not mhc.is_empty() else ""):
+        if extra:
+            block = block.replace(_END, extra + _END)
     text = path.read_text() if path.exists() else ""
     if _BEGIN in text and _END in text:
         head, rest = text.split(_BEGIN, 1)
@@ -375,4 +394,80 @@ def disambiguate_alleles(df: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFrame]:
     report = pl.DataFrame(rows, schema={"issue": pl.String, "column": pl.String,
                                         "species": pl.String, "from": pl.String, "to": pl.String,
                                         "signature": pl.String, "rows": pl.UInt32})
+    return df, report.sort("issue", "column", "from")
+
+
+# ---------------------------------------------------------------------------------------------
+# MHC
+# ---------------------------------------------------------------------------------------------
+
+#: Murine class-II molecules written more than one way. `proofreading/mhc.md` names the convention --
+#: class II is ``I-<locus><haplotype>`` -- and each target below is also the spelling that already
+#: dominates its group, so nothing new is introduced. Measured on the assembled records.
+#:
+#: The fragmentation is the defect: `vdjdb-web` groups motifs by MHC string, so three spellings of
+#: I-A\\ :sup:`b` split one molecule's records three ways and cost the smaller two their motif badge.
+MURINE_MHC: dict[str, str] = {
+    "H2-IAb": "I-Ab",        # 113 records; `I-Ab` is the convention and dominates 1,368 : 113
+    "H2-Ag7": "H2-IAg7",     # 3; the `I` dropped, and `H2-IAg7` dominates 333 : 3
+    "H2-Ed": "H2-IEd",       # 2; likewise, 30 : 2
+    "H-2Aa": "H2-Aa",        # 18; hyphen placement only
+    "H-2Eb1": "H2-Eb1",      # 7; hyphen placement only
+}
+
+#: Alleles a publication reports that do not exist. #467: all 80 ``HLA-A*24:01`` records come from one
+#: reference, ``doi:10.1016/j.xcrm.2023.101017``, which reports testing in ``A*24:02``; IPD-IMGT/HLA
+#: lists **no** ``A*24:01`` at any resolution (0 rows against 342 for ``A*24:02``).
+MHC_ALLELES: dict[str, str] = {"HLA-A*24:01": "HLA-A*24:02"}
+
+#: Class-II alpha-chain genes. ``mhc.a`` is the first chain and carries these; ``mhc.b`` the
+#: second one.
+MHC_ALPHA: tuple[str, ...] = ("HLA-DRA", "HLA-DQA1", "HLA-DQA2", "HLA-DPA1", "HLA-DPA2")
+MHC_BETA: tuple[str, ...] = ("HLA-DRB1", "HLA-DRB3", "HLA-DRB4", "HLA-DRB5", "HLA-DQB1",
+                             "HLA-DQB2", "HLA-DPB1", "HLA-DPB2")
+
+MHC_COLUMNS: tuple[str, ...] = ("mhc.a", "mhc.b")
+
+
+def harmonise_mhc(df: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFrame]:
+    """Collapse MHC spellings and put the alpha chain in ``mhc.a``. Returns ``(frame, report)``.
+
+    Three corrections, each with its own evidence:
+
+    * **murine class-II fragmentation** -- :data:`MURINE_MHC`, one molecule per spelling group;
+    * **an allele that does not exist** -- :data:`MHC_ALLELES`, absent from IPD-IMGT/HLA (#467);
+    * **alpha and beta swapped** -- 149 records carry a beta-chain gene in ``mhc.a`` and an
+      alpha-chain gene in ``mhc.b``. The gene symbol says which chain it is, so this needs no
+      judgement.
+
+    #564 (``DPA`` vs ``DPA1``, ``DRA1`` vs ``DRA``) is **already fixed** in the corpus: measured, zero
+    chunk rows carry a malformed class-II gene symbol. The issue is stale.
+    """
+    rows: list[dict[str, object]] = []
+
+    def record(issue: str, column: str, old: str, new: str, n: int) -> None:
+        rows.append({"issue": issue, "column": column, "from": old, "to": new, "rows": n})
+
+    for column in MHC_COLUMNS:
+        if column not in df.columns:
+            continue
+        for table, issue in ((MURINE_MHC, "murine-mhc2"), (MHC_ALLELES, "#467")):
+            for old, new in table.items():
+                n = df.filter(pl.col(column) == old).height
+                if n:
+                    record(issue, column, old, new, n)
+            df = df.with_columns(pl.col(column).replace(table).alias(column))
+
+    if all(c in df.columns for c in MHC_COLUMNS):
+        gene = {c: pl.col(c).str.split("*").list.first() for c in MHC_COLUMNS}
+        swapped = (gene["mhc.a"].is_in(list(MHC_BETA)) & gene["mhc.b"].is_in(list(MHC_ALPHA)))
+        n = df.filter(swapped).height
+        if n:
+            record("mhc-chain-order", "mhc.a,mhc.b", "beta,alpha", "alpha,beta", n)
+            df = df.with_columns(
+                pl.when(swapped).then(pl.col("mhc.b")).otherwise(pl.col("mhc.a")).alias("mhc.a"),
+                pl.when(swapped).then(pl.col("mhc.a")).otherwise(pl.col("mhc.b")).alias("mhc.b"),
+            )
+    report = pl.DataFrame(rows, schema={"issue": pl.String, "column": pl.String, "from": pl.String,
+                                        "to": pl.String, "rows": pl.Int64})
     return df, report.sort("issue", "column", "from")

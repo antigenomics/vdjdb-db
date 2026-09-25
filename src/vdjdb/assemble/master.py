@@ -17,7 +17,11 @@ from pathlib import Path
 import polars as pl
 
 from ..config import Paths
-from ..curate.nomenclature import disambiguate_alleles, harmonise_segments
+from ..curate.nomenclature import (
+    disambiguate_alleles,
+    harmonise_mhc,
+    harmonise_segments,
+)
 from ..curate.patch import apply_antigen_patch
 from ..io.chunks import read_chunks
 from ..schema import ALL_COLUMNS, FULL_COLUMNS
@@ -159,6 +163,8 @@ def build_master(paths: Iterable[Path] | None = None,
     # Where two alleles differ inside the junction, the sequence is evidence and the submitted call
     # is not (#327). Runs after the spelling pass so it sees IMGT names.
     df, _ = disambiguate_alleles(df)
+    # MHC spelling, the allele that does not exist (#467), and the class-II chain order.
+    df, _ = harmonise_mhc(df)
     # Identity is assigned on what the publications reported, before any repair. Afterwards, CDR3
     # fixing would have merged 215 pairs of records the publications reported separately -- two
     # trimmed sequences repaired to the same full one are still two observations.
