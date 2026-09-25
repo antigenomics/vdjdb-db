@@ -41,7 +41,7 @@ line-length = 110
 src = ["src", "tests"]
 # Retired Groovy-era Python and the pandas pipeline being replaced. Reference only -- reformatting
 # them would bury the real diff in noise. Both leave the tree in ROADMAP phases 5 and 14.
-exclude = ["src/*.py", "py_src"]
+exclude = ["py_src", "src/AlignBestSegments.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]

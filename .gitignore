@@ -121,3 +121,4 @@ uv.lock.tmp
 /test_*.py
 /*.out
 /*.log
+ref/

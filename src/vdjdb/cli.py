@@ -25,7 +25,6 @@ _PENDING = {
     "motifs": "10-11 (feature/motifs-*)",
     "summary": "12 (feature/summary)",
     "release": "14 (feature/release-tooling)",
-    "diff": "2 (feature/golden-harness)",
     "make": "6 (feature/new-format)",
     "convert": "7 (feature/airr)",
     "refs": "12 (feature/summary)",
@@ -112,9 +111,24 @@ def summary(out: Path = typer.Option(Path("out"))) -> None:
 
 
 @app.command()
-def diff(against: str = typer.Option(..., help="Release tag or path to a reference zip.")) -> None:
-    """Produce the difference ledger against a released build."""
-    _pending("diff")
+def diff(
+    reference: Path = typer.Argument(..., help="Reference release zip or directory."),
+    candidate: Path = typer.Argument(..., help="Candidate build directory or zip."),
+    rules: Path = typer.Option(Path("rules/expected_diffs.toml"),
+                               help="Declared expected differences."),
+    report: Path | None = typer.Option(None, help="Write the ledger here as Markdown."),
+) -> None:
+    """Compare a candidate build against a released bundle and attribute every difference."""
+    from .compare.diff import diff as run_diff
+    from .compare.diff import render
+
+    result = run_diff(reference, candidate, rules if rules.exists() else None)
+    text = render(result)
+    if report:
+        report.parent.mkdir(parents=True, exist_ok=True)
+        report.write_text(text)
+    typer.echo(text, nl=False)
+    raise typer.Exit(0 if result.ok else 1)
 
 
 @app.command()
