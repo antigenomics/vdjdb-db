@@ -56,11 +56,16 @@ ignore = ["B008"]
 "src/vdjdb/schema/__init__.py" = ["F401"]
 
 [tool.mypy]
-python_version = "3.11"
+# 3.12 rather than the 3.11 floor in `requires-python`: numpy's own stubs use a 3.12 `type`
+# statement, and a syntax error in a followed stub stops the check before it reaches our code --
+# `follow_imports = "skip"` cannot suppress it. Nothing here uses 3.12-only syntax; a CI job on the
+# real floor is what would catch that, not the type checker's assumed version.
+python_version = "3.12"
 # Strict only where correctness is load-bearing: the column registry every output projects from,
 # and the coordinate conversions between the four spaces documented in CLAUDE.md.
 files = ["src/vdjdb/schema", "src/vdjdb/convert"]
 strict = true
+
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

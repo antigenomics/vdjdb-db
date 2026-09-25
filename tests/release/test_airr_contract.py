@@ -1,0 +1,73 @@
+"""AIRR conformance and the legacy-vs-tables property, on a real build.
+
+Marked ``release``: needs a built directory (``VDJDB_TABLES``, default ``out/tables``) and the legacy
+projection beside it. The unit tests cover the mappings; these two properties only mean something at
+corpus scale.
+"""
+from __future__ import annotations
+
+import os
+from pathlib import Path
+
+import airr as A
+import polars as pl
+import pytest
+
+from vdjdb.emit import airr
+from vdjdb.emit.vdjdb3 import read_tables
+
+pytestmark = pytest.mark.release
+
+#: Chains the legacy build drops: the 1,467 chains of 1,141 records whose chain carried a CDR3 with
+#: no V or J (it drops the record whole, both chains), plus 34 D-only chains with no CDR3 at all.
+LEGACY_DROPS_CHAINS = 1_501
+LEGACY_DROPS_RECORDS = 1_141
+
+
+@pytest.fixture(scope="module")
+def built() -> tuple[dict[str, pl.DataFrame], pl.DataFrame]:
+    d = Path(os.environ.get("VDJDB_TABLES", "out/tables"))
+    legacy = d.parent / "legacy" / "vdjdb.txt"
+    if not (d / "records.parquet").exists() or not legacy.exists():
+        pytest.skip(f"no build at {d.parent}; run `vdjdb build --out out/`")
+    return read_tables(d), pl.read_csv(legacy, separator="\t", infer_schema=False, quote_char=None)
+
+
+def test_the_whole_rearrangement_table_passes_the_airr_validator(built, tmp_path):
+    """Phase 7's acceptance criterion."""
+    tables, _ = built
+    airr.write_all(airr.from_tables(tables), tmp_path)
+    assert A.validate_rearrangement(tmp_path / "vdjdb.rearrangement.tsv")
+
+
+def test_the_legacy_path_is_a_strict_subset_of_the_tables_path(built):
+    """`d_call` is excluded: legacy `vdjdb.txt` has no D column, so it is information the file cannot
+    carry rather than a disagreement. 42,574 beta chains have a D call in the tables."""
+    tables, legacy = built
+    keys = ["locus", "v_call", "j_call", "junction_aa", "cdr3_aa"]
+    a = airr.from_tables(tables)["rearrangement"].select(keys).group_by(keys).len()
+    b = airr.from_legacy(legacy)["rearrangement"].select(keys).group_by(keys).len()
+    j = a.join(b, on=keys, how="full", suffix="_legacy", coalesce=True).fill_null(0)
+
+    assert j.filter(pl.col("len") == 0)["len_legacy"].sum() == 0, "legacy invented rows"
+    assert j.filter(pl.col("len_legacy") > pl.col("len")).is_empty(), "legacy has more of a row"
+    excess = (j["len"] - j["len_legacy"])
+    assert excess.filter(excess > 0).sum() == LEGACY_DROPS_CHAINS
+
+
+def test_reactivity_agrees_and_the_tables_keep_the_records_legacy_drops(built):
+    tables, legacy = built
+    keys = [c for c in airr.REACTIVITY_COLUMNS if c not in ("reactivity_id", "cell_id")]
+    a = airr.from_tables(tables)["reactivity"].select(keys).group_by(keys).len()
+    b = (airr.from_legacy(legacy)["reactivity"].select(keys)
+         .with_columns(pl.col("reactivity_value").cast(pl.Int64)).group_by(keys).len())
+    j = a.join(b, on=keys, how="full", suffix="_legacy", coalesce=True).fill_null(0)
+
+    assert j.filter(pl.col("len") == 0)["len_legacy"].sum() == 0
+    excess = (j["len"] - j["len_legacy"])
+    assert excess.filter(excess > 0).sum() == LEGACY_DROPS_RECORDS
+
+
+def test_every_chain_has_a_rearrangement_row(built):
+    tables, _ = built
+    assert airr.from_tables(tables)["rearrangement"].height == tables["chains"].height

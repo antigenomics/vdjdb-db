@@ -45,6 +45,12 @@ class Field:
     data_type: str = "factor"
     title: str = ""
     comment: str = ""
+    #: The AIRR field this column maps to, or empty. Declared here so the AIRR emitter and the
+    #: docs mapping table are two projections of one statement rather than two hand-written lists.
+    #: Empty is not "no counterpart exists" but "none that is the *same* quantity": VDJdb's
+    #: `v.end` is an amino-acid offset in junction space and AIRR's `v_sequence_end` a nucleotide
+    #: offset in sequence space, so declaring them equal would be a lie (see `convert.coords`).
+    airr: str = ""
 
     def meta_row(self) -> str:
         return "\t".join((self.name, self.type, str(self.visible), str(self.searchable),
@@ -63,24 +69,25 @@ FIELDS: dict[str, Field] = dict([
        title="complex.id",
        comment="TCR alpha and beta chain records having the same complex identifier belong to the "
                "same T-cell clone."),
-    _f("gene", title="Gene", comment="TCR chain: alpha or beta."),
-    _f("cdr3", type=SEQ, autocomplete=0, data_type="cdr3", title="CDR3",
+    _f("gene", airr="locus", title="Gene", comment="TCR chain: alpha or beta."),
+    _f("cdr3", airr="junction_aa", type=SEQ, autocomplete=0, data_type="cdr3", title="CDR3",
        comment="TCR complementarity determining region 3 (CDR3) amino acid sequence."),
-    _f("v.segm", title="V", comment="TCR Variable segment allele."),
-    _f("j.segm", title="J", comment="TCR Joining segment allele."),
+    _f("v.segm", airr="v_call", title="V", comment="TCR Variable segment allele."),
+    _f("j.segm", airr="j_call", title="J", comment="TCR Joining segment allele."),
     _f("species", title="Species", comment="TCR parent species."),
-    _f("mhc.a", title="MHC A", comment="First MHC chain allele."),
-    _f("mhc.b", title="MHC B",
+    _f("mhc.a", airr="mhc_allele_1", title="MHC A", comment="First MHC chain allele."),
+    _f("mhc.b", airr="mhc_allele_2", title="MHC B",
        comment="Second MHC chain allele (defaults to Beta2Microglobulin for MHC class I)."),
-    _f("mhc.class", title="MHC class", comment="MHC class (I or II)."),
-    _f("antigen.epitope", type=SEQ, data_type="peptide", title="Epitope",
+    _f("mhc.class", airr="mhc_class", title="MHC class", comment="MHC class (I or II)."),
+    _f("antigen.epitope", airr="peptide_sequence_aa", type=SEQ, data_type="peptide", title="Epitope",
        comment="Amino acid sequence of the epitope."),
-    _f("antigen.gene", title="Epitope gene", comment="Representative parent gene of the epitope."),
-    _f("antigen.species", title="Epitope species",
+    _f("antigen.gene", airr="antigen", title="Epitope gene",
+       comment="Representative parent gene of the epitope."),
+    _f("antigen.species", airr="antigen_source_species", title="Epitope species",
        comment="Representative parent species of the epitope."),
-    _f("reference.id", data_type="url", title="Reference",
+    _f("reference.id", airr="reactivity_refs", data_type="url", title="Reference",
        comment="Pubmed reference / URL / or submitter details in case unpublished."),
-    _f("vdjdb.score", autocomplete=0, data_type="uint", title="Info",
+    _f("vdjdb.score", airr="reactivity_value", autocomplete=0, data_type="uint", title="Info",
        comment="VDJdb confidence score, the higher is the score the more confidence we have in the "
                "antigen specificity annotation of a given TCR clonotype/clone. Zero score indicates "
                "that there are insufficient method details to draw any conclusion."),
@@ -212,7 +219,7 @@ FIELDS: dict[str, Field] = dict([
     _f("clonotype_id", searchable=0, autocomplete=0, data_type="uint", title="Clonotype id",
        comment="Identifies a receptor chain: a hash of species, gene, CDR3, V and J. Records "
                "reporting the same chain share it, and motif evidence attaches at this level."),
-    _f("d.segm", title="D", comment="TCR Diversity segment allele."),
+    _f("d.segm", airr="d_call", title="D", comment="TCR Diversity segment allele."),
     _f("cdr3.original", type=SEQ, autocomplete=0, data_type="cdr3", title="CDR3 as submitted",
        comment="The CDR3 as the reference publication reported it, before repair."),
     _f("fix.needed", searchable=0, autocomplete=0, data_type="bool", title="Fix needed",
@@ -382,6 +389,9 @@ CHUNK_DEDUP_KEY: tuple[str, ...] = (
     "meta.replica.id", "meta.clone.id", "meta.tissue",
 )
 
+#: VDJdb column -> AIRR field, projected from the registry so it cannot be restated anywhere.
+AIRR_MAP: dict[str, str] = {}   # populated below, after FIELDS is complete
+
 SPECIES: frozenset[str] = frozenset({
     "HomoSapiens", "MusMusculus", "RattusNorvegicus", "MacacaMulatta",
 })
@@ -399,6 +409,9 @@ TABLES: dict[str, tuple[str, ...]] = {
     "chains": CHAIN_COLUMNS,
     "evidence": EVIDENCE_TABLE_COLUMNS,
 }
+
+
+AIRR_MAP.update({f.name: f.airr for f in FIELDS.values() if f.airr})
 
 
 def fields(table: str) -> tuple[Field, ...]:
@@ -449,7 +462,7 @@ def schema_json(dtypes: dict[str, dict[str, str]] | None = None, *, indent: int 
         entry: dict[str, object] = {
             "name": f.name, "type": f.type, "visible": f.visible, "searchable": f.searchable,
             "autocomplete": f.autocomplete, "data_type": f.data_type, "title": f.title,
-            "comment": f.comment, "position": where,
+            "comment": f.comment, "airr": f.airr, "position": where,
         }
         seen = {dtypes[t][name] for t in where if name in dtypes.get(t, {})}
         if seen:
