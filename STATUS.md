@@ -4,7 +4,7 @@ _Last updated: 2026-09-25_
 
 ## In flight
 
-**Phase 0 — `feature/dev-baseline`.** Repo documents, package skeleton, the two fast CI workflows.
+**Phase 0 — `feature/dev-baseline`** (merged) and **`feature/record-identity`** (on `dev`).
 
 | Item | State |
 |---|---|
@@ -16,6 +16,10 @@ _Last updated: 2026-09-25_
 | `vdjdb qc` chunk lint + 15 unit tests | done — 230 chunks, 103 findings (99 CRLF) |
 | `.github/workflows/chunk-check.yml` | done |
 | `.github/workflows/branch-policy.yml` | done |
+| record identity + registry (`src/vdjdb/identity/`) | done — 192,753 rows → 192,734 records in 2.0 s, ids stable |
+| `docs/outputs.md` — spec of every produced file | done |
+| proprietary-data guard (`src/vdjdb/validate/`) | done — wired into `chunk-check.yml` |
+| 65 unit tests | passing |
 
 Nothing in phase 0 changes build behaviour. `release.sh` and the existing pandas pipeline still work
 untouched.
@@ -23,10 +27,11 @@ untouched.
 ## Branches
 
 ```
-master                 3389001   (origin/master)
-dev                    711ede8   ← phase 0 merged; not yet pushed
-feature/dev-baseline   99779ca   merged into dev
-hotfix                 a39fc86   1 commit ahead of master (compute_pdb_cdr3fix.py); unmerged
+master                   3389001   (origin/master)
+dev                      711ede8   phase 0 merged
+feature/record-identity  f6dc4d4   ← current; identity + spec + guard
+feature/dev-baseline     99779ca   merged into dev
+hotfix                   a39fc86   1 commit ahead of master; unmerged
 ```
 
 Nothing is pushed yet. `dev` and the phase-0 commit are local.
@@ -35,14 +40,17 @@ Nothing is pushed yet. `dev` and the phase-0 commit are local.
 whether that lands on `dev` or is superseded by phase 5 (`arda.cdr3fix` makes the script redundant —
 the same lookup falls out of `markup_batch`).
 
+## Decided since
+
+All three questions are settled — see `ROADMAP.md` §9. The new format owns `evidence.*`; the five
+debug columns are kept; the side outputs are produced but not zipped.
+
 ## Blocked / needs a decision
 
 | Item | Blocks | Question |
 |---|---|---|
-| `evidence.*` columns | phase 6 | Nothing in this repo produces the five columns production serves. Does the new format take ownership? |
-| Seven unshipped side outputs | phase 6 | `vdjdb_full_filtered.txt`, three `*_broken.txt`, three `*_scored.txt` → `build/reports/*`, or retire? |
-| Five discarded chunk columns | phase 1 | `submitter`, `chunk.id`, `comment`, `meta.subset.frequency`, `method.pairing` — promote or declare `TOLERATED_DROPPED`? |
 | `vdjmatch` `_zip_asset` patch | the first multi-zip release | Needs a patch + release in `antigenomics/vdjmatch` first. See `ROADMAP.md` §3.1 |
+| Motif `coef` calibration | phase 11 | Needs the motif pipeline running before it can be fitted against the study-support objective |
 
 ## Next
 
