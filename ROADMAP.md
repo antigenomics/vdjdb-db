@@ -1396,3 +1396,60 @@ and keeps the best member, so what ships is a selection, not a rename.
 `vdjdb rules` regenerates the block from a build; the reviewable artifact is its diff in a curation
 pull request, and the ledger's complementary job is proving nothing else moved. **Verdict: PASS** with
 28 declared rules, 32 renames and 3 row deltas.
+
+
+## 24. Phase 9b result — TRAJ24*01 vs *02 (#327), the arda gate
+
+`TRAJ24*01` encodes `…GGK**FE**F…` and `*02` `…GGK**LQ**F…`: two residues apart, both inside the
+junction, so **the sequence is evidence and the submitted call is not.**
+
+Measured on the corpus, human, across the whole TRAJ24 family (1,444 records):
+
+| `j.alpha` as submitted | Records | carrying `WGKLQF` (*02) | carrying `WGKFEF` (*01) |
+|---|---|---|---|
+| `TRAJ24` (no allele) | 1,298 | 974 | **0** |
+| `TRAJ24*01` | 111 | **73** | **0** |
+| `TRAJ24*02` | 34 | 33 | **0** |
+| `TRAJ24-1` | 1 | 0 | 0 |
+
+**`WGKFEF` appears zero times in the entire corpus.** The original report was that about two thirds of
+explicit `*01` calls are probably `*02`; the sequence says it more strongly — not one of the 111 carries
+the `*01` signature, and 73 carry the other one. The 364 with neither have a CDR3 trimmed short of the
+anchor: no evidence, no correction.
+
+**1,047 records corrected, and every one of them gains a J germline mapping:**
+
+| | Chains |
+|---|---|
+| `j.segm` changed | 1,047 |
+| **`j.start` mappings gained** (was `-1`) | **1,047** |
+| `j.start` mappings lost | **0** |
+| repaired CDR3 changed | **0** |
+
+Afterwards `TRAJ24*02` has 1,081 chains of which 1,080 map (99.9 %), while `TRAJ24*01` keeps 439 of
+which only 66 map — those are the no-signature records, whose CDR3 genuinely does not reach the
+anchor. The correction did not need to alter a single sequence; the repair simply could not place them
+against the wrong allele.
+
+`res/segments.txt` carries both alleles, so nothing is lost. OLGA's model carries only `TRAJ24*01`, so
+the 1,047 now marginalise over J in junction-nucleotide inference rather than pinning it — a small,
+recorded cost of being right.
+
+### This is the gate §16 named
+
+The arda swap was held because *"repairing against a wrong allele call is what produces the worst of
+these differences, and phase 9 fixes the calls."* It is now fixed, together with #389's 1,511 gained
+V-end mappings. The swap can be re-measured against a corpus whose allele calls are correct, which is
+what it was always waiting for.
+
+### Conditional renames
+
+An allele correction is **not injective on value alone**: the fixer resolves a bare `TRAJ24` to
+`*01`, so the reference ships the same `TRAJ24*01` for the 1,047 records the CDR3 corrects and the 38
+it does not. So a rename may now carry the **same predicate the rule used** —
+`when_columns = "cdr3,cdr3.alpha"`, `when_contains = "WGKLQF"` — and the ledger applies it to the
+reference under the same evidence. Conditional renames are evaluated against a snapshot taken before
+any of them apply, for the same reason the unconditional ones share one mapping: otherwise they chain.
+
+**Verdict: PASS**, 0 unattributed cells, with 11 extra row-delta rows per file where correcting the
+allele changed the repair enough to break injectivity.

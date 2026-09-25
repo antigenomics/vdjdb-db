@@ -443,10 +443,21 @@ class Rename:
     from_: str
     to: str
     files: tuple[str, ...] = ()          # empty = every table
+    #: Optional evidence: rewrite only rows where one of these columns contains ``when_contains``.
+    #: Without it a rename must be injective on value alone, which an evidence-based correction is
+    #: not -- the 1,047 TRAJ24 records the CDR3 identifies as ``*02`` ship the same ``TRAJ24*01`` as
+    #: the 38 it does not, so an unconditional rename would rewrite both.
+    when_columns: tuple[str, ...] = ()
+    when_contains: str = ""
 
     @property
     def id(self) -> str:
-        return f"{self.from_} -> {self.to}"
+        base = f"{self.from_} -> {self.to}"
+        return f"{base} [{self.when_contains}]" if self.when_contains else base
+
+    @property
+    def conditional(self) -> bool:
+        return bool(self.when_columns and self.when_contains)
 
     def applies_to(self, file: str) -> bool:
         return not self.files or file in self.files
@@ -458,7 +469,10 @@ def load_renames(path: Path) -> list[Rename]:
     raw = tomllib.loads(path.read_text())
     return [Rename(columns=tuple(c.strip() for c in r["columns"].split(",")),
                    from_=r["from"], to=r["to"],
-                   files=tuple(f.strip() for f in r.get("files", "").split(",") if f.strip()))
+                   files=tuple(f.strip() for f in r.get("files", "").split(",") if f.strip()),
+                   when_columns=tuple(c.strip() for c in r.get("when_columns", "").split(",")
+                                      if c.strip()),
+                   when_contains=r.get("when_contains", ""))
             for r in raw.get("rename", [])]
 
 
@@ -473,18 +487,45 @@ def _apply_renames(name: str, df: pl.DataFrame,
     """
     counts: dict[str, int] = {}
     per_column: dict[str, dict[str, str]] = {}
+    conditional: list[Rename] = []
     for r in renames:
         if not r.applies_to(name):
             continue
         cols = [c for c in r.columns if c in df.columns]
         if not cols:
             continue
-        hits = df.select(pl.any_horizontal(*[pl.col(c) == r.from_ for c in cols]).sum()).item()
-        counts[r.id] = counts.get(r.id, 0) + int(hits)
-        for c in cols:
-            per_column.setdefault(c, {})[r.from_] = r.to
+        mask = pl.any_horizontal(*[pl.col(c) == r.from_ for c in cols])
+        if r.conditional:
+            evidence = [c for c in r.when_columns if c in df.columns]
+            if not evidence:
+                continue
+            mask = mask & pl.any_horizontal(
+                *[pl.col(c).str.contains(r.when_contains, literal=True) for c in evidence])
+            conditional.append(r)
+        else:
+            for c in cols:
+                per_column.setdefault(c, {})[r.from_] = r.to
+        counts[r.id] = counts.get(r.id, 0) + int(df.select(mask.sum()).item())
+
     if per_column:
         df = df.with_columns(*[pl.col(c).replace(m) for c, m in sorted(per_column.items())])
+    if conditional:
+        # Every conditional is evaluated against a snapshot taken before any of them apply, for the
+        # same reason the unconditional ones share one mapping: otherwise they chain.
+        snap = {c: f"__snap\x1f{c}"
+                for c in sorted({c for r in conditional for c in r.columns if c in df.columns})}
+        df = df.with_columns(*[pl.col(c).alias(s) for c, s in snap.items()])
+        for c, s in snap.items():
+            expr = pl.col(c)
+            for r in conditional:
+                if c not in r.columns:
+                    continue
+                evidence = [e for e in r.when_columns if e in df.columns]
+                expr = pl.when((pl.col(s) == r.from_) & pl.any_horizontal(
+                    *[pl.col(e).str.contains(r.when_contains, literal=True) for e in evidence])
+                ).then(pl.lit(r.to)).otherwise(expr)
+            df = df.with_columns(expr.alias(c))
+        df = df.drop(list(snap.values()))
     return df, counts
 
 

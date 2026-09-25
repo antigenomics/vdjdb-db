@@ -106,3 +106,64 @@ def test_the_generated_block_is_replaced_in_place_not_appended(tmp_path):
     N.write_renames(report, path, lambda sp, c: c)
     text = path.read_text()
     assert text.count("[[rename]]") == 1 and "keep-me" in text
+
+
+# -- allele disambiguation from the CDR3 (#327) --------------------------------------------------
+
+def _traj24(calls, cdr3s, species=None):
+    n = len(calls)
+    return pl.DataFrame({
+        "species": species or ["HomoSapiens"] * n,
+        "j.alpha": calls, "cdr3.alpha": cdr3s,
+        "v.alpha": [""] * n, "v.beta": [""] * n, "d.beta": [""] * n, "j.beta": [""] * n,
+    })
+
+
+def test_the_cdr3_decides_the_allele_whatever_the_submitter_wrote():
+    """73 of the 111 records explicitly called *01 carry the *02 signature; none carry *01's."""
+    df = _traj24(["TRAJ24", "TRAJ24*01", "TRAJ24*02"], ["CAWGKLQF"] * 3)
+    out, report = N.disambiguate_alleles(df)
+    assert out["j.alpha"].to_list() == ["TRAJ24*02"] * 3
+    assert report["rows"].sum() == 2          # the one already correct is not a change
+
+
+def test_the_other_allele_signature_is_honoured_symmetrically():
+    """`WGKFEF` appears zero times in the corpus today; the rule must still be the right one."""
+    out, _ = N.disambiguate_alleles(_traj24(["TRAJ24*02"], ["CAWGKFEF"]))
+    assert out["j.alpha"].to_list() == ["TRAJ24*01"]
+
+
+def test_a_cdr3_with_no_signature_is_left_alone():
+    """364 records have a CDR3 trimmed short of the anchor. No evidence, no correction."""
+    out, report = N.disambiguate_alleles(_traj24(["TRAJ24", "TRAJ24*01"], ["CAVSDLE", "CAVSDLE"]))
+    assert out["j.alpha"].to_list() == ["TRAJ24", "TRAJ24*01"]
+    assert report.is_empty()
+
+
+def test_a_cdr3_carrying_both_signatures_contradicts_itself_and_is_refused():
+    out, _ = N.disambiguate_alleles(_traj24(["TRAJ24"], ["CAWGKLQFWGKFEF"]))
+    assert out["j.alpha"].to_list() == ["TRAJ24"]
+
+
+def test_another_species_is_not_touched_by_a_human_rule():
+    out, _ = N.disambiguate_alleles(_traj24(["TRAJ24"], ["CAWGKLQF"], ["MusMusculus"]))
+    assert out["j.alpha"].to_list() == ["TRAJ24"]
+
+
+def test_a_different_gene_is_not_touched():
+    out, _ = N.disambiguate_alleles(_traj24(["TRAJ42*01"], ["CAWGKLQF"]))
+    assert out["j.alpha"].to_list() == ["TRAJ42*01"]
+
+
+def test_the_allele_rename_carries_its_evidence_into_the_ledger():
+    """Not injective on value alone: the fixer resolves a bare `TRAJ24` to `*01`, so the reference
+    ships the same value for the records the CDR3 corrects and the ones it does not."""
+    report = pl.DataFrame({"issue": ["#327"] * 2, "column": ["j.alpha"] * 2,
+                           "species": ["HomoSapiens"] * 2, "from": ["TRAJ24", "TRAJ24*01"],
+                           "to": ["TRAJ24*02"] * 2, "signature": ["WGKLQF"] * 2,
+                           "rows": pl.Series([974, 73], dtype=pl.UInt32)})
+    block = N.render_allele_renames(report, lambda sp, c: "TRAJ24*01" if c == "TRAJ24" else c)
+    assert block.count("[[rename]]") == 1, "both rows resolve to one reference value"
+    assert 'from = "TRAJ24*01"' in block and 'to = "TRAJ24*02"' in block
+    assert 'when_contains = "WGKLQF"' in block
+    assert "records = 1047" in block

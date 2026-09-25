@@ -4,7 +4,7 @@ _Last updated: 2026-09-25_
 
 ## In flight
 
-**Phase 8 — `feature/receptor`**, merging to `dev`. Phase 8 is complete; phase 9 is next.
+**Phase 9 — `feature/harmonize-rules`**. #389 and #327 are landed; #368, #347, #561, #564, #467 and the murine MHC-II fragmentation remain.
 
 | Phase | Branch | State |
 |---|---|---|
@@ -19,7 +19,8 @@ _Last updated: 2026-09-25_
 | 8a | `feature/junction-nt` | merged — 261,097 `cdr3nt`, 0 back-translation mismatches |
 | 8b | `feature/dgene` | merged — D geometry from the junction scenario, confidence from `arda.dpost` |
 | 8c | `feature/segment-guess` | merged — the legacy V guesser has never worked; Pgen fills 686 of 711 gaps |
-| 8d | `feature/receptor` | **AIRR `Receptor`, 81,003 rows; stitching vectorised to 2.7 s** |
+| 8d | `feature/receptor` | merged — AIRR `Receptor`, 81,003 rows; stitching vectorised to 2.7 s |
+| 9 | `feature/harmonize-rules` | **#389 (1,511 V-ends gained) and #327 (1,047 J-starts gained) landed; ledger PASS** |
 
 ```
 uv run vdjdb build --out out/                          # tables + every projection, 15 s
@@ -50,13 +51,14 @@ of pandas type coercions the all-string reader undoes (~55k cells). See `ROADMAP
 
 ## Next
 
-1. **Phase 8** — `junction-nt` (#461), `segment-guess` (#462), `dgene`, one branch each. These fill
-   the `chains` columns phase 6 declared but left absent (`cdr3nt`, `cdr3nt.pgen`, `cdr3nt.margin`,
-   `d.start`, `d.end`) and the AIRR nucleotide fields phase 7 left empty. **AIRR `Receptor` rides
-   along**: `vdjtools.model.stitch_*` produces the complete variable domain its two required columns
-   need (`ROADMAP.md` §18).
-2. **Phase 9** (`feature/harmonize-rules`) — **#327 lands here, and it gates the arda swap.**
-3. `uv lock`, push `dev`, let `chunk-check` run once **before** applying branch protection.
+1. **Finish phase 9**: the murine MHC-II fragmentation (3,396 records across three spellings of
+   I-A<sup>b</sup>), #564/#467 MHC allele spelling against `proofreading/mhc_alleles.tsv.gz`, #368
+   `antigen.gene`/`antigen.species` via `proofreading/{gene,species}_aliases.tsv`, #347 reference ids,
+   #561 identical alpha and beta CDR3.
+2. **Decide whether the legacy build should keep the 711 chains with no V** now that #462 can supply
+   one for 686 of them (`ROADMAP.md` §21).
+3. **Re-measure the arda swap** (`ROADMAP.md` §16, §24). Its gate was #327, and #327 has landed.
+4. `uv lock`, push `dev`, let `chunk-check` run once **before** applying branch protection.
 
 ## Blocked / needs a decision
 
