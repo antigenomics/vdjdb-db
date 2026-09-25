@@ -18,13 +18,14 @@ and :func:`reactivity` take one frame in VDJdb vocabulary and there is no second
 the legacy path to drift from. :func:`from_tables` and :func:`from_legacy` differ only in how they
 assemble that input.
 
-Two things are deliberately absent:
+``Receptor`` joins them once the nucleotide junction exists (phase 8): its two domain columns are
+the *complete* mature variable domain and non-nullable, so they are rebuilt by stitching germline V
+and J around the junction (:mod:`vdjdb.annotate.contig`). A receptor is a two-domain object by
+definition, so only paired records appear there; a single chain is a Rearrangement, which is already
+shipped.
 
-* **``Receptor``** needs ``receptor_variable_domain_{1,2}_aa``, the *complete* mature variable
-  domain, non-nullable. VDJdb has the junction and the allele calls, so producing it means stitching
-  germline V and J around the junction -- ``vdjtools.model.stitch_*``, which lands with the
-  nucleotide work in phase 8. Emitting the file now with its two required columns empty would be
-  worse than not emitting it.
+One thing is still deliberately absent:
+
 * **nucleotide fields** (``sequence``, ``junction``, the alignments and cigars) are present as
   columns and empty, which ``airr.validate_rearrangement`` accepts: the schema requires the column,
   not a value. Phase 8 (#461) fills them.
@@ -61,6 +62,18 @@ REACTIVITY_COLUMNS: tuple[str, ...] = (
     "reactivity_method", "reactivity_readout", "reactivity_value", "reactivity_unit",
     "reactivity_refs",
 )
+
+#: AIRR Receptor. ``receptor_id`` through ``receptor_variable_domain_2_locus`` are its ``required``
+#: set, all non-nullable -- which is why unpaired records cannot appear.
+RECEPTOR_COLUMNS: tuple[str, ...] = (
+    "receptor_id", "receptor_hash", "receptor_type",
+    "receptor_variable_domain_1_aa", "receptor_variable_domain_1_locus",
+    "receptor_variable_domain_2_aa", "receptor_variable_domain_2_locus",
+)
+
+#: Domain 1 is the heavy/beta/delta chain, domain 2 the light/alpha/gamma one -- the schema's
+#: controlled vocabularies say so, and swapping them would be silently wrong rather than rejected.
+_DOMAIN = {1: "TRB", 2: "TRA"}
 
 #: VDJdb spells the MHC class without the hyphen AIRR's controlled vocabulary requires.
 MHC_CLASS = {"MHCI": "MHC-I", "MHCII": "MHC-II"}
@@ -157,9 +170,44 @@ def reactivity(records: pl.DataFrame) -> pl.DataFrame:
     ).select(REACTIVITY_COLUMNS)
 
 
+def receptor(chains: pl.DataFrame, records: pl.DataFrame) -> pl.DataFrame:
+    """One AIRR Receptor row per **paired** record whose two variable domains can be rebuilt.
+
+    A receptor is a two-domain object: both ``receptor_variable_domain_*_aa`` are required and
+    non-nullable, so a record with one chain has no Receptor row. It is not dropped -- its chain is
+    in the Rearrangement file, which is where AIRR puts a single rearranged sequence.
+
+    ``receptor_hash`` is AIRR's: sha256 over the concatenated domain sequences. It is **not** VDJdb's
+    ``TCR_hash``, which hashes CDR3s, segments, MHC and epitope and is what the structure store is
+    keyed on. Two hashes, two purposes, both kept.
+    """
+    import hashlib
+
+    from ..annotate.contig import variable_domains
+
+    domains = variable_domains(chains, records).filter(pl.col("vdomain_aa") != "")
+    wide = None
+    for n, locus in _DOMAIN.items():
+        side = domains.filter(pl.col("gene") == locus).select(
+            "record_id", pl.col("vdomain_aa").alias(f"receptor_variable_domain_{n}_aa"))
+        wide = side if wide is None else wide.join(side, on="record_id", how="inner")
+    assert wide is not None
+
+    return wide.sort("record_id").select(
+        pl.col("record_id").alias("receptor_id"),
+        pl.concat_str("receptor_variable_domain_1_aa", "receptor_variable_domain_2_aa")
+          .map_elements(lambda s: hashlib.sha256(s.encode()).hexdigest(), return_dtype=pl.Utf8)
+          .alias("receptor_hash"),
+        pl.lit("TCR").alias("receptor_type"),
+        "receptor_variable_domain_1_aa", pl.lit(_DOMAIN[1]).alias("receptor_variable_domain_1_locus"),
+        "receptor_variable_domain_2_aa", pl.lit(_DOMAIN[2]).alias("receptor_variable_domain_2_locus"),
+    ).select(RECEPTOR_COLUMNS)
+
+
 def from_tables(tables: dict[str, pl.DataFrame]) -> dict[str, pl.DataFrame]:
-    """The definitive tables -> the two AIRR frames."""
+    """The definitive tables -> the three AIRR frames."""
     return {"rearrangement": rearrangement(tables["chains"]),
+            "receptor": receptor(tables["chains"], tables["records"]),
             "reactivity": reactivity(tables["records"])}
 
 

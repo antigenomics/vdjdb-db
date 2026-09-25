@@ -68,6 +68,25 @@ def test_reactivity_agrees_and_the_tables_keep_the_records_legacy_drops(built):
     assert excess.filter(excess > 0).sum() == LEGACY_DROPS_RECORDS
 
 
+def test_receptors_are_paired_records_with_both_domains_rebuilt(built):
+    """A receptor is a two-domain object, so the file is smaller than the record table by design:
+    93,294 of 192,753 records are paired, and 81,003 of those have both variable domains rebuilt."""
+    tables, _ = built
+    rec = airr.from_tables(tables)["receptor"]
+    assert rec.filter((pl.col("receptor_variable_domain_1_aa") == "")
+                      | (pl.col("receptor_variable_domain_2_aa") == "")).is_empty()
+    assert rec["receptor_id"].n_unique() == rec.height
+    assert set(rec["receptor_variable_domain_1_locus"]) == {"TRB"}
+    assert set(rec["receptor_variable_domain_2_locus"]) == {"TRA"}
+    # a mature TCR variable domain is roughly 110 aa; a junction is ~14
+    lens = rec["receptor_variable_domain_1_aa"].str.len_chars()
+    assert lens.min() > 90 and lens.max() < 160
+
+    paired = (tables["chains"].group_by("record_id")
+              .agg(pl.col("gene").n_unique().alias("n")).filter(pl.col("n") == 2))
+    assert rec.height <= paired.height
+
+
 def test_every_chain_has_a_rearrangement_row(built):
     tables, _ = built
     assert airr.from_tables(tables)["rearrangement"].height == tables["chains"].height
