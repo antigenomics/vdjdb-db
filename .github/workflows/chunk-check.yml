@@ -1,0 +1,77 @@
+# The gate every chunk submission hits. Budget: under 3 minutes.
+#
+# runs-on is ubuntu-latest ALWAYS and must never be made retargetable: this workflow is triggered by
+# pull requests from forks, and running fork code on a self-hosted runner in a public repository is
+# the textbook way to lose the runner. The heavy jobs live in build.yml, which is guarded.
+name: chunk-check
+
+on:
+  pull_request:
+    paths:
+      - 'chunks/**'
+      - 'chunks_negative/**'
+      - 'chunks_with_unconventional_aa/**'
+      - 'patches/**'
+      - 'res/**'
+      - 'src/vdjdb/**'
+      - 'pyproject.toml'
+  merge_group:
+  workflow_dispatch:
+
+concurrency:
+  group: chunk-check-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install
+        run: uv sync --frozen --extra dev
+
+      - name: Lint and type-check
+        run: |
+          uv run ruff check src/
+          uv run mypy
+
+      - name: Which chunks changed
+        id: changed
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- chunks/ > changed.txt
+          else
+            git ls-files chunks/ > changed.txt
+          fi
+          echo "count=$(wc -l < changed.txt)" >> "$GITHUB_OUTPUT"
+          cat changed.txt
+
+      # Fails the PR on any finding. The corpus is clean as of 2026-09-25 apart from CRLF line
+      # endings on 99 legacy files, which the .tsv migration (#497) normalises; until that lands,
+      # --no-strict keeps the gate advisory rather than blocking every unrelated submission.
+      - name: Chunk QC
+        run: |
+          if [ -s changed.txt ]; then
+            uv run vdjdb qc $(cat changed.txt) --no-strict --report qc-report.tsv
+          else
+            uv run vdjdb qc --no-strict --report qc-report.tsv
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qc-report
+          path: qc-report.tsv
+          retention-days: 14

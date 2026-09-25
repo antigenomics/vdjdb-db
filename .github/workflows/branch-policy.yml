@@ -1,0 +1,32 @@
+# Enforces the merge direction of the gitflow: master only ever receives dev or a hotfix.
+#
+# This is what makes the check split affordable. Because master cannot receive a feature branch
+# directly, the full build has already run on dev by the time a release PR opens, so master can
+# require the slow checks while a chunk PR stays green in minutes.
+name: branch-policy
+
+on:
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  merge-direction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Head branch must be dev or hotfix/*
+        run: |
+          head="${{ github.head_ref }}"
+          case "$head" in
+            dev|hotfix/*)
+              echo "ok: $head -> master"
+              ;;
+            *)
+              echo "::error::master only accepts merges from 'dev' or 'hotfix/*', got '$head'."
+              echo "::error::Open this PR against 'dev' instead. See ROADMAP.md section 4."
+              exit 1
+              ;;
+          esac
