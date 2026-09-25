@@ -187,6 +187,29 @@ structure store is re-keyed.
 
 **No held-out validation data is ever an evidence row.** See §7.
 
+### 3.3a `epitopes.parquet` and `restriction.parquet` — the antigen catalogue
+
+VDJdb's own list of epitopes and the MHCs that present them.
+
+| Table | Key | Rows |
+|---|---|---|
+| `epitopes` | `(antigen.epitope, antigen.species)` | 2,132 |
+| `restriction` | `(antigen.epitope, antigen.species, mhc.a, mhc.b)` | 2,373 |
+
+`epitopes` carries `antigen.gene`, `epitope.length`, `mhc.class`, and the support behind it —
+`records`, `chains`, `clonotypes` and `references`. 379 epitopes are reported by two or more
+publications.
+
+**The key is the epitope and the species.** A peptide is not unique to one organism: 13 epitopes are
+reported under two, and none is an error. `patches/antigen_epitope_species_gene.dict` is keyed on the
+peptide alone and cannot express them, which is why this is a table rather than a view over the patch.
+
+`restriction` checks each allele against IPD-IMGT/HLA (<https://www.ebi.ac.uk/ipd/imgt/hla/>) by
+prefix, since a VDJdb call is two-field and the authority stores four: `mhc.a.status` and
+`mhc.b.status` are `known`, `unknown`, or `unchecked` where no authority exists (murine and macaque
+names, and `B2M`). Phase 9e adds `mhcmatch` validation — whether the allele *could present* that
+peptide, not only whether its name is real (ROADMAP §12, §27).
+
 ### 3.4 `vdjdb.parquet` — the joined view
 
 `records ⋈ chains ⋈ evidence`, one row per chain, with each evidence type pivoted to a boolean. The

@@ -268,6 +268,24 @@ FIELDS: dict[str, Field] = dict([
        comment="The chunk the record was read from. One chunk is one publication."),
     _f("chunk.row", searchable=0, autocomplete=0, data_type="uint", title="Chunk row",
        comment="0-based row within the chunk; with chunk.file it points at the curated line."),
+    # -- the epitope catalogue (ROADMAP phase 9d) -----------------------------------------------
+    _f("epitope.length", searchable=0, autocomplete=0, data_type="uint", title="Epitope length",
+       comment="Residues in the epitope. MHC-I presents 8-11, MHC-II 12-25, so it cross-checks "
+               "mhc.class independently of the allele."),
+    _f("records", searchable=0, autocomplete=0, data_type="uint", title="Records",
+       comment="Curated records supporting this row."),
+    _f("chains", searchable=0, autocomplete=0, data_type="uint", title="Chains",
+       comment="TCR chains across those records."),
+    _f("clonotypes", searchable=0, autocomplete=0, data_type="uint", title="Clonotypes",
+       comment="Distinct receptor chains, by clonotype_id -- records minus the replication."),
+    _f("references", searchable=0, autocomplete=0, data_type="uint", title="References",
+       comment="Distinct publications reporting this row. Two or more is independent replication."),
+    _f("mhc.a.status", searchable=0, title="MHC A status",
+       comment="known / unknown / unchecked against IPD-IMGT/HLA by prefix. `unchecked` means there "
+               "is no authority for the name -- a murine molecule, or B2M."),
+    _f("mhc.b.status", searchable=0, title="MHC B status",
+       comment="As mhc.a.status, for the second chain."),
+
     _f("evidence_id", searchable=0, autocomplete=0, title="Evidence id",
        comment="Identifies one piece of evidence within a record: a hash of its type, chain, "
                "source and value, so the same evidence keeps the same id across releases."),
@@ -384,6 +402,20 @@ CHAIN_COLUMNS: tuple[str, ...] = (
     "TCR_hash",
 )
 
+#: ``epitopes`` -- one row per antigen, PK ``(antigen.epitope, antigen.species)``. A peptide is not
+#: unique to one organism: 13 epitopes are reported under two species and none of them is an error.
+EPITOPE_COLUMNS: tuple[str, ...] = (
+    "antigen.epitope", "antigen.species", "antigen.gene", "epitope.length",
+    "mhc.class", "records", "chains", "references", "clonotypes",
+)
+
+#: ``restriction`` -- one row per (antigen, presenting MHC), each allele checked against
+#: IPD-IMGT/HLA (<https://www.ebi.ac.uk/ipd/imgt/hla/>).
+RESTRICTION_COLUMNS: tuple[str, ...] = (
+    "antigen.epitope", "antigen.species", "mhc.a", "mhc.b", "mhc.class",
+    "mhc.a.status", "mhc.b.status", "records", "references",
+)
+
 #: ``evidence`` -- one row per piece of evidence, PK ``(record_id, evidence_id)``. Long rather than
 #: wide: a record may carry any number of pieces of evidence of any number of kinds, and the wide
 #: form would be mostly empty.
@@ -441,6 +473,8 @@ TABLES: dict[str, tuple[str, ...]] = {
     "records": RECORD_COLUMNS,
     "chains": CHAIN_COLUMNS,
     "evidence": EVIDENCE_TABLE_COLUMNS,
+    "epitopes": EPITOPE_COLUMNS,
+    "restriction": RESTRICTION_COLUMNS,
 }
 
 

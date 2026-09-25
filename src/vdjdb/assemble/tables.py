@@ -135,8 +135,12 @@ def build_tables(master: pl.DataFrame, *, release: str = "dev") -> dict[str, pl.
     chains = add_junction_nt(chains, records)
     chains = add_d_posterior(chains, records)
     chains = add_inferred_segments(chains, records).select(CHAIN_COLUMNS)
+    from .epitopes import build_epitopes, build_restriction
+
     return {
         "records": records,
         "chains": chains,
         "evidence": build_evidence(records, chains, release=release),
+        "epitopes": build_epitopes(records, chains),
+        "restriction": build_restriction(records),
     }

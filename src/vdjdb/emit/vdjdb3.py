@@ -23,7 +23,14 @@ from pathlib import Path
 
 import polars as pl
 
-from ..schema import CHAIN_COLUMNS, EVIDENCE_TABLE_COLUMNS, RECORD_COLUMNS, schema_json
+from ..schema import (
+    CHAIN_COLUMNS,
+    EPITOPE_COLUMNS,
+    EVIDENCE_TABLE_COLUMNS,
+    RECORD_COLUMNS,
+    RESTRICTION_COLUMNS,
+    schema_json,
+)
 
 #: ``evidence_type`` -> the boolean column it becomes in the joined view. Production ``vdjdb-web``
 #: has served five ``evidence.*`` columns for years that nothing in this repo produced; this is
@@ -43,6 +50,7 @@ VIEW_EVIDENCE_COLUMNS: tuple[str, ...] = (*EVIDENCE_VIEW.values(), "evidence.val
 
 _TABLE_ORDER: dict[str, tuple[str, ...]] = {
     "records": RECORD_COLUMNS, "chains": CHAIN_COLUMNS, "evidence": EVIDENCE_TABLE_COLUMNS,
+    "epitopes": EPITOPE_COLUMNS, "restriction": RESTRICTION_COLUMNS,
 }
 
 

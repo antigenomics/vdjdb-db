@@ -20,7 +20,7 @@ _Last updated: 2026-09-25_
 | 8b | `feature/dgene` | merged — D geometry from the junction scenario, confidence from `arda.dpost` |
 | 8c | `feature/segment-guess` | merged — the legacy V guesser has never worked; Pgen fills 686 of 711 gaps |
 | 8d | `feature/receptor` | merged — AIRR `Receptor`, 81,003 rows; stitching vectorised to 2.7 s |
-| 9 | `feature/harmonize-rules` | **#389, #327, #467, #347 landed; #564 and #368 already fixed; #561 advisory. Ledger PASS** |
+| 9 | `feature/harmonize-rules` | **#389, #327, #467, #347, #368 landed; #564 already fixed; #561 advisory. Ships `epitopes` + `restriction`. Ledger PASS** |
 
 ```
 uv run vdjdb build --out out/                          # tables + every projection, 15 s
@@ -55,8 +55,12 @@ of pandas type coercions the all-string reader undoes (~55k cells). See `ROADMAP
    tuned against the independent-study signal phase 6 already ships.
 2. **Decide whether the legacy build should keep the 711 chains with no V** now that #462 can supply
    one for 686 of them (`ROADMAP.md` §21).
-3. **Re-measure the arda swap** (`ROADMAP.md` §16, §24). Its gate was #327, and #327 has landed.
-4. `uv lock`, push `dev`, let `chunk-check` run once **before** applying branch protection.
+3. **Fix arda's TRBV segment loading** (`ROADMAP.md` §28). The swap's gate is cleared and agreement
+   is 99.91 %, but arda returns `FailedBadSegment` on 7,962 beta chains whose V the legacy places
+   without changing a residue — and its own V call on them is a gene name, not an allele. Reproduce
+   in `arda` and fix there; then the swap is a one-line default change.
+4. **Phase 9e** — validate the epitope catalogue with `mhcmatch` (`ROADMAP.md` §12).
+5. `uv lock`, push `dev`, let `chunk-check` run once **before** applying branch protection.
 
 ## Blocked / needs a decision
 
@@ -76,6 +80,13 @@ of pandas type coercions the all-string reader undoes (~55k cells). See `ROADMAP
 - **854 records carry no `reference.id`**, all from `luciani-samir-etal-hcv-14-09-2018` (822 at score
   0, 32 at 1). The QC rule permits a blank one by construction, and #347 cannot help: there is
   nothing to resolve. A curation question.
+- **`HLA-A*08:01` on 74 records.** No HLA-A\*08 locus exists at any resolution, so the call is
+  certainly wrong — but the chunk carries no `reference.id` to resolve it against. Curation.
+- **8 epitopes are listed twice in the antigen patch with different answers**, resolved silently by
+  file order (`curate.patch.CONFLICTING_EPITOPES`). Two are nomenclature aliases, three are the HIV-1
+  Gag-Pol frameshift, the rest need a curator.
+- **62 of 2,132 epitopes disagree with their own MHC class on length** — 20 MHCI longer than 11
+  residues, 42 MHCII shorter than 12 (`ROADMAP.md` §27).
 - **99 records carry the same CDR3 on both chains** (#561), 98 from two references. Reported as an
   advisory QC finding on every run; only a curator can say which chain is wrong.
 - **9 `antigen.gene` values are protein names rather than gene symbols** (`Trans-sialidase`, 284
