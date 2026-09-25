@@ -227,6 +227,19 @@ FIELDS: dict[str, Field] = dict([
                "is a representative history, never evidence."),
     _f("cdr3nt.pgen", searchable=0, autocomplete=0, data_type="float", title="CDR3nt Pgen",
        comment="Generation probability of the inferred nucleotide junction."),
+    _f("d.inferred", searchable=0, title="D inferred", airr="d_call",
+       comment="D allele of the recombination scenario that produced cdr3nt. Not the curated "
+               "d.segm, which it matches at gene level on 76.5 % of beta chains."),
+    _f("d.start", searchable=0, autocomplete=0, data_type="uint", title="D start",
+       comment="First nucleotide of the D segment in cdr3nt, 0-based, half-open with d.end."),
+    _f("d.end", searchable=0, autocomplete=0, data_type="uint", title="D end",
+       comment="One past the last nucleotide of the D segment in cdr3nt."),
+    _f("d.posterior", searchable=0, autocomplete=0, data_type="float", title="D posterior",
+       comment="Posterior probability of the gene d.inferred names, from arda.dpost. Median 0.791 "
+               "and below 0.6 on 21.8 % of beta chains -- filter on it."),
+    _f("d.entropy", searchable=0, autocomplete=0, data_type="float", title="D entropy",
+       comment="Entropy of the posterior over D genes. Above 0.9 on 28.9 % of beta chains, where "
+               "TRBD1 and TRBD2 are essentially undecidable from the junction."),
     _f("cdr3nt.margin", searchable=0, autocomplete=0, data_type="float", title="CDR3nt margin",
        comment="How far the inferred junction beat the runner-up: its Pgen divided by the next "
                "candidate's. Near 1 means the choice among synonymous histories was near-arbitrary."),
@@ -357,6 +370,7 @@ CHAIN_COLUMNS: tuple[str, ...] = (
     "cdr3", "v.segm", "d.segm", "j.segm",
     "v.end", "j.start",
     "cdr3nt", "cdr3nt.pgen", "cdr3nt.margin",
+    "d.inferred", "d.start", "d.end", "d.posterior", "d.entropy",
     "cdr3.original", "fix.needed", "fix.good",
     "v.fix.type", "j.fix.type", "v.canonical", "j.canonical",
     "TCR_hash",
