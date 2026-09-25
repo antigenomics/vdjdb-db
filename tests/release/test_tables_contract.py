@@ -65,8 +65,23 @@ def test_evidence_is_keyed_and_resolves_to_a_chain(tables):
     assert (ev["evidence_score"] >= 2).all(), "independent support means at least two studies"
 
 
-def test_empty_string_is_the_only_missing_marker(tables):
-    """CLAUDE.md rule 6. A null in a shipped table is the pandas three-way ambiguity coming back."""
+def test_no_string_column_is_ever_null(tables):
+    """CLAUDE.md rule 6: empty string is the only missing marker.
+
+    Scoped to string columns, which is where the rule bites -- the pandas `None`/`NaN`/`""` three-way
+    ambiguity that shipped more than one bug. A *numeric* column has no empty string to use, and NaN
+    would be worse than null because it compares unequal to itself and propagates silently. So
+    `cdr3nt.pgen` and `cdr3nt.margin` are null for the 24,950 chains with no inferred nucleotide
+    junction, and that is the honest representation.
+    """
     for name, frame in tables.items():
-        nulls = {c: n for c, n in frame.null_count().row(0, named=True).items() if n}
+        nulls = {c: n for c, n in frame.null_count().row(0, named=True).items()
+                 if n and frame.schema[c] == pl.String}
         assert not nulls, f"{name}: {nulls}"
+
+
+def test_a_numeric_column_is_null_only_where_the_quantity_does_not_exist(tables):
+    chains = tables["chains"]
+    absent = chains.filter(pl.col("cdr3nt") == "")
+    assert absent["cdr3nt.pgen"].null_count() == absent.height
+    assert chains.filter(pl.col("cdr3nt") != "")["cdr3nt.pgen"].null_count() == 0

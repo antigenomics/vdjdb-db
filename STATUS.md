@@ -4,7 +4,7 @@ _Last updated: 2026-09-25_
 
 ## In flight
 
-**Phase 7 — `feature/airr`**, merging to `dev`.
+**Phase 8 — `feature/junction-nt`**, merging to `dev`. `segment-guess` and `dgene` next.
 
 | Phase | Branch | State |
 |---|---|---|
@@ -15,7 +15,8 @@ _Last updated: 2026-09-25_
 | 4 | `feature/pipeline-core` | merged — the definitive tables, legacy as a projection; `py_src/` retired |
 | 5 | `feature/arda-cdr3fix` | merged, **behind `engine="legacy"`** — the swap waits for #327 (agreed 2026-09-25) |
 | 6 | `feature/new-format` | merged — tables + evidence + `vdjdb.schema.json`; ledger PASS from the shipped tables |
-| 7 | `feature/airr` | **`airr.validate_rearrangement` passes on all 286,047 rows** |
+| 7 | `feature/airr` | merged — Rearrangement + Reactivity; `airr.validate_rearrangement` passes on all 286,047 rows |
+| 8a | `feature/junction-nt` | **261,097 `cdr3nt`, 0 back-translation mismatches** |
 
 ```
 uv run vdjdb build --out out/                          # tables + every projection, 15 s
@@ -31,9 +32,12 @@ VDJDB_REFERENCE_ZIP=ref/vdjdb-2026-06-03.zip VDJDB_TABLES=out/tables \
 
 | | Legacy pandas | Now |
 |---|---|---|
-| Wall time | 344 s | **15 s** |
+| Wall time | 344 s | **170 s** (16 s without junction inference) |
 | Peak RSS | 2.16 GB | ~1 GB |
 | Output | three files, assembled directly | three tidy tables + a joined view, with legacy and AIRR projected from them |
+
+Junction-nucleotide inference (#461) is 90 % of the wall time and is **never cached** (hard rule 9):
+261,097 of 286,047 chains get a `cdr3nt`, all of which back-translate to the junction they came from.
 
 `records` 192,753 × 33 · `chains` 286,047 × 17 · `evidence` 53,913 × 8 · `vdjdb` (view) 286,047 × 54.
 All five legacy members are byte-identical whether projected from memory or read back from parquet.

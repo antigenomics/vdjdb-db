@@ -121,9 +121,16 @@ Primary key `(record_id, gene)`. This is the level `vdjdb.txt` is written at. Sp
 what keeps the schema non-redundant: folding chains into records forces either duplicated record
 fields (as `vdjdb.txt` does) or paired alpha/beta columns (as `vdjdb_full.txt` does).
 
-17 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `cdr3`, `v.segm`, `d.segm`, `j.segm`,
-`v.end`, `j.start`, `cdr3.original`, `fix.needed`, `fix.good`, `v.fix.type`, `j.fix.type`,
-`v.canonical`, `j.canonical`, `TCR_hash`.
+20 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `cdr3`, `v.segm`, `d.segm`, `j.segm`,
+`v.end`, `j.start`, `cdr3nt`, `cdr3nt.pgen`, `cdr3nt.margin`, `cdr3.original`, `fix.needed`,
+`fix.good`, `v.fix.type`, `j.fix.type`, `v.canonical`, `j.canonical`, `TCR_hash`.
+
+**`cdr3nt` is inferred, not observed** (#461): the most plausible nucleotide junction behind the
+amino-acid one, from the recombination model. 261,097 of 286,047 chains have one and every one of
+them back-translates to its junction, but two models agree on only 7.2 % of the sequences, so it is a
+representative history rather than evidence. `cdr3nt.pgen` is its generation probability and
+`cdr3nt.margin` how far it beat the runner-up — 9.4 % are below 1.1, where the choice was
+near-arbitrary. Filter on the margin rather than trusting the sequence (ROADMAP §19).
 
 **`cdr3fix` is not a column here.** Every member of the legacy JSON blob is its own variable —
 `cdr3.original` is the sequence as submitted, the four `fix.*` / `*.fix.type` columns say what was
@@ -137,7 +144,7 @@ same receptor chain share it, and it is the level motif evidence and the indepen
 count attach at. A hash rather than a counter, because a counter renumbers every clonotype the moment
 a chunk is added.
 
-`d.start`, `d.end`, `cdr3nt`, `cdr3nt.pgen` and `cdr3nt.margin` join this table in phase 8.
+`d.start` and `d.end` join this table with the rest of phase 8.
 
 ### 3.3 `evidence.parquet` — long format, one row per piece of evidence
 
@@ -274,7 +281,7 @@ against, so it is reviewed in the release diff rather than the PR diff (ROADMAP 
 
 | File | Role |
 |---|---|
-| `summary/reference_years.tsv` | publication-year cache, so the dashboard render is offline and deterministic |
+| `summary/reference_years.tsv` | publication years, so the dashboard render is offline and deterministic. A committed, reviewed input refreshed by its own PR -- never written by a build |
 | `summary/annotations.tsv` | dashboard event callouts, with no hardcoded coordinates |
 | `rules/expected_diffs.toml` | the declared differences the ledger accepts, each with a measured row count |
 | `config/motifs.toml` | every pinned motif parameter |

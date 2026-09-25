@@ -220,6 +220,16 @@ FIELDS: dict[str, Field] = dict([
        comment="Identifies a receptor chain: a hash of species, gene, CDR3, V and J. Records "
                "reporting the same chain share it, and motif evidence attaches at this level."),
     _f("d.segm", airr="d_call", title="D", comment="TCR Diversity segment allele."),
+    _f("cdr3nt", type=SEQ, searchable=0, autocomplete=0, data_type="cdr3", airr="junction",
+       title="CDR3 nucleotide",
+       comment="Most plausible nucleotide junction behind the amino-acid one, inferred from the "
+               "recombination model -- not observed. Two models agree on only 7.2 % of these, so it "
+               "is a representative history, never evidence."),
+    _f("cdr3nt.pgen", searchable=0, autocomplete=0, data_type="float", title="CDR3nt Pgen",
+       comment="Generation probability of the inferred nucleotide junction."),
+    _f("cdr3nt.margin", searchable=0, autocomplete=0, data_type="float", title="CDR3nt margin",
+       comment="How far the inferred junction beat the runner-up: its Pgen divided by the next "
+               "candidate's. Near 1 means the choice among synonymous histories was near-arbitrary."),
     _f("cdr3.original", type=SEQ, autocomplete=0, data_type="cdr3", title="CDR3 as submitted",
        comment="The CDR3 as the reference publication reported it, before repair."),
     _f("fix.needed", searchable=0, autocomplete=0, data_type="bool", title="Fix needed",
@@ -346,6 +356,7 @@ CHAIN_COLUMNS: tuple[str, ...] = (
     "record_id", "gene", "clonotype_id",
     "cdr3", "v.segm", "d.segm", "j.segm",
     "v.end", "j.start",
+    "cdr3nt", "cdr3nt.pgen", "cdr3nt.margin",
     "cdr3.original", "fix.needed", "fix.good",
     "v.fix.type", "j.fix.type", "v.canonical", "j.canonical",
     "TCR_hash",
