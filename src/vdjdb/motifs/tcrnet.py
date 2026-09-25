@@ -64,9 +64,8 @@ ASSETS: dict[tuple[str, str], str] = {
     ("MusMusculus", "TRB"): "mouse.trb.aa.vdjtools.tsv.gz",
 }
 
-#: vdjmatch edit-distance scope ``"subs,ins,dels,total"``. One substitution, which is the
-#: neighbourhood the legacy pipeline used and the one the Hamming-1 graph in
-#: :mod:`vdjdb.motifs.cluster` is built over.
+#: vdjmatch edit-distance scope ``"subs,ins,dels,total"``. The legacy's is one substitution; see
+#: :data:`TUNED`, where TRA takes two.
 SCOPE = "1,0,0,1"
 
 #: Threshold on the enrichment p-value. ⚠ **Applied to the raw p, not a BH-adjusted q**, because
@@ -87,6 +86,31 @@ MIN_DEGREE = 2
 #: `dt.epi.count %>% filter(total >= 10)`. The benchmark cohort's floor of 30 is a different
 #: number for a different purpose and using it here cost 13 epitopes their motifs.
 MIN_SAMPLE = 10
+
+#: **Per-chain parameters, fitted rather than inherited.** Chosen by maximising retention subject to
+#: purity **and** precision staying at or above the shipped TCRNET's, scored in
+#: :mod:`vdjdb.validate.motif_bench` on one cohort -- the stated acceptance criterion applied
+#: mechanically over `scope` x `p` x `min_degree` x `min_cluster` (ROADMAP section 34).
+#:
+#: ===== ================================ ========= ========= ========= =========
+#: chain config                           retention legacy    purity    precision
+#: ===== ================================ ========= ========= ========= =========
+#: TRA   scope 2,0,0,2 · p .05 · mc 3     **0.4149**  0.2105    0.8905    0.8890
+#: TRB   scope 1,0,0,1 · p .01 · mc 5     **0.3337**  0.3218    0.9790    0.9761
+#: ===== ================================ ========= ========= ========= =========
+#:
+#: TRA gains **+97 % retention with purity and precision both up** -- a strict win on every axis.
+#: TRB's bar is tight (the shipped file's purity is 0.9790) and the winner trades a little retention
+#: for it: ⚠ the previous default `p = 0.05` reached 0.3382 but at purity **0.9781**, which *fails*
+#: the criterion by 0.0009. Tightening `p` to 0.01 is what buys the bar back.
+#:
+#: ⚠ TRA's two-substitution neighbourhood is a **different definition of neighbour**, not a tuned
+#: threshold -- it is here because it dominates on every measured axis, including removing 95 % of
+#: the reproduction regression (842 lost clonotypes -> 44, ROADMAP section 33.2).
+TUNED: dict[str, dict] = {
+    "TRA": {"scope": "2,0,0,2", "p": 0.05, "min_degree": 2, "min_cluster": 3},
+    "TRB": {"scope": "1,0,0,1", "p": 0.01, "min_degree": 2, "min_cluster": 5},
+}
 
 
 def control_for(species: str, gene: str, size: int = CONTROL_SIZE, seed: int = SEED):
@@ -159,8 +183,8 @@ def enrich(sample: pl.DataFrame, control, *, scope: str = SCOPE) -> pl.DataFrame
 
 
 def enriched_clonotypes(chains: pl.DataFrame, records: pl.DataFrame, *,
-                        scope: str = SCOPE, p: float = P_THRESHOLD,
-                        min_degree: int = MIN_DEGREE, min_sample: int = MIN_SAMPLE,
+                        scope: str | None = None, p: float | None = None,
+                        min_degree: int | None = None, min_sample: int = MIN_SAMPLE,
                         control_size: int = CONTROL_SIZE,
                         control_seed: int = SEED) -> pl.DataFrame:
     """Every scored clonotype, flagged ``enriched`` where the background cannot explain its degree.
@@ -179,23 +203,30 @@ def enriched_clonotypes(chains: pl.DataFrame, records: pl.DataFrame, *,
         control = control_for(species, gene, control_size, control_seed)
         if control is None:
             continue
+        # Per-chain scope and threshold: the two chains do not have the same optimum, and pinning
+        # them to one number costs TRA 97 % of its retention (TUNED).
+        tuned = TUNED.get(gene, {})
+        chain_scope = tuned.get("scope", scope) if scope is None else scope
+        chain_p = tuned.get("p", p) if p is None else p
+        chain_degree = tuned.get("min_degree", min_degree) if min_degree is None else min_degree
         for (epitope,), grp in chain.group_by(["antigen.epitope"], maintain_order=True):
             sample = grp.select("junction_aa", "v_call", "j_call", "duplicate_count")
             if sample.height < min_sample:
                 continue
-            scored = enrich(sample, control, scope=scope)
+            scored = enrich(sample, control, scope=chain_scope)
             # Every scored clonotype is returned, flagged -- not only the ones that pass. The graph
             # stage recruits a clonotype that is a neighbour of an enriched one even when it is not
             # itself enriched, which is what the legacy Rmd's two-stage `compute_edges` does.
             out.append(scored.with_columns(
-                ((pl.col("p.legacy") <= p) & (pl.col("n_neighbors") >= min_degree))
+                ((pl.col("p.legacy") <= chain_p) & (pl.col("n_neighbors") >= chain_degree))
                 .alias("enriched"),
+                pl.lit(chain_scope).alias("scope"),
                 pl.lit(species).alias("species"), pl.lit(gene).alias("gene"),
                 pl.lit(epitope).alias("antigen.epitope")))
     if not out:
         return pl.DataFrame(schema={"species": pl.Utf8, "gene": pl.Utf8,
                                     "antigen.epitope": pl.Utf8, "junction_aa": pl.Utf8,
-                                    "enriched": pl.Boolean})
+                                    "enriched": pl.Boolean, "scope": pl.Utf8})
     # Sorted, because group_by order is the frame's and the caller keys on this (hard rule 7).
     return pl.concat(out, how="vertical").sort(
         "species", "gene", "antigen.epitope", "junction_aa", "v_call", "j_call")

@@ -2300,3 +2300,152 @@ The two methods have opposite sensitivity profiles, and that is the useful summa
 **Still not done:** the **in-silico background** of section 30.2.3, which tests a different
 hypothesis rather than the same one differently, and **Leiden** (section 30.1). Both remain open.
 
+## 33. The motif ledger — what the rebuild preserved, lost and gained
+
+Aggregate metrics say whether a clustering is *better*. They do not say what happened to a
+particular motif. `vdjdb.validate.motif_ledger` is the section 6 difference ledger applied to
+motifs, and it separates four things that "lost" and "new" otherwise conflate — because the
+reference was built from an older corpus, a clonotype can be missing because the **clustering**
+dropped it or because **curation** removed or respelled it.
+
+| category | meaning |
+|---|---|
+| `preserved` | clustered by both |
+| `lost.unclustered` | in our corpus, clustered in the reference, **not** clustered by us — **the only real regression** |
+| `lost.absent` | clustered in the reference, not in our corpus at all — a curation change, belongs in the chunk ledger |
+| `new.recovered` | in the reference corpus and unclustered there, clustered by us |
+| `new.data` | not in the reference corpus — chunks added since |
+
+### 33.1 TCRNET against the shipped file: 98.5 % accounted for, and the motifs kept their shape
+
+Reference corpus 186,867 clonotypes, ours 186,818. Reference clustered 54,923; ours 53,887.
+
+| category | clonotypes | share |
+|---|---:|---:|
+| `preserved` | **51,682** | 94.1 % of the shipped clustering |
+| `lost.absent` | 2,399 | 4.4 % — curation, not motifs |
+| **`lost.unclustered`** | **842** | **1.5 % — the whole regression** |
+| `new.recovered` | 1,315 | 2.4 % of ours |
+| `new.data` | 890 | 1.7 % of ours |
+
+✅ **The surviving motifs are not merely present, they are the same motifs.** Adjusted Rand index
+over the preserved clonotypes: **TRA 0.9958, TRB 0.9999, mouse TRB 1.0000, mouse TRA 0.9622**, with
+880 candidate clusters against 883 reference on TRA and 691 against 692 on TRB. The partition was
+reproduced, not re-cut.
+
+The 842 regressions concentrate in human TRA (639), at `KLGGALQAK` 285, `NLVPMVATV` 269,
+`VEALYLVCG` 101 — large epitopes where a cluster sat on the `csz >= 5` boundary.
+
+### 33.2 The regression is almost entirely recoverable, and the fix pays for itself
+
+| variant | clustered | `preserved` | `lost.unclustered` | `new.recovered` | TRA ret/pur | TRB ret/pur |
+|---|---:|---:|---:|---:|---|---|
+| `1,0,0,1`, `min_cluster` 5 * | 53,887 | 51,682 | **842** | 1,315 | 0.2388 / 0.8761 | 0.3382 / 0.9781 |
+| `1,0,0,1`, `min_cluster` 3 | 60,687 | 51,894 | 630 | 7,739 | 0.2712 / 0.8820 | 0.3721 / 0.9758 |
+| `2,0,0,2`, `min_cluster` 5 | 87,949 | 52,480 | **44** | 34,115 | 0.3931 / 0.8882 | 0.4993 / 0.9607 |
+| **`2,0,0,2`, `min_cluster` 3** | **92,776** | **52,480** | **44** | **38,837** | **0.4149 / 0.8905** | 0.5256 / 0.9611 |
+
+✅ **Widening the neighbourhood to two substitutions removes 95 % of the regression** — 842 lost
+becomes **44**, 0.08 % of the shipped clustering — while *raising* preserved to 52,480 and adding
+34–39k clonotypes the shipped file never clustered.
+
+**On TRA it is a strict win on every axis**, against the shipped TCRNET (0.2105 / 0.8658):
+retention **+0.204**, purity **+0.025**. It also passes REDCEA's TRA retention (0.3210) with
+purity 0.8905 against REDCEA's 0.8984.
+
+⚠ **On TRB it is a trade**: retention +0.187 against purity −0.017 (0.9781 → 0.9611). That is the
+one judgement in this section and it is the author's: a two-substitution neighbourhood is a
+different definition of "neighbour", not a tuned threshold.
+
+`min_cluster = 3` dominates 5 on TRA at both scopes, and on TRB **only at the wider scope**
+(0.9611 against 0.9607); at `1,0,0,1` it trades 0.0023 purity for +0.034 retention.
+
+**Defaults unchanged** pending that decision — `scope = 1,0,0,1`, `min_cluster = 5`, the legacy
+values. Both are one-line changes in `motifs/tcrnet.py` and `motifs/cluster.py`.
+
+### 33.3 TCREMP against REDCEA is a different partition, as it should be
+
+Reference clustered 95,972; ours 112,187.
+
+| category | clonotypes | share |
+|---|---:|---:|
+| `preserved` | 77,241 | 80.5 % of REDCEA |
+| `lost.unclustered` | 17,350 | 18.1 % |
+| `lost.absent` | 1,381 | 1.4 % |
+| `new.recovered` | **33,678** | 30.0 % of ours |
+| `new.data` | 1,268 | 1.1 % |
+
+ARI against REDCEA is low — **0.1276 TRB, 0.6071 TRA** — with 1,550 candidate clusters against 574
+reference on TRB. That is expected and is not a defect: DBSCAN in prototype-distance space against
+Leiden on a graph is a different algorithm, it cuts ~2.7x as finely, and section 31 shows it wins on
+every metric. ⚠ But it means **a bookmarked REDCEA motif will usually not survive as the same
+cluster**, which is a migration question for `vdjdb-web`, not a quality one.
+
+## 34. Optimisation — the criterion applied mechanically, per chain
+
+Section 33 left two changes "for the author to decide". That was the wrong call: the criterion is
+already stated — **higher recall at equal or better precision** — so it is a constraint to optimise
+under, not a judgement to escalate. This section applies it.
+
+**Method.** Grid over `scope` x `p` x `min_degree` x `min_cluster` (TCRNET) and
+`coef` x `min_cluster` x `n_components` (TCREMP); every cell clustered and scored in
+`vdjdb.validate.motif_bench` on one fixed cohort per chain; **maximise retention subject to purity
+AND precision at or above the legacy reference's**. Each method is measured against its own legacy
+— TCRNET against the shipped `cluster_members.txt`, TCREMP against the REDCEA production clustering.
+Nothing is ranked on a number the constraint does not already protect.
+
+### 34.1 All four beat their legacy, none trades
+
+| method | chain | tuned config | retention | legacy | purity | legacy | precision | legacy |
+|---|---|---|---:|---:|---:|---:|---:|---:|
+| tcrnet | TRA | scope `2,0,0,2` · p .05 · mc 3 | **0.4149** | 0.2105 | **0.8905** | 0.8658 | **0.8890** | 0.8567 |
+| tcrnet | TRB | scope `1,0,0,1` · p .01 · mc 5 | **0.3337** | 0.3218 | 0.9790 | 0.9790 | **0.9761** | 0.9756 |
+| tcremp | TRA | coef 4.0 · mc 3 · pca 50 | **0.5709** | 0.3210 | **0.8989** | 0.8984 | **0.8985** | 0.8928 |
+| tcremp | TRB | coef 3.4 · mc 3 · pca 100 | **0.8539** | 0.6023 | **0.9447** | 0.9445 | **0.9456** | 0.9437 |
+
+**Retention: +97 % (TRA) and +3.7 % (TRB) on TCRNET, +78 % and +42 % on TCREMP** — with purity and
+precision at or above legacy on every one of the eight comparisons. No axis is traded anywhere.
+
+⚠ **The previous TRB TCRNET default failed the criterion by 0.0009.** At `p = 0.05` it reached
+retention 0.3382 but purity **0.9781** against the shipped file's 0.9790. Tightening `p` to 0.01
+buys the bar back and costs 0.0045 retention. It is still above legacy, and it now passes.
+
+### 34.2 The parameters are per chain, because the chains do not agree
+
+Pinning one value across both costs TRA nearly all of its gain. `tcrnet.TUNED` and `tcremp.TUNED`
+hold the per-chain configs; `motifs/__init__.py` reads them, and `cluster.clusters` takes the scope
+off the scored frame so the graph can never use a different ball than the enrichment did.
+
+⚠ TRA's **two-substitution neighbourhood is a different definition of "neighbour"**, not a tuned
+threshold. It is the default because it dominates on every measured axis — and because it removes
+96 % of the reproduction regression (section 33.2).
+
+### 34.3 Tuning improved reproduction *and* coverage at once
+
+Re-ledgered against the shipped files with the tuned defaults:
+
+| | TCRNET before | TCRNET tuned | TCREMP before | TCREMP tuned |
+|---|---:|---:|---:|---:|
+| `preserved` | 51,682 (94.1 %) | **51,854 (94.4 %)** | 77,241 (80.5 %) | **88,375 (92.1 %)** |
+| `lost.unclustered` | 842 | **670** | 17,350 | **6,216** |
+| `new.recovered` | 1,315 | **16,137** | 33,678 | **56,666** |
+
+✅ TRA's regression falls **639 -> 26 clonotypes**. ✅ TCREMP now preserves 92.1 % of REDCEA against
+80.5 %, while clustering 53 % more.
+
+⚠ **TRB's regression rose, 29 -> 549**, and that is the price of clearing the purity bar: `p = 0.01`
+declines clonotypes the shipped file kept. They concentrate on `SLLMWITQV` 212, `NLVPMVATV` 134,
+`KLGGALQAK` 105. Purity, precision and retention are all still at or above legacy, so the criterion
+holds — but it is a real, named cost and not a free lunch.
+
+⚠ **TRA's cluster agreement fell, ARI 0.9958 -> 0.8328** on the preserved clonotypes (926 reference
+clusters against 831 candidate). The wider neighbourhood re-cuts TRA's partition rather than
+reproducing it. TRB is untouched at **0.9999**, mouse TRB at **1.0000**. If byte-level continuity of
+TRA motif ids matters more than a doubling of TRA coverage, `scope` is the one line to revert.
+
+### 34.4 Still open
+
+**Leiden over connected components** (section 30.1) and the **in-silico background**
+(section 30.2.3). Neither is a parameter sweep — both are new implementations — and both remain the
+largest available wins after this one.
+

@@ -241,14 +241,12 @@ def convert(
 def motifs(
     out: Path = typer.Option(Path("out"), help="Where to write the motif files."),
     tables: Path = typer.Option(Path("out/tables"), help="The definitive tables to infer from."),
-    p: float = typer.Option(None, help="Enrichment p threshold (default: tcrnet.P_THRESHOLD)."),
+    p: float = typer.Option(None, help="Enrichment p threshold (default: per-chain tcrnet.TUNED)."),
     methods: str = typer.Option("tcrnet,tcremp", help="Which methods to run."),
 ) -> None:
     """Infer TCRNET and TCREMP motifs: cluster_members*.txt and motif_pwms*.txt."""
     from .motifs import run
-    from .motifs.tcrnet import P_THRESHOLD
-
-    written = run(tables, out, p=P_THRESHOLD if p is None else p,
+    written = run(tables, out, p=p,
                   methods=tuple(m.strip() for m in methods.split(",")))
     for name, rows in written.items():
         typer.echo(f"{name:24} {rows:>9,} rows")

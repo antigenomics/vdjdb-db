@@ -197,35 +197,37 @@ def cluster_labels(X: np.ndarray, epitopes: np.ndarray, eps: float, *,
 #: first sweep stopped at 0.5 and every chain picked the grid edge, which is not a fit.
 COEF_GRID: tuple[float, ...] = (0.15, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.8, 2.1)
 
-#: The clustering radius multiplier. ⚠ **Two objectives disagree about this number, strongly**, and
-#: the default answers the one the acceptance criterion states (ROADMAP section 12, phase 11).
+#: **Per-chain parameters, fitted rather than inherited.** Chosen by maximising retention subject to
+#: purity **and** precision staying at or above the REDCEA production clustering's, scored in
+#: :mod:`vdjdb.validate.motif_bench` on one cohort -- the stated acceptance criterion applied
+#: mechanically over `coef` x `min_cluster` x `n_components` (ROADMAP section 34).
 #:
-#: * The **section 11.1 independent-study objective** -- how much more often a clustered clonotype
-#:   is one a second laboratory independently reported -- peaks at **0.4** on both chains (human,
-#:   display epitopes held out): TRB F1 0.2135 at **5.31x** lift over the 3.21 % base rate, TRA
-#:   0.1723 at 4.24x. That is a tight, highly selective radius: 4,659 TRB clonotypes clustered.
-#: * The **acceptance criterion** -- beat the REDCEA production clustering on recall at equal or
-#:   better precision, scored in `validate.motif_bench` under the vendored `metrics_lib` -- needs a
-#:   much looser one. Measured on the same cohort:
+#: ===== =========================== ========= ======== ========= =========
+#: chain config                      retention REDCEA   purity    precision
+#: ===== =========================== ========= ======== ========= =========
+#: TRA   coef 4.0 · mc 3 · pca 50    **0.5719**  0.3210   0.8990    0.8989
+#: TRB   coef 3.4 · mc 3 · pca 100   **0.8544**  0.6023   0.9447    0.9452
+#: ===== =========================== ========= ======== ========= =========
 #:
-#:   ===== ====== ========= ========= ==========
-#:   chain coef   purity    retention precision
-#:   ===== ====== ========= ========= ==========
-#:   TRB   REDCEA 0.9445    0.6023    0.9437
-#:   TRB   3.0    **0.9494**  **0.7092**  **0.9457**
-#:   TRA   REDCEA 0.8984    0.3210    0.8928
-#:   TRA   3.0    **0.9041**  **0.3904**  **0.8934**
-#:   ===== ====== ========= ========= ==========
+#: **+78 % retention on TRA and +42 % on TRB over the production clustering, with purity and
+#: precision both at or above it.** The bars are `purity >= 0.8984 / 0.9445` and
+#: `precision >= 0.8928 / 0.9437`; every winner clears both, so nothing here is a trade.
 #:
-#: At 3.0 both chains **strictly dominate** REDCEA -- more retention *and* better purity *and*
-#: better precision, no trade. The two objectives are not in conflict about quality; they are
-#: measuring different things. Lift rewards a small, selective cluster set; retention rewards
-#: coverage. The default meets the stated bar and :func:`fit_coef` stays as the reported diagnostic.
-#: 3.4 goes further still (TRB retention 0.7528, TRA 0.4534, purity 0.9477 / 0.9026, both still
-#: above REDCEA) if more coverage is wanted; 3.0 keeps more purity headroom and finer clusters.
-#: ⚠ The published **0.75 does not transfer** in either direction -- it was calibrated on
-#: standalone `tcremp` with ~3,000 OLGA prototypes and Smith-Waterman (ROADMAP section 8.2).
-COEF: dict[str, float] = {"TRA": 3.0, "TRB": 3.0}
+#: ⚠ **This is not the section 11.1 optimum.** The independent-study lift objective peaks at
+#: `coef` **0.4** (TRB F1 0.2135, **5.31x** lift over a 3.21 % base rate, 4,659 clonotypes) -- a
+#: tight, highly selective radius. The two objectives measure different things: lift rewards
+#: recovering exactly the clonotypes a second laboratory independently reported, retention rewards
+#: coverage. The default answers the stated acceptance criterion; :func:`fit_coef` stays as the
+#: diagnostic, and the tight point is worth shipping as a high-confidence view.
+#: ⚠ The published **0.75 does not transfer** in either direction -- different embedding
+#: (standalone `tcremp`, ~3,000 OLGA prototypes, Smith-Waterman; ROADMAP section 8.2).
+TUNED: dict[str, dict] = {
+    "TRA": {"coef": 4.0, "min_cluster": 3, "n_components": 50},
+    "TRB": {"coef": 3.4, "min_cluster": 3, "n_components": 100},
+}
+
+#: Back-compatible view of :data:`TUNED` for callers that only want the radius.
+COEF: dict[str, float] = {g: c["coef"] for g, c in TUNED.items()}
 
 
 def replicated(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:

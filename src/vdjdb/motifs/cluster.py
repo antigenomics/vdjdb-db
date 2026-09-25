@@ -110,8 +110,8 @@ def _repr_allele(calls: pl.Series) -> str:
     return counts["c"][0] if counts.height else ""
 
 
-def clusters(scored: pl.DataFrame, *, scope: str = "1,0,0,1",
-             min_cluster: int = MIN_CLUSTER) -> pl.DataFrame:
+def clusters(scored: pl.DataFrame, *, scope: str | None = None,
+             min_cluster: int | None = None) -> pl.DataFrame:
     """Cluster every ``(species, gene, epitope)`` group of :func:`~vdjdb.motifs.tcrnet.enriched_clonotypes`.
 
     ``scored`` is every scored clonotype with an ``enriched`` flag, not only the ones that passed:
@@ -121,18 +121,26 @@ def clusters(scored: pl.DataFrame, *, scope: str = "1,0,0,1",
     representative V and J alleles -- the shape ``cluster_members.txt`` needs, minus the record
     columns that :mod:`vdjdb.motifs.emit` joins back on.
     """
+    from .tcrnet import TUNED
+
     out: list[pl.DataFrame] = []
     for (species, gene, epitope), grp in scored.group_by(
             ["species", "gene", "antigen.epitope"], maintain_order=True):
+        # The graph must use the same ball the enrichment was scored over, which is per chain. The
+        # scored frame carries it, so the two cannot drift apart.
+        chain_scope = scope or (grp["scope"][0] if "scope" in grp.columns
+                                else TUNED.get(gene, {}).get("scope", "1,0,0,1"))
+        floor = min_cluster if min_cluster is not None \
+            else TUNED.get(gene, {}).get("min_cluster", MIN_CLUSTER)
         grp = grp.sort("junction_aa", "v_call", "j_call")
         hits = grp["enriched"].to_numpy().nonzero()[0].tolist() if "enriched" in grp.columns \
             else list(range(grp.height))
         if not hits:
             continue
-        keep = _recruited(grp["junction_aa"].to_list(), hits, scope)
+        keep = _recruited(grp["junction_aa"].to_list(), hits, chain_scope)
         grp = grp[keep]
         seqs = grp["junction_aa"].to_list()
-        edges = _edges(seqs, scope)
+        edges = _edges(seqs, chain_scope)
         labels = _components(len(seqs), edges)
         xy = _layout(len(seqs), edges)
 
@@ -144,7 +152,7 @@ def clusters(scored: pl.DataFrame, *, scope: str = "1,0,0,1",
                                           pl.col("junction_aa").min().alias("__first"))
         # Size descending, then the smallest member: a number that follows the content, not the
         # order the vertices happened to arrive in.
-        order = (sizes.filter(pl.col("csz") >= min_cluster)
+        order = (sizes.filter(pl.col("csz") >= floor)
                       .sort(["csz", "__first"], descending=[True, False])
                       .with_row_index("__n", offset=1))
         if not order.height:
