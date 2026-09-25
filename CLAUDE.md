@@ -142,6 +142,20 @@ IMGT nomenclature for V/D/J and MHC. Species vocabulary is `HomoSapiens`, `MusMu
    6.26 million tuples per table until it was replaced with a hashed group-count join in polars,
    which cut the run from 7.6 s to 3.5 s and left 14 of 208,447 keys to inspect in Python.
 
+9. **Nothing computed is ever cached between builds.** Every output is recomputed from `chunks/` on
+   every run. A stored intermediate is the first place a build goes wrong: it is authoritative until
+   the code that produced it changes, and then it is silently wrong in a way no test sees, because
+   the test reads the same stale file. If a stage is slow, make it faster or accept the minutes.
+   - Two things this does **not** forbid. **Deduplicating before an expensive per-record call** is
+     not caching — it runs the call on the distinct key set *within one build* and joins back, and
+     the functions are deterministic in their arguments, so it cannot change an answer (rule 4).
+     **Fetching an input** — a release zip, a germline reference, an HF background — is a download,
+     not a cache; it is data arriving, not a result being remembered.
+   - A derived table that exists to make the build *offline and deterministic*, such as the
+     publication-year table the dashboard reads instead of calling NCBI at render time, is a
+     **committed, reviewed input**. It is refreshed by its own pull request, never written by a
+     build. Do not call it a cache and do not let a build update it in place.
+
 ## Commit conventions
 
 - Every commit that resolves a tracker issue ends with `Closes #N` — the same rule the
@@ -155,7 +169,8 @@ IMGT nomenclature for V/D/J and MHC. Species vocabulary is `HomoSapiens`, `MusMu
 - `~/hf/airr_control` has every background checked out **except
   `human.trb.aa.vdjtools.tsv.gz`**, which is still an LFS pointer. That is the most important TCRNET
   background. Run `git lfs pull --include=human.trb.aa.vdjtools.tsv.gz` before local motif work.
-- `.gitignore` traps: `build/` is ignored (hence `out/`); `summary/*.txt` is ignored (so caches must be
+- `.gitignore` traps: `build/` is ignored (hence `out/`); `summary/*.txt` is ignored (so committed
+  tables under `summary/` must be
   `.tsv`); `database/` is ignored but the two `*.meta.txt` files in it are force-added and will shadow
   generated copies until `git rm --cached`-ed.
 - The `Dockerfile` installs `colorama` but the code imports `termcolor`. `Dockerfile_2` has it right.

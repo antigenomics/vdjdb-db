@@ -113,7 +113,9 @@ def rearrangement(chains: pl.DataFrame) -> pl.DataFrame:
         pl.lit("T").alias("productive"),
         pl.col("v.segm").alias("v_call"), d.alias("d_call"), pl.col("j.segm").alias("j_call"),
         pl.lit("").alias("sequence_alignment"), pl.lit("").alias("germline_alignment"),
-        pl.lit("").alias("junction"),
+        # The inferred nucleotide junction (#461) when this source carries one: the tidy `chains`
+        # table does, legacy `vdjdb.txt` never did.
+        (pl.col("cdr3nt") if "cdr3nt" in chains.columns else pl.lit("")).alias("junction"),
         # VDJdb's `cdr3` *is* the junction: Cys104..Phe/Trp118 inclusive. The identity here and the
         # two-residue trim below are the whole reason `convert.coords` exists.
         pl.col("cdr3").alias("junction_aa"),

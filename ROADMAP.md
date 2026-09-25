@@ -103,7 +103,7 @@ stays green. Commits that resolve a tracker issue carry `Closes #N`.
 | 9 | `feature/harmonize-rules` | nomenclature rule tables | #327, #389, #347, #368, #564, #467, #561 | each rule gets a ledger entry with a measured row count |
 | 10 | `feature/motifs-tcrnet` | TCRNET on `vdjtools`, streaming backgrounds | — | deviation report accepted |
 | 11 | `feature/motifs-tcremp` | TCREMP + per-epitope DBSCAN; new motif schema; legacy projections | — | beats the **shipped** `cluster_members_tcremp.txt` re-scored in our harness, per §8.4 |
-| 12 | `feature/summary` | Rmd split, ggplot2 4.x fixes, PubMed cache, data-driven callouts, interactive dashboard | #460 | renders offline; perceptual + structural checks pass |
+| 12 | `feature/summary` | Rmd split, ggplot2 4.x fixes, committed publication-year table, data-driven callouts, interactive dashboard | #460 | renders offline; perceptual + structural checks pass |
 | 13 | `feature/docs` | Sphinx site, generated schema tables, dashboard tab, Pages | — | zero-warning build, deploys |
 | 14 | `feature/release-tooling` | manifest, three zips, checksums, `latest-version.txt`, tag scheme, Zenodo, changelog; retires the legacy CI | #432 | full release dry-run with a clean ledger |
 | 15 | `feature/aldan3-runner` | self-hosted runner + `build.yml` retargeting | — | identical canonical digests on both runners |
@@ -318,8 +318,9 @@ once per nt variant, and that inflation is measured at **1.63× for VDJdb-matchi
 inflate `E` by ~1.6× for those sequences and systematically **under**-call public motifs.
 
 `seqtree.control.load_control` already streams from `isalgo/airr_control`, filters to the productive
-20, reservoir-samples uniformly over unique clonotypes, and content-addresses the cache — do not
-reimplement it. But **never let `tcrnet()` resolve its own background**: it calls
+20, reservoir-samples uniformly over unique clonotypes, and content-addresses its **download** — do
+not reimplement it. What it stores is the fetched table, which is an input; no derived control is ever
+written (hard rule 9), and the reservoir sample is deterministic in the seed anyway. But **never let `tcrnet()` resolve its own background**: it calls
 `evalue.background(locus, species)` with no `size`, which indexes the entire table.
 
 ### 8.8 Memory is the only real constraint
@@ -334,10 +335,15 @@ Throughput is a non-issue: 75,308 rows/s on 16 cores, 61,605 rows/s at `threads=
 human TRB embedding takes **1.4 s**. Whole motif stage: ~30–60 min cold, ~10–15 min warm, peak 3.3 GB.
 The six-hour limit is never in play.
 
-Freeze the `StandardScaler` + `PCA(50)` as a version-pinned artifact and cache the 50-D vectors by
-`(cdr3, v, j)` — 113k × 50 × float32 = 22 MB, well inside the Actions cache limit, where the raw
-6000-D matrix at 2.7 GB is not. That also makes cluster ids stable across releases, which today's raw
-igraph component numbers are not (every bookmarked vdjdb.com motif URL breaks each release).
+**Nothing is stored between builds** (hard rule 9): the scaler and the PCA are re-fitted every run
+from the seeded 25k subsample, which is deterministic in `config.SEED` and the input, so storing them
+would buy minutes and risk shipping a fit that no longer matches the data.
+
+The reason a stored artifact was considered is real and needs a different answer: raw igraph component
+numbers are **not** stable across releases, so every bookmarked `vdjdb.com` motif URL breaks each
+time. The fix is a content-derived cluster id — the same choice `clonotype_id` already makes (a seeded
+hash of the clonotype key, never a counter) — so a cluster whose membership is unchanged keeps its id
+without anything being remembered.
 
 ### 8.9 `mir.bench` helpers are not usable here
 
@@ -484,7 +490,8 @@ pipeline behaviour changes.
 
 ### Phase 2 — `feature/golden-harness`
 
-1. `vdjdb fetch-reference --tag 2026-06-03-ZENODO --out ref/` — `gh release download`, unzip, cache.
+1. `vdjdb fetch-reference --tag 2026-06-03-ZENODO --out ref/` — `gh release download`, unzip. An
+   input being fetched, not a result being cached.
    `ref/` is gitignored; the harness takes a path, so CI passes an artifact instead.
 2. `src/vdjdb/compare/diff.py` — three passes: file set → raw + canonical sha256 per file → row-level
    classification keyed on `gene|cdr3|v.segm|j.segm|species|mhc.a|mhc.b|antigen.epitope|reference.id`,
@@ -579,8 +586,9 @@ One branch each; all three write **new-format columns only**, so the harness sta
 construction.
 
 1. **junction-nt** (#461): `vdjtools.model.infer_nt` on the unique `(species, cdr3, v, j)` set, four
-   big contiguous slices, never a per-record pool. 3.11 ms/record → ~15 min (§7). Cache keyed on that
-   tuple. Test: the generated `cdr3nt` back-translates to the input `cdr3`.
+   big contiguous slices, never a per-record pool. 3.11 ms/record → ~15 min (§7). **No cache** — the
+   ~15 min is inside the budget and the output is authoritative data, not a derived convenience
+   (hard rule 9). Test: the generated `cdr3nt` back-translates to the input `cdr3`.
 2. **segment-guess** (#462): kmer candidates vectorised, ties broken by one `pgen_aa_batch` call.
 3. **dgene**: `arda.dpost.posterior_d` (human IGH/TRB/TRD + mouse TRB only — it returns `None`
    elsewhere rather than guessing, and that `None` must be preserved, not defaulted).
@@ -637,7 +645,8 @@ named cause, and the 31 logo-less cids and the 1.00 % deleted letter mass are bo
 3. `eps = coef × mean(1st-NN distance)`. Kneedle is a debug cross-check only — it returns knee 1 of
    112,983 at production scale (§8.3). Stop calling the method Kneedle-based.
 4. Fit `coef` per chain against the §11.1 independent-study objective. **Never against TCRvdb.**
-5. Freeze the scaler + PCA as a version-pinned artifact and cache the 50-D vectors by `(cdr3, v, j)` —
+5. Re-fit the scaler and PCA every build from the seeded subsample; derive cluster ids from cluster
+   content so they are stable without storage. Not stored, not cached (hard rule 9). Was: cache by `(cdr3, v, j)` —
    22 MB, which also makes cluster ids stable across releases (today's igraph component numbers are
    not, so every bookmarked motif URL breaks each release).
 6. Legacy projection: one legacy cid per `(cluster, stratum)`, `cid = H.B.<epitope>.<n>L<len>`, so
@@ -708,8 +717,8 @@ different method's numbers.
 4. Zenodo via the REST API from the workflow (`newversion` → upload → `PUT` metadata → `publish`),
    replacing the webhook that archives the source tarball rather than the assets. Add the missing
    `version` field to `.zenodo.json`.
-5. `release/changelog.py` — reference diff between releases (#432), cheap because the phase-12 PubMed
-   cache already exists.
+5. `release/changelog.py` — reference diff between releases (#432), cheap because the phase-12
+   publication-year table is a committed input.
 6. `verify-latest` scheduled job: line 1 returns 200 **and** its tag equals `releases/latest`.
 7. Retire `.gitlab-ci.yml`, `.travis.yml`, `test.sh`, `release.sh`, `docker.sh`, `release_docker.sh`,
    `gitlab/`, both Dockerfiles and the committed 3.7 MB `docker_build.log`. Move `src/*.groovy` to
@@ -1092,3 +1101,70 @@ the package's validator. Stated rather than implied.
 (822 at `vdjdb.score` 0, 32 at 1). The QC rule permits a blank one — `_blank("reference.id") | ...`
 reads as "blank is acceptable" — which is defensible under the README's *"submitter details in case
 unpublished"* but is not what a blank means. Phase 9 / #347.
+
+
+## 19. Phase 8a result — inferred junction nucleotides (#461)
+
+Measured 2026-09-25 on the full corpus. `vdjtools.model.infer_nt` on the distinct
+`(species, gene, cdr3, v.segm, j.segm)` set, joined back. **Nothing cached** (hard rule 9).
+
+| | Chains | With `cdr3nt` |
+|---|---|---|
+| HomoSapiens | 262,385 | 250,057 (95.3 %) |
+| MusMusculus | 21,891 | 11,040 (50.4 %) |
+| MacacaMulatta | 1,771 | 0 |
+| **Total** | **286,047** | **261,097 (91.3 %)** |
+
+**Zero back-translation mismatches**: every one of the 261,097 inferred sequences translates back to
+the junction it was inferred from. That is #461's acceptance criterion and it holds exactly.
+
+`cdr3nt.pgen` spans 3.87 × 10⁻⁶⁶ to 1.62 × 10⁻⁵. `cdr3nt.margin` — the winner's Pgen over the
+runner-up's — has median 2.32, but **9.4 % (24,574) fall below 1.1**, where the choice among
+synonymous recombination histories was near-arbitrary, and 9,536 had a single candidate (reported as
+infinity). The margin column exists so a consumer can filter on exactly that.
+
+### `cdr3nt` is inferred, not observed, and the models disagree
+
+On 600 distinct human TRB keys the OLGA and arda models agree on only **7.2 %** of the nucleotide
+sequences they both return (293 both-resolved). They disagree about which synonymous nucleotide
+history is most likely, never about the protein. So `cdr3nt` is a plausible representative and must
+never be treated as evidence — the field comment in the registry says so.
+
+### Mouse coverage is limited by the model, not by the data
+
+OLGA is human-only (`load_bundled` raises and names arda as the alternative), so mouse must use the
+arda source, which is systematically stricter: on the same 600 human TRB keys arda declines **302**
+where OLGA declines **30**. Mouse's 50.4 % is that strictness, not a property of murine records.
+A mouse model of OLGA's permissiveness would lift ~11,000 chains; that is an upstream `vdjtools`
+question, recorded here rather than worked around.
+
+### V/J calls are resolved before the run, and never invented
+
+The model is keyed by allele and raises on anything else, so every distinct call is resolved up
+front, three ways: a known allele is used as given; a **gene name whose model carries exactly one
+allele** becomes that allele, because there is no choice to make (VDJdb has 2,371 V and 1,784 J calls
+with no allele at all, #389); anything else marginalises over that segment. Picking an allele for a
+multi-allele gene would be precisely the #327 mistake.
+
+The "anything else" bucket is **3,500 of 284,764 chains (1.2 %)** and reads as a work list for
+phase 9:
+
+| Call | Chains | What is wrong |
+|---|---|---|
+| `TRAV14` | 1,032 | no allele, and the model has several |
+| `TRBV21-1*01` / `TRBV21-1` | 303 | pseudogene, carried by no model |
+| `TRAV21-DV12` / `TRAV21/DV12*01` | 196 | dash against the model's slash |
+| `TRBV13-1*02` (mouse) | 235 | allele absent from the model |
+| `TRBJ1-6*02` | 99 | allele absent from the model |
+| `TRBJ1.2`, `TRBJ 2-7`, `TRAJ16.5`, `TRAJ01-1*01` | tens | a dot, a space, or zero-padding where a dash belongs |
+
+### Parallelism
+
+Four contiguous slices of the sorted key set, one thread each, reassembled in **slice order** — the
+worker count cannot change the answer, and a test asserts that. Measured speedup 2.11× on 4 threads
+(the native call releases the GIL only partly), against 2.70 ms per human TRB key single-threaded.
+Never a pool of per-record tasks: dispatch on 114k one-row tasks would cost more than it saves.
+
+The whole build goes from **16 s to 170 s** — inference is now 90 % of it. Still half the 344 s the
+pandas pipeline took to produce three files and no nucleotides, and nowhere near the runner budget,
+which is what makes "recompute every time" (hard rule 9) an easy rule to keep.
