@@ -63,6 +63,37 @@ def qc(
 
 
 @app.command()
+def schema(
+    table: str = typer.Option("vdjdb", help="vdjdb, vdjdb-web, slim, full, "
+                                            "cluster_members or motif_pwms."),
+    format: str = typer.Option("meta", help="meta, header or json."),
+) -> None:
+    """Render a table's metadata, header or JSON schema from the field registry."""
+    import json as _json
+
+    from .schema import TABLES, fields, header, render_meta, render_slim_meta
+
+    if table not in TABLES:
+        typer.secho(f"unknown table {table!r}; known: {', '.join(sorted(TABLES))}",
+                    fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    if format == "header":
+        typer.echo(header(table))
+    elif format == "meta":
+        # slim's metadata is two columns; every other table's is the eight-column form.
+        renderer = render_slim_meta if table == "slim" else render_meta
+        typer.echo(renderer(table), nl=False)
+    elif format == "json":
+        typer.echo(_json.dumps([f.__dict__ if hasattr(f, "__dict__") else
+                                {k: getattr(f, k) for k in f.__slots__}
+                                for f in fields(table)], indent=2))
+    else:
+        typer.secho(f"unknown format {format!r}; known: meta, header, json",
+                    fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+
+
+@app.command()
 def build(out: Path = typer.Option(Path("out"))) -> None:
     """Assemble the database into the three output formats."""
     _pending("build")

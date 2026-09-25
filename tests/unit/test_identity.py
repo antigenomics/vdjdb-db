@@ -6,7 +6,7 @@ import pytest
 
 from vdjdb.identity import IdentityRegistry, canonical_content_hash, natural_key, reconcile
 from vdjdb.identity.ids import NATURAL_KEY, RecordState, format_id, parse_id
-from vdjdb.schema.tables import ALL_COLUMNS
+from vdjdb.schema import ALL_COLUMNS
 
 BASE = {
     "species": "HomoSapiens", "cdr3.alpha": "CAVSDLEPNSSASKIIF", "v.alpha": "TRAV12-2*01",
@@ -103,7 +103,7 @@ def test_unambiguous_amendment_is_taken_even_with_other_records_present():
     df = frame({"cdr3.beta": "CASSAAAAAF"}, {"cdr3.beta": "CASSBBBBBF", "v.beta": "TRBV28*01"})
     _, reg, _ = reconcile(df, IdentityRegistry(), release="v1")
     # Only the first entry is one field away; the second also differs in v.beta.
-    out, reg, rep = reconcile(
+    _out, reg, rep = reconcile(
         frame({"cdr3.beta": "CASSAAAAAFF"}, {"cdr3.beta": "CASSBBBBBF", "v.beta": "TRBV28*01"}),
         reg, release="v2")
     assert len(rep.amended) == 1 and rep.amended[0][1] == "cdr3.beta"
@@ -118,7 +118,7 @@ def test_removed_record_is_retired_not_deleted():
     out2, reg, rep = reconcile(frame({}), reg, release="v2")
     assert out2["record_id"].to_list() == [kept]
     assert len(rep.retired) == 1
-    states = dict(zip(reg.to_frame()["record_id"], reg.to_frame()["state"]))
+    states = dict(zip(reg.to_frame()["record_id"], reg.to_frame()["state"], strict=False))
     assert states[rep.retired[0]] == RecordState.RETIRED
     assert len(reg) == 2, "a retired record stays in the registry"
 
@@ -195,7 +195,7 @@ def test_natural_key_is_the_chunk_dedup_key():
     192,753 real records, because one paper reporting the same TCR against the same epitope in
     several donors is several records.
     """
-    from vdjdb.schema.tables import CHUNK_DEDUP_KEY
+    from vdjdb.schema import CHUNK_DEDUP_KEY
 
     assert NATURAL_KEY == CHUNK_DEDUP_KEY
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 import pytest
 
 from vdjdb.qc.lint import lint_file
-from vdjdb.schema.tables import ALL_COLUMNS, CHUNK_DEDUP_KEY, COMPLEX_COLUMNS, TOLERATED_DROPPED
+from vdjdb.schema import ALL_COLUMNS, CHUNK_DEDUP_KEY, COMPLEX_COLUMNS, KEPT_CURATION_COLUMNS
 
 HEADER = "\t".join(ALL_COLUMNS)
 ROW = "\t".join(
@@ -55,11 +55,12 @@ def test_prose_used_as_column_name_is_flagged(tmp_path):
 def test_missing_required_column_is_flagged(tmp_path):
     reduced = "\t".join(c for c in ALL_COLUMNS if c != "mhc.class")
     row = "\t".join("" for _ in range(len(ALL_COLUMNS) - 1))
-    found = [f for f in lint_file(write(tmp_path, f"{reduced}\n{row}\n")) if f.code == "missing-required-column"]
+    findings = lint_file(write(tmp_path, f"{reduced}\n{row}\n"))
+    found = [f for f in findings if f.code == "missing-required-column"]
     assert found and "mhc.class" in found[0].detail
 
 
-@pytest.mark.parametrize("extra", sorted(TOLERATED_DROPPED))
+@pytest.mark.parametrize("extra", sorted(KEPT_CURATION_COLUMNS))
 def test_tolerated_columns_are_not_unknown(tmp_path, extra):
     """The five columns the legacy build silently discards must not be reported as unknown.
 
@@ -82,4 +83,4 @@ def test_schema_tuples_are_self_consistent():
     assert len(ALL_COLUMNS) == len(set(ALL_COLUMNS)), "duplicate column in ALL_COLUMNS"
     assert set(COMPLEX_COLUMNS) <= set(ALL_COLUMNS)
     assert set(CHUNK_DEDUP_KEY) <= set(ALL_COLUMNS)
-    assert not (TOLERATED_DROPPED & set(ALL_COLUMNS)), "a tolerated-dropped column is also a real one"
+    assert not (set(KEPT_CURATION_COLUMNS) & set(ALL_COLUMNS)), "a kept curation column is also a real one"

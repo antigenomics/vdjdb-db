@@ -39,12 +39,12 @@ from __future__ import annotations
 import hashlib
 from collections import defaultdict
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 
 import polars as pl
 
-from ..schema.tables import ALL_COLUMNS, CHUNK_DEDUP_KEY
+from ..schema import ALL_COLUMNS, CHUNK_DEDUP_KEY
 
 #: The fields that identify a record. A change in any of these is an *amendment*; a change anywhere
 #: else is re-annotation that keeps the same record.
@@ -77,12 +77,9 @@ REGISTRY_COLUMNS: tuple[str, ...] = (
 )
 
 
-class RecordState(str, Enum):
+class RecordState(StrEnum):
     ACTIVE = "active"
     RETIRED = "retired"
-
-    def __str__(self) -> str:  # str(RecordState.ACTIVE) must be "active", not "RecordState.ACTIVE"
-        return self.value
 
 
 def format_id(n: int) -> str:
@@ -166,7 +163,7 @@ class IdentityRegistry:
     # ---- persistence -------------------------------------------------------
 
     @classmethod
-    def load(cls, path: Path) -> "IdentityRegistry":
+    def load(cls, path: Path) -> IdentityRegistry:
         if not path.exists():
             return cls()
         # Empty string is the only missing marker (CLAUDE.md), and the polars kwarg that spells

@@ -128,7 +128,18 @@ Every changed **cell** must be attributed to a declared rule in `rules/expected_
 ```toml
 [[rule]] id="web-unmp-jstart-minus1" file="vdjdb.txt" column="web.cdr3fix.unmp"
          from="no" to="yes" predicate="cdr3fix.jStart == -1" rows=7998
+[[rule]] id="meta-tcr-hash-row"   file="vdjdb.meta.txt" added=["TCR_hash"]
+[[rule]] id="meta-score-position" file="vdjdb.meta.txt" moved=["vdjdb.score"]
+[[rule]] id="meta-web-data-type"  file="vdjdb.meta.txt" rows=4
+[[rule]] id="slim-meta-tcr-hash"  file="vdjdb.slim.meta.txt" added=["TCR_hash"]
+[[rule]] id="slim-meta-geometry"  file="vdjdb.slim.meta.txt" moved=["v.end","j.start"]
 ```
+
+The metadata fixes are safe because the metadata is currently *wrong* rather than merely old:
+`TCR_hash` has been a `vdjdb.txt` column for years with no metadata row; `vdjdb.score` and
+`TCR_hash` are listed after `cdr3fix` but stored before `method`; and the four `web.*` rows carry one
+value too many, landing `0` in `data.type`. All four `web.*` rows are `visible = 0`, so nothing
+user-facing moves.
 
 Any unmatched difference **fails**. A rule that fires a different number of times than declared **also
 fails** — that is what turns "we think it is the same" into a gate, and why every rule carries a
@@ -182,6 +193,7 @@ drafts — do not re-derive them.
 | #368 antigen gene/species | patch dict covers 245 epitopes = 154,373 of 203,308 rows, **zero swapped** | the ~90 reported records are in the uncovered tail of 48,935 rows |
 | Dashboard R deps | 15 of 17 installed; `maps`/`scatterpie` used only past the embed cut (lines 812–835 vs marker at 567); `ggh4x` never used | splitting the Rmd drops three deps from the release path |
 | Shipped dashboard PNG sizes | 1344×960, 2304×1920, 1152×1920, 1536×1536 → `dpi=96, fig.retina=2` | pin it or the visual fingerprint is noise |
+| Production's 27-row `vdjdb.meta.txt` (`vdjdb-web/test/resources/database/`) | orders `… reference.id method meta cdr3fix vdjdb.score TCR_hash web.*` while the data is `… reference.id vdjdb.score TCR_hash method meta cdr3fix web.*` | the metadata mis-describes the data **in production too**, not only in the release zip |
 | `width="1152"` occurrences in the shipped embed HTML | **0** — the rewrite in `MakeEmbedableHtml.py` is dead code | this is what #460 actually is |
 
 ## 8. Motif inference — findings that change the approach
@@ -446,18 +458,20 @@ Minor decisions taken while executing a subplan are recorded in §13 rather than
    `vdjdb.meta.txt` attributes (`type`, `visible`, `searchable`, `autocomplete`, `data.type`,
    `title`, `comment`), and its position in each of the four positional orders (§2 of
    `docs/outputs.md`). This is the single declaration the six duplicated column lists collapse into.
-2. `render_meta(table, legacy=True)` — emits `vdjdb.meta.txt` / `vdjdb.slim.meta.txt` as text.
-   `legacy=True` reproduces the two historical defects verbatim (the `web.method` space-for-tab and
-   the four `web.*` field shifts, §1); `legacy=False` emits them corrected plus the `TCR_hash` row.
-3. `header_for(table)` — the `vdjdb.txt` header derived from the same declaration, restoring the
+2. `render_meta(table)` / `render_slim_meta(table)` — emits `vdjdb.meta.txt` /
+   `vdjdb.slim.meta.txt` as text. There is **no legacy mode**: the shipped metadata does not describe
+   the file it belongs to, so reproducing it would ship a known defect. The three fixes are declared
+   ledger rules instead (§5).
+3. `header(table)` — the `vdjdb.txt` header derived from the same declaration, restoring the
    `BuildDatabase.groovy:411` invariant the Python port dropped.
-4. Tests: parse `src/BuildDatabase.groovy`'s `METADATA_LINES` / `SLIM_METADATA_LINES` **at test time**
-   (never a copy) and assert `render_meta(legacy=True)` reproduces them byte-for-byte; assert
-   `header_for(t) == [f.name for f in meta_fields(t)]` for all three tables.
+4. Tests: parse `src/BuildDatabase.groovy`'s `METADATA_LINES` / `SLIM_METADATA_LINES` **at test
+   time** (never a copy) and assert every difference from `render_meta` is one of the three declared
+   fixes; assert `header(t) == [f.name for f in fields(t)]` for all three tables.
 5. `vdjdb schema --table {vdjdb,slim,full} --format {meta,header,json}` on the CLI.
 
-**Closes when:** `render_meta` is byte-identical to the Groovy constants and to the two tracked files
-in `database/`. No pipeline behaviour changes.
+**Closes when:** every difference between `render_meta` and the Groovy constants is one of the three
+declared fixes, asserted by a test that parses `BuildDatabase.groovy` rather than copying it. No
+pipeline behaviour changes.
 
 ### Phase 2 — `feature/golden-harness`
 
@@ -718,3 +732,10 @@ Recorded rather than escalated. Each is reversible and none changes a shipped co
 | Date | Decision | Why |
 |---|---|---|
 | 2026-09-25 | Scratch notes and one-off scripts are gitignored at the repo root (`/NOTES*.md`, `/test_*.py`, `/scratch/`, …), anchored so `tests/` and `docs/` are unaffected | keeps working files out of curation PRs |
+| 2026-09-25 | The generated metadata fixes the shipped defects rather than reproducing them; no `legacy=True` mode | the shipped metadata does not describe its own file, in the release *and* in production. Declared as ledger rules instead |
+| 2026-09-25 | `vdjdb.score`'s title is `Info`, from production, not `Score` from the release | production is what users see; the release file is the stale one |
+| 2026-09-25 | The four `web.*` rows get `data.type = factor`; the surplus `0` is dropped | all four are `visible = 0`, so nothing user-facing moves |
+| 2026-09-25 | `database/vdjdb.meta.txt` and `.slim.meta.txt` stay tracked until phase 4 emits them | `database/` is gitignored and they were force-added; `git rm --cached` before the emitter exists breaks a fresh clone's legacy build |
+| 2026-09-25 | `TOLERATED_DROPPED` renamed `KEPT_CURATION_COLUMNS` | §9 decided they are kept, so the old name asserted the opposite of the decision |
+| 2026-09-25 | The motif tables' own vocabulary (`cdr3aa`, `cid`, `csz`, the PWM columns) is declared in the registry too | they have no `.meta.txt`, so the registry is the only place a rename is caught before it mistypes a positionally-parsed file |
+| 2026-09-25 | ruff excludes `src/*.py` and `py_src/`, and ignores `B008` | reformatting code that leaves the tree in phases 5 and 14 would bury the real diff; `B008` is typer's idiom |
