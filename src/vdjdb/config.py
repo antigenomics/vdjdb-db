@@ -61,3 +61,15 @@ class Paths:
     @classmethod
     def discover(cls) -> Paths:
         return cls(repo_root())
+
+
+#: The one seed for the whole build. Every stage that samples, shuffles, initialises a clustering
+#: or hashes with a seed takes it from here -- never ``random.seed()`` at module scope, never an
+#: unseeded default, never a per-call literal.
+#:
+#: A build that is merely *repeatable* (same answer twice on one host) is not enough: the difference
+#: ledger declares rules with measured row counts, and a count is meaningless against a measurement
+#: that moves between hosts or processes. Measured cost of getting this wrong: an unstable sort in
+#: the ledger reported 158, 152 and 158 changed rows across three runs of the same comparison, and
+#: manufactured five times the real difference.
+SEED: int = 20260925
