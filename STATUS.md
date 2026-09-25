@@ -55,10 +55,13 @@ of pandas type coercions the all-string reader undoes (~55k cells). See `ROADMAP
 
 1. **Phase 11, TCREMP** — chunked embedding, per-epitope DBSCAN with a chain-global eps, `coef`
    fitted against the independent-study signal phase 6 already ships. **Never against TCRvdb.**
-2. **Close phase 10's one open item**: human TRA enrichment calls 12,020 clonotypes where the
-   shipped file clusters 15,427, and the gap is at the enrichment step, not the clustering step.
-   Re-score human TRA at several control sizes and against the legacy's frozen control
-   (`ROADMAP.md` §29).
+2. **Optimise the motifs** (`ROADMAP.md` §30) — the paratope motifs are a critical part of VDJdb and
+   neither method is tuned. In priority order: the **giant component** (our largest TCRNET cluster
+   holds 19,908 of 45,095 clustered records, 44 %; REDCEA's largest holds 3.9 %, so Leiden over
+   connected components is the single biggest win), **background re-sampling and size** (`M` is not
+   even uniform across chains today), **in-silico backgrounds** from `vdjtools.model` (which would
+   also dissolve the CC-BY-NC-ND licence constraint), and the unswept parameters of both methods.
+   Phase 10's open human-TRA coverage item lands here.
 3. **Decide whether the legacy build should keep the 711 chains with no V** now that #462 can supply
    one for 686 of them (`ROADMAP.md` §21).
 4. **Decide the cdr3fix engine swap.** Both `ROADMAP.md` §16 and §28 gates are cleared: the family-
