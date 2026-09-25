@@ -330,13 +330,101 @@ igraph component numbers are not (every bookmarked vdjdb.com motif URL breaks ea
   the vendored `metrics_lib.precision_recall_fscore` folds unclustered records into FN. **The two
   metric families are not comparable.** Validation uses the vendored `metrics_lib`, verbatim.
 
-## 9. Open questions
+## 9. Decisions
 
-- **Where do the five `evidence.*` columns come from?** Nothing in this repo produces them, yet
-  production serves a 27-column `vdjdb.txt` containing them. Three come from
-  `vdjdb-web/tools/reconcile_structures.py`; the two `evidence.validation.*` have no located
-  generator. Decide whether the new format takes ownership. *(blocks phase 6)*
-- **The seven side outputs** (`vdjdb_full_filtered.txt`, three `*_broken.txt`, three `*_scored.txt`)
-  are written but never shipped. Recommendation: `build/reports/*`. *(blocks phase 6)*
-- **The five discarded chunk columns** — promote, or add to a named `TOLERATED_DROPPED` set so the
-  drop is deliberate and testable. `submitter` is attribution data. *(blocks phase 1)*
+Settled 2026-09-25.
+
+- **The new format takes ownership of `evidence.*`.** Production `vdjdb-web` serves five
+  `evidence.*` columns that nothing in this repo produces. The new format produces them, from the
+  evidence table in §10.
+- **The five "dropped" chunk columns are kept.** `submitter`, `chunk.id`, `comment`,
+  `meta.subset.frequency` and `method.pairing` all matter for debugging a curation problem, so they
+  are carried through to `records.parquet` rather than discarded.
+- **The side outputs are produced but not zipped.** `vdjdb_full_filtered.txt`, the three
+  `*_broken.txt` and the three `*_scored.txt` tables are written to `out/reports/` and uploaded as
+  CI artifacts; whether any of them ever ships is deferred.
+- **Everything the build produces is specified** in `docs/outputs.md`, which becomes
+  `docs/standards/database-outputs.rst` when the Sphinx site lands.
+
+## 10. Record identity and the evidence model
+
+### 10.1 Record identity
+
+A VDJdb record has had no identifier: it is a row in a chunk, named only by its content. A curator
+fixing a CDR3 typo therefore deletes one record and creates another, indistinguishably from a real
+deletion plus a real addition. External references, structure links and accumulated evidence all
+break silently.
+
+Identity is two-level, in `src/vdjdb/identity/`:
+
+| | |
+|---|---|
+| `record_id` | opaque, assigned once, never reused, **stable across content changes**. `VDJDB` + 10 digits. This is what external references point at |
+| `content_hash` | sha256 over the canonical content. Changes whenever anything changes. Detects change; never identifies |
+
+Reconciliation, most specific first: **exact** natural key → **amendment** (exactly one differing
+key field, unambiguous, same chunk and reference — ambiguity is refused, because a wrong link is
+worse than a new id) → **allocation**. Registry entries the build no longer sees are **retired**,
+not deleted. The registry is a committed TSV sorted by `record_id`, so a curation PR shows added,
+amended and retired records as a reviewable diff.
+
+The natural key **is** `CHUNK_DEDUP_KEY`, asserted by a test. They drifted once during
+implementation: a narrower key collided on **20,769 of 192,753** records, because one paper
+reporting the same TCR against the same epitope in several donors is several records.
+
+Measured: 192,753 rows → 192,734 records + 19 duplicate submissions, in **2.0 s**; ids stable across
+rebuilds; a typo fix reported as `VDJDB0000000101 cdr3.beta: CASSIRSSYEQYF -> CASSIRSSYEQYFF`.
+
+### 10.2 The evidence model
+
+Four tables, normalised so nothing is stored twice (full column lists in `docs/outputs.md`):
+
+```
+records.parquet    PK record_id             one row per curated record, with provenance
+chains.parquet     PK (record_id, gene)     one row per TCR chain; carries clonotype_id
+evidence.parquet   PK (record_id, evidence_id)   long format, one row per piece of evidence
+vdjdb.parquet      the joined, pivoted view -- derived, never authored
+```
+
+Evidence is long rather than wide because a record carries any number of pieces of any number of
+kinds; a wide table would be mostly null. `evidence_type` covers `motif_tcrnet`, `motif_tcremp`,
+`structure_native`, `structure_model` and `independent_study`. Structure evidence is keyed on the
+legacy `TCR_hash` until the structure store is re-keyed on `record_id`.
+
+`chains` exists so the schema stays non-redundant: folding chains into records forces either
+duplicated record fields (what `vdjdb.txt` does) or paired alpha/beta columns (what `vdjdb_full.txt`
+does).
+
+## 11. Tuning and validation of motif clustering
+
+**These are separate datasets and must stay separate.**
+
+### 11.1 Tune on independent-study support
+
+The signal is how many distinct studies report the same clonotype against the same epitope. Measured
+on human records in `chunks/`: **4,129 of 187,238 clonotype-epitope pairs (2.21 %) are supported by
+≥2 distinct `reference.id`**, spread over 18 epitopes with ≥20 such pairs — GILGFVFTL 2,136,
+YLQPRTFLL 619, NLVPMVATV 170, GLCTLVAML 96, RAKFKQLL 61, and a long tail.
+
+A clustering that is finding real convergent selection should preferentially recover exactly those
+independently-replicated clonotypes. That is the objective the DBSCAN `coef` (and any Leiden
+resolution) is fitted against, per chain, on the pooled geometry.
+
+Independent replication is also a per-record evidence type in its own right, so the tuning signal and
+a shipped evidence column come from the same computation.
+
+### 11.2 Validate on TCRvdb, held out, touched once
+
+**TCRvdb / MATCHMAKERS is proprietary — academic, non-commercial, no redistribution in whole or in
+part — and it is NEVER shipped, committed or redistributed.** Read only via `$VDJDB_TCRVDB`;
+`src/vdjdb/validate/guard.py` fails the build if a copy reaches the repository or a bundle, matching
+both filename and column fingerprint so a rename does not defeat it.
+
+It is a **held-out** set: 614 labelled paired HLA-A2 records over exactly two epitopes — YLQPRTFLL
+(421 labelled, 40.9 % MM+) and GLCTLVAML (193, 69.4 % MM+). Label definition taken from the author's
+own `validation_analytics.Rmd`: MM+ is `padj < 1e-5`, joined on `cdr3` alone with alpha and beta
+melted and `min(padj)` per CDR3.
+
+Tuning on it would invalidate it, and two epitopes are too narrow a basis for a global
+hyperparameter. Only **aggregate** metrics may be reported — recall of MM+ at a fixed operating
+point, precision against MM-, AUROC. Per-record verdicts may never be emitted.
