@@ -31,6 +31,31 @@ def test_a_call_that_is_correct_or_undecidable_is_left_alone(call):
     assert N.normalise_call(call, "HomoSapiens") is None
 
 
+@pytest.mark.parametrize("species,call,expected", [
+    # IMGT names the gene `TRBV19`; nothing is named `TRBV19-1`, and the family has no second member
+    ("HomoSapiens", "TRBV19-1", "TRBV19"),
+    ("HomoSapiens", "TRBV19-1*01", "TRBV19*01"),
+    ("HomoSapiens", "TRBV28-1", "TRBV28"),
+    ("MacacaMulatta", "TRBV19-1", "TRBV19"),
+    ("HomoSapiens", "TRAJ24-1", "TRAJ24"),
+    ("HomoSapiens", "TRAV14-1", "TRAV14/DV4"),   # the suffix goes, then the /DV gene is named
+])
+def test_a_spurious_minus_one_is_dropped(species, call, expected):
+    assert N.normalise_call(call, species) == expected
+
+
+@pytest.mark.parametrize("species,call", [
+    ("HomoSapiens", "TRBV6-1"),      # a real IMGT gene: TRBV6-2 exists, so -1 is not spurious
+    ("HomoSapiens", "TRBV20-1"),     # a real IMGT gene, and the only member of its family
+    ("HomoSapiens", "TRAJ37-2"),     # not a -1: dropping it would discard the curator's distinction
+    ("HomoSapiens", "TRBV13-6"),     # likewise -- `TRBV13` exists, so a blind drop would "resolve"
+    ("MusMusculus", "TRAV13-1"),     # real in mouse, where the family runs to TRAV13-4/DV7
+    ("MusMusculus", "TRAV14D-1"),
+])
+def test_a_suffix_that_is_not_a_spurious_minus_one_survives(species, call):
+    assert N.normalise_call(call, species) is None
+
+
 def test_a_species_with_no_authority_is_never_touched():
     """An unchecked rewrite is worse than an odd spelling."""
     assert N.normalise_call("TRAV14", "GallusGallus") is None

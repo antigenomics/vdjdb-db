@@ -166,6 +166,17 @@ So: a numbered issue in `ROADMAP.md` is one of the 35 that the build work can cl
 tracker as a defect list, do not assume an open issue is a bug, and check the label before treating
 one as in scope. The queue is worked through the curation skills, not the build.
 
+## Dependencies come from PyPI
+
+`arda-mapper`, `vdjtools`, `mirpy-lib`, `mhcmatch` are ours, but this repo depends on their
+**published** versions, never on a source checkout. A `PYTHONPATH` pointing at `~/vcs/code/<tool>/src`
+is acceptable only to *measure* a fix you are making in that tool; it must never reach `pyproject.toml`,
+a workflow, or a build. If the build needs a change in one of them, the change ships as a release
+first and the version bound here moves after.
+
+That is why `ROADMAP.md` carries numbered cross-repo gates: a fix in `arda` or `vdjmatch` is a
+release, and the release is the gate.
+
 ## Commit conventions
 
 - Every commit that resolves a tracker issue ends with `Closes #N` — the same rule the
