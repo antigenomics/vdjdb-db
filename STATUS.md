@@ -4,7 +4,7 @@ _Last updated: 2026-09-25_
 
 ## In flight
 
-**Phase 8 — `feature/receptor`**, merging to `dev`. Phase 8 is complete; phase 9 is next.
+**Phase 9 — `feature/harmonize-rules`**, merging to `dev`. Phases 10-11 (motifs) are next.
 
 | Phase | Branch | State |
 |---|---|---|
@@ -19,7 +19,8 @@ _Last updated: 2026-09-25_
 | 8a | `feature/junction-nt` | merged — 261,097 `cdr3nt`, 0 back-translation mismatches |
 | 8b | `feature/dgene` | merged — D geometry from the junction scenario, confidence from `arda.dpost` |
 | 8c | `feature/segment-guess` | merged — the legacy V guesser has never worked; Pgen fills 686 of 711 gaps |
-| 8d | `feature/receptor` | **AIRR `Receptor`, 81,003 rows; stitching vectorised to 2.7 s** |
+| 8d | `feature/receptor` | merged — AIRR `Receptor`, 81,003 rows; stitching vectorised to 2.7 s |
+| 9 | `feature/harmonize-rules` | **#389, #327, #467, #347 landed; #564 and #368 already fixed; #561 advisory. Ledger PASS** |
 
 ```
 uv run vdjdb build --out out/                          # tables + every projection, 15 s
@@ -50,18 +51,18 @@ of pandas type coercions the all-string reader undoes (~55k cells). See `ROADMAP
 
 ## Next
 
-1. **Phase 8** — `junction-nt` (#461), `segment-guess` (#462), `dgene`, one branch each. These fill
-   the `chains` columns phase 6 declared but left absent (`cdr3nt`, `cdr3nt.pgen`, `cdr3nt.margin`,
-   `d.start`, `d.end`) and the AIRR nucleotide fields phase 7 left empty. **AIRR `Receptor` rides
-   along**: `vdjtools.model.stitch_*` produces the complete variable domain its two required columns
-   need (`ROADMAP.md` §18).
-2. **Phase 9** (`feature/harmonize-rules`) — **#327 lands here, and it gates the arda swap.**
-3. `uv lock`, push `dev`, let `chunk-check` run once **before** applying branch protection.
+1. **Phases 10-11, the motifs** — TCRNET on `vdjtools`, then TCREMP with the corrected knee-DBSCAN,
+   tuned against the independent-study signal phase 6 already ships.
+2. **Decide whether the legacy build should keep the 711 chains with no V** now that #462 can supply
+   one for 686 of them (`ROADMAP.md` §21).
+3. **Re-measure the arda swap** (`ROADMAP.md` §16, §24). Its gate was #327, and #327 has landed.
+4. `uv lock`, push `dev`, let `chunk-check` run once **before** applying branch protection.
 
 ## Blocked / needs a decision
 
 | Item | Blocks | Question |
 |---|---|---|
+| Murine class I: `H2-Db` or `H-2Db`? | the murine MHC vocabulary | the data says `H2-Db` (6,207 records, `H-2Db` appears zero times), `proofreading/mhc.md` says `H-2Db`, and `vdjdb-web` carries a repair for the pair. `ROADMAP.md` §25 |
 | `vdjmatch` `_zip_asset` patch | the first multi-zip release | needs a patch + release in `antigenomics/vdjmatch`. See `ROADMAP.md` §3.1 |
 | `arda` release with `fix/source-root-marker` | CI without the `$ARDA_HOME` workaround | `d40095c` is committed on a local branch in `~/vcs/code/arda`, not pushed |
 | Motif `coef` calibration | phase 11 | needs the motif pipeline running before it can be fitted |
@@ -73,7 +74,14 @@ of pandas type coercions the all-string reader undoes (~55k cells). See `ROADMAP
   added. It becomes a release asset in phase 14 — 72.7 MB is too much to commit per curation PR
   (`ROADMAP.md` §17). Do not lean on cross-release id stability until then.
 - **854 records carry no `reference.id`**, all from `luciani-samir-etal-hcv-14-09-2018` (822 at score
-  0, 32 at 1). The QC rule permits a blank one by construction. Phase 9 / #347.
+  0, 32 at 1). The QC rule permits a blank one by construction, and #347 cannot help: there is
+  nothing to resolve. A curation question.
+- **99 records carry the same CDR3 on both chains** (#561), 98 from two references. Reported as an
+  advisory QC finding on every run; only a curator can say which chain is wrong.
+- **9 `antigen.gene` values are protein names rather than gene symbols** (`Trans-sialidase`, 284
+  records; `Nucleocapsid`, 171) and **15 `antigen.species` values are outside
+  `proofreading/species_aliases.tsv`** (`SIV`, 1,771). Both are vocabulary gaps for the curation
+  skills, not mechanical rules (`ROADMAP.md` §26).
 - 14 records are reported by two chunks with the same PDB id in different letter case, and one
   `meta.epitope.id` carries a float. Both are phase 9 nomenclature work; both are visible in the
   ledger today.

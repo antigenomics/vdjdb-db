@@ -1,0 +1,17 @@
+# Non-PMID `reference.id` values that have since acquired a PubMed ID (#347).
+#
+# A committed, reviewed input: the build must be offline and deterministic, so no lookup happens at
+# build time. Refreshed by re-running the resolver and reviewing this diff.
+#
+# Most non-PMID references are NOT resolvable and are absent on purpose: the 10x application note
+# (20,358 records) is a vendor note, the eight `github.com/antigenomics/vdjdb-db/issues/*` references
+# (4,366) are direct submissions and the issue *is* the reference, the 42 `rcsb.org/structure/*` are
+# PDB entries, and `arxiv.org/abs/2503.00648` is a computer-science preprint PubMed does not index.
+#
+# Resolved 2026-09-25 via the NCBI ID converter.
+reference.id	pmid	note
+https://doi.org/10.1016/j.xcrm.2023.101017	PMID:37030296	Cell Rep Med 2023; also #467's 80 A*24:01 records
+https://www.biorxiv.org/content/10.1101/2025.11.05.686789v1.full	PMID:41279151	bioRxiv preprint, indexed since submission
+doi:10.1172/jci.insight.174776	PMID:39024572	JCI Insight 2024
+# Checked and deliberately unmapped:
+# https://doi.org/10.1101/2020.05.04.20085779	-	medRxiv preprint, never indexed in PubMed
