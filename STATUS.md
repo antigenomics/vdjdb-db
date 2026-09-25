@@ -4,7 +4,7 @@ _Last updated: 2026-09-25_
 
 ## In flight
 
-**Phase 10 — `feature/motifs-tcrnet`**. Phases 0-9 are merged to `dev`; the ledger reads PASS with
+**Phase 11 — `feature/motifs-tcremp`**. Phases 0-10 are merged to `dev`; the ledger reads PASS with
 every difference declared and measured.
 
 | Phase | Branch | State |
@@ -22,7 +22,7 @@ every difference declared and measured.
 | 8c | `feature/segment-guess` | merged — the legacy V guesser has never worked; Pgen fills 686 of 711 gaps |
 | 8d | `feature/receptor` | merged — AIRR `Receptor`, 81,003 rows; stitching vectorised to 2.7 s |
 | 9 | `feature/harmonize-rules` | **#389, #327, #467, #347, #368 landed; #564 already fixed; #561 advisory. Ships `epitopes` + `restriction`. Ledger PASS** |
-| 10 | `feature/motifs-tcrnet` | **in flight** — TCRNET on `vdjtools`, streaming backgrounds (`ROADMAP.md` §8.1, §8.5, §8.7) |
+| 10 | `feature/motifs-tcrnet` | **merged** — `vdjdb motifs` ships both legacy files; the 137 logo-less cids and the 1.73 % deleted letter mass are gone (`ROADMAP.md` §29) |
 
 ```
 uv run vdjdb build --out out/                          # tables + every projection, 15 s
@@ -53,17 +53,21 @@ of pandas type coercions the all-string reader undoes (~55k cells). See `ROADMAP
 
 ## Next
 
-1. **Phases 10-11, the motifs** — TCRNET on `vdjtools`, then TCREMP with the corrected knee-DBSCAN,
-   tuned against the independent-study signal phase 6 already ships.
-2. **Decide whether the legacy build should keep the 711 chains with no V** now that #462 can supply
+1. **Phase 11, TCREMP** — chunked embedding, per-epitope DBSCAN with a chain-global eps, `coef`
+   fitted against the independent-study signal phase 6 already ships. **Never against TCRvdb.**
+2. **Close phase 10's one open item**: human TRA enrichment calls 12,020 clonotypes where the
+   shipped file clusters 15,427, and the gap is at the enrichment step, not the clustering step.
+   Re-score human TRA at several control sizes and against the legacy's frozen control
+   (`ROADMAP.md` §29).
+3. **Decide whether the legacy build should keep the 711 chains with no V** now that #462 can supply
    one for 686 of them (`ROADMAP.md` §21).
-3. **Decide the cdr3fix engine swap.** Both `ROADMAP.md` §16 and §28 gates are cleared: the family-
+4. **Decide the cdr3fix engine swap.** Both `ROADMAP.md` §16 and §28 gates are cleared: the family-
    call defect is fixed and released as **arda-mapper 2.29.0** (bound in `pyproject.toml`), which
    recovers **4,033 beta V-end mappings** (legacy-only 7,969 → 3,936) and puts arda ahead on all four
    coverage measures. The 3,936 that remain are 2,207 ambiguous curation calls arda rightly refuses
    plus 1,218 alleles with no shipped anchor — a curation policy question, not an engine one.
-4. **Phase 9e** — validate the epitope catalogue with `mhcmatch` (`ROADMAP.md` §12).
-5. `uv lock`, push `dev`, let `chunk-check` run once **before** applying branch protection.
+5. **Phase 9e** — validate the epitope catalogue with `mhcmatch` (`ROADMAP.md` §12).
+6. `uv lock`, push `dev`, let `chunk-check` run once **before** applying branch protection.
 
 ## Blocked / needs a decision
 
