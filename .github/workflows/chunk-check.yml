@@ -58,20 +58,22 @@ jobs:
           echo "count=$(wc -l < changed.txt)" >> "$GITHUB_OUTPUT"
           cat changed.txt
 
-      # Fails the PR on any finding. The corpus is clean as of 2026-09-25 apart from CRLF line
-      # endings on 99 legacy files, which the .tsv migration (#497) normalises; until that lands,
-      # --no-strict keeps the gate advisory rather than blocking every unrelated submission.
       # TCRvdb / MATCHMAKERS is proprietary and non-redistributable. This fails the build if a copy
       # ever reaches the repository, by filename or by column fingerprint. See docs/outputs.md.
       - name: Guard against proprietary data
         run: uv run pytest tests/unit/test_guard.py -q
 
+      # Strict: a failing chunk exits non-zero, restoring the behaviour the Groovy build had and
+      # the Python port replaced with warnings.warn. Measured after the header normalisation of
+      # phase 3: 230 of 230 chunks and 203,308 of 203,308 rows are clean, so there is no quarantine
+      # list to grandfather. CRLF, unknown columns, non-PMID references and within-chunk duplicates
+      # stay advisory -- they are reported, and do not block an unrelated submission.
       - name: Chunk QC
         run: |
           if [ -s changed.txt ]; then
-            uv run vdjdb qc $(cat changed.txt) --no-strict --report qc-report.tsv
+            uv run vdjdb qc $(cat changed.txt) --report qc-report.tsv
           else
-            uv run vdjdb qc --no-strict --report qc-report.tsv
+            uv run vdjdb qc --report qc-report.tsv
           fi
 
       - uses: actions/upload-artifact@v4
