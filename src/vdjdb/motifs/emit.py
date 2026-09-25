@@ -106,16 +106,21 @@ def motif_pwms(pwms: pl.DataFrame, records: pl.DataFrame) -> pl.DataFrame:
     )
 
 
-def write(members: pl.DataFrame, pwms: pl.DataFrame, out: Path) -> dict[str, int]:
+def write(members: pl.DataFrame, pwms: pl.DataFrame, out: Path, *,
+          suffix: str = "") -> dict[str, int]:
     """Write both files under ``out``. Returns ``{filename: rows}``.
+
+    ``suffix`` names the method's variant: TCREMP ships alongside TCRNET as
+    ``cluster_members_tcremp.txt`` / ``motif_pwms_tcremp.txt``, which ``vdjdb-web`` reads from the
+    same directory and parses with the same fixed column types.
 
     Tab-separated, never quoted, ``\\n`` terminated: neither file contains a ``"`` and the Scala
     reader would take one literally.
     """
     out.mkdir(parents=True, exist_ok=True)
     written = {}
-    for name, df, cols in (("cluster_members.txt", members, MEMBER_COLUMNS),
-                           ("motif_pwms.txt", pwms, PWM_COLUMNS)):
+    for name, df, cols in ((f"cluster_members{suffix}.txt", members, MEMBER_COLUMNS),
+                           (f"motif_pwms{suffix}.txt", pwms, PWM_COLUMNS)):
         assert tuple(df.columns) == cols, f"{name}: column order is a contract, got {df.columns}"
         df.write_csv(out / name, separator="\t", quote_style="never", line_terminator="\n")
         written[name] = df.height

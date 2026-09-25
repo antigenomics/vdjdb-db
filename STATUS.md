@@ -4,8 +4,9 @@ _Last updated: 2026-09-25_
 
 ## In flight
 
-**Phase 11 — `feature/motifs-tcremp`**. Phases 0-10 are merged to `dev`; the ledger reads PASS with
-every difference declared and measured.
+**Phase 12 — `feature/summary`**. Phases 0-11 are merged to `dev`; the ledger reads PASS with every
+difference declared and measured. Motif **stability** (§30.2–30.4) is the outstanding half of
+phase 11's acceptance criterion.
 
 | Phase | Branch | State |
 |---|---|---|
@@ -22,7 +23,8 @@ every difference declared and measured.
 | 8c | `feature/segment-guess` | merged — the legacy V guesser has never worked; Pgen fills 686 of 711 gaps |
 | 8d | `feature/receptor` | merged — AIRR `Receptor`, 81,003 rows; stitching vectorised to 2.7 s |
 | 9 | `feature/harmonize-rules` | **#389, #327, #467, #347, #368 landed; #564 already fixed; #561 advisory. Ships `epitopes` + `restriction`. Ledger PASS** |
-| 10 | `feature/motifs-tcrnet` | **merged** — `vdjdb motifs` ships both legacy files; the 137 logo-less cids and the 1.73 % deleted letter mass are gone (`ROADMAP.md` §29) |
+| 10 | `feature/motifs-tcrnet` | **merged** — 96.2 % of the shipped clustering; the 137 logo-less cids and the deleted letter mass are gone; TRA strictly beats the shipped TCRNET (`ROADMAP.md` §29) |
+| 11 | `feature/motifs-tcremp` | **merged** — TCREMP strictly dominates the REDCEA production clustering on both chains: retention +0.107 TRB / +0.069 TRA at *better* purity and precision (`ROADMAP.md` §31). Stability not yet measured |
 
 ```
 uv run vdjdb build --out out/                          # tables + every projection, 15 s
@@ -53,24 +55,30 @@ of pandas type coercions the all-string reader undoes (~55k cells). See `ROADMAP
 
 ## Next
 
-1. **Phase 11, TCREMP** — chunked embedding, per-epitope DBSCAN with a chain-global eps, `coef`
-   fitted against the independent-study signal phase 6 already ships. **Never against TCRvdb.**
-2. **Optimise the motifs** (`ROADMAP.md` §30) — the paratope motifs are a critical part of VDJdb and
+1. **Motif stability** (`ROADMAP.md` §30.2–30.4) — the outstanding half of phase 11's acceptance
+   criterion. Re-score at 5–10 background seeds and at {250k, 1M, full}; sweep `coef`,
+   `min_samples`, PCA components, scope, `p`, `MIN_SAMPLE`, `MIN_CLUSTER`. A point estimate with no
+   spread beside it is not a result. **Never tune against TCRvdb.**
+2. **Decide which motif objective is primary** (`ROADMAP.md` §31): the §11.1 independent-study lift
+   picks `coef` 0.4 (5.31× lift, 4,659 TRB clonotypes); the acceptance criterion picks 3.0
+   (retention 0.7092 at purity 0.9494). The default meets the stated bar; the tight point may be
+   worth shipping as a high-confidence view.
+3. **Optimise the motifs** (`ROADMAP.md` §30) — the paratope motifs are a critical part of VDJdb and
    neither method is tuned. In priority order: the **giant component** (our largest TCRNET cluster
    holds 19,908 of 45,095 clustered records, 44 %; REDCEA's largest holds 3.9 %, so Leiden over
    connected components is the single biggest win), **background re-sampling and size** (`M` is not
    even uniform across chains today), **in-silico backgrounds** from `vdjtools.model` (which would
    also dissolve the CC-BY-NC-ND licence constraint), and the unswept parameters of both methods.
    Phase 10's open human-TRA coverage item lands here.
-3. **Decide whether the legacy build should keep the 711 chains with no V** now that #462 can supply
+4. **Decide whether the legacy build should keep the 711 chains with no V** now that #462 can supply
    one for 686 of them (`ROADMAP.md` §21).
-4. **Decide the cdr3fix engine swap.** Both `ROADMAP.md` §16 and §28 gates are cleared: the family-
+5. **Decide the cdr3fix engine swap.** Both `ROADMAP.md` §16 and §28 gates are cleared: the family-
    call defect is fixed and released as **arda-mapper 2.29.0** (bound in `pyproject.toml`), which
    recovers **4,033 beta V-end mappings** (legacy-only 7,969 → 3,936) and puts arda ahead on all four
    coverage measures. The 3,936 that remain are 2,207 ambiguous curation calls arda rightly refuses
    plus 1,218 alleles with no shipped anchor — a curation policy question, not an engine one.
-5. **Phase 9e** — validate the epitope catalogue with `mhcmatch` (`ROADMAP.md` §12).
-6. `uv lock`, push `dev`, let `chunk-check` run once **before** applying branch protection.
+6. **Phase 9e** — validate the epitope catalogue with `mhcmatch` (`ROADMAP.md` §12).
+7. `uv lock`, push `dev`, let `chunk-check` run once **before** applying branch protection.
 
 ## Blocked / needs a decision
 

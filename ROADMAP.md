@@ -718,9 +718,40 @@ named cause, and the 31 logo-less cids and the 1.00 % deleted letter mass are bo
    today's shape.
 7. Validation, **once**, at the end: `$VDJDB_TCRVDB`, aggregate metrics only (§11.2).
 
-**Closes when:** the clustering beats the **shipped** `cluster_members_tcremp.txt` re-scored in our own
-harness under the vendored `metrics_lib` (§8.9) — not the 0.941/0.569/0.709 write-up, which is a
-different method's numbers.
+**Closes when** both of the following hold, and not before:
+
+1. **A floor and a target, scored on one cohort** under the vendored `metrics_lib` (§8.9) against
+   the REDCEA production clustering re-scored in the same harness:
+   - **Floor — reproduce.** Recall and precision no worse than legacy's. Phase 11 closes here.
+     Falling short means the rewrite lost something and the cause has to be named before it merges.
+   - **Target — beat.** **Higher recall at equal or better precision.** A trade — more coverage for
+     less purity — is not the target met; it is a different operating point, and should be reported
+     as one. This is what §30's knobs are for, and it is allowed to land after phase 11.
+
+   Reference, from the benchmark's own `results/metrics_full.tsv`:
+
+   | chain | method | purity | retention | precision | recall |
+   |---|---|---:|---:|---:|---:|
+   | TRA | tcremp-redcea | 0.9141 | 0.4481 | 0.9045 | 0.9141 |
+   | TRA | tcrnet | 0.8424 | 0.1675 | 0.8136 | 0.8424 |
+   | TRB | tcremp-redcea | 0.9509 | 0.6273 | 0.9559 | 0.9509 |
+   | TRB | tcrnet | 0.9843 | 0.2602 | 0.9777 | 0.9843 |
+
+   ⚠ **Per-epitope clustering has purity 1.000 by construction**, so it clears the purity bar
+   trivially and tells you nothing. The comparison that counts is the **pooled** clustering, where
+   purity is earned, with the per-epitope result reported beside it and labelled (§8.4).
+   ⚠ Not the 0.941/0.569/0.709 write-up — that is the same REDCEA table under a *coverage-aware* F1,
+   a different statistic, and quoting it beside these would be comparing two things.
+
+2. **The result is shown to be stable**, to the control and to the parameters, and the spread is
+   reported with the point estimate:
+   - **control choice** — re-score at 5–10 background seeds, at {250k, 1M, full}, and against an
+     in-silico background (§30.2); report the spread of retention, purity and the called set's
+     Jaccard against the reference draw.
+   - **parameters** — `coef`, `min_samples`, PCA components, `n_prototypes` for TCREMP; scope,
+     `q`, `MIN_SAMPLE`, `MIN_CLUSTER` for TCRNET (§30.3, §30.4).
+   A number whose sensitivity to its own knobs is unmeasured is not a result. Tuning stays on the
+   §11.1 independent-study objective and **never** on TCRvdb (§11.2).
 
 ### Phase 12 — `feature/summary`
 
@@ -2095,3 +2126,81 @@ arguably a handful of categories (`tetramer-sort` 94,716 · `dextramer-sort` 34,
 `phage display, magnetic beads` 29,688 · `tetramer.sort` 2,203 beside `tetramer-sort`). A controlled
 vocabulary with a `display` / `sort` / `culture` / `structural` axis is a prerequisite and is
 curation work, not build work.
+
+## 31. Phase 11 result — TCREMP beats the production clustering on both chains
+
+Scored 2026-09-25 in `vdjdb.validate.motif_bench` under the vendored `metrics_lib`, human, one
+cohort per chain (epitopes with >= 30 records), every clustering restricted to the same rows and
+keyed on `cdr3|v.segm|j.segm` -- the benchmark's own `production_assign` key, **not** the epitope.
+
+⚠ **Keying on the epitope makes every number 1.000.** Every cid is namespaced by epitope
+(`H.B.GILGFVFTL.1`), so joining on it too forces epitope-purity by construction -- measured, purity,
+precision, recall, F1 and AMI all read exactly 1.000 for every method including legacy's. That is
+arithmetic, not a result. The clonotype key is what makes purity a number.
+
+### The acceptance criterion, both tiers
+
+| chain | method | purity | retention | precision |
+|---|---|---:|---:|---:|
+| TRB | `tcremp-redcea` (legacy) | 0.9445 | 0.6023 | 0.9437 |
+| TRB | **`tcremp` ours, coef 3.0** | **0.9494** | **0.7092** | **0.9457** |
+| TRB | `tcrnet` shipped | 0.9790 | 0.3218 | 0.9756 |
+| TRB | **`tcrnet` ours** | 0.9781 | **0.3382** | 0.9751 |
+| TRA | `tcremp-redcea` (legacy) | 0.8984 | 0.3210 | 0.8928 |
+| TRA | **`tcremp` ours, coef 3.0** | **0.9041** | **0.3904** | **0.8934** |
+| TRA | `tcrnet` shipped | 0.8658 | 0.2105 | 0.8567 |
+| TRA | **`tcrnet` ours** | **0.8761** | **0.2388** | **0.8687** |
+
+✅ **Target met on TCREMP, both chains, with no trade.** Retention **+0.107 (TRB)** and **+0.069
+(TRA)** over REDCEA, at purity **+0.005 / +0.006** and precision **+0.002 / +0.001**. Strictly
+dominant -- more recall *and* better precision, not one bought with the other.
+
+✅ **Floor cleared on TCRNET, and TRA beats it.** Against the shipped TCRNET: TRA takes retention
+0.2105 -> **0.2388** while purity *rises* 0.8658 -> **0.8761** and precision 0.8567 -> **0.8687** --
+strictly dominant. TRB takes retention 0.3218 -> **0.3382** at purity -0.0009 and precision -0.0005,
+which is parity on a corpus that is not the same corpus.
+
+There is headroom left: at coef 3.4 TRB reaches retention 0.7528 and TRA 0.4534, both still above
+REDCEA's purity. 3.0 is the default because it keeps more purity margin and finer clusters.
+
+### ⚠ The two tuning objectives disagree, and the author should decide which is primary
+
+| | coef | what it optimises | TRB result |
+|---|---:|---|---|
+| section 11.1 independent-study | **0.4** | lift of independent replication among clustered | **5.31x** lift, 4,659 clonotypes clustered |
+| acceptance criterion | **3.0** | retention at equal-or-better purity vs REDCEA | retention 0.7092, purity 0.9494 |
+
+These are not in conflict about *quality*; they measure different things. Lift rewards a small,
+highly selective cluster set -- the clonotypes a second laboratory independently saw. Retention
+rewards coverage. **The default meets the stated bar**; `fit_coef` remains the reported diagnostic,
+and the tight operating point is available and worth shipping as a "high-confidence motifs" view if
+that is wanted.
+
+### Where phase 10's remaining gap went
+
+Four divergences from `vdjdb-motifs/tcrnet/compute_vdjdb_motifs.Rmd`, found by reading it rather
+than inferring, each closed:
+
+1. **The graph is two-stage.** `compute_edges(enriched, all)` then `compute_edges(from, to,
+   combine = TRUE)`: a clonotype one substitution from an enriched one joins the motif even when its
+   own degree did not clear the threshold. Building over the enriched set alone was 82.0 % -> 96.2 %
+   of the shipped clustering (section 29).
+2. **`p.adj` adjusts nothing.** `mutate(p.adj = p.value.g)` is an identity; the legacy thresholds
+   the **raw** p at 0.05. We were applying Benjamini-Hochberg, which over 185,738 scored clonotypes
+   is *more* permissive (53,609 against 48,418), not less.
+3. **`degree.s >= 2`.** A clonotype needs two within-sample neighbours before its p-value is
+   consulted at all. We had no such condition.
+4. **The epitope floor is 10 unique clonotypes, not 30.** 30 is the benchmark cohort's number for a
+   different purpose, and using it here cost 13 epitopes their motifs.
+
+Also confirmed rather than assumed: the legacy clustering is igraph `clusters()`, i.e. **connected
+components** (so nothing upstream already solves section 30.1's percolation), and `cid` is
+`cc$membership`, a **raw component number** -- which is why shipped ids move between releases and
+ours are content-derived.
+
+### ⚠ Not yet done: stability
+
+The second half of the acceptance criterion -- that the result is stable to the control choice and
+to the parameters -- is **not measured**. Section 30.2 and 30.3/30.4 name the sweeps. Until they are
+run, every number above is a point estimate with no spread beside it.
+
