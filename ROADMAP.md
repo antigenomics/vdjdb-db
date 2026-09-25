@@ -837,3 +837,89 @@ replaces it (phase 13).
 
 The three earlier phases are unaffected — the field registry, the ledger and the reader make no
 claim about what a record is. The cost was confined to phase 4, and the ledger caught every symptom.
+
+
+## 16. Phase 5 measurement — `arda.cdr3fix` against the vendored k-mer scanner
+
+Measured 2026-09-25 on all **191,447** distinct `(species, cdr3, v, j)` keys of the current corpus,
+both engines run through the same pipeline. Not the 20,000-row sample of §7: that sample was drawn
+from the *released* table, whose sequences had already been repaired, and every row in it already
+had a V and a J.
+
+| Field | Agreement |
+|---|---|
+| `cdr3` | 97.74 % (187,112) |
+| `jFixType` | 96.09 % |
+| `vFixType` | 93.69 % |
+| `vEnd` | 91.90 % |
+| `good` | 91.17 % |
+| `jStart` | 88.62 % |
+
+### Coverage is **not** one-directional — this corrects §7
+
+| | legacy maps, arda does not | arda maps, legacy does not | both map |
+|---|---|---|---|
+| `vEnd` | **7,807** | 3,849 | 176,573 |
+| `jStart` | 248 | **6,987** | 183,334 |
+
+§7 recorded "0 coverage regressions" from the 20,000-row sample. On the full corpus arda **loses
+7,807 V-end mappings**. The J side is the reverse and much larger in arda's favour. Where both map,
+the shift is small and signed as expected: `jStart` mean −0.17 (14,512 smaller, 168,785 equal, 37
+larger), `vEnd` mean +0.04.
+
+### Two things arda does not do
+
+1. **It does not guess a segment.** Given a blank `v`, `markup_records` reports `FailedBadSegment`
+   rather than proposing one, and the record then fails the legacy "a CDR3 needs a V and a J"
+   filter. Swapping both halves at once dropped **13,844 of 284,546** rows. The k-mer guesser
+   therefore stays, isolated in `src/vdjdb/_legacy_guess.py`, until #462 replaces it with OLGA Pgen
+   scoring in phase 8.
+2. **It returns an empty segment id on failure** where the legacy kept the closest match. Passing
+   that through cost another 11,619 rows, so the given call is restored when arda declines to name
+   one; the coordinates stay −1, which is the honest half of the answer.
+
+### `max_replace = 0`, not the legacy's 1
+
+At 1, arda rewrites **4,486** curated human CDR3s to conform to the germline it was handed, against
+649 at 0. The rewrites are wrong for this database: `CAAADSWGKLQF` with `TRAJ24*01` becomes
+`CAAADSWGKLEF`, because `WGKLEF` is what `*01` encodes — but `WGKLQF` is the `*02` signature, so the
+sequence is right and the **allele call** is wrong (#327: 66 % of explicit `*01` calls carry the
+`*02` motif). Substituting the residue destroys the evidence that would fix the call.
+
+It costs nothing: both ends map on **165,223** of 174,630 distinct human keys at either setting, and
+`good` is marginally higher at 0. Trimming and extending are unaffected (2,588 against 2,620),
+because those repair a truncated sequence rather than contradicting a reported one.
+
+### Ledger position, and why the swap is not yet the default
+
+With `max_replace = 0` and the guesser retained, against the 2026-06-03 release:
+
+| | |
+|---|---|
+| `vdjdb.txt` rows | 284,546 = 284,546, **14,778 records change their repaired CDR3** |
+| `cdr3fix.*` cells | 27,083 |
+| `v.end` / `j.start` cells | ~25,000 |
+
+`fix_cdr3(engine=...)` defaults to **`legacy`**, so `dev` stays green and the shipped build is
+unchanged. The swap is ready and characterised; accepting it is a decision about shipped sequence
+data, not a refactor:
+
+- it changes the repaired `cdr3` of 14,778 records, which changes their identity key and therefore
+  their `record_id`;
+- it trades 7,807 V-end mappings for 6,987 J-start mappings;
+- **#327 should land first.** Repairing against a wrong allele call is what produces the worst of
+  these differences, and phase 9 fixes the calls.
+
+### A cross-repo bug found and fixed on the way
+
+`arda.paths._source_root()` decided it was running from an arda checkout by walking up from its own
+`__file__` for a directory with `database/` and a project marker. Installed into this project's
+`.venv`, that walk reaches **this repository**, which has both — so arda resolved its reference to
+`vdjdb-db/database/vdj`, which does not exist, `load_anchors` returned `{}`, and all 191,447 CDR3s
+came back `FailedBadSegment` with `vEnd = -1`. Nothing reported a problem.
+
+Fixed in `antigenomics/arda` on `fix/source-root-marker` (commit `d40095c`, 1,118 unit tests pass):
+`_source_root()` now requires `database/vdj`, and `load_anchors` raises instead of returning an
+empty dict. **Cross-repo gate:** that needs an arda release before CI can rely on it. Until then
+`vdjdb.annotate.cdr3fix.ensure_reference()` detects the condition and repoints `$ARDA_HOME` at the
+per-user cache, so the build is correct on either arda version.
