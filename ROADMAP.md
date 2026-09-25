@@ -1824,3 +1824,105 @@ could still be recovered.
 agreement on the repaired sequence is 99.91 %, and arda leads on all four coverage measures. What
 remains to decide is a curation policy — whether a record whose publication named only `TRBV6` should
 carry a V-end at all — not an engine comparison.
+
+## 29. Phase 10 result — TCRNET, and the two bugs that are gone
+
+Measured 2026-09-25 on the full corpus against the shipped 2026-06-03 motif files.
+`uv run vdjdb motifs --out out/motifs --tables out/tables`, ~4 min, single pass, nothing cached.
+
+### The two bugs section 8.5 named are gone
+
+| | Shipped 2026-06-03 | Phase 10 |
+|---|---:|---:|
+| cids in `cluster_members.txt` with **no logo** in `motif_pwms.txt` | **137** | **0** |
+| PWM positions whose `freq` sums to less than 1 | 2,327 of 24,036 | **0 of 16,130** |
+| smallest per-position `freq` sum | 0.0233 | **1.0000** |
+| letter mass deleted | **1.73 %** | **0.00 %** |
+| clusters affected | 1,042 | **0** |
+
+Section 8.5 recorded 31 logo-less cids and 1.00 % deleted mass from a sample; over the whole file
+they are 137 and 1.73 %. `need.impute` is a real provenance flag again -- it was `FALSE` on all
+13,456 shipped rows because it was computed after the filter that would have set it.
+
+### The information sign, tested without the clustering in the way
+
+Comparing `I` cid-by-cid across the two files does not test section 8.5's claim: the cids are matched
+by *name*, our numbering is content-derived and the legacy's was a counter, so "the same cid" is
+often a different member set. The claim is about the **filter**, so it is tested on our own clusters
+with and without it -- same members, same columns, nothing varying but the truncation:
+
+| | Positions |
+|---|---:|
+| total | 16,130 |
+| the legacy filter would cut | 1,770 (10.97 %) |
+| it would erase entirely | 140 |
+| **ours lower than the filtered `I`** | **1,624 of 1,630** |
+| ours higher | 6 |
+| mean delta | **-0.13645** |
+
+693 of 1,181 clusters would have been damaged. The direction is the predicted one on 99.6 % of the
+positions where the filter bites: dropping mass from a distribution can only make the rest look more
+determined, so the shipped `I` is an over-estimate and ours sits below it.
+
+Independently, the formula itself is bit-faithful: `I = 1 + sum(p log p) / log 20` reproduces the
+shipped `H.B.ALSKGVHFV.1` position 8 value **0.594459870571867 to 15 digits**, and 1,241 of the 2,081
+positions present in both files are *exactly* equal.
+
+### The statistic, reproduced
+
+`vdjtools.overlap.tcrnet`'s own p-value is used for nothing. Reproduced on GILGFVFTL (human TRB,
+6,724 unique clonotypes): **4,718 of 6,637 rows get `p_enrichment == 0.0` exactly** against the
+bundled 250k control, and 619 still do against the 1M control -- `M` controls the zero-inflation,
+not the defect. The legacy pseudocount statistic returns **zero such rows**. Filed upstream.
+
+### Coverage: where we differ, and where the difference sits
+
+| | Shipped | Phase 10 |
+|---|---:|---:|
+| `cluster_members.txt` rows | 55,636 | 45,095 |
+| `motif_pwms.txt` rows | 40,061 | 29,293 |
+| distinct cids | 1,928 | 1,181 |
+| epitopes with at least one cluster | 117 | 94 |
+| distinct clonotypes clustered | 53,600 | 44,077 |
+
+We recover **43,978 of the 53,600 clonotypes the shipped file clusters (82.0 %)** and add 99 it does
+not. The funnel says where the remainder goes:
+
+| Species | Chain | Unique clonotypes | Dropped, epitope < 30 | Epitope groups | Enriched | Clustered | Shipped |
+|---|---|---:|---:|---:|---:|---:|---:|
+| HomoSapiens | TRA | 62,670 | 5,038 | 109 | 12,020 | 9,189 | 15,427 |
+| HomoSapiens | TRB | 121,966 | 6,149 | 167 | 39,504 | 34,330 | 37,154 |
+| MusMusculus | TRA | 7,279 | 193 | 15 | 1,043 | 777 | 1,688 |
+| MusMusculus | TRB | 8,448 | 425 | 27 | 1,042 | 799 | 1,367 |
+| MacacaMulatta | TRA | 74 | - | - | - | 0 | 0 |
+| MacacaMulatta | TRB | 1,365 | - | - | - | 0 | 0 |
+
+Named causes, in order of size:
+
+1. **Human TRB is close** -- 34,330 against 37,154, 92 %. Whatever differs there is small.
+2. **Human TRA is where the gap is, and it is at the *enrichment* step, not the clustering step**:
+   12,020 clonotypes pass enrichment against 15,427 the shipped file clusters, so no clustering
+   parameter can close it. The candidate cause is the background: a TRA junction is shorter and far
+   more germline-proximal than a TRB one, so it has many more background neighbours and the
+   statistic is correspondingly harder to pass against a 1M uniform aa control. **Not yet measured**
+   -- the check is to re-score human TRA at several `M` and against the legacy's frozen control, and
+   it is the one open item this phase leaves.
+3. **`MIN_SAMPLE = 30`** removes 11,805 clonotypes across 1,814 epitope groups too small to support
+   a motif or a multiple-testing correction.
+4. **`MIN_CLUSTER = 5`** removes 9,532 enriched clonotypes in components of fewer than five --
+   the same floor the shipped files have, whose smallest `csz` is 5.
+5. **No macaque background**, so 1,439 macaque clonotypes get no motifs. The shipped files carry
+   only `HomoSapiens` and `MusMusculus`, so this is not a deviation.
+
+⚠ **The BH correction is not a cause.** It was the obvious suspect and it is the wrong one: over
+185,738 scored clonotypes, BH `q <= 0.05` calls **53,609** enriched where the legacy's uncorrected
+`p <= 0.05` would call **48,418**. The p-value distribution is bottom-heavy enough that the step-up
+threshold rises well above 0.05. We are *more* permissive at the test and still more conservative
+overall, which is what points at the background rather than the threshold.
+
+### What was not a deviation after all
+
+Section 8.2 predicted this and it held: the legacy TCRNET was **not** V/VJ/VJL-grouped
+(`CalcDegreeStats.groovy` defaults to `-g dummy`), so the grouping-free `tcrnet()` is an exact scope
+match. Nothing to reconcile.
+
