@@ -193,18 +193,48 @@ shipped files do not have.
 
 ## 4. AIRR bundle — `vdjdb-airr-<version>.zip`
 
-| File | Level |
-|---|---|
-| `vdjdb.rearrangement.tsv` | one row per chain — AIRR Rearrangement |
-| `vdjdb.receptor.tsv` | one row per record — AIRR Receptor + Reactivity |
-| `airr.yaml` | the AIRR schema version the files conform to |
+| File | Level | Rows (current corpus) |
+|---|---|---|
+| `vdjdb.rearrangement.tsv` | one row per chain — AIRR Rearrangement | 286,047 |
+| `vdjdb.reactivity.tsv` | one row per record — AIRR Reactivity | 192,753 |
+| `airr.yaml` | the AIRR schema version the files conform to (2.0) | — |
 
-Reactivity carries `antigen`, `antigen_type`, `peptide_sequence_aa`, `mhc_class`, `mhc_gene_1`,
-`mhc_allele_1`, `mhc_gene_2`, `mhc_allele_2`, `reactivity_method`, `reactivity_readout`.
+The two are linked by `cell_id`, which is the `record_id`: a VDJdb record is one publication's report
+on one T-cell clone, and a clone is what AIRR's `Cell` names. Both are standard AIRR fields.
 
-Unpaired records get a Receptor row with domain 2 empty — documented, not dropped.
+Reactivity carries `ligand_type` (`MHC:peptide`), `antigen_type` (`peptide`), `antigen`,
+`antigen_source_species`, `peptide_sequence_aa`, `mhc_class`, `mhc_allele_1`, `mhc_allele_2`,
+`reactivity_method`, `reactivity_readout`, `reactivity_value`, `reactivity_unit` and
+`reactivity_refs`.
 
-Validated in CI with the `airr` package's own schema validator.
+`reactivity_readout` is `confidence` and `reactivity_value` is `vdjdb.score`, which is what the spec
+asks a non-physical assay for: *"for inferred and annotated methods this should indicate a
+confidence/quality level"*. `reactivity_method` is `MHC_peptide_multimer`, `native_protein` or
+`annotated` — see ROADMAP §18 for the classification and its counts.
+
+**Nucleotide fields are present and empty** until phase 8 (#461): `sequence`, `junction`, the two
+alignments and the three cigars. The schema requires the column, not a value, and
+`airr.validate_rearrangement` passes on the full table today.
+
+**`Receptor` is not emitted yet.** It requires `receptor_variable_domain_{1,2}_aa`, the complete
+mature variable domain, non-nullable — which means stitching germline V and J around the junction.
+That lands with the nucleotide work in phase 8. `receptor_hash` is a sha256 over those stitched
+domains and is *not* VDJdb's `TCR_hash`.
+
+Unpaired records get a Rearrangement row like any other and a Reactivity row of their own; nothing is
+dropped for being unpaired. In fact the AIRR export keeps **1,141 records and 1,501 chains that the
+legacy build discards** (ROADMAP §18).
+
+Validated in CI with the `airr` package's own schema validator — for Rearrangement. `airr` 2.0.0 has
+no `Receptor` or `Reactivity` validator, so the Reactivity file is gated against the field list read
+from the package's own `airr-schema.yaml` instead.
+
+### Converting an older release
+
+`vdjdb convert airr --legacy vdjdb.txt` produces the same two files from a legacy release zip, for
+users who hold one. It runs the *same* emitter — legacy `vdjdb.txt` already speaks VDJdb's column
+names — so there is no second mapping to drift. It carries no `d_call` (the file has no D column) and
+the 1,501 chains the legacy build dropped are simply not there.
 
 ---
 

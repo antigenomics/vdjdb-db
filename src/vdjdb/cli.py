@@ -24,7 +24,6 @@ _PENDING = {
     "motifs": "10-11 (feature/motifs-*)",
     "summary": "12 (feature/summary)",
     "release": "14 (feature/release-tooling)",
-    "convert": "7 (feature/airr)",
     "refs": "12 (feature/summary)",
     "changelog": "14 (feature/release-tooling)",
 }
@@ -97,11 +96,14 @@ def build(
     chunks: Path | None = typer.Option(None, help="Chunk directory; default chunks/."),
     tables: bool = typer.Option(True, help="Write the definitive tables and the new format."),
     legacy: bool = typer.Option(True, help="Write the legacy projection."),
+    airr: bool = typer.Option(True, help="Write the AIRR projection."),
     release: str = typer.Option("dev", help="Release tag recorded on new evidence rows."),
 ) -> None:
     """Assemble the database: the definitive tables, and every format projected from them."""
     from .assemble.master import build_master
     from .assemble.tables import build_tables
+    from .emit.airr import from_tables as airr_frames
+    from .emit.airr import write_all as write_airr
     from .emit.legacy import write_all as write_legacy
     from .emit.vdjdb3 import write_all as write_new
     from .io.chunks import chunk_files
@@ -118,6 +120,9 @@ def build(
     if legacy:
         for name, path in write_legacy(built, out / "legacy").items():
             typer.echo(f"{name:22} {path.stat().st_size:>12,} bytes")
+    if airr:
+        for name, path in write_airr(airr_frames(built), out / "airr").items():
+            typer.echo(f"{name:26} {path.stat().st_size:>12,} bytes")
 
 
 @app.command()
@@ -141,6 +146,39 @@ def make(
     dest = out or tables.parent / what
     for name, path in write_legacy(read_tables(tables), dest).items():
         typer.echo(f"{name:22} {path.stat().st_size:>12,} bytes")
+
+
+@app.command()
+def convert(
+    what: str = typer.Argument("airr", help="Target format: airr."),
+    tables: Path | None = typer.Option(None, help="A built new-format directory."),
+    legacy: Path | None = typer.Option(None, help="A legacy `vdjdb.txt` to convert instead."),
+    out: Path = typer.Option(Path("out/airr"), help="Output directory."),
+) -> None:
+    """Convert the database to another standard, from the tables or from a legacy release.
+
+    Both sources land on the same emitter: legacy `vdjdb.txt` already speaks VDJdb's column names,
+    so there is no second implementation to drift. The legacy path exists for users holding an older
+    release zip; it carries no `d_call` (the file has no D column) and, on the current corpus, 1,501
+    fewer chains, which is exactly what the legacy build drops.
+    """
+    import polars as pl
+
+    from .emit.airr import from_legacy, from_tables, write_all
+    from .emit.vdjdb3 import read_tables
+
+    if what != "airr":
+        typer.secho(f"unknown target {what!r}; known: airr", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    if (tables is None) == (legacy is None):
+        typer.secho("give exactly one of --tables or --legacy", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+
+    frames = (from_tables(read_tables(tables)) if tables is not None
+              else from_legacy(pl.read_csv(legacy, separator="\t", infer_schema=False,
+                                           quote_char=None)))
+    for name, path in write_all(frames, out).items():
+        typer.echo(f"{name:26} {path.stat().st_size:>12,} bytes")
 
 
 @app.command()

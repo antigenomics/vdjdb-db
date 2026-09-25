@@ -1,5 +1,6 @@
 """Column declarations. Everything is a projection of :mod:`vdjdb.schema.fields`."""
 from .fields import (
+    AIRR_MAP,
     ALL_COLUMNS,
     CHAIN_COLUMNS,
     CHUNK_DEDUP_KEY,
