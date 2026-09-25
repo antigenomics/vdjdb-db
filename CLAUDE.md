@@ -91,6 +91,23 @@ IMGT nomenclature for V/D/J and MHC. Species vocabulary is `HomoSapiens`, `MusMu
    Stream at build time; ship derived statistics only.
 6. **Empty string is the only missing marker** in the pipeline. The pandas `None`/`NaN`/`""` three-way
    ambiguity is the source of more than one shipped bug.
+7. **Every output is reproducible, not merely repeatable.** Same inputs, same bytes — in another
+   process, on another host, at another core count. Concretely:
+   - **One seed.** `vdjdb.config.SEED`. No `random.seed()` at module scope, no unseeded default, no
+     per-call literal. Pass it explicitly to every sampler, shuffler, clustering init and seeded hash.
+   - **Sort after anything unordered.** `group_by` without `maintain_order=True`, a `set`, a `dict`
+     keyed on strings under `PYTHONHASHSEED`, a thread pool, `os.listdir` — all of them return an
+     order you did not choose. Sort, and give ties an explicit tiebreak: an unstable sort over
+     equal-labelled groups made the ledger report 158/152/158 changed rows for one comparison.
+   - **Never let worker count change the answer.** Split into as many big contiguous slices as there
+     are workers, reassemble in slice order, never a pool of small tasks.
+   - A determinism test — run it N times, assert one digest — belongs with any stage that samples,
+     clusters or parallelises.
+8. **Vectorize the hot path before parallelising it.** Reach order, and say which rung you stopped
+   at: one polars/numpy expression → one batched call into existing C++ (`seqtree`, `vdjtools`) →
+   new C++. Materialising rows into Python is the usual mistake: the ledger's row comparison built
+   6.26 million tuples per table until it was replaced with a hashed group-count join in polars,
+   which cut the run from 7.6 s to 3.5 s and left 14 of 208,447 keys to inspect in Python.
 
 ## Commit conventions
 

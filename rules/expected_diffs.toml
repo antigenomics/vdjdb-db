@@ -24,3 +24,25 @@
 #
 # [[rule]] id = "web-unmp-jstart-minus1" file = "vdjdb.txt" column = "web.cdr3fix.unmp"
 #          from = "no" to = "yes" rows = 7998
+
+# --- phase 2, feature/golden-harness: the legacy format's own ambiguity -----------------------
+# vdjdb.txt writes one row per chain, so a paired record's TRA row carries nothing about its beta.
+# Two records sharing an alpha and differing in beta melt to two TRA rows that no single-chain key
+# tells apart, and the legacy build assigns their annotations in chunk-read order. Measured over a
+# rebuild with identical code and identical data: 80 of 208,447 identity groups, 162 of 6.26M
+# cells. See ROADMAP section 14.
+#
+# These attribute without gating (no `rows`) because the count is a property of the host's readdir
+# order, not of the build. The new format removes the ambiguity entirely via record ids.
+[[rule]]
+id = "legacy-melt-ambiguity-meta"
+file = "vdjdb.txt"
+column = "meta"
+
+
+# The canonical complex.id numbering labels each group by its members' identities, so the same
+# ambiguity shifts the numbering of neighbouring groups by one (81069 <-> 81070). Same root cause.
+[[rule]]
+id = "legacy-melt-ambiguity-complex-id"
+file = "vdjdb.txt"
+column = "complex.id"
