@@ -1,11 +1,26 @@
+# Vendored from py_src/ -- see __init__.py. Do not edit; phase 5 deletes this package.
+#
+# Two changes only, both mechanical, neither touching a computed value:
+#   1. the nomenclature table is resolved from the repo root instead of "../patches/...", which
+#      only worked with the process CWD inside py_src/;
+#   2. that one table is read with csv instead of pandas, so the bridge -- and therefore the whole
+#      build -- has no pandas dependency. The two segment tables still use pandas; they are read
+#      once at construction and phase 5 deletes them with this file.
 from FixerDataModels import *
 from KmerScanner import KmerScanner
 from Utils import translate_linear, simplify_segment_name
 
 import pandas as pd
 
+import csv
 from collections import defaultdict
+from pathlib import Path
 from typing import Tuple, Optional, Any
+
+
+def _repo_root() -> Path:
+    from vdjdb.config import repo_root
+    return repo_root()
 
 
 class Cdr3Fixer:
@@ -27,12 +42,10 @@ class Cdr3Fixer:
 
         self._load_segments_data(segments_file_name)
         self._load_segments_sequence_data(segments_seq_file_name)
-        self.nomenclature_conversions = pd.read_csv("../patches/nomenclature.conversions",
-                                                                sep='\t',
-                                                                index_col=0,
-                                                                header=None,
-                                                                skiprows=1
-                                                                )[1].to_dict() #rewrite it
+        conversions = _repo_root() / "patches" / "nomenclature.conversions"
+        with conversions.open(newline="") as fh:
+            rows = list(csv.reader(fh, delimiter="\t"))
+        self.nomenclature_conversions = {r[0]: r[1] for r in rows[1:] if len(r) > 1}
 
     def _load_segments_data(self, segments_file_name: str) -> None:
         """

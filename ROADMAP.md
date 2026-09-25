@@ -95,9 +95,9 @@ stays green. Commits that resolve a tracker issue carry `Closes #N`.
 | 1 | `feature/schema` | the field registry; `render_meta` | — | reproduces the Groovy `METADATA_LINES` / `SLIM_METADATA_LINES` byte-for-byte; `header == meta names` for all three tables |
 | 2 | **`feature/golden-harness`** | `vdjdb diff` + `expected_diffs.toml` | — | **zero diffs against the current pandas build.** Nothing downstream starts without this |
 | 3 | `feature/io-qc` | polars reader, vectorised QC, `--strict` exit-1, chunk header normalisation, `.tsv` rename | #497 | QC report matches the pandas report row-for-row; harness still zero |
-| 4 | `feature/pipeline-core` | harmonize + score + pairing + the three legacy emitters; deletes `py_src/` | #424, #399 | harness shows only the 7,998 `unmp` rows + the meta fixes; peak RSS < 8 GB |
+| 4 | `feature/pipeline-core` | **the definitive tables** (`records`, `chains`) + harmonize + score + pairing; the legacy export as a projection of them; deletes `py_src/` | #424, #399 | every ledger difference is a declared rule firing its measured count; peak RSS < 8 GB |
 | 5 | `feature/arda-cdr3fix` | `arda.cdr3fix` replaces `Cdr3Fixer.py`; retires `res/segments*.txt` | — | new ledger rule, row count measured then frozen |
-| 6 | `feature/new-format` | `emit/vdjdb3.py`, generated meta, `vdjdb.schema.json`, `make legacy` | — | `make legacy` from the new build still passes the harness |
+| 6 | `feature/new-format` | ships the definitive tables as parquet + TSV, adds `evidence`, `vdjdb.schema.json` | — | `make legacy` from the shipped tables still passes the harness |
 | 7 | `feature/airr` | `emit/airr.py`, `convert/coords.py`, both converters | — | the `legacy_to_airr ≡ vdjdb3_to_airr` round-trip property test |
 | 8 | `feature/junction-nt`, `feature/segment-guess`, `feature/dgene` | one branch each | #461, #462, #463 | generated `cdr3nt` back-translates to `cdr3` |
 | 9 | `feature/harmonize-rules` | nomenclature rule tables | #327, #389, #347, #368, #564, #467, #561 | each rule gets a ledger entry with a measured row count |
@@ -177,7 +177,7 @@ drafts — do not re-derive them.
 |---|---|---|
 | Chunk rows, raw | 203,308 | 230 files, `chunks/*.txt` |
 | Chunk rows after per-chunk dedup on `SIGNATURE_COLS` | **192,753** — exactly the released `vdjdb_full.txt` row count | polars |
-| After global dedup instead | 192,734 (19 cross-chunk duplicates the per-chunk pass keeps) | bears on #390 |
+| Rows matching field-for-field across two chunks | 19 pairs — **independent reports, not duplicates**: a chunk is one paper | deduplication is within a chunk; these 19 are evidence (§11.1), and global dedup would delete them |
 | polars read + dedup of all 230 chunks | **0.4 s** | vs a pipeline documented as needing 64 GB |
 | Chunks passing `ChunkQC` | **230 / 230**, zero errors | fail-fast needs no quarantine list |
 | Non-empty CDR3 cells | 305,031, **zero** with characters outside the 20 AAs | TCREMP pre-filter is a guard, not a live problem |
@@ -386,12 +386,18 @@ worse than a new id) → **allocation**. Registry entries the build no longer se
 not deleted. The registry is a committed TSV sorted by `record_id`, so a curation PR shows added,
 amended and retired records as a reviewable diff.
 
-The natural key **is** `CHUNK_DEDUP_KEY`, asserted by a test. They drifted once during
-implementation: a narrower key collided on **20,769 of 192,753** records, because one paper
-reporting the same TCR against the same epitope in several donors is several records.
+Two earlier keys were wrong in opposite directions, both caught by tests that now pin the
+boundary: a narrower one that stopped at `reference.id` collided on **20,769 of 192,753** records
+(one paper reporting the same TCR in several donors is several records), and one without
+`chunk.file` merged **19** pairs that are two papers' independent reports.
 
-Measured: 192,753 rows → 192,734 records + 19 duplicate submissions, in **2.0 s**; ids stable across
-rebuilds; a typo fix reported as `VDJDB0000000101 cdr3.beta: CASSIRSSYEQYF -> CASSIRSSYEQYFF`.
+The natural key is `CHUNK_DEDUP_KEY` **plus `chunk.file`**. A chunk is one paper, so two matching
+rows in two chunks are two independent reports and must keep separate ids. Ids are assigned
+**before** CDR3 repair: two trimmed sequences that repair to the same full one are still two
+observations, and assigning afterwards merged 215 pairs the publications reported separately.
+
+Measured: 192,753 rows → 192,753 records; ids stable across rebuilds; a typo fix reported as
+`VDJDB0000000101 cdr3.beta: CASSIRSSYEQYF -> CASSIRSSYEQYFF`.
 
 ### 10.2 The evidence model
 
@@ -519,7 +525,8 @@ zero after the `.tsv` migration.
    else, each carrying a comment saying so: `json_column()` (`map_elements(json.dumps)`, because
    `struct.json_encode()` emits `{"a":"x"}` where the release has `{"a": "x"}`) and
    `py_repr_column()` (`vdjdb_full.txt`'s `cdr3fix.*` are Python `dict` repr).
-5. Delete `py_src/` in the same commit that makes it redundant, not before.
+5. Delete `py_src/` in the same commit that makes it redundant, not before. (Done: the last
+   thing needed from it was the CDR3 fixer, vendored into `annotate/_legacy_fixer/` until phase 5.)
 6. A peak-RSS test: the whole build under 8 GB, asserted with `resource.getrusage`.
 
 **Closes when:** the ledger shows only the 7,998 `web.cdr3fix.unmp` rows (§7) plus the meta-file fixes,
@@ -531,7 +538,8 @@ each as a declared rule with its measured count.
    per organism, then join back. 5.2 s total (§7); never loop it.
 2. `Cdr3Markup.to_cdr3fix()` emits VDJdb's JSON key-for-key; `v_end` / `j_start` are junction-space,
    which is what the `cdr3` column holds.
-3. Retire `res/segments.txt`, `res/segments.aaparts.txt`, `py_src/Cdr3Fixer.py`, `py_src/KmerScanner.py`.
+3. Delete `src/vdjdb/annotate/_legacy_fixer/` -- the verbatim copy phase 4 bridged through --
+   together with `res/segments.txt` and `res/segments.aaparts.txt`.
 4. Measure the ledger delta, then **freeze it** as declared rule counts. Expected shape from §7:
    `cdr3` ~2.2 % of rows, `jStart` ~9 %, all of it in the direction arda maps more and earlier.
 5. Assert the one-directional property as a test: arda never loses coverage a VDJdb mapping had.
@@ -811,3 +819,21 @@ a count is meaningless against a measurement that moves.
 The row comparison first materialised 6.26 million Python tuples per table. Replaced with a hashed
 `(key, row)` group-count join in polars, so only the keys whose multisets actually disagree — **14 of
 208,447** — are ever pulled into Python. Wall time 7.6 s → **3.5 s** for a 425 MB bundle, at 222 % CPU.
+
+
+## 15. Reconciliation — where this drifted, 2026-09-25
+
+Recorded so the correction is not re-litigated. Each item is a case of inferring the model from the
+*shape of the data* instead of reading `README.md`, which is authoritative until `docs/standards/`
+replaces it (phase 13).
+
+| Drifted | Correct |
+|---|---|
+| Called the 19 cross-chunk matches "duplicate submissions" and gave both rows one `record_id` | **A chunk is one paper.** Two chunks are two independent reports, whatever their fields. They get separate ids, and their agreement is evidence — the signal §11.1 tunes motif clustering against |
+| Invented a `submissions` table, then a `curation` table, to hold `method.*` and `meta.*` | The README says those columns record how the *publication* established the specificity. They describe the record. There is no submission unit: **one chunk row is one record**, and it reports both chains |
+| Built the legacy tables directly from the master frame | The definitive tidy tables are the database; every shipped file is a join and a pivot off them. `emit/legacy.py` is the only module that may know about `complex.id` or the JSON blobs |
+| Assigned record ids after CDR3 repair | Ids go on what the publications reported. Repair merged 215 pairs of separately reported records |
+| Let phase 6 own the definitive tables while phase 4 owned legacy | Backwards: phase 4 builds the tables and *derives* legacy from them. Phase 6 ships them |
+
+The three earlier phases are unaffected — the field registry, the ledger and the reader make no
+claim about what a record is. The cost was confined to phase 4, and the ledger caught every symptom.

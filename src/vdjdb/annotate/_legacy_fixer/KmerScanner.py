@@ -1,3 +1,4 @@
+# Vendored unchanged from py_src/ -- see __init__.py. Do not edit; phase 5 deletes this package.
 from dataclasses import dataclass
 from typing import Optional
 

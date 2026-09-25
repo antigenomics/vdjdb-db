@@ -197,7 +197,9 @@ def test_natural_key_is_the_chunk_dedup_key():
     """
     from vdjdb.schema import CHUNK_DEDUP_KEY
 
-    assert NATURAL_KEY == CHUNK_DEDUP_KEY
+    assert list(NATURAL_KEY) == [*CHUNK_DEDUP_KEY, "chunk.file"], (
+        "identity is the dedup key plus the chunk: a chunk is one paper, so two "
+        "chunks are two independent reports")
 
 
 def test_records_differing_only_in_donor_are_distinct_records():
@@ -207,20 +209,19 @@ def test_records_differing_only_in_donor_are_distinct_records():
     assert len(reg) == 2 and len(rep.added) == 2
 
 
-def test_the_same_record_in_two_chunks_gets_one_id():
-    """19 records in the real corpus are submitted in two chunks. One record, one id.
+def test_matching_rows_in_two_chunks_are_two_records():
+    """A chunk is one paper, so two chunks are two independent reports -- never one record.
 
-    Allocating a second id for the duplicate would also make it unstable: it would be re-added on
-    every build, because the registry can only hold one entry per natural key.
+    19 pairs in the real corpus match field for field across chunks. Collapsing them would delete
+    exactly the independent-replication signal phase 11 fits motif clustering against.
     """
     df = frame({"chunk.file": "PMID_A.txt"}, {"chunk.file": "PMID_B.txt"})
     out, reg, rep = reconcile(df, IdentityRegistry(), release="v1")
-    assert out["record_id"].n_unique() == 1
-    assert len(reg) == 1 and len(rep.added) == 1
-    assert rep.duplicated == [(out["record_id"][0], "PMID_B.txt")]
+    assert out["record_id"].n_unique() == 2
+    assert len(reg) == 2 and len(rep.added) == 2
 
 
-def test_duplicates_stay_stable_across_rebuilds():
+def test_independent_reports_stay_stable_across_rebuilds():
     df = frame({"chunk.file": "PMID_A.txt"}, {"chunk.file": "PMID_B.txt"})
     out1, reg, _ = reconcile(df, IdentityRegistry(), release="v1")
     out2, reg, rep = reconcile(df, reg, release="v2")

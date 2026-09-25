@@ -1,3 +1,4 @@
+# Vendored unchanged from py_src/ -- see __init__.py. Do not edit; phase 5 deletes this package.
 def simplify_segment_name(segment_name: str) -> list:
     """
     simplifies segment name
