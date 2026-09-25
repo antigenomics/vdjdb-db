@@ -16,7 +16,6 @@ from pathlib import Path
 
 import polars as pl
 
-from ..annotate._legacy_fixer import Cdr3Fixer
 from ..config import Paths
 from ..curate.patch import apply_antigen_patch
 from ..io.chunks import read_chunks
@@ -40,11 +39,6 @@ HASH_FIELDS: tuple[str, ...] = (
 HASH_REQUIRED: tuple[str, ...] = ("cdr3.alpha", "cdr3.beta", "mhc.a", "mhc.b", "antigen.epitope")
 
 
-def _fixer() -> Cdr3Fixer:
-    res = Paths.discover().res
-    return Cdr3Fixer(str(res / "segments.txt"), str(res / "segments.aaparts.txt"))
-
-
 #: The members of the legacy ``cdr3fix`` JSON blob, flattened into columns. Order matters only
 #: when the blob is reassembled for the legacy export; here it is documentation.
 FIX_FIELDS: tuple[tuple[str, str, type], ...] = (
@@ -59,37 +53,35 @@ FIX_FIELDS: tuple[tuple[str, str, type], ...] = (
 _FIX_DTYPES = {str: pl.Utf8, bool: pl.Boolean, int: pl.Int64}
 
 
-def fix_cdr3(df: pl.DataFrame, fixer: Cdr3Fixer | None = None) -> pl.DataFrame:
-    """Guess a missing V or J, then repair the CDR3, per chain.
+
+def fix_cdr3(df: pl.DataFrame, engine: str = "legacy") -> pl.DataFrame:
+    """Repair the CDR3 and locate the V and J germline parts, per chain.
 
     Rewrites ``cdr3.*``, ``v.*`` and ``j.*``, and adds one column per :data:`FIX_FIELDS` member
     (``__vend.alpha``, ``__jfix.beta``, ...). The legacy ``cdr3fix`` JSON blob is **not** produced
     here: a blob is not a variable, and reassembling one is the legacy exporter's job.
 
-    Called once per distinct ``(species, cdr3, v, j)`` -- roughly 100k keys against 192,753 rows --
-    and joined back. The fixer is deterministic in its arguments, so deduplicating cannot change a
-    value (CLAUDE.md rule 4).
+    Two engines, both measured against the 2026-06-03 release (ROADMAP §16):
+
+    * ``legacy`` -- the vendored k-mer scanner. **The default**, and what the shipped build still
+      uses, because the swap is not yet accepted: it changes 14,778 repaired CDR3s and loses 7,807
+      V-end mappings the legacy found.
+    * ``arda`` -- ``arda.cdr3fix``. Aligns far more sensitively on the J side (+6,987 mappings,
+      -248) but less on the V side. Ready, characterised, and awaiting a decision.
+
+    Both are called once per distinct ``(species, cdr3, v, j)`` -- 191,447 keys against 192,753
+    rows -- and joined back. Both are deterministic in their arguments, so deduplicating cannot
+    change a value (CLAUDE.md rule 4).
     """
-    fx = fixer or _fixer()
+    run = _markup_arda if engine == "arda" else _markup_legacy
     for gene in ("alpha", "beta"):
         cdr3, v, j = f"cdr3.{gene}", f"v.{gene}", f"j.{gene}"
         keys = (df.filter(pl.col(cdr3) != "")
-                  .select("species", cdr3, v, j)
+                  .select("species", pl.col(cdr3).alias("cdr3"),
+                          pl.col(v).alias("v"), pl.col(j).alias("j"))
                   .unique(maintain_order=True)
-                  .sort("species", cdr3, v, j))     # sorted: the join order must not vary
-
-        out: list[dict] = []
-        for species, seq, vid, jid in keys.iter_rows():
-            vid = vid or fx.guess_id(seq, species, gene, True) or ""
-            jid = jid or fx.guess_id(seq, species, gene, False) or ""
-            # Always strings: the legacy relied on guess_id having filled the blank, and
-            # `"".split(",")` yields `[""]`, which `fix` treats as "no segment given".
-            out.append(fx.fix_both(seq, vid, jid, species).results_to_dict())
-
-        lookup = keys.with_columns(
-            *(pl.Series(tmp, [r[key] for r in out], dtype=_FIX_DTYPES[ty])
-              for key, tmp, ty in FIX_FIELDS)
-        )
+                  .sort("species", "cdr3", "v", "j"))   # sorted: the join order must not vary
+        lookup = run(keys, gene).rename({"cdr3": cdr3, "v": v, "j": j})
         df = (
             df.join(lookup, on=["species", cdr3, v, j], how="left")
             .with_columns(
@@ -109,6 +101,31 @@ def fix_cdr3(df: pl.DataFrame, fixer: Cdr3Fixer | None = None) -> pl.DataFrame:
     return df
 
 
+def _markup_arda(keys: pl.DataFrame, gene: str) -> pl.DataFrame:
+    from ..annotate.cdr3fix import markup
+
+    return markup(keys, gene)
+
+
+def _markup_legacy(keys: pl.DataFrame, gene: str) -> pl.DataFrame:
+    """The vendored k-mer scanner. Kept only to attribute the swap; deleted once that is frozen."""
+    from ..annotate._legacy_fixer import Cdr3Fixer
+
+    res = Paths.discover().res
+    fx = Cdr3Fixer(str(res / "segments.txt"), str(res / "segments.aaparts.txt"))
+    out: list[dict] = []
+    for species, seq, vid, jid in keys.iter_rows():
+        vid = vid or fx.guess_id(seq, species, gene, True) or ""
+        jid = jid or fx.guess_id(seq, species, gene, False) or ""
+        # Always strings: the legacy relied on guess_id having filled the blank, and
+        # `"".split(",")` yields `[""]`, which `fix` treats as "no segment given".
+        out.append(fx.fix_both(seq, vid, jid, species).results_to_dict())
+    return keys.with_columns(
+        *(pl.Series(tmp, [r[key] for r in out], dtype=_FIX_DTYPES[ty])
+          for key, tmp, ty in FIX_FIELDS)
+    )
+
+
 def add_tcr_hash(df: pl.DataFrame) -> pl.DataFrame:
     """sha256 over :data:`HASH_FIELDS`, empty unless every :data:`HASH_REQUIRED` field is present."""
     complete = pl.all_horizontal(*[pl.col(c) != "" for c in HASH_REQUIRED])
@@ -126,7 +143,7 @@ def _sha256(s: str) -> str:
 
 
 def build_master(paths: Iterable[Path] | None = None,
-                 registry: Path | None = None) -> pl.DataFrame:
+                 registry: Path | None = None, *, engine: str = "legacy") -> pl.DataFrame:
     """The master table: one row per curated record, fixed, scored, hashed and identified.
 
     Wide (paired alpha/beta columns) because that is the shape the chunks are written in. It is an
@@ -139,7 +156,7 @@ def build_master(paths: Iterable[Path] | None = None,
     # fixing would have merged 215 pairs of records the publications reported separately -- two
     # trimmed sequences repaired to the same full one are still two observations.
     df = add_record_ids(df, registry)
-    df = fix_cdr3(df)
+    df = fix_cdr3(df, engine)
     df = add_score(df)
     return add_tcr_hash(df)
 
