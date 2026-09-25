@@ -59,5 +59,5 @@ class Paths:
         return self.out / "reports"
 
     @classmethod
-    def discover(cls) -> "Paths":
+    def discover(cls) -> Paths:
         return cls(repo_root())
