@@ -44,7 +44,7 @@ wheels = [
 
 [[package]]
 name = "arda-mapper"
-version = "2.27.0"
+version = "2.29.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "dnaio" },
@@ -53,17 +53,17 @@ dependencies = [
     { name = "seqtree" },
     { name = "typer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ef/fe/d1c900881b5b8f38dc6b7f0a80252e6f09c4421c2c27c10a09db98858ca0/arda_mapper-2.27.0.tar.gz", hash = "sha256:c0859d8fc7eaf8c55af0d35c177b1540df8e80768f0fcb87b019d29c3d7209bf", size = 9897847, upload-time = "2026-09-24T19:04:05.058Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/bf/4a/913eb337523ba63e99c72abfa826d0c9ee4be11e984a57ee8bf4a42b2563/arda_mapper-2.29.0.tar.gz", hash = "sha256:dc9addb12d425906882429ca9da94ee6fb157321a20e782f4ac177e119914f5c", size = 9962715, upload-time = "2026-09-25T06:48:07.945Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/66/d8/aba83769dcae74504eea0ab9774562e2f40bd59fac08e32d627da3a7a7db/arda_mapper-2.27.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:337ad6c5d92aed649dac2a304fa55a68adf19c413231db33ab8480294a2e2e4d", size = 616804, upload-time = "2026-09-24T19:03:51.864Z" },
-    { url = "https://files.pythonhosted.org/packages/95/ab/c27ce17786da4d6829ee8f23e24b58d2498825f5044222b212cfab27be8e/arda_mapper-2.27.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1ec7d66dc0911a8ab74b2414d7c9a801aa1466021800525864ba3f098dffdfbb", size = 743440, upload-time = "2026-09-24T19:03:53.378Z" },
-    { url = "https://files.pythonhosted.org/packages/98/5b/1e84eff7c6fced29c82e1901bf887ebee349a16821b7e5764ad85467c0c6/arda_mapper-2.27.0-cp311-cp311-win_amd64.whl", hash = "sha256:2cdde9f38e5583db1cf322d03010765fdf7d210ac66e64cc51f3b0779485fb75", size = 640287, upload-time = "2026-09-24T19:03:54.687Z" },
-    { url = "https://files.pythonhosted.org/packages/3e/8c/0d682fd6084d3f12c08f90ef9a5e6d16746315ea5067277c8cddc9beb858/arda_mapper-2.27.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:2bd7ba57b62af4abb2f10de1609d4991f2749ad61f462243274f655de09935b3", size = 613093, upload-time = "2026-09-24T19:03:55.943Z" },
-    { url = "https://files.pythonhosted.org/packages/2a/0e/98905247f53560e0767fe514708a6287497297ea417fbdea91c12dd71313/arda_mapper-2.27.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e385c45048618a6f80251bcfeb0646fb19a849560ab144888acae7bc59b2a0d6", size = 739303, upload-time = "2026-09-24T19:03:57.637Z" },
-    { url = "https://files.pythonhosted.org/packages/5d/7f/32199811d690e1024bc9082c3d57d39961539758e456cf893d52a6f5a4e7/arda_mapper-2.27.0-cp312-cp312-win_amd64.whl", hash = "sha256:aec8020962ade06520edde0caa08d75b56dd4222d4b85251e1da72747ea47ce3", size = 638062, upload-time = "2026-09-24T19:03:58.977Z" },
-    { url = "https://files.pythonhosted.org/packages/e1/57/4eed8c527ea9a43fa1b2d9b730b1cbda3f1bb1ada3c9da7c5e4badce8364/arda_mapper-2.27.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:8cf085197fb339c6c16fe99fb0cab39a60c8aa08ace54c06b6054f41e58fe096", size = 613061, upload-time = "2026-09-24T19:04:00.454Z" },
-    { url = "https://files.pythonhosted.org/packages/ad/9c/2769d9c5d3dedef464cc93f0f32033a1677bfdff64d603027f0aba722e63/arda_mapper-2.27.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:922f2db611b6c3e1243fb2f129fe8298d4ad837fce6e9346ff9c19e33ab1cb24", size = 739197, upload-time = "2026-09-24T19:04:01.772Z" },
-    { url = "https://files.pythonhosted.org/packages/34/e4/bf265e7f3ca558561989fa7f0ebaef5a6ac03789cbb08edbe4c94aa6c47b/arda_mapper-2.27.0-cp313-cp313-win_amd64.whl", hash = "sha256:ad730627a37d84ffa0197ccaa8237dc8d760461a722a836d44bd72bca436e36e", size = 637816, upload-time = "2026-09-24T19:04:03.278Z" },
+    { url = "https://files.pythonhosted.org/packages/0f/86/c533131eef6ac29245dfa7b2ea26d790e6efb830fce67e69f2f83de781c7/arda_mapper-2.29.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:d4736f25b0eadb086d00d886751d54762b71671fd0928f8c74c2f9784430f046", size = 634404, upload-time = "2026-09-25T06:47:55.584Z" },
+    { url = "https://files.pythonhosted.org/packages/d1/a7/92e46e7b7a9f35da3ea2dbce203a573df4a424b65a9bbf13624981ac9a15/arda_mapper-2.29.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:05cf5d6bc1abcf0697405dd01185f01bed6ab42d79fdecb9032959ef546bf475", size = 761042, upload-time = "2026-09-25T06:47:56.921Z" },
+    { url = "https://files.pythonhosted.org/packages/a3/05/31c732679bcc9c774a5564c1f6572fafdeb8a2275f8c3093579d6ca3f089/arda_mapper-2.29.0-cp311-cp311-win_amd64.whl", hash = "sha256:119641da4f229bbbcbbaad0d79d5fcef7ebe131552a0be5be00953043b504eed", size = 658005, upload-time = "2026-09-25T06:47:58.311Z" },
+    { url = "https://files.pythonhosted.org/packages/de/da/5cfb3828db59c87975b94422295a241c410dd8ae9587bfec047067637600/arda_mapper-2.29.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:8f0a43a42d32bcf7e55df519eaf79feb0337c88a6b6611dd5b504e58320939f8", size = 630691, upload-time = "2026-09-25T06:47:59.699Z" },
+    { url = "https://files.pythonhosted.org/packages/2e/87/d298e20f6c4f15e67729d87fd25989255f91c8d29f72dfcad18bb5b032ac/arda_mapper-2.29.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fa14b2ca6e02229b03996e1a31fbd1154a07b3a6914a736552e713cf9987938c", size = 756905, upload-time = "2026-09-25T06:48:00.912Z" },
+    { url = "https://files.pythonhosted.org/packages/1e/77/6921cea63949e37a51640c65086b1955ab0c0482f59dc9947c996fbcaaab/arda_mapper-2.29.0-cp312-cp312-win_amd64.whl", hash = "sha256:37ca7a5acaa895c2955697641d269bd0941237742ad728cd6a6b136d421c7bce", size = 655782, upload-time = "2026-09-25T06:48:02.206Z" },
+    { url = "https://files.pythonhosted.org/packages/1c/4d/0379d008b3f5e7ca11db5a6423d7bd6211fbaa96b5a74bc215a21d7b4e2a/arda_mapper-2.29.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:084dc7ee1eceb437e7a9c2db48c75f2c7a5623f7179d6fb74111476cd55cec70", size = 630658, upload-time = "2026-09-25T06:48:03.482Z" },
+    { url = "https://files.pythonhosted.org/packages/dd/36/12dc2557b5a16044f7f29bfa78494dc3e582480f00747e93e2d833e036d1/arda_mapper-2.29.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d3496d29d7186a1f7e8b8146e4e30d3c154d19d7514e9424a6fdcc2706d0d5b8", size = 756799, upload-time = "2026-09-25T06:48:05.062Z" },
+    { url = "https://files.pythonhosted.org/packages/59/db/1e84f57f60de5a219239f91f770881df6aa8a32aa8233b10ec2093dcc795/arda_mapper-2.29.0-cp313-cp313-win_amd64.whl", hash = "sha256:3b08d7096d1aa95f64b4250d33ca69f4792a0f2f2f32103808cef6d9242e45d0", size = 655536, upload-time = "2026-09-25T06:48:06.487Z" },
 ]
 
 [[package]]
@@ -2401,7 +2401,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "airr", marker = "extra == 'test'", specifier = ">=1.5" },
-    { name = "arda-mapper", specifier = ">=2.27" },
+    { name = "arda-mapper", specifier = ">=2.29" },
     { name = "hypothesis", marker = "extra == 'test'", specifier = ">=6" },
     { name = "mirpy-lib", extras = ["bench"], marker = "extra == 'motifs'", specifier = ">=3.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.11" },

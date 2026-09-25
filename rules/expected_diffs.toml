@@ -57,7 +57,7 @@ rows = 20312
 id = "legacy-melt-ambiguity-cdr3fix"
 file = "vdjdb.txt"
 column = "cdr3fix"
-rows = 2619
+rows = 2648
 
 # --- phase 4, feature/pipeline-core -----------------------------------------------------------
 # jStart == -1 is truthy in Python, where the Groovy tested jStart > -1, so unmapped records are
@@ -68,7 +68,7 @@ file = "vdjdb.txt"
 column = "web.cdr3fix.unmp"
 from = "no"
 to = "yes"
-rows = 6924
+rows = 6922
 
 # pandas type coercion on read. The new reader keeps every cell as the string a curator typed, so
 # these are all corrections of a lossy round-trip -- the reference value is the damaged one.
@@ -106,7 +106,7 @@ rows = 236
 id = "pandas-float-frequency-json"
 file = "vdjdb.txt"
 column = "method"
-rows = 1796
+rows = 1790
 
 # `NA` is influenza neuraminidase, a real gene symbol. pandas read it as a missing value, and
 # `if NaN:` is True in Python, so the legacy assigned the missing value and blanked the gene.
@@ -162,16 +162,16 @@ rows = 15589
 # is no cell to attribute: one row leaves and another arrives.
 [[row_delta]]
 file = "vdjdb.slim.txt"
-added = 685
-removed = 744
+added = 750
+removed = 809
 note = "pandas-na-gene-symbol, seen through the slim grouping key"
 
 # The melt ambiguity of ROADMAP section 14, seen as rows rather than cells: where two
 # indistinguishable records swap, best-match pairing sometimes leaves one on each side.
 [[row_delta]]
 file = "vdjdb.txt"
-added = 700
-removed = 700
+added = 780
+removed = 780
 note = "legacy melt ambiguity; see ROADMAP section 14"
 
 
@@ -183,25 +183,25 @@ note = "legacy melt ambiguity; see ROADMAP section 14"
 id = "nomenclature-slim-complex-id-renumber"
 file = "vdjdb.slim.txt"
 column = "complex.id"
-rows = 117700
+rows = 117670
 
 [[rule]]
 id = "nomenclature-vend-full-alpha"
 file = "vdjdb_full.txt"
 column = "cdr3fix.alpha"
-rows = 2628
+rows = 2657
 
 [[rule]]
 id = "nomenclature-vend-full-beta"
 file = "vdjdb_full.txt"
 column = "cdr3fix.beta"
-rows = 23
+rows = 24
 
 [[rule]]
 id = "nomenclature-vend-slim"
 file = "vdjdb.slim.txt"
 column = "v.end"
-rows = 1412
+rows = 1424
 
 [[rule]]
 id = "nomenclature-jstart-slim"
@@ -215,25 +215,25 @@ file = "vdjdb.txt"
 column = "web.cdr3fix.unmp"
 from = "yes"
 to = "no"
-rows = 1341
+rows = 1354
 
 [[rule]]
 id = "nomenclature-tcr-hash-default"
 file = "vdjdb.txt"
 column = "TCR_hash"
-rows = 2225
+rows = 2227
 
 [[rule]]
 id = "nomenclature-tcr-hash-slim"
 file = "vdjdb.slim.txt"
 column = "TCR_hash"
-rows = 1947
+rows = 1951
 
 [[rule]]
 id = "nomenclature-tcr-hash-full"
 file = "vdjdb_full.txt"
 column = "TCR_hash"
-rows = 981
+rows = 983
 
 [[rule]]
 id = "nomenclature-samples-found"
@@ -342,10 +342,64 @@ rows = 0
 
 # BEGIN generated renames -- `vdjdb rules` writes this block; review it, do not edit it
 [[rename]]
+columns = "j.alpha,j.segm"
+from = "TRAJ01-1*01"
+to = "TRAJ1*01"
+records = 4
+
+[[rename]]
+columns = "j.alpha,j.segm"
+from = "TRAJ02-1*01"
+to = "TRAJ2*01"
+records = 1
+
+[[rename]]
+columns = "j.alpha,j.segm"
+from = "TRAJ03-1*01"
+to = "TRAJ3*01"
+records = 2
+
+[[rename]]
+columns = "j.alpha,j.segm"
+from = "TRAJ04-1*01"
+to = "TRAJ4*01"
+records = 3
+
+[[rename]]
+columns = "j.alpha,j.segm"
+from = "TRAJ1-1*01"
+to = "TRAJ1*01"
+records = 1
+
+[[rename]]
+columns = "j.alpha,j.segm"
+from = "TRAJ16-1*01"
+to = "TRAJ16*01"
+records = 1
+
+[[rename]]
+columns = "j.alpha,j.segm"
+from = "TRAJ2-1*01"
+to = "TRAJ2*01"
+records = 3
+
+[[rename]]
 columns = "v.alpha,v.segm"
 from = "TRAV14"
 to = "TRAV14/DV4*01"
 records = 1032
+
+[[rename]]
+columns = "v.alpha,v.segm"
+from = "TRAV14-1"
+to = "TRAV14/DV4*01"
+records = 5
+
+[[rename]]
+columns = "v.alpha,v.segm"
+from = "TRAV14-1*01"
+to = "TRAV14/DV4*01"
+records = 1
 
 [[rename]]
 columns = "v.alpha,v.segm"
@@ -403,6 +457,12 @@ records = 156
 
 [[rename]]
 columns = "v.alpha,v.segm"
+from = "TRAV23-1"
+to = "TRAV23/DV6*01"
+records = 4
+
+[[rename]]
+columns = "v.alpha,v.segm"
 from = "TRAV29"
 to = "TRAV29/DV5*01"
 records = 163
@@ -412,6 +472,12 @@ columns = "v.alpha,v.segm"
 from = "TRAV29*01"
 to = "TRAV29/DV5*01"
 records = 3
+
+[[rename]]
+columns = "v.alpha,v.segm"
+from = "TRAV29-1"
+to = "TRAV29/DV5*01"
+records = 5
 
 [[rename]]
 columns = "v.alpha,v.segm"
@@ -428,6 +494,12 @@ records = 22
 [[rename]]
 columns = "v.alpha,v.segm"
 from = "TRAV36*01"
+to = "TRAV36/DV7*01"
+records = 1
+
+[[rename]]
+columns = "v.alpha,v.segm"
+from = "TRAV36-1*01"
 to = "TRAV36/DV7*01"
 records = 1
 
@@ -531,6 +603,12 @@ records = 1
 columns = "j.beta,j.segm"
 from = "TRBJ2.7"
 to = "TRBJ2-7*01"
+records = 1
+
+[[rename]]
+columns = "v.beta,v.segm"
+from = "TRBV17-1"
+to = "TRBV17"
 records = 1
 
 [[rename]]
@@ -2833,6 +2911,6 @@ files = "vdjdb.slim.txt"
 # END generated renames
 [[row_delta]]
 file = "vdjdb_full.txt"
-added = 533
-removed = 533
+added = 613
+removed = 613
 note = "declared corrections whose reference value is not injective: the legacy fixer had already resolved an odd segment spelling onto a real allele, and the class-II chain-order swap rewrites two columns at once. See ROADMAP sections 23-25"

@@ -3,14 +3,12 @@
 # Two changes only, both mechanical, neither touching a computed value:
 #   1. the nomenclature table is resolved from the repo root instead of "../patches/...", which
 #      only worked with the process CWD inside py_src/;
-#   2. that one table is read with csv instead of pandas, so the bridge -- and therefore the whole
-#      build -- has no pandas dependency. The two segment tables still use pandas; they are read
-#      once at construction and phase 5 deletes them with this file.
+#   2. every table is read with csv instead of pandas, so the bridge -- and therefore the whole
+#      build -- has no pandas dependency at all. `reference_point` is cast explicitly, which is the
+#      only typing pandas was doing for us.
 from FixerDataModels import *
 from KmerScanner import KmerScanner
 from Utils import translate_linear, simplify_segment_name
-
-import pandas as pd
 
 import csv
 from collections import defaultdict
@@ -52,29 +50,30 @@ class Cdr3Fixer:
         loads and preprocesses segment sequences
         :param segments_file_name: file with complete segment sequences
         """
-        segments_file = pd.read_csv(segments_file_name, sep='\t')
-        for columns in ['#species', 'segment']:
-            segments_file[columns] = segments_file[columns].apply(lambda x: x.lower())
+        with open(segments_file_name, newline='') as fh:
+            for segment in csv.DictReader(fh, delimiter='\t'):
+                species = segment['#species'].lower()
+                gene = segment['segment'].lower()
 
-        for _, segment in segments_file.iterrows():
+                if gene.startswith("v") or gene.startswith("j"):
+                    is_j_segment = gene.startswith("j")
+                    reference_point = int(segment['reference_point'])
+                    sequence = segment['sequence'][:reference_point + 4] if is_j_segment \
+                        else segment['sequence'][reference_point - 3:]
 
-            if segment.segment.lower().startswith("v") or segment.segment.lower().startswith("j"):
-                is_j_segment = segment.segment.lower().startswith("j")
-                segment.sequence = segment.sequence[:segment.reference_point + 4] if is_j_segment \
-                    else segment.sequence[segment.reference_point - 3:]
-
-                self.segments_by_id_by_species[segment['#species']][segment.id] = translate_linear(
-                    segment.sequence, is_j_segment)
+                    self.segments_by_id_by_species[species][segment['id']] = translate_linear(
+                        sequence, is_j_segment)
 
     def _load_segments_sequence_data(self, segments_seq_file_name: str) -> None:
         """
         loads and preprocesses parts of segment sequences
         :param segments_seq_file_name: file with parts of segments sequences
         """
-        segments_seq_file = pd.read_csv(segments_seq_file_name, sep='\t')
-        for _, segment in segments_seq_file.iterrows():
-            species_chain = segment.species + (".alpha" if segment.gene == "TRA" else ".beta")
-            self.segments_by_sequence_part_by_species_gene[species_chain][segment.cdr3] = segment.segm
+        with open(segments_seq_file_name, newline='') as fh:
+            for segment in csv.DictReader(fh, delimiter='\t'):
+                species_chain = segment['species'] + (".alpha" if segment['gene'] == "TRA" else ".beta")
+                self.segments_by_sequence_part_by_species_gene[species_chain][segment['cdr3']] = \
+                    segment['segm']
 
     def get_closest_id(self, species: str, segment_id: str) -> str:
         """
