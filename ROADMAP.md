@@ -1773,3 +1773,54 @@ been cleared — the allele calls are right, agreement is 99.91 %, and arda is a
 four coverage measures. What remains is one upstream defect with a clear signature, and the right
 next step is to reproduce those 7,962 `FailedBadSegment` beta V calls in `arda` directly and fix them
 there. Then the swap is a one-line default change with nothing left to weigh.
+
+### Resolved upstream — `arda-mapper` 2.29.0
+
+Reproduced in `arda` and fixed there, exactly as the recommendation asked. `resolve_allele` climbed
+three rungs -- exact, `gene*01`, first allele of the gene -- and none reaches a call that names a
+**family** whose genes all carry a suffix: nothing is named `TRBV20`, only `TRBV20-1`. The new fourth
+rung resolves such a call **only where the family holds exactly one functional gene**, so `TRBV3`
+resolves through `TRBV3-1` (F) past `TRBV3-2` (P) while `TRBV6` (five functional genes) still returns
+`""`. ⚠ It deliberately does **not** copy VDJdb's own ladder, which takes the lowest-numbered gene and
+is how `TRAV6-7-DV9` ends up marked up as `TRAV6-1*01`.
+
+Released as **arda-mapper 2.29.0** and bound here (`pyproject.toml`); the fix arrives from PyPI, not
+from a checkout. Re-measured 2026-09-25 on the same corpus, both engines through the same pipeline,
+all 192,753 records:
+
+| Chain | Field | both | legacy only | arda only |
+|---|---|---|---|---|
+| alpha | `vEnd` | 118,291 | 311 | 3,781 |
+| alpha | `jStart` | 117,112 | **7** | 5,182 |
+| beta | `vEnd` | 156,172 | 3,936 | 1,851 |
+| beta | `jStart` | 160,682 | 138 | 1,904 |
+
+**The beta V-end loss falls 7,969 → 3,936 chains: 4,033 recovered**, and `both` rises by exactly that
+(152,139 → 156,172). The alpha V-end loss falls 370 → 311 and the alpha J-start loss 137 → 7. arda is
+now ahead on every one of the four measures.
+
+### What the remaining 3,936 beta V-ends are — two different things, neither an arda defect
+
+3,929 of 3,936 are still `FailedBadSegment` (7 are `FailedNoAlignment`), and they split cleanly:
+
+| Call | Chains | What it is |
+|---|---:|---|
+| `TRBV6` | 990 | a family with **five** functional genes |
+| `TRBV12` | 488 | a family with **four** |
+| `TRBV7` | 115 | a family with several |
+| `TRBV5` | 79 | a family with several |
+| `TRBV12-2+TRBV13-2` | 535 | an ambiguity group, two genes |
+| `TRBV13-2` | 256 | mouse gene, no human anchor under this call |
+| `TRBV11-2*02` | 823 | a named allele with no shipped anchor |
+| `TRBV19*03` | 139 | a named allele with no shipped anchor |
+
+The first five rows (2,207 chains) are **curation questions, not markup failures**: the publication
+did not name a gene, and arda refusing to pick one is the behaviour we asked for. The legacy fixer
+"places" them only because its ladder silently takes the lowest-numbered member. The last three rows
+(1,218 chains) are an **anchor-coverage question** in arda's reference, and the one place where more
+could still be recovered.
+
+**Nothing here blocks the engine swap.** `ROADMAP.md` §16's gate is cleared, §28's gate is cleared,
+agreement on the repaired sequence is 99.91 %, and arda leads on all four coverage measures. What
+remains to decide is a curation policy — whether a record whose publication named only `TRBV6` should
+carry a V-end at all — not an engine comparison.

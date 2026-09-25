@@ -4,7 +4,8 @@ _Last updated: 2026-09-25_
 
 ## In flight
 
-**Phase 9 — `feature/harmonize-rules`**, merging to `dev`. Phases 10-11 (motifs) are next.
+**Phase 10 — `feature/motifs-tcrnet`**. Phases 0-9 are merged to `dev`; the ledger reads PASS with
+every difference declared and measured.
 
 | Phase | Branch | State |
 |---|---|---|
@@ -13,7 +14,7 @@ _Last updated: 2026-09-25_
 | 2 | `feature/golden-harness` | merged — `vdjdb diff`, reproducible, validated against the release |
 | 3 | `feature/io-qc` | merged — polars reader, vectorised QC, corpus normalised, CI gates `--strict` |
 | 4 | `feature/pipeline-core` | merged — the definitive tables, legacy as a projection; `py_src/` retired |
-| 5 | `feature/arda-cdr3fix` | merged, **behind `engine="legacy"`** — the swap waits for #327 (agreed 2026-09-25) |
+| 5 | `feature/arda-cdr3fix` | merged, **behind `engine="legacy"`** — both gates cleared; the swap is now a decision, not a blocker (`ROADMAP.md` §28) |
 | 6 | `feature/new-format` | merged — tables + evidence + `vdjdb.schema.json`; ledger PASS from the shipped tables |
 | 7 | `feature/airr` | merged — Rearrangement + Reactivity; `airr.validate_rearrangement` passes on all 286,047 rows |
 | 8a | `feature/junction-nt` | merged — 261,097 `cdr3nt`, 0 back-translation mismatches |
@@ -21,6 +22,7 @@ _Last updated: 2026-09-25_
 | 8c | `feature/segment-guess` | merged — the legacy V guesser has never worked; Pgen fills 686 of 711 gaps |
 | 8d | `feature/receptor` | merged — AIRR `Receptor`, 81,003 rows; stitching vectorised to 2.7 s |
 | 9 | `feature/harmonize-rules` | **#389, #327, #467, #347, #368 landed; #564 already fixed; #561 advisory. Ships `epitopes` + `restriction`. Ledger PASS** |
+| 10 | `feature/motifs-tcrnet` | **in flight** — TCRNET on `vdjtools`, streaming backgrounds (`ROADMAP.md` §8.1, §8.5, §8.7) |
 
 ```
 uv run vdjdb build --out out/                          # tables + every projection, 15 s
@@ -55,10 +57,11 @@ of pandas type coercions the all-string reader undoes (~55k cells). See `ROADMAP
    tuned against the independent-study signal phase 6 already ships.
 2. **Decide whether the legacy build should keep the 711 chains with no V** now that #462 can supply
    one for 686 of them (`ROADMAP.md` §21).
-3. **Fix arda's TRBV segment loading** (`ROADMAP.md` §28). The swap's gate is cleared and agreement
-   is 99.91 %, but arda returns `FailedBadSegment` on 7,962 beta chains whose V the legacy places
-   without changing a residue — and its own V call on them is a gene name, not an allele. Reproduce
-   in `arda` and fix there; then the swap is a one-line default change.
+3. **Decide the cdr3fix engine swap.** Both `ROADMAP.md` §16 and §28 gates are cleared: the family-
+   call defect is fixed and released as **arda-mapper 2.29.0** (bound in `pyproject.toml`), which
+   recovers **4,033 beta V-end mappings** (legacy-only 7,969 → 3,936) and puts arda ahead on all four
+   coverage measures. The 3,936 that remain are 2,207 ambiguous curation calls arda rightly refuses
+   plus 1,218 alleles with no shipped anchor — a curation policy question, not an engine one.
 4. **Phase 9e** — validate the epitope catalogue with `mhcmatch` (`ROADMAP.md` §12).
 5. `uv lock`, push `dev`, let `chunk-check` run once **before** applying branch protection.
 
@@ -68,7 +71,7 @@ of pandas type coercions the all-string reader undoes (~55k cells). See `ROADMAP
 |---|---|---|
 | Murine class I: `H2-Db` or `H-2Db`? | the murine MHC vocabulary | the data says `H2-Db` (6,207 records, `H-2Db` appears zero times), `proofreading/mhc.md` says `H-2Db`, and `vdjdb-web` carries a repair for the pair. `ROADMAP.md` §25 |
 | `vdjmatch` `_zip_asset` patch | the first multi-zip release | needs a patch + release in `antigenomics/vdjmatch`. See `ROADMAP.md` §3.1 |
-| `arda` release with `fix/source-root-marker` | CI without the `$ARDA_HOME` workaround | `d40095c` is committed on a local branch in `~/vcs/code/arda`, not pushed |
+| `arda` release with `fix/source-root-marker` | CI without the `$ARDA_HOME` workaround | `d40095c` is committed on a local branch in `~/vcs/code/arda`, not pushed. **Unrelated to the 2.29.0 family-call fix, which has shipped** |
 | Motif `coef` calibration | phase 11 | needs the motif pipeline running before it can be fitted |
 
 ## Known, not yet fixed

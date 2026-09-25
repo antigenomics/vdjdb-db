@@ -101,6 +101,14 @@ def _respellings(call: str, genes: frozenset[str]) -> set[str]:
     out |= {x.replace("-DV", "/DV") for x in out}
     out |= {re.sub(r"(?<=\d)(DV\d)", r"/\1", x) for x in out}
     out |= {re.sub(r"^(TR[AB]D\d)-1", r"\1", x) for x in out}
+    # A spurious `-1`: IMGT names the gene `TRBV19`, and 552 chains write `TRBV19-1`. Only `-1`,
+    # and only where the family has no second member -- the same criterion arda 2.29 applies to the
+    # reverse direction (a family call resolves only when it holds one functional gene). Dropping
+    # any `-N` instead would rewrite `TRAJ37-2` to `TRAJ37` and `TRBV13-6` to `TRBV13`, discarding
+    # a distinction the curator made rather than repairing a spelling.
+    out |= {m.group(1) + (m.group(2) or "")
+            for m in (re.match(r"^(TR[ABDG][VDJ]\d+)-1(\*\d+)?$", x) for x in out)
+            if m and f"{m.group(1)}-2" not in genes}
     # `TRAV14` is IMGT's `TRAV14/DV4`: the gene is shared with the delta locus and IMGT names it
     # once, for both. 1,377 chains write the short form.
     for stem in {x.split("*")[0] for x in out}:
