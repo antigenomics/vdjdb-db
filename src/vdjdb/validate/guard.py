@@ -77,7 +77,7 @@ def _header_is_tcrvdb(path: Path) -> bool:
     except OSError:
         return False
     fields = set(re.split(r"[,\t]", header.strip()))
-    return _FINGERPRINT_COLUMNS <= fields
+    return fields >= _FINGERPRINT_COLUMNS
 
 
 def scan_paths(paths: list[Path], *, root: Path | None = None) -> list[ProprietaryLeak]:

@@ -13,7 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from ..schema.tables import ALL_COLUMNS, COMPLEX_COLUMNS, TOLERATED_DROPPED
+from ..schema import ALL_COLUMNS, COMPLEX_COLUMNS, KEPT_CURATION_COLUMNS
 
 _BOM = b"\xef\xbb\xbf"
 #: A column name longer than this is prose, not a name.
@@ -71,7 +71,7 @@ def lint_file(path: Path) -> list[Finding]:
             out.append(Finding(name, "duplicate-column-name", col))
         seen.add(col)
 
-    known = set(ALL_COLUMNS) | TOLERATED_DROPPED
+    known = set(ALL_COLUMNS) | set(KEPT_CURATION_COLUMNS)
     for col in header:
         if col and col not in known and len(col) <= _MAX_NAME_LEN:
             out.append(Finding(name, "unknown-column", col))
