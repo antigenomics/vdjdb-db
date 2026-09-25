@@ -26,32 +26,63 @@ release zip. The release is the product.
 | `summary/` | the R dashboard. `.Rmd` and the extractor are input; `*.html`/`*.pdf`/`*.txt` are generated and gitignored |
 | `database/` | **generated output**, gitignored except `dummy` and the two `*.meta.txt` files |
 | `skills/` | curation workflows (`/vdjdb-extract`, `-format`, `-harmonize`, `-proofread`, `-duplicates`, `-publish`) |
-| `src/` | **retired Groovy.** Reference only — it is the one correct spec for the meta files |
-| `py_src/` | the current pandas pipeline, being replaced |
+| `src/*.groovy` | **retired Groovy.** Reference only — the one correct spec for the metadata, which phase 1 tests against. Moves to `attic/` in phase 14 |
+| `src/vdjdb/` | the build. `assemble/` is the database, `emit/` projects it, `compare/` measures it |
 
 ## Commands
 
-The rewrite is in progress. Until phase 4 lands, the old path is still the build:
-
-```bash
-cd py_src && python runBuidDatabase.py      # assembly (needs 64 GB RAM — see ROADMAP §1)
-bash release.sh                              # full release; requires a sibling ../vdjdb-motifs clone
-```
-
-The new package (see `ROADMAP.md` for which phases are live):
-
 ```bash
 uv sync
-uv run vdjdb qc chunks/                      # fail-fast chunk validation
-uv run vdjdb build --out out/                # the three formats
-uv run vdjdb motifs --out out/               # TCRNET + TCREMP
-uv run vdjdb summary --out out/              # both dashboards
-uv run vdjdb diff --against 2026-06-03       # the difference ledger
+uv run vdjdb qc                              # chunk validation, fail-fast
+uv run vdjdb build --out out/                # the definitive tables, then the legacy projection
+uv run vdjdb diff <reference.zip> out/legacy # the difference ledger
+uv run vdjdb schema --table vdjdb            # generated metadata
 uv run pytest -q
 ```
 
-Output goes to `out/`, **not** `build/` — `build/` is already gitignored as a Python packaging
+Not yet implemented (the ROADMAP phase that delivers each is printed on invocation):
+`motifs`, `summary`, `release`, `make`, `convert`, `refs`, `changelog`.
+
+Output goes to `out/`, **not** `build/` -- `build/` is already gitignored as a Python packaging
 convention and using it for release artifacts is confusing.
+
+The pandas pipeline in `py_src/` was retired in phase 4. The 2026-06-03 release zip is the
+reference the ledger measures against; `git show 2026-06-03:py_src/` still has the old build if it
+is ever needed.
+
+## The data model — `README.md` is authoritative
+
+**`README.md` is the specification until `docs/standards/` replaces it** (ROADMAP phase 13). When
+the code and the README disagree, the README wins and the code is the bug. Do not infer the model
+from the shape of the data — the shape carries defects.
+
+What it says, and what follows:
+
+- **A chunk is one paper.** `chunks/PMID_<id>.txt` is that publication's report. Two rows in two
+  different chunks are **independent reports**, never duplicates, even when every field matches —
+  independent replication is a signal, and it is what phase 11 tunes motif clustering against.
+- **A chunk row is one record**, and it **reports paired chains**: the alpha and the beta of one
+  clone are columns of the same row. `chains` is derived from that, never the other way round.
+- **Identity** is the complex-information columns plus the id fields, per the README: *"duplicate
+  records (with identical complex information columns) are not allowed, but they will not be
+  considered as duplicates in case they have distinct id fields"* — plus the chunk, by the rule
+  above. Deduplication is therefore **within** a chunk only.
+- **`method.*` and `meta.*` describe the record**, not the act of curating it. They are what the
+  publication reports about how the specificity was established, so they belong on the record.
+  Only `submitter`, `comment` and `chunk.id` are properties of the curation.
+- **Record ids are assigned before CDR3 repair.** Two trimmed sequences that repair to the same
+  full one are still two observations; assigning after repair merged 215 pairs of records that the
+  publications reported separately.
+
+### The assembly line is tidy; the legacy shapes are projections
+
+`vdjdb.assemble.tables` produces flat tables linked by `record_id` — one observational unit each,
+one variable per column, no JSON blobs, no paired alpha/beta columns, no comma-joined sets. Those
+are the database.
+
+Every shipped file is a **join and a pivot** away from them, in `vdjdb.emit.*`. Nothing outside
+`emit/legacy.py` may know about `complex.id`, the `method`/`meta`/`cdr3fix` blobs, or the positional
+column orders. If a legacy quirk leaks into `assemble/`, that is the bug.
 
 ## Domain conventions
 

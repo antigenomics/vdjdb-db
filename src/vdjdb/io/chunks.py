@@ -13,9 +13,10 @@ Three properties this reader guarantees that the pandas one did not:
 * **Provenance.** Every row carries ``chunk.file`` and ``chunk.row``, so a record can be traced back
   to the line a curator wrote. The identity registry keys amendments on it.
 
-Per-chunk deduplication is preserved deliberately: it is what lands on exactly the released 192,753
-rows. Global deduplication would remove 19 more -- records duplicated *across* chunks, which bears
-on issue #390 and is surfaced as a report rather than silently applied.
+Deduplication is **within a chunk**, and that is not a performance choice. A chunk is one paper, so
+two matching rows in two chunks are two papers reporting the same receptor independently -- the
+strongest evidence the database carries, and the signal motif clustering is tuned against
+(ROADMAP section 11.1). Collapsing them would delete it. Measured: 19 such pairs.
 """
 from __future__ import annotations
 
@@ -118,10 +119,12 @@ def read_chunks(paths: Iterable[Path] | None = None, *, deduplicate: bool = True
     return dedup(df) if deduplicate else df
 
 
-def cross_chunk_duplicates(df: pl.DataFrame) -> pl.DataFrame:
-    """Records duplicated *across* chunks, which per-chunk deduplication keeps. Bears on #390.
+def independently_reported(df: pl.DataFrame) -> pl.DataFrame:
+    """Records reported by more than one chunk -- that is, by more than one paper.
 
-    A report, never an action: removing them would change the released row count.
+    **Not duplicates.** A chunk is one publication, so the same receptor against the same epitope
+    appearing in two chunks is independent replication. This is evidence, and phase 11 fits the
+    motif clustering against it.
     """
     counts = df.group_by(CHUNK_DEDUP_KEY).agg(
         pl.col("chunk.file").n_unique().alias("chunks"),

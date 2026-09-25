@@ -21,7 +21,6 @@ app = typer.Typer(
 
 # subcommand -> the ROADMAP phase that implements it
 _PENDING = {
-    "build": "4 (feature/pipeline-core)",
     "motifs": "10-11 (feature/motifs-*)",
     "summary": "12 (feature/summary)",
     "release": "14 (feature/release-tooling)",
@@ -93,9 +92,32 @@ def schema(
 
 
 @app.command()
-def build(out: Path = typer.Option(Path("out"))) -> None:
-    """Assemble the database into the three output formats."""
-    _pending("build")
+def build(
+    out: Path = typer.Option(Path("out"), help="Output directory."),
+    chunks: Path | None = typer.Option(None, help="Chunk directory; default chunks/."),
+    tables: bool = typer.Option(True, help="Write the definitive tables."),
+    legacy: bool = typer.Option(True, help="Write the legacy projection."),
+) -> None:
+    """Assemble the database: the definitive tables, and the legacy files derived from them."""
+    from .assemble.master import build_master
+    from .assemble.tables import build_tables
+    from .emit.legacy import write_all
+    from .io.chunks import chunk_files
+
+    paths = chunk_files(chunks) if chunks else None
+    built = build_tables(build_master(paths))
+    out.mkdir(parents=True, exist_ok=True)
+
+    if tables:
+        d = out / "tables"
+        d.mkdir(exist_ok=True)
+        for name, frame in built.items():
+            frame.write_parquet(d / f"{name}.parquet")
+            typer.echo(f"{name:10} {frame.height:>8,} rows  {len(frame.columns):>3} cols")
+    if legacy:
+        d = out / "legacy"
+        for name, path in write_all(built, d).items():
+            typer.echo(f"{name:22} {path.stat().st_size:>12,} bytes")
 
 
 @app.command()

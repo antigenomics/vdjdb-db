@@ -86,8 +86,10 @@ Parquet, with a TSV projection of each for users without a parquet reader.
 
 ### 3.1 `records.parquet` — one row per submitted record
 
-Primary key `record_id`. A record is one curated row of one chunk: a TCR (one or two chains) with its
-epitope, MHC, assay and provenance.
+Primary key `record_id`, unique. **One chunk row is one record**: a chunk is one paper, a row is its
+report on one clone, and that row reports both chains. So this table has exactly as many rows as the
+build reads, and `method.*` / `meta.*` sit here because the README defines them as what the
+*publication* reports about the record.
 
 | Group | Columns |
 |---|---|

@@ -41,7 +41,10 @@ line-length = 110
 src = ["src", "tests"]
 # Retired Groovy-era Python and the pandas pipeline being replaced. Reference only -- reformatting
 # them would bury the real diff in noise. Both leave the tree in ROADMAP phases 5 and 14.
-exclude = ["py_src", "src/AlignBestSegments.py"]
+# Vendored or retired code, reference only -- reformatting it would bury the real diff.
+# _legacy_fixer is a verbatim copy that phase 5 deletes; py_src and the Groovy-era
+# script leave the tree in phases 4 and 14.
+exclude = ["py_src", "src/AlignBestSegments.py", "src/vdjdb/annotate/_legacy_fixer"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
