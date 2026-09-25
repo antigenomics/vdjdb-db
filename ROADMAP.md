@@ -1252,3 +1252,45 @@ is a change to shipped data of exactly the kind #327 is, so it belongs with the 
 phase 9, where the allele calls those records carry are being fixed anyway.
 
 Build 183 s -> 185 s.
+
+
+## 22. Phase 8d result — AIRR `Receptor`, and a stitch that factorises
+
+`Receptor` needs `receptor_variable_domain_{1,2}_aa`: the **complete mature variable domain**, *"from
+and including the first AA after the signal peptide to and including the last AA that is completely
+encoded by the J gene"*, non-nullable. VDJdb has a junction and two allele calls, so the domain is
+rebuilt — V framework 5' of Cys104, the nucleotide junction from phase 8a, J framework 3' of
+[FW]118 — and translated. A spot check against IMGT: `TRBV6-1*01` yields
+`NAGVTQTPKFQVLKTGQSMTLQC…`, which is the mature sequence, leader correctly absent.
+
+| | Records |
+|---|---|
+| total | 192,753 |
+| paired (TRA **and** TRB) | 93,294 (48.4 %) |
+| with both domains rebuilt -> a `Receptor` row | **81,003** |
+| distinct `receptor_hash` among them | 71,690 |
+
+Domain lengths run 106–127 aa. Only paired records appear, because a receptor is a two-domain object
+and both columns are non-nullable; an unpaired record is not dropped, it simply lives in the
+Rearrangement file, which is where AIRR puts a single rearranged sequence. The 9,313-row gap between
+81,003 receptors and 71,690 hashes is the same receptor reported by more than one record — the
+independent-replication signal of §11.1, at receptor granularity.
+
+### The stitch factorises, so it is one expression instead of 200k calls
+
+`stitch_contig` is a Python function over one sequence, measured at 1,962/s — 2.5 minutes for the
+corpus. But its V part depends only on the V allele and its J part only on the J allele, so probing
+each allele **once** with a sentinel junction yields two small lookup tables and the contig becomes a
+`concat_str`. Verified against `stitch_contig` itself on 3,987 real chains: **identical on all of
+them, 0 mismatches**. The stage runs in **2.7 s** for all 286,047 chains.
+
+That is CLAUDE.md rule 8 doing its job — vectorise before parallelising. A thread pool around the
+per-sequence call would have been the obvious move, would have been GIL-bound, and would have been
+roughly 50x slower than noticing that the function is separable.
+
+`receptor_hash` is AIRR's own: sha256 over the two concatenated domains. It is **not** VDJdb's
+`TCR_hash`, which hashes CDR3s, segments, MHC and epitope and is what the structure store is keyed
+on. Two hashes, two purposes, both kept (#463 keeps the legacy one as-is).
+
+**Phase 8 is complete**: `cdr3nt` + Pgen + margin, D geometry and confidence, V/J inference for
+curation gaps, and the AIRR Receptor. Build 185 s, ledger PASS.
