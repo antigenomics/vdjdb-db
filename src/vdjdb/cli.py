@@ -149,6 +149,32 @@ def make(
 
 
 @app.command()
+def rules(
+    chunks: Path | None = typer.Option(None, help="Chunk directory; default chunks/."),
+    out: Path = typer.Option(Path("rules/expected_diffs.toml"), help="Ledger rule file."),
+    report: Path | None = typer.Option(None, help="Also write the harmonisation report as TSV."),
+) -> None:
+    """Regenerate the ledger's declared renames from the nomenclature harmonisation.
+
+    A nomenclature correction to an identity column removes a row and adds one, so it has no cell to
+    attribute. The generated block tells the ledger to apply the same rewrite to the reference before
+    keying; what a reviewer reads is this block's diff.
+    """
+    from .curate.nomenclature import harmonise_segments, legacy_resolver, write_renames
+    from .curate.patch import apply_antigen_patch
+    from .io.chunks import chunk_files, read_chunks
+
+    paths = chunk_files(chunks) if chunks else None
+    _, rep = harmonise_segments(apply_antigen_patch(read_chunks(paths)))
+    n = write_renames(rep, out, legacy_resolver())
+    typer.echo(f"{n} renames, {rep['rows'].sum():,} records, written to {out}")
+    if report:
+        report.parent.mkdir(parents=True, exist_ok=True)
+        rep.write_csv(report, separator="\t")
+        typer.echo(f"report -> {report}")
+
+
+@app.command()
 def convert(
     what: str = typer.Argument("airr", help="Target format: airr."),
     tables: Path | None = typer.Option(None, help="A built new-format directory."),

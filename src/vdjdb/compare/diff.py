@@ -120,6 +120,8 @@ class FileReport:
     #: Whether a row-level comparison ran. When it did, its result is authoritative and a differing
     #: canonical digest is informational -- surrogate renumbering alone changes the digest.
     compared_rows: bool = False
+    #: Declared rename id -> how many reference cells it rewrote in this file.
+    renames: dict[str, int] = field(default_factory=dict)
 
 
 @dataclass
@@ -131,6 +133,21 @@ class DiffReport:
     rule_counts: dict[str, int] = field(default_factory=dict)
     rule_expected: dict[str, int] = field(default_factory=dict)
     row_deltas: dict[str, RowDelta] = field(default_factory=dict)
+    rename_declared: list[str] = field(default_factory=list)
+
+    @property
+    def rename_counts(self) -> dict[str, int]:
+        out: dict[str, int] = {}
+        for f in self.files:
+            for rid, n in f.renames.items():
+                out[rid] = out.get(rid, 0) + n
+        return out
+
+    @property
+    def stale_renames(self) -> list[str]:
+        """Declared renames that matched nothing. A rule outliving its data is a silent lie."""
+        fired = self.rename_counts
+        return sorted(r for r in self.rename_declared if not fired.get(r))
 
     @property
     def miscounted_rules(self) -> list[str]:
@@ -140,7 +157,8 @@ class DiffReport:
 
     @property
     def ok(self) -> bool:
-        if self.missing or self.added or self.unattributed or self.miscounted_rules:
+        if (self.missing or self.added or self.unattributed or self.miscounted_rules
+                or self.stale_renames):
             return False
         for f in self.files:
             d = self.row_deltas.get(f.name)
@@ -298,10 +316,15 @@ def _pair(left: list[tuple[str, ...]],
     return out
 
 
-def _compare_table(name: str, ref: bytes, cand: bytes) -> FileReport:
+def _compare_table(name: str, ref: bytes, cand: bytes,
+                   renames: list[Rename] | None = None) -> FileReport:
     raw_r, can_r = _digests(ref)
     raw_c, can_c = _digests(cand)
     a, b = _read_table(ref), _read_table(cand)
+    rename_counts: dict[str, int] = {}
+    if renames:
+        # The reference, never the candidate: the candidate is what we are measuring.
+        a, rename_counts = _apply_renames(name, a, renames)
 
     want = WIDTHS.get(name)
     if want is not None and len(a.columns) != want:
@@ -353,7 +376,8 @@ def _compare_table(name: str, ref: bytes, cand: bytes) -> FileReport:
         only_cand += max(len(rrows) - len(lrows), 0)
 
     return FileReport(name, raw_r == raw_c, can_r == can_c, a.height, b.height,
-                      only_ref, only_cand, changed, tuple(cells), compared_rows=True)
+                      only_ref, only_cand, changed, tuple(cells), compared_rows=True,
+                      renames=rename_counts)
 
 
 def _compare_lines(name: str, ref: bytes, cand: bytes) -> FileReport:
@@ -399,6 +423,69 @@ class Rule:
                 and (self.to is None or self.to == c.new)):
             return False
         return self.json_field is None or self.json_field in _json_diff_fields(c)
+
+
+@dataclass(frozen=True, slots=True)
+class Rename:
+    """A declared value rewrite, applied to the **reference** before rows are keyed.
+
+    A nomenclature correction to a column that is part of the identity key produces no changed cell:
+    it removes a row on one side and adds one on the other, and the cell-level machinery has nothing
+    to attribute. Rewriting the reference first restores the match, so the ledger goes on measuring
+    what *else* moved -- which is the question it exists to answer.
+
+    The rewrite itself is not verified by the ledger; it is reviewed as a diff of ``rules/`` and
+    counted by the build's own `nomenclature.tsv` report. What the ledger adds is that a rename which
+    matches **nothing** fails the run, so a declaration cannot quietly outlive the data it describes.
+    """
+
+    columns: tuple[str, ...]
+    from_: str
+    to: str
+    files: tuple[str, ...] = ()          # empty = every table
+
+    @property
+    def id(self) -> str:
+        return f"{self.from_} -> {self.to}"
+
+    def applies_to(self, file: str) -> bool:
+        return not self.files or file in self.files
+
+
+def load_renames(path: Path) -> list[Rename]:
+    if not path.exists():
+        return []
+    raw = tomllib.loads(path.read_text())
+    return [Rename(columns=tuple(c.strip() for c in r["columns"].split(",")),
+                   from_=r["from"], to=r["to"],
+                   files=tuple(f.strip() for f in r.get("files", "").split(",") if f.strip()))
+            for r in raw.get("rename", [])]
+
+
+def _apply_renames(name: str, df: pl.DataFrame,
+                   renames: list[Rename]) -> tuple[pl.DataFrame, dict[str, int]]:
+    """Rewrite the reference's declared values, and count what each declaration matched.
+
+    **Simultaneously, per column, in one pass.** Applying them one after another chains them: with
+    ``A -> B`` and ``B -> C`` declared, a cell that was already ``B`` comes out ``C``. That is not a
+    hypothetical -- it silently moved mouse ``TRAV6-1*01`` rows onto ``TRAV6-7/DV9*01`` and turned a
+    clean comparison into 6,334 phantom unmatched rows, in the reference, where nothing had changed.
+    """
+    counts: dict[str, int] = {}
+    per_column: dict[str, dict[str, str]] = {}
+    for r in renames:
+        if not r.applies_to(name):
+            continue
+        cols = [c for c in r.columns if c in df.columns]
+        if not cols:
+            continue
+        hits = df.select(pl.any_horizontal(*[pl.col(c) == r.from_ for c in cols]).sum()).item()
+        counts[r.id] = counts.get(r.id, 0) + int(hits)
+        for c in cols:
+            per_column.setdefault(c, {})[r.from_] = r.to
+    if per_column:
+        df = df.with_columns(*[pl.col(c).replace(m) for c, m in sorted(per_column.items())])
+    return df, counts
 
 
 @lru_cache(maxsize=4096)
@@ -468,11 +555,13 @@ def diff(reference: Path, candidate: Path, rules_path: Path | None = None,
     ref_names = [n for n in ref.names if wanted is None or n in wanted]
     cand_names = [n for n in cand.names if wanted is None or n in wanted]
     rules = load_rules(rules_path) if rules_path else []
+    renames = load_renames(rules_path) if rules_path else []
     report = DiffReport(
         missing=[n for n in ref_names if n not in cand_names],
         added=[n for n in cand_names if n not in ref_names],
         rule_expected={r.id: r.rows for r in rules},
         row_deltas=load_row_deltas(rules_path) if rules_path else {},
+        rename_declared=sorted({r.id for r in renames}),
     )
 
     for name in ref_names:
@@ -480,7 +569,7 @@ def diff(reference: Path, candidate: Path, rules_path: Path | None = None,
             continue
         a, b = ref.read_bytes(name), cand.read_bytes(name)
         if name in KEYS or name in WIDTHS:
-            report.files.append(_compare_table(name, a, b))
+            report.files.append(_compare_table(name, a, b, renames))
         elif name in LINEWISE:
             report.files.append(_compare_lines(name, a, b))
         else:
@@ -514,6 +603,18 @@ def render(report: DiffReport) -> str:
                    f"{f.only_in_candidate} | {f.changed_rows} |")
         if f.note:
             out.append(f"| | | | | | | | _{f.note}_ |")
+
+    if report.rename_declared:
+        out += ['', '## Declared renames', '',
+                'Applied to the reference before keying, so a nomenclature correction does not read',
+                'as a lost row and a found one.', '',
+                '| Rename | Reference cells rewritten |', '|---|---|']
+        fired = report.rename_counts
+        for rid in report.rename_declared:
+            out.append(f'| `{rid}` | {fired.get(rid, 0)} |')
+        if report.stale_renames:
+            out += ['', '**Stale renames (matched nothing):** '
+                    + ', '.join(f'`{r}`' for r in report.stale_renames)]
 
     if report.rule_expected:
         out += ["", "## Declared rules", "", "| Rule | Declared | Fired |", "|---|---|---|"]
