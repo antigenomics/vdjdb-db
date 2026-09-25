@@ -45,9 +45,13 @@ def _pwms(members: pl.DataFrame) -> pl.DataFrame:
 
 
 def run_tcrnet(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
-               p: float = tcrnet.P_THRESHOLD, min_sample: int = tcrnet.MIN_SAMPLE,
-               min_cluster: int = cluster.MIN_CLUSTER) -> dict[str, int]:
-    """TCRNET: enrichment, the two-stage neighbourhood graph, connected components."""
+               p: float | None = None, min_sample: int = tcrnet.MIN_SAMPLE,
+               min_cluster: int | None = None) -> dict[str, int]:
+    """TCRNET: enrichment, the two-stage neighbourhood graph, connected components.
+
+    ``p``, the scope and ``min_cluster`` default to :data:`vdjdb.motifs.tcrnet.TUNED`, which is
+    per chain -- TRA and TRB do not have the same optimum.
+    """
     scored = tcrnet.enriched_clonotypes(chains, records, p=p, min_sample=min_sample)
     members = cluster.clusters(scored, min_cluster=min_cluster)
     return emit.write(emit.cluster_members(members, chains, records),
@@ -56,28 +60,30 @@ def run_tcrnet(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
 
 def run_tcremp(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
                coef: dict[str, float] | None = None,
-               min_cluster: int = cluster.MIN_CLUSTER) -> dict[str, int]:
+               min_cluster: int | None = None) -> dict[str, int]:
     """TCREMP: chunked embedding, a chain-global radius, per-epitope DBSCAN.
 
     One embedding pass per ``(species, gene)``; the radius is estimated on that chain's pooled
     geometry and then DBSCAN runs per epitope, so it is never re-estimated on an n of 30-300
     (ROADMAP section 8.4).
     """
-    coef = tcremp.COEF if coef is None else coef
     cohort = tcremp.cohort(chains, records)
     parts = []
     for (species, gene), grp in cohort.group_by(["species", "gene"], maintain_order=True):
-        X = tcremp.embed_reduced(grp, species, gene)
-        eps = tcremp.chain_eps(X, coef[gene])
-        parts.append(tcremp.clusters(grp, X, eps, min_cluster=min_cluster))
+        tuned = tcremp.TUNED.get(gene, {})
+        X = tcremp.embed_reduced(grp, species, gene,
+                                 n_components=tuned.get("n_components", tcremp.N_COMPONENTS))
+        eps = tcremp.chain_eps(X, (coef or tcremp.COEF)[gene])
+        parts.append(tcremp.clusters(grp, X, eps, min_cluster=(
+            min_cluster if min_cluster is not None else tuned.get("min_cluster", 5))))
     members = pl.concat([p for p in parts if p.height], how="vertical")
     return emit.write(emit.cluster_members(members, chains, records),
                       emit.motif_pwms(_pwms(members), records), out, suffix="_tcremp")
 
 
-def run(tables: Path, out: Path, *, p: float = tcrnet.P_THRESHOLD,
+def run(tables: Path, out: Path, *, p: float | None = None,
         min_sample: int = tcrnet.MIN_SAMPLE,
-        min_cluster: int = cluster.MIN_CLUSTER,
+        min_cluster: int | None = None,
         methods: tuple[str, ...] = ("tcrnet", "tcremp")) -> dict[str, int]:
     """Both methods from the definitive tables. Returns ``{filename: rows}``."""
     chains = pl.read_parquet(tables / "chains.parquet")

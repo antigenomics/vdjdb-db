@@ -23,7 +23,7 @@ difference declared and measured. Motif stability is swept and green (§32).
 | 8d | `feature/receptor` | merged — AIRR `Receptor`, 81,003 rows; stitching vectorised to 2.7 s |
 | 9 | `feature/harmonize-rules` | **#389, #327, #467, #347, #368 landed; #564 already fixed; #561 advisory. Ships `epitopes` + `restriction`. Ledger PASS** |
 | 10 | `feature/motifs-tcrnet` | **merged** — 96.2 % of the shipped clustering; the 137 logo-less cids and the deleted letter mass are gone; TRA strictly beats the shipped TCRNET (`ROADMAP.md` §29) |
-| 11 | `feature/motifs-tcremp` | **merged** — TCREMP strictly dominates the REDCEA production clustering on both chains: retention +0.107 TRB / +0.069 TRA at *better* purity and precision (`ROADMAP.md` §31). **Stability swept and green** (§32) |
+| 11 | `feature/motifs-tcremp` | **merged** — both methods tuned per chain to the stated criterion; all four beat their legacy on recall with no precision loss (`ROADMAP.md` §34). Stability swept (§32), ledger clean (§33) |
 
 ```
 uv run vdjdb build --out out/                          # tables + every projection, 15 s
@@ -54,20 +54,18 @@ of pandas type coercions the all-string reader undoes (~55k cells). See `ROADMAP
 
 ## Next
 
-1. **Two free wins waiting on a decision** (`ROADMAP.md` §32.2, §32.4). Both give more retention
-   *and* better purity than the current default, and both are one-line changes left at the legacy
-   value because that is the author's call, not a discovery:
-   - `MIN_CLUSTER` 5 → **3**: TRA TCRNET retention 0.2388 → 0.2712 at purity 0.8761 → 0.8820;
-     TRA TCREMP 0.3904 → 0.4737 at purity 0.9041 → 0.9081.
-   - TCRNET `scope` `1,0,0,1` → **`2,0,0,2`**: TRA retention 0.2388 → **0.3931** at purity
-     0.8761 → **0.8882**, which takes TCRNET past REDCEA on TRA.
-2. **Decide which motif objective is primary** (`ROADMAP.md` §31): the §11.1 independent-study lift
-   picks `coef` 0.4 (5.31× lift, 4,659 TRB clonotypes); the acceptance criterion picks 3.0
-   (retention 0.7092 at purity 0.9494). The default meets the stated bar; the tight point may be
-   worth shipping as a high-confidence view.
-3. **Still open from §30**: the **in-silico background** (§30.2.3), which tests a different
-   hypothesis rather than the same one differently, and **Leiden over connected components**
-   (§30.1). The background *sampling* question is now answered — §32.1 shows it does not matter.
+1. **Leiden over connected components** (`ROADMAP.md` §30.1) and the **in-silico background**
+   (§30.2.3) — the two largest remaining motif wins. Neither is a parameter sweep; both are new
+   implementations. `python-igraph` already carries `community_leiden`; `vdjtools.model` already
+   supplies the recombination models an in-silico null needs, and it would dissolve the
+   CC-BY-NC-ND-vs-AGPL constraint that stops any background shipping.
+2. **Decide which motif objective is primary** (`ROADMAP.md` §31, §34): the §11.1 independent-study
+   lift picks `coef` 0.4 (5.31× lift, 4,659 TRB clonotypes); the acceptance criterion picks 3.4–4.0.
+   The default answers the stated bar; the tight point may be worth shipping as a high-confidence
+   view alongside it.
+3. **Two named costs of the tuning**, both recorded and reversible in one line (`ROADMAP.md` §34.3):
+   TRB TCRNET's `lost.unclustered` rose 29 → 549 buying back the purity bar, and TRA's cluster
+   agreement fell ARI 0.9958 → 0.8328 because the wider scope re-cuts its partition.
 4. **Optimise the motifs** (`ROADMAP.md` §30) — the paratope motifs are a critical part of VDJdb and
    neither method is tuned. In priority order: the **giant component** (our largest TCRNET cluster
    holds 19,908 of 45,095 clustered records, 44 %; REDCEA's largest holds 3.9 %, so Leiden over
