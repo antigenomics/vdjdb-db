@@ -156,6 +156,16 @@ IMGT nomenclature for V/D/J and MHC. Species vocabulary is `HomoSapiens`, `MusMu
      **committed, reviewed input**. It is refreshed by its own pull request, never written by a
      build. Do not call it a cache and do not let a build update it in place.
 
+## The issue tracker is mostly a submission queue
+
+440 issues, 130 open, and **103 of the open ones (79 %) are pending papers, preprints and datasets
+waiting to be curated** -- not defects. 22 are curation quality, 13 are build infrastructure
+(`ROADMAP.md` section 4a).
+
+So: a numbered issue in `ROADMAP.md` is one of the 35 that the build work can close. Do not read the
+tracker as a defect list, do not assume an open issue is a bug, and check the label before treating
+one as in scope. The queue is worked through the curation skills, not the build.
+
 ## Commit conventions
 
 - Every commit that resolves a tracker issue ends with `Closes #N` — the same rule the

@@ -117,6 +117,31 @@ output has a single attributable cause.
 **Every phase has a step-by-step subplan in §12.** A phase is not startable until its subplan names
 the files it creates, the facts it needs (already measured, in §7/§8), and the check that closes it.
 
+## 4a. What the issue tracker actually is
+
+Measured 2026-09-25 with `gh`: **440 issues, 130 open.** Grouped by label, the open ones are
+
+| Category | Open | What they are |
+|---|---|---|
+| **data intake** | **103 (79 %)** | pending papers (79), preprints (9), paper-pending (3), meta-papers (4), 10x/Immudex sets (5), associations (9), other databases (1), correspondence (2) |
+| curation quality | 22 | formatting & proofreading (18), typos, structural, validation |
+| build infrastructure | 13 | the build, the summary, maintenance |
+
+Some issues carry more than one label, so the columns overlap slightly.
+
+**Four out of five open issues are a submission queue, not a defect list.** This migration closes
+issues from the bottom two rows only -- thirteen of them -- and nothing it does shortens the first
+row. That matters for three decisions already taken:
+
+* `chunk-check.yml`'s **three-minute budget is the one that matters**, because it is the job the
+  submission queue runs through. The full build's 185 s is paid on `dev` and nightly, by nobody
+  waiting.
+* the **curation skills** (`/vdjdb-extract`, `-format`, `-proofread`, `-publish`) are the tooling with
+  the largest backlog pointed at it, and they read `proofreading/`, which until phase 9 no build code
+  touched.
+* a phase that closes an issue number is not thereby reducing the tracker. Progress on the queue is
+  curation throughput, and it is measured separately.
+
 ## 5. The difference ledger
 
 `vdjdb diff <reference-zip> <candidate-dir>` compares in three passes: file set → two digests per file
@@ -1294,3 +1319,80 @@ on. Two hashes, two purposes, both kept (#463 keeps the legacy one as-is).
 
 **Phase 8 is complete**: `cdr3nt` + Pgen + margin, D geometry and confidence, V/J inference for
 curation gaps, and the AIRR Receptor. Build 185 s, ledger PASS.
+
+
+## 23. Phase 9a result — IMGT segment nomenclature (#389)
+
+`proofreading/imgt_alleles.tsv.gz` has been in the repository, unread by any build code, since the
+`proofreading/` directory was created. This is what makes it the authority it was collected to be.
+
+**Nothing is invented and nothing is guessed between two candidates.** A call IMGT already knows is
+left alone; otherwise a small set of mechanical respellings is generated and the call is rewritten
+**only if exactly one of them is an IMGT name for that species**. Of 2,478 non-IMGT calls, 1,928 are
+resolved that way — 2,325 records, 105 distinct rewrites.
+
+| Respelling | Example | Records |
+|---|---|---|
+| restore the `/DV` name IMGT uses for both loci | `TRAV14` → `TRAV14/DV4` | 1,377 |
+| drop a D gene's `-1` | `TRBD2-1*01` → `TRBD2*01` | 224 |
+| `-DV` → `/DV` | `TRAV21-DV12` → `TRAV21/DV12` | 181 |
+| sort a multi-call | `TRBD2,TRBD1` → `TRBD1,TRBD2` | 89 |
+| `.` → `-` | `TRBJ1.2` → `TRBJ1-2` | 21 |
+| insert the missing slash | `TRAV29DV5` → `TRAV29/DV5` | 10 |
+| `TCR` → `TR` | `TCRBD2*02` → `TRBD2*02` | 5 |
+| strip a space, including a non-breaking one | `TRAJ12*01 ` → `TRAJ12*01` | 6 |
+
+The 550 calls left are **not spelling problems** and are reported rather than forced: 438 macaque V
+calls (1,333 of 1,771 macaque V calls are valid rhesus IMGT, 206 are valid *human* names applied to
+macaque records, 232 are neither — rewriting a human gene name to a rhesus one asserts an orthology
+this build has no basis for), and names with several IMGT candidates (`TRBV8`, `TRBV7`, `TRAV15`) or
+none at all (`TRAJ16.5`).
+
+### What it cascades into, and why that is the point
+
+Correcting the name lets the CDR3 fixer find the germline it never could:
+
+| | Chains |
+|---|---|
+| V call changed | 1,950 |
+| J call changed | 32 |
+| **V-end mappings gained** (was `-1`) | **1,511** |
+| V-end mappings lost | **0** |
+| repaired CDR3 changed | 2 |
+
+`get_closest_id` tries the name, then `<name>*01`, then `<name>-1*01` … `<name>-100*01`. `TRAV14/DV4*01`
+is on none of those paths, so 1,032 chains were shipping with no V germline at all. One-directional
+gain, 1,511 to 0.
+
+It also moves `TCR_hash` (1,502 cells across the three files, since the hash includes `v.alpha`),
+`web.cdr3fix.unmp` (1,340 rows now correctly mapped), `samples.found` (267, the sample signature
+includes `v.alpha`), and `vdjdb.score` on 8 records — 2 gaining a score from a neighbour they now
+share a signature with, **3 losing one they were being credited with by a record that is not in fact
+the same clonotype**. The losses are the more interesting half.
+
+### A new ledger primitive: declared renames
+
+A correction to a column that is part of the identity key produces no changed cell — it removes a row
+and adds one, and the cell machinery has nothing to attribute. `[[rename]]` declarations are applied
+to the **reference** before keying, so the ledger goes on measuring what *else* moved. Three things
+were needed to make that sound, and each was a real failure first:
+
+1. **Apply them simultaneously, per column.** Sequentially, `A → B` and `B → C` chain, and a cell
+   that was already `B` comes out `C`: that silently moved mouse `TRAV6-1*01` rows and turned a clean
+   comparison into 6,334 phantom unmatched rows in the reference.
+2. **Declare the post-fixer value, not the intermediate.** The fixer writes the resolved name back,
+   so harmonising `TRAV14` puts `TRAV14/DV4*01` in the file, not `TRAV14/DV4`. A rename declaring the
+   intermediate rewrites the reference and rescues no row at all — worse than declaring nothing.
+3. **Only declare *injective* renames.** When the fixer does not leave the old spelling alone it has
+   already mapped it onto a real allele — `TRAV6-7-DV9` simplifies to `TRAV6` and lands on
+   `TRAV6-1*01` — so the reference is indistinguishable from records that genuinely carry that
+   allele, and the rename would rewrite both. Those become a declared row delta instead: 430 rows in
+   `vdjdb.txt`, 373 in `vdjdb_full.txt`, 356/355 in `vdjdb.slim.txt`.
+
+A rename that matches **nothing** fails the run, so a declaration cannot outlive the data it
+describes. That caught 53 stale multi-call declarations immediately: `fix_both` splits a multi-call
+and keeps the best member, so what ships is a selection, not a rename.
+
+`vdjdb rules` regenerates the block from a build; the reviewable artifact is its diff in a curation
+pull request, and the ledger's complementary job is proving nothing else moved. **Verdict: PASS** with
+28 declared rules, 32 renames and 3 row deltas.
