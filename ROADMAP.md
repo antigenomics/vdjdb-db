@@ -98,7 +98,7 @@ stays green. Commits that resolve a tracker issue carry `Closes #N`.
 | 4 | `feature/pipeline-core` | **the definitive tables** (`records`, `chains`) + harmonize + score + pairing; the legacy export as a projection of them; deletes `py_src/` | #424, #399 | every ledger difference is a declared rule firing its measured count; peak RSS < 8 GB |
 | 5 | `feature/arda-cdr3fix` | `arda.cdr3fix` replaces `Cdr3Fixer.py`; retires `res/segments*.txt` | — | new ledger rule, row count measured then frozen |
 | 6 | `feature/new-format` | ships the definitive tables as parquet + TSV, adds `evidence`, `vdjdb.schema.json` | — | `make legacy` from the shipped tables still passes the harness |
-| 7 | `feature/airr` | `emit/airr.py`, `convert/coords.py`, both converters | — | the `legacy_to_airr ≡ vdjdb3_to_airr` round-trip property test |
+| 7 | `feature/airr` | `emit/airr.py` (Rearrangement + Reactivity), `convert/coords.py`, `vdjdb convert` | — | `airr.validate_rearrangement` passes on the full table; the legacy path produces nothing the tables path does not |
 | 8 | `feature/junction-nt`, `feature/segment-guess`, `feature/dgene` | one branch each | #461, #462, #463 | generated `cdr3nt` back-translates to `cdr3` |
 | 9 | `feature/harmonize-rules` | nomenclature rule tables | #327, #389, #347, #368, #564, #467, #561 | each rule gets a ledger entry with a measured row count |
 | 10 | `feature/motifs-tcrnet` | TCRNET on `vdjtools`, streaming backgrounds | — | deviation report accepted |
@@ -586,6 +586,8 @@ construction.
    elsewhere rather than guessing, and that `None` must be preserved, not defaulted).
 4. **TCR_hash** (#463): keep the legacy hash as-is so structure evidence keeps resolving; the
    re-keying on `record_id` is §10.2's deferred half.
+5. **AIRR `Receptor`** rides along: `vdjtools.model.stitch_*` gives the complete mature variable
+   domain its two required columns need, and `receptor_hash` is a sha256 over those (§18).
 
 **Closes when:** each branch's new columns are populated, the harness is unchanged, and the
 back-translation test passes.
@@ -754,6 +756,9 @@ Recorded rather than escalated. Each is reversible and none changes a shipped co
 | 2026-09-25 | `vdjdb.parquet` declares all six `evidence.*` columns, `false` where no producer exists yet | the view's shape must not change as phases 8-11 land; absent evidence is an honest `false`, not a missing column |
 | 2026-09-25 | Record-level evidence (empty `gene`) raises rather than being dropped | nothing produces it yet, and a silent drop of structure evidence is exactly the class of bug the ledger cannot see |
 | 2026-09-25 | The record registry becomes a release asset, not a committed file | 72.7 MB per revision (19.8 MB gzipped) against a 42 MB `chunks/` corpus. See §17 |
+| 2026-09-25 | AIRR `Receptor` is deferred to phase 8 | its two required domain columns are the complete mature variable domain, which needs germline stitching. See §18 |
+| 2026-09-25 | Legacy->AIRR reuses the tables->AIRR emitter rather than being a second mapping | both source shapes already use VDJdb column names, so a second implementation would only add somewhere to drift |
+| 2026-09-25 | mypy's `python_version` is 3.12 while `requires-python` stays 3.11 | numpy's stubs use a 3.12 `type` statement and a stub syntax error stops the check before it reaches our code |
 | 2026-09-25 | ruff excludes `src/*.py` and `py_src/`, and ignores `B008` | reformatting code that leaves the tree in phases 5 and 14 would bury the real diff; `B008` is typer's idiom |
 
 ## 14. Phase 2 result — what the ledger measures against the 2026-06-03 release
@@ -1007,3 +1012,83 @@ packed previous natural key that amendment tracing needs. Committing it would ad
 per curation PR, against a `chunks/` corpus of 42 MB. So it becomes a **release asset** that the
 build fetches, reviewed in the release diff rather than the PR diff — phase 14, where release assets
 already live. Until then, ship the tables without leaning on id stability across releases.
+
+
+## 18. Phase 7 result — AIRR
+
+Measured 2026-09-25 against the `airr` Python package 2.0.0, AIRR schema version 2.0.
+
+| File | Level | Rows | Size |
+|---|---|---|---|
+| `vdjdb.rearrangement.tsv` | one per chain | 286,047 | 33.8 MB |
+| `vdjdb.reactivity.tsv` | one per record | 192,753 | 33.5 MB |
+
+`airr.validate_rearrangement` **passes on the full 286,047-row table** in 1.0 s with no warnings, and
+every emitted column is a real `Rearrangement` property. The nucleotide fields (`sequence`,
+`junction`, the alignments, the three cigars) are present and empty, which the schema accepts — it
+requires the column, not a value. Phase 8 (#461) fills them.
+
+### One implementation, two source shapes
+
+The tidy `chains` table and legacy `vdjdb.txt` already use the **same column names** — `cdr3`,
+`v.segm`, `j.segm` — so `rearrangement()` and `reactivity()` take one frame in VDJdb vocabulary and
+the "two converters" are two ways of assembling their input, not two mappings that can drift. The
+property is therefore stronger than the planned equality, and it holds exactly on the corpus:
+
+| | Rearrangement | Reactivity |
+|---|---|---|
+| rows the legacy path produces that the tables path does not | **0** | **0** |
+| combinations where the legacy path has *more* | **0** | **0** |
+| rows the tables path has and legacy does not | 1,501 | 1,141 |
+
+The excess is exactly what the legacy build discards: the **1,467 chains of 1,141 records** whose
+chain carried a CDR3 with no V or J (it drops the record whole, both chains) **plus 34 D-only
+chains**. So the new format keeps 1,141 records and 1,501 chains that the legacy release loses.
+
+`d_call` is excluded from the comparison: legacy `vdjdb.txt` has no D column at all, so the 42,574
+beta chains with a D call are information the file cannot carry, not a disagreement.
+
+### The Reactivity mapping is the spec's own suggestion
+
+AIRR `Reactivity` models a measurement with a value and a unit; VDJdb records a curated assertion.
+The spec anticipates exactly this: `reactivity_method` is *"delineated as `annotated` if annotated
+from an external source"*, and `reactivity_readout` *"for inferred and annotated methods should
+indicate a confidence/quality level"*. So `reactivity_readout = confidence` and
+`reactivity_value = vdjdb.score`, which is precisely a confidence in the specificity annotation.
+
+`reactivity_method` is classified from the 61 distinct `method.identification` values in the corpus:
+
+| Keyword class | `reactivity_method` | Records |
+|---|---|---|
+| tetramer / dextramer / pentamer / multimer / streptamer / monomer / MHC-peptide-beads | `MHC_peptide_multimer` | 147,967 |
+| antigen-expressing or antigen-loaded targets, T-Scan | `native_protein` | 12,597 |
+| everything else | `annotated` | 32,189 |
+
+This is **not** `emit.legacy._web_method`, which answers a different question (a coarse web filter
+class, `sort` / `culture` / `other`). A CD137-expression sort is a `sort` there and is not a multimer
+assay here; reusing it would mislabel 462 records.
+
+The two files link by `cell_id = record_id`: a VDJdb record is one publication's report on one T-cell
+clone, and a clone is what AIRR's `Cell` names. Both are standard AIRR fields, so nothing invents a
+join key.
+
+### `Receptor` is deferred to phase 8, deliberately
+
+AIRR `Receptor` requires `receptor_variable_domain_{1,2}_aa` — the **complete mature variable
+domain**, non-nullable. VDJdb has the junction and the allele calls, so producing it means stitching
+germline V and J around the junction (`vdjtools.model.stitch_*`), which is the same tooling phase 8
+already brings in for `cdr3nt`. Emitting the file now with its two required columns empty would be
+worse than not emitting it. Note also that `receptor_hash` is a sha256 over the stitched domains and
+is **not** VDJdb's `TCR_hash`, which hashes CDR3s, segments, MHC and epitope.
+
+Separately: `airr` 2.0.0 exposes validators for `Rearrangement` and `Repertoire` only. `Receptor` and
+`Reactivity` are in its shipped `airr-schema.yaml` but not in `airr.AIRRSchema`, so the Reactivity
+file is gated against our own registry and against the spec's field list read from that YAML, not by
+the package's validator. Stated rather than implied.
+
+### One curation defect this surfaced
+
+**854 records carry no `reference.id` at all**, every one from `luciani-samir-etal-hcv-14-09-2018`
+(822 at `vdjdb.score` 0, 32 at 1). The QC rule permits a blank one — `_blank("reference.id") | ...`
+reads as "blank is acceptable" — which is defensible under the README's *"submitter details in case
+unpublished"* but is not what a blank means. Phase 9 / #347.
