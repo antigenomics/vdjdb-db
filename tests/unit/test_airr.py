@@ -22,6 +22,7 @@ CHAINS = pl.DataFrame({
 
 RECORDS = pl.DataFrame({
     "record_id": ["VDJDB0000000001", "VDJDB0000000002"],
+    "species": ["HomoSapiens", "HomoSapiens"],
     "antigen.epitope": ["GILGFVFTL", "NLVPMVATV"],
     "antigen.gene": ["M", ""],
     "antigen.species": ["InfluenzaA", "CMV"],
@@ -165,3 +166,57 @@ def test_an_empty_reference_id_is_not_read_back_as_a_null():
     paths compare unequal on a record that is in fact identical."""
     b = airr.from_legacy(_legacy_frame().with_columns(pl.lit(None, pl.String).alias("reference.id")))
     assert b["reactivity"]["reactivity_refs"].to_list() == ["", ""]
+
+
+# -- Receptor ----------------------------------------------------------------------------------
+
+PAIRED = pl.DataFrame({
+    "record_id": ["VDJDB0000000001", "VDJDB0000000001", "VDJDB0000000002"],
+    "gene": ["TRB", "TRA", "TRB"],
+    "cdr3": ["CASSEGWHSYEQYF", "CADLGSQGNLIF", "CASSIRSSYEQYF"],
+    "v.segm": ["TRBV6-1*01", "TRAV21*01", "TRBV10-3*01"],
+    "j.segm": ["TRBJ2-7*01", "TRAJ42*01", "TRBJ2-7*01"],
+    "d.segm": ["", "", ""],
+    "cdr3nt": ["TGTGCCAGCAGTGAAGGGTGGCACTCCTACGAGCAGTACTTC",
+               "TGTGCAGACCTAGGAAGCCAAGGAAATCTCATCTTT",
+               "TGTGCCAGTTCTATTAGGAGCTCCTACGAGCAGTACTTC"],
+})
+PAIRED_RECORDS = pl.DataFrame({"record_id": ["VDJDB0000000001", "VDJDB0000000002"],
+                               "species": ["HomoSapiens", "HomoSapiens"]})
+
+
+def test_a_receptor_needs_both_domains_so_unpaired_records_have_none():
+    """Not a loss: a single chain is a Rearrangement, which is the file AIRR puts it in."""
+    got = airr.receptor(PAIRED, PAIRED_RECORDS)
+    assert got["receptor_id"].to_list() == ["VDJDB0000000001"]
+    assert tuple(got.columns) == airr.RECEPTOR_COLUMNS
+
+
+def test_domain_one_is_the_beta_chain_and_domain_two_the_alpha():
+    """The schema's controlled vocabularies pin this; swapping them is silently wrong, not rejected."""
+    got = airr.receptor(PAIRED, PAIRED_RECORDS).row(0, named=True)
+    assert got["receptor_variable_domain_1_locus"] == "TRB"
+    assert got["receptor_variable_domain_2_locus"] == "TRA"
+    assert "CASSEGWHSYEQY" in got["receptor_variable_domain_1_aa"]
+    assert "CADLGSQGNLI" in got["receptor_variable_domain_2_aa"]
+
+
+def test_the_receptor_hash_is_airrs_and_not_vdjdbs_tcr_hash():
+    import hashlib
+
+    got = airr.receptor(PAIRED, PAIRED_RECORDS).row(0, named=True)
+    joined = got["receptor_variable_domain_1_aa"] + got["receptor_variable_domain_2_aa"]
+    assert got["receptor_hash"] == hashlib.sha256(joined.encode()).hexdigest()
+
+
+def test_the_domain_is_the_mature_variable_region_not_just_the_junction():
+    """AIRR asks for everything from after the signal peptide to the end of the J gene."""
+    got = airr.receptor(PAIRED, PAIRED_RECORDS).row(0, named=True)
+    d1 = got["receptor_variable_domain_1_aa"]
+    assert len(d1) > 100, "a variable domain is ~110 aa; a junction is ~14"
+    assert d1.endswith("GPGTRLTVT") or d1.endswith("GPGTRLTV")   # J framework 4
+
+
+def test_the_legacy_path_cannot_produce_a_receptor():
+    """It has no nucleotide junction to stitch around, and the domain columns are non-nullable."""
+    assert "receptor" not in airr.from_legacy(_legacy_frame())

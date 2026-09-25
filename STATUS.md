@@ -4,7 +4,7 @@ _Last updated: 2026-09-25_
 
 ## In flight
 
-**Phase 8 — `feature/segment-guess`**, merging to `dev`. AIRR `Receptor` closes phase 8.
+**Phase 8 — `feature/receptor`**, merging to `dev`. Phase 8 is complete; phase 9 is next.
 
 | Phase | Branch | State |
 |---|---|---|
@@ -18,7 +18,8 @@ _Last updated: 2026-09-25_
 | 7 | `feature/airr` | merged — Rearrangement + Reactivity; `airr.validate_rearrangement` passes on all 286,047 rows |
 | 8a | `feature/junction-nt` | merged — 261,097 `cdr3nt`, 0 back-translation mismatches |
 | 8b | `feature/dgene` | merged — D geometry from the junction scenario, confidence from `arda.dpost` |
-| 8c | `feature/segment-guess` | **the legacy V guesser has never worked; Pgen fills 686 of 711 gaps** |
+| 8c | `feature/segment-guess` | merged — the legacy V guesser has never worked; Pgen fills 686 of 711 gaps |
+| 8d | `feature/receptor` | **AIRR `Receptor`, 81,003 rows; stitching vectorised to 2.7 s** |
 
 ```
 uv run vdjdb build --out out/                          # tables + every projection, 15 s
