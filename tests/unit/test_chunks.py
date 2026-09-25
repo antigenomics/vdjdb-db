@@ -6,7 +6,7 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from vdjdb.io.chunks import PROVENANCE, READABLE, cross_chunk_duplicates, dedup, read_chunk, read_chunks
+from vdjdb.io.chunks import PROVENANCE, READABLE, dedup, independently_reported, read_chunk, read_chunks
 from vdjdb.qc.rules import RULES, check
 from vdjdb.schema import ALL_COLUMNS, CHUNK_DEDUP_KEY
 
@@ -105,13 +105,16 @@ def test_reading_is_reproducible(tmp_path: Path) -> None:
 # Deduplication
 # --------------------------------------------------------------------------------------------
 
-def test_dedup_is_per_chunk_not_global(tmp_path: Path) -> None:
-    """Per-chunk is what lands on the released 192,753 rows; global would drop 19 more."""
+def test_dedup_is_per_chunk_because_two_chunks_are_two_papers(tmp_path: Path) -> None:
+    """Within a chunk, a repeated row is a duplicate. Across chunks it is independent replication.
+
+    Collapsing the cross-chunk pair would delete the strongest evidence the database carries.
+    """
     a = _chunk(tmp_path, "a.txt", [_row(), _row()])
     b = _chunk(tmp_path, "b.txt", [_row()])
     df = read_chunks([a, b])
-    assert df.height == 2, "the within-chunk duplicate goes, the cross-chunk one stays"
-    assert cross_chunk_duplicates(df).height == 1
+    assert df.height == 2, "the within-chunk duplicate goes, the second paper's report stays"
+    assert independently_reported(df).height == 1
 
 
 def test_dedup_keeps_the_first_occurrence_and_the_order(tmp_path: Path) -> None:

@@ -1,0 +1,138 @@
+"""The VDJdb confidence score, as polars expressions.
+
+Ported from ``py_src/ScoreFactory.py``, which built its score map with ``iterrows()`` over ~192k
+rows and then evaluated it again per row with ``master_table.T.apply``. Every rule below is a whole
+-column expression instead, and the per-signature maximum is one window.
+
+The score answers "how much should a reader trust this specificity annotation", 0-3:
+
+* **3** if a solved structure is attached -- nothing else can outrank direct evidence;
+* otherwise ``min(sequencing confidence, specificity confidence)``, so a beautifully sequenced
+  clonotype with a weak specificity assay scores as low as the assay, and vice versa.
+
+Two behaviours are preserved exactly because the released scores depend on them:
+
+* ``method.frequency`` is parsed as ``n/m``, ``x%`` or a bare float, and **``n`` alone is the cell
+  count** -- ``2/47`` means two cells of forty-seven, and a ``%`` form therefore has no cell count;
+* the score is a **maximum over the 11-column sample signature**, not a per-row value. The same
+  clonotype assayed twice takes the better of the two, which is why the score cannot be computed
+  before the whole table is assembled.
+"""
+from __future__ import annotations
+
+import polars as pl
+
+#: The score signature. **Not** ``CHUNK_DEDUP_KEY``: it has no reference or donor fields, which is
+#: the point -- the same clonotype seen in two studies shares one score. Two different keys share
+#: the name ``SIGNATURE_COLS`` in the legacy code, which is a real source of confusion.
+SCORE_SIGNATURE: tuple[str, ...] = (
+    "cdr3.alpha", "v.alpha", "j.alpha", "cdr3.beta", "v.beta", "j.beta",
+    "species", "mhc.a", "mhc.b", "mhc.class", "antigen.epitope",
+)
+
+_SORT_BASED = ("sort", "beads", "separation", "stain")
+_STIMULATION_BASED = ("targets",)
+_CULTURE_BASED = ("culture", "cloning")
+
+
+def _lower(col: str) -> pl.Expr:
+    return pl.col(col).str.strip_chars().str.to_lowercase()
+
+
+def _contains_any(col: str, needles: tuple[str, ...]) -> pl.Expr:
+    e = pl.col(col).str.contains(needles[0], literal=True)
+    for n in needles[1:]:
+        e = e | pl.col(col).str.contains(n, literal=True)
+    return e
+
+
+def frequency() -> pl.Expr:
+    """``method.frequency`` as a fraction in [0, 1]. Unparseable or absent is 0.0.
+
+    Forms: ``n/m`` (and ``n//m``, which occurs), ``x%``, or a bare float.
+    """
+    f = pl.col("method.frequency").str.strip_chars()
+    num = f.str.replace_all(r"/+", "/").str.split("/")
+    return (
+        pl.when(f == "").then(0.0)
+        .when(f.str.contains("/", literal=True))
+        .then(num.list.get(0).cast(pl.Float64, strict=False)
+              / num.list.get(1).cast(pl.Float64, strict=False))
+        .when(f.str.ends_with("%") & (f.str.len_chars() > 1))
+        .then(f.str.head(-1).cast(pl.Float64, strict=False) / 100.0)
+        .otherwise(f.cast(pl.Float64, strict=False))
+        .fill_nan(0.0).fill_null(0.0)
+    )
+
+
+def cell_count() -> pl.Expr:
+    """The numerator of an ``n/m`` frequency. A percentage carries no cell count, so 0."""
+    f = pl.col("method.frequency").str.strip_chars()
+    return (
+        pl.when(f.str.contains("/", literal=True))
+        .then(f.str.replace_all(r"/+", "/").str.split("/").list.get(0)
+              .cast(pl.Int64, strict=False))
+        .otherwise(0).fill_null(0)
+    )
+
+
+def sequencing_score(freq: pl.Expr, count: pl.Expr) -> pl.Expr:
+    """How much the *sequence* can be trusted: single cell > Sanger > amplicon depth."""
+    single = _lower("method.singlecell")
+    seq = _lower("method.sequencing")
+    return (
+        pl.when((single != "") & (single != "no")).then(3)
+        .when(seq == "sanger").then(pl.when(count >= 2).then(3).otherwise(2))
+        .when(seq == "amplicon-seq").then(pl.when(freq >= 0.01).then(3).otherwise(1))
+        .otherwise(1)
+    )
+
+
+def _moderate_specificity(freq: pl.Expr) -> pl.Expr:
+    """One point when the assay's own enrichment threshold is met. Culture is judged hardest."""
+    m = "__ident"
+    return (
+        pl.when(_contains_any(m, _CULTURE_BASED)).then(pl.when(freq >= 0.5).then(1).otherwise(0))
+        .when(_contains_any(m, _SORT_BASED)).then(pl.when(freq >= 0.05).then(1).otherwise(0))
+        .when(_contains_any(m, _STIMULATION_BASED)).then(pl.when(freq >= 0.25).then(1).otherwise(0))
+        .otherwise(0)
+    )
+
+
+def _high_specificity() -> pl.Expr:
+    v = "__verif"
+    return (
+        pl.when(pl.col(v).str.contains("direct", literal=True)).then(3)
+        .when(_contains_any(v, _STIMULATION_BASED)).then(2)
+        .when(_contains_any(v, _SORT_BASED)).then(1)
+        .otherwise(0)
+    )
+
+
+def row_score() -> pl.Expr:
+    """The per-row score, before the per-signature maximum."""
+    freq, count = pl.col("__freq"), pl.col("__count")
+    seq = sequencing_score(freq, count)
+    spec2 = _high_specificity()
+    # A verified TCR was cloned, so its sequence is trusted regardless of how it was read.
+    seq = pl.when(spec2 > 0).then(3).otherwise(seq)
+    return (
+        pl.when(pl.col("meta.structure.id") != "").then(3)
+        .otherwise(pl.min_horizontal(seq, _moderate_specificity(freq) + spec2))
+        .cast(pl.Int64)
+    )
+
+
+def add_score(df: pl.DataFrame) -> pl.DataFrame:
+    """Add ``vdjdb.score``: the per-row score, maximised over :data:`SCORE_SIGNATURE`."""
+    return (
+        df.with_columns(
+            frequency().alias("__freq"),
+            cell_count().alias("__count"),
+            _lower("method.identification").alias("__ident"),
+            _lower("method.verification").alias("__verif"),
+        )
+        .with_columns(row_score().alias("__row_score"))
+        .with_columns(pl.col("__row_score").max().over(SCORE_SIGNATURE).alias("vdjdb.score"))
+        .drop("__freq", "__count", "__ident", "__verif", "__row_score")
+    )

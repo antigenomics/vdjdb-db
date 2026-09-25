@@ -20,11 +20,13 @@ would pass silently.
 from __future__ import annotations
 
 import hashlib
+import json
 import tomllib
 import zipfile
 from collections import Counter, defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass, field
+from functools import lru_cache
 from pathlib import Path
 
 import polars as pl
@@ -40,9 +42,12 @@ from ..schema import FULL_COLUMNS, SLIM_COLUMNS, VDJDB_COLUMNS
 #: distinguishes two donors of one study reported as changed. Every one of those fields is in
 #: :data:`CHUNK_DEDUP_KEY`, which is why the key now mirrors it.
 KEYS: dict[str, tuple[str, ...]] = {
+    # `antigen.gene` and `antigen.species` are deliberately absent: both are derived from
+    # `antigen.epitope` by the patch table, so they annotate the epitope rather than identify the
+    # record, and a nomenclature correction to either must read as a changed cell rather than as a
+    # record removed and another added.
     "vdjdb.txt": ("gene", "cdr3", "v.segm", "j.segm", "species",
-                  "mhc.a", "mhc.b", "mhc.class", "antigen.epitope", "antigen.gene",
-                  "antigen.species", "reference.id"),
+                  "mhc.a", "mhc.b", "mhc.class", "antigen.epitope", "reference.id"),
     "vdjdb.slim.txt": ("gene", "cdr3", "v.segm", "j.segm", "species",
                        "mhc.a", "mhc.b", "mhc.class", "antigen.epitope", "antigen.gene",
                        "antigen.species", "reference.id"),
@@ -125,6 +130,7 @@ class DiffReport:
     unattributed: list[CellDiff] = field(default_factory=list)
     rule_counts: dict[str, int] = field(default_factory=dict)
     rule_expected: dict[str, int] = field(default_factory=dict)
+    row_deltas: dict[str, RowDelta] = field(default_factory=dict)
 
     @property
     def miscounted_rules(self) -> list[str]:
@@ -137,7 +143,9 @@ class DiffReport:
         if self.missing or self.added or self.unattributed or self.miscounted_rules:
             return False
         for f in self.files:
-            if f.only_in_reference or f.only_in_candidate:
+            d = self.row_deltas.get(f.name)
+            want = (d.removed, d.added) if d else (0, 0)
+            if (f.only_in_reference, f.only_in_candidate) != want:
                 return False
             # A file we could not compare row by row is judged on its canonical digest alone.
             if not f.compared_rows and not f.canonical_equal:
@@ -379,12 +387,58 @@ class Rule:
     from_: str | None = None
     to: str | None = None
     rows: int = -1      # -1 = "no declared count"; see DiffReport.miscounted_rules
+    #: For a JSON column, the member that must be among the differing ones. Without it, one rule
+    #: on `meta` covers every field inside it, and the largest column in the database becomes a
+    #: place for regressions to hide.
+    json_field: str | None = None
 
     def matches(self, c: CellDiff) -> bool:
-        return ((self.file is None or self.file == c.file)
+        if not ((self.file is None or self.file == c.file)
                 and (self.column is None or self.column == c.column)
                 and (self.from_ is None or self.from_ == c.old)
-                and (self.to is None or self.to == c.new))
+                and (self.to is None or self.to == c.new)):
+            return False
+        return self.json_field is None or self.json_field in _json_diff_fields(c)
+
+
+@lru_cache(maxsize=4096)
+def _json_members(text: str) -> tuple[tuple[str, str], ...]:
+    try:
+        return tuple((k, repr(v)) for k, v in json.loads(text).items())
+    except (ValueError, AttributeError):
+        return ()
+
+
+def _json_diff_fields(c: CellDiff) -> frozenset[str]:
+    """The member names that differ between two JSON cells."""
+    a, b = dict(_json_members(c.old)), dict(_json_members(c.new))
+    if not a and not b:
+        return frozenset()
+    return frozenset(k for k in a.keys() | b.keys() if a.get(k) != b.get(k))
+
+
+@dataclass(frozen=True, slots=True)
+class RowDelta:
+    """A declared, measured change in which rows a file contains.
+
+    A nomenclature correction to a column that is part of a file's grouping key genuinely removes
+    one row and adds another -- there is no cell to attribute. Declaring the counts keeps that
+    honest without weakening the gate: an undeclared row delta still fails.
+    """
+
+    file: str
+    added: int
+    removed: int
+    note: str = ""
+
+
+def load_row_deltas(path: Path) -> dict[str, RowDelta]:
+    if not path.exists():
+        return {}
+    raw = tomllib.loads(path.read_text())
+    return {d["file"]: RowDelta(d["file"], int(d.get("added", 0)), int(d.get("removed", 0)),
+                                d.get("note", ""))
+            for d in raw.get("row_delta", [])}
 
 
 def load_rules(path: Path) -> list[Rule]:
@@ -392,7 +446,8 @@ def load_rules(path: Path) -> list[Rule]:
         return []
     raw = tomllib.loads(path.read_text())
     return [Rule(id=r["id"], file=r.get("file"), column=r.get("column"),
-                 from_=r.get("from"), to=r.get("to"), rows=int(r.get("rows", -1)))
+                 from_=r.get("from"), to=r.get("to"), rows=int(r.get("rows", -1)),
+                 json_field=r.get("json_field"))
             for r in raw.get("rule", [])]
 
 
@@ -417,6 +472,7 @@ def diff(reference: Path, candidate: Path, rules_path: Path | None = None,
         missing=[n for n in ref_names if n not in cand_names],
         added=[n for n in cand_names if n not in ref_names],
         rule_expected={r.id: r.rows for r in rules},
+        row_deltas=load_row_deltas(rules_path) if rules_path else {},
     )
 
     for name in ref_names:
