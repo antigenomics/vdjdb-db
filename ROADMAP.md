@@ -1837,12 +1837,26 @@ Measured 2026-09-25 on the full corpus against the shipped 2026-06-03 motif file
 | cids in `cluster_members.txt` with **no logo** in `motif_pwms.txt` | **137** | **0** |
 | PWM positions whose `freq` sums to less than 1 | 2,327 of 24,036 | **0 of 16,130** |
 | smallest per-position `freq` sum | 0.0233 | **1.0000** |
-| letter mass deleted | **1.73 %** | **0.00 %** |
+| letter mass deleted | **1.08 %** | **0.00 %** |
 | clusters affected | 1,042 | **0** |
 
 Section 8.5 recorded 31 logo-less cids and 1.00 % deleted mass from a sample; over the whole file
-they are 137 and 1.73 %. `need.impute` is a real provenance flag again -- it was `FALSE` on all
-13,456 shipped rows because it was computed after the filter that would have set it.
+they are 137 and 1.08 %. `need.impute` is a real provenance flag again -- it was `FALSE` on all
+13,456 shipped rows because it was hardcoded `False` immediately after the filter that would have
+set it (`compute_motif_pwms.py`, `merged["need.impute"] = False`).
+
+**1.08 % is mass-weighted** -- surviving letters over stratum members, summed across all positions.
+An unweighted mean of the per-position `freq` sums gives 1.73 %, which overweights small clusters;
+the weighted figure is the one comparable with section 8.5's.
+
+**The `csz` denominator is *not* a second defect, measured.** `compute_motif_pwms.py` computes
+`freq = count / csz` where `csz` is the whole cluster across lengths, so a length stratum of a
+mixed-length cluster would sum to less than 1 before any filter touched it. It never happens:
+**0 of the 1,928 shipped cids span more than one CDR3 length**, and all 2,327 short positions are
+the filter. Ours cannot either -- a substitutions-only neighbourhood joins only equal-length
+sequences, so a Hamming-1 component is length-homogeneous by construction. ⚠ This does **not**
+carry to phase 11: 809 of 847 TRA and 1,002 of 1,082 TRB REDCEA cids *are* multi-length, which is
+what section 8.6's `L<len>` legacy projection exists for.
 
 ### The information sign, tested without the clustering in the way
 
@@ -1864,9 +1878,20 @@ with and without it -- same members, same columns, nothing varying but the trunc
 positions where the filter bites: dropping mass from a distribution can only make the rest look more
 determined, so the shipped `I` is an over-estimate and ours sits below it.
 
-Independently, the formula itself is bit-faithful: `I = 1 + sum(p log p) / log 20` reproduces the
-shipped `H.B.ALSKGVHFV.1` position 8 value **0.594459870571867 to 15 digits**, and 1,241 of the 2,081
-positions present in both files are *exactly* equal.
+Independently, both information formulas are bit-faithful against the shipped
+`H.B.ALSKGVHFV.1` position 8, to 16 digits:
+
+| column | formula | ours | shipped |
+|---|---|---|---|
+| `I` | `1 + sum(p log p) / log 20` | 0.5944598705718671 | 0.594459870571867 |
+| `I.norm` | `-sum(p log q) / log 20 / 2` | 0.4503981916732461 | 0.450398191673246 |
+
+⚠ **`I.norm` is a halved cross-entropy against the background, not `I` minus the background's own
+information.** The latter is the natural reading and it is wrong; the formulas were taken from
+`antigenomics/vdjdb-motifs`, `scripts/compute_motif_pwms.py`, which is the authority for what every
+column in this file means. `freq.bg` is likewise `(count.bg + 1) / (total.bg + 1)` verbatim -- not a
+normalised distribution over the 20 residues, but what `I.norm` is defined against. The legacy
+already had that pseudocount; what it lacked was a level to fall back **to**.
 
 ### The statistic, reproduced
 

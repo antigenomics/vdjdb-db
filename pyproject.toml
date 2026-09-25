@@ -26,7 +26,9 @@ dependencies = [
 [project.optional-dependencies]
 # Motif inference only. mirpy pulls kneed/matplotlib/seaborn/lifelines via its own [bench] extra,
 # which the data build has no use for -- keep them out of the assembly container.
-motifs = ["mirpy-lib[bench]>=3.0", "python-igraph>=0.11", "scikit-learn>=1.4"]
+# pandas is here only for `validate/metrics_lib.py`, which is vendored verbatim and must stay so.
+# The build itself has no pandas dependency and must not acquire one.
+motifs = ["mirpy-lib[bench]>=3.0", "python-igraph>=0.11", "scikit-learn>=1.4", "pandas>=2.0"]
 test = ["pytest>=8", "hypothesis>=6", "airr>=1.5"]
 dev = ["ruff>=0.6", "mypy>=1.11"]
 
@@ -44,7 +46,8 @@ src = ["src", "tests"]
 # Vendored or retired code, reference only -- reformatting it would bury the real diff.
 # _legacy_fixer is a verbatim copy that phase 5 deletes; py_src and the Groovy-era
 # script leave the tree in phases 4 and 14.
-exclude = ["py_src", "src/AlignBestSegments.py", "src/vdjdb/annotate/_legacy_fixer"]
+exclude = ["py_src", "src/AlignBestSegments.py", "src/vdjdb/annotate/_legacy_fixer",
+           "src/vdjdb/validate/metrics_lib.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
