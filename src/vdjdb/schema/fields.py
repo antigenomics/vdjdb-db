@@ -234,6 +234,13 @@ FIELDS: dict[str, Field] = dict([
        comment="First nucleotide of the D segment in cdr3nt, 0-based, half-open with d.end."),
     _f("d.end", searchable=0, autocomplete=0, data_type="uint", title="D end",
        comment="One past the last nucleotide of the D segment in cdr3nt."),
+    _f("v.inferred", searchable=0, title="V inferred",
+       comment="V call proposed by the recombination model, filled only where the curator named "
+               "none. Recovers the curated V on 23.8 % of human TRB and 50.1 % of TRA when it is "
+               "hidden -- the junction carries little V. Never overwrites v.segm."),
+    _f("j.inferred", searchable=0, title="J inferred",
+       comment="J call proposed by the recombination model, filled only where the curator named "
+               "none. Recovers the curated J on 97.5 % of human TRB and 95.8 % of TRA."),
     _f("d.posterior", searchable=0, autocomplete=0, data_type="float", title="D posterior",
        comment="Posterior probability of the gene d.inferred names, from arda.dpost. Median 0.791 "
                "and below 0.6 on 21.8 % of beta chains -- filter on it."),
@@ -370,6 +377,7 @@ CHAIN_COLUMNS: tuple[str, ...] = (
     "cdr3", "v.segm", "d.segm", "j.segm",
     "v.end", "j.start",
     "cdr3nt", "cdr3nt.pgen", "cdr3nt.margin",
+    "v.inferred", "j.inferred",
     "d.inferred", "d.start", "d.end", "d.posterior", "d.entropy",
     "cdr3.original", "fix.needed", "fix.good",
     "v.fix.type", "j.fix.type", "v.canonical", "j.canonical",

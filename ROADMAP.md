@@ -1211,3 +1211,44 @@ arda mistakes this repository for its own checkout and loads no anchors — the 
 It fails silently, by returning a legitimate-looking "no answer". `add_d_posterior` calls
 `ensure_reference()` for exactly this reason. **Any new arda entry point must do the same** until
 that release lands (§3 gates).
+
+
+## 21. Phase 8c result — the V/J guesser (#462), and a bug it uncovered
+
+**VDJdb's V guesser has never worked.** `Cdr3Fixer.guess_id` puts `return ""` **inside** the
+five-prime loop, so it tries exactly one prefix length and gives up: measured, **3 non-empty V
+guesses in 4,000 sequences**, against 3,797 for J, whose branch has the same statement correctly in
+a `for...else`. One level of indentation, and it has been shipping since the file was written.
+
+The consequence is not cosmetic. 711 chains carry a CDR3 with no V. The guesser never supplies one,
+so they fail the legacy build's "a CDR3 needs a V and a J" test, and **their records are dropped
+from `vdjdb.txt` entirely** — part of the 1,141 records §18 measured the new format keeping.
+
+### Pgen against the k-mer scan, on hidden ground truth
+
+1,200 human chains per locus, curated call hidden, seeded sample:
+
+| Locus | k-mer scan | Pgen (`infer_nt`) |
+|---|---|---|
+| TRB V | **0 of 1,189 (0.0 %)** | 283 (23.8 %) |
+| TRA V | **1 of 1,111 (0.1 %)** | 557 (50.1 %) |
+| TRB J | 1,133 (95.9 %) | **1,153 (97.5 %)** |
+| TRA J | 882 (79.3 %) | **1,065 (95.8 %)** |
+
+The J rows are a fair comparison and Pgen wins on both. The V rows are not a comparison at all —
+they are the bug above. Note what Pgen's V numbers say on their own terms: recovering a V from the
+junction alone is right about a quarter of the time for TRB and half for TRA, because TRBV
+contributes only a few junction residues. That is 12x chance for TRB, and it is still a guess. The
+registry comment carries these numbers so nobody reads `v.inferred` as a call.
+
+### What ships
+
+`v.inferred` and `j.inferred`, filled **only where the curator named no segment** — 686 of the 711
+chains with no V, 298 of the 596 with no J — and never beside a curated call, which a release test
+asserts. The curated columns are untouched and the ledger still reads PASS.
+
+**Whether the legacy build should start keeping those 711 chains' records is not decided here.** It
+is a change to shipped data of exactly the kind #327 is, so it belongs with the nomenclature work in
+phase 9, where the allele calls those records carry are being fixed anyway.
+
+Build 183 s -> 185 s.

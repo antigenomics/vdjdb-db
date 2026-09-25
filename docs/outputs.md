@@ -121,10 +121,10 @@ Primary key `(record_id, gene)`. This is the level `vdjdb.txt` is written at. Sp
 what keeps the schema non-redundant: folding chains into records forces either duplicated record
 fields (as `vdjdb.txt` does) or paired alpha/beta columns (as `vdjdb_full.txt` does).
 
-25 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `cdr3`, `v.segm`, `d.segm`, `j.segm`,
-`v.end`, `j.start`, `cdr3nt`, `cdr3nt.pgen`, `cdr3nt.margin`, `d.inferred`, `d.start`, `d.end`,
-`d.posterior`, `d.entropy`, `cdr3.original`, `fix.needed`, `fix.good`, `v.fix.type`, `j.fix.type`,
-`v.canonical`, `j.canonical`, `TCR_hash`.
+27 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `cdr3`, `v.segm`, `d.segm`, `j.segm`,
+`v.end`, `j.start`, `cdr3nt`, `cdr3nt.pgen`, `cdr3nt.margin`, `v.inferred`, `j.inferred`,
+`d.inferred`, `d.start`, `d.end`, `d.posterior`, `d.entropy`, `cdr3.original`, `fix.needed`,
+`fix.good`, `v.fix.type`, `j.fix.type`, `v.canonical`, `j.canonical`, `TCR_hash`.
 
 **`cdr3nt` is inferred, not observed** (#461): the most plausible nucleotide junction behind the
 amino-acid one, from the recombination model. 261,097 of 286,047 chains have one and every one of
@@ -149,6 +149,12 @@ a chunk is added.
 `d.end` describe the D of the recombination scenario that produced `cdr3nt`, so the coordinates index
 that sequence (0-based, half-open). They agree with the curated call at gene level on 78.4 % of the
 40,892 beta chains that have one.
+
+`v.inferred` and `j.inferred` carry a model-proposed call **only where the curator named none**
+(#462) — 686 of the 711 chains with no V, 298 of the 596 with no J. They never sit beside a curated
+call. Read their accuracy before using them: recovering a hidden V from the junction alone works on
+23.8 % of human TRB and 50.1 % of TRA, because the junction carries little V; the J side is 95–98 %
+(ROADMAP §21).
 
 `d.posterior` is the probability of the gene `d.inferred` names, and `d.entropy` how decidable the D
 was at all. **A third of beta chains have a posterior below 0.6 and an entropy above 0.9** — TRBD1
