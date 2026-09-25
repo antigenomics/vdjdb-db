@@ -160,9 +160,12 @@ def rules(
     attribute. The generated block tells the ledger to apply the same rewrite to the reference before
     keying; what a reviewer reads is this block's diff.
     """
+    import polars as pl
+
     from .curate.nomenclature import (
         disambiguate_alleles,
         harmonise_mhc,
+        harmonise_references,
         harmonise_segments,
         legacy_resolver,
         write_renames,
@@ -173,7 +176,12 @@ def rules(
     paths = chunk_files(chunks) if chunks else None
     harmonised, rep = harmonise_segments(apply_antigen_patch(read_chunks(paths)))
     allele_fixed, alleles = disambiguate_alleles(harmonised)
-    _, mhc = harmonise_mhc(allele_fixed)
+    mhc_fixed, mhc = harmonise_mhc(allele_fixed)
+    _, refs = harmonise_references(mhc_fixed)
+    if not refs.is_empty():
+        mhc = pl.concat([mhc, refs.select(pl.lit("#347").alias("issue"),
+                                         pl.lit("reference.id").alias("column"),
+                                         "from", "to", "rows")], how="vertical")
     n = write_renames(rep, out, legacy_resolver(), alleles, mhc)
     typer.echo(f"{n} renames, {rep['rows'].sum():,} spelling + {alleles['rows'].sum():,} allele "
                f"+ {mhc['rows'].sum():,} MHC records, written to {out}")

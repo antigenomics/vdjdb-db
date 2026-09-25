@@ -1518,3 +1518,67 @@ first had already rewritten and the declaration order would decide the answer. T
 as a row delta regardless, because it is cleaner to read.
 
 **Verdict: PASS**, 0 unattributed cells, 40 renames.
+
+
+## 26. Phase 9d result — references, the identical-chain report, and input hygiene
+
+### #347 is mostly not a PMID problem
+
+30,977 records carry a non-PMID `reference.id`. Counted by kind:
+
+| Kind | Distinct | Records | Has a PMID? |
+|---|---|---|---|
+| 10x Genomics application note | 1 | 20,358 | no — a vendor note |
+| `github.com/antigenomics/vdjdb-db/issues/*` | 8 | 4,366 | no — **direct submissions**, where the issue *is* the reference |
+| DOIs | 4 | 787 | 3 of 4 |
+| preprint URLs (bioRxiv, arXiv) | 2 | 322 | 1 of 2 |
+| `rcsb.org/structure/*` | 42 | 42 | no — a PDB entry |
+| a TUM thesis | 1 | 3 | no |
+
+So the issue's real scope is **668 records across 3 references**, now resolved:
+
+| Reference | PMID |
+|---|---|
+| `https://doi.org/10.1016/j.xcrm.2023.101017` | PMID:37030296 |
+| `https://www.biorxiv.org/content/10.1101/2025.11.05.686789v1.full` | PMID:41279151 |
+| `doi:10.1172/jci.insight.174776` | PMID:39024572 |
+
+The bioRxiv preprint had **acquired a PMID since it was submitted**, which is exactly the drift a
+committed table catches. `https://doi.org/10.1101/2020.05.04.20085779` is a medRxiv preprint that was
+never indexed, and it is recorded as checked-and-unmapped so nobody looks again.
+
+`proofreading/reference_ids.tsv` is a **committed, reviewed input** — the build is offline and
+deterministic, so no lookup happens at build time (hard rule 9). Refreshing it is re-running the
+resolver and reviewing the diff.
+
+### #561 reports, it does not repair
+
+**99 records carry the same CDR3 on both chains** — the beta sequence copied into the alpha field
+with the V and J calls left correct. 98 of them come from two references (PMID:34811538 with 71,
+PMID:41610844 with 27). Which chain is wrong cannot be known from the row, so this is an **advisory
+QC rule**: it is reported on every `vdjdb qc` run and does not fail the build, because a defect only
+a curator can fix must not block a submission.
+
+### #368 is already fixed, for the half that was mechanical
+
+Zero records have `antigen.gene` holding a species name. The other half of the issue — *"sometimes a
+human protein name is used instead of a gene symbol"* — is still visible on 9 values, led by
+`Trans-sialidase` (284 records), `Nucleocapsid` (171) and `Neuraminidase` (39), and
+`proofreading/gene_aliases.tsv` covers only the last. Choosing a gene symbol for the other eight is
+curation, not a mechanical rule, so they are reported rather than invented.
+
+Separately, **15 `antigen.species` values sit outside `proofreading/species_aliases.tsv`**, led by
+`SIV` (1,771 records), `RotavirusA` (80) and `Synthetic` (62). The vocabulary is incomplete, not the
+data wrong; the file should gain them.
+
+### Input hygiene: whitespace forks a value in two
+
+**758 record-cells across 8 columns carried leading or trailing whitespace** — `tetramer-sort `
+beside `tetramer-sort` (103 records), `Nucleocapsid ` (171), `HLA-DRB1*15 ` in `meta.donor.MHC`
+(336), and one J-gene call with a **non-breaking space**. The reader stripped only the `\r` a CRLF
+file leaves; it now strips all surrounding whitespace, which is never meaningful in a TSV cell.
+
+That is a reader change, so it is global and it removed 52 of the segment renames that had existed
+only to undo it.
+
+**Phase 9 verdict: PASS**, 0 unattributed cells, 43 renames, 3 row deltas, 301 tests.

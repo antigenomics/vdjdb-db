@@ -29,7 +29,9 @@ from .lint import Finding, lint
 from .rules import check, summarise
 
 #: Reported, never fatal. See the module docstring.
-ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form", "duplicate"})
+ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form", "duplicate",
+                      # #561: only a curator can decide which of the two chains is the wrong one.
+                      "alpha and beta cdr3 identical"})
 
 
 def _report_frame(lint_findings: list[Finding], row_findings: pl.DataFrame) -> pl.DataFrame:

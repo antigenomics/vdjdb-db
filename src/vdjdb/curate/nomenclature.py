@@ -471,3 +471,35 @@ def harmonise_mhc(df: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFrame]:
     report = pl.DataFrame(rows, schema={"issue": pl.String, "column": pl.String, "from": pl.String,
                                         "to": pl.String, "rows": pl.Int64})
     return df, report.sort("issue", "column", "from")
+
+
+# ---------------------------------------------------------------------------------------------
+# References
+# ---------------------------------------------------------------------------------------------
+
+def harmonise_references(df: pl.DataFrame,
+                         root: Path | None = None) -> tuple[pl.DataFrame, pl.DataFrame]:
+    """Replace a non-PMID ``reference.id`` with its PubMed id where one exists (#347).
+
+    Driven by ``proofreading/reference_ids.tsv``, a **committed, reviewed input**: the build is
+    offline and deterministic, so no lookup happens here (CLAUDE.md rule 9).
+
+    #347 asks for DOI and GitHub links to become PMIDs, and most of them cannot. Measured over the
+    30,977 records whose reference is not a PMID: the 10x application note is 20,358 of them and is a
+    vendor note with no PMID; the eight ``github.com/antigenomics/vdjdb-db/issues/*`` references are
+    4,366 records of **direct submission**, where the issue *is* the reference; 42 are
+    ``rcsb.org/structure/*`` PDB entries; one is a computer-science preprint PubMed does not index;
+    and one medRxiv preprint was never indexed. What is left is **668 records across 3 references** --
+    including the bioRxiv preprint that has acquired a PMID since it was submitted, which is exactly
+    the kind of drift a committed table is for.
+    """
+    path = (root or Paths.discover().root) / "proofreading" / "reference_ids.tsv"
+    if not path.exists() or "reference.id" not in df.columns:
+        return df, pl.DataFrame(schema={"from": pl.String, "to": pl.String, "rows": pl.Int64})
+    table = pl.read_csv(path, separator="\t", infer_schema=False, comment_prefix="#")
+    mapping = dict(zip(table["reference.id"], table["pmid"], strict=True))
+    rows = [{"from": old, "to": new, "rows": df.filter(pl.col("reference.id") == old).height}
+            for old, new in sorted(mapping.items())]
+    df = df.with_columns(pl.col("reference.id").replace(mapping))
+    report = pl.DataFrame(rows, schema={"from": pl.String, "to": pl.String, "rows": pl.Int64})
+    return df, report.filter(pl.col("rows") > 0).sort("from")

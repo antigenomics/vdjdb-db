@@ -65,6 +65,13 @@ RULES: dict[str, pl.Expr] = {
     "no.cdr3": ~(_blank("cdr3.alpha") & _blank("cdr3.beta")),
     "no.antigen.seq": ~_blank("antigen.epitope"),
     "no.mhc": ~(_blank("mhc.a") | _blank("mhc.b")),
+    # #561. A paired record whose two chains carry the *same* CDR3 is a transcription error: the
+    # beta sequence copied into the alpha field, with the V and J calls left correct. Which chain is
+    # wrong cannot be known from the row, so this reports and does not repair -- 99 records on the
+    # current corpus, 98 of them from two references. Advisory, so the build does not fail on a
+    # defect only a curator can fix.
+    "alpha and beta cdr3 identical": (_blank("cdr3.alpha") | _blank("cdr3.beta")
+                                      | (pl.col("cdr3.alpha") != pl.col("cdr3.beta"))),
 }
 
 

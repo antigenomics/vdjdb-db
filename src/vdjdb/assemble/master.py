@@ -20,6 +20,7 @@ from ..config import Paths
 from ..curate.nomenclature import (
     disambiguate_alleles,
     harmonise_mhc,
+    harmonise_references,
     harmonise_segments,
 )
 from ..curate.patch import apply_antigen_patch
@@ -165,6 +166,7 @@ def build_master(paths: Iterable[Path] | None = None,
     df, _ = disambiguate_alleles(df)
     # MHC spelling, the allele that does not exist (#467), and the class-II chain order.
     df, _ = harmonise_mhc(df)
+    df, _ = harmonise_references(df)
     # Identity is assigned on what the publications reported, before any repair. Afterwards, CDR3
     # fixing would have merged 215 pairs of records the publications reported separately -- two
     # trimmed sequences repaired to the same full one are still two observations.

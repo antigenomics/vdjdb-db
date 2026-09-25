@@ -51,7 +51,7 @@ rows = 4
 id = "legacy-melt-ambiguity-complex-id"
 file = "vdjdb.txt"
 column = "complex.id"
-rows = 20322
+rows = 20310
 
 [[rule]]
 id = "legacy-melt-ambiguity-cdr3fix"
@@ -81,13 +81,13 @@ rows = 6924
 id = "pandas-float-epitope-id"
 file = "vdjdb_full.txt"
 column = "meta.epitope.id"
-rows = 10121
+rows = 10170
 
 [[rule]]
 id = "pandas-float-clone-id"
 file = "vdjdb_full.txt"
 column = "meta.clone.id"
-rows = 35
+rows = 48
 
 [[rule]]
 id = "pandas-int-subject-id"
@@ -99,14 +99,14 @@ rows = 42
 id = "pandas-float-frequency-full"
 file = "vdjdb_full.txt"
 column = "method.frequency"
-rows = 230
+rows = 236
 
 # The same truncation, seen through the method JSON of vdjdb.txt.
 [[rule]]
 id = "pandas-float-frequency-json"
 file = "vdjdb.txt"
 column = "method"
-rows = 1747
+rows = 1796
 
 # `NA` is influenza neuraminidase, a real gene symbol. pandas read it as a missing value, and
 # `if NaN:` is True in Python, so the legacy assigned the missing value and blanked the gene.
@@ -114,7 +114,7 @@ rows = 1747
 id = "pandas-na-gene-symbol"
 file = "vdjdb_full.txt"
 column = "antigen.gene"
-rows = 14
+rows = 185
 
 # The same pandas coercions seen through the meta JSON of vdjdb.txt -- and there they are worse,
 # because the damage reaches the JSON *type*. pandas inferred these identifier columns as numbers,
@@ -134,7 +134,7 @@ id = "json-id-type-epitope"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "epitope.id"
-rows = 10982
+rows = 11033
 
 [[rule]]
 id = "json-id-type-replica"
@@ -154,7 +154,7 @@ rows = 91
 id = "pandas-na-gene-symbol-melted"
 file = "vdjdb.txt"
 column = "antigen.gene"
-rows = 28
+rows = 318
 
 # --- declared row deltas -----------------------------------------------------------------------
 # vdjdb.slim.txt groups on antigen.gene, so restoring the influenza neuraminidase symbol `NA` --
@@ -162,16 +162,16 @@ rows = 28
 # is no cell to attribute: one row leaves and another arrives.
 [[row_delta]]
 file = "vdjdb.slim.txt"
-added = 532
-removed = 533
+added = 946
+removed = 956
 note = "pandas-na-gene-symbol, seen through the slim grouping key"
 
 # The melt ambiguity of ROADMAP section 14, seen as rows rather than cells: where two
 # indistinguishable records swap, best-match pairing sometimes leaves one on each side.
 [[row_delta]]
 file = "vdjdb.txt"
-added = 612
-removed = 612
+added = 700
+removed = 700
 note = "legacy melt ambiguity; see ROADMAP section 14"
 
 
@@ -183,7 +183,7 @@ note = "legacy melt ambiguity; see ROADMAP section 14"
 id = "nomenclature-slim-complex-id-renumber"
 file = "vdjdb.slim.txt"
 column = "complex.id"
-rows = 13086
+rows = 112569
 
 [[rule]]
 id = "nomenclature-vend-full-alpha"
@@ -207,7 +207,7 @@ rows = 1412
 id = "nomenclature-jstart-slim"
 file = "vdjdb.slim.txt"
 column = "j.start"
-rows = 820
+rows = 816
 
 [[rule]]
 id = "nomenclature-now-mapped"
@@ -227,7 +227,7 @@ rows = 2225
 id = "nomenclature-tcr-hash-slim"
 file = "vdjdb.slim.txt"
 column = "TCR_hash"
-rows = 1954
+rows = 1940
 
 [[rule]]
 id = "nomenclature-tcr-hash-full"
@@ -240,7 +240,7 @@ id = "nomenclature-samples-found"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "samples.found"
-rows = 300
+rows = 298
 
 [[rule]]
 id = "nomenclature-d-multicall-order"
@@ -256,13 +256,44 @@ rows = 43
 id = "nomenclature-score-regrouped-default"
 file = "vdjdb.txt"
 column = "vdjdb.score"
-rows = 7
+rows = 5
 
 [[rule]]
 id = "nomenclature-score-regrouped-full"
 file = "vdjdb_full.txt"
 column = "vdjdb.score"
 rows = 4
+
+
+# --- ROADMAP phase 9: input hygiene ------------------------------------------------------------
+# Leading and trailing whitespace is never meaningful in a TSV cell, and it silently forks a value
+# in two -- `tetramer-sort ` beside `tetramer-sort`. Stripped in the reader, so every column is
+# affected at once; these are the cells where the released file carried the untrimmed form.
+
+[[rule]]
+id = "whitespace-meta-donor-mhc-json"
+file = "vdjdb.txt"
+column = "meta"
+json_field = "donor.MHC"
+rows = 336
+
+[[rule]]
+id = "whitespace-meta-donor-mhc"
+file = "vdjdb_full.txt"
+column = "meta.donor.MHC"
+rows = 336
+
+[[rule]]
+id = "whitespace-meta-subject-cohort"
+file = "vdjdb_full.txt"
+column = "meta.subject.cohort"
+rows = 67
+
+[[rule]]
+id = "whitespace-method-identification"
+file = "vdjdb_full.txt"
+column = "method.identification"
+rows = 103
 
 # BEGIN generated renames -- `vdjdb rules` writes this block; review it, do not edit it
 [[rename]]
@@ -505,6 +536,24 @@ columns = "mhc.b"
 from = "H2-IAb"
 to = "I-Ab"
 records = 52
+
+[[rename]]
+columns = "reference.id"
+from = "doi:10.1172/jci.insight.174776"
+to = "PMID:39024572"
+records = 17
+
+[[rename]]
+columns = "reference.id"
+from = "https://doi.org/10.1016/j.xcrm.2023.101017"
+to = "PMID:37030296"
+records = 397
+
+[[rename]]
+columns = "reference.id"
+from = "https://www.biorxiv.org/content/10.1101/2025.11.05.686789v1.full"
+to = "PMID:41279151"
+records = 254
 # END generated renames
 [[row_delta]]
 file = "vdjdb_full.txt"
