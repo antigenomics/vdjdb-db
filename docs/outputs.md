@@ -88,21 +88,32 @@ Parquet, with a TSV projection of each for users without a parquet reader.
 
 Primary key `record_id`, unique. **One chunk row is one record**: a chunk is one paper, a row is its
 report on one clone, and that row reports both chains. So this table has exactly as many rows as the
-build reads, and `method.*` / `meta.*` sit here because the README defines them as what the
-*publication* reports about the record.
+build reads — 192,753 — and `method.*` / `meta.*` sit here because the README defines them as what
+the *publication* reports about the record.
+
+The receptor is **not** here: a chain is an observation, so it is a row of `chains`. That is the
+whole difference from `vdjdb_full.txt`, which folds both chains into paired columns and leaves half of
+them blank.
+
+33 columns:
 
 | Group | Columns |
 |---|---|
-| identity | `record_id`, `content_hash`, `record_state` |
-| complex | the 15 identifying fields: `species`, `cdr3.alpha`, `v.alpha`, `j.alpha`, `cdr3.beta`, `v.beta`, `d.beta`, `j.beta`, `mhc.a`, `mhc.b`, `mhc.class`, `antigen.epitope`, `antigen.gene`, `antigen.species`, `reference.id` |
+| identity | `record_id` |
+| antigen | `species`, `mhc.a`, `mhc.b`, `mhc.class`, `antigen.epitope`, `antigen.gene`, `antigen.species` |
+| provenance | `reference.id` |
+| sample | `meta.study.id`, `.cell.subset`, `.subject.cohort`, `.subject.id`, `.replica.id`, `.clone.id`, `.tissue` — the id fields that are part of identity |
+| annotation | `meta.epitope.id`, `.donor.MHC`, `.donor.MHC.method`, `.structure.id`, `.subset.frequency` |
 | method | `method.identification`, `.frequency`, `.singlecell`, `.sequencing`, `.verification`, `.pairing` |
-| meta | `meta.study.id`, `.cell.subset`, `.subset.frequency`, `.subject.cohort`, `.subject.id`, `.replica.id`, `.clone.id`, `.epitope.id`, `.tissue`, `.donor.MHC`, `.donor.MHC.method`, `.structure.id` |
-| curation | `submitter`, `comment`, `chunk.id` |
 | score | `vdjdb.score` |
-| provenance | `chunk.file`, `chunk.row`, `first_seen_release`, `first_seen_commit`, `last_modified_release`, `last_modified_commit`, `amendment_count` |
+| curation | `chunk.file`, `chunk.row`, `chunk.id`, `submitter`, `comment` |
 
 `submitter`, `comment`, `chunk.id`, `meta.subset.frequency` and `method.pairing` are **carried**, not
 dropped — the legacy build discards all five. They are what makes a curation problem debuggable.
+
+`content_hash`, the record state and the release/commit provenance live in the registry
+(§6), not here: they describe the record's history rather than the record, and duplicating them into
+every release would make the table a changelog.
 
 ### 3.2 `chains.parquet` — one row per TCR chain of a record
 
@@ -110,51 +121,73 @@ Primary key `(record_id, gene)`. This is the level `vdjdb.txt` is written at. Sp
 what keeps the schema non-redundant: folding chains into records forces either duplicated record
 fields (as `vdjdb.txt` does) or paired alpha/beta columns (as `vdjdb_full.txt` does).
 
-`record_id`, `gene` (`TRA`/`TRB`), `cdr3`, `v.segm`, `j.segm`, `d.segm`, `v.end`, `j.start`,
-`d.start`, `d.end`, `cdr3nt`, `cdr3nt.pgen`, `cdr3nt.margin`, `cdr3fix` (JSON), `TCR_hash`,
-`clonotype_id`.
+17 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `cdr3`, `v.segm`, `d.segm`, `j.segm`,
+`v.end`, `j.start`, `cdr3.original`, `fix.needed`, `fix.good`, `v.fix.type`, `j.fix.type`,
+`v.canonical`, `j.canonical`, `TCR_hash`.
 
-`clonotype_id` collapses records that describe the same receptor chain, which is the level motif
-evidence attaches at.
+**`cdr3fix` is not a column here.** Every member of the legacy JSON blob is its own variable —
+`cdr3.original` is the sequence as submitted, the four `fix.*` / `*.fix.type` columns say what was
+done to it, and `v.canonical` / `j.canonical` say whether the anchors are the expected ones. A JSON
+column cannot be filtered, grouped or joined without parsing, and in the release the same field is a
+JSON number on one row and a string on the next. `emit/legacy.py` reassembles the blob on the way
+out, which is the only place it belongs.
+
+`clonotype_id` is a seeded hash of `(species, gene, cdr3, v.segm, j.segm)` — records reporting the
+same receptor chain share it, and it is the level motif evidence and the independent-study support
+count attach at. A hash rather than a counter, because a counter renumbers every clonotype the moment
+a chunk is added.
+
+`d.start`, `d.end`, `cdr3nt`, `cdr3nt.pgen` and `cdr3nt.margin` join this table in phase 8.
 
 ### 3.3 `evidence.parquet` — long format, one row per piece of evidence
 
 Primary key `(record_id, evidence_id)`. Long rather than wide because a record may carry any number
-of pieces of evidence of any number of kinds, and a wide table would be mostly null.
+of pieces of evidence of any number of kinds, and a wide table would be mostly empty — and would grow
+a column per producer.
 
-`record_id`, `gene` (null when the evidence is record-level), `evidence_id`, `evidence_type`,
+`record_id`, `gene` (empty when the evidence is record-level), `evidence_id`, `evidence_type`,
 `evidence_source`, `evidence_value`, `evidence_score`, `first_seen_release`.
 
 | `evidence_type` | `evidence_source` | `evidence_value` | `evidence_score` |
 |---|---|---|---|
+| `independent_study` | — | the *other* `reference.id`s, sorted | count of distinct references |
 | `motif_tcrnet` | release tag | cluster id | cluster size |
 | `motif_tcremp` | release tag | cluster id | cluster size |
 | `structure_native` | PDB | PDB id | — |
 | `structure_model` | model set id | structure hash | model confidence |
-| `independent_study` | — | the other `reference.id` | count of distinct references |
+
+`independent_study` is the only producer today: **53,913 rows over 48,893 records**, scores 2 to 41.
+It is the same computation as the ROADMAP §11.1 tuning objective, deliberately — one implementation,
+so the shipped column and the objective cannot disagree.
 
 Structure evidence is keyed on the legacy `TCR_hash` today and moves to `record_id` when the
 structure store is re-keyed.
 
-**No held-out validation data is ever an evidence row.** See §6.
+**No held-out validation data is ever an evidence row.** See §7.
 
 ### 3.4 `vdjdb.parquet` — the joined view
 
-`records ⋈ chains ⋈ evidence`, pivoted so each evidence type becomes a boolean or count column. This
-is the convenient denormalised table, derived and never authored:
+`records ⋈ chains ⋈ evidence`, one row per chain, with each evidence type pivoted to a boolean. The
+convenient denormalised table, derived on every build and never authored — a consumer who edits it is
+editing a cache.
 
-`evidence.motif.tcrnet`, `evidence.motif.tcremp`, `evidence.structure.native`,
-`evidence.structure.model`, `evidence.validation.independent`, `evidence.validation.same.study`.
+Six boolean columns, **all six always present**: `evidence.motif.tcrnet`, `evidence.motif.tcremp`,
+`evidence.structure.native`, `evidence.structure.model`, `evidence.validation.independent`,
+`evidence.validation.same.study`. Everything without a producer yet is `false` — an honest "no
+evidence of this kind", not a missing column, so the view's shape does not change as phases 8–11 land.
 
-Those last names are deliberate: production `vdjdb-web` already serves five `evidence.*` columns that
-nothing in this repo produces. This is where they start being produced.
+Those names are deliberate: production `vdjdb-web` already serves five `evidence.*` columns that
+nothing in this repo produced. This is where they start being produced.
 
 ### 3.5 Generated metadata
 
-`vdjdb.schema.json` — the field registry dumped machine-readably: per column, its dtype, which tables
-carry it, its position in each, its `vdjdb.meta.txt` attributes and its AIRR mapping. Every other
-schema artifact (`vdjdb.meta.txt`, the legacy column orders, the AIRR mapping, the docs tables) is a
-projection of it, so none of them can drift.
+`vdjdb.schema.json` — the field registry dumped machine-readably: per column, its `vdjdb.meta.txt`
+attributes, its position in every table that carries it, and its physical dtype. Every other schema
+artifact (`vdjdb.meta.txt`, the legacy column orders, the AIRR mapping in phase 7, the docs tables)
+is a projection of the same registry, so none of them can drift.
+
+The dtype is **read off the written frame**, not declared, so the schema cannot claim a type the
+shipped files do not have.
 
 ---
 
@@ -199,11 +232,18 @@ every record of an `(epitope, species, gene)` rather than matching on CDR3. Fixe
 
 ---
 
-## 6. Committed, not produced
+## 6. The record registry — a release asset
+
+`records.registry.tsv` maps `record_id` to its state, hashes, provenance and amendment history, and
+is what makes an id survive a curator fixing a typo. It is **not committed**: at 72.7 MB for 192,753
+records (19.8 MB gzipped) it would add ~20 MB to the repo per curation PR, against a `chunks/` corpus
+of 42 MB. It ships as a release asset and the build fetches the previous release's copy to reconcile
+against, so it is reviewed in the release diff rather than the PR diff (ROADMAP §17, phase 14).
+
+## 6a. Committed, not produced
 
 | File | Role |
 |---|---|
-| `records.registry.tsv` | the record-identity registry: `record_id` → state, hashes, provenance, amendment history. Committed and reviewed as part of a curation PR |
 | `summary/reference_years.tsv` | publication-year cache, so the dashboard render is offline and deterministic |
 | `summary/annotations.tsv` | dashboard event callouts, with no hardcoded coordinates |
 | `rules/expected_diffs.toml` | the declared differences the ledger accepts, each with a measured row count |
