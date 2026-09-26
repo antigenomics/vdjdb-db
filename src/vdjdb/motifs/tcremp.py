@@ -411,9 +411,16 @@ def fit_coef(cohort_chain: pl.DataFrame, X: np.ndarray, is_replicated: np.ndarra
 # Clustering
 # ---------------------------------------------------------------------------------------------
 
-def clusters(cohort_chain: pl.DataFrame, X: np.ndarray, eps: float, *,
-             min_samples: int = MIN_SAMPLES, min_cluster: int = 5) -> pl.DataFrame:
+def clusters(cohort_chain: pl.DataFrame, X: np.ndarray, eps: float | None = None, *,
+             min_samples: int = MIN_SAMPLES, min_cluster: int = 5,
+             labels: np.ndarray | None = None) -> pl.DataFrame:
     """Cluster one chain and label it in the shape :mod:`vdjdb.motifs.emit` expects.
+
+    Takes **either** ``eps`` -- per-epitope DBSCAN at that radius, the shipped path -- **or**
+    precomputed ``labels``. The second form is how an alternative algorithm is measured through this
+    same cid machinery instead of growing a second copy of it: :func:`hdbscan_labels` and
+    :func:`vdjdb.motifs.cluster._leiden` both produce ``labels`` in the one contract, ``-1`` for
+    noise and otherwise unique across epitopes.
 
     ``cid`` carries a ``L<len>`` suffix -- **one legacy cid per (cluster, CDR3 length)**. A DBSCAN
     cluster in embedding space may span lengths, where a PWM may not, and ``vdjdb-web`` splits every
@@ -427,8 +434,11 @@ def clusters(cohort_chain: pl.DataFrame, X: np.ndarray, eps: float, *,
     """
     from .cluster import _INITIAL, _repr_allele
 
-    epitopes = cohort_chain["antigen.epitope"].to_numpy()
-    labels = cluster_labels(X, epitopes, eps, min_samples=min_samples)
+    if labels is None:
+        if eps is None:
+            raise ValueError("clusters() needs either eps or precomputed labels")
+        labels = cluster_labels(X, cohort_chain["antigen.epitope"].to_numpy(), eps,
+                               min_samples=min_samples)
     g = (cohort_chain
          .with_columns(pl.Series("__label", labels),
                        pl.Series("x", X[:, 0]), pl.Series("y", X[:, 1]),
