@@ -55,7 +55,7 @@ def headers(reference: Path) -> dict[str, list[str]]:
 
 @pytest.mark.parametrize("name", sorted(FILE_TO_TABLE))
 def test_column_order_matches_the_registry(name: str, headers: dict[str, list[str]]) -> None:
-    """``vdjdb-web`` parses the motif files positionally with no header check (CLAUDE.md rule 1)."""
+    """``vdjdb-web`` parses the motif files positionally with no header check (ROADMAP.md rule 1)."""
     if name not in headers:
         pytest.skip(f"{name} not in this bundle")
     assert headers[name] == list(TABLES[FILE_TO_TABLE[name]])

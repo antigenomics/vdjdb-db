@@ -106,6 +106,13 @@ uv.lock.tmp
 *MATCHMAKERS*
 *matchmakers*
 
+## Working notes -- untracked. Only README.md, ROADMAP.md and CHANGELOG.md are committed;
+## the *_local.md pair carries the execution record and the running log.
+/CLAUDE.md
+/STATUS.md
+/ROADMAP_local.md
+/CHANGELOG_local.md
+
 ## Scratch -- notes and one-off scripts. Anchored to the repo root so tests/ and docs/ are unaffected.
 /scratch/
 /NOTES*.md

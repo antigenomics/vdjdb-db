@@ -65,7 +65,7 @@ ignore = ["B008"]
 # real floor is what would catch that, not the type checker's assumed version.
 python_version = "3.12"
 # Strict only where correctness is load-bearing: the column registry every output projects from,
-# and the coordinate conversions between the four spaces documented in CLAUDE.md.
+# and the coordinate conversions between the four spaces documented in ROADMAP.md.
 files = ["src/vdjdb/schema", "src/vdjdb/convert"]
 strict = true
 
