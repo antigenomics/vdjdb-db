@@ -252,3 +252,51 @@ def test_unclustered_clonotypes_are_singletons_not_dropped():
     assert f.height == 2
     assert f["cluster"].n_unique() == 2
     assert f["cluster"].str.starts_with("__singleton.").sum() == 1
+
+
+def test_ball_volume_is_the_substitution_neighbourhood():
+    """V_s(L) = sum_j C(L,j) 19^j. The j=0 term is the sequence itself."""
+    from vdjdb.validate.noise import ball_volume
+
+    assert ball_volume(14, 0) == 1
+    assert ball_volume(14, 1) == 1 + 14 * 19
+    assert ball_volume(14, 2) == 1 + 14 * 19 + math.comb(14, 2) * 361
+    # The combinatorial bound the measured background rate must never be replaced by: 124x, where
+    # the measured inflation of p_hat from scope 1 to scope 2 is 12x (docs/denoising.md section 5.1).
+    assert round(ball_volume(14, 2) / ball_volume(14, 1)) == 124
+
+
+def test_chance_recruitment_rises_with_the_ball_and_the_sample():
+    """alpha is monotone in both arguments -- which is why one p-value is not one noise level."""
+    from vdjdb.validate.noise import chance_recruitment
+
+    assert chance_recruitment(1000, 1e-6) < chance_recruitment(1000, 1e-5)
+    assert chance_recruitment(100, 1e-5) < chance_recruitment(10_000, 1e-5)
+    assert chance_recruitment(1, 1e-5) == pytest.approx(0.0)
+
+
+def test_publicity_control_finds_no_lift_when_there_is_none():
+    """The null must sit at 1.0 when clustering and replication are unrelated, and the ratio must
+    collapse to ~1 when the association is entirely explained by the stratum."""
+    import numpy as np
+
+    from vdjdb.validate.noise import controlled_lift
+
+    rng = np.random.default_rng(0)
+    n = 2000
+    # replication independent of clustering: raw lift ~1, ratio ~1
+    df = pl.DataFrame({"clustered": rng.random(n) < 0.3,
+                       "replicated": rng.random(n) < 0.1,
+                       "stratum": ["a"] * n})
+    r = controlled_lift(df, n_perm=100)
+    assert r["lift"] == pytest.approx(1.0, abs=0.25)
+    assert r["ratio"] == pytest.approx(1.0, abs=0.25)
+
+    # association driven entirely by the stratum: raw lift is high, the within-stratum null matches
+    # it, so the ratio returns to ~1 and the enrichment is correctly attributed to the covariate.
+    hot = np.arange(n) < n // 4
+    df = pl.DataFrame({"clustered": hot, "replicated": hot,
+                       "stratum": np.where(hot, "hi", "lo")})
+    r = controlled_lift(df, n_perm=100)
+    assert r["lift"] > 3.0
+    assert r["ratio"] == pytest.approx(1.0, abs=0.05)
