@@ -99,17 +99,46 @@ MIN_SAMPLE = 10
 #: TRB   scope 1,0,0,1 · p .01 · mc 5     **0.3337**  0.3218    0.9790    0.9761
 #: ===== ================================ ========= ========= ========= =========
 #:
-#: TRA gains **+97 % retention with purity and precision both up** -- a strict win on every axis.
-#: TRB's bar is tight (the shipped file's purity is 0.9790) and the winner trades a little retention
-#: for it: ⚠ the previous default `p = 0.05` reached 0.3382 but at purity **0.9781**, which *fails*
-#: the criterion by 0.0009. Tightening `p` to 0.01 is what buys the bar back.
+#: ⚠ **That table is the legacy comparison, not the tuning criterion.** It maximises retention
+#: subject to purity and precision clearing legacy, and that criterion has **no interior optimum**:
+#: TRA retention climbs 0.2712 -> 0.4149 -> 0.4692 -> 0.4807 -> 0.5089 across scopes 1 to 5 with
+#: purity never falling below legacy's 0.8658, so it prefers the widest ball tried and would prefer
+#: wider (ROADMAP section 36). What replaced it is `docs/denoising.md` section 7.1.
 #:
-#: ⚠ TRA's two-substitution neighbourhood is a **different definition of neighbour**, not a tuned
-#: threshold -- it is here because it dominates on every measured axis, including removing 95 % of
-#: the reproduction regression (842 lost clonotypes -> 44, ROADMAP section 33.2).
+#: **The rule these values come from**, in order: a configuration is *admissible* when ``Q``, purity
+#: and precision are each at or above the shipped 2026-06-03 annotation; among admissible ones,
+#: **maximise the independent-study lift** (section 11.1). Never the reverse, and never either alone
+#: -- the cells that maximise lift on this corpus reach ``Q = 0.023`` with parsimony ``0.012``, which
+#: is the shattering failure mode ``Q`` exists to catch.
+#:
+#: Measured on the 56-cell grid ``scope x p x resolution x min_cluster``, human, per chain:
+#:
+#: ======  ======  ======  ======  ======  ======  ======  ======
+#: chain   lift    legacy  Q       legacy  purity  legacy  ret
+#: ======  ======  ======  ======  ======  ======  ======  ======
+#: TRA     2.051   1.721   0.1798  0.1691  0.8754  0.8658  0.2323
+#: TRB     1.501   1.355   0.4428  0.4433  0.9790  0.9790  0.3337
+#: ======  ======  ======  ======  ======  ======  ======  ======
+#:
+#: TRA improves on **every** axis (+19.2 % lift, +0.011 Q, +0.010 purity, +0.011 precision,
+#: +0.022 retention). TRB carries **one named cost: Q is 0.0005 lower** than the shipped file's,
+#: against +10.8 % lift, equal purity, and higher precision and retention. That shortfall is
+#: rounding-level and stated rather than hidden; it is the only axis on which either chain regresses.
+#:
+#: ⚠ **The per-chain split section 34 introduced has collapsed.** Both chains now want the same
+#: thing, and TRA's two-substitution neighbourhood is gone: a wider ball recruits bystanders and
+#: launders them into apparent epitope-specific signal, which costs 1.96x -> 1.30x of lift
+#: (`docs/denoising.md` section 5). The dict stays per chain because the machinery reads it that way
+#: and TCREMP's optima do still differ.
+#:
+#: ``resolution`` selects the graph partition: ``None`` is connected components, a positive value
+#: runs CPM Leiden inside each of them (:func:`vdjdb.motifs.cluster._leiden`). Leiden is **measured
+#: and not enabled**: it raises lift sharply (TRA 1.96x -> 5.35x at resolution 0.5) and cuts
+#: percolation, but only at resolutions where ``Q`` collapses, so no Leiden cell is admissible
+#: (ROADMAP section 36.1).
 TUNED: dict[str, dict] = {
-    "TRA": {"scope": "2,0,0,2", "p": 0.05, "min_degree": 2, "min_cluster": 3},
-    "TRB": {"scope": "1,0,0,1", "p": 0.01, "min_degree": 2, "min_cluster": 5},
+    "TRA": {"scope": "1,0,0,1", "p": 0.01, "min_degree": 2, "min_cluster": 5, "resolution": None},
+    "TRB": {"scope": "1,0,0,1", "p": 0.01, "min_degree": 2, "min_cluster": 5, "resolution": None},
 }
 
 
