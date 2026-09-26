@@ -57,7 +57,10 @@ plot for [i=1:words(ALGOS)] F using \
   (strcol(1) eq chain && strcol(2) eq word(ALGOS,i) ? $4 : NaN):(column(7)) ls i
 
 set ylabel "purity (epitope)"
-set title "purity: the only axis trivial fails"
+# On TRB the do-nothing marker sits BELOW every real clustering, which is the only
+# panel where it does; on TRA it sits above them all and the axis is not a bar.
+set title (chain eq "TRB" ? "purity: the only axis the do-nothing partition fails" \
+                         : "purity: the do-nothing partition beats every method")
 plot for [i=1:words(ALGOS)] F using \
   (strcol(1) eq chain && strcol(2) eq word(ALGOS,i) ? $4 : NaN):(column(8)) ls i
 
