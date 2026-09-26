@@ -18,9 +18,16 @@ content-addressed by ``seqtree``; enrichment, embeddings, scalers, PCAs, cluster
 recomputed every run, and cluster numbers follow cluster content rather than a stored assignment, so
 they are stable across releases without anything being remembered (CLAUDE.md hard rule 9).
 
-⚠ Neither method is tuned yet -- ROADMAP section 30 is the list of open knobs, with the measurement
-that would settle each. The paratope motifs are a critical part of VDJdb and these are correct,
-measured, reproducible defaults, not optimised ones.
+**TCRNET is tuned** under the two-stage rule in ``docs/denoising.md`` section 7.1 -- admissible on
+Q, purity and precision against the shipped annotation, then ranked on independent-study lift. Its
+``TUNED`` carries the scorecard and the one cost it pays. TCREMP is being fitted the same way;
+until it is, its defaults are correct and reproducible but not optimised. ROADMAP section 30 lists
+what remains open, with the measurement that would settle each.
+
+⚠ **A lift figure is meaningless without its denominator.** Display-selected records contribute no
+independently-replicated pairs while filling a quarter of the human TRB cohort, so lift is scored on
+the non-display subset and the same clustering reads 1.098 or 5.259 depending only on which cohort
+is used (``docs/denoising.md`` section 6.1).
 """
 from __future__ import annotations
 
@@ -49,8 +56,10 @@ def run_tcrnet(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
                min_cluster: int | None = None) -> dict[str, int]:
     """TCRNET: enrichment, the two-stage neighbourhood graph, connected components.
 
-    ``p``, the scope and ``min_cluster`` default to :data:`vdjdb.motifs.tcrnet.TUNED`, which is
-    per chain -- TRA and TRB do not have the same optimum.
+    ``p``, the scope, the Leiden ``resolution`` and ``min_cluster`` all default to
+    :data:`vdjdb.motifs.tcrnet.TUNED`. It is keyed per chain, but both chains currently hold the
+    same configuration -- the per-chain split section 34 introduced did not survive being scored on
+    the corrected objective.
     """
     scored = tcrnet.enriched_clonotypes(chains, records, p=p, min_sample=min_sample)
     members = cluster.clusters(scored, min_cluster=min_cluster)
