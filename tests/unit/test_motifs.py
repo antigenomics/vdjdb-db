@@ -431,3 +431,28 @@ def test_per_epitope_lift_is_null_where_there_is_no_base_rate():
     e1, e2 = r.row(0, named=True), r.row(1, named=True)
     assert e1["replicated"] == 1 and e1["lift"] == pytest.approx(1.0)   # clustered everything
     assert e2["replicated"] == 0 and e2["lift"] is None                 # no base rate
+
+
+def test_trivial_members_is_one_cluster_per_epitope():
+    """The do-nothing partition covers every clonotype and never spans two epitopes.
+
+    It is the reference `docs/denoising.md` section 7.1 item 0 requires every candidate to beat, so
+    the two properties that make it a reference are asserted rather than assumed.
+    """
+    import polars as pl
+
+    from vdjdb.validate import motif_bench as mb
+
+    cohort = pl.DataFrame({
+        "species": ["HomoSapiens"] * 4, "gene": ["TRB"] * 4,
+        "antigen.epitope": ["GILGFVFTL", "GILGFVFTL", "NLVPMVATV", "NLVPMVATV"],
+        "cdr3aa": ["CASSA", "CASSB", "CASSA", "CASSC"],
+        "v.segm": ["TRBV1"] * 4, "j.segm": ["TRBJ1"] * 4})
+    t = mb.trivial_members(cohort)
+
+    # Every clonotype-epitope pair is claimed: nothing is noise.
+    assert t.height == 4
+    assert t["cid"].n_unique() == 2
+    assert "antigen.epitope" in t.columns        # the lift join keys on it, as legacy's file does
+    # `assign` must find a cluster for every cohort row -- retention 1.0 is the whole point.
+    assert mb.assign(cohort, t)["cluster"].null_count() == 0

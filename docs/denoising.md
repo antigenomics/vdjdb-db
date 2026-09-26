@@ -320,6 +320,27 @@ Two stages, applied in order — neither alone is sufficient, and the sweeps sho
 
 Never the reverse order, and never either stage alone.
 
+#### What stage 1 can and cannot do — measured
+
+The four axes are not four independent guarantees. Score the partition that puts **every clonotype of
+an epitope in one cluster and excludes nothing** — an instrument reading, not an algorithm — and it
+returns $Q=0.7940$, purity $0.9204$, precision $0.9237$ and coverage $118/118$ on human TRA, and
+$Q=0.8632$, purity $0.9343$, precision $0.9455$, coverage $178/178$ on TRB. Its lift is $1.000$ by
+construction and its $F_1$ sits at the floor.
+
+So on TRA **that partition clears all four admissibility axes today**, and what excludes it is stage
+2 alone. $Q$ and coverage rise toward it on both chains; only purity and precision fall, and only on
+TRB, where legacy's $0.9790$ is above its $0.9343$.
+
+Two rules follow, and they are the operative form of stage 1:
+
+- **$Q$ and coverage are guards against the shattering corner, not evidence of quality.** Read them
+  as floors, never as a ranking, and never across configurations at different retentions.
+- **An absolute purity floor must exceed the measured purity of that partition**, per chain, per
+  build — not a round number fixed in advance. On human TRB that is $0.9343$, so a floor of $0.93$
+  admits a clustering that has clustered nothing. `docs/clustering.md` §8 carries the full audit and
+  the measured window.
+
 #### Why epitope coverage is an admissibility axis and not a tiebreak
 
 $Q$, purity and precision were the original three, and they exclude the *shattering* corner: the
@@ -366,6 +387,9 @@ score is a separate decision with its own validation.
 
 ## 9. Checklist for any change to the motif stage
 
+0. Does it beat the **do-nothing partition** — one cluster per epitope, nothing excluded — on lift
+   and $F_1$? Every other axis is cleared by that partition on at least one chain (§7.1), so this is
+   the first question and not the last.
 1. Does it change the **§11.1 lift and F1**, per chain? Report both, with the base rate and n —
    and the **publicity-controlled** lift beside the raw one (§5.2).
 2. Does it change **Q**, with `h` and `p` separately? A gain in one that is a loss in the other is
