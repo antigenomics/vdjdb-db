@@ -297,41 +297,44 @@ def hdbscan_labels(X: np.ndarray, epitopes: np.ndarray, min_cluster_size: int = 
 COEF_GRID: tuple[float, ...] = (0.15, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.8, 2.1)
 
 #: **Fitted under the two-stage rule in ``docs/denoising.md`` section 7.1** -- admissible on ``Q``,
-#: purity and precision against the shipped annotation, then ranked on the section 11.1
-#: independent-study lift. Not the purity/retention criterion sections 31-34 used: that pair trades
-#: against itself and had no interior optimum (section 36).
+#: purity, precision **and epitope coverage** against the shipped annotation, then ranked on the
+#: section 11.1 independent-study lift. Not the purity/retention criterion sections 31-34 used: that
+#: pair trades against itself and had no interior optimum (section 36).
 #:
 #: **The frontier is a single crossing, not a search.** Lift falls monotonically as ``coef`` widens
-#: and ``Q`` rises, so the answer is the *smallest* ``coef`` whose ``Q`` clears the legacy bar --
-#: verified by probing the crossing at 0.05 resolution rather than trusting a grid point.
-#: ``min_cluster`` 5 dominates 3 on lift, purity **and** precision at every ``coef`` measured, so it
-#: is not a trade either.
+#: while ``Q``, retention and epitope coverage all rise, so the answer is the *smallest* ``coef``
+#: whose four admissibility quantities all clear the bar -- verified by probing the crossing at 0.05
+#: resolution rather than trusting a grid point. ``min_cluster`` 5 dominates 3 on lift, purity **and**
+#: precision at every ``coef`` measured, so it is not a trade either.
 #:
-#: Re-measured on the ``cluster_members_tcremp.txt`` the build actually writes, over human
-#: clonotype-epitope pairs in epitopes with >= 30 records -- the same cohort TCRNET is scored on
-#: (ROADMAP_local section 37.1):
+#: Measured on the ``cluster_members_tcremp.txt`` the build writes, over human clonotype-epitope pairs
+#: in epitopes with >= 30 records -- the same cohort TCRNET is scored on (ROADMAP_local section 37.1):
 #:
-#: ======  =========  ======  ======  ======  ======  ======  ======  ======  ======
-#: chain   config     lift    legacy  Q       legacy  purity  legacy  prec    legacy
-#: ======  =========  ======  ======  ======  ======  ======  ======  ======  ======
-#: TRA     coef 1.8   1.855   1.703   0.1728  0.1691  0.9104  0.8658  0.8931  0.8567
-#: TRB     coef 1.15  4.490   2.855   0.4437  0.4433  0.9873  0.9790  0.9859  0.9756
-#: ======  =========  ======  ======  ======  ======  ======  ======  ======  ======
+#: ======  =========  ======  ======  ======  ======  ======  ======  =========  =========
+#: chain   config     lift    legacy  Q       legacy  purity  legacy  epitopes   legacy
+#: ======  =========  ======  ======  ======  ======  ======  ======  =========  =========
+#: TRA     coef 1.8   1.855   1.703   0.1729  0.1691  0.9105  0.8658  104 / 118  103
+#: TRB     coef 1.55  3.585   2.855   0.4947  0.4433  0.9829  0.9790  105 / 178  103
+#: ======  =========  ======  ======  ======  ======  ======  ======  =========  =========
 #:
-#: Retention: TRA 0.2508 against legacy's 0.2105, TRB 0.3232 against 0.3218.
+#: Precision: TRA 0.8931 against legacy's 0.8567, TRB 0.9829 against 0.9756. Retention: TRA 0.2508
+#: against 0.2105, TRB 0.3747 against 0.3218. **Both chains improve on all five pooled axes and on
+#: epitope coverage** -- there is no cost to name here, unlike TCRNET's TRB cell.
 #:
-#: **Both chains improve on every one of the five axes** -- there is no cost to name here, unlike
-#: TCRNET's TRB cell. TRB gains **+57 % lift** over the shipped annotation, TRA **+8.9 %**.
-#:
-#: ⚠ **TRB sits on the Q boundary**: 0.4437 against a bar of 0.4433, a margin of +0.0004. It clears
-#: the stated criterion and is therefore the answer the rule gives, but the margin is rounding-level,
-#: so re-check this cell whenever the corpus changes. ``coef`` 1.2 is the nearest cell with a real
-#: margin (Q 0.4670) and costs 3.5 % of lift.
+#: ⚠ **TRB was ``coef`` 1.15 until the per-epitope breakdown was run, and that was wrong.** 1.15
+#: maximises pooled lift (4.490) and is admissible on ``Q``, purity and precision -- but it covers
+#: **88 of 178 epitopes against legacy's 103**, and drops from 42 to 36 epitopes where the clustering
+#: beats local chance. It clusters essentially the same *total* clonotypes (37,094 against 37,210)
+#: concentrated into fifteen fewer epitopes and 746 clusters instead of 1,074. An epitope with no
+#: motif gets no denoising, so that is a worse database bought with a better average. Coverage is now
+#: an admissibility axis for exactly this reason (``docs/denoising.md`` section 7.1), and 1.55 is the
+#: smallest ``coef`` clearing all four. The cost is pooled lift, 4.490 -> 3.585, still +25.6 % on
+#: legacy.
 #:
 #: ⚠ **Lift is on the non-display denominator** (``docs/denoising.md`` section 6.1). The same TRB
-#: clustering reads **4.490** there and **1.272** on the full cohort; display-selected records
-#: contribute zero independently-replicated pairs while filling 29,692 of 116,053 clonotype slots.
-#: A lift figure without its cohort is not a number.
+#: clustering reads **3.585** there and a much lower figure on the full cohort; display-selected
+#: records contribute zero independently-replicated pairs while filling 29,692 of 116,053 clonotype
+#: slots. A lift figure without its cohort is not a number.
 #:
 #: ``n_components`` is 50 on both chains. Section 34 had TRB at 100; that came from the superseded
 #: purity criterion, and 50 is the benchmark's own front-end applied to every method, so the
@@ -341,7 +344,7 @@ COEF_GRID: tuple[float, ...] = (0.15, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9, 1.1, 1.3, 1.
 #: `tcremp`, ~3,000 OLGA prototypes, Smith-Waterman; ROADMAP section 8.2).
 TUNED: dict[str, dict] = {
     "TRA": {"coef": 1.8, "min_cluster": 5, "n_components": 50},
-    "TRB": {"coef": 1.15, "min_cluster": 5, "n_components": 50},
+    "TRB": {"coef": 1.55, "min_cluster": 5, "n_components": 50},
 }
 
 #: Back-compatible view of :data:`TUNED` for callers that only want the radius.
