@@ -132,3 +132,6 @@ uv.lock.tmp
 /*.out
 /*.log
 ref/
+
+# Sphinx output.
+docs/_build/

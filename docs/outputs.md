@@ -2,8 +2,7 @@
 
 Every file the build produces, what it contains, whether it ships, and who consumes it.
 
-Becomes `docs/standards/database-outputs.rst` when the Sphinx site lands (ROADMAP phase 13); kept as
-Markdown until then so it is useful now.
+Rendered on the documentation site straight from this file by `myst-parser`. It stays Markdown rather than becoming `.rst`: it is cited by section number from `ROADMAP.md`, from the package docstrings and from `docs/tuning/`, and converting it would break every one of those references to gain nothing a parser does not already do.
 
 Status key: **shipped** in the release zip · **artifact** produced and uploaded by CI but not zipped
 · **internal** produced during a build, not published.

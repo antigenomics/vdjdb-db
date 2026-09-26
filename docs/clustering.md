@@ -5,9 +5,7 @@ do, and what each one measures at. **`docs/denoising.md` decides *what* to optim
 catalogues *what is available to optimise over*.** Read that one first — a scorecard here is
 meaningless without §7.1's two-stage rule.
 
-Becomes `docs/standards/clustering.rst` when the Sphinx site lands (ROADMAP phase 13); Markdown until
-then so it is useful now. Carries MathJax, so `conf.py` needs
-`myst_enable_extensions = ["dollarmath"]`.
+Rendered on the documentation site straight from this file by `myst-parser`. It stays Markdown rather than becoming `.rst`: it is cited by section number from `ROADMAP.md`, from the package docstrings and from `docs/tuning/`, and converting it would break every one of those references to gain nothing a parser does not already do.
 
 Status key: **shipped** — the default in `TUNED` · **wired** — implemented, tested, measured, not
 default · **rejected** — measured and ruled out, kept only so the ruling stays checkable ·
