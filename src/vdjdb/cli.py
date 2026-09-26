@@ -253,12 +253,15 @@ def summary(
     legacy: Path = typer.Option(Path("out/legacy"), help="Legacy projection this build produced."),
     reference: Path | None = typer.Option(None, help="A previous fragment, for the SSIM layer."),
     verbose: bool = typer.Option(False, help="Show knitr's chunk-by-chunk progress."),
+    assets: Path | None = typer.Option(
+        None, help="Write the figures here instead of inlining them. Needs a vdjdb-web change: "
+                   "its Scala side finds images by matching data:image/png;base64."),
 ) -> None:
     """Render the release dashboard and verify the fragment `vdjdb-web` will serve."""
     from .summary import render as r
 
     r.render(legacy, quiet=not verbose)
-    typer.echo(f"{r.extract():,} lines -> {r.FRAGMENT}")
+    typer.echo(f"{r.extract(assets=assets):,} lines -> {r.FRAGMENT}")
     if code := r.check(reference=reference):
         raise typer.Exit(code)
 

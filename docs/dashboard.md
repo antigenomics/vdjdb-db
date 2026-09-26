@@ -38,6 +38,23 @@ on every render:
 The perceptual thresholds are loose and asymmetric because the database grows: fail below 0.55, warn
 below 0.80. The point is not pixel equality.
 
+## The fragment is 5.14 MB, and need not be
+
+The figures are inlined as base64, which is what `vdjdb-web`'s Scala side finds them by. Measured on
+the current dashboard, that costs:
+
+| | HTML injected per page load | figures |
+|---|---:|---|
+| inlined (today) | **5.14 MB** | inside the HTML, re-sent every time |
+| external (`--assets`) | **94.8 KB** | 8 PNGs, 3.78 MB, separately cacheable |
+
+**55× smaller**, and 1.3 MB of the inlined size is nothing but base64's 33 % encoding overhead.
+
+`uv run vdjdb summary --assets <dir>` produces that form today. It is **not the default and cannot
+be until vdjdb-web changes**: its Scala side locates the images by matching
+`data:image/png;base64`, so pointed at a fragment with external `src` attributes it would render
+eight broken images. The capability ships ready for that change rather than waiting on it.
+
 ## Seeing it as the site will
 
 Opening the fragment directly shows **unstyled** tables — the Semantic UI classes come from

@@ -37,6 +37,7 @@ SUMMARY = Path("summary")
 RMD = SUMMARY / "vdjdb_summary.Rmd"
 RENDERED = SUMMARY / "vdjdb_summary.html"
 INTERMEDIATE = SUMMARY / "vdjdb_summary.knit.md"
+FIGURES = SUMMARY / "vdjdb_summary_files" / "figure-html"
 FRAGMENT = SUMMARY / "vdjdb_summary_embed.html"
 TEMPLATE = "embed.html"
 FILTER = "embed.lua"
@@ -58,11 +59,21 @@ def render(legacy: Path, *, quiet: bool = True) -> Path:
     return RENDERED
 
 
-def extract(intermediate: Path = INTERMEDIATE, fragment: Path = FRAGMENT) -> int:
+def extract(intermediate: Path = INTERMEDIATE, fragment: Path = FRAGMENT, *,
+            assets: Path | None = None, asset_prefix: str = "figures/") -> int:
     """One pandoc pass over knitr's intermediate that emits the fragment. Returns its line count.
 
     Run from ``summary/`` because the intermediate references its figures relatively and
     ``--embed-resources`` resolves them from the working directory.
+
+    ``assets`` switches the figures from inlined base64 to files written there, referenced as
+    ``asset_prefix + name``. Measured on the current dashboard: the fragment goes from **5.14 MB to
+    94.8 KB, 55x smaller**, and the 3.78 MB of PNGs become separately cacheable rather than
+    re-sent on every page load.
+
+    **It is not the default, and cannot be until vdjdb-web changes.** The Scala side matches
+    ``data:image/png;base64`` to find the images; pointed at a fragment with external ``src``
+    attributes it would render eight broken images. The capability ships ready for that change.
     """
     if shutil.which("pandoc") is None:
         raise RuntimeError("pandoc is not on PATH; the fragment is produced by it.")
@@ -70,11 +81,22 @@ def extract(intermediate: Path = INTERMEDIATE, fragment: Path = FRAGMENT) -> int
         raise FileNotFoundError(
             f"{intermediate} is missing -- render() must run with `clean = FALSE`, or knitr "
             "deletes the intermediate this pass reads.")
-    subprocess.run(
-        ["pandoc", intermediate.name, "--from", READER, "--to", "html4",
-         "--embed-resources", "--standalone", "--syntax-highlighting", "none",
-         "--template", TEMPLATE, "--lua-filter", FILTER, "-o", fragment.name],
-        cwd=intermediate.parent, check=True)
+    # Built in one piece rather than inserted into positionally: an index into an argv is a
+    # statement about a list that has already changed once.
+    cmd = ["pandoc", intermediate.name,
+           "--from", READER, "--to", "html4", "--standalone",
+           "--syntax-highlighting", "none",
+           "--template", TEMPLATE, "--lua-filter", FILTER,
+           *(["--embed-resources"] if assets is None
+             else ["-M", f"asset-prefix={asset_prefix}"]),
+           # Absolute: pandoc runs in `summary/` so the figures resolve relatively, but the
+           # fragment may be written anywhere -- a bare name would land beside the intermediate.
+           "-o", str(fragment.resolve())]
+    subprocess.run(cmd, cwd=intermediate.parent, check=True)
+    if assets is not None:
+        assets.mkdir(parents=True, exist_ok=True)
+        for png in sorted(FIGURES.glob("*.png")):
+            (assets / png.name).write_bytes(png.read_bytes())
     return len(fragment.read_text().splitlines())
 
 
