@@ -34,6 +34,10 @@ def _directive_args(name: str) -> list[tuple[Path, str]]:
 
 
 def test_extension_imports_and_registers_three_directives():
+    # Needs docutils, which arrives with `--extra docs`. Skipped rather than failed in the database
+    # build, which has no business installing Sphinx -- and NOT left to chance: `docs.yml` runs
+    # this module with the docs extra present, so the import is covered where it matters.
+    pytest.importorskip("docutils", reason="needs `uv sync --extra docs`")
     mod = _ext()
     assert {"VdjdbSchema", "VdjdbVocabulary", "VdjdbScoreRules"} <= set(dir(mod))
     assert mod.DEFAULT_COLUMNS == ("name", "title", "comment")

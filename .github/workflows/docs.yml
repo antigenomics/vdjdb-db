@@ -21,6 +21,9 @@ on:
       - 'docs/**'
       - 'src/vdjdb/schema/**'
       - 'src/vdjdb/score/**'
+      # The extension's tests run in this workflow and nowhere else, so a change to them
+      # has to trigger it -- otherwise the one job that covers them never sees the change.
+      - 'tests/unit/test_docs.py'
       - '.github/workflows/docs.yml'
       - 'pyproject.toml'
   workflow_dispatch:
@@ -58,6 +61,11 @@ jobs:
           name: summary-fragment
           path: docs/_static/
           if_no_artifact_found: warn
+
+      # The docs extension's own tests run HERE, where docutils exists. The database build skips
+      # the import test for want of Sphinx, so without this step nothing would exercise it.
+      - name: Test the docs extension
+        run: uv run pytest tests/unit/test_docs.py -q
 
       - name: Build
         run: uv run sphinx-build -E -W --keep-going -b html docs docs/_build/html
