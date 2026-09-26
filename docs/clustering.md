@@ -1,4 +1,4 @@
-# Clustering VDJdb motifs — the four partitions, their parameters, and their measured scorecards
+# Clustering VDJdb motifs — the partitions, their parameters, and their measured scorecards
 
 Which algorithm turns a set of candidate clonotypes into motif clusters, what each one's parameters
 do, and what each one measures at. **`docs/denoising.md` decides *what* to optimise; this document
@@ -10,7 +10,12 @@ then so it is useful now. Carries MathJax, so `conf.py` needs
 `myst_enable_extensions = ["dollarmath"]`.
 
 Status key: **shipped** — the default in `TUNED` · **wired** — implemented, tested, measured, not
-default · **rejected** — measured and ruled out, kept only so the ruling stays checkable.
+default · **rejected** — measured and ruled out, kept only so the ruling stays checkable ·
+**measured** — scored on the same instruments from a script under `docs/tuning/`, not in the package.
+
+Every number below comes from `docs/tuning/scorecard.tsv`, 238 configurations scored through one
+harness on one cohort, and the markdown is generated from it by `docs/tuning/report.py` — no figure
+in this document is transcribed by hand. §11 has the commands.
 
 ---
 
@@ -207,55 +212,73 @@ chain's mean 1-NN distance, **5 cells raised
 shattering is unavailable, which is worth recording: it is the reason the `leaf` rows below cannot be
 repaired.
 
-### 4.3 The scorecard — 32 cells, human, `min_cluster` fixed at 5
+### 4.3 The scorecard — 56 cells per chain, human, `min_cluster` fixed at 5
 
-**TRA** (bar: `Q` 0.1691, purity 0.8658, precision 0.8567), ranked by lift:
+`min_cluster_size` × {3, 5, 8, 10, 15, 20, 30, 50}, `cluster_selection_method` × {`eom`, `leaf`},
+`min_samples` × {2, 3, 5, 10}, cells with `min_samples > min_cluster_size` skipped: **56 per chain**.
+The full grid with every instrument is `docs/tuning/scorecard.tsv`; the extremes are below.
 
-| `min_cluster_size` | method | `min_samples` | lift | Q | h | parsimony | purity | precision | retention | cids | admissible |
-|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|:-:|
-| 3 | leaf | 5 | **1.507** | 0.2023 | 0.948 | 0.113 | 0.8991 | 0.8954 | 0.3000 | 2,384 | — |
-| 5 | leaf | 5 | 1.397 | 0.2069 | 0.947 | 0.116 | 0.9012 | 0.8968 | 0.3344 | 2,619 | **yes** |
-| 3 | eom | 2 | 1.389 | 0.2120 | 0.946 | 0.119 | **0.9061** | **0.9032** | 0.3244 | 2,567 | **yes** |
-| 5 | leaf | 2 | 1.364 | 0.1878 | 0.949 | 0.104 | 0.8982 | 0.8946 | 0.3523 | 3,199 | **yes** |
-| 10 | leaf | 5 | 1.265 | 0.2492 | 0.943 | 0.144 | 0.8999 | 0.8949 | 0.4016 | 2,669 | **yes** |
-| 5 | eom | 2 | 1.257 | 0.2616 | 0.940 | 0.152 | 0.9017 | 0.8978 | 0.4366 | 3,236 | **yes** |
-| 20 | eom | 2 | 1.078 | 0.3979 | 0.922 | 0.254 | 0.8773 | 0.8741 | 0.5276 | 2,639 | **yes** |
-| 20 | eom | 5 | 1.009 | **0.5344** | 0.913 | **0.378** | 0.8825 | 0.8788 | **0.5454** | 1,630 | **yes** |
+**TRA** — bar: `Q` 0.1691, purity 0.8658, precision 0.8567, coverage 103 epitopes.
+Each row is the grid's extreme on one column; `p` is `Q`'s parsimony term.
 
-**TRB** (bar: `Q` 0.4433, purity 0.9790, precision 0.9756), ranked by lift:
+| config | lift | f1 | q | p | purity | retention | epitopes | perc_med |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| leaf mcs5 ms5 | **1.397** | **0.0799** | 0.1876 | 0.104 | 0.9002 | 0.3344 | 114 | 0.377 |
+| eom mcs3 ms2 | 1.389 | 0.0789 | 0.1700 | 0.093 | **0.9061** | 0.3244 | 114 | 0.355 |
+| eom mcs5 ms2 | 1.257 | 0.0734 | 0.2616 | 0.152 | 0.9017 | 0.4366 | **116** | 0.306 |
+| leaf mcs50 ms5 | 1.143 | 0.0669 | 0.3467 | 0.213 | 0.8869 | 0.4304 | 108 | **0.241** |
+| eom mcs30 ms5 | 0.921 | 0.0548 | **0.6489** | 0.507 | 0.8833 | **0.5623** | 111 | 0.286 |
 
-| `min_cluster_size` | method | `min_samples` | lift | Q | h | parsimony | purity | precision | retention | cids | admissible |
-|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|:-:|
-| 3 | leaf | 5 | **1.571** | 0.1707 | 0.980 | 0.093 | 0.9360 | 0.9317 | 0.3905 | 4,379 | — |
-| 5 | leaf | 5 | 1.470 | 0.2114 | 0.976 | 0.119 | 0.9357 | 0.9321 | 0.4610 | 4,852 | — |
-| 5 | leaf | 2 | 1.404 | 0.2355 | 0.974 | 0.134 | **0.9403** | 0.9372 | 0.5548 | 7,152 | — |
-| 5 | eom | 5 | 1.168 | 0.4939 | 0.962 | 0.332 | 0.9396 | 0.9393 | 0.7427 | 4,351 | — |
-| 10 | eom | 5 | 1.122 | 0.5154 | 0.962 | 0.352 | 0.9401 | 0.9399 | 0.7758 | 3,960 | — |
-| 20 | eom | 2 | 1.116 | 0.5375 | 0.961 | 0.373 | **0.9412** | 0.9392 | **0.8042** | 3,827 | — |
-| 20 | eom | 5 | 1.092 | **0.5525** | 0.961 | **0.388** | **0.9412** | **0.9402** | 0.7963 | 3,376 | — |
+**TRB** — bar: `Q` 0.4433, purity 0.9790, precision 0.9756, coverage 103 epitopes.
 
-Full 32 rows in `/tmp/hdbscan_sweep.csv`; the eight per chain above are the ranked extremes and every
-admissible TRA cell of interest.
+| config | lift | f1 | q | p | purity | retention | epitopes | perc_med |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| leaf mcs3 ms3 | **1.538** | **0.0884** | 0.1346 | 0.072 | 0.9337 | 0.3478 | 147 | 0.455 |
+| leaf mcs15 ms3 | 1.222 | 0.0743 | 0.3331 | 0.201 | 0.9326 | 0.6270 | 130 | **0.215** |
+| eom mcs5 ms2 | 1.218 | 0.0744 | 0.4427 | 0.287 | 0.9389 | 0.7240 | **165** | 0.357 |
+| eom mcs20 ms3 | 1.119 | 0.0689 | 0.6254 | 0.464 | **0.9433** | 0.8326 | 125 | 0.244 |
+| eom mcs30 ms2 | 1.055 | 0.0649 | **0.6397** | 0.479 | 0.9424 | **0.8336** | 115 | 0.247 |
 
 ### 4.4 What the scorecard says
 
-**12 of 32 cells are admissible, all of them on TRA, none on TRB.** On TRB purity tops out at 0.9412
-against a bar of 0.9790 — every single cell regresses it, by 4 points.
+**Under the legacy-relative bar: 51 of 56 TRA cells are admissible and 0 of 56 TRB cells are.** On
+TRB purity tops out at 0.9433 against a bar of 0.9790 — every cell regresses it, by 3.6 points. The
+51 admissible TRA cells are a warning rather than a result: §8 shows the do-nothing partition is
+admissible on TRA too.
 
-**The `eom` / `leaf` axis behaves exactly as the theory predicts, which is the useful part.** `leaf`
-buys lift and destroys parsimony (TRB `leaf` parsimony 0.093–0.134 against `eom`'s 0.332–0.388);
-`eom` buys parsimony and retention and gives up lift. The two failure modes bracket the truth and
-neither end is admissible on TRB.
+**The `eom` / `leaf` axis behaves exactly as theory predicts, which is the useful part.** `leaf` buys
+lift and destroys parsimony — TRB `leaf` parsimony spans 0.068–0.286 against `eom`'s 0.148–0.500 —
+while `eom` buys parsimony, retention and coverage and gives up lift. The two failure modes bracket
+the truth, and neither end is admissible on TRB.
 
-**HDBSCAN's real strength is retention and structure, not selectivity.** TRB `eom mcs20 ms2` clusters
-**80.4 %** of clonotypes at `Q` 0.5375 — against DBSCAN's 32.3 % at `Q` 0.4437. That is a
-*structurally better* partition by the instrument `Q`, and it covers far more of the database. It
-fails only because purity falls below legacy's, and it fails on lift badly: 1.116 against DBSCAN's
-4.490.
+**HDBSCAN's strength is coverage and structure, not selectivity.** TRB `eom mcs5 ms2` reaches **165
+of 178 epitopes** at retention 0.7240 and median percolation 0.357 — against legacy's 103 epitopes,
+0.3218 and 0.769. It is a better partition on every axis except the one being optimised: its lift is
+1.218 against shipped TCREMP's 3.586.
 
-**Verdict: rejected under §7.1 on both chains** — no admissible cell on TRB, and on TRA the best
-admissible lift is 1.397 against DBSCAN's 1.855 and TCRNET's 1.977. It stays wired and tested because
-the retention result is worth revisiting if the acceptance bar ever moves off legacy purity — see §6.
+### 4.5 Under a relaxed, absolute purity floor
+
+The relaxation §7 flagged as the open question was measured rather than argued, and the number
+matters more than the direction — see §8.1 for why 0.93 specifically is the wrong floor.
+
+| TRB purity floor | admissible of 56 | best admissible cell | lift | F1 | retention | epitopes |
+|---|---:|---|---:|---:|---:|---:|
+| legacy, 0.9790 | 0 | — | — | — | — | — |
+| 0.9300 | 25 | `eom mcs5 ms3` | 1.194 | 0.0731 | 0.7367 | 160 |
+| **0.9400** | **11** | `eom mcs8 ms3` | 1.155 | 0.0709 | 0.7699 | 155 |
+
+**At a floor of 0.94, HDBSCAN becomes admissible on TRB and still loses stage 2 by 3.1×** — lift
+1.155 against the shipped TCREMP's 3.586, F1 0.0709 against 0.1888. So the relaxation the open
+question asked for can be granted without changing what ships, which is the cleanest possible answer
+to it: the verdict never rested on the bar.
+
+What it *would* change if stage 2 were also rewritten is a different database — 155 of 178 epitopes
+carrying motifs instead of 105, at 77.0 % retention instead of 37.5 %, with a third of legacy's
+percolation — where a clustered clonotype is 16 % more likely than chance to have been seen by a
+second laboratory, rather than 259 % more likely. That is the trade, in numbers.
+
+**Verdict: rejected on the objective, not on the bar.** It stays wired and tested; §8 records what
+the bar can and cannot do.
 
 ---
 
@@ -361,33 +384,273 @@ for no reason. 47 of 118 TRA epitopes and 60 of 178 TRB epitopes have a defined 
 
 ## 7. Summary, and what would change a verdict
 
-| Algorithm | Status | TRA lift | TRB lift | TRB epitopes covered | Distinguishing property |
-|---|---|---:|---:|---:|---|
-| the shipped 2026-06-03 annotation | baseline | 1.703 | 2.855 | 103 / 178 | what every bar is set from |
-| connected components | **shipped**, TCRNET | **1.977** | 3.194 | **109** | no parameters to overfit |
-| CPM Leiden | rejected | — | — | — | lift 2.6× on TRA at parsimony ÷ 8.4 |
-| DBSCAN | **shipped**, TCREMP | 1.855 | **3.586** | 105 | monotone frontier; tuning is a bisection |
-| HDBSCAN | rejected | 1.397 | — | 119–146, none admissible | retention 0.80 at `Q` 0.5375; purity −4 pts |
+| Algorithm | Status | TRA lift | TRA F1 | TRB lift | TRB F1 | TRB epitopes | Distinguishing property |
+|---|---|---:|---:|---:|---:|---:|---|
+| the shipped 2026-06-03 annotation | baseline | 1.703 | 0.0932 | 2.855 | 0.1489 | 103 / 178 | what every bar is set from |
+| connected components | **shipped**, TCRNET | 1.977 | 0.1086 | 3.194 | 0.1669 | **109** | no parameters to overfit |
+| CPM Leiden | rejected | — | — | — | — | — | lift 2.6× on TRA at parsimony ÷ 8.4 |
+| DBSCAN | **shipped**, TCREMP | 1.855 | 0.1032 | **3.586** | **0.1888** | 105 | monotone frontier; tuning is a bisection |
+| HDBSCAN | rejected | 1.397 | 0.0799 | 1.155 | 0.0709 | 155 at floor 0.94 | coverage 160/178 at retention 0.74 |
+| Lumbermark | measured | — | — | 1.148 | 0.0706 | 175 | percolation 0.224 vs legacy's 0.769 |
+| TCRNET gate + Lumbermark | measured | **3.618** | **0.1702** | 4.089 | 0.1943 | 82, below the floor | best objective measured; fails coverage |
 
-Leiden has no admissible cell on either chain; HDBSCAN has twelve on TRA and none on TRB. The two
-rejected rows carry a dash where no admissible configuration exists, rather than their best
-inadmissible number — an inadmissible lift is not a lift this project can spend.
+A dash is where no admissible configuration exists. An inadmissible lift is not a lift this project
+can spend, so the rejected rows carry the best *admissible* number or nothing.
 
-Both rejections are **conditional on the acceptance bar being legacy's purity**, and that is the
-assumption most worth attacking. Legacy purity is not a law of nature — it is the 2026-06-03 file's
-number, and `denoising.md` §7 adopts it so that no release ever regresses. Three things would reopen
-these verdicts, in descending order of how likely they are to matter:
+**The shipped configuration survived the bake-off.** 238 configurations across six algorithms, and
+nothing admissible beats TCREMP at `coef` 1.55 on TRB or TCRNET on TRA. That is the result; §§8–9 are
+what was learned on the way.
 
-1. **A bar that is absolute rather than relative.** If purity ≥ 0.93 were acceptable on TRB, HDBSCAN
-   `eom mcs20 ms2` ships instead — 80 % retention at `Q` 0.5375 — and the database gains motif
-   coverage over most of its epitopes rather than a third of them. That is a curation decision, not a
-   measurement.
-2. ~~Per-epitope coverage entering the criterion.~~ **Settled**: it is now a fourth admissibility
-   axis (`denoising.md` §7.1). Stage 2 maximises pooled lift, lift prefers the narrowest admissible
-   radius, and a narrow radius covers fewer epitopes -- measured, TCREMP TRB at `coef` 1.15 covered
-   88 of 178 against legacy's 103. The shipped TRB radius moved to 1.55 as a result.
-3. **`cluster_selection_epsilon` becoming usable** in a later sklearn, which is the only knob that
-   would let HDBSCAN's `leaf` lift be had without its shattering.
+### What would change a verdict
+
+1. ~~A bar that is absolute rather than relative.~~ **Settled, and it changes nothing**: measured in
+   §4.5. At a TRB purity floor of 0.94 — the lowest floor that still excludes a partition which
+   clusters nothing, §8.1 — HDBSCAN is admissible and loses stage 2 by 3.1× on lift. The verdict did
+   not rest on the bar.
+2. ~~Per-epitope coverage entering the criterion.~~ **Settled**: a fourth admissibility axis
+   (`denoising.md` §7.1). Measured, TCREMP TRB at `coef` 1.15 covered 88 of 178 against legacy's 103;
+   the shipped TRB radius moved to 1.55 as a result.
+3. **A gate with the recruited set's coverage and the enriched set's selectivity.** §9 shows the gate
+   and the partition are separable, and that the gate is what moves the objective: TRA F1 0.1086 →
+   0.1702 on the enriched gate alone. Nothing measured keeps both, and that is the live question this
+   document now leaves.
+4. **`cluster_selection_epsilon` becoming usable** in a later sklearn — the only knob that would let
+   HDBSCAN's `leaf` lift be had without its shattering.
 
 A rejected algorithm stays implemented and tested. The measurements above are the reason it is not
 default, and a measurement that cannot be re-run is not a reason.
+
+---
+
+## 8. The instrument audit — what a partition that clusters nothing scores
+
+Every sweep above carries one extra row, `trivial`: **one cluster per epitope, every clonotype in
+it, nothing excluded**. It is not an algorithm. It is the reading an instrument gives when no
+clustering has happened at all, and it is measured rather than argued because §7.1's admissibility
+axes turn out not to survive it.
+
+| gene | axis | do-nothing partition | legacy bar | does the bar exclude it? |
+|---|---|---:|---:|---|
+| TRA | `Q` | 0.7940 | 0.1691 | **no** |
+| TRA | purity | 0.9204 | 0.8658 | **no** |
+| TRA | precision | 0.9237 | 0.8567 | **no** |
+| TRA | epitope coverage | 118 | 103 | **no** |
+| TRA | lift | 1.0000 | 1.7027 | yes |
+| TRA | F1 | 0.0600 | 0.0932 | yes |
+| TRB | `Q` | 0.8632 | 0.4433 | **no** |
+| TRB | purity | 0.9343 | 0.9790 | yes |
+| TRB | precision | 0.9455 | 0.9756 | yes |
+| TRB | epitope coverage | 178 | 103 | **no** |
+| TRB | lift | 1.0000 | 2.8552 | yes |
+| TRB | F1 | 0.0622 | 0.1489 | yes |
+
+`vdjdb.validate.motif_bench.trivial_members` builds it, so the audit re-runs from the package and
+not from a sweep script. **Which form of it is the reference matters.** Every shipped clustering is
+split by CDR3 length before it reaches a release (§0), so the split form is the one a bar has to
+clear; the unsplit form — one cluster per epitope, full stop — scores even higher on `Q` (0.9208 on
+TRA, 0.9654 on TRB) but slightly *lower* on purity (0.9144, 0.9253). A floor of 0.93 would exclude
+the unsplit partition and admit the split one, which is exactly the kind of near-miss that makes
+choosing the number in advance a mistake. The table above is the split form.
+
+Three consequences, in order of how much they change:
+
+**`Q` is not an admissibility axis.** Doing nothing scores `Q` 0.7940 on TRA and 0.8632 on TRB —
+higher than *any* real clustering measured here, on either chain, across 238 configurations. That is
+not a defect in `Q`: it is what `Q` is for. Its parsimony term charges for shattering, and the
+partition that shatters least is the one with one cluster per class. `Q` discriminates between
+clusterings of *comparable* retention and says nothing across retentions. It stays in the scorecard
+as a shatter guard and comes out of the admissibility rule.
+
+**Epitope coverage is on the same side.** Coverage is maximised by claiming every clonotype, so a
+coverage floor is a floor against *narrowness*, not a quality bar. It still does the job §7.1 added
+it for — it is what stops stage 2 buying lift by abandoning epitopes — but it cannot be read as
+evidence that a clustering is good.
+
+**On TRA the four-axis rule already admits the do-nothing partition.** Legacy TRA purity is 0.8658,
+below the 0.9204 that doing nothing scores, so `trivial` clears all four axes today. **What excludes
+it is stage 2, and only stage 2**: its lift is exactly 1.000 by construction and its F1 sits at the
+floor. The rule works because the objective is doing the work, not because the axes are.
+
+### 8.1 Where this puts the 0.93 purity floor
+
+On TRB the legacy purity bar of 0.9790 is the one axis the do-nothing partition fails. **Relaxing it
+to 0.93 removes that, because doing nothing scores 0.9343 — 0.0043 above the proposed floor.** So an
+absolute floor on TRB has to clear the measured do-nothing purity, not a round number chosen in
+advance.
+
+| TRB purity floor | HDBSCAN cells admissible of 56 | do-nothing partition admitted? |
+|---|---:|---|
+| legacy, 0.9790 | 0 | no |
+| 0.9300 | 25 | **yes** |
+| 0.9343 | 23 | **yes** (the floor equals its purity) |
+| **0.9400** | **11** | **no** |
+
+HDBSCAN's highest TRB purity is 0.9433, so the usable window is **[0.9343, 0.9433] — 0.0090 wide**,
+and 0.94 sits inside it with margin at both ends. That is the floor this document recommends, and
+`docs/tuning/sweeps.py` carries it as `BAR["TRB"] = 0.94`.
+
+**On TRA no such floor exists.** HDBSCAN's highest TRA purity is 0.9061, below the 0.9204 that doing
+nothing scores, so every floor that excludes the do-nothing partition on TRA excludes all 56 HDBSCAN
+cells with it. The window is empty. TRA keeps the legacy-relative bar for that reason, not by
+preference.
+
+---
+
+## 9. Lumbermark, and the TCRNET-gated hybrid — **measured, not shipped**
+
+### 9.1 Why this pair
+
+§6.2 measured the defect: TRB's dominant failure is **percolation**, not shattering — the median
+epitope puts 0.706 of its clustered clonotypes in one cluster under the shipped TCRNET, and 41 of 178
+epitopes are ≥90 % collapsed. DBSCAN percolates because one radius chains through density bridges;
+Leiden (§2) and HDBSCAN `leaf` (§4) break the bridges by shattering, which is the other failure.
+
+**Lumbermark** (Gagolewski 2026, [arXiv:2604.07143](https://arxiv.org/abs/2604.07143), `lumbermark`
+on PyPI, AGPL-3) attacks exactly that gap. It cuts the *k*−1 longest edges of the M-mutual-
+reachability minimum spanning tree — HDBSCAN's own internal structure — subject to every resulting
+component being at least `min_cluster_size`, after pruning the tree's leaves. Mutual reachability
+pulls low-density points apart so a bridge becomes a long edge; the leaf pruning means the cut lands
+on a *protruding* edge rather than an outlier's stalk; the size floor is what stops the cut sequence
+shattering. It beats Genie and HDBSCAN on 61 reference datasets by adjusted Rand index.
+
+Requesting *k* = *n*−1 makes `min_cluster_size` the only granularity knob: the algorithm saturates
+and warns rather than failing, so there is no cluster count to choose.
+
+**It has no noise label** — it partitions every point, and the paper says outlier detection is future
+work. That is the half VDJdb already has: TCRNET's enrichment test against a matched background
+repertoire is a *statistical* noise model, not a density heuristic. So two variants are measured,
+each differing from its comparator in exactly one factor:
+
+| variant | vertex set | partition | isolates |
+|---|---|---|---|
+| `lumbermark` | everything | Lumbermark | the partition's ceiling with no gate |
+| `hybrid` | TCRNET **enriched** | Lumbermark | the gate, against `lumbermark` |
+| `hybrid-recruited` | TCRNET **enriched + neighbours** | Lumbermark | the partition, against shipped TCRNET |
+| `hybrid-len` | as above, within CDR3-length strata | Lumbermark | the emit path's length split |
+
+`hybrid-recruited` and the shipped TCRNET partition the **same vertices**, so the difference between
+them is the partition step and nothing else.
+
+### 9.2 What they measure
+
+**Lumbermark is the best percolation result in this document, and it is not close.** TRB `mcs10 M1`:
+median per-epitope percolation **0.224** against legacy's 0.769 and shipped TCREMP's 0.667, at
+retention 0.8345 over **175 of 178 epitopes**, purity 0.9445 — the highest non-legacy purity measured
+on TRB, above HDBSCAN's 0.9433 and above the do-nothing partition's 0.9343. It sits in the inclusive
+regime, so its lift is 1.148 and it is not a candidate for §7.1.
+
+**The gated hybrid is the best selectivity result in this document.** On TRA, `hybrid mcs3 M5`
+reaches **F1 0.1702 and lift 3.618** — against the shipped TCRNET's F1 0.1086 / lift 1.977 and
+legacy's 0.0932 / 1.703. That is **+57 % F1 over the best shipped TRA configuration**, on the
+objective §11.1 tunes against, and it is the largest single improvement measured on either chain.
+
+| gene | configuration | lift | F1 | `Q` | purity | retention | epitopes | percolation |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| TRA | legacy release | 1.703 | 0.0932 | 0.1691 | 0.8658 | 0.2105 | 103 | 0.472 |
+| TRA | shipped TCRNET | 1.977 | 0.1086 | 0.1798 | 0.8754 | 0.2323 | 103 | 0.396 |
+| TRA | `hybrid-recruited mcs3 M1` | 2.368 | 0.1244 | 0.0759 | 0.9025 | 0.1816 | 97 | 0.375 |
+| TRA | **`hybrid mcs3 M5`** | **3.618** | **0.1702** | 0.0452 | 0.9040 | 0.1255 | 86 | 0.500 |
+| TRB | legacy release | 2.855 | 0.1489 | 0.4433 | 0.9790 | 0.3218 | 103 | 0.769 |
+| TRB | shipped TCRNET | 3.194 | 0.1669 | 0.4428 | 0.9790 | 0.3337 | 109 | 0.706 |
+| TRB | shipped TCREMP | 3.586 | 0.1888 | 0.4947 | 0.9829 | 0.3745 | 105 | 0.667 |
+| TRB | `hybrid-recruited mcs3 M1` | 3.234 | 0.1649 | 0.1110 | 0.9786 | 0.2864 | 102 | 0.500 |
+| TRB | **`hybrid mcs5 M10`** | **4.089** | **0.1943** | 0.1388 | 0.9816 | 0.2847 | 82 | 0.527 |
+
+Three readings:
+
+**The gate is what buys the objective, and the partition is what buys percolation.**
+`hybrid-recruited` against the shipped TCRNET — same vertices, Lumbermark instead of connected
+components — moves TRB percolation 0.706 → 0.500 and leaves F1 flat (0.1669 → 0.1649) while `Q`
+collapses 0.4428 → 0.1110 on 4,702 cids against 657. Swapping the partition alone de-percolates and
+costs parsimony. Tightening the gate from recruited to enriched is what moves lift and F1.
+
+**Both hybrids fail the coverage axis**, by 17 epitopes on TRA and 23 on TRB. That is §7.1 working as
+designed: the enriched gate is the narrow corner the coverage floor exists to exclude.
+
+**Clustering inside CDR3-length strata does not buy the coverage back.** `hybrid-len` was run because
+the emit path splits every cluster by length before applying `min_cluster` (§0), so a cluster of 8
+across three lengths dies entirely at the floor of 5 — clustering within a stratum should have
+recovered it. It recovers some coverage and gives back the same amount of objective (TRA 86 → 93
+epitopes, F1 0.1702 → 0.1436; TRB 82 → 91, F1 0.1943 → 0.1832). The frontier is the frontier.
+
+### 9.3 Verdict
+
+**Not shipped, and the reason is coverage rather than quality.** Under §7.1 nothing here is
+admissible: the two Lumbermark variants that clear the coverage floor sit at lift ≈ 1.1, and the two
+that clear the objective cover 82–97 epitopes against a floor of 103.
+
+What is worth carrying forward is that **the gate and the partition are separable and were measured
+separately.** The shipped methods each couple one representation to one partition — TCRNET to
+connected components on the Hamming-1 graph, TCREMP to DBSCAN in the embedding. The hybrid shows the
+two choices are independent, that VDJdb's best noise model is its enrichment test rather than any
+density heuristic, and that the embedding's MST is where the percolation fix lives. A method that
+kept the recruited gate's coverage and the enriched gate's selectivity would beat everything in this
+document; nothing measured here does both.
+
+One thing deliberately **not** tried: admitting clusters individually by the within-stratum
+sum-of-hypergeometrics null in `vdjdb.validate.noise`. Admitting a cluster because its members are
+enriched for independent replication, and then scoring the result by independent-study lift, fits on
+the test statistic. It would read as a large improvement and mean nothing.
+
+---
+
+## 10. What the field uses, and why none of it is a drop-in
+
+The TCR clustering literature is large and it is mostly about *similarity*, which is the half of this
+problem VDJdb does not have trouble with.
+
+| tool | representation | partition | noise model | relation to this document |
+|---|---|---|---|---|
+| GLIPH (Glanville et al. 2017, *Nature* 547:94–98, [doi](https://doi.org/10.1038/nature22976)) | CDR3 motif enrichment against a reference set, plus global similarity | specificity groups | enrichment *p* | the idea TCRNET implements, with a matched background rather than a naive reference |
+| GLIPH2 (Huang et al. 2020, *Nat Biotechnol* 38:1194–1202, [doi](https://doi.org/10.1038/s41587-020-0505-4)) | as above, scaled to millions | greedy grouping | enrichment *p* | a scaling result; VDJdb's *n* is 10⁵ |
+| GIANA (Zhang et al. 2021, *Nat Commun* 12:4699, [doi](https://doi.org/10.1038/s41467-021-25006-7)) | isometric embedding of the CDR3 | nearest-neighbour hashing | none | 600× TCRdist's speed at equal specificity — again a scaling result |
+| clusTCR (Valkiers et al. 2021, *Bioinformatics* 37:4865–4867, [doi](https://doi.org/10.1093/bioinformatics/btab446)) | Hamming-1 graph inside *k*-means superclusters | **Markov clustering (MCL)** | none | the one partition on the graph side not measured here; see below |
+| Vujovic et al. 2020, *Comput Struct Biotechnol J* 18:2166–2173, [doi](https://doi.org/10.1016/j.csbj.2020.06.041) | — | — | — | the survey of the above; confirms the pattern |
+
+*(Bibliographic records retrieved from PubMed.)*
+
+**Every one of them clusters; none of them selects.** They answer "which receptors are similar",
+which is why their published evaluations are purity-like and their parameters are similarity
+thresholds. VDJdb's motif stage has to answer a different question — *which similarity is evidence* —
+and that is why the objective here is independent-study replication (§11.1) and why the only new
+thing measured in §9 is a **gate + partition composition** rather than a new distance.
+
+**MCL is the one untested axis and it is deliberately left untested.** It is the clusTCR partition
+and it resists percolation by flow simulation, so it is the natural candidate on the graph side. But
+§2 already measured CPM Leiden on that same enriched graph and found the failure is not the
+partition's granularity: homogeneity rises while parsimony collapses 8.4-fold on TRA, and TRB gains
+1.1 % at best. MCL's inflation parameter is a smoother knob than CPM's resolution, not a different
+mechanism. It is recorded here as an open axis with a stated prior, not as an omission.
+
+The clustering-methods literature, by contrast, supplied the one idea that did change a measurement:
+mutual-reachability MSTs with a size-floored longest-edge cut (§9), from the line of work running
+Campello's HDBSCAN through Genie (Gagolewski et al. 2016, *Inf Sci* 363:8–23) to Lumbermark. `Q`
+itself comes from the same neighbourhood — Tiffeau-Mayer,
+[arXiv:2607.20799](https://arxiv.org/abs/2607.20799).
+
+---
+
+## 11. Figures
+
+Rendered from the committed tables by `gnuplot`; regenerate with the commands in each script header.
+
+| figure | script | shows |
+|---|---|---|
+| `out/reports/tuning/tuning_TRA.svg`, `tuning_TRB.svg` | `docs/tuning/tuning.gp` | all six instruments against retention, every configuration, both chains |
+| `out/reports/tuning/per_epitope.svg` | `docs/tuning/per_epitope.gp` | the per-epitope retention and percolation ECDFs behind §6 |
+
+The first figure is the argument of §8 in one picture: lift and F1 fall monotonically as retention
+rises, `Q` and coverage rise toward the grey do-nothing marker at retention 1.0, and purity is the
+only panel where that marker sits *below* the real clusterings.
+
+### Reproducing the tables
+
+```bash
+uv run python docs/tuning/sweeps.py all      # -> out/reports/tuning/*.csv   (~50 min)
+uv run python docs/tuning/report.py          # -> docs/tuning/*.tsv, tables.md
+gnuplot -e "chain='TRB'" docs/tuning/tuning.gp
+```
+
+`docs/tuning/scorecard.tsv` is the full 238-row measurement, one row per configuration and every
+instrument: it is a committed, reviewed input to this document, refreshed by its own pull request,
+and **never written by a build** (hard rule 9).
