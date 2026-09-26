@@ -24,6 +24,12 @@ on:
       runner:
         type: string
         default: '"ubuntu-latest"'
+  # PRs targeting master only. `master` receives merges from `dev` (and `hotfix/*`) and nothing
+  # else, so this is one build per release-ward merge -- and a *required* status check has to be
+  # able to run on the pull request it gates, or it blocks every PR forever. That trap is the whole
+  # reason the ROADMAP applies protections last.
+  pull_request:
+    branches: [master]
   push:
     branches: [dev, master]
     paths:
