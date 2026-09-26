@@ -300,3 +300,74 @@ def test_publicity_control_finds_no_lift_when_there_is_none():
     r = controlled_lift(df, n_perm=100)
     assert r["lift"] > 3.0
     assert r["ratio"] == pytest.approx(1.0, abs=0.05)
+
+
+def test_the_guarded_knee_is_invariant_to_how_many_points_the_curve_carries():
+    """The defect the guard exists for: a degree-10 fit over 112,983 points returns knee index 1.
+
+    Resampling onto a fixed grid makes the knee a property of the curve's *shape*, so the same
+    elbow is found at n = 300 and at n = 300,000 rather than dissolving into fit oscillation.
+    """
+    from vdjdb.motifs.tcremp import knee
+
+    fracs = []
+    for n in (300, 30_000, 300_000):
+        x = np.linspace(0, 1, n)
+        y = np.where(x < 0.8, x * 0.2, 0.16 + (x - 0.8) * 4.2)   # convex, elbow at 0.80
+        k = knee(y, concave=False)
+        assert not k["degenerate"]
+        fracs.append(k["frac"])
+    assert all(abs(f - 0.80) < 0.01 for f in fracs)
+    assert max(fracs) - min(fracs) < 0.005      # n changes the answer by less than half a percent
+
+
+def test_the_guarded_knee_declines_a_curve_that_has_no_knee():
+    """A straight line has strength exactly 0 and must be reported as degenerate, not given an index.
+
+    This is the case the reference implementation answered anyway, which is how ``eps`` ended up
+    below the data and retention collapsed to a few per cent.
+    """
+    from vdjdb.motifs.tcremp import knee
+
+    k = knee(np.linspace(1.0, 5.0, 50_000))
+    assert k["strength"] == pytest.approx(0.0, abs=1e-9)
+    assert k["degenerate"] and k["reason"] == "no-knee"
+
+    assert knee(np.full(100, 3.0))["reason"] == "flat"           # no range at all
+    assert knee(np.array([1.0, 2.0]))["reason"] == "too-short"
+
+    # A knee pinned to the bottom of the curve is rejected rather than used.
+    spike = np.concatenate([[0.0], np.linspace(5.0, 5.001, 9999)])
+    assert knee(spike)["reason"] == "at-floor"
+
+
+def test_the_guarded_knee_does_not_depend_on_the_units_of_the_curve():
+    """Normalising to the unit square is what makes ``strength`` a comparable number across chains."""
+    from vdjdb.motifs.tcremp import knee
+
+    x = np.linspace(0, 1, 5000)
+    y = np.where(x < 0.6, x * 0.1, 0.06 + (x - 0.6) * 3.0)
+    a, b = knee(y, concave=False), knee(y * 1000.0 + 7.0, concave=False)
+    assert a["frac"] == pytest.approx(b["frac"])
+    assert a["strength"] == pytest.approx(b["strength"])
+
+
+def test_hdbscan_labels_keeps_the_cluster_labels_contract():
+    """Same contract as ``cluster_labels``: -1 is noise, and a label never spans two epitopes."""
+    from vdjdb.motifs.tcremp import hdbscan_labels
+
+    rng = np.random.default_rng(0)
+    # two well-separated blobs per epitope, two epitopes
+    blobs = np.vstack([rng.normal(c, 0.05, (30, 2)) for c in ([0, 0], [5, 5], [0, 0], [5, 5])])
+    epitopes = np.array(["A"] * 60 + ["B"] * 60)
+
+    labels = hdbscan_labels(blobs, epitopes, min_cluster_size=5)
+    assert labels.min() >= -1
+    clustered = labels >= 0
+    assert clustered.sum() > 0
+    for lab in np.unique(labels[clustered]):
+        assert len(set(epitopes[labels == lab])) == 1        # never spans an epitope
+
+    # An epitope with fewer records than min_cluster_size is left entirely unclustered.
+    tiny = hdbscan_labels(blobs[:3], np.array(["A"] * 3), min_cluster_size=5)
+    assert (tiny == -1).all()

@@ -234,6 +234,48 @@ is a projection of the same registry, so none of them can drift.
 The dtype is **read off the written frame**, not declared, so the schema cannot claim a type the
 shipped files do not have.
 
+### 3.6 `clusters.parquet` and `motifs.parquet` — the motif tables
+
+The new-format counterpart of `cluster_members.txt` and `motif_pwms.txt` (§2). They exist because
+`evidence.parquet` records a `motif_tcrnet` / `motif_tcremp` row whose `evidence_value` is a cluster
+id: **that id has to resolve to something**, and in the legacy bundle it resolves only into a
+positionally-parsed text file. One row per method per build; the `method` column separates them
+rather than a second pair of files.
+
+`clusters` — one row per `(method, cid, clonotype_id)`, i.e. a cluster's membership:
+
+| Column | Note |
+|---|---|
+| `method` | `tcrnet` or `tcremp` |
+| `cid` | `<species-initial>.<chain-initial>.<epitope>.<n>`, TCREMP appending `L<len>` |
+| `clonotype_id` | joins to `chains.parquet`; the level motif evidence attaches at |
+| `species`, `gene`, `antigen.epitope` | the scope the clustering ran in |
+| `csz` | cluster size, in clonotypes |
+| `v.segm.repr`, `j.segm.repr` | modal allele over the cluster |
+| `x`, `y` | graph layout coordinates, for `vdjdb-web` |
+
+**`clonotype_id`, not the CDR3/V/J triple.** The legacy file repeats `cdr3aa v.segm j.segm` plus
+seven annotation columns on every member row, which is how a 55,636-row file carries 19 columns of
+mostly-duplicated epitope metadata. Here the annotation lives once in `records`/`epitopes` and the
+membership row carries a key — so `cluster_members.txt` is a join away, and the spec's own
+normalisation rule holds (§3).
+
+`motifs` — one row per `(method, cid, pos, aa)`, the position weight matrix:
+
+`method`, `cid`, `pos`, `aa`, `len`, `count`, `freq`, `count.bg`, `total.bg`, `count.bg.i`,
+`total.bg.i`, `level.bg`, `freq.bg`, `I`, `I.norm`, `height.I`, `height.I.norm`.
+
+A residue a cluster never shows has **no row**, rather than a zero-count one — the logo has no letter
+there, and the legacy file omits it too.
+
+`level.bg` names which background stratum supplied `count.bg`: the `(v.gene, j.gene, len)` cell when
+it has support, otherwise the coarser `len`-only cell. The legacy schema carries the imputation as a
+bare `need.impute` boolean, which says that a fallback happened but not what it fell back **to**;
+this names it, and the legacy projection derives the boolean from it.
+
+**Backgrounds never ship** (CLAUDE.md hard rule 5). `count.bg` / `total.bg` are derived statistics
+computed against a background streamed at build time; no background row reaches any output.
+
 ---
 
 ## 4. AIRR bundle — `vdjdb-airr-<version>.zip`
@@ -327,7 +369,13 @@ against, so it is reviewed in the release diff rather than the PR diff (ROADMAP 
 | `summary/reference_years.tsv` | publication years, so the dashboard render is offline and deterministic. A committed, reviewed input refreshed by its own PR -- never written by a build |
 | `summary/annotations.tsv` | dashboard event callouts, with no hardcoded coordinates |
 | `rules/expected_diffs.toml` | the declared differences the ledger accepts, each with a measured row count |
-| `config/motifs.toml` | every pinned motif parameter |
+
+**The pinned motif parameters are not a data file.** They are `TUNED` in
+`vdjdb.motifs.tcrnet` and `vdjdb.motifs.tcremp`, each carrying the scorecard it was chosen from and
+the one cost it pays, in the module that uses them. A TOML file would separate a number from the
+measurement that justifies it, and the measurement is the part that has to survive review.
+
+
 
 ---
 

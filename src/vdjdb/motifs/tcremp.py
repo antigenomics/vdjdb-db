@@ -169,6 +169,63 @@ def knee_eps_debug(X: np.ndarray, coef: float, k: int = 4, floor_frac: float = 0
             "eps_mean": round(float(dist.mean()) * coef, 3)}
 
 
+def knee(curve: np.ndarray, *, concave: bool = True, grid: int = 1000,
+         min_strength: float = 0.05, floor_frac: float = 0.05,
+         ceil_frac: float = 0.95) -> dict:
+    r"""Kneedle on a sorted curve, with the degeneracies that killed the reference version guarded.
+
+    The knee is the point of maximum deviation from the straight chord, in the unit square::
+
+        x = linspace(0, 1, n)          y = (curve - min) / (max - min)
+        knee = argmax(y - x)           strength = max(y - x)
+
+    which is Kneedle's difference curve stated directly, with **no polynomial fit**. That matters:
+    the reference implementation fits degree 10 and on pooled human TRB -- 112,983 clonotypes --
+    returns knee index 1, fraction 0.000. A degree-10 fit over 113k points oscillates, and the knee
+    it reports is the first oscillation, not a feature of the data.
+
+    Three protections, each against an observed failure rather than an imagined one:
+
+    * **Resample onto ``grid`` points first.** The fit is then independent of ``n``, so the same
+      curve shape gives the same knee whether it carries 300 points or 300,000. This is the one that
+      fixes the degree-10 oscillation.
+    * **``strength`` is the guard, not a separate test.** ``max(y - x)`` is exactly 0 for a straight
+      line and rises with how sharp the corner is, so a curve with no knee reports it in the same
+      number that locates one. Below ``min_strength`` there is no knee to find -- which is the honest
+      answer for a near-linear k-distance curve, where the reference version returned an index
+      anyway.
+    * **A knee pinned to either end is rejected** (``floor_frac`` / ``ceil_frac``). At the bottom it
+      puts ``eps`` below the data and retention collapses to a few per cent; at the top it puts
+      ``eps`` above every distance and the epitope percolates into one cluster.
+
+    ``degenerate`` is True when any of the three fires, and ``reason`` names which. The caller is
+    expected to fall back rather than to use a degenerate knee -- see :func:`chain_eps`.
+    """
+    n = len(curve)
+    if n < 3:
+        return {"index": None, "value": None, "strength": 0.0, "frac": None,
+                "degenerate": True, "reason": "too-short"}
+    c = np.sort(np.asarray(curve, dtype=float))
+    lo, hi = float(c[0]), float(c[-1])
+    if hi <= lo:
+        return {"index": None, "value": None, "strength": 0.0, "frac": None,
+                "degenerate": True, "reason": "flat"}
+
+    g = min(grid, n)
+    xs = np.linspace(0.0, 1.0, g)
+    y = (np.interp(xs, np.linspace(0.0, 1.0, n), c) - lo) / (hi - lo)
+    d = (y - xs) if concave else (xs - y)
+
+    i = int(np.argmax(d))
+    strength, frac = float(d[i]), i / (g - 1)
+    reason = ("no-knee" if strength < min_strength
+              else "at-floor" if frac < floor_frac
+              else "at-ceiling" if frac > ceil_frac else "")
+    idx = round(frac * (n - 1))
+    return {"index": idx, "value": float(c[idx]), "strength": strength, "frac": frac,
+            "degenerate": bool(reason), "reason": reason}
+
+
 def cluster_labels(X: np.ndarray, epitopes: np.ndarray, eps: float, *,
                    min_samples: int = MIN_SAMPLES) -> np.ndarray:
     """DBSCAN per epitope at one shared ``eps``. ``-1`` is noise, as DBSCAN means it.
@@ -183,6 +240,48 @@ def cluster_labels(X: np.ndarray, epitopes: np.ndarray, eps: float, *,
     for ep in np.unique(epitopes):               # np.unique sorts: the offset must not vary
         m = epitopes == ep
         lab = DBSCAN(eps=eps, min_samples=min_samples).fit_predict(X[m])
+        hit = lab >= 0
+        out[np.flatnonzero(m)[hit]] = lab[hit] + offset
+        offset += int(lab.max()) + 1 if hit.any() else 0
+    return out
+
+
+
+def hdbscan_labels(X: np.ndarray, epitopes: np.ndarray, min_cluster_size: int = 5, *,
+                   min_samples: int = MIN_SAMPLES, selection_epsilon: float = 0.0,
+                   method: str = "eom") -> np.ndarray:
+    """HDBSCAN per epitope. Same contract as :func:`cluster_labels`: ``-1`` is noise, labels unique.
+
+    ⚠ **Measured, not enabled.** The shipped path is :func:`cluster_labels`; this is here so the
+    comparison is runnable rather than argued. Judge it on ``Q``
+    (:mod:`vdjdb.validate.qscore`) **and** the section 11.1 lift, never on lift alone -- density
+    methods buy lift by shattering, and shattering is the failure mode ``Q`` exists to catch.
+
+    The reason to have it at all is that DBSCAN commits to **one radius for every epitope**, and
+    VDJdb's epitopes do not share a density: a display-selected library yields thousands of receptors
+    one substitution apart by construction (:data:`DISPLAY`, 29,688 of 192,753 records) while a
+    30-record epitope is sparse. HDBSCAN condenses a hierarchy and selects by cluster stability
+    instead, so there is no global radius to be wrong. It also folds ``min_samples`` and the
+    ``min_cluster`` post-filter into the single ``min_cluster_size``.
+
+    ``selection_epsilon`` is the anti-shatter knob -- subclusters closer than it are merged back --
+    and ``method="leaf"`` is its opposite, taking every leaf of the condensed tree. Default ``"eom"``
+    (excess of mass) is the parsimonious one.
+
+    ``sklearn.cluster.HDBSCAN``, so no dependency beyond the one already used for PCA and DBSCAN.
+    """
+    from sklearn.cluster import HDBSCAN
+
+    out = np.full(len(X), -1, dtype=np.int64)
+    offset = 0
+    for ep in np.unique(epitopes):               # np.unique sorts: the offset must not vary
+        m = epitopes == ep
+        sub = X[m]
+        if len(sub) < min_cluster_size:
+            continue
+        lab = HDBSCAN(min_cluster_size=min_cluster_size, min_samples=min_samples,
+                      cluster_selection_epsilon=selection_epsilon,
+                      cluster_selection_method=method, copy=True).fit_predict(sub)
         hit = lab >= 0
         out[np.flatnonzero(m)[hit]] = lab[hit] + offset
         offset += int(lab.max()) + 1 if hit.any() else 0
