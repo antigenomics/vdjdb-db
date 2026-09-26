@@ -13,10 +13,17 @@ Steps 1-3 are here; 4-6 belong to the workflow, because they touch the repositor
 
 **Why ``latest-version.txt`` needs its own step at all.** The file ships *inside* the zip it names,
 so it is self-referential -- but the URL is deterministic from the tag and the tag is chosen before
-the build, which is what makes it solvable. The legacy script prepended the line only when a shell
-comparison failed, and the prepend either never ran or was never committed: measured today, line 1
-names ``2026-05-16`` while the published latest is ``2026-06-03-ZENODO``. Both URLs return 200, so
-"does line 1 resolve" would not have caught it -- the check has to compare the *tag*.
+the build, which is what makes it solvable.
+
+**The defect was never a missing step, and that is worth knowing before rewriting one.** The
+2026-06-03 prepend was performed, on the day, by a colleague, and committed -- as ``66fd10f`` on the
+**aldan3 GitLab**, which it never left. ``origin`` carries two push URLs, so a push can reach one
+remote and not the other, and the public GitHub repository went on serving the previous release's
+URL while the shipped zip carried the correct one. So the fix is not "prepend harder": it is to
+commit the line *after* the release exists and then verify it, which is what ``release.yml`` does.
+
+The verification has to compare the **tag**. Measured while this was written, line 1 named
+``2026-05-16`` and the published latest was ``2026-06-03-ZENODO`` -- and both URLs returned 200.
 """
 from __future__ import annotations
 
