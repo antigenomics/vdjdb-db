@@ -154,3 +154,110 @@ def _callouts(ax, panel_data: pl.DataFrame, marks: pl.DataFrame, float_frac: flo
         ax.plot([row["year"], row["year"]], [0, value], color="0.25", lw=0.3)
         ax.annotate(row["label"].replace("\\n", "\n"), (row["year"], value + float_frac * top),
                     ha="right", va="top", fontsize=6)
+
+
+def scores(cohort_df: pl.DataFrame):
+    """Confidence-score distribution: grouped bars per (MHC class, chain), log records."""
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    style()
+    d = (cohort_df.filter(pl.col("species") == "HomoSapiens")
+         .group_by("mhc.class", "gene", "vdjdb.score").len().rename({"len": "total"})
+         .with_columns((pl.col("mhc.class") + " " + pl.col("gene")).alias("group"))
+         .sort("group", "vdjdb.score"))
+    groups = d["group"].unique(maintain_order=True).sort().to_list()
+    levels = d["vdjdb.score"].unique().sort().to_list()
+    fig, ax = plt.subplots(figsize=(4.0, 3.0))
+    width = 0.8 / len(levels)
+    for i, level in enumerate(levels):
+        sub = d.filter(pl.col("vdjdb.score") == level)
+        by_group = dict(zip(sub["group"], sub["total"], strict=True))
+        x = np.arange(len(groups)) + (i - (len(levels) - 1) / 2) * width
+        ax.bar(x, [by_group.get(g, 0) for g in groups], width=width,
+               color=PUBUGN4[i % len(PUBUGN4)], edgecolor="black", linewidth=0.3, label=str(level))
+    ax.set_yscale("log")
+    ax.set_ylabel("Records")
+    ax.set_xticks(np.arange(len(groups)), groups)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.legend(title="VDJdb score", frameon=False, fontsize=6, title_fontsize=6,
+              loc="upper center", bbox_to_anchor=(0.5, -0.12), ncols=len(levels))
+    fig.tight_layout()
+    return fig
+
+
+def nrd0(v) -> float:
+    """R's default density bandwidth, ``bw.nrd0``: ``0.9 * min(sd, IQR/1.34) * n^(-1/5)``.
+
+    Written out because the curve it produces is the one readers of this figure know, and because
+    scipy has no equivalent -- its Scott and Silverman rules are both narrower, and on integer
+    CDR3 lengths Scott's draws a comb of spikes that overshoots the bars.
+
+    **The divisor is 1.34, not 1.349.** ``bw.nrd`` uses 1.349; ``bw.nrd0``, which is what
+    ``geom_density`` defaults to, uses 1.34. Reading it off the documented formula instead of R's
+    source put this 0.67 % out -- close enough to look correct. Checked against R's own output on
+    two fixed vectors (``tests/unit/test_panels.py``).
+
+    R falls back through sd, then |x[0]|, then 1 when the spread is zero; so does this.
+    """
+    import numpy as np
+
+    n = len(v)
+    sd = float(np.std(v, ddof=1))
+    iqr = float(np.subtract(*np.percentile(v, [75, 25])))
+    lo = min(sd, iqr / 1.34)
+    if not lo:                      # R: `(lo <- hi) || (lo <- abs(x[1L])) || (lo <- 1)`
+        lo = sd or abs(float(v[0])) or 1.0
+    return 0.9 * lo * n ** (-0.2)
+
+
+def spectratype(cohort_df: pl.DataFrame, *, lo: int = 5, hi: int = 25, adjust: float = 3.0):
+    """CDR3 length distribution per chain, stacked by epitope and coloured by epitope length.
+
+    The fill is a *Spectral* gradient over epitopes ordered by their own length, which is what
+    `fct_reorder(epi_len) %>% as.integer()` does in the R -- the colour carries epitope length,
+    not identity, so the stack reads as "short epitopes at one end of the spectrum".
+
+    The dotted overlay is a Gaussian KDE scaled to counts, using R's own bandwidth rule -- see
+    :func:`nrd0`. scipy's default (Scott's rule) is far too narrow for integer lengths and draws a
+    comb of spikes rather than a curve; measured on this data it overshot the bars by 2x.
+    """
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from matplotlib import colormaps
+    from scipy.stats import gaussian_kde
+
+    style()
+    d = (cohort_df.filter(pl.col("species") == "HomoSapiens")
+         .select("gene", "antigen.epitope",
+                 pl.col("cdr3").str.len_chars().alias("len"),
+                 pl.col("antigen.epitope").str.len_chars().alias("epi_len"))
+         .filter(pl.col("len").is_between(lo, hi)))
+    order = (d.select("antigen.epitope", "epi_len").unique()
+             .sort("epi_len", "antigen.epitope")["antigen.epitope"].to_list())
+    rank = {e: i for i, e in enumerate(order)}
+    cmap = colormaps["Spectral"]
+    genes = d["gene"].unique().sort().to_list()
+    bins = np.arange(lo, hi + 2) - 0.5
+    fig, axes = plt.subplots(1, len(genes), figsize=(6.0, 2.6), sharey=True)
+    for ax, gene in zip(np.atleast_1d(axes), genes, strict=True):
+        g = d.filter(pl.col("gene") == gene)
+        bottom = np.zeros(len(bins) - 1)
+        for epi, sub in g.group_by("antigen.epitope"):
+            counts, _ = np.histogram(sub["len"].to_numpy(), bins=bins)
+            ax.bar(bins[:-1] + 0.5, counts, bottom=bottom, width=1.0,
+                   color=cmap(rank[epi[0]] / max(len(order) - 1, 1)), alpha=0.9, linewidth=0)
+            bottom += counts
+        xs = np.linspace(lo, hi, 200)
+        v = g["len"].to_numpy().astype(float)
+        # scipy's `bw_method` is a factor on the data's own standard deviation, so R's bandwidth
+        # has to be divided by it to mean the same thing.
+        kde = gaussian_kde(v, bw_method=(adjust * nrd0(v)) / v.std(ddof=1))
+        ax.plot(xs, kde(xs) * g.height, ls=":", color="black", lw=0.6)
+        ax.set_title(gene, fontsize=7)
+        ax.set_xlabel("CDR3 length")
+        ax.set_xticks(range(lo, hi + 1, 5))
+        ax.spines[["top", "right"]].set_visible(False)
+    np.atleast_1d(axes)[0].set_ylabel("Records")
+    fig.tight_layout()
+    return fig
