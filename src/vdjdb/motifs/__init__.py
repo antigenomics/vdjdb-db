@@ -37,7 +37,7 @@ import polars as pl
 
 from . import cluster, emit, pwm, tcremp, tcrnet
 
-__all__ = ["cluster", "emit", "pwm", "run", "tcremp", "tcrnet"]
+__all__ = ["cluster", "emit", "per_epitope_report", "pwm", "run", "tcremp", "tcrnet"]
 
 
 def _pwms(members: pl.DataFrame) -> pl.DataFrame:
@@ -90,6 +90,56 @@ def run_tcremp(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
                       emit.motif_pwms(_pwms(members), records), out, suffix="_tcremp")
 
 
+def per_epitope_report(chains: pl.DataFrame, records: pl.DataFrame, out: Path,
+                       written: dict[str, int]) -> int:
+    """``reports/motifs_per_epitope.tsv``: one row per (gene, method, epitope).
+
+    The pooled scorecard is an average over a distribution that is strongly bimodal on TRB -- the
+    median epitope has under 1 % of its clonotypes clustered while the pooled retention is 32 % -- so
+    the breakdown ships as a report beside every build rather than being recomputed when someone
+    wonders (`docs/clustering.md` section 6). Legacy is not in it: it is a property of a *release*,
+    and the ledger is where releases are compared.
+    """
+    from ..assemble.evidence import support_counts
+    from ..validate import motif_bench as mb
+
+    key = (chains.join(records.select("record_id", "species"), on="record_id")
+           .select("species", "gene", "clonotype_id", pl.col("cdr3").alias("cdr3aa"),
+                   "v.segm", "j.segm")
+           .unique(maintain_order=True))
+    rep = (support_counts(records, chains)
+           .select("clonotype_id", "antigen.epitope", (pl.col("studies") > 1).alias("replicated"))
+           .join(key, on="clonotype_id", how="inner")
+           .select("species", "gene", "cdr3aa", "v.segm", "j.segm", "antigen.epitope",
+                   "replicated"))
+    files = {"tcrnet": "cluster_members.txt", "tcremp": "cluster_members_tcremp.txt"}
+    parts = []
+    for method, name in files.items():
+        if name not in written:
+            continue
+        members = mb.read_members(out / name)
+        for gene in sorted(members["gene"].unique()):
+            for species in sorted(members["species"].unique()):
+                cohort = mb.cohort(chains, records, species=species, gene=gene)
+                if not cohort.height:
+                    continue
+                g = members.filter((pl.col("gene") == gene) & (pl.col("species") == species))
+                parts.append(mb.per_epitope(cohort, g, replicated=rep).with_columns(
+                    pl.lit(species).alias("species"), pl.lit(gene).alias("gene"),
+                    pl.lit(method).alias("method")))
+    if not parts:
+        return 0
+    df = (pl.concat(parts, how="vertical")
+          .select("species", "gene", "method", "antigen.epitope", "clonotypes", "clustered",
+                  "retention", "clusters", "largest_cluster", "mean_cluster_size",
+                  "singleton_clusters", "percolation", "replicated", "tp", "precision", "lift")
+          .sort("species", "gene", "method", "clonotypes", descending=[False] * 3 + [True]))
+    path = out / "reports" / "motifs_per_epitope.tsv"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    df.write_csv(path, separator="\t")
+    return df.height
+
+
 def run(tables: Path, out: Path, *, p: float | None = None,
         min_sample: int = tcrnet.MIN_SAMPLE,
         min_cluster: int | None = None,
@@ -104,4 +154,8 @@ def run(tables: Path, out: Path, *, p: float | None = None,
                               min_cluster=min_cluster)
     if "tcremp" in methods:
         written |= run_tcremp(chains, records, out, min_cluster=min_cluster)
+
+    rows = per_epitope_report(chains, records, out, written)
+    if rows:
+        written["reports/motifs_per_epitope.tsv"] = rows
     return written
