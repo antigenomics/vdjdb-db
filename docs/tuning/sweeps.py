@@ -27,10 +27,13 @@ warnings.filterwarnings("ignore", message="The number of clusters detected")
 
 OUT = Path("out/reports/tuning")
 
-#: The relaxed purity floor, per chain. ``None`` keeps the legacy-relative bar. It must sit ABOVE
-#: the do-nothing partition's purity or it is not a bar at all -- measured at 0.9204 (TRA) and
-#: 0.9343 (TRB), so 0.93 would admit a partition that clusters nothing. See docs/clustering.md 8.
-BAR: dict[str, float | None] = {"TRA": None, "TRB": 0.94}
+#: The absolute purity floor, per chain. ``None`` would keep the legacy-relative bar; both chains
+#: now carry 0.94, which is the one number that sits above the do-nothing partition on BOTH -- its
+#: purity is 0.9204 (TRA) and 0.9343 (TRB), so 0.93 would admit a partition that clusters nothing
+#: on TRB. Every cell also keeps ``admissible_legacy_bar`` so the two rules can be read side by
+#: side, because on TRA the floor is a tightening rather than a relaxation: the legacy bar there is
+#: purity 0.8658. See docs/clustering.md section 8.
+BAR: dict[str, float | None] = {"TRA": 0.94, "TRB": 0.94}
 
 GRID = {
     "dbscan": {"coef": (0.4, 0.6, 0.9, 1.15, 1.3, 1.55, 1.8, 2.1, 2.5)},
@@ -107,7 +110,9 @@ def run(which: str) -> None:
         print(cl.line(f"[{gene}] legacy", ctx["legacy"]), flush=True)
         if which == "dbscan":                 # the reference rows ride along with the shipped path
             rows.append({"gene": gene, "algo": "legacy", "coef": 0.0, **ctx["legacy"],
-                         "admissible": True})
+                         "admissible": cl.admissible(ctx, ctx["legacy"],
+                                                     purity_floor=BAR[gene]),
+                         "admissible_legacy_bar": True})
             for name, path in (("tcrnet", "cluster_members.txt"),
                                ("tcremp", "cluster_members_tcremp.txt")):
                 p = Path("out/motifs_new") / path
@@ -117,61 +122,71 @@ def run(which: str) -> None:
                                                   & (pl.col("species") == cl.SPECIES))
                 r = cl._measure(ctx, mm)
                 rows.append({"gene": gene, "algo": f"shipped-{name}", "coef": 0.0, **r,
-                             "admissible": cl.admissible(ctx, r, purity_floor=BAR[gene])})
+                             "admissible": cl.admissible(ctx, r, purity_floor=BAR[gene]),
+                             "admissible_legacy_bar": cl.admissible(ctx, r)})
                 print(cl.line(f"[{gene}] shipped {name}", r), flush=True)
             # One cluster per epitope, nothing excluded: the instrument's blind spot, measured
             # rather than argued (docs/clustering.md section 8).
             triv = np.unique(ctx["epi"], return_inverse=True)[1].astype(np.int64)
             r = cl.score_labels(ctx, triv, min_cluster=1)
             rows.append({"gene": gene, "algo": "trivial", "coef": 0.0, **r,
-                         "admissible": cl.admissible(ctx, r, purity_floor=BAR[gene])})
+                         "admissible": cl.admissible(ctx, r, purity_floor=BAR[gene]),
+                         "admissible_legacy_bar": cl.admissible(ctx, r)})
             print(cl.line(f"[{gene}] trivial one-per-epitope", r), flush=True)
 
-        gate = None
+        # `hybrid-len` is two variants and both belong in the scorecard: the length-stratified
+        # partition over EVERY vertex (`-all`, no noise model) and over the enriched gate only
+        # (`-enriched`). Dropping the ungated one would remove the comparison that shows what the
+        # gate buys, which is the whole point of section 9.
+        variants: list[tuple[str, np.ndarray | None]] = [(which, None)]
         if which.startswith("hybrid"):
             gate = _gate(ctx, scored, recruited=(which == "hybrid-recruited"))
             print(f"  TCRNET gate keeps {gate.sum():,} of {len(gate):,} ({gate.mean():.1%})",
                   flush=True)
+            variants = ([("hybrid-len-all", np.ones(len(gate), dtype=bool)),
+                         ("hybrid-len-enriched", gate)] if which == "hybrid-len"
+                        else [(which, gate)])
         lengths = ctx["grp"]["junction_aa"].str.len_chars().to_numpy()
         g = GRID[which if which != "hybrid-recruited" else "hybrid"]
 
         cells = (list(itertools.product(g["coef"])) if which == "dbscan" else
                  list(itertools.product(g["mcs"], g["meth"], g["ms"])) if which == "hdbscan" else
                  list(itertools.product(g["mcs"], g["M"])))
-        for cell in cells:
-            t = time.time()
-            if which == "dbscan":
-                (coef,) = cell
-                eps = cl.tcremp.chain_eps(ctx["X"], coef)
-                labels = cl.tcremp.cluster_labels(ctx["X"], ctx["epi"], eps)
-                tag, extra = f"dbscan coef{coef}", {"algo": "dbscan", "coef": coef}
-            elif which == "hdbscan":
-                mcs, meth, ms = cell
-                if ms > mcs:
+        for variant, gate in variants:
+            for cell in cells:
+                t = time.time()
+                if which == "dbscan":
+                    (coef,) = cell
+                    eps = cl.tcremp.chain_eps(ctx["X"], coef)
+                    labels = cl.tcremp.cluster_labels(ctx["X"], ctx["epi"], eps)
+                    tag, extra = f"dbscan coef{coef}", {"algo": "dbscan", "coef": coef}
+                elif which == "hdbscan":
+                    mcs, meth, ms = cell
+                    if ms > mcs:
+                        continue
+                    labels = cl.tcremp.hdbscan_labels(ctx["X"], ctx["epi"], min_cluster_size=mcs,
+                                                      min_samples=ms, method=meth)
+                    tag = f"hdbscan-{meth} mcs{mcs} ms{ms}"
+                    extra = {"algo": f"hdbscan-{meth}", "min_cluster_size": mcs, "min_samples": ms,
+                             "method": meth}
+                else:
+                    mcs, m = cell
+                    labels = (_strat_labels(ctx["X"], ctx["epi"], lengths, mcs, m, gate)
+                              if which == "hybrid-len" else
+                              lumbermark_labels(ctx["X"], ctx["epi"], mcs, m, gate=gate))
+                    tag = f"{variant} mcs{mcs} M{m}"
+                    extra = {"algo": variant, "min_cluster_size": mcs, "M": m}
+                row = cl.score_labels(ctx, labels)
+                if row is None:
+                    print(f"[{gene}] {tag} no clusters", flush=True)
                     continue
-                labels = cl.tcremp.hdbscan_labels(ctx["X"], ctx["epi"], min_cluster_size=mcs,
-                                                  min_samples=ms, method=meth)
-                tag = f"hdbscan-{meth} mcs{mcs} ms{ms}"
-                extra = {"algo": f"hdbscan-{meth}", "min_cluster_size": mcs, "min_samples": ms,
-                         "method": meth}
-            else:
-                mcs, m = cell
-                labels = (_strat_labels(ctx["X"], ctx["epi"], lengths, mcs, m, gate)
-                          if which == "hybrid-len" else
-                          lumbermark_labels(ctx["X"], ctx["epi"], mcs, m, gate=gate))
-                tag = f"{which} mcs{mcs} M{m}"
-                extra = {"algo": which, "min_cluster_size": mcs, "M": m}
-            row = cl.score_labels(ctx, labels)
-            if row is None:
-                print(f"[{gene}] {tag} no clusters", flush=True)
-                continue
-            adm = cl.admissible(ctx, row, purity_floor=BAR[gene])
-            rows.append({"gene": gene, **extra, **row, "admissible": adm,
-                         "admissible_legacy_bar": cl.admissible(ctx, row),
-                         "secs": round(time.time() - t, 1)})
-            print(cl.line(f"[{gene}] {tag}", row, "OK" if adm else ""), flush=True)
-            OUT.mkdir(parents=True, exist_ok=True)
-            pl.DataFrame(rows).write_csv(OUT / f"{which}.csv")
+                adm = cl.admissible(ctx, row, purity_floor=BAR[gene])
+                rows.append({"gene": gene, **extra, **row, "admissible": adm,
+                             "admissible_legacy_bar": cl.admissible(ctx, row),
+                             "secs": round(time.time() - t, 1)})
+                print(cl.line(f"[{gene}] {tag}", row, "OK" if adm else ""), flush=True)
+                OUT.mkdir(parents=True, exist_ok=True)
+                pl.DataFrame(rows).write_csv(OUT / f"{which}.csv")
     print(f"wrote {OUT}/{which}.csv", flush=True)
 
 
