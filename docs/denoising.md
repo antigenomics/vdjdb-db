@@ -423,6 +423,6 @@ score is a separate decision with its own validation.
 | $T,R$ | record is a true binder; record is independently replicated |
 | $h,p,Q$ | homogeneity, parsimony, and $Q=2hp/(h+p)$ |
 
-Rendered with MathJax. Sphinx enables it by default (`sphinx.ext.mathjax`); the Markdown
-`$...$`/`$$...$$` delimiters need `myst_enable_extensions = ["dollarmath"]` in the phase 13
-`conf.py`, and GitHub renders them natively as-is.
+Rendered with MathJax on both renderers: Sphinx enables it by default (`sphinx.ext.mathjax`) and
+`conf.py` turns on `myst_enable_extensions = ["dollarmath"]` for the `$...$`/`$$...$$` delimiters,
+while GitHub renders them natively as-is.

@@ -1,0 +1,105 @@
+/* arda docs — namespaced (proj-) styles over pydata-sphinx-theme variables. Shared house
+   style with seqtree and mhcmatch: hero, card grid, feature grid, full-tree sidebar. */
+
+.proj-intro {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  margin: 1rem 0 2rem;
+}
+.proj-intro__eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  color: var(--pst-color-primary);
+  margin: 0 0 0.4rem;
+}
+.proj-intro__lead {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--pst-color-text-base);
+  margin: 0 0 0.6rem;
+}
+.proj-intro__links a { font-weight: 600; }
+.proj-intro__links span { color: var(--pst-color-border); margin: 0 0.4rem; }
+
+.proj-card-grid {
+  display: grid;
+  /* auto-fit, not a fixed column count: five cards in `repeat(4, 1fr)` left the fifth
+     stranded alone on a second row. */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+/* Every link state is pinned. The theme's `a:visited` (specificity 0,1,1) outranks a bare
+   `.proj-card` (0,1,0), so without this a card changed colour once you had visited its target
+   -- which made whichever page you had not read yet the odd one out. */
+.proj-card,
+.proj-card:link,
+.proj-card:visited,
+.proj-card:hover,
+.proj-card:focus {
+  display: block;
+  border: 1px solid var(--pst-color-border);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  text-decoration: none;
+  color: var(--pst-color-text-base);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+.proj-card:hover,
+.proj-card:focus {
+  border-color: var(--pst-color-primary);
+  transform: translateY(-2px);
+}
+.proj-card h3,
+.proj-card:visited h3 { margin: 0 0 0.3rem; font-size: 1rem; color: var(--pst-color-text-base); }
+.proj-card p,
+.proj-card:visited p { margin: 0; font-size: 0.9rem; color: var(--pst-color-text-muted); }
+
+.proj-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  margin: 2rem 0;
+}
+.proj-feature {
+  border-left: 3px solid var(--pst-color-primary);
+  padding: 0.2rem 0 0.2rem 1rem;
+}
+.proj-feature h3 { margin: 0 0 0.4rem; font-size: 1.05rem; }
+.proj-feature p { margin: 0; line-height: 1.55; }
+
+@media (max-width: 900px) {
+  .proj-intro { flex-direction: column; align-items: flex-start; }
+  .proj-card-grid { grid-template-columns: 1fr 1fr; }
+  .proj-feature-grid { grid-template-columns: 1fr; }
+}
+
+/* Left sidebar: the full site tree (see docs/_templates/site-nav.html). The stock component
+   showed a bare "Section Navigation" heading with nothing under it, because every page in this
+   project is a top-level toctree sibling and therefore has no children to list. */
+.bd-links--full .caption-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pst-color-text-muted);
+}
+.bd-links--full > ul { padding-left: 0; }
+.bd-links--full ul { list-style: none; margin: 0 0 1.1rem; padding-left: 0; }
+.bd-links--full li { margin: 0.1rem 0; }
+.bd-links--full a {
+  display: block;
+  padding: 0.2rem 0;
+  font-size: 0.9rem;
+  color: var(--pst-color-text-muted);
+  text-decoration: none;
+}
+.bd-links--full a:hover { color: var(--pst-color-primary); }
+.bd-links--full li.current > a { color: var(--pst-color-primary); font-weight: 600; }
+
+/* arda-specific */
+.arda-lead {
+  font-size: 1.1rem;
+  color: var(--pst-color-text-base);
+}
