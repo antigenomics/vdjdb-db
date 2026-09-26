@@ -459,8 +459,12 @@ Settled 2026-09-25.
   `docs/standards/database-outputs.rst` when the Sphinx site lands.
 - **How the motif stage is tuned, and what it is for, is specified** in `docs/denoising.md` --
   normative for any change to motif clustering, and the source of the two-stage acceptance rule the
-  shipped parameters are chosen by. Becomes `docs/standards/denoising.rst` in phase 13, which needs
-  `myst_enable_extensions = ["dollarmath"]` in `conf.py` because it carries MathJax.
+  shipped parameters are chosen by. Becomes `docs/standards/denoising.rst` in phase 13.
+- **Which clustering algorithms exist, what their parameters do, and what each measures at** is
+  `docs/clustering.md` -- connected components, CPM Leiden, DBSCAN and HDBSCAN, with the scorecard
+  that made two of them the default and two of them rejected. Becomes
+  `docs/standards/clustering.rst`. Both carry MathJax, so phase 13's `conf.py` needs
+  `myst_enable_extensions = ["dollarmath"]`.
 
 ## 10. Record identity and the evidence model
 
@@ -534,6 +538,23 @@ resolution) is fitted against, per chain, on the pooled geometry.
 
 Independent replication is also a per-record evidence type in its own right, so the tuning signal and
 a shipped evidence column come from the same computation.
+
+**Two qualifications, both measured rather than anticipated, and both load-bearing.**
+
+*The denominator excludes display-selected records.* A library panned against one pMHC yields
+thousands of receptors one substitution apart by construction, all under a single `reference.id`, so
+every display clonotype contributes zero independently-replicated pairs while occupying a denominator
+slot. Human TRB: all 2,771 replicated pairs sit outside the display set, which fills 29,692 of 116,053
+slots, and the same clustering reads lift 3.585 or a much lower figure depending only on which cohort
+is scored. A lift figure without its cohort is not a number.
+
+*Lift alone selects for narrowness.* Lift falls monotonically as a clustering's radius widens, so
+maximising it prefers the tightest radius — which finds clusters only where the data is densest, i.e.
+in fewer epitopes. Measured: the TRB configuration that maximises pooled lift covers **88 of 178
+epitopes against the shipped annotation's 103**. An epitope with no motif receives no denoising, so
+**epitope coverage is an admissibility requirement alongside `Q`, purity and precision** — not a
+tiebreak that can be traded away. `docs/denoising.md` §7.1 is normative; `docs/clustering.md` carries
+the frontier for each algorithm.
 
 ### 11.2 Validate on TCRvdb, held out, touched once
 
