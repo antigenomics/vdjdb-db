@@ -3003,6 +3003,7 @@ motifs = [
     { name = "scikit-learn" },
 ]
 summary = [
+    { name = "matplotlib" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "numpy", version = "2.5.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "pillow" },
@@ -3026,6 +3027,7 @@ requires-dist = [
     { name = "clustereval", marker = "extra == 'motifs'", specifier = ">=0.2" },
     { name = "hypothesis", marker = "extra == 'test'", specifier = ">=6" },
     { name = "lumbermark", marker = "extra == 'tuning'", specifier = ">=0.9" },
+    { name = "matplotlib", marker = "extra == 'summary'", specifier = ">=3.8" },
     { name = "mirpy-lib", extras = ["bench"], marker = "extra == 'motifs'", specifier = ">=3.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.11" },
     { name = "myst-parser", marker = "extra == 'docs'", specifier = ">=3" },
