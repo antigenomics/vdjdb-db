@@ -43,7 +43,11 @@ FRAGMENT = SUMMARY / "vdjdb_summary_embed.html"
 # DATA directory (`templates/NAME`), not the working directory. A local pandoc that happens
 # to find the file anyway hides it; a clean runner fails with
 # "Could not find data file 'templates/embed.html'".
-TEMPLATE = (SUMMARY / "embed.html").resolve()
+#: ``.tpl``, NOT ``.html``: `.gitignore` carries `summary/*.html` because the rendered
+#: dashboard is generated, and it silently swallowed this template -- a source file -- so
+#: the runner never had it and pandoc reported "Could not find data file". The repo already
+#: dodges the same trap for `summary/*.txt` by committing tables as `.tsv` (CLAUDE.md).
+TEMPLATE = (SUMMARY / "embed.tpl").resolve()
 FILTER = (SUMMARY / "embed.lua").resolve()
 
 #: The reader pandoc must use on knitr's intermediate. The first three extensions are rmarkdown's
