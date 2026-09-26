@@ -109,7 +109,9 @@ def trivial_members(cohort_df: pl.DataFrame, *, split_by_length: bool = True) ->
     ``split_by_length`` is the default because **every shipped clustering is split by CDR3 length
     before it reaches a release** (``docs/clustering.md`` section 0), so the split form is the one a
     bar has to clear. It is not a detail: on human TRB the split partition scores purity 0.9343 and
-    the unsplit one 0.9253, and a floor of 0.93 excludes the second while admitting the first.
+    the unsplit one 0.9253, and a floor of 0.93 excludes the second while admitting the first. The
+    floor the specification settled on is **0.94** on both chains, above the split form's purity on
+    each (``docs/clustering.md`` section 8.1).
     """
     out = (cohort_df.select(*KEY, "antigen.epitope").unique(maintain_order=True)
            .with_columns(("trivial." + pl.col("antigen.epitope")).alias("cid")))

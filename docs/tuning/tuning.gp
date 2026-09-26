@@ -57,12 +57,16 @@ plot for [i=1:words(ALGOS)] F using \
   (strcol(1) eq chain && strcol(2) eq word(ALGOS,i) ? $4 : NaN):(column(7)) ls i
 
 set ylabel "purity (epitope)"
-# On TRB the do-nothing marker sits BELOW every real clustering, which is the only
-# panel where it does; on TRA it sits above them all and the axis is not a bar.
+# The only panel carrying the bar, because it is the only axis an absolute floor is set on.
+# On TRB the do-nothing marker sits BELOW every real clustering and 0.94 separates them;
+# on TRA it sits above every admissible cell, so no floor there can separate the two.
 set title (chain eq "TRB" ? "purity: the only axis the do-nothing partition fails" \
-                         : "purity: the do-nothing partition beats every method")
+                         : "purity: the do-nothing partition sits above every admissible cell")
+set label 99 "floor 0.94" at graph 0.02, first 0.94 offset 0,-0.8 font ",10" tc rgb "#444444"
 plot for [i=1:words(ALGOS)] F using \
-  (strcol(1) eq chain && strcol(2) eq word(ALGOS,i) ? $4 : NaN):(column(8)) ls i
+  (strcol(1) eq chain && strcol(2) eq word(ALGOS,i) ? $4 : NaN):(column(8)) ls i, \
+  0.94 lc rgb "#444444" dt 2 lw 2 notitle
+unset label 99
 
 set ylabel "epitopes with at least one cluster"
 set title "coverage is also maximal for doing nothing"

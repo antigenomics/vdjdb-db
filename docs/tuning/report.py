@@ -125,6 +125,56 @@ def tables(sc: pl.DataFrame) -> str:
     return "\n".join(out)
 
 
+def floors(sc: pl.DataFrame) -> str:
+    """The purity-floor sweep, per chain, recomputed from the scorecard rather than transcribed.
+
+    A cell is admissible at an absolute floor ``f`` exactly when purity and precision both clear
+    ``f`` and ``Q`` and epitope coverage clear legacy's -- the rule in ``clusterlab.admissible``,
+    which is why this can be re-derived here without re-running a sweep (CLAUDE.md 0b). The floors
+    are the ones the argument turns on: legacy's own, the round number that was proposed, the
+    do-nothing partition's measured purity, and the adopted 0.94.
+    """
+    out, win = [], []
+    for gene in ("TRA", "TRB"):
+        g = sc.filter(pl.col("gene") == gene)
+        lg = g.filter(pl.col("algo") == "legacy").row(0, named=True)
+        tr = g.filter(pl.col("algo") == "trivial").row(0, named=True)
+        cand = g.filter(~pl.col("algo").is_in(REFS))
+        # The other two axes, held fixed: only purity and precision move with the floor.
+        others = cand.filter((pl.col("q") >= lg["q"]) & (pl.col("epitopes") >= lg["epitopes"]))
+        for f in sorted({round(lg["purity"], 4), 0.93, round(tr["purity"], 4), 0.94}):
+            adm = others.filter((pl.col("purity") >= f) & (pl.col("precision") >= f))
+            best = adm.sort("lift", descending=True).head(1)
+            out.append({
+                "gene": gene, "purity floor": f"{f:.4f}",
+                "cells admissible": adm.height, "of": cand.height,
+                "do-nothing admitted?": ("**yes**" if tr["purity"] >= f and tr["precision"] >= f
+                                         and tr["q"] >= lg["q"]
+                                         and tr["epitopes"] >= lg["epitopes"] else "no"),
+                "best by lift": (f"{best['algo'][0]} {best['config'][0]}" if adm.height else "--"),
+                "lift": f"{best['lift'][0]:.3f}" if adm.height else "--",
+                "f1": f"{best['f1'][0]:.4f}" if adm.height else "--",
+                "retention": f"{best['retention'][0]:.4f}" if adm.height else "--",
+                "epitopes": str(best["epitopes"][0]) if adm.height else "--"})
+        # The window: a floor is usable only if it excludes the do-nothing partition AND admits
+        # something. Its ceiling is the highest purity among cells that clear the other two axes.
+        ceil = others["purity"].max()
+        win.append({"gene": gene, "do-nothing purity": f"{tr['purity']:.4f}",
+                    "cells clearing Q and coverage": f"{others.height} of {cand.height}",
+                    "highest purity among them": f"{ceil:.4f}"
+                    if ceil is not None else "--",
+                    "window": (f"[{tr['purity']:.4f}, {ceil:.4f}]"
+                               if ceil is not None and ceil > tr["purity"] else "**empty**"),
+                    "width": (f"{ceil - tr['purity']:.4f}"
+                              if ceil is not None and ceil > tr["purity"]
+                              else f"-{tr['purity'] - ceil:.4f}" if ceil is not None else "--")})
+    return "\n".join([
+        "\n### The purity floor, swept — how many configurations each floor admits\n",
+        md(pl.DataFrame(out)),
+        "\n### The usable window for an absolute floor, per chain\n",
+        md(pl.DataFrame(win))])
+
+
 def per_epitope() -> None:
     if not PER_EPITOPE.exists():
         print(f"no {PER_EPITOPE}; run `uv run vdjdb motifs` first")
@@ -161,7 +211,7 @@ if __name__ == "__main__":
     DOCS.mkdir(parents=True, exist_ok=True)
     sc = scorecard()
     SWEEPS.mkdir(parents=True, exist_ok=True)
-    (SWEEPS / "tables.md").write_text(tables(sc))
+    (SWEEPS / "tables.md").write_text(tables(sc) + floors(sc))
     per_epitope()
     print(f"\n{sc.height} rows, {sc['algo'].n_unique()} algorithms -> docs/tuning/scorecard.tsv")
     print(f"markdown -> {SWEEPS}/tables.md")
