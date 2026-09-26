@@ -285,7 +285,7 @@ drafts — do not re-derive them.
 | Dashboard R deps | 15 of 17 installed; `maps`/`scatterpie` used only past the embed cut (lines 812–835 vs marker at 567); `ggh4x` never used | splitting the Rmd drops three deps from the release path |
 | Shipped dashboard PNG sizes | 1344×960, 2304×1920, 1152×1920, 1536×1536 → `dpi=96, fig.retina=2` | pin it or the visual fingerprint is noise |
 | Production's 27-row `vdjdb.meta.txt` (`vdjdb-web/test/resources/database/`) | orders `… reference.id method meta cdr3fix vdjdb.score TCR_hash web.*` while the data is `… reference.id vdjdb.score TCR_hash method meta cdr3fix web.*` | the metadata mis-describes the data **in production too**, not only in the release zip |
-| `width="1152"` occurrences in the shipped embed HTML | **0** — the rewrite in `MakeEmbedableHtml.py` is dead code | this is what #460 actually is |
+| `width="1152"` occurrences in the shipped embed HTML | **0** — knitr emits the attribute, pandoc's `--embed-resources` drops it when it inlines the image, so the rewrite ran on the stage where it no longer existed | this is what #460 actually is |
 
 ## 8. Motif inference — findings that change the approach
 
@@ -876,7 +876,9 @@ named cause, and the 31 logo-less cids and the 1.00 % deleted letter mass are bo
    and **no coordinates** (#460).
 5. #460's actual bug: `grep -o 'width="[0-9]*"'` over the shipped embed HTML returns nothing, so
    `MakeEmbedableHtml.py`'s width rewrite is dead code. Delete it; add
-   `style="max-width:100%;height:auto"` to the `<img>` tag instead.
+   `style="max-width:100%;height:auto"` to the `<img>` tag instead. **Done, and the whole script
+   went with it**: a pandoc template plus a Lua filter emit the fragment directly, so the three
+   markup guesses it made no longer exist.
 6. Pin rasterisation: `dpi=96, fig.retina=2`, `dev.args=list(type="cairo")` — explicitly cairo, not
    ragg, which would change font rendering and break parity on day one.
 7. Replace the cumulative-by-year `expand.grid` cartesian join (~7M rows) with a first-appearance-year

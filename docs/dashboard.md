@@ -2,8 +2,16 @@
 
 `vdjdb-web` injects a fragment of this dashboard into its `/overview` page. The fragment is produced
 by `uv run vdjdb summary`, which renders `summary/vdjdb_summary.Rmd` against the legacy projection
-of the current build, extracts everything between the two markers in the document, and verifies the
-result against a committed fingerprint.
+of the current build, then runs **one more pandoc pass** over knitr's intermediate with
+`summary/embed.html` and `summary/embed.lua` to emit the fragment directly, and verifies the result
+against a committed fingerprint. The R never runs twice; only pandoc does.
+
+That pass replaced a script that line-scanned pandoc's finished output for `<div`,
+`<pre class="r">` and `<table>` — three guesses about markup, each of which silently blanks
+`/overview` when it stops matching. Stating the transforms on the document tree removes the guesses:
+the filter keeps the blocks between the two markers, drops the R source, unwraps printed output, and
+adds the table classes and the responsive image style. The `<div>` stripping is gone entirely,
+because this pass never passes `--section-divs` and so emits none.
 
 **The render makes no network call.** Publication years come from `summary/reference_years.tsv`,
 resolved once by `vdjdb refs` and committed; the document stops rather than plotting an incomplete
@@ -17,7 +25,7 @@ on every render:
 1. each image's base64 payload is a **single unbroken line** — the Scala side matches it with a
    regex that does not cross newlines;
 2. there are **no `<div>` wrappers**;
-3. tables carry Semantic UI's classes, which pandoc does not emit and the extractor injects.
+3. tables carry Semantic UI's classes, which pandoc does not emit and the filter injects.
 
 ## What the checker compares
 

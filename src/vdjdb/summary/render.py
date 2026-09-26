@@ -1,13 +1,27 @@
 """Render the release dashboard and verify the fragment `vdjdb-web` will serve.
 
-Three steps, each of which can fail the build on its own:
+Three steps, each able to fail the build on its own:
 
 1. ``rmarkdown::render`` on ``summary/vdjdb_summary.Rmd``, pointed at the legacy projection of this
-   build. The render makes **no network call** -- publication years come from the committed table
-   :mod:`vdjdb.summary.references` writes -- so it is reproducible and runs offline.
-2. ``summary/MakeEmbedableHtml.py`` extracts the publishable fragment.
+   build, with ``clean = FALSE`` so knitr's intermediate survives. The render makes **no network
+   call** -- publication years come from the committed table :mod:`vdjdb.summary.references`
+   writes -- so it is reproducible and runs offline.
+2. one more `pandoc` pass over that intermediate with ``summary/embed.html`` and
+   ``summary/embed.lua``, which **emit the publishable fragment directly**.
 3. ``summary/check_summary.py`` asserts the structure, the palette and the three contracts
    ``vdjdb-web`` depends on, against the committed fingerprint.
+
+**Step 2 replaced a post-processing script and that is the point.** ``MakeEmbedableHtml.py``
+line-scanned pandoc's finished output for ``<div``, ``<pre class="r">`` and ``<table>`` -- three
+guesses about markup that each silently blank ``/overview`` when they stop matching. Stating the
+same transforms on the document tree costs one extra pandoc invocation (the R never runs twice) and
+removes the guesses. Verified against the string-surgery output: identical line count, identical
+image digests, and the only textual difference is the position of one attribute inside 8 ``<img>``
+tags.
+
+``-auto_identifiers`` is deliberate: without it pandoc puts an ``id`` on every ``<h4>``, which the
+rmarkdown path did not because it hung ids on section ``<div>``s instead. Adding anchors to the
+fragment is a reasonable thing to want and a separate decision from this refactor.
 
 The paper figures (``summary/vdjdb_paper_figures.Rmd``) are not part of a release and are not
 rendered here; they need ``maps`` and ``scatterpie``, which the release path deliberately does not.
@@ -22,26 +36,46 @@ from pathlib import Path
 SUMMARY = Path("summary")
 RMD = SUMMARY / "vdjdb_summary.Rmd"
 RENDERED = SUMMARY / "vdjdb_summary.html"
+INTERMEDIATE = SUMMARY / "vdjdb_summary.knit.md"
 FRAGMENT = SUMMARY / "vdjdb_summary_embed.html"
+TEMPLATE = "embed.html"
+FILTER = "embed.lua"
+
+#: The reader pandoc must use on knitr's intermediate. The first three extensions are rmarkdown's
+#: own; `-auto_identifiers` keeps the fragment's markup as it has always been (see the docstring).
+READER = "markdown+autolink_bare_uris+tex_math_single_backslash-auto_identifiers"
 
 
 def render(legacy: Path, *, quiet: bool = True) -> Path:
-    """Run ``rmarkdown::render`` against the legacy tables of this build."""
+    """Run ``rmarkdown::render``, keeping knitr's intermediate for :func:`extract`."""
     if shutil.which("Rscript") is None:
         raise RuntimeError("Rscript is not on PATH; the dashboard needs R and rmarkdown.")
     # `legacy` is resolved here rather than inside the Rmd because knitr sets the working
     # directory to the document's own, so a relative path would mean something different there.
-    expr = (f'rmarkdown::render("{RMD}", quiet={"TRUE" if quiet else "FALSE"}, '
+    expr = (f'rmarkdown::render("{RMD}", quiet={"TRUE" if quiet else "FALSE"}, clean = FALSE, '
             f'params = list(legacy = "{legacy.resolve()}"))')
     subprocess.run(["Rscript", "-e", expr], check=True)
     return RENDERED
 
 
-def extract(rendered: Path = RENDERED, fragment: Path = FRAGMENT) -> int:
-    proc = subprocess.run([sys.executable, str(SUMMARY / "MakeEmbedableHtml.py"),
-                           str(rendered), str(fragment)],
-                          capture_output=True, text=True, check=True)
-    return int(proc.stdout.split()[0])
+def extract(intermediate: Path = INTERMEDIATE, fragment: Path = FRAGMENT) -> int:
+    """One pandoc pass over knitr's intermediate that emits the fragment. Returns its line count.
+
+    Run from ``summary/`` because the intermediate references its figures relatively and
+    ``--embed-resources`` resolves them from the working directory.
+    """
+    if shutil.which("pandoc") is None:
+        raise RuntimeError("pandoc is not on PATH; the fragment is produced by it.")
+    if not intermediate.exists():
+        raise FileNotFoundError(
+            f"{intermediate} is missing -- render() must run with `clean = FALSE`, or knitr "
+            "deletes the intermediate this pass reads.")
+    subprocess.run(
+        ["pandoc", intermediate.name, "--from", READER, "--to", "html4",
+         "--embed-resources", "--standalone", "--syntax-highlighting", "none",
+         "--template", TEMPLATE, "--lua-filter", FILTER, "-o", fragment.name],
+        cwd=intermediate.parent, check=True)
+    return len(fragment.read_text().splitlines())
 
 
 def check(fragment: Path = FRAGMENT, reference: Path | None = None) -> int:
