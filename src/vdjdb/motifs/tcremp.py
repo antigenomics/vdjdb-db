@@ -307,14 +307,18 @@ COEF_GRID: tuple[float, ...] = (0.15, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9, 1.1, 1.3, 1.
 #: ``min_cluster`` 5 dominates 3 on lift, purity **and** precision at every ``coef`` measured, so it
 #: is not a trade either.
 #:
-#: ===== ======== ========= ========= ========= ========= =========
-#: chain config   lift      Q         purity    precision retention
-#: ===== ======== ========= ========= ========= ========= =========
-#: TRA   coef 1.8 **1.854** **0.1729** **0.9105** **0.8932** **0.2509**
-#: \                       legacy     1.703     0.1691    0.8658    0.8567    0.2105
-#: TRB   coef 1.15 **4.490** **0.4437** **0.9873** **0.9859** **0.3232**
-#: \                       legacy     2.855     0.4433    0.9790    0.9756    0.3218
-#: ===== ======== ========= ========= ========= ========= =========
+#: Re-measured on the ``cluster_members_tcremp.txt`` the build actually writes, over human
+#: clonotype-epitope pairs in epitopes with >= 30 records -- the same cohort TCRNET is scored on
+#: (ROADMAP_local section 37.1):
+#:
+#: ======  =========  ======  ======  ======  ======  ======  ======  ======  ======
+#: chain   config     lift    legacy  Q       legacy  purity  legacy  prec    legacy
+#: ======  =========  ======  ======  ======  ======  ======  ======  ======  ======
+#: TRA     coef 1.8   1.855   1.703   0.1728  0.1691  0.9104  0.8658  0.8931  0.8567
+#: TRB     coef 1.15  4.490   2.855   0.4437  0.4433  0.9873  0.9790  0.9859  0.9756
+#: ======  =========  ======  ======  ======  ======  ======  ======  ======  ======
+#:
+#: Retention: TRA 0.2508 against legacy's 0.2105, TRB 0.3232 against 0.3218.
 #:
 #: **Both chains improve on every one of the five axes** -- there is no cost to name here, unlike
 #: TCRNET's TRB cell. TRB gains **+57 % lift** over the shipped annotation, TRA **+8.9 %**.
@@ -325,7 +329,7 @@ COEF_GRID: tuple[float, ...] = (0.15, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9, 1.1, 1.3, 1.
 #: margin (Q 0.4670) and costs 3.5 % of lift.
 #:
 #: ⚠ **Lift is on the non-display denominator** (``docs/denoising.md`` section 6.1). The same TRB
-#: clustering reads **4.490** there and **1.236** on the full cohort; display-selected records
+#: clustering reads **4.490** there and **1.272** on the full cohort; display-selected records
 #: contribute zero independently-replicated pairs while filling 29,692 of 116,053 clonotype slots.
 #: A lift figure without its cohort is not a number.
 #:

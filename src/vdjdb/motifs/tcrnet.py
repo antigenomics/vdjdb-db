@@ -111,18 +111,21 @@ MIN_SAMPLE = 10
 #: -- the cells that maximise lift on this corpus reach ``Q = 0.023`` with parsimony ``0.012``, which
 #: is the shattering failure mode ``Q`` exists to catch.
 #:
-#: Measured on the 56-cell grid ``scope x p x resolution x min_cluster``, human, per chain:
+#: Chosen on a 56-cell grid ``scope x p x resolution x min_cluster``; the values below are
+#: re-measured on the ``cluster_members.txt`` the build actually writes, over human clonotype-epitope
+#: pairs in epitopes with >= 30 records -- the same cohort TCREMP is scored on, so the two methods are
+#: comparable (ROADMAP_local section 37.1):
 #:
-#: ======  ======  ======  ======  ======  ======  ======  ======
-#: chain   lift    legacy  Q       legacy  purity  legacy  ret
-#: ======  ======  ======  ======  ======  ======  ======  ======
-#: TRA     2.051   1.721   0.1798  0.1691  0.8754  0.8658  0.2323
-#: TRB     1.501   1.355   0.4428  0.4433  0.9790  0.9790  0.3337
-#: ======  ======  ======  ======  ======  ======  ======  ======
+#: ======  ======  ======  ======  ======  ======  ======  ======  ======
+#: chain   lift    legacy  Q       legacy  purity  legacy  ret     legacy
+#: ======  ======  ======  ======  ======  ======  ======  ======  ======
+#: TRA     1.977   1.703   0.1798  0.1691  0.8754  0.8658  0.2323  0.2105
+#: TRB     3.194   2.855   0.4428  0.4433  0.9790  0.9790  0.3337  0.3218
+#: ======  ======  ======  ======  ======  ======  ======  ======  ======
 #:
-#: TRA improves on **every** axis (+19.2 % lift, +0.011 Q, +0.010 purity, +0.011 precision,
+#: TRA improves on **every** axis (+16.1 % lift, +0.011 Q, +0.010 purity, +0.011 precision,
 #: +0.022 retention). TRB carries **one named cost: Q is 0.0005 lower** than the shipped file's,
-#: against +10.8 % lift, equal purity, and higher precision and retention. That shortfall is
+#: against +11.9 % lift, equal purity, and higher precision and retention. That shortfall is
 #: rounding-level and stated rather than hidden; it is the only axis on which either chain regresses.
 #:
 #: ⚠ **The per-chain split section 34 introduced has collapsed.** Both chains now want the same
@@ -137,13 +140,15 @@ MIN_SAMPLE = 10
 #: percolation, but only at resolutions where ``Q`` collapses, so no Leiden cell is admissible
 #: (ROADMAP section 36.1).
 #:
-#: ⚠ **The lift figures above are on the full cohort.** They are internally consistent -- candidate
-#: and legacy scored identically on identical rows -- but not on the denominator
-#: ``docs/denoising.md`` section 6.1 settles on, which excludes display-selected records. Re-measured
-#: there, the TRB cell reads **lift 3.217, not 1.501**, and the ranking is **unchanged**: across all
-#: eight TRB cells it still has the highest lift, and it is still the only one that does not regress
-#: purity (`2,0,0,2` drops purity to ~0.961; `mc 3` to 0.9769). TRA needs no re-check -- exactly 1 of
-#: its 57,845 clonotypes is display-derived, so the two denominators agree to the fourth decimal.
+#: ⚠ **Lift is on the non-display denominator** (``docs/denoising.md`` section 6.1). On the full
+#: cohort the same TRB clustering reads **1.426** instead of 3.194, and legacy 1.259 instead of
+#: 2.855 -- the ranking against legacy is the same either way, but the numbers are not, so a lift
+#: figure without its cohort is not a number. TRA is unaffected: exactly 1 of its 57,845 clonotypes
+#: is display-derived, so its two denominators agree to the fourth decimal.
+#:
+#: The ranking **survives the correction**: re-scored on the non-display denominator, this TRB cell
+#: still has the highest lift of all eight swept and is still the only one that does not regress
+#: purity (`2,0,0,2` drops purity to ~0.961, `mc 3` to 0.9769).
 TUNED: dict[str, dict] = {
     "TRA": {"scope": "1,0,0,1", "p": 0.01, "min_degree": 2, "min_cluster": 5, "resolution": None},
     "TRB": {"scope": "1,0,0,1", "p": 0.01, "min_degree": 2, "min_cluster": 5, "resolution": None},
