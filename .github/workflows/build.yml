@@ -69,6 +69,14 @@ jobs:
           r-version: '4.5.3'
           use-public-rspm: true
 
+      # `setup-r` does NOT bring pandoc, and rmarkdown needs it: the first run past the arda fix
+      # died with "pandoc version 1.12.3 or higher is required and was not found". Pinned to the
+      # version the fingerprint in `summary/fingerprint.json` was recorded against -- pandoc
+      # decides the fragment's markup, so an unpinned upgrade moves the thing being checked.
+      - uses: r-lib/actions/setup-pandoc@v2
+        with:
+          pandoc-version: '3.10'
+
       - name: R packages
         # The list and the snapshot date live in the script, not here -- and a multi-line
         # `Rscript -e` in a YAML block scalar does not work: the continuations reach R as literal
