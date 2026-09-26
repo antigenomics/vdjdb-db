@@ -120,3 +120,41 @@ def test_scores_draws_one_bar_group_per_class_and_chain(tmp_path):
     assert [t.get_text() for t in ax.get_xticklabels()] == [
         "MHCI TRA", "MHCI TRB", "MHCII TRA", "MHCII TRB"]
     assert ax.get_yscale() == "log"
+
+
+def test_v_hla_counts_source_rows_not_exploded_ones():
+    """`length(unique(id))` in the R: the row id is assigned BEFORE the three explosions.
+
+    One slim row can carry several MHC alleles and several V genes, so it lands in several cells --
+    but it is one record in each, not one per combination. Counting after the explosion inflates
+    every cell that a multi-allele row touches.
+    """
+    cohort = pl.DataFrame({
+        "species": ["HomoSapiens"],
+        "gene": ["TRB"],
+        "mhc.class": ["MHCI"],
+        "mhc.a": ["HLA-A*02:01,HLA-A*02:06"],   # two alleles that truncate to the SAME two-field
+        "mhc.b": ["B2M"],
+        "v.segm": ["TRBV7-9*01,TRBV7-9*03"],    # two alleles of the same V gene
+    })
+    cells = panels.v_hla(cohort, min_records=1)
+    assert cells.height == 1, "the truncations collapse to one cell"
+    assert cells["records"][0] == 1, "one source row must count once, not four times"
+    assert cells["mhc"][0] == "A*02 / B2M"
+    assert cells["v"][0] == "TRBV7-9"
+
+
+def test_v_hla_drops_thin_alleles_and_genes():
+    rows = {"species": [], "gene": [], "mhc.class": [], "mhc.a": [], "mhc.b": [], "v.segm": []}
+    for n, (allele, v) in enumerate([("HLA-A*02:01", "TRBV1*01")] * 3
+                                    + [("HLA-Z*99:01", "TRBV9*01")]):
+        rows["species"].append("HomoSapiens")
+        rows["gene"].append("TRB")
+        rows["mhc.class"].append("MHCI")
+        rows["mhc.a"].append(allele)
+        rows["mhc.b"].append("B2M")
+        rows["v.segm"].append(v)
+        del n
+    cells = panels.v_hla(pl.DataFrame(rows), min_records=3)
+    assert cells["mhc"].to_list() == ["A*02 / B2M"]
+    assert cells["records"][0] == 3

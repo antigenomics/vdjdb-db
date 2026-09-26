@@ -261,3 +261,111 @@ def spectratype(cohort_df: pl.DataFrame, *, lo: int = 5, hi: int = 25, adjust: f
     np.atleast_1d(axes)[0].set_ylabel("Records")
     fig.tight_layout()
     return fig
+
+
+def v_hla(cohort_df: pl.DataFrame, *, min_records: int = 10) -> pl.DataFrame:
+    """``(gene, mhc.class, mhc, v, records)`` for the V-gene x MHC-allele heatmap.
+
+    Three columns are comma-separated lists and all three are exploded, so one slim row can land in
+    several cells. ``records`` therefore counts **distinct source rows**, not exploded ones --
+    `length(unique(id))` in the R, and the reason the row id is assigned before the explosion
+    rather than after.
+
+    Alleles are truncated at the first ``:`` (two-field resolution) and V genes at ``*``, then
+    anything whose MHC or V total is below ``min_records`` is dropped, exactly as the R does.
+    """
+    d = (cohort_df.filter(pl.col("species") == "HomoSapiens")
+         .with_row_index("id")
+         .select("id", "gene", "mhc.class", "mhc.a", "mhc.b", "v.segm")
+         .with_columns(pl.col("mhc.a", "mhc.b", "v.segm").str.split(","))
+         # Pinned: Polars 2.0 flips the default. `str.split` on an empty cell yields `[""]`,
+         # never an empty list, so this changes nothing here -- and pinning is what stops an
+         # upgrade quietly moving a published figure.
+         .explode("mhc.a", empty_as_null=False)
+         .explode("mhc.b", empty_as_null=False)
+         .explode("v.segm", empty_as_null=False)
+         .with_columns(
+             pl.col("mhc.a").str.split(":").list.first().alias("a"),
+             pl.col("mhc.b").str.split(":").list.first().alias("b"),
+             pl.col("v.segm").str.split("*").list.first().alias("v"))
+         .with_columns((pl.col("a") + " / " + pl.col("b")).str.replace_all("HLA-", "",
+                                                                          literal=True)
+                       .alias("mhc")))
+    cells = (d.group_by("gene", "mhc.class", "mhc", "v")
+             .agg(pl.col("id").n_unique().alias("records")))
+    by_mhc = cells.group_by("mhc.class", "mhc").agg(pl.col("records").sum().alias("mhc_total"))
+    by_v = cells.group_by("gene", "v").agg(pl.col("records").sum().alias("v_total"))
+    return (cells.join(by_mhc, on=["mhc.class", "mhc"])
+            .join(by_v, on=["gene", "v"])
+            .filter((pl.col("mhc_total") >= min_records) & (pl.col("v_total") >= min_records)))
+
+
+def v_hla_heatmap(cells: pl.DataFrame, *, cap: int = 1000):
+    """V gene x MHC allele, tiles on a log colour scale, faceted gene x MHC class.
+
+    ``facet_grid(scales = "free", space = "free")`` has no matplotlib equivalent, so the panels are
+    laid out on a GridSpec whose row and column ratios are the category counts -- which is what
+    "free space" means: a tile is the same size in every panel.
+
+    Axis order is ``fct_reorder(records)``, i.e. by the **median** records of each level, not the
+    sum. Counts are capped at ``cap`` before colouring (`pmin(records, 1000)` in the R), so a
+    handful of very large cells cannot flatten the rest of the scale.
+    """
+    import matplotlib.pyplot as plt
+    import numpy as np
+    from matplotlib import colormaps
+    from matplotlib.colors import LogNorm
+
+    style()
+    genes = cells["gene"].unique().sort().to_list()
+    classes = cells["mhc.class"].unique().sort().to_list()
+    # One shared axis order per column / per row, or tiles would not line up across facets.
+    x_order = {c: (cells.filter(pl.col("mhc.class") == c).group_by("mhc")
+                   .agg(pl.col("records").median().alias("m")).sort("m")["mhc"].to_list())
+               for c in classes}
+    y_order = {g: (cells.filter(pl.col("gene") == g).group_by("v")
+                   .agg(pl.col("records").median().alias("m")).sort("m")["v"].to_list())
+               for g in genes}
+
+    fig = plt.figure(figsize=(6.0, 10.0))
+    gs = fig.add_gridspec(len(genes), len(classes),
+                          width_ratios=[max(len(x_order[c]), 1) for c in classes],
+                          height_ratios=[max(len(y_order[g]), 1) for g in genes],
+                          hspace=0.08, wspace=0.06)
+    norm = LogNorm(vmin=1, vmax=cap)
+    cmap = colormaps["PuBuGn"]
+    mesh = None
+    for r, gene in enumerate(genes):
+        for c, klass in enumerate(classes):
+            ax = fig.add_subplot(gs[r, c])
+            xs, ys = x_order[klass], y_order[gene]
+            grid = np.full((len(ys), len(xs)), np.nan)
+            xi = {v: i for i, v in enumerate(xs)}
+            yi = {v: i for i, v in enumerate(ys)}
+            for row in cells.filter((pl.col("gene") == gene)
+                                    & (pl.col("mhc.class") == klass)).iter_rows(named=True):
+                grid[yi[row["v"]], xi[row["mhc"]]] = min(row["records"], cap)
+            mesh = ax.pcolormesh(np.arange(len(xs) + 1), np.arange(len(ys) + 1), grid,
+                                 cmap=cmap, norm=norm, edgecolors="none")
+            # Tick labels on the OUTSIDE edges only. Labelling every panel puts the right
+            # column's y-axis text on top of the left column's tiles, and repeats the allele names
+            # on both rows -- which is what `facet_grid` avoids by construction.
+            if r == len(genes) - 1:
+                ax.set_xticks(np.arange(len(xs)) + 0.5, xs, rotation=90, fontsize=5)
+            else:
+                ax.set_xticks([])
+            if c == 0:
+                ax.set_yticks(np.arange(len(ys)) + 0.5, ys, fontsize=5)
+            else:
+                ax.set_yticks([])
+            if r == 0:
+                ax.set_title(klass, fontsize=7)
+            if c == len(classes) - 1:
+                # The right-hand strip `facet_grid(gene ~ .)` draws.
+                ax.text(1.01, 0.5, gene, transform=ax.transAxes, rotation=270,
+                        va="center", ha="left", fontsize=7)
+            ax.spines[["top", "right"]].set_visible(False)
+    if mesh is not None:
+        fig.colorbar(mesh, ax=fig.axes, label="Records", fraction=0.025, pad=0.02,
+                     ticks=[1, 10, 100, 1000])
+    return fig
