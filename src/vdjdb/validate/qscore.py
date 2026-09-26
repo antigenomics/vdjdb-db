@@ -34,7 +34,7 @@ from __future__ import annotations
 
 import polars as pl
 
-from .motif_bench import KEY
+from .motif_bench import KEY, members_map
 
 
 def frame(cohort_df: pl.DataFrame, members: pl.DataFrame) -> pl.DataFrame:
@@ -45,10 +45,8 @@ def frame(cohort_df: pl.DataFrame, members: pl.DataFrame) -> pl.DataFrame:
     rather than dropped -- that is how ``p`` charges a clustering for low coverage, and why
     retention does not need to be a separate axis.
     """
-    m = (members.select(*KEY, pl.col("cid").alias("cluster"))
-                .unique(subset=KEY, keep="first", maintain_order=True))
     return (cohort_df.select("antigen.epitope", *KEY).unique(maintain_order=True)
-            .join(m, on=KEY, how="left")
+            .join(members_map(members), on=KEY, how="left")
             .with_row_index("__i")
             .with_columns(pl.col("cluster").fill_null("__singleton." + pl.col("__i").cast(pl.Utf8)))
             .drop("__i"))

@@ -231,6 +231,39 @@ independently replicated.
 Lift is quoted with the base rate, always — the base rate is ~2.2 % of clonotype-epitope pairs, so a
 precision of 0.15 is a 6.8× enrichment and means nothing stated alone.
 
+#### The denominator is the non-display cohort, and it has to be stated
+
+A **display-selected** record — `method.identification` containing `display` — is not an independent
+natural observation: a library panned against one pMHC yields thousands of receptors one
+substitution apart *by construction*, and the whole panning experiment is a single `reference.id`.
+So every display clonotype contributes **zero** independently-replicated pairs while occupying a
+denominator slot.
+
+Measured on human TRB, 2026-09-26:
+
+| Cohort | Clonotype-epitope pairs | Replicated | Base rate |
+|---|---:|---:|---:|
+| all | 116,053 | 2,771 | 2.3877 % |
+| excluding display | 86,361 | 2,771 | 3.2086 % |
+
+The replicated count is **identical** in both rows — which is the measurement, not an assumption:
+all 2,771 replicated pairs sit outside the display set, and display contributes 29,692 pairs that
+can only ever be false positives for this objective. Scoring lift on the full cohort therefore
+deflates precision mechanically, by an amount that depends on how aggressively a given parameter
+clusters the display block rather than on whether it is finding convergent selection.
+
+**So lift is scored on the non-display subset**, which is what `vdjdb.motifs.tcremp.fit_coef` has
+always documented. Two consequences worth stating plainly, because getting this wrong is silent:
+
+- **Clustering still runs on everything.** The hold-out is the *scoring* denominator, not an
+  exclusion from the data. Whether display records should also be held out of the clustering is a
+  separate, open question (ROADMAP §30.6).
+- **A lift figure is not comparable across denominators.** The same clustering reads 5.31× on the
+  non-display cohort and a much lower number on the full one. Any lift quoted anywhere in this
+  repository states which cohort it is on, or it is not a number.
+
+Both conventions are reported side by side in the tuning sweeps for exactly this reason.
+
 ### 6.2 The structural instrument — Q
 
 `Q = 2hp/(h+p)`, the homogeneity–parsimony trade-off (Tiffeau-Mayer, arXiv:2607.20799), from the

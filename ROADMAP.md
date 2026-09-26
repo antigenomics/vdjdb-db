@@ -457,6 +457,10 @@ Settled 2026-09-25.
   CI artifacts; whether any of them ever ships is deferred.
 - **Everything the build produces is specified** in `docs/outputs.md`, which becomes
   `docs/standards/database-outputs.rst` when the Sphinx site lands.
+- **How the motif stage is tuned, and what it is for, is specified** in `docs/denoising.md` --
+  normative for any change to motif clustering, and the source of the two-stage acceptance rule the
+  shipped parameters are chosen by. Becomes `docs/standards/denoising.rst` in phase 13, which needs
+  `myst_enable_extensions = ["dollarmath"]` in `conf.py` because it carries MathJax.
 
 ## 10. Record identity and the evidence model
 

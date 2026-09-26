@@ -51,19 +51,6 @@ def chance_recruitment(n_sample: int, p_background: float, min_degree: int = 2) 
     return float(binom.sf(min_degree - 1, max(n_sample - 1, 0), p_background))
 
 
-def expected_false_members(n_sample: int, p_background: float, true_fraction: float, *,
-                           min_degree: int = 2) -> float:
-    r"""Expected count of noise clonotypes recruited into motifs:
-    :math:`(1-\phi)\,n\,\alpha`, with :math:`\alpha` from :func:`chance_recruitment`.
-
-    ``true_fraction`` is :math:`\phi`, the share of the epitope's records that really do bind it.
-    It is not known -- that is the whole problem -- so this is used as a *sensitivity curve* over
-    plausible :math:`\phi`, never as a point estimate.
-    """
-    return (1.0 - true_fraction) * n_sample * chance_recruitment(n_sample, p_background,
-                                                                 min_degree)
-
-
 def _lift(clustered: np.ndarray, replicated: np.ndarray) -> float:
     base = replicated.mean()
     if not clustered.any() or base == 0:
@@ -74,13 +61,21 @@ def _lift(clustered: np.ndarray, replicated: np.ndarray) -> float:
 def controlled_lift(df: pl.DataFrame, *, clustered: str = "clustered",
                     replicated: str = "replicated", stratum: str = "stratum",
                     n_perm: int = 1000, seed: int = SEED) -> dict:
-    """Raw lift, the within-stratum permutation null, and the ratio of the two.
+    r"""Raw lift, the within-stratum permutation null, and the ratio of the two.
 
     ``stratum`` holds the covariate to hold fixed -- generation-probability decile, via
     :func:`pgen_stratum`. The null permutes ``replicated`` **within** each stratum, so a clonotype's
     publicity is preserved and only its association with the clustering is broken. ``ratio`` above 1
     is enrichment that publicity does not account for; a ratio near 1 means the raw lift was the
     covariate.
+
+    **The permutation is drawn in closed form rather than performed.** Permuting within a stratum
+    preserves that stratum's replicated count, so the lift's denominator -- the overall base rate --
+    is identical in every draw, and its numerator is the clustered-and-replicated count, which is a
+    sum of independent :math:`\mathrm{Hypergeometric}(n_g, k_g, c_g)` draws over strata
+    (:math:`n_g` records, :math:`k_g` replicated, :math:`c_g` clustered). Sampling those directly is
+    the same distribution exactly, not an approximation, and measured **300x faster** than shuffling
+    the label vector -- 0.66 s to 2.2 ms at 2,000 draws over 20,000 rows in 10 strata.
     """
     rng = np.random.default_rng(seed)
     c = df[clustered].to_numpy().astype(bool)
@@ -88,18 +83,25 @@ def controlled_lift(df: pl.DataFrame, *, clustered: str = "clustered",
     s = df[stratum].to_numpy()
     raw = _lift(c, r)
 
-    idx = [np.flatnonzero(s == v) for v in np.unique(s)]
-    null = np.empty(n_perm)
-    for t in range(n_perm):
-        perm = r.copy()
-        for g in idx:
-            perm[g] = rng.permutation(r[g])
-        null[t] = _lift(c, perm)
-    m = float(null.mean())
-    return {"lift": raw, "null_mean": m, "null_sd": float(null.std()),
-            "ratio": raw / m if m else 0.0,
+    n_clustered, base = int(c.sum()), float(r.mean())
+    if not n_clustered or base == 0:
+        return {"lift": raw, "null_mean": 0.0, "null_sd": 0.0, "ratio": 0.0, "p": 1.0,
+                "n": int(df.height), "clustered": n_clustered, "replicated": int(r.sum())}
+
+    v = np.unique(s)
+    n_g = np.array([(s == x).sum() for x in v])
+    k_g = np.array([(r & (s == x)).sum() for x in v])
+    c_g = np.array([(c & (s == x)).sum() for x in v])
+    # A stratum with nothing clustered contributes no draw; numpy requires nsample >= 1.
+    m = c_g > 0
+    tp = rng.hypergeometric(k_g[m], (n_g - k_g)[m], c_g[m], size=(n_perm, int(m.sum()))).sum(axis=1)
+    null = (tp / n_clustered) / base
+
+    mean = float(null.mean())
+    return {"lift": raw, "null_mean": mean, "null_sd": float(null.std()),
+            "ratio": raw / mean if mean else 0.0,
             "p": float((null >= raw).mean()), "n": int(df.height),
-            "clustered": int(c.sum()), "replicated": int(r.sum())}
+            "clustered": n_clustered, "replicated": int(r.sum())}
 
 
 def pgen_stratum(df: pl.DataFrame, column: str = "cdr3nt.pgen", *, bins: int = 10) -> pl.Series:

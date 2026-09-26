@@ -48,6 +48,18 @@ def cohort(chains: pl.DataFrame, records: pl.DataFrame, *, species: str = "HomoS
     return df.join(big, on="antigen.epitope").sort("antigen.epitope", *KEY)
 
 
+def members_map(members: pl.DataFrame) -> pl.DataFrame:
+    """``members`` reduced to one ``cluster`` per clonotype, ours or a legacy file's.
+
+    A clonotype appearing in two clusters keeps the first in input order -- which is why the input
+    order has to be the sorted one (CLAUDE.md hard rule 7). Shared with
+    :func:`vdjdb.validate.qscore.frame` so the two instruments cannot disagree about which cluster a
+    clonotype is in while disagreeing about how to score it.
+    """
+    return (members.select(*KEY, pl.col("cid").alias("cluster"))
+                   .unique(subset=KEY, keep="first", maintain_order=True))
+
+
 def assign(cohort_df: pl.DataFrame, members: pl.DataFrame) -> pl.DataFrame:
     """Attach ``cluster`` to every cohort record. Unclustered records get ``null``, which is what
     ``metrics_lib.precision_recall_fscore`` folds into FN.
@@ -56,9 +68,7 @@ def assign(cohort_df: pl.DataFrame, members: pl.DataFrame) -> pl.DataFrame:
     Joined on the clonotype, so a clonotype reported by several records carries its cid to all of
     them, which is how the benchmark counts.
     """
-    m = (members.select(*KEY, pl.col("cid").alias("cluster"))
-                .unique(subset=KEY, keep="first", maintain_order=True))
-    return cohort_df.join(m, on=KEY, how="left")
+    return cohort_df.join(members_map(members), on=KEY, how="left")
 
 
 def score(assigned: pl.DataFrame) -> dict:
