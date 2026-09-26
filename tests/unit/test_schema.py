@@ -1,6 +1,6 @@
 """The field registry against its three sources of truth.
 
-``src/BuildDatabase.groovy`` is parsed **at test time**, never copied: it is the one correct
+``attic/BuildDatabase.groovy`` is parsed **at test time**, never copied: it is the one correct
 specification for the metadata and for the header-from-metadata derivation, and a copy would drift
 exactly the way the nine duplicated column lists did.
 """
@@ -29,7 +29,7 @@ from vdjdb.schema import (
     render_slim_meta,
 )
 
-GROOVY = repo_root() / "src" / "BuildDatabase.groovy"
+GROOVY = repo_root() / "attic" / "BuildDatabase.groovy"
 
 
 def _groovy_list(name: str) -> list[str]:
