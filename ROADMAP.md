@@ -459,12 +459,13 @@ Settled 2026-09-25.
   `docs/standards/database-outputs.rst` when the Sphinx site lands.
 - **How the motif stage is tuned, and what it is for, is specified** in `docs/denoising.md` --
   normative for any change to motif clustering, and the source of the two-stage acceptance rule the
-  shipped parameters are chosen by. Becomes `docs/standards/denoising.rst` in phase 13.
+  shipped parameters are chosen by. Published as-is on the docs site by `myst-parser`.
 - **Which clustering algorithms exist, what their parameters do, and what each measures at** is
   `docs/clustering.md` -- connected components, CPM Leiden, DBSCAN, HDBSCAN, Lumbermark and a
   TCRNET-gated hybrid, with the scorecard that made two of them the default and the rest measured or
-  rejected. Becomes `docs/standards/clustering.rst`. Both carry MathJax, so phase 13's `conf.py`
-  needs `myst_enable_extensions = ["dollarmath"]`.
+  rejected. Both carry MathJax, so `docs/conf.py` enables
+  `myst_enable_extensions = ["dollarmath"]` and publishes them as Markdown rather than converting:
+  they are cited by section number from the ROADMAP, the package docstrings and `docs/tuning/`.
 - **The measurements behind both are committed**, in `docs/tuning/`: `scorecard.tsv` is 252
   configurations scored through one harness, and `sweeps.py` / `report.py` / the two `.gp` files
   regenerate it and its figures. Committed, reviewed inputs to the documents that cite them --
