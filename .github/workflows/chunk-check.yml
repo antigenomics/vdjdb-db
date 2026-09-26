@@ -6,15 +6,13 @@
 name: chunk-check
 
 on:
+  # EVERY pull request, with no path filter, because this is a REQUIRED status check: a filtered
+  # workflow simply does not run on a PR that misses its paths, the required check stays pending,
+  # and the PR is blocked forever. A docs-only PR would have hit exactly that.
+  #
+  # The cost is small and the behaviour is better: with no chunks changed the QC step falls back to
+  # the whole corpus, which takes seconds, so every PR validates the data it is sitting on.
   pull_request:
-    paths:
-      - 'chunks/**'
-      - 'chunks_negative/**'
-      - 'chunks_with_unconventional_aa/**'
-      - 'patches/**'
-      - 'res/**'
-      - 'src/vdjdb/**'
-      - 'pyproject.toml'
   merge_group:
   workflow_dispatch:
 
