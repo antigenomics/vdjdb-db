@@ -30,6 +30,10 @@ dependencies = [
 # The build itself has no pandas dependency and must not acquire one.
 motifs = ["mirpy-lib[bench]>=3.0", "python-igraph>=0.11", "scikit-learn>=1.4", "pandas>=2.0", "pyarrow>=16", "clustereval>=0.2"]
 test = ["pytest>=8", "hypothesis>=6", "airr>=1.5"]
+# The dashboard checker. Pillow and scipy arrive transitively through mirpy-lib[bench] today, which
+# means an upstream dependency change would silently disable the style and perceptual layers rather
+# than fail -- a check that quietly downgrades itself is worse than no check. Declared so it cannot.
+summary = ["pillow>=10", "numpy>=1.26", "scipy>=1.11"]
 # The clustering bake-off under docs/tuning/ only. Lumbermark is measured, not shipped
 # (docs/clustering.md section 9), so it must not reach the build container -- `uv sync --extra
 # tuning` when re-running the sweeps, never the default install.

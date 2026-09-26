@@ -84,7 +84,7 @@ jobs:
         run: Rscript summary/install-packages.R
 
       - name: Install
-        run: uv sync --extra motifs --extra test
+        run: uv sync --extra motifs --extra test --extra summary
 
       - name: QC
         run: uv run vdjdb qc --strict

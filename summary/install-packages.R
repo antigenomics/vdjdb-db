@@ -30,3 +30,12 @@ if (length(still)) {
   stop("failed to install: ", paste(still, collapse = ", "))
 }
 cat("all", length(PACKAGES), "packages present\n")
+
+# Fail here, in seconds, rather than fifteen minutes into the render. The Rmd pins
+# `dev.args = list(type = "cairo")`, which needs an R built with cairo; without it every figure
+# chunk dies one at a time at the far end of the pipeline. `capabilities()` is free to ask.
+if (!capabilities("cairo")) {
+  stop("this R has no cairo device; the dashboard pins dev.args = list(type = \"cairo\") ",
+       "for parity with the shipped PNGs. Install a cairo-enabled R.")
+}
+cat("cairo: available\n")
