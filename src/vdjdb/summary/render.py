@@ -39,8 +39,12 @@ RENDERED = SUMMARY / "vdjdb_summary.html"
 INTERMEDIATE = SUMMARY / "vdjdb_summary.knit.md"
 FIGURES = SUMMARY / "vdjdb_summary_files" / "figure-html"
 FRAGMENT = SUMMARY / "vdjdb_summary_embed.html"
-TEMPLATE = "embed.html"
-FILTER = "embed.lua"
+# Absolute, and that is not cosmetic: pandoc resolves a bare `--template NAME` from its own
+# DATA directory (`templates/NAME`), not the working directory. A local pandoc that happens
+# to find the file anyway hides it; a clean runner fails with
+# "Could not find data file 'templates/embed.html'".
+TEMPLATE = (SUMMARY / "embed.html").resolve()
+FILTER = (SUMMARY / "embed.lua").resolve()
 
 #: The reader pandoc must use on knitr's intermediate. The first three extensions are rmarkdown's
 #: own; `-auto_identifiers` keeps the fragment's markup as it has always been (see the docstring).
@@ -86,7 +90,7 @@ def extract(intermediate: Path = INTERMEDIATE, fragment: Path = FRAGMENT, *,
     cmd = ["pandoc", intermediate.name,
            "--from", READER, "--to", "html4", "--standalone",
            "--syntax-highlighting", "none",
-           "--template", TEMPLATE, "--lua-filter", FILTER,
+           "--template", str(TEMPLATE), "--lua-filter", str(FILTER),
            *(["--embed-resources"] if assets is None
              else ["-M", f"asset-prefix={asset_prefix}"]),
            # Absolute: pandoc runs in `summary/` so the figures resolve relatively, but the
