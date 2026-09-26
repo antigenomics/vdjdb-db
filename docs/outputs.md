@@ -276,6 +276,10 @@ this names it, and the legacy projection derives the boolean from it.
 **Backgrounds never ship** (CLAUDE.md hard rule 5). `count.bg` / `total.bg` are derived statistics
 computed against a background streamed at build time; no background row reaches any output.
 
+The per-epitope diagnostic for both tables is `reports/motifs_per_epitope.tsv` (§5), which is a report
+rather than a shipped table: it is derived entirely from `clusters` and the corpus, so shipping it
+would be shipping a view.
+
 ---
 
 ## 4. AIRR bundle — `vdjdb-airr-<version>.zip`
@@ -346,6 +350,7 @@ Their fate is an open question — ROADMAP §9.
 | `chunk-lint.tsv` | text-level findings: encoding, BOM, CRLF, header shape |
 | `records.diff.tsv` | added / amended / retired records against the previous release |
 | `diff-report.md` | the difference ledger against a reference release (ROADMAP §5) |
+| `motifs_per_epitope.tsv` | one row per (species, gene, method, epitope): clonotypes, clustered, retention, clusters, largest cluster, mean cluster size, singleton clusters, percolation, replicated, tp, precision, lift. **678 rows.** Written by `vdjdb motifs` on every run -- the pooled motif scorecard is an average over a strongly bimodal distribution and must not be reported without it (`docs/clustering.md` §6) |
 | `motifs.debug/` | per-clonotype enrichment statistics, embeddings, cluster labels, eps sweeps, the pooled cross-epitope confusion matrix |
 | `contact_sheet.png` | the eight dashboard panels tiled, for visual review |
 
