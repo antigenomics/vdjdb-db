@@ -5,10 +5,42 @@ date: "26-02-2022"
 output:
   html_document:
     code_folding: hide
+params:
+  legacy: "../out/legacy"
+  reference_years: "reference_years.tsv"
+  annotations: "annotations.tsv"
 ---
 
+<!--
+The release dashboard. Its published fragment -- everything between `!summary_embed_start!` and
+`!summary_embed_end!` -- is extracted by `MakeEmbedableHtml.py` and injected into vdjdb-web's
+`/overview`, so three properties of the output are load-bearing and asserted by
+`summary/check_summary.py`: the base64 images are single unbroken lines, there are no `<div>`
+wrappers, and the filename does not change.
+
+The paper figures live in `vdjdb_paper_figures.Rmd`, split off at the marker below. That is what
+keeps `maps`, `scatterpie` and `ggrepel` out of this render path.
+
+Every input is a parameter, so the render reads the build under `out/` rather than the stale 2024
+copy in `database/`, and it makes no network call:
+
+    Rscript -e 'rmarkdown::render("summary/vdjdb_summary.Rmd")'
+    Rscript -e 'rmarkdown::render("summary/vdjdb_summary.Rmd", params = list(legacy = "../out/legacy"))'
+-->
+
 ```{r setup, include=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,
+                      # Pinned, or the visual fingerprint is noise: the shipped PNGs decode to
+                      # 1344x960, 2304x1920, 1152x1920 and 1536x1536, i.e. dpi 96 at retina 2.
+                      # Cairo explicitly -- ragg renders fonts differently and would break parity.
+                      dev = "png", dev.args = list(type = "cairo"),
+                      dpi = 96, fig.retina = 2)
+# Every deprecation is reported every time, not once per session, so the upgrade that introduces
+# the next one shows it in the render log -- this is what would have surfaced `guide = F`, `size =`
+# and `..count..`. NOT "error", which the ROADMAP proposed: measured on ggalluvial 0.12.6 it turns
+# that package's own internal `select(axes)` into a hard failure in the first alluvial chunk, so it
+# fails on a dependency's debt rather than ours.
+options(lifecycle_verbosity = "warning")
 # Make sure to keep the default for normal processing.
 default_output_hook <- knitr::knit_hooks$get("output")
 
@@ -45,20 +77,15 @@ library(ggplot2)
 library(RColorBrewer)
 library(data.table)
 library(forcats)
-library(ggh4x)
 library(ggalluvial)
 library(circlize)
-library(ggrepel)
 library(tidyverse)
-library(httr)
-library(xml2)
 library(stringr)
 library(gridExtra)
-library(maps)
-library(scatterpie)
+library(cowplot)
 select = dplyr::select
 
-df = fread("../database/vdjdb.slim.txt", header=T, sep="\t")
+df = fread(file.path(params$legacy, "vdjdb.slim.txt"), header=T, sep="\t")
 ```
 
 ---
@@ -92,7 +119,7 @@ kable(format = "html", df.sg)
 ```{r message=FALSE, warning=FALSE, echo=FALSE, cache=FALSE}
 # Load data 
 
-dt.vdjdb = fread("../database/vdjdb_full.txt", sep = "\t", fill=T)
+dt.vdjdb = fread(file.path(params$legacy, "vdjdb_full.txt"), sep = "\t", fill=T)
 
 dt.vdjdb.s = dt.vdjdb %>%
   filter(species != "MacacaMulatta") %>%
@@ -102,136 +129,100 @@ dt.vdjdb.s = dt.vdjdb %>%
   select(reference.id, tcr_key, mhc_key, chains, antigen.epitope, species) %>%
   unique
 
-# Fetch pubmed info
+# Publication years, read from a committed table rather than fetched.
+#
+# This block used to call NCBI eutils at render time and cover everything that is not a PubMed id
+# with a fourteen-entry literal table last updated in 2021. Measured on the current database that
+# table missed 38 of the 52 non-PubMed references -- every PDB structure curated since, and an
+# arXiv preprint -- and each one dropped out of the panels below without a warning. The render is
+# now offline and deterministic; `uv run vdjdb refs` rebuilds the table by its own pull request.
 
-ids = unique((dt.vdjdb.s %>%
-  filter(substr(reference.id,1,4)=="PMID") %>%
-  mutate(id = str_split_fixed(reference.id, ":", 2)[,2]))$id)
+dt.pubdate = fread(params$reference_years, sep = "\t", header = TRUE) %>%
+  transmute(reference.id, pub_date = as.integer(year))
 
-pm_data = content(GET("https://eutils.ncbi.nlm.nih.gov/",
-                      timeout(60),
-                      path = "entrez/eutils/esummary.fcgi",
-                      query = list(db = "pubmed", 
-                                   id = paste0(ids,collapse = ","))))
-
-invisible(write_xml(pm_data, "dates.xml"))
-pm_data_2 = readLines("dates.xml")
-tmp=file.remove("dates.xml")
-
-pm_data_id = str_split_fixed(pm_data_2[grepl("<Id>", pm_data_2)], "[<>]", n = Inf)[,3]
-pm_data_date = str_split_fixed(pm_data_2[grepl('Name="PubDate"', pm_data_2)], "[<>]", n = Inf)[,3]
-
-dt.pubdate = data.table(
-  reference.id = paste0("PMID:", pm_data_id),
-  pub_date = str_split_fixed(pm_data_date, " ", n = Inf)[,1]
-)
-
-dt.pubdate = rbind(dt.pubdate,
-                   data.frame(reference.id = 
-                                c("https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#",
-                                  "http://mediatum.ub.tum.de/doc/1136748",
-                                  "https://github.com/antigenomics/vdjdb-db/issues/288",
-                                  "https://github.com/antigenomics/vdjdb-db/issues/193",
-                                  "https://github.com/antigenomics/vdjdb-db/issues/252",
-                                  "https://github.com/antigenomics/vdjdb-db/issues/313",
-                                  "https://github.com/antigenomics/vdjdb-db/issues/312",
-                                  "https://github.com/antigenomics/vdjdb-db/issues/311",
-                                  "https://github.com/antigenomics/vdjdb-db/issues/315",
-                                  "https://github.com/antigenomics/vdjdb-db/issues/323",
-                                  "https://github.com/antigenomics/vdjdb-db/issues/326",
-                                  "https://github.com/antigenomics/vdjdb-db/issues/328",
-                                  "https://doi.org/10.1101/2020.05.04.20085779",
-                                  "https://github.com/antigenomics/vdjdb-db/issues/333"),
-                              pub_date = c(2019, 
-                                           2014, 
-                                           2019, 
-                                           2017, 
-                                           2017, 
-                                           2020,
-                                           2020,
-                                           2020,
-                                           2020,
-                                           2021,
-                                           2021,
-                                           2021,
-                                           2021,
-                                           2021) %>% as.character, stringsAsFactors = F))
+missing.refs = setdiff(unique(dt.vdjdb.s$reference.id[dt.vdjdb.s$reference.id != ""]),
+                       dt.pubdate$reference.id)
+if (length(missing.refs) > 0) {
+  stop(sprintf("%d reference(s) have no year in %s -- run `uv run vdjdb refs`: %s",
+               length(missing.refs), params$reference_years,
+               paste(head(missing.refs, 5), collapse = ", ")))
+}
 ```
 
 Number of unique TCR sequences, epitopes, MHC alleles and studies by **publication** year, cumulative plots.
 
 ```{r message=FALSE, warning=FALSE}
-dt.vdjdb.s2 = dt.vdjdb.s %>%
-  merge(dt.pubdate %>% mutate(pub_date = pub_date %>% as.integer), 
-        by = "reference.id",
-        allow.cartesian = T) %>%
-  merge(expand.grid(pub_date = unique(dt.pubdate$pub_date) %>% as.integer,
-                    pub_date2 = unique(dt.pubdate$pub_date) %>% as.integer), 
-        by = "pub_date",
-        allow.cartesian = T) %>%
-  group_by(pub_date2, chains) %>%
-  summarise(tcr_count = length(unique(tcr_key[which(pub_date <= pub_date2)])),
-            epi_count = length(unique(antigen.epitope[which(pub_date <= pub_date2)])),
-            ref_count = length(unique(reference.id[which(pub_date <= pub_date2)])),
-            mhc_count = length(unique(mhc_key[which(pub_date <= pub_date2)])))
+# Cumulative counts by first-appearance year.
+#
+# The previous form cross-joined every (pub_date, pub_date2) pair -- roughly 7M rows over ~35
+# distinct years -- and then ran four `length(unique(x[which(pub_date <= pub_date2)]))` per group.
+# That is O(n x years) and the only part of this render that could plausibly exhaust a 16 GB
+# runner. A key's first year, tabulated and cumulated, gives the same numbers in one pass.
+years = sort(unique(dt.pubdate$pub_date))
 
-p1=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = tcr_count, color = chains)) +
-  annotate("segment", x = 2017, xend = 2017, y = 0, yend = 19000, linetype="solid", color = "grey25", size = 0.3) +
-  annotate("text", x = 2017, y = 21500, label = "AIRR-seq for tet+", hjust = 1, vjust = 1) +
-  annotate("segment", x = 2019, xend = 2019, y = 0, yend = 27000, linetype="solid", color = "grey25", size = 0.3) +
-  annotate("text", x = 2019, y = 31000, label = "10X & dCODE", hjust = 1, vjust = 1) +
-  annotate("segment", x = 2025, xend = 2025, y = 0, yend = 67000, linetype="solid", color = "grey25", size = 0.3) + 
-  annotate("text", x = 2025, y = 71000, label = "phage\ndisplays", hjust = 1, vjust = 1) + 
-  geom_line() +
-  geom_point() +
-  ylab("") +
-  scale_x_continuous("", breaks = seq(1995, 2025, by =2)) +
-  scale_color_brewer(palette = "Set1") +
-  theme_classic() + ggtitle("Number of unique TCRs") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5),
-        axis.line = element_line(size = 0.3))
+cumulative = dt.vdjdb.s %>%
+  inner_join(dt.pubdate, by = "reference.id", relationship = "many-to-many") %>%
+  select(chains, pub_date, tcr = tcr_key, epi = antigen.epitope,
+         ref = `reference.id`, mhc = mhc_key) %>%
+  pivot_longer(c(tcr, epi, ref, mhc), names_to = "metric", values_to = "key") %>%
+  filter(key != "") %>%
+  group_by(chains, metric, key) %>%
+  summarise(first_year = min(pub_date), .groups = "drop") %>%
+  count(chains, metric, first_year, name = "added") %>%
+  complete(chains, metric, first_year = years, fill = list(added = 0)) %>%
+  arrange(chains, metric, first_year) %>%
+  group_by(chains, metric) %>%
+  mutate(total = cumsum(added)) %>%
+  ungroup()
 
-p2=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = epi_count, color = chains)) +
-  annotate("segment", x = 2021, xend = 2021, y = 0, yend = 1000, linetype="solid", color = "grey25", size = 0.3) +
-  annotate("text", x = 2021, y = 1150, label = "COVID-19 studies", hjust = 1, vjust = 1) +
-  geom_line() +
-  geom_point() +
-  ylab("") +
-  scale_x_continuous("", breaks = seq(1995, 2025, by =2)) +
-  scale_color_brewer(palette = "Set1") +
-  theme_classic() + ggtitle("Number of unique epitopes") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5),
-        axis.line = element_line(size = 0.3))
+# Callouts carry no coordinates (#460). The segment ends at the series value in that year and the
+# label floats a fixed fraction of the panel maximum above it, so they stay correct as the database
+# grows -- the hardcoded y positions they replace were right for a 2022 database and wrong since.
+dt.ann = fread(params$annotations, sep = "\t", header = TRUE) %>%
+  mutate(label = gsub("\\\\n", "\n", label))
+LABEL_FLOAT = 0.05
 
-p3=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = ref_count, color = chains)) +
-  geom_line() +
-  geom_point() +
-  ylab("") +
-  scale_x_continuous("", breaks = seq(1995, 2025, by =2)) +
-  scale_color_brewer(palette = "Set1") +
-  theme_classic() + ggtitle("Number of studies") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5),
-        axis.line = element_line(size = 0.3))
+callouts = function(metric_name) {
+  d = cumulative %>% filter(metric == metric_name)
+  a = dt.ann %>% filter(panel == metric_name)
+  if (nrow(a) == 0 || nrow(d) == 0) return(NULL)
+  top = max(d$total)
+  a$value = sapply(a$year, function(y) {
+    v = d$total[d$first_year == y]
+    if (length(v) == 0) 0 else max(v)
+  })
+  list(annotate("segment", x = a$year, xend = a$year, y = 0, yend = a$value,
+                linetype = "solid", colour = "grey25", linewidth = 0.3),
+       annotate("text", x = a$year, y = a$value + LABEL_FLOAT * top, label = a$label,
+                hjust = a$hjust, vjust = a$vjust))
+}
 
-p4=ggplot(dt.vdjdb.s2, aes(x = as.integer(pub_date2), y = mhc_count, color = chains)) +
-  geom_line() +
-  geom_point() +
-  ylab("") +
-  scale_x_continuous("", breaks = seq(1995, 2025, by =2)) +
-  scale_color_brewer("TCR chain(s)", palette = "Set1") +
-  theme_classic() + ggtitle("Number of MHC alleles") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.5),
-        axis.line = element_line(size = 0.3)) +
-  theme(legend.position="bottom")
+panel = function(metric_name, title, legend_title = NULL) {
+  d = cumulative %>% filter(metric == metric_name)
+  p = ggplot(d, aes(x = first_year, y = total, color = chains)) +
+    callouts(metric_name) +
+    geom_line() +
+    geom_point() +
+    ylab("") +
+    scale_x_continuous("", breaks = seq(1995, max(years), by = 2)) +
+    theme_classic() + ggtitle(title) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+          axis.line = element_line(linewidth = 0.3))
+  if (is.null(legend_title))
+    p + scale_color_brewer(palette = "Set1")
+  else
+    p + scale_color_brewer(legend_title, palette = "Set1") + theme(legend.position = "bottom")
+}
 
-g_legend = function(a.gplot){
-  tmp <- ggplot_gtable(ggplot_build(a.gplot))
-  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
-  legend <- tmp$grobs[[leg]]
-  return(legend)
-  }
+p1 = panel("tcr", "Number of unique TCRs")
+p2 = panel("epi", "Number of unique epitopes")
+p3 = panel("ref", "Number of studies")
+p4 = panel("mhc", "Number of MHC alleles", "TCR chain(s)")
 
-mylegend = g_legend(p4)
+# `cowplot::get_legend`, not a grep over grob names. The hand-rolled version looked for a grob
+# named exactly "guide-box"; that name still matches on ggplot2 4.0.2, but it is an internal detail
+# of the gtable and `tmp$grobs[[integer(0)]]` is the error it throws the release it stops matching.
+mylegend = cowplot::get_legend(p4)
 
 grid.arrange(arrangeGrob(p1 + theme(legend.position="none"),
                          p2 + theme(legend.position="none"),
@@ -297,10 +288,10 @@ ggplot(df.c %>%
            y = log2(Records))) +
   geom_alluvium(aes(fill = substr(Epitope,1,3) %>% as.factor %>% as.integer), 
                 color = "white", alpha = 0.8, curve_type = "sigmoid") +
-  geom_stratum(fill = "grey95", color = "white", size=1.0) +
+  geom_stratum(fill = "grey95", color = "white", linewidth =1.0) +
   geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
-  scale_fill_distiller(palette = "Set3", guide=F, "") +
-  #scale_fill_hue(guide=F, "") +
+  scale_fill_distiller(palette = "Set3", guide="none", "") +
+  #scale_fill_hue(guide="none", "") +
   ylab("") + scale_x_discrete(limits = c("Gene", "HLA", "Epitope", "TCR chain"),
                               expand = c(.1, .1),
                               position = "top") +
@@ -354,10 +345,10 @@ ggplot(df.n %>%
            y = log2(Records))) +
   geom_alluvium(aes(fill = substr(Epitope,1,3) %>% as.factor %>% as.integer), 
                 color = "white", alpha = 0.8, curve_type = "sigmoid") +
-  geom_stratum(fill = "grey95", color = "white", size=1.0) +
+  geom_stratum(fill = "grey95", color = "white", linewidth =1.0) +
   geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
-  scale_fill_distiller(palette = "Accent", guide=F, "") +
-  #scale_fill_hue(guide=F, "") +
+  scale_fill_distiller(palette = "Accent", guide="none", "") +
+  #scale_fill_hue(guide="none", "") +
   ylab("") + scale_x_discrete(limits = c("Gene", "HLA", "Epitope", "TCR chain"),
                               expand = c(.1, .1),
                               position = "top") +
@@ -394,12 +385,12 @@ df.score <- df[df$species=='HomoSapiens',] %>%
   summarize(total = n())
 
 ggplot(df.score, aes(x=paste(mhc.class, gene, sep = " "), y=total, fill = as.factor(vdjdb.score))) + 
-  geom_bar(stat = "identity", position = "dodge", color = "black", size = 0.3) +  
+  geom_bar(stat = "identity", position = "dodge", color = "black", linewidth = 0.3) +  
   xlab("") + scale_y_log10("Records") +
   scale_fill_brewer("VDJdb score", palette = "PuBuGn") + 
   theme_classic() +
   theme(legend.position="bottom",
-        axis.line = element_line(size = 0.3))
+        axis.line = element_line(linewidth = 0.3))
 ```
 
 ---
@@ -421,14 +412,14 @@ ggplot(df.spe %>% mutate(
                        fct_reorder(epi_len)), 
                  bins = 21, size = 0,
                  binwidth = 1, alpha = 0.9, color = NA) + 
-  geom_density(aes(y=..count..), adjust = 3.0, linetype = "dotted") +
+  geom_density(aes(y = after_stat(count)), adjust = 3.0, linetype = "dotted") +
   scale_x_continuous(limits = c(5,25), breaks = seq(5,25,5)) + 
   facet_wrap(~gene) + 
-  scale_fill_distiller(palette = "Spectral", guide=F, "") +
-  #scale_fill_viridis_d(guide=F, direction = -1) +
+  scale_fill_distiller(palette = "Spectral", guide="none", "") +
+  #scale_fill_viridis_d(guide="none", direction = -1) +
   xlab("CDR3 length") + ylab("Records") +
   theme_classic() +
-  theme(axis.line = element_line(size = 0.3),
+  theme(axis.line = element_line(linewidth = 0.3),
         strip.background = element_blank())
 
 ggplot(df.spe %>% mutate(
@@ -443,11 +434,11 @@ ggplot(df.spe %>% mutate(
                  binwidth = 1, alpha = 0.9, color = NA) + 
   scale_x_continuous(breaks = 7:25) + 
   facet_wrap(.~mhc.class, scales = "free") + 
-  scale_fill_distiller(palette = "Spectral", guide=F, "") +
-  #scale_fill_viridis_d(guide=F, direction = -1) +
+  scale_fill_distiller(palette = "Spectral", guide="none", "") +
+  #scale_fill_viridis_d(guide="none", direction = -1) +
   xlab("Epitope length") + ylab("Records") +
   theme_classic() +
-  theme(axis.line = element_line(size = 0.3),
+  theme(axis.line = element_line(linewidth = 0.3),
         strip.background = element_blank())
 ```
 
@@ -457,7 +448,7 @@ Representative data for Homo Sapiens, Variable gene. Only Variable genes and MHC
 
 ```{r message=FALSE, warning=FALSE, fig.height=10, fig.width=6}
 df.vhla = df %>% 
-  as.tibble %>%
+  as_tibble %>%
   filter(species == "HomoSapiens" ) %>%
   mutate(id = 1:n()) %>%
   separate_rows(mhc.a, sep = ",") %>%
@@ -491,7 +482,7 @@ ggplot(df.vhla, aes(x=gsub("HLA-", "", paste(mhc.a.split, mhc.b.split, sep = " /
         axis.text.y = element_text(size = 8),
         panel.grid.major = element_blank(),
         legend.position = "right",
-        axis.line = element_line(size = 0.3),
+        axis.line = element_line(linewidth = 0.3),
         strip.background = element_blank())
 ```
 
@@ -547,7 +538,7 @@ Representative data for Homo Sapiens MHC class I and II
 
 ```{r message=FALSE, warning=FALSE}
 df.m = df %>% 
-  as.tibble %>%
+  as_tibble %>%
   filter(species == "HomoSapiens") %>%
   mutate(id = 1:n()) %>%
   separate_rows(mhc.a, sep = ",") %>%
@@ -565,329 +556,3 @@ kable(format = "html", df.m)
 ```
 
 !summary_embed_end!
-
----
-
-#### VDJdb 2022 paper
-
-Total COVID records
-
-```{r}
-df %>%
-  filter(species == "HomoSapiens", 
-         startsWith(as.character(antigen.species), "SARS-CoV")) %>%
-  nrow()
-```
-
-Total COVID epitopes
-
-```{r}
-df %>%
-  filter(species == "HomoSapiens", 
-         startsWith(as.character(antigen.species), "SARS-CoV")) %>%
-  .$antigen.epitope %>%
-  unique %>% 
-  length
-```
-
-According to VDJdb'19 "since the establishment of the database a total of 155 published studies were processed and added resulting in 61049 TCR specificity records in 2019 compared to only 5491 in 2017."
-
-Count total new records
-
-```{r}
-nrow(df) - 61049
-```
-
-Total number of publications
-
-```{r}
-dt.pubdate$reference.id %>%
-  unique %>%
-  length
-```
-
-Number of epitopes ("Notably, while the number of unique epitopes with known specific TCRs increased, it is still dwarfed by the number of unique TCRs in the database, as there are currently only 212 epitopes in VDJdb. " for 2019)
-
-```{r}
-df %>%
-  .$antigen.epitope %>%
-  unique %>% 
-  length
-```
-
-Numbers of records and epitopes for common viruses.
-
-CMV
-
-```{r}
-df %>% filter(antigen.species == "CMV") %>% nrow
-df %>% filter(antigen.species == "CMV") %>% .$antigen.epitope %>% unique %>% length
-```
-
-Flu
-
-```{r}
-df %>% filter(antigen.species == "InfluenzaA") %>% nrow
-df %>% filter(antigen.species == "InfluenzaA") %>% .$antigen.epitope %>% unique %>% length
-```
-
-EBV
-
-```{r}
-df %>% filter(antigen.species == "EBV") %>% nrow
-df %>% filter(antigen.species == "EBV") %>% .$antigen.epitope %>% unique %>% length
-```
-
-Count number of HLA haplotypes. Class I
-
-```{r}
-df %>%
-  filter(species == "HomoSapiens", mhc.class == "MHCI") %>%
-  mutate(allele = str_split_fixed(mhc.a, "[:,]", 2)[,1]) %>%
-  .$allele %>%
-  unique %>%
-  length
-```
-
-class II
-
-```{r}
-df %>%
-  filter(species == "HomoSapiens", mhc.class == "MHCII") %>%
-  mutate(allele1 = str_split_fixed(mhc.a, "[:,]", 2)[,1],
-         allele2 = str_split_fixed(mhc.b, "[:,]", 2)[,1],
-         allele = paste(allele1, allele2)) %>%
-  .$allele %>%
-  unique %>%
-  length
-```
-
-Count number of records for HLA-A*02
-
-```{r}
-df %>%
-  mutate(allele = str_split_fixed(mhc.a, "[:,]", 2)[,1]) %>%
-  filter(allele == "HLA-A*02") %>%
-  nrow()
-```
-
-and HLA-A*03
-
-```{r}
-df %>%
-  mutate(allele = str_split_fixed(mhc.a, "[:,]", 2)[,1]) %>%
-  filter(allele == "HLA-A*03") %>%
-  nrow()
-```
-
-Number of studies with self-antigens
-
-```{r}
-df %>%
-  filter(antigen.species == "HomoSapiens") %>%
-  .$reference.id %>%
-  unique %>%
-  length
-```
-number of records in them
-
-```{r}
-df %>%
-  filter(antigen.species == "HomoSapiens") %>%
-  nrow()
-```
-
-and the number of unique epitopes
-
-```{r}
-df %>%
-  filter(antigen.species == "HomoSapiens") %>%
-  .$antigen.epitope %>%
-  unique %>%
-  length
-```
-
-COVID19 - number of records in original Shomuradova paper
-
-```{r}
-df %>%
-  filter(reference.id == "https://github.com/antigenomics/vdjdb-db/issues/315") %>%
-  nrow
-```
-
-total records by 2022
-
-```{r}
-df %>%
-  filter(antigen.species == "SARS-CoV-2") %>%
-  nrow
-```
-
-and number of epitopes
-
-```{r}
-df %>%
-  filter(antigen.species == "SARS-CoV-2") %>%
-  .$antigen.epitope %>%
-  unique %>%
-  length
-```
-
-Figure1b and TableS1
-
-```{r}
-pdf("covid_alluvium.pdf", width = 12, height = 10)
-p1
-dev.off()
-
-df.c %>% reshape2::dcast(Gene + HLA + Epitope + Studies ~ `TCR chain`, fill = 0) %>%
-        arrange(-(TRB+TRA)) %>%
-  fwrite("covid_summary.txt", sep = "\t")
-```
-
-```{r fig.width=9, fig.height=4.5}
-df %>%
-  filter(antigen.species == "SARS-CoV-2") %>%
-  select(antigen.epitope, reference.id) %>%
-  separate_rows(reference.id, sep=",") %>%
-  group_by(reference.id, antigen.epitope) %>%
-  summarise(count = n()) %>%
-  group_by(reference.id) %>%
-  mutate(total = sum(count)) -> cov19.by.lab
-
-#unique(cov19.by.lab$reference.id)
-
-cov19.by.lab.coords <- tibble(
-  reference.id = c(
-    "https://doi.org/10.1101/2020.05.04.20085779",        
-    "https://github.com/antigenomics/vdjdb-db/issues/315",
-    "https://github.com/antigenomics/vdjdb-db/issues/323",
-    "https://github.com/antigenomics/vdjdb-db/issues/326",
-    "https://github.com/antigenomics/vdjdb-db/issues/333",
-    "PMID:33664060",                                      
-    "PMID:33951417",                                      
-    "PMID:34061349",                                      
-    "PMID:34086357",                                      
-    "PMID:34222571"),
-  city = c("Seattle",
-           "Moscow",
-           "Cardiff",
-           "Memphis",
-           "Moscow",
-           "Vienna",
-           "Melbourne",
-           "Erlangen",
-           "Melbourne",
-           "Chongqing"),
-  long = c(
-    -122.3351,        
-    37.6184,
-    -3.1790,
-    -89.9711,
-    37.6184,
-    16.3634, 
-    144.9464,                                      
-    11.0166,                                      
-    144.9464,                                      
-    106.8877),
-  lat = c(
-    47.6080,        
-    55.7512,
-    51.4815,
-    35.1175,
-    55.7512,
-    48.2100,
-    -37.8409,                                      
-    49.5833,                                      
-    -37.8409,                                      
-    29.4393))
-
-cov19.by.lab <- cov19.by.lab %>%
-  merge(unique(cov19.by.lab.coords))
-
-cov19.by.lab.pie <- cov19.by.lab %>%
-                    reshape2::dcast(city + long + lat + total ~ antigen.epitope, 
-                                    value.var = "count", fill = 0)
-
-world <- map_data("world")
-
-set.seed(21)
-ggplot() +
-  geom_map(
-    data = world, map = world,
-    aes(long, lat, map_id = region),
-    color = "white", 
-    fill = "grey",
-    size = 0.2
-  ) +
-  #geom_point(data = cov19.by.lab, aes(long, lat, size = total)) +
-  geom_scatterpie(data = cov19.by.lab.pie, 
-                  aes(x=long, y=lat, r = log(total + 1)),
-                  colnames(cov19.by.lab.pie)[5:ncol(cov19.by.lab.pie)],
-                  color = NA) +
-  geom_text_repel(data = cov19.by.lab %>% select(long, lat, city) %>% unique, 
-            aes(long, lat, label = city),
-            alpha = 0.8) +
-  scale_fill_hue(guide=F, "") +
-  scale_y_continuous(limits=c(-55, 85)) +
-  scale_x_continuous(limits=c(-150, 170)) +
-  coord_quickmap() +
-  geom_scatterpie_legend(log(cov19.by.lab.pie$total + 1), 
-                         x=-125, y=-30, n=3, labeller=function(x) round(exp(x) - 1, 0)) +
-  theme_void() +
-  theme(legend.position = "none") -> p0
-
-p0
-
-pdf("covid_geo.pdf")
-p0
-dev.off()
-```
-
----
-
-#### Misc
-
-Number of unique CDR3 sequences per epitope
-
-```{r warning=FALSE, message=FALSE, fig.height=6, fig.width=6}
-df.ag = df %>%
-  filter(species == "HomoSapiens") %>%
-  group_by(gene, mhc.class, antigen.species, antigen.gene, antigen.epitope) %>%
-  summarize(cdr3.count = length(unique(cdr3))) %>%
-  arrange(-cdr3.count)
-
-ggplot(df.ag, aes(x = cdr3.count, y = rank(-cdr3.count))) +
-  #geom_histogram() +
-  geom_smooth(method = "lm", 
-              color = "red", 
-              size = 0.5) +
-  geom_point(color = "#253494", alpha = 0.3) +
-  scale_x_log10("Unique CDR3s") + scale_y_log10("Epitope rank") +
-  facet_grid(mhc.class~gene) +
-  theme_classic()
-```
-
-Tabular
-
-```{r warning=FALSE, message=FALSE}
-colnames(df.ag) = c("TCR chain", "MHC class", "Parent species", "Parent gene", "Epitope sequence", "Unique CDR3")
-kable(format = "html", df.ag)
-```
-
-Epitopes, parent genes and species - flat table for checking naming
-
-```{r warning=FALSE, message=FALSE}
-df %>%
-  filter(species == "HomoSapiens") %>%
-  select(antigen.species, antigen.gene, antigen.epitope) %>%
-  unique %>%
-  group_by(antigen.epitope) %>%
-  mutate(ambiguous.naming = ifelse(n() > 1, "*", "")) %>%
-  arrange(antigen.species, antigen.gene, antigen.epitope) %>%
-  kable(format = "html")
-```
-
-```{r}
-#END
-```
