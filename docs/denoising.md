@@ -179,12 +179,11 @@ So **the independent-study lift is an estimate of how much motif membership enri
 binders**, which is exactly the quantity the denoising claim needs, and it inverts to
 $\Pr(T\mid M)\approx \mathrm{lift}\times\phi$.
 
-⚠ **The conditional-independence assumption fails through publicity, and the failure is not small.**
-A high-generation-probability clonotype is more likely *both* to be re-observed by a second
-laboratory *and* to have sequence neighbours, so part of any raw lift is $P_{\mathrm{gen}}$ and not
-specificity. The IMMREP25 audit measures exactly this confound and finds it dominant in a weak
-cohort. Until it is controlled, a raw lift is an **upper bound**, and the tempting corollary
-$\phi\le1/\mathrm{lift}$ must not be quoted.
+⚠ **The conditional-independence assumption can fail through publicity**, and it has to be checked
+rather than assumed. A high-generation-probability clonotype is more likely *both* to be re-observed
+by a second laboratory *and* to have sequence neighbours, so part of a raw lift could be
+$P_{\mathrm{gen}}$ rather than specificity — the IMMREP25 audit finds exactly this confound dominant
+in a weak cohort.
 
 The control is the audit's own: permute $R$ **within strata of $\log_{10}P_{\mathrm{gen}}$**, which
 preserves each clonotype's publicity and destroys only its association with the clustering, then
@@ -192,9 +191,23 @@ report
 
 $$\mathrm{lift}_{\mathrm{ctrl}}=\frac{\mathrm{lift}}{\mathbb{E}[\mathrm{lift}\mid\text{permuted}]}.$$
 
-A ratio near 1 says the raw lift *was* the covariate. `vdjdb.validate.noise.controlled_lift`, with
-`pgen_stratum` supplying the strata from the `cdr3nt.pgen` column the build already generates.
-**Report the raw lift and the controlled lift together, never the raw one alone.**
+A ratio near 1 says the raw lift *was* the covariate.
+
+**Measured on VDJdb, it is not.** On the shipped 2026-06-03 annotation, the within-$P_{\mathrm{gen}}$
+null sits at **1.043** (TRA) and **0.907** (TRB) against raw lifts of 1.721 and 1.355, giving
+controlled ratios of **1.650** and **1.494** ($p<0.005$, 200 permutations). Publicity explains
+essentially none of the enrichment here, so on this corpus the raw lift can be read as specificity
+enrichment. That is a measurement on one corpus and not a general licence: recompute it whenever the
+clustering or the corpus changes.
+
+Because the confound is small here, $\Pr(T\mid M)\approx\mathrm{lift}\times\phi$ is usable — but
+$\phi\le1/\mathrm{lift}$ still should not be quoted as a bound on how much of VDJdb is wrong, since
+it inherits every remaining assumption ($r_0\ll r_1$ in particular) and the scored cohort is not the
+database.
+
+`vdjdb.validate.noise.controlled_lift`, with `pgen_stratum` supplying the strata from the
+`cdr3nt.pgen` column the build already generates. **Report the raw lift and the controlled lift
+together, never the raw one alone.**
 
 ## 6. What to optimise instead — three instruments, three jobs
 
@@ -245,11 +258,34 @@ tuned on. Never shipped, committed or redistributed. Aggregate metrics only — 
 verdicts.** Two epitopes is too narrow a basis for a global hyperparameter, and tuning on it would
 destroy the only independent read this project has.
 
-## 7. The acceptance bar
+## 7. The acceptance bar, and the baseline it is measured against
 
 From the published validation of the current annotation: **precision maintained, recall and F1
 improved**. A configuration that trades precision for recall has not met the bar; it has found a
 different operating point and must be reported as one.
+
+**The baseline, measured on the shipped 2026-06-03 `cluster_members.txt`.** These are the numbers a
+rebuild has to beat, and they were never computed during the purity-era tuning because that era
+never asked this question:
+
+| chain | lift | controlled | F1 | precision | recall | clustered | base rate |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| TRA | 1.721 | 1.650 | 0.0849 | 0.0469 | 0.4458 | 16,662 of 64,309 | 2.73 % |
+| TRB | 1.355 | 1.494 | 0.0565 | 0.0303 | 0.4188 | 38,587 of 124,826 | 2.23 % |
+
+Structural floor, same files, `vdjdb.validate.qscore`: **TRA $Q=0.1691$** ($h=0.962$, $p=0.093$),
+**TRB $Q=0.4433$** ($h=0.993$, $p=0.285$).
+
+### 7.1 The decision rule
+
+Two instruments, applied in order — neither alone is sufficient, and the sweep shows why:
+
+1. **Admissibility.** $Q$, purity and precision must each be at or above the legacy baseline. This
+   is what excludes the degenerate corner: the configurations that maximise lift on this corpus
+   reach $Q=0.023$ with parsimony $0.012$, which *is* the shattering failure mode of §6.2.
+2. **Selection.** Among admissible configurations, **maximise the independent-study lift**.
+
+Never the reverse order, and never either one alone.
 
 ## 8. Orthogonal evidence, not a substitute
 
