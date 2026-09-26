@@ -136,6 +136,14 @@ MIN_SAMPLE = 10
 #: and not enabled**: it raises lift sharply (TRA 1.96x -> 5.35x at resolution 0.5) and cuts
 #: percolation, but only at resolutions where ``Q`` collapses, so no Leiden cell is admissible
 #: (ROADMAP section 36.1).
+#:
+#: ⚠ **The lift figures above are on the full cohort.** They are internally consistent -- candidate
+#: and legacy scored identically on identical rows -- but not on the denominator
+#: ``docs/denoising.md`` section 6.1 settles on, which excludes display-selected records. Re-measured
+#: there, the TRB cell reads **lift 3.217, not 1.501**, and the ranking is **unchanged**: across all
+#: eight TRB cells it still has the highest lift, and it is still the only one that does not regress
+#: purity (`2,0,0,2` drops purity to ~0.961; `mc 3` to 0.9769). TRA needs no re-check -- exactly 1 of
+#: its 57,845 clonotypes is display-derived, so the two denominators agree to the fourth decimal.
 TUNED: dict[str, dict] = {
     "TRA": {"scope": "1,0,0,1", "p": 0.01, "min_degree": 2, "min_cluster": 5, "resolution": None},
     "TRB": {"scope": "1,0,0,1", "p": 0.01, "min_degree": 2, "min_cluster": 5, "resolution": None},

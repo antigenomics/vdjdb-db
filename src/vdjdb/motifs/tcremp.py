@@ -296,33 +296,48 @@ def hdbscan_labels(X: np.ndarray, epitopes: np.ndarray, min_cluster_size: int = 
 #: first sweep stopped at 0.5 and every chain picked the grid edge, which is not a fit.
 COEF_GRID: tuple[float, ...] = (0.15, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.8, 2.1)
 
-#: **Per-chain parameters, fitted rather than inherited.** Chosen by maximising retention subject to
-#: purity **and** precision staying at or above the REDCEA production clustering's, scored in
-#: :mod:`vdjdb.validate.motif_bench` on one cohort -- the stated acceptance criterion applied
-#: mechanically over `coef` x `min_cluster` x `n_components` (ROADMAP section 34).
+#: **Fitted under the two-stage rule in ``docs/denoising.md`` section 7.1** -- admissible on ``Q``,
+#: purity and precision against the shipped annotation, then ranked on the section 11.1
+#: independent-study lift. Not the purity/retention criterion sections 31-34 used: that pair trades
+#: against itself and had no interior optimum (section 36).
 #:
-#: ===== =========================== ========= ======== ========= =========
-#: chain config                      retention REDCEA   purity    precision
-#: ===== =========================== ========= ======== ========= =========
-#: TRA   coef 4.0 · mc 3 · pca 50    **0.5719**  0.3210   0.8990    0.8989
-#: TRB   coef 3.4 · mc 3 · pca 100   **0.8544**  0.6023   0.9447    0.9452
-#: ===== =========================== ========= ======== ========= =========
+#: **The frontier is a single crossing, not a search.** Lift falls monotonically as ``coef`` widens
+#: and ``Q`` rises, so the answer is the *smallest* ``coef`` whose ``Q`` clears the legacy bar --
+#: verified by probing the crossing at 0.05 resolution rather than trusting a grid point.
+#: ``min_cluster`` 5 dominates 3 on lift, purity **and** precision at every ``coef`` measured, so it
+#: is not a trade either.
 #:
-#: **+78 % retention on TRA and +42 % on TRB over the production clustering, with purity and
-#: precision both at or above it.** The bars are `purity >= 0.8984 / 0.9445` and
-#: `precision >= 0.8928 / 0.9437`; every winner clears both, so nothing here is a trade.
+#: ===== ======== ========= ========= ========= ========= =========
+#: chain config   lift      Q         purity    precision retention
+#: ===== ======== ========= ========= ========= ========= =========
+#: TRA   coef 1.8 **1.854** **0.1729** **0.9105** **0.8932** **0.2509**
+#: \                       legacy     1.703     0.1691    0.8658    0.8567    0.2105
+#: TRB   coef 1.15 **4.490** **0.4437** **0.9873** **0.9859** **0.3232**
+#: \                       legacy     2.855     0.4433    0.9790    0.9756    0.3218
+#: ===== ======== ========= ========= ========= ========= =========
 #:
-#: ⚠ **This is not the section 11.1 optimum.** The independent-study lift objective peaks at
-#: `coef` **0.4** (TRB F1 0.2135, **5.31x** lift over a 3.21 % base rate, 4,659 clonotypes) -- a
-#: tight, highly selective radius. The two objectives measure different things: lift rewards
-#: recovering exactly the clonotypes a second laboratory independently reported, retention rewards
-#: coverage. The default answers the stated acceptance criterion; :func:`fit_coef` stays as the
-#: diagnostic, and the tight point is worth shipping as a high-confidence view.
-#: ⚠ The published **0.75 does not transfer** in either direction -- different embedding
-#: (standalone `tcremp`, ~3,000 OLGA prototypes, Smith-Waterman; ROADMAP section 8.2).
+#: **Both chains improve on every one of the five axes** -- there is no cost to name here, unlike
+#: TCRNET's TRB cell. TRB gains **+57 % lift** over the shipped annotation, TRA **+8.9 %**.
+#:
+#: ⚠ **TRB sits on the Q boundary**: 0.4437 against a bar of 0.4433, a margin of +0.0004. It clears
+#: the stated criterion and is therefore the answer the rule gives, but the margin is rounding-level,
+#: so re-check this cell whenever the corpus changes. ``coef`` 1.2 is the nearest cell with a real
+#: margin (Q 0.4670) and costs 3.5 % of lift.
+#:
+#: ⚠ **Lift is on the non-display denominator** (``docs/denoising.md`` section 6.1). The same TRB
+#: clustering reads **4.490** there and **1.236** on the full cohort; display-selected records
+#: contribute zero independently-replicated pairs while filling 29,692 of 116,053 clonotype slots.
+#: A lift figure without its cohort is not a number.
+#:
+#: ``n_components`` is 50 on both chains. Section 34 had TRB at 100; that came from the superseded
+#: purity criterion, and 50 is the benchmark's own front-end applied to every method, so the
+#: representation is the only variable.
+#:
+#: ⚠ The published **0.75 does not transfer** in either direction -- different embedding (standalone
+#: `tcremp`, ~3,000 OLGA prototypes, Smith-Waterman; ROADMAP section 8.2).
 TUNED: dict[str, dict] = {
-    "TRA": {"coef": 4.0, "min_cluster": 3, "n_components": 50},
-    "TRB": {"coef": 3.4, "min_cluster": 3, "n_components": 100},
+    "TRA": {"coef": 1.8, "min_cluster": 5, "n_components": 50},
+    "TRB": {"coef": 1.15, "min_cluster": 5, "n_components": 50},
 }
 
 #: Back-compatible view of :data:`TUNED` for callers that only want the radius.
