@@ -13,7 +13,7 @@ Status key: **shipped** — the default in `TUNED` · **wired** — implemented,
 default · **rejected** — measured and ruled out, kept only so the ruling stays checkable ·
 **measured** — scored on the same instruments from a script under `docs/tuning/`, not in the package.
 
-Every number below comes from `docs/tuning/scorecard.tsv`, 238 configurations scored through one
+Every number below comes from `docs/tuning/scorecard.tsv`, 252 configurations scored through one
 harness on one cohort, and the markdown is generated from it by `docs/tuning/report.py` — no figure
 in this document is transcribed by hand. §11 has the commands.
 
@@ -246,6 +246,11 @@ TRB purity tops out at 0.9433 against a bar of 0.9790 — every cell regresses i
 51 admissible TRA cells are a warning rather than a result: §8 shows the do-nothing partition is
 admissible on TRA too.
 
+**Under the absolute floor of 0.94 the two chains swap places: 0 of 56 on TRA and 11 of 56 on TRB.**
+TRA's highest HDBSCAN purity is 0.9061, so the floor excludes the whole grid there — and §8.1 shows
+it excludes every other algorithm's TRA cells with it. Both verdicts are columns in
+`scorecard.tsv` (`admissible`, `admissible_legacy_bar`); neither replaces the other.
+
 **The `eom` / `leaf` axis behaves exactly as theory predicts, which is the useful part.** `leaf` buys
 lift and destroys parsimony — TRB `leaf` parsimony spans 0.068–0.286 against `eom`'s 0.148–0.500 —
 while `eom` buys parsimony, retention and coverage and gives up lift. The two failure modes bracket
@@ -256,26 +261,33 @@ of 178 epitopes** at retention 0.7240 and median percolation 0.357 — against l
 0.3218 and 0.769. It is a better partition on every axis except the one being optimised: its lift is
 1.218 against shipped TCREMP's 3.586.
 
-### 4.5 Under a relaxed, absolute purity floor
+### 4.5 Under the absolute purity floor of 0.94
 
-The relaxation §7 flagged as the open question was measured rather than argued, and the number
-matters more than the direction — see §8.1 for why 0.93 specifically is the wrong floor.
+The floor §7 flagged as the open question was measured rather than argued, and the number matters
+more than the direction — see §8.1 for why 0.93 is the wrong one and why 0.94 is the one that works
+on both chains.
 
-| TRB purity floor | admissible of 56 | best admissible cell | lift | F1 | retention | epitopes |
-|---|---:|---|---:|---:|---:|---:|
-| legacy, 0.9790 | 0 | — | — | — | — | — |
-| 0.9300 | 25 | `eom mcs5 ms3` | 1.194 | 0.0731 | 0.7367 | 160 |
-| **0.9400** | **11** | `eom mcs8 ms3` | 1.155 | 0.0709 | 0.7699 | 155 |
+| gene | purity floor | HDBSCAN cells admissible of 56 | best admissible cell | lift | F1 | retention | epitopes |
+|---|---|---:|---|---:|---:|---:|---:|
+| TRA | legacy, 0.8658 | 51 | `leaf mcs5 ms5` | 1.397 | 0.0799 | 0.3344 | 114 |
+| TRA | **0.9400** | **0** | — | — | — | — | — |
+| TRB | legacy, 0.9790 | 0 | — | — | — | — | — |
+| TRB | 0.9300 | 25 | `eom mcs5 ms3` | 1.194 | 0.0731 | 0.7367 | 160 |
+| TRB | **0.9400** | **11** | `eom mcs8 ms3` | 1.155 | 0.0709 | 0.7698 | 155 |
 
 **At a floor of 0.94, HDBSCAN becomes admissible on TRB and still loses stage 2 by 3.1×** — lift
-1.155 against the shipped TCREMP's 3.586, F1 0.0709 against 0.1888. So the relaxation the open
-question asked for can be granted without changing what ships, which is the cleanest possible answer
-to it: the verdict never rested on the bar.
+1.155 against the shipped TCREMP's 3.586, F1 0.0709 against 0.1888. So the floor the open question
+asked for can be set without changing what ships, which is the cleanest possible answer to it: the
+verdict never rested on the bar.
 
 What it *would* change if stage 2 were also rewritten is a different database — 155 of 178 epitopes
 carrying motifs instead of 105, at 77.0 % retention instead of 37.5 %, with a third of legacy's
 percolation — where a clustered clonotype is 16 % more likely than chance to have been seen by a
 second laboratory, rather than 259 % more likely. That is the trade, in numbers.
+
+**On TRA the same floor admits nothing at all**, HDBSCAN included: its best purity is 0.9061 against
+the floor's 0.94. TRA's admissible reading stays the legacy-relative one, and §8.1 measures why no
+absolute floor can replace it there.
 
 **Verdict: rejected on the objective, not on the bar.** It stays wired and tested; §8 records what
 the bar can and cannot do.
@@ -395,18 +407,23 @@ for no reason. 47 of 118 TRA epitopes and 60 of 178 TRB epitopes have a defined 
 | TCRNET gate + Lumbermark | measured | **3.618** | **0.1702** | 4.089 | 0.1943 | 82, below the floor | best objective measured; fails coverage |
 
 A dash is where no admissible configuration exists. An inadmissible lift is not a lift this project
-can spend, so the rejected rows carry the best *admissible* number or nothing.
+can spend, so the rejected rows carry the best *admissible* number or nothing. The two **measured**
+rows carry their distinguishing configuration instead, which for Lumbermark is not one of the six
+TRB cells that clear the 0.94 floor — those sit at lift 1.009–1.069 (§9.3).
 
-**The shipped configuration survived the bake-off.** 238 configurations across six algorithms, and
-nothing admissible beats TCREMP at `coef` 1.55 on TRB or TCRNET on TRA. That is the result; §§8–9 are
-what was learned on the way.
+**The shipped configuration survived the bake-off.** 252 configurations across six algorithms, under
+both the legacy-relative bar and the absolute 0.94 floor, and nothing admissible beats TCREMP at
+`coef` 1.55 on TRB or TCRNET on TRA. That is the result; §§8–9 are what was learned on the way.
 
 ### What would change a verdict
 
-1. ~~A bar that is absolute rather than relative.~~ **Settled, and it changes nothing**: measured in
-   §4.5. At a TRB purity floor of 0.94 — the lowest floor that still excludes a partition which
-   clusters nothing, §8.1 — HDBSCAN is admissible and loses stage 2 by 3.1× on lift. The verdict did
-   not rest on the bar.
+1. ~~A bar that is absolute rather than relative.~~ **Settled at 0.94 on both chains, and it changes
+   nothing that ships**: measured in §4.5 and §8.1. On TRB the floor takes stage 1 from **1
+   admissible configuration of 122 to 23** — 11 `hdbscan-eom`, 6 Lumbermark, 3 wider DBSCAN radii and
+   2 `hybrid-len-all` — and stage 2 rejects all 22 newcomers, because the shipped `coef` 1.55 still
+   carries the highest admissible lift at 3.585. **The selected radius does not move on either
+   chain.** On TRA the floor admits nothing at all, including both shipped methods; §8.1 measures the
+   window as empty by 0.0030 of purity and says what guards TRA instead.
 2. ~~Per-epitope coverage entering the criterion.~~ **Settled**: a fourth admissibility axis
    (`denoising.md` §7.1). Measured, TCREMP TRB at `coef` 1.15 covered 88 of 178 against legacy's 103;
    the shipped TRB radius moved to 1.55 as a result.
@@ -455,7 +472,7 @@ choosing the number in advance a mistake. The table above is the split form.
 Three consequences, in order of how much they change:
 
 **`Q` is not an admissibility axis.** Doing nothing scores `Q` 0.7940 on TRA and 0.8632 on TRB —
-higher than *any* real clustering measured here, on either chain, across 238 configurations. That is
+higher than *any* real clustering measured here, on either chain, across 252 configurations. That is
 not a defect in `Q`: it is what `Q` is for. Its parsimony term charges for shattering, and the
 partition that shatters least is the one with one cluster per class. `Q` discriminates between
 clusterings of *comparable* retention and says nothing across retentions. It stays in the scorecard
@@ -471,12 +488,18 @@ below the 0.9204 that doing nothing scores, so `trivial` clears all four axes to
 it is stage 2, and only stage 2**: its lift is exactly 1.000 by construction and its F1 sits at the
 floor. The rule works because the objective is doing the work, not because the axes are.
 
-### 8.1 Where this puts the 0.93 purity floor
+### 8.1 Where this puts the purity floor — 0.94, on both chains
 
 On TRB the legacy purity bar of 0.9790 is the one axis the do-nothing partition fails. **Relaxing it
 to 0.93 removes that, because doing nothing scores 0.9343 — 0.0043 above the proposed floor.** So an
-absolute floor on TRB has to clear the measured do-nothing purity, not a round number chosen in
+absolute floor has to clear the measured do-nothing purity, per chain, not a round number chosen in
 advance.
+
+**The floor is 0.94 on both chains** (`docs/tuning/sweeps.py`, `BAR`). It is the lowest round number
+above the do-nothing purity of *either* chain — 0.9204 on TRA and 0.9343 on TRB — which is the only
+property that makes it a bar rather than a formality. Every cell in `scorecard.tsv` carries **two**
+verdicts, `admissible` under that floor and `admissible_legacy_bar` under the legacy-relative one, so
+neither reading has to be recomputed to be checked.
 
 | TRB purity floor | HDBSCAN cells admissible of 56 | do-nothing partition admitted? |
 |---|---:|---|
@@ -485,14 +508,52 @@ advance.
 | 0.9343 | 23 | **yes** (the floor equals its purity) |
 | **0.9400** | **11** | **no** |
 
-HDBSCAN's highest TRB purity is 0.9433, so the usable window is **[0.9343, 0.9433] — 0.0090 wide**,
-and 0.94 sits inside it with margin at both ends. That is the floor this document recommends, and
-`docs/tuning/sweeps.py` carries it as `BAR["TRB"] = 0.94`.
+#### The floor swept, and the window, across all 122 configurations per chain
 
-**On TRA no such floor exists.** HDBSCAN's highest TRA purity is 0.9061, below the 0.9204 that doing
-nothing scores, so every floor that excludes the do-nothing partition on TRA excludes all 56 HDBSCAN
-cells with it. The window is empty. TRA keeps the legacy-relative bar for that reason, not by
-preference.
+Both tables are generated by `docs/tuning/report.py` from `scorecard.tsv`; a cell is admissible at an
+absolute floor when purity *and* precision clear it and `Q` and epitope coverage clear legacy's.
+
+| gene | purity floor | cells admissible | of | do-nothing admitted? | best by lift | lift | F1 | retention | epitopes |
+|---|---|---:|---:|---|---|---:|---:|---:|---:|
+| TRA | 0.8658 (legacy) | 70 | 122 | **yes** | `dbscan coef 1.8` | 1.854 | 0.1032 | 0.2509 | 104 |
+| TRA | 0.9204 | 0 | 122 | **yes** | — | — | — | — | — |
+| TRA | 0.9300 | 0 | 122 | no | — | — | — | — | — |
+| TRA | **0.9400** | **0** | 122 | no | — | — | — | — | — |
+| TRB | 0.9300 | 37 | 122 | **yes** | `dbscan coef 1.55` | 3.585 | 0.1887 | 0.3747 | 105 |
+| TRB | 0.9343 | 35 | 122 | **yes** | `dbscan coef 1.55` | 3.585 | 0.1887 | 0.3747 | 105 |
+| TRB | **0.9400** | **23** | 122 | no | `dbscan coef 1.55` | 3.585 | 0.1887 | 0.3747 | 105 |
+| TRB | 0.9790 (legacy) | 1 | 122 | no | `dbscan coef 1.55` | 3.585 | 0.1887 | 0.3747 | 105 |
+
+**The floor takes TRB from one admissible configuration to twenty-three, and stage 2 picks the same
+one.** Under the legacy bar exactly one candidate clears stage 1 — `dbscan coef 1.55`, which is what
+ships. At 0.94 it is joined by 11 `hdbscan-eom` cells, 6 Lumbermark, 3 wider DBSCAN radii and 2
+`hybrid-len-all`, and every one of them loses on lift. The relaxation buys 22 new candidates and
+changes nothing.
+
+A floor is usable only if it does two things at once: exclude the do-nothing partition, and admit
+something. Its ceiling is therefore the highest purity reached by any configuration that already
+clears the other two axes — `Q` and epitope coverage, both legacy-relative.
+
+| gene | do-nothing purity | cells clearing `Q` and coverage | highest purity among them | window | width |
+|---|---:|---|---:|---|---:|
+| TRA | 0.9204 | 74 of 122 | 0.9174 | **empty** | −0.0030 |
+| TRB | 0.9343 | 37 of 122 | 0.9829 | **[0.9343, 0.9829]** | 0.0486 |
+
+**On TRB the window is 0.0486 of purity wide and 0.94 sits inside it with margin at both ends.** That
+is 5.4× the [0.9343, 0.9433] window HDBSCAN alone offers, because the incumbent DBSCAN radius sits at
+0.9829 — the ceiling is set by the best method, not by the method being tested against it.
+
+**On TRA the window is empty, and it is empty by 0.0030.** Across all six algorithms and 122
+configurations, the highest purity any cell reaches while clearing `Q` and coverage is 0.9174
+(`hybrid-len-all mcs5 M1`), below the 0.9204 that doing nothing scores. So **every** absolute purity
+floor that excludes the do-nothing partition on TRA excludes every configuration that clears the
+other two axes with it — including both shipped methods, whose TRA purity is 0.8754 (TCRNET) and
+0.9104 (TCREMP). At 0.94 specifically, 0 of 122 TRA cells are admissible.
+
+That is not an argument for a lower TRA floor. It is the measurement that says **purity is not the
+axis that separates signal from nothing on TRA** — and §8's third consequence says what does: stage
+2. TRA keeps `admissible_legacy_bar` as its usable reading for that reason, and the 0.94 column
+records what an absolute floor would cost there.
 
 ---
 
@@ -535,9 +596,12 @@ them is the partition step and nothing else.
 
 **Lumbermark is the best percolation result in this document, and it is not close.** TRB `mcs10 M1`:
 median per-epitope percolation **0.224** against legacy's 0.769 and shipped TCREMP's 0.667, at
-retention 0.8345 over **175 of 178 epitopes**, purity 0.9445 — the highest non-legacy purity measured
-on TRB, above HDBSCAN's 0.9433 and above the do-nothing partition's 0.9343. It sits in the inclusive
-regime, so its lift is 1.148 and it is not a candidate for §7.1.
+retention 0.8345 over **175 of 178 epitopes**, purity 0.9445 — the highest purity of any
+configuration that retains four-fifths of the cohort (23 of the 115 TRB cells clear retention 0.80,
+and it leads all of them), above HDBSCAN's best of 0.9433 and above the do-nothing partition's
+0.9343. That is a claim about the inclusive regime only: DBSCAN reaches purity 0.9920 on TRB at
+retention 0.1189, which is the trade the whole document is about. Lumbermark sits at the other end,
+so its lift is 1.148.
 
 **The gated hybrid is the best selectivity result in this document.** On TRA, `hybrid mcs3 M5`
 reaches **F1 0.1702 and lift 3.618** — against the shipped TCRNET's F1 0.1086 / lift 1.977 and
@@ -575,9 +639,17 @@ epitopes, F1 0.1702 → 0.1436; TRB 82 → 91, F1 0.1943 → 0.1832). The fronti
 
 ### 9.3 Verdict
 
-**Not shipped, and the reason is coverage rather than quality.** Under §7.1 nothing here is
-admissible: the two Lumbermark variants that clear the coverage floor sit at lift ≈ 1.1, and the two
-that clear the objective cover 82–97 epitopes against a floor of 103.
+**Not shipped, and the reason is coverage rather than quality.** The gated hybrid is inadmissible
+under *both* rules on both chains — 0 of 15 cells each for `hybrid` and `hybrid-recruited`, under the
+legacy bar and under the 0.94 floor alike — because the enriched gate abandons epitopes: the two
+variants that clear the objective cover 82–97, and `hybrid-recruited` tops out at **102 on both
+chains, one epitope short of the 103 floor**.
+
+**Lumbermark is the exception, and only on TRB and only under the new floor.** Six of its 15 TRB
+cells — `mcs20` and `mcs50`, every `M` — clear all four axes at 0.94, with purity 0.9405–0.9439, `Q`
+0.4800–0.5681 against legacy's 0.4433, and 124–156 epitopes against a floor of 103. Stage 2 then
+rejects all six at lift 1.009–1.069 against shipped TCREMP's 3.586. That is the same shape as
+HDBSCAN: the floor lets the inclusive regime in, and the objective sends it straight back out.
 
 What is worth carrying forward is that **the gate and the partition are separable and were measured
 separately.** The shipped methods each couple one representation to one partition — TCRNET to
@@ -651,6 +723,6 @@ uv run python docs/tuning/report.py          # -> docs/tuning/*.tsv, tables.md
 gnuplot -e "chain='TRB'" docs/tuning/tuning.gp
 ```
 
-`docs/tuning/scorecard.tsv` is the full 238-row measurement, one row per configuration and every
+`docs/tuning/scorecard.tsv` is the full 252-row measurement, one row per configuration and every
 instrument: it is a committed, reviewed input to this document, refreshed by its own pull request,
 and **never written by a build** (hard rule 9).
