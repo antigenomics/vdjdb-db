@@ -158,3 +158,31 @@ def test_v_hla_drops_thin_alleles_and_genes():
     cells = panels.v_hla(pl.DataFrame(rows), min_records=3)
     assert cells["mhc"].to_list() == ["A*02 / B2M"]
     assert cells["records"][0] == 3
+
+
+def test_epitope_length_draws_one_image_column_per_length():
+    """Each bin is one image, not one artist per record -- the R stacks >100k bar segments."""
+    cohort = pl.DataFrame({
+        "species": ["HomoSapiens"] * 5,
+        "mhc.class": ["MHCI"] * 3 + ["MHCII"] * 2,
+        "cdr3": ["CASSA", "CASSBB", "CASSA", "CASSCCC", "CASSBB"],
+        "antigen.epitope": ["GILGFVFTL", "GILGFVFTL", "NLVPMVATV",
+                            "PKYVKQNTLKLAT", "PKYVKQNTLKLAT"],
+    })
+    fig = panels.epitope_length(cohort)
+    assert len(fig.axes) == 2
+    # one AxesImage per distinct epitope length present in that class
+    assert len(fig.axes[0].images) == 1    # MHCI: only 9-mers
+    assert len(fig.axes[1].images) == 1    # MHCII: only 13-mers
+    assert [t.get_text() for t in fig.axes[0].get_xticklabels()] == ["9"]
+
+
+def test_epitope_length_ignores_other_species():
+    cohort = pl.DataFrame({
+        "species": ["HomoSapiens", "MusMusculus"],
+        "mhc.class": ["MHCI", "MHCI"],
+        "cdr3": ["CASSA", "CASSB"],
+        "antigen.epitope": ["GILGFVFTL", "SIINFEKL"],
+    })
+    fig = panels.epitope_length(cohort)
+    assert [t.get_text() for t in fig.axes[0].get_xticklabels()] == ["9"]
