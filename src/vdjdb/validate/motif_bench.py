@@ -93,6 +93,32 @@ def read_members(path: Path) -> pl.DataFrame:
     return pl.read_csv(path, separator="\t", infer_schema_length=0, quote_char=None)
 
 
+def trivial_members(cohort_df: pl.DataFrame, *, split_by_length: bool = True) -> pl.DataFrame:
+    """The do-nothing partition: one cluster per epitope, every clonotype in it, nothing excluded.
+
+    Not an algorithm -- it is what the instruments read when no clustering has happened, and it is
+    the reference every candidate has to beat before its other numbers mean anything. Measured on
+    the human cohort it scores ``Q`` 0.7940 / purity 0.9204 on TRA and ``Q`` 0.8632 / purity 0.9343
+    on TRB, which clears three of the four admissibility axes on TRA and two on TRB
+    (``docs/clustering.md`` section 8). Its lift is 1.000 by construction.
+
+    Two things follow, and they are why this belongs in the package rather than in a sweep script:
+    an absolute purity floor has to be measured against **this**, per chain per build, and ``Q`` and
+    epitope coverage cannot be read as rankings.
+
+    ``split_by_length`` is the default because **every shipped clustering is split by CDR3 length
+    before it reaches a release** (``docs/clustering.md`` section 0), so the split form is the one a
+    bar has to clear. It is not a detail: on human TRB the split partition scores purity 0.9343 and
+    the unsplit one 0.9253, and a floor of 0.93 excludes the second while admitting the first.
+    """
+    out = (cohort_df.select(*KEY, "antigen.epitope").unique(maintain_order=True)
+           .with_columns(("trivial." + pl.col("antigen.epitope")).alias("cid")))
+    if split_by_length:
+        out = out.with_columns(
+            (pl.col("cid") + "L" + pl.col("cdr3aa").str.len_chars().cast(pl.Utf8)).alias("cid"))
+    return out
+
+
 def per_epitope(cohort_df: pl.DataFrame, members: pl.DataFrame, *,
                 replicated: pl.DataFrame | None = None) -> pl.DataFrame:
     """One row per epitope: how much of it is clustered, how concentrated, and whether the
