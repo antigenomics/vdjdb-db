@@ -399,6 +399,20 @@ wheels = [
 ]
 
 [[package]]
+name = "clustereval"
+version = "0.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "2.5.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "scikit-learn" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/6c/20/87734162b40c14ec9bce31a87ab27c04fbcba64c2277f8fc32babc39e35d/clustereval-0.2.tar.gz", hash = "sha256:8db58416a8553b55043571d8e31135cbbdab84d7f29d7342af227e4f4229d308", size = 5880, upload-time = "2026-07-12T17:25:30.049Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2a/22/ae976f13b13396de7615b11e42d8256316387d7e775cc100de6960e64506/clustereval-0.2-py3-none-any.whl", hash = "sha256:07dedf0cc3ce2a4c86a7fd5c1f9db6806421425c2f2d609cf4646f27bc3b94f7", size = 5933, upload-time = "2026-07-12T17:25:28.977Z" },
+]
+
+[[package]]
 name = "colorama"
 version = "0.4.6"
 source = { registry = "https://pypi.org/simple" }
@@ -2431,6 +2445,7 @@ dev = [
     { name = "ruff" },
 ]
 motifs = [
+    { name = "clustereval" },
     { name = "mirpy-lib", extra = ["bench"] },
     { name = "pandas" },
     { name = "pyarrow" },
@@ -2447,6 +2462,7 @@ test = [
 requires-dist = [
     { name = "airr", marker = "extra == 'test'", specifier = ">=1.5" },
     { name = "arda-mapper", specifier = ">=2.29" },
+    { name = "clustereval", marker = "extra == 'motifs'", specifier = ">=0.2" },
     { name = "hypothesis", marker = "extra == 'test'", specifier = ">=6" },
     { name = "mirpy-lib", extras = ["bench"], marker = "extra == 'motifs'", specifier = ">=3.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.11" },

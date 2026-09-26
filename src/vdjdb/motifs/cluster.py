@@ -9,6 +9,13 @@ The edges come from one batched ``seqtree.Index.search_batch`` over the enriched
 not from a Python double loop: at 1,702 clonotypes for GILGFVFTL alone a quadratic scan is 1.4M
 comparisons per epitope (CLAUDE.md hard rule 8, rung 2).
 
+**A connected component is not always a motif.** Percolation is a real failure mode: one extra
+substitution of scope can fuse every sub-motif of an epitope into a single giant component that
+holds a large share of its records and has no readable logo. :func:`_leiden` is the alternative --
+CPM Leiden subdivides a component into communities whose internal density clears a resolution, and
+every community it returns is connected, which is exactly the guarantee Louvain does not give. At
+resolution 0 it *is* the connected components, so the two are one knob rather than two code paths.
+
 **Cluster numbering is content-derived, not a counter.** Raw component numbers depend on vertex
 insertion order and on the graph library's internals, so they move between releases and every
 bookmarked ``vdjdb.com`` motif URL breaks. Components are ordered by size descending then by their
@@ -86,6 +93,27 @@ def _components(n: int, edges: list[tuple[int, int]]) -> list[int]:
     return [find(i) for i in range(n)]
 
 
+def _leiden(n: int, edges: list[tuple[int, int]], resolution: float) -> list[int]:
+    """Community label per vertex: CPM Leiden at ``resolution``, run to convergence.
+
+    CPM rather than modularity because its resolution has a direct reading -- a community is kept
+    while its internal edge density exceeds ``resolution`` -- and because modularity's resolution is
+    scaled by the graph's total edge count, so the same number would mean something different for
+    every epitope. ``resolution = 0`` reproduces :func:`_components` exactly.
+
+    Seeded from :data:`vdjdb.config.SEED`: Leiden's node order and refinement are randomised, and
+    python-igraph draws from Python's own RNG (rule 7).
+    """
+    import random
+
+    import igraph
+
+    random.seed(SEED)
+    g = igraph.Graph(n=n, edges=edges)
+    return list(g.community_leiden(objective_function="CPM", resolution=resolution,
+                                   n_iterations=-1).membership)
+
+
 def _layout(n: int, edges: list[tuple[int, int]]) -> list[tuple[float, float]]:
     """Force-directed ``(x, y)`` per vertex, for the web's motif view.
 
@@ -111,11 +139,16 @@ def _repr_allele(calls: pl.Series) -> str:
 
 
 def clusters(scored: pl.DataFrame, *, scope: str | None = None,
-             min_cluster: int | None = None) -> pl.DataFrame:
+             min_cluster: int | None = None,
+             resolution: float | None = None) -> pl.DataFrame:
     """Cluster every ``(species, gene, epitope)`` group of :func:`~vdjdb.motifs.tcrnet.enriched_clonotypes`.
 
     ``scored`` is every scored clonotype with an ``enriched`` flag, not only the ones that passed:
     the graph is built over the enriched set **and its neighbours** (:func:`_recruited`).
+
+    ``resolution`` picks the partition: ``None`` or ``0`` takes connected components, anything
+    higher runs CPM Leiden inside each of them. It defaults per chain from
+    :data:`vdjdb.motifs.tcrnet.TUNED`, like the scope and the floor.
 
     Returns one row per clustered clonotype with ``cid``, ``csz``, ``x``, ``y`` and the cluster's
     representative V and J alleles -- the shape ``cluster_members.txt`` needs, minus the record
@@ -132,6 +165,7 @@ def clusters(scored: pl.DataFrame, *, scope: str | None = None,
                                 else TUNED.get(gene, {}).get("scope", "1,0,0,1"))
         floor = min_cluster if min_cluster is not None \
             else TUNED.get(gene, {}).get("min_cluster", MIN_CLUSTER)
+        res = TUNED.get(gene, {}).get("resolution") if resolution is None else resolution
         grp = grp.sort("junction_aa", "v_call", "j_call")
         hits = grp["enriched"].to_numpy().nonzero()[0].tolist() if "enriched" in grp.columns \
             else list(range(grp.height))
@@ -141,7 +175,7 @@ def clusters(scored: pl.DataFrame, *, scope: str | None = None,
         grp = grp[keep]
         seqs = grp["junction_aa"].to_list()
         edges = _edges(seqs, chain_scope)
-        labels = _components(len(seqs), edges)
+        labels = _components(len(seqs), edges) if not res else _leiden(len(seqs), edges, res)
         xy = _layout(len(seqs), edges)
 
         g = grp.with_columns(

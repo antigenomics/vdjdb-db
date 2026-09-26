@@ -65,6 +65,28 @@ def test_components_label_the_connected_pieces():
     assert len(set(C._components(3, []))) == 3
 
 
+def test_leiden_at_resolution_zero_is_the_connected_components():
+    """The two partitions are one knob, not two code paths -- so the sweep is continuous."""
+    edges = [(0, 1), (1, 2), (0, 2), (2, 3), (3, 4), (4, 5), (3, 5), (7, 8)]
+    def parts(labels):
+        out = {}
+        for i, lab in enumerate(labels):
+            out.setdefault(lab, set()).add(i)
+        return {frozenset(v) for v in out.values()}
+    assert parts(C._leiden(9, edges, 0.0)) == parts(C._components(9, edges))
+
+
+def test_leiden_splits_a_percolated_component_and_stays_deterministic():
+    """Two triangles joined by one edge: a component, but two motifs. And Leiden is randomised,
+    so the same graph must return the same partition every call (rule 7)."""
+    edges = [(0, 1), (1, 2), (0, 2), (2, 3), (3, 4), (4, 5), (3, 5)]
+    assert len(set(C._components(6, edges))) == 1
+    labels = C._leiden(6, edges, 0.3)
+    assert len(set(labels)) == 2
+    assert labels[:3] == [labels[0]] * 3 and labels[3:] == [labels[3]] * 3
+    assert C._leiden(6, edges, 0.3) == labels
+
+
 def test_a_neighbour_of_an_enriched_clonotype_joins_the_graph():
     """The legacy Rmd's two-stage construction, and phase 10's whole coverage gap.
 
@@ -198,3 +220,35 @@ def test_information_is_lower_once_a_column_keeps_its_tail():
     truncated = np.array([4, 3, 2, 0] + [0] * 16, dtype=float)
     assert P._information(full / full.sum()) < P._information(truncated / truncated.sum())
     assert math.isfinite(P._information(full / full.sum()))
+
+
+def test_q_is_zero_at_both_degenerate_ends():
+    """The property that makes Q one number instead of purity and retention: shattering and
+    percolating are both scored 0, so neither end can be gamed (ROADMAP section 35)."""
+    import clustereval
+    import numpy as np
+
+    y = np.array(["A"] * 10 + ["B"] * 10)
+    def q(k):
+        h = float(clustereval.homogeneity_score(y, k))
+        p = float(clustereval.parsimony_score(y, k))
+        return 0.0 if h + p == 0 else 2 * h * p / (h + p)
+
+    assert q(np.array([0] * 10 + [1] * 10)) == pytest.approx(1.0)   # clusters == epitopes
+    assert q(np.arange(20)) == pytest.approx(0.0)                    # every clonotype alone
+    assert q(np.zeros(20, dtype=int)) == pytest.approx(0.0)          # one cluster for everything
+
+
+def test_unclustered_clonotypes_are_singletons_not_dropped():
+    """How Q charges for coverage: leaving a clonotype out costs parsimony, so retention does not
+    need to be a separate axis."""
+    from vdjdb.validate import qscore
+
+    cohort = pl.DataFrame({"antigen.epitope": ["E1", "E1"], "species": ["HomoSapiens"] * 2,
+                           "gene": ["TRB"] * 2, "cdr3aa": ["CASSA", "CASSB"],
+                           "v.segm": ["V1"] * 2, "j.segm": ["J1"] * 2})
+    members = cohort.head(1).with_columns(pl.lit("H.B.E1.1").alias("cid"))
+    f = qscore.frame(cohort, members)
+    assert f.height == 2
+    assert f["cluster"].n_unique() == 2
+    assert f["cluster"].str.starts_with("__singleton.").sum() == 1
