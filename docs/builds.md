@@ -41,6 +41,44 @@ the 2026-06-03 release cannot be reproduced byte-for-byte on another machine by 
 the pipeline that produced it. The new reader sorts, and a release records its chunk order so raw
 equality becomes achievable going forward.
 
+## Testing against older releases
+
+The ledger currently compares one build against one release, 2026-06-03. That answers "does the
+rewrite reproduce the last release", which is the question that had to be answered first — but it is
+a single point, and a single point cannot distinguish a rule that is right from a rule that happens
+to fit.
+
+**There are 43 published releases, back to 2017-06-13**, and each one is a matched pair: the inputs
+(`chunks/`, `patches/`, `res/`, `proofreading/` at that tag) and the outputs (the zip that shipped).
+Every pair is a regression test the project already owns and has never used:
+
+```bash
+git worktree add /tmp/vdjdb-2023 2023-06-01      # the corpus as it was
+cd /tmp/vdjdb-2023 && uv run --project <repo> vdjdb build --out out/
+uv run vdjdb diff <2023-06-01.zip> out/legacy    # does today's code reproduce that release?
+```
+
+What it would buy, in order of value:
+
+- **It separates "our rewrite changed this" from "the corpus changed this".** Every rule in
+  `expected_diffs.toml` is currently justified against one release. A rule that fires the same way
+  across 2021, 2023 and 2026 is a property of the code; one that only fires on 2026 is a property of
+  today's data.
+- **It exercises format drift the current corpus no longer contains.** The 2017–2019 chunks carry
+  header shapes, MHC spellings and nomenclature that later curation cleaned up. Those are exactly
+  the inputs a reader of an old release would hand back to the tool.
+- **It dates the defects.** `web.cdr3fix.unmp` is wrong on 7,973 rows today; replaying it across
+  releases says when it started.
+
+The cost is honest and should be stated before anyone starts: **older releases were produced by
+older code with different column sets**, so the ledger needs era-scoped rules rather than one
+global set — `vdjdb.txt` gained columns, the slim table changed shape, and the motif files did not
+exist at all before 2018. Expect the first replay to produce a large diff that is mostly
+"the format was different then", and expect the work to be in classifying that, not in running it.
+
+A sensible first step is one release, 2023-06-01: recent enough to share most of the schema, old
+enough that a rule which only fits 2026 will not fit it.
+
 ## Reproducibility
 
 Same inputs, same bytes — in another process, on another host, at another core count.
