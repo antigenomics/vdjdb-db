@@ -28,7 +28,7 @@ dependencies = [
 # which the data build has no use for -- keep them out of the assembly container.
 # pandas is here only for `validate/metrics_lib.py`, which is vendored verbatim and must stay so.
 # The build itself has no pandas dependency and must not acquire one.
-motifs = ["mirpy-lib[bench]>=3.0", "python-igraph>=0.11", "scikit-learn>=1.4", "pandas>=2.0", "pyarrow>=16"]
+motifs = ["mirpy-lib[bench]>=3.0", "python-igraph>=0.11", "scikit-learn>=1.4", "pandas>=2.0", "pyarrow>=16", "clustereval>=0.2"]
 test = ["pytest>=8", "hypothesis>=6", "airr>=1.5"]
 dev = ["ruff>=0.6", "mypy>=1.11"]
 

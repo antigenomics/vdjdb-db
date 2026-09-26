@@ -553,7 +553,7 @@ One subplan per phase. Each names the files it creates, the facts it consumes (�
 measured, never re-derived), and the single check that closes it. A phase whose check is green is
 merged to `dev` and struck here.
 
-Minor decisions taken while executing a subplan are recorded in §13 rather than escalated.
+Minor decisions taken while executing a subplan are recorded in the execution log rather than escalated.
 
 ### Phase 1 — `feature/schema`
 
@@ -683,7 +683,7 @@ construction.
 4. **TCR_hash** (#463): keep the legacy hash as-is so structure evidence keeps resolving; the
    re-keying on `record_id` is §10.2's deferred half.
 5. **AIRR `Receptor`** rides along: `vdjtools.model.stitch_*` gives the complete mature variable
-   domain its two required columns need, and `receptor_hash` is a sha256 over those (§18).
+   domain its two required columns need, and `receptor_hash` is a sha256 over those.
 
 **Closes when:** each branch's new columns are populated, the harness is unchanged, and the
 back-translation test passes.
@@ -789,7 +789,8 @@ named cause, and the 31 logo-less cids and the 1.00 % deleted letter mass are bo
      Falling short means the rewrite lost something and the cause has to be named before it merges.
    - **Target — beat.** **Higher recall at equal or better precision.** A trade — more coverage for
      less purity — is not the target met; it is a different operating point, and should be reported
-     as one. This is what §30's knobs are for, and it is allowed to land after phase 11.
+     as one. This is what the motif optimisation knobs are for, and it is allowed to land after
+     phase 11.
 
    Reference, from the benchmark's own `results/metrics_full.tsv`:
 
