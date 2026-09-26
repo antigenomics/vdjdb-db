@@ -89,6 +89,9 @@ vdjdb-motifs
 output
 
 summary/*.pdf
+# The RENDERED dashboard only. Source files under summary/ must not end in .html --
+# this rule swallowed the pandoc template until it was renamed to embed.tpl, and the
+# same trap applies to summary/*.txt, which is why committed tables there are .tsv.
 summary/*.html
 # knitr's per-document figure directory and Rscript's stray default device, both build leavings.
 summary/*_files/
