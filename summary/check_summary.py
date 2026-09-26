@@ -135,13 +135,23 @@ def _hits(colours: list[tuple[int, int, int]], anchors: list[str]) -> int:
     return n
 
 
-def style(html: str) -> list[str]:
-    """Palette and ink-fraction checks. Skipped with a note if Pillow is unavailable."""
+def style(html: str, *, allow_skip: bool = False) -> list[str]:
+    """Palette and ink-fraction checks.
+
+    A missing Pillow is a **failure**, not a skip, unless ``allow_skip``. Pillow arrives
+    transitively today, so an upstream dependency change would otherwise turn this layer off
+    without anything saying so -- and a check that silently downgrades itself is worse than one
+    that is not there, because it still reports success. ``uv sync --extra summary`` provides it.
+    """
     try:
         import numpy as np
         from PIL import Image
     except ImportError:
-        return ["style layer skipped: Pillow/numpy not installed"]
+        msg = "style layer needs Pillow and numpy: uv sync --extra summary"
+        if allow_skip:
+            print(f"  skip  {msg}")
+            return []
+        return [msg]
     bad = []
     for n, payload in enumerate(_IMG.findall(html)):
         img = Image.open(io.BytesIO(base64.b64decode(payload))).convert("RGB")
@@ -178,7 +188,7 @@ def perceptual(html: str, reference: Path) -> list[str]:
         import numpy as np
         from PIL import Image
     except ImportError:
-        return ["perceptual layer skipped: Pillow/numpy not installed"]
+        return ["perceptual layer needs Pillow and numpy: uv sync --extra summary"]
     ref = _IMG.findall(reference.read_text())
     cur = _IMG.findall(html)
     if len(ref) != len(cur):
@@ -201,6 +211,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--baseline", type=Path, default=BASELINE)
     ap.add_argument("--reference", type=Path, help="A previous fragment, for the SSIM layer.")
     ap.add_argument("--write-baseline", action="store_true")
+    ap.add_argument("--allow-skip", action="store_true",
+                    help="Downgrade a missing imaging dependency to a warning.")
     args = ap.parse_args(argv)
 
     html = args.fragment.read_text()
@@ -212,7 +224,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     base = json.loads(args.baseline.read_text()) if args.baseline.exists() else None
-    problems = structural(fp, base) + style(html)
+    problems = structural(fp, base) + style(html, allow_skip=args.allow_skip)
     if args.reference:
         problems += perceptual(html, args.reference)
     for p in problems:

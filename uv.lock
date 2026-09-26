@@ -3002,6 +3002,13 @@ motifs = [
     { name = "python-igraph" },
     { name = "scikit-learn" },
 ]
+summary = [
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "2.5.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "pillow" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+]
 test = [
     { name = "airr" },
     { name = "hypothesis" },
@@ -3022,7 +3029,9 @@ requires-dist = [
     { name = "mirpy-lib", extras = ["bench"], marker = "extra == 'motifs'", specifier = ">=3.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.11" },
     { name = "myst-parser", marker = "extra == 'docs'", specifier = ">=3" },
+    { name = "numpy", marker = "extra == 'summary'", specifier = ">=1.26" },
     { name = "pandas", marker = "extra == 'motifs'", specifier = ">=2.0" },
+    { name = "pillow", marker = "extra == 'summary'", specifier = ">=10" },
     { name = "polars", specifier = ">=1.20" },
     { name = "pyarrow", marker = "extra == 'motifs'", specifier = ">=16" },
     { name = "pydata-sphinx-theme", marker = "extra == 'docs'", specifier = ">=0.15" },
@@ -3031,11 +3040,12 @@ requires-dist = [
     { name = "quitefastmst", marker = "extra == 'tuning'", specifier = ">=0.9" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6" },
     { name = "scikit-learn", marker = "extra == 'motifs'", specifier = ">=1.4" },
+    { name = "scipy", marker = "extra == 'summary'", specifier = ">=1.11" },
     { name = "sphinx", marker = "extra == 'docs'", specifier = ">=7" },
     { name = "typer", specifier = ">=0.12" },
     { name = "vdjtools", specifier = ">=3.13" },
 ]
-provides-extras = ["motifs", "test", "tuning", "docs", "dev"]
+provides-extras = ["motifs", "test", "summary", "tuning", "docs", "dev"]
 
 [[package]]
 name = "vdjmatch"
