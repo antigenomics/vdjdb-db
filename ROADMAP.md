@@ -465,7 +465,7 @@ Settled 2026-09-25.
   TCRNET-gated hybrid, with the scorecard that made two of them the default and the rest measured or
   rejected. Becomes `docs/standards/clustering.rst`. Both carry MathJax, so phase 13's `conf.py`
   needs `myst_enable_extensions = ["dollarmath"]`.
-- **The measurements behind both are committed**, in `docs/tuning/`: `scorecard.tsv` is 238
+- **The measurements behind both are committed**, in `docs/tuning/`: `scorecard.tsv` is 252
   configurations scored through one harness, and `sweeps.py` / `report.py` / the two `.gp` files
   regenerate it and its figures. Committed, reviewed inputs to the documents that cite them --
   refreshed by their own pull request, **never written by a build** (hard rule 9). The sweeps need
@@ -568,8 +568,12 @@ purity 0.9204, precision 0.9237 and coverage 118 of 118 — **clearing all four 
 `Q` 0.8632, purity 0.9343, coverage 178 of 178, failing only the legacy-relative purity bar. Its lift
 is 1.000 by construction. So `Q` and coverage are guards against shattering, not evidence of quality,
 and **an absolute purity floor has to be measured against that partition, per chain per build** --
-on TRB that is 0.9343, which is why a floor of 0.93 is not a floor. `vdjdb.validate.motif_bench.
-trivial_members` builds it; `docs/clustering.md` §8 is the audit.
+on TRB that is 0.9343, which is why a floor of 0.93 is not a floor. **The floor is 0.94 on both
+chains**, and it is usable only on TRB: the TRB window is [0.9343, 0.9829] while TRA's is empty by
+0.0030 of purity, so TRA is guarded by the legacy-relative bar and by stage 2 instead. Setting it
+moves no shipped parameter -- `coef` 1.55 on TRB still carries the highest admissible lift.
+`vdjdb.validate.motif_bench.trivial_members` builds the partition; `docs/clustering.md` §8 is the
+audit and both windows.
 
 ### 11.2 Validate on TCRvdb, held out, touched once
 

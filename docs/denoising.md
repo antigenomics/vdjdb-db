@@ -338,8 +338,12 @@ Two rules follow, and they are the operative form of stage 1:
   as floors, never as a ranking, and never across configurations at different retentions.
 - **An absolute purity floor must exceed the measured purity of that partition**, per chain, per
   build — not a round number fixed in advance. On human TRB that is $0.9343$, so a floor of $0.93$
-  admits a clustering that has clustered nothing. `docs/clustering.md` §8 carries the full audit and
-  the measured window.
+  admits a clustering that has clustered nothing. **The floor is $0.94$**, the lowest round number
+  above the do-nothing purity of both chains, and it is usable only on TRB: the window there is
+  $[0.9343, 0.9829]$, while on TRA it is **empty by $0.0030$** — no configuration that clears $Q$ and
+  coverage reaches a purity above the $0.9204$ that doing nothing scores. TRA is therefore guarded by
+  the legacy-relative bar and by stage 2, not by an absolute floor. `docs/clustering.md` §8 carries
+  the full audit and both windows.
 
 #### Why epitope coverage is an admissibility axis and not a tiebreak
 
