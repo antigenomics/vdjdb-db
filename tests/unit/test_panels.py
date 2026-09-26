@@ -88,3 +88,35 @@ def test_the_rcparams_are_the_manuscripts():
     assert panels.RC["font.family"] == "Arial"
     assert panels.RC["pdf.fonttype"] == 42
     assert panels.RC["font.size"] == 7
+
+
+@pytest.mark.parametrize(("values", "expected"), [
+    # `bw.nrd0(v)` in R 4.5.3, printed to 10 decimal places. Pinned against R's OUTPUT rather than
+    # against the documented formula, because the two disagree: `bw.nrd` divides the IQR by 1.349
+    # and `bw.nrd0` -- what `geom_density` actually defaults to -- divides by 1.34. Reading the
+    # formula put the first implementation 0.67% out, which is close enough to look right.
+    ([10, 11, 12, 12, 13, 13, 13, 14, 14, 15, 16, 18, 20], 1.2063415746),
+    ([12] * 50 + [13] * 120 + [14] * 30, 0.0581931305),
+])
+def test_nrd0_matches_r(values, expected):
+    assert panels.nrd0(values) == pytest.approx(expected, abs=1e-9)
+
+
+def test_nrd0_falls_back_when_the_spread_is_zero():
+    """R: `(lo <- hi) || (lo <- abs(x[1L])) || (lo <- 1)`. A constant vector must not give 0."""
+    assert panels.nrd0([7.0] * 20) > 0
+    assert panels.nrd0([0.0] * 20) > 0
+
+
+def test_scores_draws_one_bar_group_per_class_and_chain(tmp_path):
+    cohort = pl.DataFrame({
+        "species": ["HomoSapiens"] * 6 + ["MusMusculus"],
+        "mhc.class": ["MHCI"] * 3 + ["MHCII"] * 3 + ["MHCI"],
+        "gene": ["TRA", "TRA", "TRB", "TRA", "TRB", "TRB", "TRA"],
+        "vdjdb.score": ["0", "1", "0", "0", "2", "3", "0"],
+    })
+    fig = panels.scores(cohort)
+    ax = fig.axes[0]
+    assert [t.get_text() for t in ax.get_xticklabels()] == [
+        "MHCI TRA", "MHCI TRB", "MHCII TRA", "MHCII TRB"]
+    assert ax.get_yscale() == "log"
