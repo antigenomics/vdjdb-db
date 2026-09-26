@@ -1,0 +1,12 @@
+{#-
+  Full site tree in the left sidebar.
+
+  pydata-sphinx-theme's stock `sidebar-nav-bs` renders only the *children* of the current
+  top-level page. arda's toctrees are flat lists of top-level pages -- the theme has already put
+  them in the navbar -- so that component emitted a bare "Section Navigation" heading with
+  nothing under it on every page. This renders the whole captioned tree instead, which is what a
+  reader jumping between `samples` and `cluster` actually needs.
+-#}
+<nav class="bd-links bd-links--full" id="bd-docs-nav" aria-label="Site navigation">
+  {{ toctree(collapse=False, includehidden=True, titles_only=True, maxdepth=2) }}
+</nav>
