@@ -22,8 +22,6 @@ app = typer.Typer(
 # subcommand -> the ROADMAP phase that implements it
 _PENDING = {
     "motifs": "10-11 (feature/motifs-*)",
-    "release": "14 (feature/release-tooling)",
-    "changelog": "14 (feature/release-tooling)",
 }
 
 
@@ -293,6 +291,52 @@ def refs(
             typer.echo(f"    {ref}  ({n:,} records)", err=True)
 
 
+@app.command(name="release")
+def release_cmd(
+    tag: str = typer.Option(..., help="v<YYYY>.<MM>.<PATCH>, e.g. v2026.09.1."),
+    build_dir: Path = typer.Option(Path("out"), "--build", help="What the build produced."),
+    out: Path = typer.Option(Path("out/release"), help="Where the assets go."),
+    previous: Path | None = typer.Option(None, help="Previous release zip, for the changelog."),
+) -> None:
+    """Assemble the release: three zips, `manifest.json`, `SHA256SUMS`, `latest-version.txt`.
+
+    Does **not** publish. Steps 4-6 of the release -- verify, publish and the commit-then-check of
+    `latest-version.txt` -- belong to `release.yml`, because they touch the repository and the
+    world.
+    """
+    from .release import bundle as b
+    from .release import changelog as cl
+
+    version = b.version_of(tag)
+    b.prepare_latest(tag)
+    typer.echo(f"latest-version.txt line 1 -> {b.legacy_url(tag)}")
+    b.stage(build_dir)
+    result = b.build(build_dir, out, tag)
+    for entry in result["bundles"]:
+        typer.echo(f"{entry['role']:8} {entry['file']:34} {entry['bytes']:>13,} bytes  "
+                   f"{len(entry['members']):>2} members")
+    if previous:
+        notes = cl.render(cl.diff(previous, build_dir / "legacy",
+                                  years=Path("summary/reference_years.tsv")), tag=tag)
+        (out / "RELEASE_NOTES.md").write_text(notes + "\n")
+        typer.echo(f"release notes -> {out / 'RELEASE_NOTES.md'}")
+    typer.echo(f"manifest -> {out / 'manifest.json'}   checksums -> {out / 'SHA256SUMS'}")
+    typer.echo(f"version {version}")
+
+
+@app.command()
+def changelog(
+    previous: Path = typer.Argument(..., help="Previous release zip or legacy directory."),
+    current: Path = typer.Argument(Path("out/legacy"), help="This build's legacy projection."),
+    tag: str = typer.Option("", help="Tag to title the notes with."),
+) -> None:
+    """The reference diff between two releases — which studies arrived, left, or were renamed."""
+    from .release import changelog as cl
+
+    d = cl.diff(previous, current, years=Path("summary/reference_years.tsv"))
+    typer.echo(cl.render(d, tag=tag))
+
+
 @app.command()
 def diff(
     reference: Path = typer.Argument(..., help="Reference release zip or directory."),
@@ -315,12 +359,6 @@ def diff(
         report.write_text(text)
     typer.echo(text, nl=False)
     raise typer.Exit(0 if result.ok else 1)
-
-
-@app.command()
-def release(tag: str = typer.Option(..., help="Release tag, e.g. v2026.09.0.")) -> None:
-    """Assemble the release bundles, checksums and manifest."""
-    _pending("release")
 
 
 if __name__ == "__main__":
