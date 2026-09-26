@@ -311,14 +311,47 @@ Structural floor, same files, `vdjdb.validate.qscore`: **TRA $Q=0.1691$** ($h=0.
 
 ### 7.1 The decision rule
 
-Two instruments, applied in order — neither alone is sufficient, and the sweep shows why:
+Two stages, applied in order — neither alone is sufficient, and the sweeps show why:
 
-1. **Admissibility.** $Q$, purity and precision must each be at or above the legacy baseline. This
-   is what excludes the degenerate corner: the configurations that maximise lift on this corpus
-   reach $Q=0.023$ with parsimony $0.012$, which *is* the shattering failure mode of §6.2.
+1. **Admissibility.** Four quantities must each be at or above the annotation being replaced:
+   $Q$, purity, precision, and **the number of epitopes that get at least one cluster**. Nothing
+   that regresses any of them ships, whatever it gains elsewhere.
 2. **Selection.** Among admissible configurations, **maximise the independent-study lift**.
 
-Never the reverse order, and never either one alone.
+Never the reverse order, and never either stage alone.
+
+#### Why epitope coverage is an admissibility axis and not a tiebreak
+
+$Q$, purity and precision were the original three, and they exclude the *shattering* corner: the
+configurations that maximise lift reach $Q=0.023$ at parsimony $0.012$ (§6.2). They do **not** exclude
+a second degenerate corner, and it took the per-epitope breakdown to see it.
+
+Stage 2 maximises a **pooled** lift. Lift falls monotonically as a clustering's radius widens (§5), so
+stage 2 always prefers the narrowest admissible radius — and a narrow radius finds clusters only where
+the data is densest, which means **in fewer epitopes**. Measured on human TRB, all cells admissible on
+the original three axes:
+
+| configuration | pooled lift | epitopes covered, of 178 | epitopes with local lift > 1 |
+|---|---:|---:|---:|
+| the shipped 2026-06-03 annotation | 2.855 | 103 | 42 |
+| TCREMP `coef` 1.15 | **4.490** | **88** | **36** |
+| TCREMP `coef` 1.55 | 3.585 | 105 | 42 |
+| TCREMP `coef` 1.7 | 3.079 | 109 | 44 |
+
+`coef` 1.15 wins stage 2 by a wide margin and **abandons fifteen epitopes the file it replaces
+covered**, dropping from 42 to 36 epitopes where the clustering beats local chance. Its pooled lift is
+higher because it is computed over the clonotypes it kept; it clusters essentially the same *total*
+(37,094 against 37,210) concentrated into fifteen fewer epitopes and 746 clusters instead of 1,074.
+
+That is a worse database. **An epitope with no motif receives no denoising at all** — the whole point
+of the stage (§2) — so trading epitope breadth for a pooled average optimises the metric against the
+purpose. Coverage therefore sits in stage 1, where a regression is simply disqualifying, rather than
+in stage 2 where it could be traded away.
+
+Counted on **epitopes, not clonotypes**, because that is the unit the curation acts on. The
+per-epitope breakdown is `vdjdb.validate.motif_bench.per_epitope`, and the pooled scorecard must never
+be reported without it: a pooled retention of 0.33 is a different database depending on whether every
+epitope is a third clustered or a third of them are fully clustered and the rest not at all.
 
 ## 8. Orthogonal evidence, not a substitute
 
