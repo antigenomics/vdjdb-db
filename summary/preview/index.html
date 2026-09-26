@@ -1,0 +1,51 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>VDJdb dashboard preview</title>
+<!--
+  Opening `vdjdb_summary_embed.html` directly shows UNSTYLED tables: the fragment carries
+  `class="ui unstackable single line celled stripped compact small table"`, and those classes come
+  from vdjdb-web's Semantic UI bundle, not from the fragment. So this harness loads Semantic UI from
+  a CDN and fetches the fragment into a container sized to vdjdb-web's content column, which is the
+  only way to see what /overview will actually look like.
+
+      uv run python -m http.server -d summary 8000   # then open /preview/
+
+  A file:// open will not work -- fetch() refuses cross-origin file reads.
+-->
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.css">
+<style>
+  /* vdjdb-web renders /overview inside a fixed-width content column; match it or the responsive
+     image rule added for #460 cannot be judged. */
+  body { margin: 0; background: #f7f7f7; font-family: Lato, "Helvetica Neue", Arial, sans-serif; }
+  #bar { padding: .6rem 1rem; background: #1b1c1d; color: #fff; font-size: .85rem; }
+  #bar input { width: 6rem; }
+  #frame { max-width: 1127px; margin: 1rem auto; padding: 1.5rem 2rem; background: #fff;
+           border: 1px solid #d4d4d5; border-radius: 4px; }
+  #status { color: #db2828; }
+</style>
+
+<div id="bar">
+  vdjdb-web content column, <input id="width" type="number" value="1127" step="1"> px
+  &nbsp;·&nbsp; <span id="status">loading…</span>
+</div>
+<div id="frame"></div>
+
+<script>
+  const frame = document.getElementById("frame");
+  const status = document.getElementById("status");
+  document.getElementById("width").addEventListener("input", e => {
+    frame.style.maxWidth = `${e.target.value}px`;
+  });
+  fetch("../vdjdb_summary_embed.html")
+    .then(r => r.ok ? r.text() : Promise.reject(new Error(`HTTP ${r.status}`)))
+    .then(html => {
+      frame.innerHTML = html;
+      const imgs = frame.querySelectorAll("img").length;
+      const tables = frame.querySelectorAll("table.ui").length;
+      status.style.color = "#21ba45";
+      status.textContent = `${imgs} images, ${tables} styled tables`;
+    })
+    .catch(e => { status.textContent =
+      `${e.message} — serve the directory: uv run python -m http.server -d summary 8000`; });
+</script>

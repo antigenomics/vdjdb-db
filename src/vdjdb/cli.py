@@ -22,9 +22,7 @@ app = typer.Typer(
 # subcommand -> the ROADMAP phase that implements it
 _PENDING = {
     "motifs": "10-11 (feature/motifs-*)",
-    "summary": "12 (feature/summary)",
     "release": "14 (feature/release-tooling)",
-    "refs": "12 (feature/summary)",
     "changelog": "14 (feature/release-tooling)",
 }
 
@@ -253,9 +251,46 @@ def motifs(
 
 
 @app.command()
-def summary(out: Path = typer.Option(Path("out"))) -> None:
-    """Render the static and interactive dashboards."""
-    _pending("summary")
+def summary(
+    legacy: Path = typer.Option(Path("out/legacy"), help="Legacy projection this build produced."),
+    reference: Path | None = typer.Option(None, help="A previous fragment, for the SSIM layer."),
+    verbose: bool = typer.Option(False, help="Show knitr's chunk-by-chunk progress."),
+) -> None:
+    """Render the release dashboard and verify the fragment `vdjdb-web` will serve."""
+    from .summary import render as r
+
+    r.render(legacy, quiet=not verbose)
+    typer.echo(f"{r.extract():,} lines -> {r.FRAGMENT}")
+    if code := r.check(reference=reference):
+        raise typer.Exit(code)
+
+
+@app.command()
+def refs(
+    tables: Path = typer.Option(Path("out/tables"), help="Definitive tables to read references from."),
+    out: Path = typer.Option(None, help="Where to write the table; defaults to the committed path."),
+) -> None:
+    """Resolve the publication year of every reference and write `summary/reference_years.tsv`.
+
+    Network-bound and **not** part of a build: the table is a committed, reviewed input that makes
+    the dashboard render offline, refreshed by its own pull request (hard rule 9).
+    """
+    import polars as pl
+
+    from .summary import references as refs_mod
+
+    records = pl.read_parquet(tables / "records.parquet")
+    table = refs_mod.refresh(records, out or refs_mod.TABLE)
+    for row in table.group_by("source").len().sort("source").iter_rows():
+        typer.echo(f"{row[0]:14} {row[1]:>5,}")
+    missing = refs_mod.unresolved(records, table)
+    typer.echo(f"{'resolved':14} {table.height:>5,} of "
+               f"{records['reference.id'].n_unique():,} distinct reference.id")
+    if missing.height:
+        typer.secho(f"{missing.height} unresolved, "
+                    f"{int(missing['records'].sum()):,} records:", fg=typer.colors.YELLOW, err=True)
+        for ref, n in missing.head(10).iter_rows():
+            typer.echo(f"    {ref}  ({n:,} records)", err=True)
 
 
 @app.command()

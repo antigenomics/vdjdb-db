@@ -1,0 +1,92 @@
+{
+  "headings": [
+    "Record statistics by species and TCR chain",
+    "Record statistics by year",
+    "Summary by antigen and antigen origin",
+    "COVID-19 data",
+    "Self-antigen data",
+    "Distribution VDJdb confidence scores",
+    "Spectratype",
+    "V(D)J usage and MHC alleles",
+    "Detailed summary for HLA"
+  ],
+  "tables": [
+    [
+      "Species",
+      "Chain",
+      "Records",
+      "Paired records",
+      "Unique epitopes",
+      "Studies"
+    ],
+    [
+      "Parent species",
+      "Records",
+      "Unique epitopes",
+      "Studies"
+    ],
+    [
+      "Gene",
+      "HLA",
+      "Epitope",
+      "Studies",
+      "TRA",
+      "TRB"
+    ],
+    [
+      "Gene",
+      "HLA",
+      "Epitope",
+      "Studies",
+      "TRA",
+      "TRB"
+    ],
+    [
+      "First chain",
+      "Second chain",
+      "Records",
+      "Unique epitopes",
+      "Studies"
+    ]
+  ],
+  "images": [
+    [
+      1344,
+      960
+    ],
+    [
+      2304,
+      1920
+    ],
+    [
+      2304,
+      1920
+    ],
+    [
+      1344,
+      960
+    ],
+    [
+      1344,
+      960
+    ],
+    [
+      1344,
+      960
+    ],
+    [
+      1152,
+      1920
+    ],
+    [
+      1536,
+      1536
+    ]
+  ],
+  "contracts": {
+    "no_div": true,
+    "no_document_scaffolding": true,
+    "base64_single_line": true,
+    "images_responsive": true
+  }
+}

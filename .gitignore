@@ -90,6 +90,9 @@ output
 
 summary/*.pdf
 summary/*.html
+# knitr's per-document figure directory and Rscript's stray default device, both build leavings.
+summary/*_files/
+Rplots.pdf
 summary/*.txt
 /processing/raw_data/
 
