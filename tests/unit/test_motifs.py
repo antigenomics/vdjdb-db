@@ -371,3 +371,63 @@ def test_hdbscan_labels_keeps_the_cluster_labels_contract():
     # An epitope with fewer records than min_cluster_size is left entirely unclustered.
     tiny = hdbscan_labels(blobs[:3], np.array(["A"] * 3), min_cluster_size=5)
     assert (tiny == -1).all()
+
+
+def _members(rows):
+    return pl.DataFrame(
+        {"species": ["HomoSapiens"] * len(rows), "gene": ["TRB"] * len(rows),
+         "cdr3aa": [r[0] for r in rows], "v.segm": ["TRBV1"] * len(rows),
+         "j.segm": ["TRBJ1"] * len(rows), "cid": [r[1] for r in rows]})
+
+
+def test_per_epitope_counts_clonotypes_not_records():
+    """A clonotype reported by many papers must not weigh many times in its epitope's retention."""
+    from vdjdb.validate.motif_bench import per_epitope
+
+    cohort = pl.DataFrame({           # CASSA reported 3x, CASSB once
+        "species": ["HomoSapiens"] * 4, "gene": ["TRB"] * 4,
+        "antigen.epitope": ["E1"] * 4,
+        "cdr3aa": ["CASSA", "CASSA", "CASSA", "CASSB"],
+        "v.segm": ["TRBV1"] * 4, "j.segm": ["TRBJ1"] * 4})
+    r = per_epitope(cohort, _members([("CASSA", "c1")]))
+    assert r.height == 1
+    assert r["clonotypes"][0] == 2 and r["clustered"][0] == 1
+    assert r["retention"][0] == pytest.approx(0.5)
+
+
+def test_per_epitope_percolation_is_one_when_an_epitope_collapses():
+    """Percolation is the failure a lift figure cannot see: one cluster holding everything."""
+    from vdjdb.validate.motif_bench import per_epitope
+
+    seqs = ["CASS" + a for a in "ABCDEF"]
+    cohort = pl.DataFrame({
+        "species": ["HomoSapiens"] * 6, "gene": ["TRB"] * 6,
+        "antigen.epitope": ["E1"] * 3 + ["E2"] * 3, "cdr3aa": seqs,
+        "v.segm": ["TRBV1"] * 6, "j.segm": ["TRBJ1"] * 6})
+    # E1 collapses into one cluster; E2 is split into three singletons
+    m = _members([(s, "one") for s in seqs[:3]] + [(s, f"s{i}") for i, s in enumerate(seqs[3:])])
+    r = per_epitope(cohort, m).sort("antigen.epitope")
+    e1, e2 = r.row(0, named=True), r.row(1, named=True)
+    assert e1["clusters"] == 1 and e1["percolation"] == pytest.approx(1.0)
+    assert e2["clusters"] == 3 and e2["percolation"] == pytest.approx(1 / 3, abs=1e-4)
+    assert e2["singleton_clusters"] == 3 and e1["singleton_clusters"] == 0
+
+
+def test_per_epitope_lift_is_null_where_there_is_no_base_rate():
+    """An epitope with no replicated clonotype has no lift -- not a lift of zero.
+
+    Averaging a fabricated zero across such epitopes is how a per-epitope mean lift ends up lower
+    than the pooled one for no reason.
+    """
+    from vdjdb.validate.motif_bench import per_epitope
+
+    seqs = ["CASS" + a for a in "ABCD"]
+    cohort = pl.DataFrame({
+        "species": ["HomoSapiens"] * 4, "gene": ["TRB"] * 4,
+        "antigen.epitope": ["E1", "E1", "E2", "E2"], "cdr3aa": seqs,
+        "v.segm": ["TRBV1"] * 4, "j.segm": ["TRBJ1"] * 4})
+    rep = cohort.with_columns(pl.Series("replicated", [True, False, False, False]))
+    r = per_epitope(cohort, _members([(s, "c1") for s in seqs]), replicated=rep).sort("antigen.epitope")
+    e1, e2 = r.row(0, named=True), r.row(1, named=True)
+    assert e1["replicated"] == 1 and e1["lift"] == pytest.approx(1.0)   # clustered everything
+    assert e2["replicated"] == 0 and e2["lift"] is None                 # no base rate
