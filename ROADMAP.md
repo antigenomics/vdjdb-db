@@ -461,10 +461,16 @@ Settled 2026-09-25.
   normative for any change to motif clustering, and the source of the two-stage acceptance rule the
   shipped parameters are chosen by. Becomes `docs/standards/denoising.rst` in phase 13.
 - **Which clustering algorithms exist, what their parameters do, and what each measures at** is
-  `docs/clustering.md` -- connected components, CPM Leiden, DBSCAN and HDBSCAN, with the scorecard
-  that made two of them the default and two of them rejected. Becomes
-  `docs/standards/clustering.rst`. Both carry MathJax, so phase 13's `conf.py` needs
-  `myst_enable_extensions = ["dollarmath"]`.
+  `docs/clustering.md` -- connected components, CPM Leiden, DBSCAN, HDBSCAN, Lumbermark and a
+  TCRNET-gated hybrid, with the scorecard that made two of them the default and the rest measured or
+  rejected. Becomes `docs/standards/clustering.rst`. Both carry MathJax, so phase 13's `conf.py`
+  needs `myst_enable_extensions = ["dollarmath"]`.
+- **The measurements behind both are committed**, in `docs/tuning/`: `scorecard.tsv` is 238
+  configurations scored through one harness, and `sweeps.py` / `report.py` / the two `.gp` files
+  regenerate it and its figures. Committed, reviewed inputs to the documents that cite them --
+  refreshed by their own pull request, **never written by a build** (hard rule 9). The sweeps need
+  `uv sync --extra tuning`; Lumbermark is measured, not shipped, so it stays out of the build
+  container.
 
 ## 10. Record identity and the evidence model
 
@@ -555,6 +561,15 @@ epitopes against the shipped annotation's 103**. An epitope with no motif receiv
 **epitope coverage is an admissibility requirement alongside `Q`, purity and precision** — not a
 tiebreak that can be traded away. `docs/denoising.md` §7.1 is normative; `docs/clustering.md` carries
 the frontier for each algorithm.
+
+*The admissibility axes do not, by themselves, exclude doing nothing.* Score the partition that puts
+every clonotype of an epitope in one cluster and excludes none: on human TRA it returns `Q` 0.7940,
+purity 0.9204, precision 0.9237 and coverage 118 of 118 — **clearing all four axes** — and on TRB
+`Q` 0.8632, purity 0.9343, coverage 178 of 178, failing only the legacy-relative purity bar. Its lift
+is 1.000 by construction. So `Q` and coverage are guards against shattering, not evidence of quality,
+and **an absolute purity floor has to be measured against that partition, per chain per build** --
+on TRB that is 0.9343, which is why a floor of 0.93 is not a floor. `vdjdb.validate.motif_bench.
+trivial_members` builds it; `docs/clustering.md` §8 is the audit.
 
 ### 11.2 Validate on TCRvdb, held out, touched once
 

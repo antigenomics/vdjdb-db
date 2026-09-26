@@ -1,0 +1,5 @@
+gene	method	epitopes	pooled_retention	median_epitope_retention	median_percolation	epitopes_ge90pct_one_cluster	covered
+TRA	tcremp	118	0.3005	0.085	0.4834	23	104
+TRA	tcrnet	118	0.2676	0.0706	0.3958	22	103
+TRB	tcremp	178	0.3688	0.0128	0.6667	40	105
+TRB	tcrnet	178	0.3198	0.0142	0.7059	41	109
