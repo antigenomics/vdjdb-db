@@ -64,13 +64,10 @@ jobs:
           use-public-rspm: true
 
       - name: R packages
-        # A dated Posit Package Manager snapshot, not `latest` -- dated, or it is not a pin. The
-        # ROADMAP asked for an renv.lock; this is the same guarantee without a lockfile that no one
-        # in the project has renv installed to regenerate.
-        run: |
-          Rscript -e 'options(repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/noble/2026-09-01")); \
-            install.packages(c("rmarkdown", "knitr", "ggplot2", "RColorBrewer", "data.table", \
-              "forcats", "ggalluvial", "circlize", "tidyverse", "stringr", "gridExtra", "cowplot"))'
+        # The list and the snapshot date live in the script, not here -- and a multi-line
+        # `Rscript -e` in a YAML block scalar does not work: the continuations reach R as literal
+        # backslashes. Measured on run 36267742981.
+        run: Rscript summary/install-packages.R
 
       - name: Install
         run: uv sync --extra motifs --extra test

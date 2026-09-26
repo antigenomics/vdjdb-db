@@ -40,10 +40,20 @@ jobs:
             echo "ok=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # Idempotent: this runs daily, and a mismatch that nobody has fixed yet must not open a new
+      # issue every morning. It will be true for a while -- `releases/latest` currently points at
+      # the `-ZENODO` twin tag, which is the artefact phase 14 exists to stop creating.
       - if: steps.check.outputs.ok != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
+          TITLE="latest-version.txt does not name the current release"
+          if gh issue list --state open --search "in:title \"$TITLE\"" --json number \
+               --jq 'length' | grep -qv '^0$'; then
+            echo "already reported; not opening a duplicate"
+            exit 0
+          fi
           gh issue create \
             --title "latest-version.txt does not name the current release" \
             --label "build" \
