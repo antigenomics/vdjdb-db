@@ -49,7 +49,10 @@ def ensure_reference() -> Path:
     ``vEnd = -1``: a misconfiguration silently becomes a database of wrong annotations.
 
     Fixed upstream (arda ``_source_root`` now requires ``database/vdj``). Until that release is
-    pinned, point ``$ARDA_HOME`` at the per-user cache, where the reference is auto-fetched.
+    pinned, point ``$ARDA_HOME`` at the per-user cache -- **fetching the reference into it first if
+    it is not there**, because arda's own auto-fetch fires only when ``_source_root()`` is ``None``
+    and here it is not. Without that, a clean machine has no reference at all: measured, the first
+    CI run of ``build.yml`` failed exactly this way.
     """
     from arda.cdr3fix import load_anchors
     from arda.paths import cache_root, database_dir
@@ -58,6 +61,18 @@ def ensure_reference() -> Path:
         return database_dir()
 
     cache = cache_root()
+    if not (cache / "database" / "vdj").is_dir() and "ARDA_NO_AUTO_FETCH" not in os.environ:
+        # arda auto-fetches the reference, but ONLY when `_source_root()` is None -- and here it
+        # is not, because the walk finds this repository. So the fetch that would have happened on
+        # a plain install never fires, and a clean machine (a CI runner, a new checkout) has no
+        # reference at all. Fetching it here is what makes the build work from nothing.
+        #
+        # This is a download of an input, not a cache of a result: hard rule 9's explicit
+        # carve-out. The germline reference is data arriving, not something remembered.
+        from arda._database_fetch import fetch_database
+
+        fetch_database(cache / "database")
+
     if (cache / "database" / "vdj").is_dir():
         os.environ["ARDA_HOME"] = str(cache)
         for fn in (load_anchors, __import__("arda.paths", fromlist=["x"])._source_root,
