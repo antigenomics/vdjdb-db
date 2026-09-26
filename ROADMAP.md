@@ -928,8 +928,10 @@ named cause, and the 31 logo-less cids and the 1.00 % deleted letter mass are bo
    publication-year table is a committed input.
 6. `verify-latest` scheduled job: line 1 returns 200 **and** its tag equals `releases/latest`.
 7. Retire `.gitlab-ci.yml`, `.travis.yml`, `test.sh`, `release.sh`, `docker.sh`, `release_docker.sh`,
-   `gitlab/`, both Dockerfiles and the committed 3.7 MB `docker_build.log`. Move `src/*.groovy` to
-   `attic/` — it is the only correct specification for the meta files and phase 1 tests against it.
+   `gitlab/` and both Dockerfiles. Move `src/*.groovy` to `attic/` — it is the only correct
+   specification for the meta files and phase 1 parses it at test time.
+   `docker_build.log` needs no retiring: it matches `/*.log` in `.gitignore` and was never
+   committed. `.zenodo.json` was already removed in `53c2005`.
 
 **Closes when:** a full release dry-run produces three zips, a manifest and a clean ledger.
 
