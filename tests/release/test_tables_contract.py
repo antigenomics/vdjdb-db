@@ -97,7 +97,7 @@ def test_an_inferred_segment_never_sits_beside_a_curated_one(tables):
 
 
 def test_no_string_column_is_ever_null(tables):
-    """CLAUDE.md rule 6: empty string is the only missing marker.
+    """ROADMAP.md rule 6: empty string is the only missing marker.
 
     Scoped to string columns, which is where the rule bites -- the pandas `None`/`NaN`/`""` three-way
     ambiguity that shipped more than one bug. A *numeric* column has no empty string to use, and NaN

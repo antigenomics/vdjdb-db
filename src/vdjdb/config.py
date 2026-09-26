@@ -49,7 +49,7 @@ class Paths:
         return self.root / "summary"
 
     # outputs -- `out/`, not `build/`: `build/` is already gitignored as a Python packaging
-    # convention and reusing it for release artifacts is confusing. See CLAUDE.md.
+    # convention and reusing it for release artifacts is confusing. See ROADMAP.md.
     @property
     def out(self) -> Path:
         return self.root / "out"

@@ -1,7 +1,7 @@
 """Keep proprietary held-out data out of the repository and out of every release.
 
 TCRvdb / MATCHMAKERS (Messemaker et al., doi:10.1101/2025.04.28.651095) is licensed for academic,
-non-commercial use with **no redistribution, in whole or in part**. VDJdb ships AGPL-3.0-only. So
+non-commercial use with **no redistribution, in whole or in part**. So
 TCRvdb may be read during validation and must never be written anywhere this repository publishes.
 
 It is also *held out*: motif clustering is tuned on the independent-study support count, and TCRvdb
