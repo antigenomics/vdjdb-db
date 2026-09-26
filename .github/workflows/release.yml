@@ -1,0 +1,119 @@
+# The single human-gated path to a public artifact.
+#
+# Six steps, in order, and the sixth is the one that never happened under `release.sh`:
+#
+#   plan      derive the version, assert the tag does not exist, assert the ref is master
+#   prepare   rewrite latest-version.txt in the working tree (not committed yet)
+#   build     every zip embeds that same latest-version.txt -- build.yml does this
+#   verify    the difference ledger and the dashboard checks
+#   publish   gh release create, behind `environment: release` with a required reviewer
+#   finalize  COMMIT latest-version.txt, then fetch line 1 and fail on anything but 200
+#
+# There is deliberately **no Zenodo step**. The old webhook archived the source tarball rather than
+# the release assets, and the `-ZENODO` twin tags are the symptom of someone re-triggering it. The
+# author deposits by hand; this workflow must never create, mutate or assume a deposition, and must
+# never emit a twin tag (`ROADMAP.md` phase 14 item 4).
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: v<YYYY>.<MM>.<PATCH>, e.g. v2026.09.1
+        required: true
+        type: string
+      previous:
+        description: Previous release tag, for the changelog.
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.derive.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: derive
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          [[ "$TAG" =~ ^v[0-9]{4}\.[0-9]{2}\.[0-9]+$ ]] || {
+            echo "::error::$TAG is not v<YYYY>.<MM>.<PATCH>"; exit 1; }
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::error::release $TAG already exists"; exit 1
+          fi
+          [[ "${{ github.ref }}" == "refs/heads/master" ]] || {
+            echo "::error::releases are cut from master only"; exit 1; }
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: plan
+    uses: ./.github/workflows/build.yml
+    with:
+      tag: ${{ inputs.tag }}
+
+  publish:
+    needs: [plan, build]
+    runs-on: ubuntu-latest
+    # A required reviewer lives on this environment. It is the only human gate in the pipeline and
+    # the only thing between a dispatch and a public artifact.
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-assets
+          path: release/
+
+      - name: Verify the assets match their own checksums
+        working-directory: release
+        run: sha256sum -c SHA256SUMS
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release create "${{ inputs.tag }}" \
+            --title "VDJdb ${{ needs.plan.outputs.version }}" \
+            --notes-file release/RELEASE_NOTES.md \
+            release/*.zip release/manifest.json release/SHA256SUMS
+
+      # Step 6. `latest-version.txt` ships inside the zip it names, so it is written before the
+      # build and committed only once the release exists -- committing it earlier would name a
+      # release that might never be published, which is how it came to name the previous one.
+      # Step 6. `latest-version.txt` ships inside the zip it names, so it is written before the
+      # build and committed only once the release exists -- committing it earlier would name a
+      # release that might never be published, which is how it came to name the previous one.
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Finalize latest-version.txt
+        run: |
+          set -euo pipefail
+          uv sync
+          uv run python -c "from vdjdb.release.bundle import prepare_latest; \
+            print(prepare_latest('${{ inputs.tag }}').splitlines()[0])"
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add latest-version.txt
+          git commit -m "latest-version.txt -> ${{ inputs.tag }}" || echo "already current"
+          git push
+
+      - name: Assert line 1 resolves
+        run: |
+          set -euo pipefail
+          URL=$(head -1 latest-version.txt)
+          echo "checking $URL"
+          curl -fsIL -o /dev/null -w '%{http_code}\n' "$URL" | grep -qx 200

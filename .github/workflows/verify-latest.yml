@@ -1,0 +1,56 @@
+# Does `latest-version.txt` still name the current release?
+#
+# Measured on 2026-09-26: line 1 named `2026-05-16` while the published latest was
+# `2026-06-03-ZENODO` -- and **both URLs returned 200**. So "does line 1 resolve" would not have
+# caught it. The check has to compare the tag, which is what this does.
+name: verify-latest
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          URL=$(head -1 latest-version.txt)
+          CODE=$(curl -sIL -o /dev/null -w '%{http_code}' "$URL")
+          # .../releases/download/<tag>/<asset>
+          LINE_TAG=$(echo "$URL" | awk -F/ '{print $(NF-1)}')
+          REL_TAG=$(gh release view --json tagName --jq .tagName)
+          echo "line1=$URL"            >> "$GITHUB_OUTPUT"
+          echo "code=$CODE"            >> "$GITHUB_OUTPUT"
+          echo "line_tag=$LINE_TAG"    >> "$GITHUB_OUTPUT"
+          echo "latest_tag=$REL_TAG"   >> "$GITHUB_OUTPUT"
+          if [ "$CODE" = "200" ] && [ "$LINE_TAG" = "$REL_TAG" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.check.outputs.ok != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "latest-version.txt does not name the current release" \
+            --label "build" \
+            --body "$(printf '%s\n' \
+              "Line 1: ${{ steps.check.outputs.line1 }}" \
+              "HTTP: ${{ steps.check.outputs.code }}" \
+              "Tag on line 1: ${{ steps.check.outputs.line_tag }}" \
+              "Latest release: ${{ steps.check.outputs.latest_tag }}" \
+              "" \
+              "A 200 alone does not mean this file is current: it named the previous release for months while resolving fine.")"

@@ -1,0 +1,119 @@
+# The full database build: tables, every projection, motifs, the dashboard, and the release assets.
+#
+# Reusable (`workflow_call`) so `release.yml` runs exactly this and not a second copy of it. The
+# runner is an input rather than a literal, which is what lets phase 15 point the heavy job at
+# aldan3 without forking the workflow -- `fromJSON` because a multi-label self-hosted target is a
+# JSON array and `runs-on: ${{ inputs.runner }}` cannot express one.
+#
+# Guarded against fork pull requests. `chunk-check.yml` is the job forks trigger and it is pinned to
+# `ubuntu-latest` always; this one must never run their code on anything else.
+name: build
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        type: string
+        default: '"ubuntu-latest"'
+      tag:
+        description: Release tag; when set, the release assets are built and uploaded.
+        type: string
+        default: ''
+  workflow_dispatch:
+    inputs:
+      runner:
+        type: string
+        default: '"ubuntu-latest"'
+  push:
+    branches: [dev, master]
+    paths:
+      - 'chunks/**'
+      - 'patches/**'
+      - 'proofreading/**'
+      - 'src/vdjdb/**'
+      - 'summary/**'
+      - 'pyproject.toml'
+      - '.github/workflows/build.yml'
+  schedule:
+    - cron: '0 3 * * 1'
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ${{ fromJSON(inputs.runner || '"ubuntu-latest"') }}
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      # Pinned, not `release`: an R minor upgrade changed `guide = F`, `size =` and `..count..`
+      # under this document once already. `use-public-rspm` gives binaries, so no -dev headers.
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.5.3'
+          use-public-rspm: true
+
+      - name: R packages
+        # A dated Posit Package Manager snapshot, not `latest` -- dated, or it is not a pin. The
+        # ROADMAP asked for an renv.lock; this is the same guarantee without a lockfile that no one
+        # in the project has renv installed to regenerate.
+        run: |
+          Rscript -e 'options(repos = c(CRAN = "https://packagemanager.posit.co/cran/__linux__/noble/2026-09-01")); \
+            install.packages(c("rmarkdown", "knitr", "ggplot2", "RColorBrewer", "data.table", \
+              "forcats", "ggalluvial", "circlize", "tidyverse", "stringr", "gridExtra", "cowplot"))'
+
+      - name: Install
+        run: uv sync --extra motifs --extra test
+
+      - name: QC
+        run: uv run vdjdb qc --strict
+
+      - name: Assemble
+        run: |
+          uv run vdjdb build --out out/
+          uv run vdjdb make legacy --tables out/tables --out out/legacy
+          uv run vdjdb convert airr --tables out/tables --out out/airr
+
+      - name: Motifs
+        run: uv run vdjdb motifs --tables out/tables --out out/motifs
+
+      - name: Dashboard
+        run: |
+          uv run vdjdb summary --legacy out/legacy
+          mkdir -p out/summary
+          cp summary/vdjdb_summary_embed.html out/summary/
+
+      # The docs site embeds this; `docs.yml` downloads it with `continue-on-error`, so a failure
+      # here degrades the dashboard tab to its placeholder rather than blocking a docs build.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: summary-fragment
+          path: summary/vdjdb_summary_embed.html
+          retention-days: 30
+
+      - name: Tests
+        run: uv run pytest -q
+
+      - name: Release assets
+        if: inputs.tag != ''
+        run: uv run vdjdb release --tag "${{ inputs.tag }}" --build out --out out/release
+
+      - uses: actions/upload-artifact@v4
+        if: inputs.tag != ''
+        with:
+          name: release-assets
+          path: |
+            out/release/*.zip
+            out/release/manifest.json
+            out/release/SHA256SUMS
+          retention-days: 7
