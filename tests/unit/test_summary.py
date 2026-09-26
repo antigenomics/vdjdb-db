@@ -10,12 +10,10 @@ from __future__ import annotations
 
 import shutil
 import subprocess
-from pathlib import Path
 
 import pytest
 
-SUMMARY = Path("summary")
-READER = "markdown+autolink_bare_uris+tex_math_single_backslash-auto_identifiers"
+from vdjdb.summary import render
 
 FIXTURE = """---
 title: fixture
@@ -51,6 +49,13 @@ pandocmark = pytest.mark.skipif(shutil.which("pandoc") is None, reason="needs pa
 
 @pytest.fixture
 def fragment(tmp_path):
+    """Built by `render.extract()` itself, not by a reimplementation of its pandoc call.
+
+    The first version of this test assembled its own argv with absolute `--template` and
+    `--lua-filter` paths. It passed while the real code path failed on a clean runner, because
+    pandoc resolves a bare `--template NAME` from its DATA directory rather than the working
+    directory. A test that rebuilds the command under test cannot catch a bug in the command.
+    """
     src = tmp_path / "doc.knit.md"
     src.write_text(FIXTURE)
     # A 1x1 PNG, so `--embed-resources` has something real to inline.
@@ -58,13 +63,7 @@ def fragment(tmp_path):
         "89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4"
         "890000000a49444154789c6300010000050001" "0d0a2db4" "0000000049454e44ae426082"))
     out = tmp_path / "fragment.html"
-    subprocess.run(
-        ["pandoc", src.name, "--from", READER, "--to", "html4",
-         "--embed-resources", "--standalone", "--syntax-highlighting", "none",
-         "--template", str(SUMMARY.resolve() / "embed.html"),
-         "--lua-filter", str(SUMMARY.resolve() / "embed.lua"),
-         "-o", out.name],
-        cwd=tmp_path, check=True)
+    render.extract(intermediate=src, fragment=out)
     return out.read_text()
 
 
@@ -105,9 +104,9 @@ def test_missing_markers_fail_loudly_rather_than_publishing_nothing(tmp_path):
     src = tmp_path / "doc.knit.md"
     src.write_text("# no markers here\n\njust prose.\n")
     proc = subprocess.run(
-        ["pandoc", src.name, "--from", READER, "--to", "html4", "--standalone",
-         "--template", str(SUMMARY.resolve() / "embed.html"),
-         "--lua-filter", str(SUMMARY.resolve() / "embed.lua"), "-o", "out.html"],
+        ["pandoc", src.name, "--from", render.READER, "--to", "html4", "--standalone",
+         "--template", str(render.TEMPLATE), "--lua-filter", str(render.FILTER),
+         "-o", "out.html"],
         cwd=tmp_path, capture_output=True, text=True, check=False)
     assert proc.returncode != 0
     assert "no blocks between" in proc.stderr
