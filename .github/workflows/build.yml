@@ -95,6 +95,13 @@ jobs:
           uv run vdjdb make legacy --tables out/tables --out out/legacy
           uv run vdjdb convert airr --tables out/tables --out out/airr
 
+      # Six of the seven identity invariants (ROADMAP.md section 10.5). The seventh, that a
+      # permuted chunk order changes no id, is a property of two builds and runs as a unit test on a
+      # fixture rather than by building twice here. `--previous` is absent until a release ships a
+      # lifecycle asset; the checks that need history skip rather than fail.
+      - name: Identity
+        run: uv run vdjdb identity check --tables out/tables
+
       - name: Motifs
         run: uv run vdjdb motifs --tables out/tables --out out/motifs
 
@@ -156,4 +163,5 @@ jobs:
             out/release/*.zip
             out/release/manifest.json
             out/release/SHA256SUMS
+            out/release/identity-lifecycle.tsv
           retention-days: 7

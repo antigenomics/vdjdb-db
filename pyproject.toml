@@ -75,9 +75,10 @@ ignore = ["B008"]
 # `follow_imports = "skip"` cannot suppress it. Nothing here uses 3.12-only syntax; a CI job on the
 # real floor is what would catch that, not the type checker's assumed version.
 python_version = "3.12"
-# Strict only where correctness is load-bearing: the column registry every output projects from,
-# and the coordinate conversions between the four spaces documented in ROADMAP.md.
-files = ["src/vdjdb/schema", "src/vdjdb/convert"]
+# Strict where a mistake is unrecoverable rather than merely wrong: the column registry every output
+# projects from, the coordinate conversions between the four spaces documented in ROADMAP.md, and the
+# identifiers, which ship to consumers and cannot be renumbered once published.
+files = ["src/vdjdb/schema", "src/vdjdb/convert", "src/vdjdb/identity"]
 strict = true
 
 

@@ -66,6 +66,7 @@ VDJdb
    standards/columns
    standards/confidence-score
    standards/cdr3-fixing
+   standards/identity
    standards/airr-mapping
    outputs
 

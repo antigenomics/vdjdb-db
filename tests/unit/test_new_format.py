@@ -11,7 +11,7 @@ from vdjdb.emit import legacy, vdjdb3
 from vdjdb.schema import CHAIN_COLUMNS, RECORD_COLUMNS, TABLES
 
 #: Columns whose dtype the legacy projection depends on: the rest are strings.
-_CHAIN_DTYPES = {"v.end": pl.Int64, "j.start": pl.Int64, "clonotype_id": pl.UInt64,
+_CHAIN_DTYPES = {"v.end": pl.Int64, "j.start": pl.Int64,
                  "fix.needed": pl.Boolean, "fix.good": pl.Boolean,
                  "v.canonical": pl.Boolean, "j.canonical": pl.Boolean,
                  "cdr3nt.pgen": pl.Float64, "cdr3nt.margin": pl.Float64}
@@ -28,17 +28,19 @@ RECORDS = [
 ]
 
 CHAINS = [
-    {"record_id": "VDJDB0000000001", "gene": "TRB", "clonotype_id": 7, "cdr3": "CASSIRSSYEQYF",
+    {"record_id": "VDJDB0000000001", "gene": "TRB", "clonotype_id": "CT2df51ea0980263d2",
+     "cdr3": "CASSIRSSYEQYF",
      "v.segm": "TRBV10-3*01", "j.segm": "TRBJ2-7*01", "v.end": 4, "j.start": 8,
      "cdr3.original": "CASSIRSSYEQYF", "TCR_hash": "abc"},
-    {"record_id": "VDJDB0000000002", "gene": "TRB", "clonotype_id": 7, "cdr3": "CASSIRSSYEQYF",
+    {"record_id": "VDJDB0000000002", "gene": "TRB", "clonotype_id": "CT2df51ea0980263d2",
+     "cdr3": "CASSIRSSYEQYF",
      "v.segm": "TRBV10-3*01", "j.segm": "TRBJ2-7*01", "v.end": 4, "j.start": 8,
      "cdr3.original": "CASSIRSSYEQYF", "TCR_hash": "abc"},
 ]
 
 
 def _frame(rows: list[dict], columns: tuple[str, ...], dtypes: dict) -> pl.DataFrame:
-    blank = {pl.Int64: 0, pl.Boolean: False, pl.Float64: None, pl.UInt64: 0}
+    blank = {pl.Int64: 0, pl.Boolean: False, pl.Float64: None}
     filled = [{c: r.get(c, blank.get(dtypes.get(c), "")) for c in columns} for r in rows]
     return pl.DataFrame(filled, schema={c: dtypes.get(c, pl.String) for c in columns})
 
@@ -110,4 +112,6 @@ def test_the_generated_schema_describes_every_column_of_every_table(tmp_path, ta
     # dtypes are read off the written frames, so the schema cannot claim a type the files lack
     assert described["record_id"]["dtype"] == "String"
     assert described["evidence_score"]["dtype"] == "Float64"
-    assert described["clonotype_id"]["dtype"] == "UInt64"
+    # A string, not a uint: the id is `CT` plus 16 hex digits of a sha256 we own, because polars
+    # does not specify `Expr.hash` across versions and this id ships (ROADMAP.md section 10.3).
+    assert described["clonotype_id"]["dtype"] == "String"

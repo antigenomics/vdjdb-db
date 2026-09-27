@@ -232,9 +232,22 @@ FIELDS: dict[str, Field] = dict([
        comment="Stable VDJdb record identifier. Assigned once, never reused, and it survives a "
                "content change -- a curator fixing a typo amends a record rather than deleting one "
                "and creating another."),
-    _f("clonotype_id", searchable=0, autocomplete=0, data_type="uint", title="Clonotype id",
-       comment="Identifies a receptor chain: a hash of species, gene, CDR3, V and J. Records "
-               "reporting the same chain share it, and motif evidence attaches at this level."),
+    _f("clonotype_id", searchable=0, autocomplete=0, title="Clonotype id",
+       comment="Identifies a receptor chain: CT plus 16 hex digits of a sha256 over species, gene, "
+               "CDR3, V and J. Records reporting the same chain share it, and motif evidence "
+               "attaches at this level. Derived from its own key, so no chunk being added or "
+               "removed can change it."),
+    _f("clone_id", searchable=0, autocomplete=0, title="Clone id",
+       comment="Identifies an alpha/beta pair: CX plus 16 hex digits of a sha256 over the record's "
+               "two sorted clonotype ids. Empty string on a record reporting one chain, which is "
+               "the curated state and not missing data."),
+    _f("pmhc_id", searchable=0, autocomplete=0, title="pMHC id",
+       comment="Identifies a presented peptide: PM plus 16 hex digits of a sha256 over the epitope "
+               "and the two curated MHC chains. Keys on the allele as curated, never on a "
+               "predicted one, so a new mhcmatch model cannot renumber it."),
+    _f("epitope_id", searchable=0, autocomplete=0, title="Epitope id",
+       comment="Identifies the peptide alone, across every allele presenting it: EP plus 16 hex "
+               "digits of a sha256 over antigen.epitope."),
     _f("d.segm", airr="d_call", title="D", comment="TCR Diversity segment allele."),
     _f("cdr3nt", type=SEQ, searchable=0, autocomplete=0, data_type="cdr3", airr="junction",
        title="CDR3 nucleotide",
@@ -396,7 +409,7 @@ RECORD_CURATION: tuple[str, ...] = ("chunk.file", "chunk.row", "chunk.id", "subm
 
 #: ``records`` -- one row per curated record, PK ``record_id``.
 RECORD_COLUMNS: tuple[str, ...] = (
-    "record_id", *RECORD_ANTIGEN, "reference.id", *RECORD_SAMPLE,
+    "record_id", "pmhc_id", "epitope_id", *RECORD_ANTIGEN, "reference.id", *RECORD_SAMPLE,
     "meta.epitope.id", "meta.donor.MHC", "meta.donor.MHC.method", "meta.structure.id",
     "meta.subset.frequency",
     *METHOD_COLUMNS, "method.pairing",
@@ -407,7 +420,7 @@ RECORD_COLUMNS: tuple[str, ...] = (
 #: ``chains`` -- one row per TCR chain, PK ``(record_id, gene)``. ``cdr3fix`` is flattened: every
 #: member of the legacy JSON blob is a column, because a blob is not a variable.
 CHAIN_COLUMNS: tuple[str, ...] = (
-    "record_id", "gene", "clonotype_id",
+    "record_id", "gene", "clonotype_id", "clone_id",
     "cdr3", "v.segm", "d.segm", "j.segm",
     "v.end", "j.start",
     "cdr3nt", "cdr3nt.pgen", "cdr3nt.margin",

@@ -80,12 +80,17 @@ def prepare_latest(tag: str, path: Path = LATEST) -> str:
 
 
 def build(build_dir: Path, out: Path, tag: str, *,
-          bundles: tuple[manifest.Bundle, ...] = manifest.BUNDLES) -> dict:
+          bundles: tuple[manifest.Bundle, ...] = manifest.BUNDLES,
+          extras: tuple[Path, ...] = ()) -> dict:
     """Write every bundle, the manifest and the checksums. Returns the manifest as a dict.
 
     ``build_dir`` is what ``vdjdb build`` / ``make legacy`` / ``motifs`` / ``summary`` produced,
     plus ``LICENSE`` and ``latest-version.txt`` linked in from the repository root -- every member
     is named in :data:`vdjdb.release.manifest.BUNDLES`, never globbed.
+
+    ``extras`` are assets published beside the zips rather than inside one, so far only the identity
+    lifecycle table. They are checksummed but carry no manifest role: nothing selects a release by
+    them, and :data:`manifest.BUNDLES` stays the list of downloadable databases.
     """
     version = version_of(tag)
     out.mkdir(parents=True, exist_ok=True)
@@ -95,7 +100,7 @@ def build(build_dir: Path, out: Path, tag: str, *,
         entries.append(manifest.describe(zip_path, b.role))
         paths.append(zip_path)
     manifest.write_manifest(entries, out, version, tag)
-    manifest.write_checksums(paths, out)
+    manifest.write_checksums(paths + [p for p in extras if p.exists()], out)
     return {"version": version, "tag": tag, "bundles": entries}
 
 

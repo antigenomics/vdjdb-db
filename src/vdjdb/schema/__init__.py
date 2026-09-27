@@ -30,4 +30,36 @@ from .fields import (
     schema_json,
 )
 
-__all__ = [n for n in dir() if not n.startswith("_")]
+# Written out rather than computed from `dir()`. A comprehension is invisible to every static
+# tool: under `strict` mypy a computed `__all__` is not an explicit re-export, so importing
+# `ALL_COLUMNS` from this package fails the check even though it resolves at runtime.
+__all__ = [
+    "AIRR_MAP",
+    "ALL_COLUMNS",
+    "CHAIN_COLUMNS",
+    "CHUNK_DEDUP_KEY",
+    "CLUSTER_MEMBERS_COLUMNS",
+    "COMPLEX_COLUMNS",
+    "EPITOPE_COLUMNS",
+    "EVIDENCE_COLUMNS",
+    "EVIDENCE_TABLE_COLUMNS",
+    "FIELDS",
+    "FULL_COLUMNS",
+    "KEPT_CURATION_COLUMNS",
+    "META_COLUMNS",
+    "METHOD_COLUMNS",
+    "MOTIF_PWMS_COLUMNS",
+    "RECORD_COLUMNS",
+    "RESTRICTION_COLUMNS",
+    "SLIM_COLUMNS",
+    "SPECIES",
+    "TABLES",
+    "VDJDB_COLUMNS",
+    "VDJDB_WEB_COLUMNS",
+    "Field",
+    "fields",
+    "header",
+    "render_meta",
+    "render_slim_meta",
+    "schema_json",
+]

@@ -170,7 +170,7 @@ an output of it, and a stale vendored copy would change a call set with no error
 | 13 | merged | `feature/docs` | Sphinx site, generated schema tables, dashboard tab, Pages | - | zero-warning build, deploys |
 | 14 | merged | `feature/release-tooling` | manifest, three zips, checksums, `latest-version.txt`, tag scheme, changelog; retires the legacy CI | #432 | full release dry-run with no unattributed differences |
 | 15 | part | `feature/aldan3-runner` | self-hosted runner + `build.yml` retargeting | - | identical canonical digests on both runners. `build.yml` carries the `fromJSON(inputs.runner)` retargeting; **no self-hosted runner is registered** (`actions/runners` returns 0), so the second half of the criterion is unmet |
-| 16 | next | `feature/identity` | the four derived id levels, the lifecycle record, `vdjdb identity`, promiscuity columns, one study count | - | every invariant of §10.5 passes; a permuted chunk order changes no id; the dashboard reports 638 of 638 references |
+| 16 | part | `feature/identity` | the four derived id levels, the lifecycle record, `vdjdb identity`, promiscuity columns, one study count | - | every invariant of §10.5 passes; a permuted chunk order changes no id; the dashboard reports 638 of 638 references |
 | 17 | planned | `feature/corpus` | the reference corpus: documents, vocabulary, postings, `score` and `lift` | - | the three files reproducible by digest; `score` reproduces the `refsearch` ranking; `lift` answers a specificity question with an n |
 
 Phases 0 to 14 are merged to `master` as of 2026-09-27, and phase 15 is half landed: the comparison against the last release
@@ -289,6 +289,50 @@ not drafts; do not re-derive them.
 | Shipped dashboard PNG sizes | 1344×960, 2304×1920, 1152×1920, 1536×1536 → `dpi=96, fig.retina=2` | pin these, or the visual fingerprint is noise |
 | Production's 27-row `vdjdb.meta.txt` (`vdjdb-web/test/resources/database/`) | orders `… reference.id method meta cdr3fix vdjdb.score TCR_hash web.*` while the data is `… reference.id vdjdb.score TCR_hash method meta cdr3fix web.*` | the metadata mis-describes the data in production too, not only in the release zip |
 | `width="1152"` occurrences in the shipped embed HTML | 0. knitr emits the attribute; pandoc's `--embed-resources` drops it when it inlines the image, so the rewrite ran on a stage where it no longer existed | this is what #460 is |
+
+### 7.1 The corpus since the 2026-06-03 release
+
+`chunks/` is the data, so a difference in the release comparison is either code or curation, and only
+one of those two can be argued about. This is the accounting that says which. Established 2026-09-27
+between tag `2026-06-03-ZENODO` and `master`.
+
+**230 chunk files before, 230 after. None added, none removed. Zero records added, removed or
+edited.** Every file has the same number of non-empty lines at both points.
+
+103 files differ, and every difference is formatting:
+
+| Change | Files | Records affected |
+|---|---|---|
+| CRLF to LF, content byte-identical after the rewrite | 92 | 0 |
+| final newline added, file exactly one byte larger | 8 | 0 |
+| two prose captions removed from the header of `PMID_24512815.txt` | 1 | 0, and the columns were verified empty in all 270 rows before removal |
+| leading empty column name removed from `PMID_40694338.txt` | 1 | 0, over 2,353 rows |
+| `Comment` renamed `comment` in `vandesandt-etal-2019-11-04.txt` | 1 | 0 |
+
+All of it landed in one commit, `b0a479d`, whose 137,538 insertions and 137,538 deletions are equal
+because a line-ending rewrite touches every line and adds none.
+
+So every difference the release comparison reports is attributable to the build, which is what makes
+`rules/expected_diffs.toml` meaningful: a rule there describes a code change, and there is no
+curation change hiding behind it.
+
+Re-derive it with the two properties that matter, rather than by reading a diff stat:
+
+```bash
+# files added or removed
+diff <(git ls-tree -r --name-only 2026-06-03-ZENODO chunks/) \
+     <(git ls-tree -r --name-only HEAD chunks/)
+# per file: does the content differ once line endings are normalised?
+for f in $(git ls-tree -r --name-only HEAD chunks/); do
+  a=$(git show "2026-06-03-ZENODO:$f" | tr -d '\r' | shasum -a 256 | cut -c1-16)
+  b=$(git show "HEAD:$f"              | tr -d '\r' | shasum -a 256 | cut -c1-16)
+  [ "$a" = "$b" ] || echo "content differs: $f"
+done
+```
+
+The second loop reports the three header repairs and the eight trailing-newline files, and nothing
+else. `CLAUDE.md` carries the rule this section exists to serve: a commit touching `chunks/` says
+which files, how many rows, why, and who decided.
 
 ## 8. Motif inference findings
 
@@ -547,8 +591,9 @@ build.
 | epitope | the peptide alone | `antigen.epitope` | 2,118 | `EP` + 16 hex, derived |
 | record | one curated line | `NATURAL_KEY`, §10.1 | 192,753 | `VDJDB` + 10 digits, allocated |
 
-99,459 records carry one chain and 93,294 carry two, so `clone_id` is null on slightly more than
-half of them and that is the curated state rather than missing data. `mhc.class` adds nothing to the
+99,459 records carry one chain and 93,294 carry two, so `clone_id` is the empty string on slightly
+more than half of them, and having no clone is the curated state rather than missing data. Empty
+rather than null, because empty is the only missing marker (hard rule 6). `mhc.class` adds nothing to the
 pMHC key, which is 2,364 distinct with or without it, because the alleles determine the class; it
 stays a derived column.
 
@@ -603,7 +648,7 @@ again before anything ships, and neither event is a lifecycle event, because onl
 writes lifecycle rows. That is also what keeps a curation pull request readable: nothing in these
 files moves when a chunk changes.
 
-Sizes. The four derived levels hold 272,683 ids between them at roughly 50 bytes a row, about 13 MB.
+Sizes. The four derived levels hold 274,683 ids between them, and the table measures **15.9 MB**.
 The record registry is 72.7 MB, because it carries the natural key and the content hash per record.
 Both ship as release assets rather than committed files. The retired rows alone are committed, since
 they are the part a consumer needs and the part that is otherwise lost, and they are small.
@@ -630,7 +675,11 @@ Four commands and one report shape.
 3. the ids do not change when `chunks/` is read in a permuted order, nor when a chunk is added and
    removed again;
 4. every `record_id` in the previous registry whose natural key is unchanged is unchanged;
-5. no retired id is ever reused;
+5. no id carries a prefix belonging to no level, and no level that was published empties
+   silently. Reuse would be an id resolving to a *different* key than the one it was retired under,
+   and invariant 2 recomputes every id from the key beside it, so an id pointing anywhere else fails
+   there. An id merely reappearing is not reuse: a derived id is the hash of its key, so the same key
+   returning has to give the same id;
 6. every `clonotype_id` resolves to at least one chain row, every `clone_id` to exactly two chains
    of different `gene`, every `pmhc_id` to at least one record;
 7. `TCR_hash` is byte-identical to the previous release on every record whose key is unchanged.
@@ -1099,8 +1148,9 @@ invariants of §10.5, the promiscuity columns of §10.6, and one definition of "
 
 1. Move `clonotype_id` from `pl.Expr.hash` to `vdjdb.identity.ids` sha256, computed on the distinct
    key set and joined back (rule 4), formatted `CT` + 16 hex. The column is in `chains` and in no
-   legacy file, so no shipped legacy byte moves; the new-format tables change and the change is
-   declared in `rules/expected_diffs.toml` as a column rewrite with its measured row count.
+   legacy file, so no shipped legacy byte moves and the release comparison stays PASS on all five
+   members. `rules/expected_diffs.toml` gets no entry: it declares differences against the reference
+   release, and the reference release has no `chains` table to differ from.
 2. Add `clone_id` to `chains`, `pmhc_id` and `epitope_id` to `records`, each declared once in
    `schema/fields.py` so every projection and the documentation tables follow.
 3. `src/vdjdb/identity/levels.py`: one function per level, each taking a frame and returning it with
@@ -1112,30 +1162,47 @@ invariants of §10.5, the promiscuity columns of §10.6, and one definition of "
 6. `tests/unit/test_identity_levels.py`: the seven invariants, including the permuted-chunk-order
    test on a three-chunk fixture, plus one test per level that a key change produces a new id and a
    non-key change does not.
-7. `identity check` runs in `build.yml` after the build, and in `chunk-check.yml` as the subset a
-   three-minute budget affords: invariants 1, 2, 5 and 6, which need no previous registry.
+7. `identity check` runs in `build.yml` after the assembly step. Not in `chunk-check.yml`: that job
+   QCs the changed chunks and never builds the tables, so there is nothing for it to check. The
+   order-independence test (invariant 3) runs on a fixture wherever `pytest` runs, which costs
+   milliseconds.
 8. The release job writes `identity-lifecycle.tsv` and `record-registry.tsv` as release assets and
    commits `identity/retired.tsv`. `vdjdb build --registry <path>` accepts the previous release's
    asset; fetching it is a download, not a cache (hard rule 9's own exception).
 9. `restriction` gains the six promiscuity columns of §10.6 from the `mhcmatch` call phase 9e
    already makes, with `mhcmatch.version` recorded per row.
 10. **One definition of a study.** `assemble/evidence.support_counts` counts distinct `reference.id`
-    on `records`, where the column holds one value per row. The dashboard recomputes it in R from
-    `vdjdb.slim.txt`, where references are comma-joined, and keeps field 1 only:
-    `length(unique(str_split_fixed(reference.id, ",", n = Inf)[,1]))`. Measured on the current
-    build, that reports **529 of the 638 distinct references** in the slim table, missing 109; per
-    species and chain it misses 53 of 402 (human TRA), 52 of 484 (human TRB), 13 of 84 (mouse TRA)
-    and 63 of 151 (mouse TRB, 42 %). Four tables on the page carry the undercount. Fix all four to
-    split the field and count every reference, give `summary/panels.py` the same function so the R
-    and Python dashboards cannot disagree, and add the count to `summary/fingerprint.json` so a
-    regression is a red build rather than a smaller number.
+    on `records`, where the column holds one value per row. The dashboard recomputed it in R from
+    `vdjdb.slim.txt`, where references are comma-joined, keeping field 1 only. That reported **527 of
+    the 636 distinct non-blank references** in the slim table, missing 109. Rendering the same build
+    both ways: human TRA 348 -> 401, human TRB 431 -> 483, mouse TRA 71 -> 84, mouse TRB 88 -> 151,
+    macaque TRB unchanged at 2. Five sites in the Rmd carried it, feeding four tables. Fix all
+    five to split the field and count every reference. The regression guard is a lint in
+    `tests/unit/test_summary.py` asserting the truncating form is absent and the corrected one appears
+    five times: `summary/fingerprint.json` records table *headers* rather than cell values, and
+    `summary/panels.py` ports the figures rather than the tables, so neither can hold this number
+    today.
 11. `docs/standards/identity.md`: the five levels, the two mechanisms and why each level has the one
     it has, the lifecycle fields, the seven invariants, how to resolve an id you hold, and the
     statement that `TCR_hash` is stored verbatim and never migrated.
 
 **Closes when:** `identity check` passes every invariant; the permuted-order test passes; a rebuild
 after adding and then removing a chunk leaves every other id unchanged; and the four dashboard
-`Studies` columns report 638 distinct references where the database has 638.
+`Studies` columns report every reference on the row.
+
+**State, 2026-09-27.** Steps 1 to 8, 10 and 11 landed. Measured on the rebuild: 187,935 clonotypes,
+82,266 clones over 186,588 paired chain rows, 2,364 pMHCs, 2,118 epitopes, zero collisions at 16 hex
+digits, and `identity check` reporting every invariant holding. The release comparison stays PASS on
+all five legacy members, so nothing shipped moved. Removing one epitope from a copy of the tables
+retires exactly its `pmhc_id` and `epitope_id` with `last_release` frozen, and leaves the other
+274,681 ids untouched.
+
+Two carried items. **Step 9, the promiscuity columns, waits on phase 9e**, which is the branch that
+introduces the `mhcmatch` call; adding the call twice would put two model versions in one build.
+**`record_id` is still not stable across releases**: the record registry is written at release time by
+step 8 and nothing has shipped one yet, so until the first release under this scheme a rebuild
+reconciles against an empty registry and allocates from 1. The four derived levels do not have that
+dependency and are stable from this commit.
 
 ### Phase 17 - `feature/corpus`
 

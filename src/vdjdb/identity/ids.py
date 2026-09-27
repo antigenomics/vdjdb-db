@@ -354,9 +354,11 @@ def reconcile(
     for e in registry._by_key.values():
         rekeyed[e.natural_key_hash] = e
     registry._by_key = rekeyed
-    for i, rid in enumerate(assigned):
+    # A different name from the `rid` allocated above: `assigned` holds `str | None` until every
+    # slot is filled, and reusing the name widens it for the rest of the function.
+    for i, settled in enumerate(assigned):
         e = registry.get(key_hashes[i])
-        if e is not None and e.record_id == rid:
+        if e is not None and e.record_id == settled:
             e.note = _pack_note(keys[i])
 
     # Retire anything the registry still holds that this build did not see.
