@@ -58,7 +58,9 @@ jobs:
           enable-cache: true
 
       - name: Install
-        run: uv sync --extra docs
+        # --extra test as well: the step below runs pytest, and `--extra docs` alone does not
+        # provide it. Measured on run 36282458490, the first time that step ever executed.
+        run: uv sync --extra docs --extra test
 
       # The rendered dashboard fragment, from the last successful database build. Optional by
       # design: `docs/_static/dashboard.html` is a committed placeholder that says so.
