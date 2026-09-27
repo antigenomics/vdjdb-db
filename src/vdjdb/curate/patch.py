@@ -5,7 +5,7 @@ species. The legacy build applied it per chunk with ``chunk_df.T.apply`` -- tran
 Python call per row; it is one join here.
 
 Coverage, measured: the dictionary covers 245 epitopes, which is 154,373 of 203,308 chunk rows, and
-**zero of those rows are swapped**. The ~90 records reported in #368 with ``antigen.gene`` and
+zero of those rows are swapped. The ~90 records reported in #368 with ``antigen.gene`` and
 ``antigen.species`` transposed are therefore in the uncovered tail of 48,935 rows -- the fix is to
 extend coverage, not to repair the patched set. That is phase 9.
 """
@@ -19,21 +19,22 @@ from ..config import Paths
 
 PATCH_FILE = "antigen_epitope_species_gene.dict"
 
-#: Epitopes the patch lists **twice with different answers**. ``keep="last"`` then makes file order
-#: decide, silently, which is why they are named here: the set is asserted in the tests, so it can
-#: shrink but not grow.
+#: Epitopes the patch lists twice with different answers. ``keep="last"`` then lets file order
+#: decide, with no error, which is why they are named here: the set is asserted in the tests, so it
+#: can shrink but not grow.
 #:
-#: Two are pure nomenclature -- the EBNA3 family carries a modern and a legacy name for the same
-#: protein (EBNA3B = EBNA4, EBNA3C = EBNA6) -- and the rest are genuine disagreements a curator has
-#: to settle. The three HIV-1 ones sit in the Gag-Pol frameshift region, where both readings are
-#: defensible and the right answer depends on which frame the study assayed.
+#: Two are nomenclature only: the EBNA3 family has a modern and a legacy name for the same protein
+#: (EBNA3B = EBNA4, EBNA3C = EBNA6). The rest are disagreements a curator has to settle.
+#: `TAFTIPSI` and `ISPRTLNAW` sit in the Gag-Pol frameshift region, where both readings are
+#: defensible and the answer depends on which frame the study assayed. `CTPYDINQM` is a different
+#: case: the two entries disagree on the species, HIV-1 against SIV, not on the gene.
 CONFLICTING_EPITOPES: dict[str, tuple[str, ...]] = {
     "VTEHDTLLY": ("CMV IE1", "CMV pp50"),
     "EENLLDFVRF": ("EBV EBNA3A", "EBV EBNA6"),
     "IVTDFSVIK": ("EBV EBNA3B", "EBV EBNA4"),        # the same protein under two names
     "TAFTIPSI": ("HIV-1 Gag", "HIV-1 Pol"),          # Gag-Pol frameshift
-    "CTPYDINQM": ("HIV-1 Gag", "HIV-1 Pol"),
-    "ISPRTLNAW": ("HIV-1 Gag", "HIV-1 Pol"),
+    "ISPRTLNAW": ("HIV-1 Gag", "HIV-1 Pol"),         # Gag-Pol frameshift
+    "CTPYDINQM": ("HIV-1 Gag", "SIV Gag"),           # species, not gene
 }
 
 
@@ -55,9 +56,9 @@ def load_antigen_patch(path: Path | None = None) -> pl.DataFrame:
         pl.read_csv(p, separator="\t", quote_char=None, infer_schema_length=0)
         .rename({"antigen.gene": "__gene", "antigen.species": "__species"})
         .select("antigen.epitope", "__gene", "__species")
-        # `NA` stays a value. It is influenza *neuraminidase*, a real gene symbol, and pandas'
-        # default `na_values` read it as missing -- then `if NaN:` is True in Python, so the
-        # legacy assigned the missing value and blanked the gene on 14 rows.
+        # `NA` stays a value. It is influenza neuraminidase, a gene symbol, and pandas' default
+        # `na_values` read it as missing -- then `if NaN:` is True in Python, so the legacy
+        # assigned the missing value and blanked the gene on 14 rows.
         .fill_null("")
         # `keep="last"`, not "first": the file has eight epitopes listed twice, and pandas'
         # `.to_dict()` -- which the legacy build used -- keeps the last occurrence. Taking the
@@ -88,17 +89,17 @@ def apply_antigen_patch(df: pl.DataFrame, patch: pl.DataFrame | None = None) -> 
 def render_patch_renames(reference: pl.DataFrame, patched: pl.DataFrame) -> str:
     """``[[rename]]`` lines for the antigen patch, scoped to ``vdjdb.slim.txt``.
 
-    ``antigen.gene`` and ``antigen.species`` are part of the slim **grouping** key, so correcting a
-    gene symbol splits and merges slim rows -- 10,563 records' worth. The other two files carry the
+    ``antigen.gene`` and ``antigen.species`` are part of the slim grouping key, so correcting a
+    gene symbol splits and merges slim rows -- 10,563 records' worth. The other two files show the
     correction as a plain changed cell and need no rename.
 
-    ``reference`` is the released table, **not** the raw chunks: the release was built with the patch
-    as it stood then, so the only differences that reach the ledger are the entries added since. A
-    rename generated against the chunks would declare hundreds of corrections the release already
-    carries, and every one of them would be stale.
+    ``reference`` is the released table, not the raw chunks: the release was built with the patch as
+    it stood then, so the only differences ``vdjdb diff`` sees are the entries added since. A rename
+    generated against the chunks would declare hundreds of corrections the release already has, and
+    every one of them would be stale.
 
-    The predicate is ``when_equals`` on the epitope, not ``when_contains``: a 9-mer epitope really is
-    a substring of a 10-mer one (``SPRWYFYYL`` inside ``LSPRWYFYYL``), so a substring test would
+    The predicate is ``when_equals`` on the epitope, not ``when_contains``: a 9-mer epitope is a
+    substring of a 10-mer one (``SPRWYFYYL`` inside ``LSPRWYFYYL``), so a substring test would
     rewrite the wrong rows.
     """
     import json

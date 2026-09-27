@@ -1,8 +1,8 @@
 """The VDJdb confidence score, as polars expressions.
 
 Ported from ``py_src/ScoreFactory.py``, which built its score map with ``iterrows()`` over ~192k
-rows and then evaluated it again per row with ``master_table.T.apply``. Every rule below is a whole
--column expression instead, and the per-signature maximum is one window.
+rows and then evaluated it again per row with ``master_table.T.apply``. Every rule below is a
+column-level expression instead, and the per-signature maximum is one window.
 
 The score answers "how much should a reader trust this specificity annotation", 0-3:
 
@@ -12,19 +12,19 @@ The score answers "how much should a reader trust this specificity annotation", 
 
 Two behaviours are preserved exactly because the released scores depend on them:
 
-* ``method.frequency`` is parsed as ``n/m``, ``x%`` or a bare float, and **``n`` alone is the cell
-  count** -- ``2/47`` means two cells of forty-seven, and a ``%`` form therefore has no cell count;
-* the score is a **maximum over the 11-column sample signature**, not a per-row value. The same
+* ``method.frequency`` is parsed as ``n/m``, ``x%`` or a bare float, and ``n`` alone is the cell
+  count -- ``2/47`` means two cells of forty-seven, and a ``%`` form therefore has no cell count;
+* the score is a maximum over the 11-column sample signature, not a per-row value. The same
   clonotype assayed twice takes the better of the two, which is why the score cannot be computed
-  before the whole table is assembled.
+  before the full table is assembled.
 """
 from __future__ import annotations
 
 import polars as pl
 
-#: The score signature. **Not** ``CHUNK_DEDUP_KEY``: it has no reference or donor fields, which is
-#: the point -- the same clonotype seen in two studies shares one score. Two different keys share
-#: the name ``SIGNATURE_COLS`` in the legacy code, which is a real source of confusion.
+#: The score signature. Not ``CHUNK_DEDUP_KEY``: it has no reference or donor fields, so the same
+#: clonotype seen in two studies shares one score. Both keys are called ``SIGNATURE_COLS`` in the
+#: legacy code, which is a source of confusion.
 SCORE_SIGNATURE: tuple[str, ...] = (
     "cdr3.alpha", "v.alpha", "j.alpha", "cdr3.beta", "v.beta", "j.beta",
     "species", "mhc.a", "mhc.b", "mhc.class", "antigen.epitope",
@@ -53,7 +53,7 @@ def frequency() -> pl.Expr:
     """
     f = pl.col("method.frequency").str.strip_chars()
     num = f.str.replace_all(r"/+", "/").str.split("/")
-    return (
+    parsed = (
         pl.when(f == "").then(0.0)
         .when(f.str.contains("/", literal=True))
         .then(num.list.get(0).cast(pl.Float64, strict=False)
@@ -63,10 +63,15 @@ def frequency() -> pl.Expr:
         .otherwise(f.cast(pl.Float64, strict=False))
         .fill_nan(0.0).fill_null(0.0)
     )
+    # A zero denominator gives inf, which clears every assay threshold below and scores the record
+    # at the ceiling. `fill_nan` does not catch it. No chunk contains one today (measured
+    # 2026-09-27: 0 of 192,753 rows, maximum frequency 1.0), but chunks are submitted, so the
+    # unparseable-is-0.0 rule has to cover this form as well.
+    return pl.when(parsed.is_finite()).then(parsed).otherwise(0.0)
 
 
 def cell_count() -> pl.Expr:
-    """The numerator of an ``n/m`` frequency. A percentage carries no cell count, so 0."""
+    """The numerator of an ``n/m`` frequency. A percentage gives no cell count, so 0."""
     f = pl.col("method.frequency").str.strip_chars()
     return (
         pl.when(f.str.contains("/", literal=True))
@@ -77,7 +82,7 @@ def cell_count() -> pl.Expr:
 
 
 def sequencing_score(freq: pl.Expr, count: pl.Expr) -> pl.Expr:
-    """How much the *sequence* can be trusted: single cell > Sanger > amplicon depth."""
+    """How much the sequence can be trusted: single cell > Sanger > amplicon depth."""
     single = _lower("method.singlecell")
     seq = _lower("method.sequencing")
     return (

@@ -3,18 +3,17 @@
 Two tiers, in order of cost:
 
 1. :mod:`vdjdb.qc.lint` -- text-level, never parses the body. Catches the class of problem that
-   otherwise surfaces as a confusing parser error three stages later.
-2. :mod:`vdjdb.qc.rules` -- row-level, vectorised over the whole corpus in one pass.
+   otherwise appears as a confusing parser error three stages later.
+2. :mod:`vdjdb.qc.rules` -- row-level, vectorised over all 230 chunks in one pass.
 
-Lint findings are **warnings**: 99 of the 230 chunks are CRLF and two have malformed headers, and a
-hard gate on those would block every unrelated submission until the `.tsv` migration (#497) lands.
-Rule findings are **errors** and fail under ``--strict``, restoring the behaviour the Groovy build
-had and the Python port replaced with ``warnings.warn``. Measured: 230 of 230 chunks pass today, so
-there is no quarantine list to grandfather.
+Lint findings are warnings: 99 of the 230 chunks are CRLF and two have malformed headers, and a hard
+gate on those would block every unrelated submission until the `.tsv` migration (#497) lands. Rule
+findings are errors and fail under ``--strict``, restoring the behaviour the Groovy build had and the
+Python port replaced with ``warnings.warn``. Measured: 230 of 230 chunks pass today, so there is no
+quarantine list to grandfather.
 
 ``duplicate`` is neither: it is a curation signal. Per-chunk deduplication removes those rows on
-the way in, and their count is exactly the gap between the 203,308 raw rows and the released
-192,753.
+the way in, and their count is the gap between the 203,308 raw rows and the released 192,753.
 """
 from __future__ import annotations
 
@@ -55,8 +54,19 @@ def run_qc(paths: list[Path] | None, *, strict: bool = True, report: Path | None
     """Return an exit code: 0 clean, 1 if any fatal finding was raised under ``strict``."""
     targets = list(paths) if paths else chunk_files(Paths.discover().chunks)
     lint_findings = lint(targets)
-    rows = read_chunks(targets, deduplicate=False)
-    row_findings = check(rows)
+    try:
+        rows = read_chunks(targets, deduplicate=False)
+        row_findings = check(rows)
+    except Exception as exc:
+        # A chunk whose header is wrong cannot be parsed as a table at all, and that is the most
+        # common submission mistake. Raising here produced a traceback and skipped the `--report`
+        # write below, so `chunk-check` uploaded no report and its pull-request comment said
+        # "No QC findings" for the case that most needed a finding.
+        lint_findings = [*lint_findings, Finding(file=targets[0].name if targets else "",
+                                                 code="unreadable", detail=str(exc).strip())]
+        rows = pl.DataFrame()
+        row_findings = pl.DataFrame(schema={"chunk.file": pl.Utf8, "chunk.row": pl.UInt32,
+                                            "rule": pl.Utf8})
 
     if report is not None:
         report.parent.mkdir(parents=True, exist_ok=True)
