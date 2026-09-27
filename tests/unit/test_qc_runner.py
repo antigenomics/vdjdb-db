@@ -147,3 +147,32 @@ def test_a_segment_call_with_no_cdr3_is_reported_and_is_advisory():
     failed = rows.filter(~RULES["segment call with no cdr3"])
     assert sorted(failed["chunk.row"].to_list()) == [0, 1], "only the two incomplete alpha chains"
     assert "segment call with no cdr3" in ADVISORY, "a chain that cannot ship is not a broken row"
+
+
+# --- a structure id that is not a PDB entry id ---------------------------------------------------
+
+def test_a_structure_id_that_is_not_a_pdb_id_is_reported_and_is_advisory():
+    """The field awards the top confidence score, so anything but a PDB id awards it for nothing.
+
+    `score.confidence` gives 3 outright when `meta.structure.id` is non-empty, above every
+    sequencing and specificity term, because a solved TCR:pMHC complex is direct proof of binding.
+    2,765 rows in the corpus hold a figure or table reference there instead.
+    """
+    from vdjdb.qc.rules import RULES
+
+    rows = pl.DataFrame({
+        "chunk.file": ["c.txt"] * 6,
+        "chunk.row": [0, 1, 2, 3, 4, 5],
+        "meta.structure.id": [
+            "1AO7",                               # a PDB id
+            "6uon",                               # lower case is still a PDB id
+            "",                                   # blank is the normal case
+            "Fig 9, Supp Fig 5, Supp Table 5-8",  # the 400-row case in menon_etal_2024.txt
+            "56I",                                # three characters, the PMID_28423320.txt case
+            "ABCD",                               # four alphanumerics, but a PDB id starts with a digit
+        ],
+    })
+    failed = rows.filter(~RULES["structure id is not a PDB id"])
+    assert sorted(failed["chunk.row"].to_list()) == [3, 4, 5]
+    assert "structure id is not a PDB id" in ADVISORY, (
+        "2,765 corpus rows fail it; what to do with them is a curation decision")
