@@ -77,6 +77,7 @@ def build(
     legacy: bool = typer.Option(True, help="Write the legacy projection."),
     airr: bool = typer.Option(True, help="Write the AIRR projection."),
     release: str = typer.Option("dev", help="Release tag recorded on new evidence rows."),
+    engine: str = typer.Option("arda", help="CDR3 markup engine: arda or legacy."),
 ) -> None:
     """Assemble the database: the definitive tables, and every format projected from them."""
     from .assemble.master import build_master
@@ -88,7 +89,7 @@ def build(
     from .io.chunks import chunk_files
 
     paths = chunk_files(chunks) if chunks else None
-    built = build_tables(build_master(paths), release=release)
+    built = build_tables(build_master(paths, engine=engine), release=release)
     out.mkdir(parents=True, exist_ok=True)
 
     if tables:

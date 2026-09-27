@@ -17,7 +17,7 @@ dependencies = [
     "typer>=0.12",
     # arda is imported directly for cdr3fix / germline anchors / D inference. vdjtools pulls it
     # transitively, but a direct import deserves a direct dependency.
-    "arda-mapper>=2.29",
+    "arda-mapper>=2.30.1",
     # vdjtools supplies the AIRR schema/IO, the recombination model (junction-nt inference, Pgen)
     # and TCRNET. Its own core deps are arda-mapper, seqtree and vdjmatch.
     "vdjtools>=3.13",
