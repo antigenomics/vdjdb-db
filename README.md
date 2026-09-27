@@ -1,5 +1,9 @@
 # VDJDB: A curated database of T-cell receptor sequences of known antigen specificity
 
+[![Docs](https://img.shields.io/badge/docs-docs.isalgo.dev-blue)](https://docs.isalgo.dev/vdjdb-db/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22104776.svg)](https://zenodo.org/records/22104776)
+[![Build](https://github.com/antigenomics/vdjdb-db/actions/workflows/build.yml/badge.svg)](https://github.com/antigenomics/vdjdb-db/actions/workflows/build.yml)
+
 ![Splash](images/vdjdb-splash.png)
 
 The primary goal of VDJdb is to facilitate access to existing information on T-cell receptor antigen specificities, i.e. the ability to recognize certain epitopes in certain MHC contexts.
@@ -11,13 +15,25 @@ In addition to routine database updates providing the most up-to-date informatio
 * We take into account all available information on experimental setup used to identify antigen-specific TCR sequences and assign a single confidence score to highlight the most reliable records at the database generation stage.
 * Each database record is also automatically checked against a database of V/J segment germline sequences to ensure standardized and consistent reporting of V-J junctions and CDR3 sequences that define T-cell clones.
 
-This repository hosts the submissions to the database and the build that validates, assembles and publishes it. **`chunks/` is the data** — one file per publication — and everything else is machinery.
+This repository hosts the submissions to the database and the build that validates, assembles and publishes it. **`chunks/` is the data** - one file per publication - and everything else is machinery.
 
 ## Documentation
 
-**<https://docs.isalgo.dev/vdjdb-db/>** — the full specification. Every column table, vocabulary and
-score rule on that site is rendered from the build's own field registry while the page builds, so it
-cannot disagree with the code.
+**<https://docs.isalgo.dev/vdjdb-db/>** is the full specification. Every column table, vocabulary
+and score rule on that site is rendered from the build's own field registry while the page builds,
+so it cannot disagree with the code.
+
+Two parts of it answer most questions:
+
+- **[Specification](https://docs.isalgo.dev/vdjdb-db/standards/chunk-format.html)** - what a
+  submission may contain, and
+  **[every shipped column](https://docs.isalgo.dev/vdjdb-db/standards/columns.html)**, table by
+  table, generated from the registry.
+- **[Dashboard](https://docs.isalgo.dev/vdjdb-db/dashboard.html)** - the summary panels for the
+  current state of `chunks/`, rebuilt by CI on every push to `master`. It is not tied to a release,
+  so records added since the last zip show up there as they land.
+
+Readable in the tree as well:
 
 | | |
 |---|---|
@@ -31,12 +47,19 @@ cannot disagree with the code.
 | [Denoising](docs/denoising.md) | what the motif stage is for, and the rule that tunes it |
 | [Clustering](docs/clustering.md) | six algorithms, 252 configurations, one harness |
 | [Submitting and curating](docs/submission.md) | the submission guide and the curation skills |
-| [Building and releasing](docs/builds.md) | commands, the difference ledger, reproducibility |
+| [Building and releasing](docs/builds.md) | commands, how a build is compared against the last release, reproducibility |
 | [The dashboard](docs/dashboard.md) | what vdjdb-web's `/overview` is, and how it is checked |
 
 ## Using the data
 
-Download the latest release zip from [the releases page](https://github.com/antigenomics/vdjdb-db/releases), or let [vdjmatch](https://github.com/antigenomics/vdjmatch) resolve it for you when annotating repertoires. A web GUI is at [vdjdb.com](https://vdjdb.com), served by [VDJdb-web](https://github.com/antigenomics/vdjdb-web).
+Download the latest release zip from
+[the releases page](https://github.com/antigenomics/vdjdb-db/releases). A web GUI is at
+[vdjdb.com](https://vdjdb.com), served by [VDJdb-web](https://github.com/antigenomics/vdjdb-web).
+
+[vdjmatch](https://github.com/antigenomics/vdjmatch) can resolve a release for you when annotating
+repertoires, but that path is **work in progress**: it takes the first `.zip` asset it finds, so it
+picks an arbitrary one as soon as a release carries more than one. Selecting by role from
+`manifest.json` is the fix, and it ships in vdjmatch before VDJdb publishes a multi-zip release.
 
 ## Building it
 
@@ -55,11 +78,19 @@ uv run pytest -q
 
 ## Contributing
 
-New records are submitted as chunks — see [the submission guide](docs/submission.md). A chunk pull
+New records are submitted as chunks - see [the submission guide](docs/submission.md). A chunk pull
 request is checked in under three minutes by `chunk-check`; the specification it is checked against
 is the documentation above.
 
 ## Citing
 
-Please cite the database using the **most recent** paper ``Mikhail Goncharov, Dmitry Bagaev, Dmitrii Shcherbinin, Ivan Zvyagin, Dmitry Bolotin, Paul G. Thomas, Anastasia A. Minervina, Mikhail V. Pogorelyy, Kristin Ladell, James E. McLaren, David A. Price, Thi H. O. Nguyen, Louise C. Rowntree, E. Bridie Clemens, Katherine Kedzierska, Garry Dolton, Cristina Rafael Rius, Andrew Sewell, Jerome Samir, Fabio Luciani, Ksenia V. Zornikova, Alexandra A. Khmelevskaya, Saveliy A. Sheetikov, Grigory A. Efimov, Dmitry Chudakov & Mikhail Shugay. VDJdb in the pandemic era: a compendium of T cell receptors specific for SARS-CoV-2. Nature Methods 2022.`` [doi:10.1038/s41592-022-01578-0](https://doi.org/10.1038/s41592-022-01578-0).
+Please cite the **most recent** paper:
 
+> Daniil V. Luppov, Anna E. Koneva, Dmitry V. Bagaev, Anastasiia V. Alexandrova, Elizaveta K.
+> Vlasova, Dmitry M. Chudakov, Chihiro Motozono, Andrew K. Sewell & Mikhail Shugay. VDJdb in 2026:
+> boosting T-cell receptor recognition evidence using paratope embeddings and AI-based structure
+> prediction. *Nucleic Acids Research*, 2026.
+> [doi:10.1093/nar/gkag904](https://doi.org/10.1093/nar/gkag904)
+
+A release of the database itself is archived at
+[doi:10.5281/zenodo.22104776](https://doi.org/10.5281/zenodo.22104776).
