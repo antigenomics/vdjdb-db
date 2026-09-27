@@ -17,8 +17,9 @@ from vdjdb.schema import CHAIN_COLUMNS, EVIDENCE_TABLE_COLUMNS, RECORD_COLUMNS
 
 pytestmark = pytest.mark.release
 
-#: One chunk row is one record, so this is the row count the build reads.
-EXPECTED_RECORDS = 192_753
+#: One chunk row is one record, so this is the row count the build reads. 192,753 until
+#: `PMID_18025130` landed its 40 (#161).
+EXPECTED_RECORDS = 192_793
 
 
 @pytest.fixture(scope="module")
