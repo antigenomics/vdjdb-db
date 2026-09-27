@@ -49,7 +49,11 @@ ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form", "duplicate"
                       # The reader ignores columns it cannot name and reads the rest correctly.
                       "prose-column-name", "empty-column-name",
                       # #561: only a curator can decide which of the two chains is the wrong one.
-                      "alpha and beta cdr3 identical"})
+                      "alpha and beta cdr3 identical",
+                      # A named V or J whose chain has no CDR3. The call is information and the row
+                      # is kept; the chain cannot reach an output, which is what this tells the
+                      # submitter while they can still supply the sequence.
+                      "segment call with no cdr3"})
 
 
 class _NothingToRead(Exception):
