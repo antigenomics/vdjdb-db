@@ -10,8 +10,13 @@ change or an accidental edit shows up as a failing test rather than as a moved s
 """
 from __future__ import annotations
 
-import pandas as pd
 import pytest
+
+# `metrics_lib` is vendored verbatim and imports sklearn at module level, so the skip has to be
+# here rather than in it. pandas arrives with the same extra.
+pytest.importorskip("sklearn", reason="needs the `motifs` extra")
+
+import pandas as pd
 
 from vdjdb.validate.metrics_lib import (
     binominal_test,
