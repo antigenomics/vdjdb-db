@@ -112,7 +112,35 @@ jobs:
           path: summary/vdjdb_summary_embed.html
           retention-days: 30
 
+      # Both the release comparison and tests/release/ need a real release to compare against,
+      # and until 2026-09-27 neither had one: VDJDB_REFERENCE_ZIP was set in no workflow, so all 17
+      # checks in tests/release/test_reference_contract.py skipped everywhere, including this
+      # scheduled build. Those are the checks that stop a column moving in the motif files, which
+      # vdjdb-web reads by position, and stop vdjdb.meta.txt disagreeing with vdjdb.txt.
+      #
+      # Line 1 of latest-version.txt is the published legacy zip. Downloading it is fetching an
+      # input, not caching a result (hard rule 9).
+      - name: Reference release
+        run: |
+          curl -fsSL -o reference.zip "$(head -1 latest-version.txt)"
+          ls -l reference.zip
+
+      # Only the three data tables. The two *.meta.txt files still carry 15 cell differences that
+      # rules/expected_diffs.toml does not declare -- the added TCR_hash row, the moved vdjdb.score
+      # row and the reordered v.end/j.start rows, all of them intended, none of them written down.
+      # Declaring a reordered row cell by cell is awkward, and what actually matters about the meta
+      # files is that they agree with the table header, which tests/release/ checks directly. So
+      # they are excluded here rather than left to fail. Measured 2026-09-27: with --only the three
+      # tables every declared rule fires at its declared count and the comparison passes.
+      - name: Compare against the last release
+        run: |
+          uv run vdjdb diff reference.zip out/legacy \
+            --only vdjdb.txt,vdjdb.slim.txt,vdjdb_full.txt \
+            --report out/reports/release-diff.md
+
       - name: Tests
+        env:
+          VDJDB_REFERENCE_ZIP: reference.zip
         run: uv run pytest -q
 
       - name: Release assets
