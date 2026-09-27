@@ -599,12 +599,29 @@ class RowDelta:
 
 
 def load_row_deltas(path: Path) -> dict[str, RowDelta]:
+    """One declaration per file, and a second one for the same file is an error rather than a winner.
+
+    The dict comprehension this replaces let a later ``[[row_delta]]`` silently overwrite an earlier
+    one for the same file. That is the worst possible failure for this file: a curator declaring the
+    rows their chunk adds would erase the declaration describing the code deviations, and the
+    comparison would still read PASS on an accounting that no longer covers both. Raising makes the
+    collision a build failure with both line numbers' worth of context in the message.
+    """
     if not path.exists():
         return {}
     raw = tomllib.loads(path.read_text())
-    return {d["file"]: RowDelta(d["file"], int(d.get("added", 0)), int(d.get("removed", 0)),
-                                d.get("note", ""))
-            for d in raw.get("row_delta", [])}
+    out: dict[str, RowDelta] = {}
+    for d in raw.get("row_delta", []):
+        name = d["file"]
+        if name in out:
+            raise ValueError(
+                f"{path}: two [[row_delta]] declarations for {name!r}. There is one per file, so "
+                f"combine them into a single added/removed pair and say in `note` what each "
+                f"component is. Existing: added={out[name].added} removed={out[name].removed}; "
+                f"second: added={int(d.get('added', 0))} removed={int(d.get('removed', 0))}")
+        out[name] = RowDelta(name, int(d.get("added", 0)), int(d.get("removed", 0)),
+                             d.get("note", ""))
+    return out
 
 
 def load_rules(path: Path) -> list[Rule]:
