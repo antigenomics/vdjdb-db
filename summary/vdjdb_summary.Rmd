@@ -101,12 +101,17 @@ paste("Last updated on", format(Sys.time(), '%d %B, %Y'))
 General statistics. Note that general statistics are computed using the 'slim' database version. Slim version, for example, lists the same TCR sequence found in several donors/studies only once and selects representative V/J for a given CDR3aa clonotype and the best score across all redundant records.
 
 ```{r warning=FALSE, message=FALSE}
+# `Studies` counts every reference, not the first of a comma-joined list. Keeping only the first
+# field of the split reported 527 of the 636 distinct non-blank references in the slim table, missing
+# 109. Rendering one build both ways: human TRA 348 -> 401, human TRB 431 -> 483, mouse TRA 71 -> 84,
+# mouse TRB 88 -> 151. `vdjdb.assemble.evidence.support_counts` is the definition this now matches,
+# and `tests/unit/test_summary.py` fails if the truncating form comes back.
 df.sg = df %>% 
   group_by(species, gene) %>%
   summarize(records = length(complex.id), 
             paired.records = sum(ifelse(complex.id=="0", 0, 1)),
             epitopes = length(unique(antigen.epitope)),
-            publications = length(unique(str_split_fixed(reference.id, ",", n = Inf)[,1]))) %>%
+            publications = length(unique(unlist(strsplit(reference.id, ","))))) %>%
   arrange(species, gene)
 
 colnames(df.sg) = c("Species", "Chain", "Records", "Paired records", "Unique epitopes", "Studies")
@@ -249,7 +254,7 @@ df.a = df %>%
   group_by(antigen.species) %>% #, antigen.gene) %>%
   summarize(records = n(), 
             epitopes = length(unique(antigen.epitope)),
-            publications = length(unique(str_split_fixed(reference.id, ",", n = Inf)[,1]))) %>%
+            publications = length(unique(unlist(strsplit(reference.id, ","))))) %>%
   arrange(-records)
 
 colnames(df.a) = c("Parent species", #"Parent gene",
@@ -271,7 +276,7 @@ df %>%
          mhc.b = str_split_fixed(mhc.b, "[,:]", 2)[,1],
          mhc = ifelse(mhc.class == "MHCI", mhc.a, paste0(mhc.a, '/', substr(mhc.b, 7, 15)))) %>%
   group_by(antigen.gene, mhc, antigen.epitope) %>%
-  mutate(publications = length(unique(str_split_fixed(reference.id, ",", n = Inf)[,1]))) %>%
+  mutate(publications = length(unique(unlist(strsplit(reference.id, ","))))) %>%
   group_by(antigen.gene, mhc, antigen.epitope, gene, publications) %>%
   summarize(records = n()) -> df.c
 
@@ -328,7 +333,7 @@ df %>%
          mhc.b = str_split_fixed(mhc.b, "[,:]", 2)[,1],
          mhc = ifelse(mhc.class == "MHCI", mhc.a, paste0(mhc.a, '/', substr(mhc.b, 7, 15)))) %>%
   group_by(antigen.gene, mhc, antigen.epitope) %>%
-  mutate(publications = length(unique(str_split_fixed(reference.id, ",", n = Inf)[,1]))) %>%
+  mutate(publications = length(unique(unlist(strsplit(reference.id, ","))))) %>%
   group_by(antigen.gene, mhc, antigen.epitope, gene, publications) %>%
   summarize(records = n()) -> df.n
 
@@ -548,7 +553,7 @@ df.m = df %>%
   group_by(mhc.a.split, mhc.b.split) %>%
   summarize(records = length(unique(id)), 
             antigens = length(unique(antigen.epitope)),
-            publications = length(unique(str_split_fixed(reference.id, ",", n = Inf)[,1]))) %>%
+            publications = length(unique(unlist(strsplit(reference.id, ","))))) %>%
   arrange(-records)
   
 colnames(df.m) = c("First chain", "Second chain", "Records", "Unique epitopes", "Studies")
