@@ -91,12 +91,26 @@ def _arden(root: Path) -> dict[str, str]:
             if i and "," not in i}
 
 
+#: `TRBVIS1` in `PMID_16237109.txt` is `TRBV1S1` with a capital I for the 1 (#136). Roman numerals
+#: only ever appear in the Arden `TRBV<n>S<m>` form, so the rewrite is scoped to that shape and
+#: cannot touch an IMGT name.
+_ROMAN = {"I": "1", "II": "2", "III": "3", "IV": "4", "V": "5",
+          "VI": "6", "VII": "7", "VIII": "8", "IX": "9", "X": "10"}
+
+
 def _respellings(call: str, genes: frozenset[str]) -> set[str]:
     """Every mechanical variant of ``call``. Purely syntactic; the caller decides which to use."""
     out = {call.replace(" ", "")}
     out |= {x.replace(".", "-") for x in out}
     out |= {x.replace("TCR", "TR") for x in out}
     out |= {re.sub(r"(?<=[A-Z])0+(\d)", r"\1", x) for x in out}
+    # A one-digit allele: IMGT writes `*01`, and 26 chains write `*1`, `*2` or `*3` (#402). Only
+    # accepted if the padded form is a real allele, which is what the caller checks.
+    out |= {re.sub(r"\*(\d)$", r"*0\1", x) for x in out}
+    # The Arden roman numeral, `TRBVIS1` -> `TRBV1S1`, which the Arden table then maps (#136).
+    out |= {m.group(1) + _ROMAN[m.group(2)] + m.group(3)
+            for m in (re.match(r"^(TR[ABGD][VDJ])([IVX]+)(S\d+)$", x) for x in out)
+            if m and m.group(2) in _ROMAN}
     out |= {x.replace("-DV", "/DV") for x in out}
     out |= {re.sub(r"(?<=\d)(DV\d)", r"/\1", x) for x in out}
     out |= {re.sub(r"^(TR[AB]D\d)-1", r"\1", x) for x in out}
@@ -113,6 +127,37 @@ def _respellings(call: str, genes: frozenset[str]) -> set[str]:
     for stem in {x.split("*")[0] for x in out}:
         out |= {g for g in genes if g.startswith(stem + "/DV")}
     return out
+
+
+def _expand_slash(part: str, known: frozenset[str]) -> list[str]:
+    """Read a ``/`` as "or" and return the names it stands for, or ``[]`` if it cannot be read.
+
+    ``/`` means three different things in a segment call and one of them is not a separator at all:
+    ``TRAV14/DV4`` is a single IMGT gene shared with the delta locus. That case never reaches here,
+    because the caller checks IMGT membership first. What is left is a curator writing alternatives
+    (#136), in three shapes, each accepted only when every name it expands to is a real allele:
+
+    * ``TRBV12-3/TRBV12-4`` - full names;
+    * ``TRBV19*01/02`` - one gene, an allele list;
+    * ``TRBV12-3/4*01`` - one family, a gene-number list sharing an allele.
+
+    ``TRBV11/2`` matches none of them: it could be `TRBV11-2` or two genes, and guessing which is a
+    curation decision rather than a spelling one. It is left alone and reported.
+    """
+    if "/" not in part:
+        return []
+    whole = part.split("/")
+    if all(x in known for x in whole):
+        return whole
+    if m := re.match(r"^(.+?)\*(\d+(?:/\d+)+)$", part):
+        out = [f"{m.group(1)}*{a.zfill(2)}" for a in m.group(2).split("/")]
+        if all(x in known for x in out):
+            return out
+    if m := re.match(r"^(TR[ABGD][VDJ]\d+)-(\d+(?:/\d+)+)(\*\d+)?$", part):
+        out = [f"{m.group(1)}-{n}{m.group(3) or ''}" for n in m.group(2).split("/")]
+        if all(x in known for x in out):
+            return out
+    return []
 
 
 def normalise_call(call: str, species: str, root: Path | None = None) -> str | None:
@@ -139,7 +184,17 @@ def normalise_call(call: str, species: str, root: Path | None = None) -> str | N
         if (a := arden.get(part)) and a in known:
             fixed.append(a)
             continue
-        hits = sorted(_respellings(part, genes) & known)
+        if expanded := _expand_slash(part, known):
+            fixed.extend(expanded)
+            continue
+        variants = _respellings(part, genes)
+        hits = sorted(variants & known)
+        if not hits:
+            # A respelling may land on an *Arden* name rather than an IMGT one: `TRBVIS1` respells
+            # to `TRBV1S1`, which the Arden table maps to `TRBV9`. Trying Arden only after the
+            # direct lookup and the respellings have both missed keeps the order of evidence -- an
+            # IMGT name is never reinterpreted as Arden.
+            hits = sorted({a for v in variants if (a := arden.get(v)) and a in known})
         if len(hits) != 1:          # zero is unknown, several is ambiguous; neither is ours to fix
             return None
         fixed.append(hits[0])
