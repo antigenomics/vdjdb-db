@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -110,3 +111,17 @@ def test_missing_markers_fail_loudly_rather_than_publishing_nothing(tmp_path):
         cwd=tmp_path, capture_output=True, text=True, check=False)
     assert proc.returncode != 0
     assert "no blocks between" in proc.stderr
+
+
+def test_the_study_count_reads_every_reference_and_not_only_the_first():
+    """A slim row merged from several publications comma-joins them in `reference.id`.
+
+    Keeping field 1 reported 527 of the 636 distinct non-blank references in the slim table, missing
+    109. Rendering one build both ways moved human TRA 348 -> 401, human TRB 431 -> 483, mouse TRA
+    71 -> 84 and mouse TRB 88 -> 151. Four tables on the page carried the undercount.
+    `vdjdb.assemble.evidence.support_counts` counts distinct `reference.id` on `records`, where the
+    column holds one value, and this is what keeps the R side reading the same quantity.
+    """
+    rmd = (Path(__file__).resolve().parents[2] / "summary" / "vdjdb_summary.Rmd").read_text()
+    assert 'str_split_fixed(reference.id, ",", n = Inf)[,1]' not in rmd
+    assert rmd.count('length(unique(unlist(strsplit(reference.id, ","))))') == 5

@@ -32,15 +32,26 @@ So the `Records` column of the first table is a clonotype count, not a record co
 smaller than the record count in the release notes. The script's own caption says this; the
 distinction is repeated here because it is the single most common misreading of the page.
 
-**"Studies" means distinct first-listed reference.** Four blocks report a `Studies` column, computed
-as `length(unique(str_split_fixed(reference.id, ",", n = Inf)[,1]))`. A slim row merged from several
-publications carries them comma-joined in `reference.id`, and taking field 1 keeps only the first.
+**"Studies" counts every reference on the row.** Four blocks report a `Studies` column, computed as
+`length(unique(unlist(strsplit(reference.id, ","))))`. A slim row merged from several publications
+carries them comma-joined in `reference.id`, and 5,630 of 197,670 slim rows (2.8 %) do.
 
-Measured on the current build: 5,630 of 197,670 slim rows (2.8 %) carry more than one reference, and
-the column reports **529 of the 638 distinct references** present, missing 109. Per row of the first
-table the undercount is 53 of 402 (human TRA), 52 of 484 (human TRB), 13 of 84 (mouse TRA) and 63 of
-151 (mouse TRB, 42 %). Every `Studies` figure on the page is therefore a lower bound. The fix is
-`ROADMAP.md` §12, phase 16.
+Until 2026-09-27 the column kept only field 1 of that split, so a merged row reported its first
+publication and dropped the rest: **527 of the 636 distinct non-blank references** in the slim table,
+missing 109. Rendering the same build both ways gives the size of the correction per row of the first
+table:
+
+| Species | Chain | Field 1 only | Every field |
+|---|---|---|---|
+| HomoSapiens | TRA | 348 | 401 |
+| HomoSapiens | TRB | 431 | 483 |
+| MacacaMulatta | TRB | 2 | 2 |
+| MusMusculus | TRA | 71 | 84 |
+| MusMusculus | TRB | 88 | 151 |
+
+`vdjdb.assemble.evidence.support_counts` counts distinct `reference.id` on `records`, where the column
+holds one value per row, and the R side now reads the same quantity.
+`tests/unit/test_summary.py` fails if the truncating form comes back.
 
 **Allele truncation.** Panels that group by MHC allele cut it at the first colon, so
 `HLA-A*02:01:48` and `HLA-A*02:01` are one group. Panels that group by V gene cut at the `*`, so
