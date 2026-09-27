@@ -152,27 +152,33 @@ an output of it, and a stale vendored copy would change a call set with no error
 `master` → `dev` → `feature/*` → `dev` → `master`. Every phase is independently mergeable and
 `dev` stays green. Commits that resolve a tracker issue carry `Closes #N`.
 
-| # | Branch | Delivers | Closes | Acceptance |
-|---|---|---|---|---|
-| 0 | `feature/dev-baseline` | `ROADMAP.md`, `pyproject.toml` + `uv.lock`, package skeleton, `chunk-check.yml`, `branch-policy.yml` | #476 | CI green; `release.sh` still works untouched |
-| 1 | `feature/schema` | the field registry; `render_meta` | - | reproduces the Groovy `METADATA_LINES` / `SLIM_METADATA_LINES` byte-for-byte; `header == meta names` for all three tables |
-| 2 | `feature/golden-harness` | `vdjdb diff` + `expected_diffs.toml` | - | zero diffs against the current pandas build; nothing downstream starts without this |
-| 3 | `feature/io-qc` | polars reader, vectorised QC, `--strict` exit-1, chunk header normalisation, `.tsv` rename | #497 | QC report matches the pandas report row-for-row; harness still zero |
-| 4 | `feature/pipeline-core` | the definitive tables (`records`, `chains`) + harmonize + score + pairing; the legacy export as a projection of them; deletes `py_src/` | #424, #399 | every difference against the release is a declared rule firing its measured count; peak RSS < 8 GB |
-| 5 | `feature/arda-cdr3fix` | `arda.cdr3fix` replaces `Cdr3Fixer.py`; retires `res/segments*.txt` | - | new `expected_diffs.toml` rule, row count measured then frozen |
-| 6 | `feature/new-format` | ships the definitive tables as parquet + TSV, adds `evidence`, `vdjdb.schema.json` | - | `make legacy` from the shipped tables still passes the harness |
-| 7 | `feature/airr` | `emit/airr.py` (Rearrangement + Reactivity), `convert/coords.py`, `vdjdb convert` | - | `airr.validate_rearrangement` passes on the full table; the legacy path produces nothing the tables path does not |
-| 8 | `feature/junction-nt`, `feature/segment-guess`, `feature/dgene` | one branch each | #461, #462, #463 | generated `cdr3nt` back-translates to `cdr3` |
-| 9 | `feature/harmonize-rules` | nomenclature rule tables | #327, #389, #347, #368, #564, #467, #561 | each rule gets an `expected_diffs.toml` entry with a measured row count |
-| 10 | `feature/motifs-tcrnet` | TCRNET on `vdjtools`, streaming backgrounds | - | deviation report accepted |
-| 11 | `feature/motifs-tcremp` | TCREMP + per-epitope DBSCAN; new motif schema; legacy projections | - | beats the shipped `cluster_members_tcremp.txt` re-scored in our harness, per §8.4 |
-| 12 | `feature/summary` | Rmd split, ggplot2 4.x fixes, committed publication-year table, data-driven callouts, interactive dashboard | #460 | renders offline; perceptual + structural checks pass |
-| 13 | `feature/docs` | Sphinx site, generated schema tables, dashboard tab, Pages | - | zero-warning build, deploys |
-| 14 | `feature/release-tooling` | manifest, three zips, checksums, `latest-version.txt`, tag scheme, changelog; retires the legacy CI | #432 | full release dry-run with no unattributed differences |
-| 15 | `feature/aldan3-runner` | self-hosted runner + `build.yml` retargeting | - | identical canonical digests on both runners |
+| # | State | Branch | Delivers | Closes | Acceptance |
+|---|---|---|---|---|---|
+| 0 | merged | `feature/dev-baseline` | `ROADMAP.md`, `pyproject.toml` + `uv.lock`, package skeleton, `chunk-check.yml`, `branch-policy.yml` | #476 | CI green; `release.sh` still works untouched |
+| 1 | merged | `feature/schema` | the field registry; `render_meta` | - | reproduces the Groovy `METADATA_LINES` / `SLIM_METADATA_LINES` byte-for-byte; `header == meta names` for all three tables |
+| 2 | merged | `feature/golden-harness` | `vdjdb diff` + `expected_diffs.toml` | - | zero diffs against the current pandas build; nothing downstream starts without this |
+| 3 | merged | `feature/io-qc` | polars reader, vectorised QC, `--strict` exit-1, chunk header normalisation, `.tsv` rename | #497 | QC report matches the pandas report row-for-row; harness still zero |
+| 4 | merged | `feature/pipeline-core` | the definitive tables (`records`, `chains`) + harmonize + score + pairing; the legacy export as a projection of them; deletes `py_src/` | #424, #399 | every difference against the release is a declared rule firing its measured count; peak RSS < 8 GB |
+| 5 | merged | `feature/arda-cdr3fix` | `arda.cdr3fix` replaces `Cdr3Fixer.py`; retires `res/segments*.txt` | - | new `expected_diffs.toml` rule, row count measured then frozen |
+| 6 | merged | `feature/new-format` | ships the definitive tables as parquet + TSV, adds `evidence`, `vdjdb.schema.json` | - | `make legacy` from the shipped tables still passes the harness |
+| 7 | merged | `feature/airr` | `emit/airr.py` (Rearrangement + Reactivity), `convert/coords.py`, `vdjdb convert` | - | `airr.validate_rearrangement` passes on the full table; the legacy path produces nothing the tables path does not |
+| 8 | merged | `feature/junction-nt`, `feature/segment-guess`, `feature/dgene` | one branch each | #461, #462, #463 | generated `cdr3nt` back-translates to `cdr3` |
+| 9 | merged | `feature/harmonize-rules` | nomenclature rule tables | #327, #389, #347, #368, #564, #467, #561 | each rule gets an `expected_diffs.toml` entry with a measured row count |
+| 10 | merged | `feature/motifs-tcrnet` | TCRNET on `vdjtools`, streaming backgrounds | - | deviation report accepted |
+| 11 | merged | `feature/motifs-tcremp` | TCREMP + per-epitope DBSCAN; new motif schema; legacy projections | - | beats the shipped `cluster_members_tcremp.txt` re-scored in our harness, per §8.4 |
+| 12 | merged | `feature/summary` | Rmd split, ggplot2 4.x fixes, committed publication-year table, data-driven callouts, interactive dashboard | #460 | renders offline; perceptual + structural checks pass |
+| 13 | merged | `feature/docs` | Sphinx site, generated schema tables, dashboard tab, Pages | - | zero-warning build, deploys |
+| 14 | merged | `feature/release-tooling` | manifest, three zips, checksums, `latest-version.txt`, tag scheme, changelog; retires the legacy CI | #432 | full release dry-run with no unattributed differences |
+| 15 | part | `feature/aldan3-runner` | self-hosted runner + `build.yml` retargeting | - | identical canonical digests on both runners. `build.yml` carries the `fromJSON(inputs.runner)` retargeting; **no self-hosted runner is registered** (`actions/runners` returns 0), so the second half of the criterion is unmet |
+| 16 | next | `feature/identity` | the four derived id levels, the lifecycle record, `vdjdb identity`, promiscuity columns, one study count | - | every invariant of §10.5 passes; a permuted chunk order changes no id; the dashboard reports 638 of 638 references |
+| 17 | planned | `feature/corpus` | the reference corpus: documents, vocabulary, postings, `score` and `lift` | - | the three files reproducible by digest; `score` reproduces the `refsearch` ranking; `lift` answers a specificity question with an n |
 
-Phase 2 comes first: the harness must show zero diffs against the current build before any
-behaviour changes, so that later differences can be attributed.
+Phases 0 to 14 are merged to `master` as of 2026-09-27, and phase 15 is half landed: the comparison against the last release
+reads PASS with every difference declared and measured, and the release dry-run produces three
+reproducible bundles. `ROADMAP_local.md` carries the per-phase record.
+
+Phase 2 came first: the harness had to show zero diffs against the then-current build before any
+behaviour changed, so that later differences could be attributed.
 
 Phases 5, 8, 9, 10 and 11 each introduce exactly one source of deviation, so every difference in the
 output has a single attributable cause.
@@ -526,6 +532,143 @@ legacy `TCR_hash` until the structure store is re-keyed on `record_id`.
 `chains` exists so the schema stays non-redundant: folding chains into records forces either
 duplicated record fields (what `vdjdb.txt` does) or paired alpha/beta columns (what `vdjdb_full.txt`
 does).
+
+### 10.3 Five levels of identity, and which one is allocated
+
+A record is a receptor against a presented peptide. Both halves recur across records and consumers
+reference both halves, so each level needs an identifier of its own. Counts are from the current
+build.
+
+| Level | Identifies | Key | Distinct | Id |
+|---|---|---|---|---|
+| clonotype | one receptor chain | `species, gene, cdr3, v.segm, j.segm` | 187,935 over 286,047 chain rows | `CT` + 16 hex, derived |
+| clone | one TRA/TRB pair | the two `clonotype_id`s, sorted | 82,266 over 93,294 paired records | `CX` + 16 hex, derived |
+| pMHC | one presented peptide | `antigen.epitope, mhc.a, mhc.b` | 2,364 | `PM` + 16 hex, derived |
+| epitope | the peptide alone | `antigen.epitope` | 2,118 | `EP` + 16 hex, derived |
+| record | one curated line | `NATURAL_KEY`, §10.1 | 192,753 | `VDJDB` + 10 digits, allocated |
+
+99,459 records carry one chain and 93,294 carry two, so `clone_id` is null on slightly more than
+half of them and that is the curated state rather than missing data. `mhc.class` adds nothing to the
+pMHC key, which is 2,364 distinct with or without it, because the alleles determine the class; it
+stays a derived column.
+
+**Derived against allocated is what settles the chunk-order question.** A derived id is a hash of its
+own key and of nothing else, so:
+
+* the order `chunks/` is read in cannot reach it;
+* adding a chunk names that chunk's new clonotypes and changes no existing id;
+* removing a chunk retires only the ids nothing else supported;
+* two hosts, two core counts and two release dates produce the same ids.
+
+An allocated id is a counter and has none of those properties. `record_id` is allocated anyway,
+because its purpose is to survive a content change: a curator fixing a CDR3 typo has to keep the
+record's id, and no hash of the content can do that. Every other level keys on content with no
+separate existence, so a change there is not an amendment but a different clonotype. One registry is
+therefore consulted during a build, the record registry, and the other four levels need no history
+in order to be correct.
+
+**The hash has to be ours.** `clonotype_id` is `pl.Expr.hash` today, which is polars' xxhash under
+our seed. Polars does not specify that output across versions, so an upgrade could renumber every
+clonotype with nothing failing anywhere. `vdjdb.identity.ids._hash` is already sha256 over
+`\x1f`-joined fields, and the two have to be one function. Measured: sha256 over the 187,935 distinct
+clonotype keys costs 83 ms, joining back onto 286,047 chain rows costs 7 ms, against a 185 s build,
+with zero collisions at 16 hex digits.
+
+Truncating to 16 digits is a size decision, not a security one. At 187,935 ids the chance of one
+collision is around 1 in 10⁹, and the build asserts distinctness per level, so a collision fails a
+run rather than corrupting a join.
+
+### 10.4 Lifecycle: what happened to the id I had
+
+An id that vanishes is the failure a consumer cannot diagnose: a reference that used to resolve
+returns nothing, and there is no way to tell a correction from a deletion. Every level therefore
+carries a lifecycle row, holding only what a build cannot recompute.
+
+| Field | Meaning |
+|---|---|
+| `id` | the identifier |
+| `level` | `clonotype`, `clone`, `pmhc`, `epitope` or `record` |
+| `state` | `active` or `retired` |
+| `first_release` | the release tag the id first appeared in |
+| `last_release` | the newest release carrying it, frozen at retirement |
+| `replaced_by` | the id that took over, when the retirement was an amendment; empty otherwise |
+
+The active set and its keys are recomputed from `chunks/` on every build (hard rule 9), so a
+lifecycle row never decides what id anything gets. It answers one question, and
+`vdjdb identity resolve CT3f9a1c0e8b2d4a67` is that question: active with its key, or retired with
+the release that last carried it and what replaced it.
+
+**Retirement is per release, not per build.** A curation branch can add a clonotype and remove it
+again before anything ships, and neither event is a lifecycle event, because only the release job
+writes lifecycle rows. That is also what keeps a curation pull request readable: nothing in these
+files moves when a chunk changes.
+
+Sizes. The four derived levels hold 272,683 ids between them at roughly 50 bytes a row, about 13 MB.
+The record registry is 72.7 MB, because it carries the natural key and the content hash per record.
+Both ship as release assets rather than committed files. The retired rows alone are committed, since
+they are the part a consumer needs and the part that is otherwise lost, and they are small.
+
+A build with no registry still runs. It allocates record ids from 1 and reports that the run is not
+id-stable, which is correct for a fork and for a first build, and is what the code does today by
+accident rather than by decision (`ROADMAP_local.md`, known-not-yet-fixed).
+
+### 10.5 The consistency machinery
+
+Four commands and one report shape.
+
+| Command | Does |
+|---|---|
+| `vdjdb identity build --tables out/tables` | writes the id columns and the lifecycle rows for this build |
+| `vdjdb identity resolve <id>` | one id: state, key, first and last release, replacement |
+| `vdjdb identity diff <previous> <current>` | added, retired and amended per level, with counts |
+| `vdjdb identity check --tables out/tables` | the invariants below; exit 1 on any failure |
+
+`identity check` is what CI runs, and it asserts:
+
+1. every id is distinct within its level;
+2. every derived id equals the hash of the key on its own row, recomputed rather than trusted;
+3. the ids do not change when `chunks/` is read in a permuted order, nor when a chunk is added and
+   removed again;
+4. every `record_id` in the previous registry whose natural key is unchanged is unchanged;
+5. no retired id is ever reused;
+6. every `clonotype_id` resolves to at least one chain row, every `clone_id` to exactly two chains
+   of different `gene`, every `pmhc_id` to at least one record;
+7. `TCR_hash` is byte-identical to the previous release on every record whose key is unchanged.
+
+Invariant 3 is the one nothing covers today and the one the chunk-order question asks for. It runs
+the assembly twice over a permuted chunk list and asserts one digest per level. It belongs on a
+small fixture rather than a full build, so it costs seconds and can run per pull request.
+
+### 10.6 MHC promiscuity is an annotation, never part of an id
+
+An epitope is often presented by several alleles, and the curated allele is not always the one that
+binds it best. Both facts belong in the database; neither belongs in a key.
+
+`pmhc_id` keys on the allele **as curated**. A prediction is a moving target: `mhcmatch` ships new
+weights, and if a predicted allele were in the key then a model upgrade would renumber pMHC ids and
+break every external reference while the build passed. Promiscuity is therefore measured into columns
+on `restriction`, which already carries one row per (epitope, antigen species, MHC pair) and 2,373 of
+them:
+
+| Column | Meaning |
+|---|---|
+| `alleles.reported` | distinct alleles VDJdb reports for this epitope |
+| `mhc.a.top` | the highest-scoring allele for this epitope under `mhcmatch` |
+| `mhc.a.rank` | the curated allele's rank in that ranking |
+| `mhc.a.percentile` | the curated allele's binding percentile |
+| `promiscuity` | alleles scoring within a declared percentile of the top |
+| `mhcmatch.version` | the model that produced the five columns above |
+
+`mhcmatch.version` sits on the row, so a reader can tell which model a number came from, and
+re-running under a new model rewrites those columns and no id. Phase 9e already calls `mhcmatch` for
+catalogue validation; this keeps its output instead of discarding it.
+
+### 10.7 Legacy structure ids are stored verbatim
+
+`TCR_hash` is the identifier linking a record to a generated structure, and it ships exactly as
+curated. It is stored as is: never recomputed, never renamed, never derived from the levels above,
+and structure evidence keys on it. The new ids are additive, so a consumer holding a `TCR_hash` is
+never asked to migrate, and invariant 7 fails the build if one moves on a record whose key did not.
 
 ## 11. Tuning and validation of motif clustering
 
@@ -949,9 +1092,156 @@ differences.
 
 **Closes when:** a full build completes on both runners with identical canonical digests.
 
-### Bootstrap order
+### Phase 16 - `feature/identity`
 
-Land the workflows on `master` → create `dev` → let one full `build.yml` run green on `dev` so the
+Delivers the four derived id levels of §10.3, the lifecycle record of §10.4, the commands and
+invariants of §10.5, the promiscuity columns of §10.6, and one definition of "a study".
+
+1. Move `clonotype_id` from `pl.Expr.hash` to `vdjdb.identity.ids` sha256, computed on the distinct
+   key set and joined back (rule 4), formatted `CT` + 16 hex. The column is in `chains` and in no
+   legacy file, so no shipped legacy byte moves; the new-format tables change and the change is
+   declared in `rules/expected_diffs.toml` as a column rewrite with its measured row count.
+2. Add `clone_id` to `chains`, `pmhc_id` and `epitope_id` to `records`, each declared once in
+   `schema/fields.py` so every projection and the documentation tables follow.
+3. `src/vdjdb/identity/levels.py`: one function per level, each taking a frame and returning it with
+   the id column added. Four declared key tuples and one shared hash-and-join helper. No abstraction
+   over the four, because there are four and there will not be more.
+4. `src/vdjdb/identity/lifecycle.py`: read a previous lifecycle file, diff it against the current id
+   sets, write the new one. The diff is pure and does no I/O, so it is testable on literals.
+5. `vdjdb identity build | resolve | diff | check` in `cli.py`.
+6. `tests/unit/test_identity_levels.py`: the seven invariants, including the permuted-chunk-order
+   test on a three-chunk fixture, plus one test per level that a key change produces a new id and a
+   non-key change does not.
+7. `identity check` runs in `build.yml` after the build, and in `chunk-check.yml` as the subset a
+   three-minute budget affords: invariants 1, 2, 5 and 6, which need no previous registry.
+8. The release job writes `identity-lifecycle.tsv` and `record-registry.tsv` as release assets and
+   commits `identity/retired.tsv`. `vdjdb build --registry <path>` accepts the previous release's
+   asset; fetching it is a download, not a cache (hard rule 9's own exception).
+9. `restriction` gains the six promiscuity columns of §10.6 from the `mhcmatch` call phase 9e
+   already makes, with `mhcmatch.version` recorded per row.
+10. **One definition of a study.** `assemble/evidence.support_counts` counts distinct `reference.id`
+    on `records`, where the column holds one value per row. The dashboard recomputes it in R from
+    `vdjdb.slim.txt`, where references are comma-joined, and keeps field 1 only:
+    `length(unique(str_split_fixed(reference.id, ",", n = Inf)[,1]))`. Measured on the current
+    build, that reports **529 of the 638 distinct references** in the slim table, missing 109; per
+    species and chain it misses 53 of 402 (human TRA), 52 of 484 (human TRB), 13 of 84 (mouse TRA)
+    and 63 of 151 (mouse TRB, 42 %). Four tables on the page carry the undercount. Fix all four to
+    split the field and count every reference, give `summary/panels.py` the same function so the R
+    and Python dashboards cannot disagree, and add the count to `summary/fingerprint.json` so a
+    regression is a red build rather than a smaller number.
+11. `docs/standards/identity.md`: the five levels, the two mechanisms and why each level has the one
+    it has, the lifecycle fields, the seven invariants, how to resolve an id you hold, and the
+    statement that `TCR_hash` is stored verbatim and never migrated.
+
+**Closes when:** `identity check` passes every invariant; the permuted-order test passes; a rebuild
+after adding and then removing a chunk leaves every other id unchanged; and the four dashboard
+`Studies` columns report 638 distinct references where the database has 638.
+
+### Phase 17 - `feature/corpus`
+
+A reference corpus as a reusable artifact, reproducing what `vdjdb.com/refsearch/` serves and
+answering questions the endpoint cannot.
+
+**The contract**, read from `vdjdb-web`'s client in `app/frontend/src/app/pages/refsearch/`. POST to
+`/refsearch/` with `{cdr3, antigen.epitope, extra_parameters, species_to_search}`, every value a
+space-joined string, `extra_parameters` drawn from `search_by_antigen` and `filter_stop_words`, and
+`species_to_search` defaulting to `HomoSapiens MusMusculus MacacaMulatta`. The response is a JSON
+array of `{pmid, tf_idf}` and the client keeps the first ten. A second endpoint, POST
+`/refsearch/articles` with `{pmid}`, returns `{title, abstract, authors_list, journal,
+publication_year}`. The service answering these is not in the `antigenomics` organisation; only the
+client is. This phase builds the corpus and the scorer. A service reading them is separate.
+
+**Documents are references, not records.** 662 distinct `reference.id` values in the current build:
+610 PubMed ids, 51 others (bioRxiv and medRxiv DOIs, an arXiv preprint, PDB entries, a thesis, and
+GitHub issues), and one blank. A document is a reference; the records citing it are its content.
+
+**Three token families in one vocabulary, each prefixed so a consumer can filter.**
+
+| Family | Prefix | Token | Distinct, current build |
+|---|---|---|---|
+| text | `w:` | a word of the title or abstract, lowercased | to measure; 610 documents have text |
+| receptor | `v:` | V gene without allele | 228 |
+| receptor | `j:` | J gene without allele | 80 |
+| receptor | `k:` | a CDR3 3-mer | 7,713 over 180,048 distinct CDR3s |
+| receptor | `kv:` | a CDR3 3-mer scoped to the V gene carrying it, `kv:CAS@TRBV9` | to measure |
+| antigen | `e:` | epitope | 2,118 |
+| antigen | `a:` | antigen species and antigen gene | from the epitope catalogue |
+| antigen | `m:` | MHC allele at two fields | from `restriction` |
+
+`k:` and `kv:` are both in the vocabulary because the question the corpus exists to answer needs
+both. "Is the CAS motif specific to HIV, or to its TRBV?" is a comparison between the lift of `k:CAS`
+on HIV documents and its lift on HIV documents already carrying that V gene. One token cannot express
+that and neither can a single search ranking.
+
+**Weighting.** Sublinear term frequency `1 + log tf`, because a paper reporting 10,000 receptors
+would otherwise dominate every receptor token; smoothed inverse document frequency
+`log((N + 1) / (df + 1)) + 1`; L2 normalisation per document, so a long abstract and a short one are
+comparable. These are scikit-learn's conventions, which makes the implementation checkable against
+`TfidfVectorizer` on a fixture rather than only against itself.
+
+**The artifact.** Three parquet files in the release, plus the TSVs beside them:
+
+```
+corpus/documents.parquet   document_id, reference.id, kind, year, n_terms
+corpus/terms.parquet       term_id, term, family, df, idf
+corpus/postings.parquet    document_id, term_id, tf, weight
+```
+
+Long postings rather than a sparse-matrix format, because the consumer is polars or duckdb and the
+query is a join. `term_id` is assigned by sorted term and `document_id` by sorted reference, so both
+are total orders and the files are reproducible without a hash. Postings are sorted by
+`(term_id, document_id)`, which makes a term lookup one contiguous slice.
+
+**What is fetched and what is committed.** Receptor and antigen tokens come from `chunks/` and need
+no network. Only the text family does, and it follows hard rule 5's pattern: the running text is an
+input to the build and never an output of it. `vdjdb refs --abstracts` fetches titles and abstracts,
+tokenises them, and writes `corpus/text_terms.tsv` as `reference.id, term, tf` - term counts, no
+running text. That file is a committed, reviewed input refreshed by its own pull request, exactly as
+`summary/reference_years.tsv` already is, so the build stays offline and deterministic. Estimated at
+610 documents and roughly 120 distinct terms each, about 73,000 rows and 2 MB. The tokeniser is in
+the repository, so the transform is auditable even though the text is not kept.
+
+**Two functions, not a framework.**
+
+* `score(query_terms) -> (document_id, score)`, the sum of matched weights, which is the `tf_idf`
+  the endpoint returns.
+* `lift(term, given) -> ratio`, the frequency of `term` among documents carrying every token in
+  `given`, over its frequency across all documents. One `group_by` on the postings table. This is
+  what answers the specificity question, and it is the reason the corpus is an artifact rather than
+  an index inside a service.
+
+**`vdjdb corpus build | query | lift` in `cli.py`**, with `--stop-words` and `--search-by-antigen`
+mapping onto the two `extra_parameters` the client sends, so the command and the endpoint take the
+same arguments.
+
+**Tests.** `tf_idf` against `TfidfVectorizer` on a five-document fixture to four decimal places; the
+three files reproducible across two runs by digest; `term_id` and `document_id` unchanged when the
+chunk list is permuted; `lift` equal to 1.0 for a term independent of the condition by construction;
+and one end-to-end query whose top document is the paper the epitope was first reported in.
+
+**Follow-ups, named rather than built.** The artifact is method-agnostic, so an alternative weighting
+is an additional file and not a rewrite.
+
+* **PageRank over the term co-occurrence graph** ranks terms by centrality instead of by rarity.
+  Inverse document frequency handles receptor tokens badly: a 3-mer in every document has idf near
+  zero and drops out, even when it is the hub connecting two antigen families. Measure it against
+  tf-idf on the same queries before preferring it.
+* **An embedding index**, sentence embeddings for the text family and `mir.embedding.TCREmp` for the
+  receptor family, answers "which references are about something similar" rather than "which share a
+  token". It is a dense vector per document in a fourth file.
+
+Both are gated on tf-idf reproducing the existing endpoint first, because that is the only baseline
+in existence.
+
+**Closes when:** `vdjdb corpus build` produces the three files reproducibly; `score` on the
+endpoint's own request shape returns a ranking; `lift` answers the CAS-against-TRBV question with a
+number and an n; and `docs/standards/corpus.md` documents the vocabulary, the weighting, the two
+functions and the file schemas.
+
+### Bootstrap order - done, 2026-09-27
+
+Completed in this order (`ROADMAP_local.md` §44): land the workflows on `master` → create `dev` → let one full `build.yml` run green on `dev` so the
 check names exist → then apply the `dev`, `master` and tag rulesets. A required check that has
-never run blocks every PR forever. Require linear history on `master`; there are 85 accumulated
-branches.
+never run blocks every PR forever. Linear history is deliberately **not** applied: `master` carries 168 reachable merge commits and
+the gitflow puts `--no-ff` feature merges on `dev`, so the rule would reject every future update and
+train the bypass habit. The four rulesets that did go on are recorded in `ROADMAP_local.md` §44.2.
