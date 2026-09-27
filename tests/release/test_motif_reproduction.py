@@ -81,9 +81,26 @@ def tables() -> tuple[pl.DataFrame, pl.DataFrame]:
 
 @pytest.fixture(scope="module")
 def motifs() -> Path:
+    """The motif files, refused if they predate the tables they would be scored against.
+
+    Both directories default independently, so a fresh `vdjdb build --out out/` beside a motif
+    directory from an earlier tuning scores one build's clustering on another build's cohort. That
+    happened on 2026-09-27: motif files from 2026-09-25, 71,138 member rows against the current
+    53,505, read as a single TCREMP TRB metric falling below its bar. Nothing was wrong with either
+    artifact, and nothing in the assertions could say so.
+
+    Modification time rather than a recorded provenance, because there is none to read: these are
+    build outputs in an output directory, never a checkout, and in CI both come from one run. It
+    catches the stale pair and says which; it cannot prove a matched pair came from one build.
+    """
     d = Path(os.environ.get("VDJDB_MOTIFS", "out/motifs"))
-    if not (d / "cluster_members.txt").exists():
+    members = d / "cluster_members.txt"
+    if not members.exists():
         pytest.skip(f"no built motif files at {d}; run `vdjdb motifs --out {d}`")
+    chains = Path(os.environ.get("VDJDB_TABLES", "out/tables")) / "chains.parquet"
+    if chains.exists() and members.stat().st_mtime < chains.stat().st_mtime:
+        pytest.fail(f"{members} is older than {chains}: the clustering and the cohort are from two "
+                    f"builds. Re-run `vdjdb motifs --tables {chains.parent} --out {d}`.")
     return d
 
 
