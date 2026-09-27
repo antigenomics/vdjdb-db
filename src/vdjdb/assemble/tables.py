@@ -103,6 +103,15 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
                 pl.col(f"__jfix.{gene}").alias("j.fix.type"),
                 pl.col(f"__vcanon.{gene}").alias("v.canonical"),
                 pl.col(f"__jcanon.{gene}").alias("j.canonical"),
+                # The three stages of a segment call, side by side: what the publication reported,
+                # what ships after IMGT harmonisation and allele disambiguation, and what the markup
+                # engine would have called from the sequence alone. `v.segm` above is the shipped
+                # one. Where the engine names no allele of its own the column is empty.
+                pl.col(f"__sub.v.{gene}").alias("v.segm.submitted"),
+                pl.col(f"__sub.j.{gene}").alias("j.segm.submitted"),
+                (pl.col(f"__sub.{d}") if d else pl.lit("")).alias("d.segm.submitted"),
+                pl.col(f"__varda.{gene}").alias("v.segm.arda"),
+                pl.col(f"__jarda.{gene}").alias("j.segm.arda"),
                 pl.col("TCR_hash"),
             )
         )
