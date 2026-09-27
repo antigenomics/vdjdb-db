@@ -2914,3 +2914,88 @@ file = "vdjdb_full.txt"
 added = 613
 removed = 613
 note = "declared corrections whose reference value is not injective: the legacy fixer had already resolved an odd segment spelling onto a real allele, and the class-II chain-order swap rewrites two columns at once. See ROADMAP sections 23-25"
+
+
+# --- the generated metadata ---------------------------------------------------------------------
+# `vdjdb.meta.txt` and `vdjdb.slim.meta.txt` stopped being generated when the Groovy was retired,
+# and the static git copies then drifted from the data they describe. Both are generated from the
+# field registry again, which is why they differ from the ones in the zip.
+#
+# Keyed on the column name, not the line number, so the inserted row is one added row rather than
+# every row after it reading as changed. The order the rows are written in is pinned by
+# `test_header_is_the_name_column_of_the_metadata`, and by `_compare_table` failing a reordered
+# header; measured 2026-09-27, the candidate's `vdjdb.txt`, `vdjdb.slim.txt` and `vdjdb_full.txt`
+# headers are identical to the reference's, field for field.
+
+# `TCR_hash` is column 15 of the release's own `vdjdb.txt` and has no row in the release's meta
+# file. `vdjdb-web` builds its schema from the meta file, so a column the data carries and the meta
+# omits is the drift hard rule 2 exists to stop.
+[[row_delta]]
+file = "vdjdb.meta.txt"
+added = 1
+removed = 0
+note = "the TCR_hash row, missing from the shipped metadata"
+
+[[row_delta]]
+file = "vdjdb.slim.meta.txt"
+added = 1
+removed = 0
+note = "the TCR_hash row, missing from the shipped metadata"
+
+# Production serves `Info`, not `Score`. Read from the deployed metadata in
+# `vdjdb-web/test/resources/database/vdjdb.meta.txt`, whose 27 rows are the schema the site runs;
+# the frontend then retitles this column again to `Evidence` on the annotations page
+# (`annotations.service.ts:457`). The zip's `Score` is the pre-rename spelling.
+[[rule]]
+id = "meta-score-title-info"
+file = "vdjdb.meta.txt"
+column = "line"
+from = "vdjdb.score\ttxt\t1\t1\t0\tuint\tScore\tVDJdb confidence score, the higher is the score the more confidence we have in the antigen specificity annotation of a given TCR clonotype/clone. Zero score indicates that there are insufficient method details to draw any conclusion."
+to = "vdjdb.score\ttxt\t1\t1\t0\tuint\tInfo\tVDJdb confidence score, the higher is the score the more confidence we have in the antigen specificity annotation of a given TCR clonotype/clone. Zero score indicates that there are insufficient method details to draw any conclusion."
+rows = 1
+
+# The four internal `web.*` rows are shipped with their fields shifted one place left from
+# `autocomplete` on: `autocomplete` holds 1, `data.type` holds `0`, `title` holds `factor`,
+# `comment` holds `Internal`, and there is no comment. The shift is in
+# `attic/BuildDatabase.groovy:368-371` too, so it is as old as the generator. `web.method` is worse
+# again: a space where the first tab belongs, which makes `type` read as `txt 0` and the row seven
+# fields wide.
+#
+# What the fix changes for `vdjdb-web`, read from the consumer rather than assumed
+# (`DatabaseColumnInfo.scala:37`, `DatabaseMetadata.scala:53-66`): `autocomplete == "1"` is what
+# copies a column's full value list into the metadata JSON sent to the browser, and `data.type`,
+# `title` and `comment` are read straight off the row. All four of these columns carry
+# `visible = 0`, and `createFromInstance` drops every invisible column before serialising, so none
+# of those values ever reaches a client. The shift is inert there; removing it stops four value
+# lists being materialised and thrown away.
+[[rule]]
+id = "meta-web-method-field-shift"
+file = "vdjdb.meta.txt"
+column = "line"
+from = "web.method\ttxt 0\t0\t1\t0\tfactor\tInternal"
+to = "web.method\ttxt\t0\t0\t0\tfactor\tInternal\tInternal: coarse identification method for fast filtering."
+rows = 1
+
+[[rule]]
+id = "meta-web-method-seq-field-shift"
+file = "vdjdb.meta.txt"
+column = "line"
+from = "web.method.seq\ttxt\t0\t0\t1\t0\tfactor\tInternal"
+to = "web.method.seq\ttxt\t0\t0\t0\tfactor\tInternal\tInternal: coarse sequencing method for fast filtering."
+rows = 1
+
+[[rule]]
+id = "meta-web-cdr3fix-nc-field-shift"
+file = "vdjdb.meta.txt"
+column = "line"
+from = "web.cdr3fix.nc\ttxt\t0\t0\t1\t0\tfactor\tInternal"
+to = "web.cdr3fix.nc\ttxt\t0\t0\t0\tfactor\tInternal\tInternal: CDR3 has non-canonical V or J anchor residues."
+rows = 1
+
+[[rule]]
+id = "meta-web-cdr3fix-unmp-field-shift"
+file = "vdjdb.meta.txt"
+column = "line"
+from = "web.cdr3fix.unmp\ttxt\t0\t0\t1\t0\tfactor\tInternal"
+to = "web.cdr3fix.unmp\ttxt\t0\t0\t0\tfactor\tInternal\tInternal: CDR3 could not be mapped onto V or J germline."
+rows = 1

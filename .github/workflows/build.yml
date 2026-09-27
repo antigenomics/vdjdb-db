@@ -25,9 +25,9 @@ on:
         type: string
         default: '"ubuntu-latest"'
   # PRs targeting master only. `master` receives merges from `dev` (and `hotfix/*`) and nothing
-  # else, so this is one build per release-ward merge -- and a *required* status check has to be
-  # able to run on the pull request it gates, or it blocks every PR forever. That trap is the whole
-  # reason the ROADMAP applies protections last.
+  # else, so this is one build per release-ward merge -- and a required status check has to be
+  # able to run on the pull request it gates, or it blocks every PR forever. That is why the
+  # ROADMAP applies branch protections last.
   pull_request:
     branches: [master]
   push:
@@ -112,7 +112,7 @@ jobs:
           path: summary/vdjdb_summary_embed.html
           retention-days: 30
 
-      # Both the release comparison and tests/release/ need a real release to compare against,
+      # Both the release comparison and tests/release/ need a published release to compare with,
       # and until 2026-09-27 neither had one: VDJDB_REFERENCE_ZIP was set in no workflow, so all 17
       # checks in tests/release/test_reference_contract.py skipped everywhere, including this
       # scheduled build. Those are the checks that stop a column moving in the motif files, which
@@ -125,17 +125,18 @@ jobs:
           curl -fsSL -o reference.zip "$(head -1 latest-version.txt)"
           ls -l reference.zip
 
-      # Only the three data tables. The two *.meta.txt files still carry 15 cell differences that
-      # rules/expected_diffs.toml does not declare -- the added TCR_hash row, the moved vdjdb.score
-      # row and the reordered v.end/j.start rows, all of them intended, none of them written down.
-      # Declaring a reordered row cell by cell is awkward, and what actually matters about the meta
-      # files is that they agree with the table header, which tests/release/ checks directly. So
-      # they are excluded here rather than left to fail. Measured 2026-09-27: with --only the three
-      # tables every declared rule fires at its declared count and the comparison passes.
+      # The five members the assembly stage produces. The motif files, the dashboard fragment,
+      # LICENSE and latest-version.txt come from later steps, so `--only` names what exists at this
+      # point rather than letting the file-set pass fail on a candidate that is partial on purpose.
+      #
+      # Both metadata files are compared here as of 2026-09-27. They are keyed on the column name
+      # rather than the line number, so the inserted TCR_hash row reads as one added row instead of
+      # eight changed lines, and rules/expected_diffs.toml declares the rest. Measured on all five:
+      # every declared rule fires at its declared count and the comparison exits 0.
       - name: Compare against the last release
         run: |
           uv run vdjdb diff reference.zip out/legacy \
-            --only vdjdb.txt,vdjdb.slim.txt,vdjdb_full.txt \
+            --only vdjdb.txt,vdjdb.slim.txt,vdjdb_full.txt,vdjdb.meta.txt,vdjdb.slim.meta.txt \
             --report out/reports/release-diff.md
 
       - name: Tests

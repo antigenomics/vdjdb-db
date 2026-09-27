@@ -1,7 +1,7 @@
-"""The difference ledger, on fixtures small enough to reason about.
+"""The release comparison, on fixtures small enough to reason about.
 
-The ledger is the acceptance gate for every later phase, so its own failure modes matter more than
-most: a ledger that under-reports would wave a regression through, and one that over-reports would
+The comparison is the acceptance gate for every later phase, so its own failure modes matter more
+than most: one that under-reports would wave a regression through, and one that over-reports would
 be switched off.
 """
 from __future__ import annotations
@@ -293,11 +293,11 @@ def _digest(r) -> str:
     return hashlib.sha256(repr(cells).encode()).hexdigest()
 
 
-def test_the_ledger_is_reproducible_not_merely_repeatable(tmp_path: Path) -> None:
-    """Same inputs must give the same ledger, in every process and on every host.
+def test_the_comparison_is_reproducible_not_merely_repeatable(tmp_path: Path) -> None:
+    """Same inputs must give the same report, in every process and on every host.
 
     An unstable sort over groups with identical labels once made this vary -- 158, 152, 158 changed
-    rows across three runs of the same comparison -- and a ledger that is not reproducible cannot
+    rows across three runs of the same comparison -- and a comparison that is not reproducible cannot
     gate anything, because a rule's declared count is meaningless against a moving measurement.
     """
     ref = _paired(tmp_path, "a", [("1", "CASSA", "TRA"), ("1", "CASSB", "TRB"),
@@ -307,7 +307,7 @@ def test_the_ledger_is_reproducible_not_merely_repeatable(tmp_path: Path) -> Non
                                    ("8", "CASSA", "TRA"), ("8", "CASSB", "TRB"),
                                    ("7", "CASSD", "TRA"), ("7", "CASSE", "TRB")])
     digests = {_digest(diff(ref, cand)) for _ in range(5)}
-    assert len(digests) == 1, "the ledger is not reproducible"
+    assert len(digests) == 1, "the comparison is not reproducible"
 
 
 def test_only_restricts_the_comparison(tmp_path: Path, base: list[str]) -> None:
@@ -356,3 +356,95 @@ def test_a_rename_scoped_to_another_file_does_not_fire():
     df = pl.DataFrame({"v.segm": ["X"]})
     out, counts = _apply_renames("vdjdb.txt", df, [Rename(("v.segm",), "X", "Y", ("slim.txt",))])
     assert out["v.segm"].to_list() == ["X"] and counts == {}
+
+
+# --------------------------------------------------------------------------------------------
+# The metadata files
+#
+# One row per column of the table they describe, so the row identity is the column name and not
+# the line number. Comparing them by position reported the single inserted `TCR_hash` row as eight
+# changed lines, because every row after it shifted down one, and attributing that needed eight
+# declarations describing one event.
+# --------------------------------------------------------------------------------------------
+
+META_HEADER = "name\ttype\tvisible\tsearchable\tautocomplete\tdata.type\ttitle\tcomment"
+
+#: The tail of the shipped metadata, verbatim: `vdjdb.score` before the four internal columns, and
+#: `web.method` with a space where its first tab belongs.
+META_ROWS = [
+    "cdr3fix\ttxt\t1\t0\t0\tfixer.json\tCDR3fix\tDetails on CDR3 sequence fixing.",
+    "vdjdb.score\ttxt\t1\t1\t0\tuint\tScore\tVDJdb confidence score.",
+    "web.method\ttxt 0\t0\t1\t0\tfactor\tInternal",
+    "web.method.seq\ttxt\t0\t0\t1\t0\tfactor\tInternal",
+]
+
+
+def _meta_bundle(tmp: Path, name: str, rows: list[str]) -> Path:
+    d = tmp / name
+    d.mkdir()
+    (d / "vdjdb.meta.txt").write_text(META_HEADER + "\n" + "\n".join(rows) + "\n")
+    return d
+
+
+def _meta_report(tmp: Path, ref: list[str], cand: list[str]):
+    r = diff(_meta_bundle(tmp, "ref", ref), _meta_bundle(tmp, "cand", cand))
+    return r, r.files[0]
+
+
+def test_an_inserted_metadata_row_is_one_added_row(tmp_path: Path) -> None:
+    """The regression this keying exists for: inserting one row shifted seven others down."""
+    added = "TCR_hash\ttxt\t0\t0\t0\ttxt\tTCR hash\tSHA256 hash of TCR structure."
+    r, f = _meta_report(tmp_path, META_ROWS, [META_ROWS[0], added, *META_ROWS[1:]])
+    assert (f.only_in_reference, f.only_in_candidate) == (0, 1)
+    assert f.changed_rows == 0
+    assert not r.unattributed
+
+
+def test_a_moved_metadata_row_is_not_a_difference(tmp_path: Path) -> None:
+    """Order is gated by the header, not here: a reordered data header fails `_compare_table`, and
+    `test_header_is_the_name_column_of_the_metadata` ties the metadata to that header."""
+    moved = [META_ROWS[1], META_ROWS[0], *META_ROWS[2:]]
+    r, f = _meta_report(tmp_path, META_ROWS, moved)
+    assert f.changed_rows == 0
+    assert (f.only_in_reference, f.only_in_candidate) == (0, 0)
+    assert r.ok
+    assert not f.raw_equal, "the bytes did change, and the report says so"
+
+
+def test_a_changed_attribute_is_one_cell_carrying_the_whole_row(tmp_path: Path) -> None:
+    retitled = META_ROWS[1].replace("\tScore\t", "\tInfo\t")
+    r, f = _meta_report(tmp_path, META_ROWS, [META_ROWS[0], retitled, *META_ROWS[2:]])
+    assert f.changed_rows == 1
+    cell, = f.cells
+    assert (cell.column, cell.key) == ("line", "vdjdb.score")
+    assert cell.old == META_ROWS[1] and cell.new == retitled
+    assert not r.ok, "an undeclared metadata change must fail"
+
+
+def test_the_ragged_shipped_row_is_still_keyed_on_its_name(tmp_path: Path) -> None:
+    """`web.method` has seven fields, not eight, since a hand edit replaced a tab with a space.
+
+    Parsing the metadata as a table would have to choose between erroring and silently padding it,
+    which is why the comparison splits off field 1 and leaves the rest of the line alone.
+    """
+    fixed = "web.method\ttxt\t0\t0\t0\tfactor\tInternal\tInternal: coarse identification method."
+    _, f = _meta_report(tmp_path, META_ROWS, [*META_ROWS[:2], fixed, META_ROWS[3]])
+    assert f.changed_rows == 1
+    assert f.cells[0].key == "web.method"
+    assert f.cells[0].old.count("\t") == 6 and f.cells[0].new.count("\t") == 7
+
+
+def test_a_dropped_metadata_row_is_counted(tmp_path: Path) -> None:
+    """A column `vdjdb-web` builds its schema from, gone: the failure hard rule 2 exists to stop."""
+    r, f = _meta_report(tmp_path, META_ROWS, META_ROWS[:-1])
+    assert (f.only_in_reference, f.only_in_candidate) == (1, 0)
+    assert not r.ok
+
+
+def test_metadata_cells_come_out_in_a_stable_order(tmp_path: Path) -> None:
+    """Rule 7: a set intersection has no order of its own, so the keys are sorted before use."""
+    changed = [row.replace("\tInternal", "\tinternal") if "web" in row else row
+               for row in META_ROWS]
+    ref, cand = _meta_bundle(tmp_path, "ref", META_ROWS), _meta_bundle(tmp_path, "cand", changed)
+    runs = [[c.key for c in diff(ref, cand).files[0].cells] for _ in range(3)]
+    assert runs[0] == runs[1] == runs[2] == ["web.method", "web.method.seq"]

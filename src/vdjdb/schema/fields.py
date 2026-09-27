@@ -11,14 +11,14 @@ drifted apart. Everything here is a projection of :data:`FIELDS`:
 * the four positional column orders the release and ``vdjdb-web`` depend on
 * the docs tables and the AIRR mapping, in later phases
 
-Three defects in the shipped metadata are **fixed here, deliberately**, each with a declared rule in
+Three defects in the shipped metadata are fixed here deliberately, each with a declared rule in
 ``rules/expected_diffs.toml``:
 
-1. no ``TCR_hash`` row, though ``vdjdb.txt`` has carried the column for years;
+1. no ``TCR_hash`` row, though ``vdjdb.txt`` has had the column for years;
 2. ``vdjdb.score`` and ``TCR_hash`` placed after ``cdr3fix`` in the metadata but before ``method`` in
-   the data -- so the metadata does not describe the file it belongs to, in the release *and* in
+   the data -- so the metadata does not describe the file it belongs to, in the release and in
    production;
-3. the four ``web.*`` rows carry one value too many, landing ``0`` in ``data.type``, ``factor`` in
+3. the four ``web.*`` rows have one value too many, landing ``0`` in ``data.type``, ``factor`` in
    ``title`` and ``Internal`` in ``comment``. Corrected to ``data.type = factor``. They are
    ``visible = 0``, so nothing user-facing moves.
 
@@ -47,9 +47,9 @@ class Field:
     comment: str = ""
     #: The AIRR field this column maps to, or empty. Declared here so the AIRR emitter and the
     #: docs mapping table are two projections of one statement rather than two hand-written lists.
-    #: Empty is not "no counterpart exists" but "none that is the *same* quantity": VDJdb's
+    #: Empty is not "no counterpart exists" but "none that is the same quantity": VDJdb's
     #: `v.end` is an amino-acid offset in junction space and AIRR's `v_sequence_end` a nucleotide
-    #: offset in sequence space, so declaring them equal would be a lie (see `convert.coords`).
+    #: offset in sequence space, so declaring them equal would be wrong (see `convert.coords`).
     airr: str = ""
 
     def meta_row(self) -> str:
@@ -91,7 +91,13 @@ FIELDS: dict[str, Field] = dict([
        comment="VDJdb confidence score, the higher is the score the more confidence we have in the "
                "antigen specificity annotation of a given TCR clonotype/clone. Zero score indicates "
                "that there are insufficient method details to draw any conclusion."),
-    _f("TCR_hash", searchable=0, autocomplete=0, data_type=TXT, title="TCR hash",
+    # `visible=0` is what production serves (`vdjdb-web/test/resources/database/vdjdb.meta.txt`),
+    # and this row reproduces that one field for field. `vdjdb-web` overrides the flag anyway --
+    # `DatabaseMetadata.ForcedColumns` copies `visible = true` onto it so the structure viewer can
+    # read the hash, and the search page then hides the column again
+    # (`search-table.service.ts:198`) -- so the value here only tells a standalone reader that the
+    # hash is not a column to display.
+    _f("TCR_hash", visible=0, searchable=0, autocomplete=0, data_type=TXT, title="TCR hash",
        comment="SHA256 hash of TCR structure used for structure visualization."),
     _f("method", searchable=0, autocomplete=0, data_type="method.json", title="Method",
        comment="Details on method used to assay TCR specificity."),
@@ -112,15 +118,25 @@ FIELDS: dict[str, Field] = dict([
        comment="Internal: CDR3 could not be mapped onto V or J germline."),
 
     # -- evidence, served by production vdjdb-web; owned by the new format (ROADMAP 9) ---------
-    _f("evidence.validation.same.study", title="Validation same study",
+    # All five carry `0/0/0`, reproducing the metadata production serves. `autocomplete` is the one
+    # that has an effect: `DatabaseColumnInfo.scala:37` copies a column's whole value list into the
+    # metadata JSON sent to the browser when it is `1`, and unlike the `web.*` columns these five
+    # survive the invisible-column filter, because `DatabaseMetadata.ForcedColumns` forces them
+    # through for the Evidence badges. They are badge inputs, not search facets.
+    _f("evidence.validation.same.study", visible=0, searchable=0, autocomplete=0,
+       title="Validation same study",
        comment="Antigen specificity validated within the same study."),
-    _f("evidence.validation.independent", title="Validation independent",
+    _f("evidence.validation.independent", visible=0, searchable=0, autocomplete=0,
+       title="Validation independent",
        comment="Antigen specificity independently validated in another study."),
-    _f("evidence.structure.native", title="Structure native",
+    _f("evidence.structure.native", visible=0, searchable=0, autocomplete=0,
+       title="Structure native",
        comment="Native (experimental) TCR-pMHC structure available."),
-    _f("evidence.structure.contacts", title="Structure model with contacts",
+    _f("evidence.structure.contacts", visible=0, searchable=0, autocomplete=0,
+       title="Structure model with contacts",
        comment="Structural model with annotated TCR-pMHC contacts available."),
-    _f("evidence.structure.quality", title="Structure good quality model",
+    _f("evidence.structure.quality", visible=0, searchable=0, autocomplete=0,
+       title="Structure good quality model",
        comment="Good-quality structural model available."),
 
     # -- CDR3 geometry, slim and full only ------------------------------------------------------
@@ -168,7 +184,7 @@ FIELDS: dict[str, Field] = dict([
     # These have no ``.meta.txt`` of their own: ``Motifs.scala`` hands Tablesaw a fixed
     # ``Array[ColumnType]`` and never reads a header. Declared here so the docs tables and the
     # positional-width tests have one source, and so a renamed column fails a test rather than
-    # silently mistyping a whole file.
+    # mistyping the file with no error.
     _f("cdr3aa", type=SEQ, data_type="cdr3", title="CDR3",
        comment="CDR3 amino acid sequence of the cluster member."),
     _f("x", data_type="float", title="x", comment="Layout x coordinate of the member in the cluster graph."),
@@ -209,7 +225,7 @@ FIELDS: dict[str, Field] = dict([
        comment="Sequence-logo letter height against the background, freq * I.norm."),
 
     # -- the definitive tables (ROADMAP phase 6) -------------------------------------------------
-    # ``records``, ``chains`` and ``evidence`` *are* the database; every shipped file is a
+    # ``records``, ``chains`` and ``evidence`` are the database; every shipped file is a
     # projection of them. Their columns are declared here with everything else so that one registry
     # describes every table, and so a rename fails a test instead of drifting.
     _f("record_id", searchable=0, autocomplete=0, title="Record id",
@@ -417,7 +433,7 @@ RESTRICTION_COLUMNS: tuple[str, ...] = (
 )
 
 #: ``evidence`` -- one row per piece of evidence, PK ``(record_id, evidence_id)``. Long rather than
-#: wide: a record may carry any number of pieces of evidence of any number of kinds, and the wide
+#: wide: a record may have any number of pieces of evidence of any number of kinds, and the wide
 #: form would be mostly empty.
 EVIDENCE_TABLE_COLUMNS: tuple[str, ...] = (
     "record_id", "gene", "evidence_id", "evidence_type",
@@ -441,12 +457,12 @@ MOTIF_PWMS_COLUMNS: tuple[str, ...] = (
     "antigen.gene", "antigen.species", "mhc.a", "mhc.b", "mhc.class",
 )
 
-#: Present in real chunks and silently discarded by the legacy build. Kept from phase 6 on.
+#: Present in submitted chunks and discarded by the legacy build with no error. Kept from phase 6.
 KEPT_CURATION_COLUMNS: tuple[str, ...] = (
     "chunk.id", "submitter", "comment", "meta.subset.frequency", "method.pairing",
 )
 
-#: Per-chunk deduplication key. **Not** the score signature, which is a different 11-column key
+#: Per-chunk deduplication key. Not the score signature, which is a different 11-column key
 #: sharing the name ``SIGNATURE_COLS`` in the legacy code -- two keys, one name.
 CHUNK_DEDUP_KEY: tuple[str, ...] = (
     *COMPLEX_COLUMNS,
@@ -511,13 +527,13 @@ def render_slim_meta(table: str = "slim") -> str:
 
 
 def schema_json(dtypes: dict[str, dict[str, str]] | None = None, *, indent: int = 2) -> str:
-    """The whole registry, machine-readably: every column, its attributes and where it appears.
+    """The full registry, machine-readably: every column, its attributes and where it appears.
 
     Ships in the new-format bundle as ``vdjdb.schema.json``. A consumer reading ``records.parquet``
-    can answer "what is this column, and which other tables carry it" without scraping the docs.
+    can answer "what is this column, and which other tables have it" without scraping the docs.
 
-    ``dtypes`` maps table name -> column name -> the physical dtype the build actually wrote, so the
-    declared schema and the shipped files cannot disagree: it is read off the frames, not asserted.
+    ``dtypes`` maps table name -> column name -> the physical dtype the build wrote, so the declared
+    schema and the shipped files cannot disagree: it is read off the frames, not asserted.
     """
     import json
 
