@@ -42,7 +42,7 @@ id = "legacy-melt-ambiguity-meta"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "structure.id"
-rows = 16
+rows = 8
 
 
 # The canonical complex.id numbering labels each group by its members' identities, so the same
@@ -51,13 +51,13 @@ rows = 16
 id = "legacy-melt-ambiguity-complex-id"
 file = "vdjdb.txt"
 column = "complex.id"
-rows = 170353
+rows = 178661
 
 [[rule]]
 id = "legacy-melt-ambiguity-cdr3fix"
 file = "vdjdb.txt"
 column = "cdr3fix"
-rows = 18076
+rows = 17985
 
 # --- phase 4, feature/pipeline-core -----------------------------------------------------------
 # jStart == -1 is truthy in Python, where the Groovy tested jStart > -1, so unmapped records are
@@ -68,7 +68,7 @@ file = "vdjdb.txt"
 column = "web.cdr3fix.unmp"
 from = "no"
 to = "yes"
-rows = 148
+rows = 147
 
 # pandas type coercion on read. The new reader keeps every cell as the string a curator typed, so
 # these are all corrections of a lossy round-trip -- the reference value is the damaged one.
@@ -87,7 +87,7 @@ rows = 10117
 id = "pandas-float-clone-id"
 file = "vdjdb_full.txt"
 column = "meta.clone.id"
-rows = 47
+rows = 22
 
 [[rule]]
 id = "pandas-int-subject-id"
@@ -106,7 +106,7 @@ rows = 187
 id = "pandas-float-frequency-json"
 file = "vdjdb.txt"
 column = "method"
-rows = 1648
+rows = 1644
 
 # `NA` is influenza neuraminidase, a real gene symbol. pandas read it as a missing value, and
 # `if NaN:` is True in Python, so the legacy assigned the missing value and blanked the gene.
@@ -114,7 +114,7 @@ rows = 1648
 id = "pandas-na-gene-symbol"
 file = "vdjdb_full.txt"
 column = "antigen.gene"
-rows = 10349
+rows = 10348
 
 # The same pandas coercions seen through the meta JSON of vdjdb.txt -- and there they are worse,
 # because the damage reaches the JSON *type*. pandas inferred these identifier columns as numbers,
@@ -134,7 +134,7 @@ id = "json-id-type-epitope"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "epitope.id"
-rows = 10927
+rows = 10929
 
 [[rule]]
 id = "json-id-type-replica"
@@ -148,13 +148,13 @@ id = "json-id-type-clone"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "clone.id"
-rows = 89
+rows = 64
 
 [[rule]]
 id = "pandas-na-gene-symbol-melted"
 file = "vdjdb.txt"
 column = "antigen.gene"
-rows = 14967
+rows = 14966
 
 # --- declared row deltas -----------------------------------------------------------------------
 # vdjdb.slim.txt groups on antigen.gene, so restoring the influenza neuraminidase symbol `NA` --
@@ -162,8 +162,8 @@ rows = 14967
 # is no cell to attribute: one row leaves and another arrives.
 [[row_delta]]
 file = "vdjdb.slim.txt"
-added = 9167
-removed = 9206
+added = 9161
+removed = 9286
 note = "pandas-na-gene-symbol seen through the slim grouping key (750/809) + the arda markup engine; see the arda-cdr3fix block below"
 
 # The melt ambiguity of ROADMAP section 14, seen as rows rather than cells: where two
@@ -171,8 +171,8 @@ note = "pandas-na-gene-symbol seen through the slim grouping key (750/809) + the
 # these; the rest are the markup engine, see the block at the end of this file.
 [[row_delta]]
 file = "vdjdb.txt"
-added = 11384
-removed = 11384
+added = 11378
+removed = 11476
 note = "legacy melt ambiguity (780) + the arda markup engine naming the segment the curator reported (10,605); see the arda-cdr3fix block below"
 
 
@@ -184,13 +184,13 @@ note = "legacy melt ambiguity (780) + the arda markup engine naming the segment 
 id = "nomenclature-slim-complex-id-renumber"
 file = "vdjdb.slim.txt"
 column = "complex.id"
-rows = 115209
+rows = 117583
 
 [[rule]]
 id = "nomenclature-vend-full-alpha"
 file = "vdjdb_full.txt"
 column = "cdr3fix.alpha"
-rows = 10568
+rows = 10477
 
 [[rule]]
 id = "nomenclature-vend-full-beta"
@@ -202,13 +202,13 @@ rows = 7389
 id = "nomenclature-vend-slim"
 file = "vdjdb.slim.txt"
 column = "v.end"
-rows = 5415
+rows = 5412
 
 [[rule]]
 id = "nomenclature-jstart-slim"
 file = "vdjdb.slim.txt"
 column = "j.start"
-rows = 11273
+rows = 11194
 
 [[rule]]
 id = "nomenclature-now-mapped"
@@ -216,19 +216,19 @@ file = "vdjdb.txt"
 column = "web.cdr3fix.unmp"
 from = "yes"
 to = "no"
-rows = 5299
+rows = 5296
 
 [[rule]]
 id = "nomenclature-tcr-hash-default"
 file = "vdjdb.txt"
 column = "TCR_hash"
-rows = 6663
+rows = 6767
 
 [[rule]]
 id = "nomenclature-tcr-hash-slim"
 file = "vdjdb.slim.txt"
 column = "TCR_hash"
-rows = 5212
+rows = 5291
 
 [[rule]]
 id = "nomenclature-tcr-hash-full"
@@ -241,7 +241,7 @@ id = "nomenclature-samples-found"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "samples.found"
-rows = 1430
+rows = 1727
 
 [[rule]]
 id = "nomenclature-d-multicall-order"
@@ -257,7 +257,7 @@ rows = 55
 id = "nomenclature-score-regrouped-default"
 file = "vdjdb.txt"
 column = "vdjdb.score"
-rows = 122
+rows = 123
 
 [[rule]]
 id = "nomenclature-score-regrouped-full"
@@ -2912,8 +2912,8 @@ files = "vdjdb.slim.txt"
 # END generated renames
 [[row_delta]]
 file = "vdjdb_full.txt"
-added = 10871
-removed = 10871
+added = 10963
+removed = 10963
 note = "declared corrections whose reference value is not injective (613) + the arda markup engine; see the arda-cdr3fix block below"
 
 
@@ -3087,3 +3087,13 @@ rows = 3
 #
 # `chains` keeps `v.segm.submitted` and `v.segm.arda` beside the shipped `v.segm`, so this is
 # auditable from the tables rather than only from this comment.
+
+# --- proofread/561: 98 alpha chains leave, and the records keep their beta ----------------------
+# `cdr3.alpha` held a copy of the beta CDR3 on 98 records of three references (#561), so it was
+# cleared. A chain row needs a CDR3, so those 98 alpha chains leave the chain table and `vdjdb.txt`,
+# which melts one row per chain, is 98 rows shorter: 284,546 -> 284,448. `vdjdb_full.txt` is
+# unchanged at 192,753 because it is one row per record and every one of those records keeps its
+# beta chain, which is the point of clearing the cell rather than dropping the row.
+#
+# The 98 are inside the `removed` count declared for `vdjdb.txt` above, not a separate rule: there is
+# no changed cell to attribute when a row simply is not there.
