@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from vdjdb.compare.diff import Bundle, Rule, diff, load_rules, render
+from vdjdb.compare.diff import Bundle, Rule, diff, load_row_deltas, load_rules, render
 
 HEADER = ("complex.id\tgene\tcdr3\tv.segm\tj.segm\tspecies\tmhc.a\tmhc.b\tmhc.class\t"
           "antigen.epitope\tantigen.gene\tantigen.species\treference.id\tvdjdb.score\tTCR_hash\t"
@@ -448,3 +448,27 @@ def test_metadata_cells_come_out_in_a_stable_order(tmp_path: Path) -> None:
     ref, cand = _meta_bundle(tmp_path, "ref", META_ROWS), _meta_bundle(tmp_path, "cand", changed)
     runs = [[c.key for c in diff(ref, cand).files[0].cells] for _ in range(3)]
     assert runs[0] == runs[1] == runs[2] == ["web.method", "web.method.seq"]
+
+
+def test_two_row_deltas_for_one_file_raise_rather_than_one_winning(tmp_path):
+    """The worst failure this file could have: a silent overwrite that still reads PASS.
+
+    A dict comprehension let the later declaration win, so a curator declaring the rows their chunk
+    adds would have erased the declaration covering the code deviations, and the comparison would have
+    passed on an accounting that no longer described both.
+    """
+    rules = tmp_path / "rules.toml"
+    rules.write_text(
+        '[[row_delta]]\nfile = "vdjdb.txt"\nadded = 780\nremoved = 780\nnote = "melt"\n\n'
+        '[[row_delta]]\nfile = "vdjdb.txt"\nadded = 40\nremoved = 0\nnote = "a chunk"\n')
+    with pytest.raises(ValueError, match="two \\[\\[row_delta\\]\\] declarations"):
+        load_row_deltas(rules)
+
+
+def test_one_row_delta_per_file_loads(tmp_path):
+    rules = tmp_path / "rules.toml"
+    rules.write_text('[[row_delta]]\nfile = "vdjdb.txt"\nadded = 820\nremoved = 780\n'
+                     '\n[[row_delta]]\nfile = "vdjdb.slim.txt"\nadded = 790\nremoved = 816\n')
+    got = load_row_deltas(rules)
+    assert set(got) == {"vdjdb.txt", "vdjdb.slim.txt"}
+    assert (got["vdjdb.txt"].added, got["vdjdb.txt"].removed) == (820, 780)
