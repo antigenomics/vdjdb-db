@@ -23,11 +23,14 @@ def repo_root(start: Path | None = None) -> Path:
 
 @dataclass(frozen=True, slots=True)
 class Paths:
-    """Every input and output location, derived from one root."""
+    """The input directories, derived from one root.
+
+    Only the three below: an output path is a CLI argument, so a property for it was a
+    fourth spelling of `--out` that no caller ever reached for.
+    """
 
     root: Path
 
-    # inputs
     @property
     def chunks(self) -> Path:
         return self.root / "chunks"
@@ -39,24 +42,6 @@ class Paths:
     @property
     def res(self) -> Path:
         return self.root / "res"
-
-    @property
-    def proofreading(self) -> Path:
-        return self.root / "proofreading"
-
-    @property
-    def summary(self) -> Path:
-        return self.root / "summary"
-
-    # outputs -- `out/`, not `build/`: `build/` is already gitignored as a Python packaging
-    # convention and reusing it for release artifacts is confusing. See ROADMAP.md.
-    @property
-    def out(self) -> Path:
-        return self.root / "out"
-
-    @property
-    def reports(self) -> Path:
-        return self.out / "reports"
 
     @classmethod
     def discover(cls) -> Paths:

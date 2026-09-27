@@ -114,7 +114,8 @@ def admissible(ctx: dict, row: dict, *, purity_floor: float | None = None) -> bo
     """The four-axis rule of docs/denoising.md 7.1.
 
     ``purity_floor`` replaces the legacy-relative purity/precision bar with an absolute one when
-    given -- the 0.93 relaxation. Q and epitope coverage stay legacy-relative either way.
+    given -- the 0.94 floor of docs/clustering.md section 8.1. Q and epitope coverage stay
+    legacy-relative either way.
     """
     leg = ctx["legacy"]
     pbar = leg["purity"] if purity_floor is None else purity_floor

@@ -53,7 +53,7 @@ autodoc_mock_imports = ["typer", "arda", "vdjtools", "mir", "sklearn", "igraph",
 intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
 
 templates_path = ["_templates"]
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "tuning", "README.md"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "tuning"]
 source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
 
 html_baseurl = "https://docs.isalgo.dev/vdjdb-db/"

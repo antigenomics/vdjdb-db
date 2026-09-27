@@ -1,7 +1,6 @@
 """The ``vdjdb`` command.
 
-Subcommands land as their ROADMAP phase does; unimplemented ones exit 2 with the phase that
-delivers them rather than a traceback, so ``vdjdb --help`` is an honest map of what works today.
+Every subcommand is implemented; ``vdjdb --help`` is the whole surface.
 """
 from __future__ import annotations
 
@@ -18,22 +17,6 @@ app = typer.Typer(
     no_args_is_help=True,
     add_completion=False,
 )
-
-# subcommand -> the ROADMAP phase that implements it
-_PENDING = {
-    "motifs": "10-11 (feature/motifs-*)",
-}
-
-
-def _pending(name: str) -> None:
-    phase = _PENDING[name]
-    typer.secho(
-        f"`vdjdb {name}` is not implemented yet — ROADMAP phase {phase}.",
-        fg=typer.colors.YELLOW,
-        err=True,
-    )
-    raise typer.Exit(2)
-
 
 @app.command()
 def version() -> None:
