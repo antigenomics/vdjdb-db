@@ -4,32 +4,33 @@ The second motif method, run beside :mod:`vdjdb.motifs.tcrnet` rather than inste
 asks whether a clonotype has more neighbours than a background repertoire explains, which only sees
 sequences that are literally one substitution apart. TCREMP embeds each clonotype as its distance to
 a fixed prototype panel and clusters in that space, so it groups receptors that are similar in a way
-an edit distance does not express. Measured on the benchmark cohort, that is worth roughly 2.4x the
+an edit distance does not express. Measured on the benchmark cohort, that gives roughly 2.4x the
 retention at comparable purity (ROADMAP section 8.2).
 
-Four things here are measured decisions, not defaults.
+Four choices here are measured, not defaults.
 
-**Chunking is mandatory, not an optimisation.** A single-shot ``embed`` -> ``StandardScaler`` ->
-``PCA`` on human TRB peaks at **9.77 GB**, and 12.41 GB if the scaler is fitted on the full matrix;
+Chunking is required, not an optimisation. A single-shot ``embed`` -> ``StandardScaler`` ->
+``PCA`` on human TRB peaks at 9.77 GB, and 12.41 GB if the scaler is fitted on the full matrix;
 that OOMs a 16 GB runner alongside the rest of the build. The scaler and the PCA are fitted on a
-seeded :data:`FIT_SAMPLE` subsample and every chunk is reduced to 50 dimensions **as it is embedded**,
-so the wide ``(n, 3 * n_prototypes)`` matrix never exists whole: peak is one chunk, ~480 MB at 2,000
-prototypes, against 22 MB for the entire reduced result. Chunks run sequentially, one internally
-threaded ``embed()`` each -- never a worker pool (CLAUDE.md hard rule 3, ROADMAP section 8.8).
+seeded :data:`FIT_SAMPLE` subsample and every chunk is reduced to 50 dimensions as it is embedded,
+so the wide ``(n, 3 * n_prototypes)`` matrix is never materialised in full: peak is one chunk,
+~480 MB at 2,000 prototypes, against 22 MB for the reduced result. Chunks run sequentially, one
+internally threaded ``embed()`` each -- never a worker pool (CLAUDE.md hard rule 3, ROADMAP
+section 8.8).
 
-**Kneedle is dead at production scale and is not in the operating path.** On pooled human TRB,
+Kneedle is degenerate at production scale and is not in the operating path. On pooled human TRB,
 112,983 clonotypes, it returns knee 1 -- index 1 of 112,983, fraction 0.000 -- so the `floor_frac`
-guard fires every time and the rule that actually runs is ``eps = coef * mean(1st-NN distance)``.
+guard fires every time and the rule that runs is ``eps = coef * mean(1st-NN distance)``.
 :func:`knee_eps_debug` keeps it as a cross-check; the method is not Kneedle-based and should not be
 described as such (ROADMAP section 8.3).
 
-**Pooled geometry, per-epitope scope.** ``eps`` is estimated once per chain from the pooled
+Pooled geometry, per-epitope scope. ``eps`` is estimated once per chain from the pooled
 k-distance curve and then DBSCAN runs per epitope. Re-estimating it on a per-epitope n of 30-300
-is exactly the degenerate regime the knee fails in. ⚠ Purity is then 1.000 *by construction*,
-because a cid cannot span epitopes -- that means cross-epitope contamination is impossible, not that
-none exists, and the pooled clustering is the honest measurement (ROADMAP section 8.4).
+is the degenerate regime the knee fails in. ⚠ Purity is then 1.000 by construction, because a cid
+cannot span epitopes -- that means cross-epitope contamination is impossible, not that none exists,
+and the pooled clustering is what is measured (ROADMAP section 8.4).
 
-**``coef`` is fitted on independent-study support, never on TCRvdb.** See :func:`fit_coef`.
+``coef`` is fitted on independent-study support, never on TCRvdb. See :func:`fit_coef`.
 """
 from __future__ import annotations
 
@@ -42,8 +43,8 @@ from ..config import SEED
 CHUNK = 20_000
 
 #: Clonotypes the ``StandardScaler`` and ``PCA`` are fitted on, drawn with :data:`SEED`. Re-fitted
-#: every build -- storing a fit would risk shipping one that no longer matches the data, and it
-#: buys minutes (CLAUDE.md hard rule 9).
+#: every build: a stored fit could be one that no longer matches the data, and refitting costs
+#: minutes (CLAUDE.md hard rule 9).
 FIT_SAMPLE = 25_000
 
 #: PCA dimensions. The benchmark's front-end, applied to every method so the representation is the
@@ -61,7 +62,7 @@ MIN_RECORDS = 30
 #: The species VDJdb infers motifs for, and their mirpy names. Human and mouse only.
 SPECIES: dict[str, str] = {"HomoSapiens": "human", "MusMusculus": "mouse"}
 
-#: ``method.identification`` substring marking a **display selection**. Those records are not
+#: ``method.identification`` substring marking a display selection. Those records are not
 #: independent natural observations -- a library selected against one pMHC yields thousands of
 #: receptors one substitution apart by construction -- and a display paper is a single
 #: ``reference.id``, so every one of its clonotypes contributes zero independently-replicated pairs
@@ -76,8 +77,8 @@ def cohort(chains: pl.DataFrame, records: pl.DataFrame, *,
     """The clustering cohort: one row per distinct clonotype-epitope pair, human and mouse.
 
     ``duplicate_count`` is how many records report that clonotype against that epitope. Epitopes
-    below ``min_records`` **records** -- not clonotypes -- are dropped, which is the benchmark
-    cohort's definition and what its per-chain counts are quoted over.
+    below ``min_records`` records -- not clonotypes -- are dropped, which is the benchmark cohort's
+    definition and what its per-chain counts are quoted over.
     """
     df = (chains
           .join(records.select("record_id", "species", "antigen.epitope"), on="record_id")
@@ -149,8 +150,8 @@ def chain_eps(X: np.ndarray, coef: float) -> float:
 def knee_eps_debug(X: np.ndarray, coef: float, k: int = 4, floor_frac: float = 0.40) -> dict:
     """Kneedle, as a diagnostic only. Reports the knee and whether the floor guard fired.
 
-    Kept so the claim in ROADMAP section 8.3 stays checkable rather than remembered. Nothing in the
-    operating path calls this.
+    Kept so the measurement in ROADMAP section 8.3 stays checkable. Nothing in the operating path
+    calls this.
     """
     from kneed import KneeLocator
     from sklearn.neighbors import NearestNeighbors
@@ -179,27 +180,26 @@ def knee(curve: np.ndarray, *, concave: bool = True, grid: int = 1000,
         x = linspace(0, 1, n)          y = (curve - min) / (max - min)
         knee = argmax(y - x)           strength = max(y - x)
 
-    which is Kneedle's difference curve stated directly, with **no polynomial fit**. That matters:
-    the reference implementation fits degree 10 and on pooled human TRB -- 112,983 clonotypes --
-    returns knee index 1, fraction 0.000. A degree-10 fit over 113k points oscillates, and the knee
-    it reports is the first oscillation, not a feature of the data.
+    which is Kneedle's difference curve stated directly, with no polynomial fit. The reference
+    implementation fits degree 10 and on pooled human TRB -- 112,983 clonotypes -- returns knee
+    index 1, fraction 0.000. A degree-10 fit over 113k points oscillates, and the knee it reports is
+    the first oscillation, not a feature of the data.
 
-    Three protections, each against an observed failure rather than an imagined one:
+    Three protections, each against an observed failure:
 
     * **Resample onto ``grid`` points first.** The fit is then independent of ``n``, so the same
-      curve shape gives the same knee whether it carries 300 points or 300,000. This is the one that
-      fixes the degree-10 oscillation.
+      curve shape gives the same knee at 300 points and at 300,000. This is the one that fixes the
+      degree-10 oscillation.
     * **``strength`` is the guard, not a separate test.** ``max(y - x)`` is exactly 0 for a straight
       line and rises with how sharp the corner is, so a curve with no knee reports it in the same
-      number that locates one. Below ``min_strength`` there is no knee to find -- which is the honest
-      answer for a near-linear k-distance curve, where the reference version returned an index
-      anyway.
+      number that locates one. Below ``min_strength`` there is no knee to find, which is the answer
+      for a near-linear k-distance curve; the reference version returned an index anyway.
     * **A knee pinned to either end is rejected** (``floor_frac`` / ``ceil_frac``). At the bottom it
       puts ``eps`` below the data and retention collapses to a few per cent; at the top it puts
       ``eps`` above every distance and the epitope percolates into one cluster.
 
-    ``degenerate`` is True when any of the three fires, and ``reason`` names which. The caller is
-    expected to fall back rather than to use a degenerate knee -- see :func:`chain_eps`.
+    ``degenerate`` is True when any of the three fires, and ``reason`` names which. The caller
+    should fall back rather than use a degenerate knee -- see :func:`chain_eps`.
     """
     n = len(curve)
     if n < 3:
@@ -252,17 +252,17 @@ def hdbscan_labels(X: np.ndarray, epitopes: np.ndarray, min_cluster_size: int = 
                    method: str = "eom") -> np.ndarray:
     """HDBSCAN per epitope. Same contract as :func:`cluster_labels`: ``-1`` is noise, labels unique.
 
-    ⚠ **Measured, not enabled.** The shipped path is :func:`cluster_labels`; this is here so the
-    comparison is runnable rather than argued. Judge it on ``Q``
-    (:mod:`vdjdb.validate.qscore`) **and** the section 11.1 lift, never on lift alone -- density
-    methods buy lift by shattering, and shattering is the failure mode ``Q`` exists to catch.
+    ⚠ Measured, not enabled. The shipped path is :func:`cluster_labels`; this is here so the
+    comparison is runnable. Judge it on ``Q`` (:mod:`vdjdb.validate.qscore`) and the section 11.1
+    lift, never on lift alone -- density methods buy lift by shattering, and shattering is the
+    failure mode ``Q`` exists to catch.
 
-    The reason to have it at all is that DBSCAN commits to **one radius for every epitope**, and
-    VDJdb's epitopes do not share a density: a display-selected library yields thousands of receptors
-    one substitution apart by construction (:data:`DISPLAY`, 29,688 of 192,753 records) while a
-    30-record epitope is sparse. HDBSCAN condenses a hierarchy and selects by cluster stability
-    instead, so there is no global radius to be wrong. It also folds ``min_samples`` and the
-    ``min_cluster`` post-filter into the single ``min_cluster_size``.
+    DBSCAN commits to one radius for every epitope, and VDJdb's epitopes do not share a density: a
+    display-selected library yields thousands of receptors one substitution apart by construction
+    (:data:`DISPLAY`, 29,688 of 192,753 records) while a 30-record epitope is sparse. HDBSCAN
+    condenses a hierarchy and selects by cluster stability instead, so there is no global radius to
+    be wrong. It also folds ``min_samples`` and the ``min_cluster`` post-filter into the single
+    ``min_cluster_size``.
 
     ``selection_epsilon`` is the anti-shatter knob -- subclusters closer than it are merged back --
     and ``method="leaf"`` is its opposite, taking every leaf of the condensed tree. Default ``"eom"``
@@ -296,15 +296,15 @@ def hdbscan_labels(X: np.ndarray, epitopes: np.ndarray, min_cluster_size: int = 
 #: first sweep stopped at 0.5 and every chain picked the grid edge, which is not a fit.
 COEF_GRID: tuple[float, ...] = (0.15, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.8, 2.1)
 
-#: **Fitted under the two-stage rule in ``docs/denoising.md`` section 7.1** -- admissible on ``Q``,
-#: purity, precision **and epitope coverage** against the shipped annotation, then ranked on the
+#: Fitted under the two-stage rule in ``docs/denoising.md`` section 7.1 -- admissible on ``Q``,
+#: purity, precision and epitope coverage against the shipped annotation, then ranked on the
 #: section 11.1 independent-study lift. Not the purity/retention criterion sections 31-34 used: that
 #: pair trades against itself and had no interior optimum (section 36).
 #:
-#: **The frontier is a single crossing, not a search.** Lift falls monotonically as ``coef`` widens
-#: while ``Q``, retention and epitope coverage all rise, so the answer is the *smallest* ``coef``
+#: The frontier is a single crossing, not a search. Lift falls monotonically as ``coef`` widens
+#: while ``Q``, retention and epitope coverage all rise, so the answer is the smallest ``coef``
 #: whose four admissibility quantities all clear the bar -- verified by probing the crossing at 0.05
-#: resolution rather than trusting a grid point. ``min_cluster`` 5 dominates 3 on lift, purity **and**
+#: resolution rather than trusting a grid point. ``min_cluster`` 5 dominates 3 on lift, purity and
 #: precision at every ``coef`` measured, so it is not a trade either.
 #:
 #: Measured on the ``cluster_members_tcremp.txt`` the build writes, over human clonotype-epitope pairs
@@ -318,29 +318,28 @@ COEF_GRID: tuple[float, ...] = (0.15, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9, 1.1, 1.3, 1.
 #: ======  =========  ======  ======  ======  ======  ======  ======  =========  =========
 #:
 #: Precision: TRA 0.8931 against legacy's 0.8567, TRB 0.9829 against 0.9756. Retention: TRA 0.2508
-#: against 0.2105, TRB 0.3747 against 0.3218. **Both chains improve on all five pooled axes and on
-#: epitope coverage** -- there is no cost to name here, unlike TCRNET's TRB cell.
+#: against 0.2105, TRB 0.3747 against 0.3218. Both chains improve on all five pooled axes and on
+#: epitope coverage, with no cost to name here, unlike TCRNET's TRB cell.
 #:
-#: ⚠ **TRB was ``coef`` 1.15 until the per-epitope breakdown was run, and that was wrong.** 1.15
-#: maximises pooled lift (4.490) and is admissible on ``Q``, purity and precision -- but it covers
-#: **88 of 178 epitopes against legacy's 103**, and drops from 42 to 36 epitopes where the clustering
-#: beats local chance. It clusters essentially the same *total* clonotypes (37,094 against 37,210)
-#: concentrated into fifteen fewer epitopes and 746 clusters instead of 1,074. An epitope with no
-#: motif gets no denoising, so that is a worse database bought with a better average. Coverage is now
-#: an admissibility axis for exactly this reason (``docs/denoising.md`` section 7.1), and 1.55 is the
-#: smallest ``coef`` clearing all four. The cost is pooled lift, 4.490 -> 3.585, still +25.6 % on
-#: legacy.
+#: ⚠ TRB was ``coef`` 1.15 until the per-epitope breakdown was run. 1.15 maximises pooled lift
+#: (4.490) and is admissible on ``Q``, purity and precision, but it covers 88 of 178 epitopes
+#: against legacy's 103, and drops from 42 to 36 epitopes where the clustering beats local chance.
+#: It clusters essentially the same total clonotypes (37,094 against 37,210) concentrated into
+#: fifteen fewer epitopes and 746 clusters instead of 1,074. An epitope with no motif gets no
+#: denoising, so that is a worse database bought with a better average. Coverage is an admissibility
+#: axis for that reason (``docs/denoising.md`` section 7.1), and 1.55 is the smallest ``coef``
+#: clearing all four. The cost is pooled lift, 4.490 -> 3.585, still +25.6 % on legacy.
 #:
-#: ⚠ **Lift is on the non-display denominator** (``docs/denoising.md`` section 6.1). The same TRB
-#: clustering reads **3.585** there and a much lower figure on the full cohort; display-selected
+#: ⚠ Lift is on the non-display denominator (``docs/denoising.md`` section 6.1). The same TRB
+#: clustering reads 3.585 there and a much lower figure on the full cohort; display-selected
 #: records contribute zero independently-replicated pairs while filling 29,692 of 116,053 clonotype
-#: slots. A lift figure without its cohort is not a number.
+#: slots. A lift figure needs its cohort named.
 #:
 #: ``n_components`` is 50 on both chains. Section 34 had TRB at 100; that came from the superseded
 #: purity criterion, and 50 is the benchmark's own front-end applied to every method, so the
 #: representation is the only variable.
 #:
-#: ⚠ The published **0.75 does not transfer** in either direction -- different embedding (standalone
+#: ⚠ The published 0.75 does not transfer in either direction -- different embedding (standalone
 #: `tcremp`, ~3,000 OLGA prototypes, Smith-Waterman; ROADMAP section 8.2).
 TUNED: dict[str, dict] = {
     "TRA": {"coef": 1.8, "min_cluster": 5, "n_components": 50},
@@ -367,10 +366,10 @@ def replicated(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
 def _objective(labels: np.ndarray, is_replicated: np.ndarray) -> dict:
     """Score "clustered" as a prediction of "independently replicated". F1, with its parts.
 
-    A clustering that finds real convergent selection should preferentially recover exactly the
+    A clustering that finds convergent selection should preferentially recover exactly the
     clonotypes a second laboratory saw. Clustering everything wins recall and loses precision;
-    clustering nothing scores zero. F1 peaks where the clustering is being selective about the
-    right thing -- which is the whole of the objective, and the only number the sweep ranks on.
+    clustering nothing scores zero. F1 peaks where the clustering is selective about the right
+    thing, and F1 is the only number the sweep ranks on.
     """
     clustered = labels >= 0
     tp = int((clustered & is_replicated).sum())
@@ -394,8 +393,8 @@ def fit_coef(cohort_chain: pl.DataFrame, X: np.ndarray, is_replicated: np.ndarra
              min_samples: int = MIN_SAMPLES) -> pl.DataFrame:
     """Sweep ``coef`` for one chain and score each value on :func:`_objective`.
 
-    ⚠ **Never fitted against TCRvdb.** That set is held out, touched once, and only in aggregate
-    (ROADMAP section 11.2). Tuning on it would destroy the only independent read this project has.
+    ⚠ Never fitted against TCRvdb. That set is held out, touched once, and only in aggregate
+    (ROADMAP section 11.2). Tuning on it would spend the project's one independent read.
 
     The mean 1st-NN distance is computed once -- it does not depend on ``coef`` -- so the sweep
     costs one DBSCAN pass per grid point, not one nearest-neighbour search per point.
@@ -419,21 +418,21 @@ def clusters(cohort_chain: pl.DataFrame, X: np.ndarray, eps: float | None = None
              labels: np.ndarray | None = None) -> pl.DataFrame:
     """Cluster one chain and label it in the shape :mod:`vdjdb.motifs.emit` expects.
 
-    Takes **either** ``eps`` -- per-epitope DBSCAN at that radius, the shipped path -- **or**
-    precomputed ``labels``. The second form is how an alternative algorithm is measured through this
-    same cid machinery instead of growing a second copy of it: :func:`hdbscan_labels` and
+    Takes either ``eps`` -- per-epitope DBSCAN at that radius, the shipped path -- or precomputed
+    ``labels``. The second form is how an alternative algorithm is measured through this same cid
+    machinery instead of growing a second copy of it: :func:`hdbscan_labels` and
     :func:`vdjdb.motifs.cluster._leiden` both produce ``labels`` in the one contract, ``-1`` for
     noise and otherwise unique across epitopes.
 
-    ``cid`` carries a ``L<len>`` suffix -- **one legacy cid per (cluster, CDR3 length)**. A DBSCAN
-    cluster in embedding space may span lengths, where a PWM may not, and ``vdjdb-web`` splits every
-    cid by ``len`` before building a cluster anyway; without the suffix two display clusters would
-    share one ``clusterId`` and the reader's ``strict = true`` path would break. Measured on the
-    REDCEA production files, this is the common case and not an edge case: **809 of 847 TRA and
-    1,002 of 1,082 TRB cids span more than one length** (ROADMAP section 8.6).
+    ``cid`` takes an ``L<len>`` suffix: one legacy cid per (cluster, CDR3 length). A DBSCAN cluster
+    in embedding space may span lengths, where a PWM may not, and ``vdjdb-web`` splits every cid by
+    ``len`` before building a cluster anyway; without the suffix two display clusters would share one
+    ``clusterId`` and the reader's ``strict = true`` path would break. Measured on the REDCEA
+    production files, this is the common case: 809 of 847 TRA and 1,002 of 1,082 TRB cids span more
+    than one length (ROADMAP section 8.6).
 
     ``x``/``y`` are the first two principal components -- the embedding's own layout, so no separate
-    force-directed pass is needed and the picture means something.
+    force-directed pass is needed and the coordinates are interpretable.
     """
     from .cluster import _INITIAL, _repr_allele
 
@@ -452,15 +451,25 @@ def clusters(cohort_chain: pl.DataFrame, X: np.ndarray, eps: float | None = None
 
     # The stratum, not the DBSCAN cluster, is what gets a cid -- so `csz` is unambiguous and
     # `freq` in the PWM is a distribution.
-    sizes = g.group_by(["species", "gene", "antigen.epitope", "__label", "__len"]).agg(
+    sizes = g.group_by(["species", "gene", "antigen.epitope", "__label", "__len"],
+                       maintain_order=True).agg(
         pl.len().alias("csz"), pl.col("junction_aa").min().alias("__first"))
     out = []
     for (species, gene, epitope), grp in sizes.group_by(
             ["species", "gene", "antigen.epitope"], maintain_order=True):
         # Size descending then the smallest member: a number that follows the content, so a cluster
         # whose membership is unchanged keeps its id without anything being stored (hard rule 9).
+        #
+        # `__len` and `__label` are the tiebreak, and they are what makes the key total: within one
+        # epitope a stratum is identified by `(__label, __len)`, so no two rows here can tie on all
+        # four. Without them the ordering was decided by whatever order the sort left equal keys in,
+        # and that flipped between runs. Measured 2026-09-27 on the 2026-06-03 corpus: exactly one
+        # tie per TRA chain (human `GILGFVFTL`, two strata at csz 47 both starting `CAAGGSQGNLIF`;
+        # mouse `VEALYLVSG`, two at csz 5) and none on either TRB, which is why TCREMP's TRA files
+        # differed between two runs of the same build and its TRB files did not.
         order = (grp.filter(pl.col("csz") >= min_cluster)
-                    .sort(["csz", "__first"], descending=[True, False])
+                    .sort(["csz", "__first", "__len", "__label"],
+                          descending=[True, False, False, False])
                     .with_row_index("__n", offset=1))
         if order.height:
             prefix = f"{_INITIAL[species]}.{gene[-1]}.{epitope}"
