@@ -6,7 +6,16 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from vdjdb.io.chunks import PROVENANCE, READABLE, dedup, independently_reported, read_chunk, read_chunks
+from vdjdb.config import Paths
+from vdjdb.io.chunks import (
+    PROVENANCE,
+    READABLE,
+    chunk_files,
+    dedup,
+    independently_reported,
+    read_chunk,
+    read_chunks,
+)
 from vdjdb.qc.rules import RULES, check
 from vdjdb.schema import ALL_COLUMNS, CHUNK_DEDUP_KEY
 
@@ -196,3 +205,49 @@ def test_duplicate_is_reported_per_chunk(tmp_path: Path) -> None:
     df = read_chunk(_chunk(tmp_path, "a.txt", [_row(), _row(), _row()]))
     dupes = check(df).filter(pl.col("rule") == "duplicate")
     assert dupes["chunk.row"].to_list() == [2, 3], "the first occurrence is not a duplicate"
+
+
+#: Input directories holding chunks the build must never read. `pending/` is the current format
+#: waiting on a reference the build lacks; `withheld/` predates the specification. See `CLAUDE.md`.
+QUARANTINED = ("pending", "withheld")
+
+
+@pytest.mark.parametrize("directory", QUARANTINED)
+def test_a_quarantined_chunk_cannot_reach_the_build(directory: str) -> None:
+    """The only thing keeping these out is that `chunk_files` reads one directory, not a tree.
+
+    Nothing else in the repository names them, so a later `rglob("PMID_*.txt")` would pull them in
+    silently -- and `pending/PMID_22058411.txt` would enter the build carrying a species no part of
+    it can handle. This test is what fails if that happens.
+    """
+    root = Paths.discover().root
+    quarantined = root / directory
+    assert quarantined.is_dir(), f"{directory}/ is missing"
+    assert list(quarantined.glob("*.txt")), f"{directory}/ holds no chunks, so this proves nothing"
+
+    read = {p.resolve() for p in chunk_files()}
+    assert read, "no chunks were read at all"
+    intruders = sorted(p.name for p in quarantined.glob("*.txt") if p.resolve() in read)
+    assert not intruders, f"the build reads {len(intruders)} file(s) from {directory}/: {intruders}"
+
+
+def test_the_two_quarantine_directories_hold_different_formats() -> None:
+    """The rule that decides which directory a blocked chunk goes to, asserted on the real files.
+
+    `pending/` is for a chunk whose header matches a shipping chunk; `withheld/` is for one that
+    predates it. Get this backwards and a curator is told to re-export a file that needs no export.
+    """
+    root = Paths.discover().root
+    shipping = len(chunk_files()[0].read_text(encoding="utf-8").split("\n", 1)[0].split("\t"))
+
+    for p in sorted((root / "pending").glob("*.txt")):
+        got = len(p.read_text(encoding="utf-8").split("\n", 1)[0].split("\t"))
+        assert got == shipping, (
+            f"pending/{p.name} has {got} columns against the current {shipping}. A chunk the reader "
+            "cannot parse belongs in withheld/, which says the file must be re-exported.")
+
+    for p in sorted((root / "withheld").glob("*.txt")):
+        got = len(p.read_text(encoding="utf-8").split("\n", 1)[0].split("\t"))
+        assert got != shipping, (
+            f"withheld/{p.name} already has the current {shipping}-column header, so it parses. It "
+            "belongs in pending/, which says the build is what has to change.")
