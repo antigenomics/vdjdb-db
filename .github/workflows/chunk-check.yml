@@ -38,21 +38,42 @@ jobs:
           enable-cache: true
 
       - name: Install
-        # `test` as well as `dev`: the guard step below runs pytest, which is in the `test`
-        # extra, and without it the step fails to spawn rather than failing a check. The same
-        # gap `8c8384d` closed in the docs job.
-        run: uv sync --frozen --extra dev --extra test
+        # `test` as well as `dev`: the steps below run pytest, which is in the `test` extra, and
+        # without it they fail to spawn rather than failing a check. The same gap `8c8384d` closed
+        # in the docs job.
+        #
+        # `motifs` because the unit suite covers the clustering: five tests in `test_motifs.py`
+        # reach Leiden and HDBSCAN, and `test_metrics.py` imports the vendored `metrics_lib`, which
+        # pulls sklearn at module level. Without it those skip, and a check that quietly downgrades
+        # itself is worse than no check -- the reasoning `pyproject.toml` already applies to the
+        # `summary` extra. Measured: 628 of 629 unit tests, 27 s.
+        run: uv sync --frozen --extra dev --extra test --extra motifs
 
+      # `ruff check .`, not `src/`: `tests/` is a third of the Python in the repository and was
+      # unlinted, so an unsorted import block in a test passed CI and was caught only by someone
+      # running ruff over the tree by hand.
       - name: Lint and type-check
         run: |
-          uv run ruff check src/
+          uv run ruff check .
           uv run mypy
+
+      # The unit suite runs on no pull request otherwise. `build.yml` runs it, but its push trigger
+      # has a paths filter, so a change confined to `tests/**` or `docs/**` reached `dev` and then
+      # `master` with 629 tests never executed anywhere -- which is how this gap was found. 8 s
+      # locally, well inside the 3-minute budget, and it subsumes the guard step below (kept
+      # separate so a failure names the proprietary-data guard rather than a test id).
+      - name: Unit tests
+        run: uv run pytest tests/unit -q
 
       - name: Which chunks changed
         id: changed
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- chunks/ > changed.txt
+            # --diff-filter=ACMR: added, copied, modified, renamed, never Deleted. A pull request
+            # that withdraws a chunk lists a path that no longer exists, and `vdjdb qc` opened it
+            # and died with a FileNotFoundError traceback instead of reporting anything.
+            git diff --name-only --diff-filter=ACMR \
+              "origin/${{ github.base_ref }}...HEAD" -- chunks/ > changed.txt
           else
             git ls-files chunks/ > changed.txt
           fi

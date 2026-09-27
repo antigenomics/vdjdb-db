@@ -58,25 +58,40 @@ FIX_FIELDS: tuple[tuple[str, str, type], ...] = (
 
 _FIX_DTYPES = {str: pl.Utf8, bool: pl.Boolean, int: pl.Int64}
 
+#: What the markup engine would have called, kept beside what ships. The engine resolves the allele
+#: it aligned against, which is evidence about the sequence; the shipped call is what the curator
+#: reported, harmonised to IMGT. Keeping both is the only way a reader can tell a curation decision
+#: from a markup one, and it is what `chains` reports as `v.segm.arda` / `j.segm.arda`.
+CALL_FIELDS: tuple[tuple[str, str], ...] = (("__varda", "v.segm.arda"),
+                                            ("__jarda", "j.segm.arda"))
 
 
-def fix_cdr3(df: pl.DataFrame, engine: str = "legacy") -> pl.DataFrame:
+
+def fix_cdr3(df: pl.DataFrame, engine: str = "arda") -> pl.DataFrame:
     """Repair the CDR3 and locate the V and J germline parts, per chain.
 
     Rewrites ``cdr3.*``, ``v.*`` and ``j.*``, and adds one column per :data:`FIX_FIELDS` member
     (``__vend.alpha``, ``__jfix.beta``, ...). The legacy ``cdr3fix`` JSON blob is not produced
     here: a blob is not a variable, and reassembling one is the legacy exporter's job.
 
-    Two engines, both measured on the corrected corpus with arda-mapper 2.29.0 (ROADMAP §28):
+    Two engines. ``arda`` is the default and what the shipped build uses; ``legacy`` is the
+    vendored k-mer scanner, kept so the swap stays measurable and reversible.
 
-    * ``legacy`` -- the vendored k-mer scanner. Still the default, and what the shipped build
-      uses, pending the swap decision.
-    * ``arda`` -- ``arda.cdr3fix``. Agrees with the legacy on 99.91 % of repaired alpha sequences and
-      leads on all four coverage measures: it gains 3,781 alpha and 1,851 beta V-end mappings and
-      5,182 alpha and 1,904 beta J-start mappings, against 311 / 3,936 and 7 / 138 lost. The 3,936
-      beta V-ends it declines are calls that name a family with several functional genes, an
-      ambiguity group, or an allele with no shipped anchor -- a curation question, not a markup
-      failure.
+    * ``arda`` -- ``arda.cdr3fix``, arda-mapper >= 2.30.1. Agrees with the legacy on 99.91 % of
+      repaired alpha sequences and leads on all four coverage measures: it gains 3,781 alpha and
+      1,851 beta V-end mappings and 5,182 alpha and 1,904 beta J-start mappings, against 311 /
+      3,936 and 7 / 138 lost. The 3,936 beta V-ends it declines are calls that name a family with
+      several functional genes, an ambiguity group, or an allele with no shipped anchor -- a
+      curation question, not a markup failure.
+    * ``legacy`` -- the vendored k-mer scanner, what every release up to 2026-06-03 shipped.
+
+    The coordinates are also more accurate, not merely more numerous, which is the part coverage
+    cannot show. Against external nucleotide truth -- the 8,334 VDJdb human TRB records whose
+    ``(species, cdr3, v, j)`` key appears exactly once in ``isalgo/airr_control``, where the
+    junction was read with its nucleotides present -- ``j.start`` is exact on 7,987 records for the
+    legacy scanner and **8,164** for arda 2.30.1, and arda over-extends by two residues or more on
+    **1** record against the scanner's 0. arda 2.29.0 scored 8,041 and over-extended on 138, which
+    is why the swap waited for `arda#132`.
 
     Both are called once per distinct ``(species, cdr3, v, j)`` -- 191,447 keys against 192,753
     rows -- and joined back. Both are deterministic in their arguments, so deduplicating cannot
@@ -104,8 +119,9 @@ def fix_cdr3(df: pl.DataFrame, engine: str = "legacy") -> pl.DataFrame:
                 pl.col("__v").fill_null("").alias(v),
                 pl.col("__j").fill_null("").alias(j),
                 *(pl.col(tmp).alias(f"{tmp}.{gene}") for _, tmp, _ in FIX_FIELDS),
+                *(pl.col(tmp).fill_null("").alias(f"{tmp}.{gene}") for tmp, _ in CALL_FIELDS),
             )
-            .drop(*(tmp for _, tmp, _ in FIX_FIELDS))
+            .drop(*(tmp for _, tmp, _ in FIX_FIELDS), *(tmp for tmp, _ in CALL_FIELDS))
         )
     return df
 
@@ -131,7 +147,10 @@ def _markup_legacy(keys: pl.DataFrame, gene: str) -> pl.DataFrame:
         out.append(fx.fix_both(seq, vid, jid, species).results_to_dict())
     return keys.with_columns(
         *(pl.Series(tmp, [r[key] for r in out], dtype=_FIX_DTYPES[ty])
-          for key, tmp, ty in FIX_FIELDS)
+          for key, tmp, ty in FIX_FIELDS),
+        # The k-mer scanner names no allele of its own, so it proposes nothing. The columns exist
+        # either way: a table's schema must not depend on which engine ran.
+        *(pl.lit("").alias(tmp) for tmp, _ in CALL_FIELDS),
     )
 
 
@@ -152,7 +171,7 @@ def _sha256(s: str) -> str:
 
 
 def build_master(paths: Iterable[Path] | None = None,
-                 registry: Path | None = None, *, engine: str = "legacy") -> pl.DataFrame:
+                 registry: Path | None = None, *, engine: str = "arda") -> pl.DataFrame:
     """The master table: one row per curated record, fixed, scored, hashed and identified.
 
     Wide (paired alpha/beta columns) because that is the shape the chunks are written in. It is an
@@ -160,6 +179,13 @@ def build_master(paths: Iterable[Path] | None = None,
     reads.
     """
     df = read_chunks(paths)
+    # As submitted, before any harmonisation touches it. `chains` reports these as
+    # `v.segm.submitted` / `j.segm.submitted` / `d.segm.submitted`: a reader comparing them with the
+    # shipped call sees exactly what the build decided, which is the difference between a curation
+    # record and a black box. Costs three string columns per chain.
+    df = df.with_columns(
+        *(pl.col(c).alias(f"__sub.{c}") for c in
+          ("v.alpha", "j.alpha", "v.beta", "j.beta", "d.beta") if c in df.columns))
     df = apply_antigen_patch(df)
     # IMGT spelling before identity: a record is the same record whether the curator wrote
     # `TRAV14` or `TRAV14/DV4`, so harmonising afterwards would mint a new id for a rename.

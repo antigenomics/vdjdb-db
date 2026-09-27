@@ -324,3 +324,41 @@ def test_the_shipped_mhc_patch_is_well_formed():
             # resolved by file order, silently. Those are declared, so the set cannot grow.
             assert set(conflicts()["antigen.epitope"]) == set(CONFLICTING_EPITOPES)
             assert set(CONFLICTING_EPITOPES) <= dupes
+
+
+# --- #136 and #402: the separator, the roman numeral, and the one-digit allele ------------------
+
+@pytest.mark.parametrize("call,want", [
+    # `/` read as "or", in the three shapes a curator writes it
+    ("TRBV12-3/TRBV12-4", "TRBV12-3,TRBV12-4"),
+    ("TRBV6-2/TRBV6-3", "TRBV6-2,TRBV6-3"),
+    ("TRBV19*01/02", "TRBV19*01,TRBV19*02"),
+    ("TRBV20-1*01/04/05", "TRBV20-1*01,TRBV20-1*04,TRBV20-1*05"),
+    ("TRBV12-3/4*01", "TRBV12-3*01,TRBV12-4*01"),
+    # a one-digit allele: IMGT writes two
+    ("TRBJ2-7*1", "TRBJ2-7*01"),
+    ("TRAV20*2", "TRAV20*02"),
+    ("TRBV7-9*3", "TRBV7-9*03"),
+    # the Arden roman numeral, which the Arden table then maps
+    ("TRBVIS1", "TRBV9"),
+])
+def test_a_separator_or_a_mistyped_digit_is_a_spelling_and_is_fixed(call, want):
+    assert N.normalise_call(call, "HomoSapiens") == want
+
+
+@pytest.mark.parametrize("call", [
+    # `/` that is part of the gene name, not a separator: IMGT names this gene once, for two loci
+    "TRAV14/DV4",
+    "TRAV14/DV4*01",
+    "TRAV23/DV6",
+    # already IMGT
+    "TRBV27",
+    "TRBJ2-7*01",
+])
+def test_a_slash_inside_an_imgt_gene_name_is_left_alone(call):
+    assert N.normalise_call(call, "HomoSapiens") is None
+
+
+def test_an_ambiguous_slash_is_a_curation_decision_and_is_refused():
+    """`TRBV11/2` could be `TRBV11-2` or two genes. Guessing which is not a spelling fix."""
+    assert N.normalise_call("TRBV11/2", "HomoSapiens") is None
