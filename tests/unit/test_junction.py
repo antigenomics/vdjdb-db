@@ -90,3 +90,44 @@ def test_a_chain_missing_a_call_keeps_its_row_and_gets_no_nucleotides(missing):
     assert got.height == 2, "a chain is never dropped for being un-inferrable"
     assert got.filter(pl.col("record_id") == "r2")["cdr3nt"][0] == ""
     assert got.filter(pl.col("record_id") == "r1")["cdr3nt"][0] != ""
+
+
+def test_the_worker_count_actually_buys_wall_time():
+    """CLAUDE.md section 0e: a pool that never ran is indistinguishable from a slow one.
+
+    The correctness test above passes whether or not the threads run in parallel, so it cannot see a
+    pool that silently serialised. This measures it. `infer_nt` calls into vdjtools' native path,
+    which releases the GIL for part of the work, so the speedup is real and sublinear: measured on a
+    16-core M3, 1.52x at two workers, **2.27x at the shipped four**, 2.87x at eight, and the same
+    2.28x on 3,000 real corpus keys rather than these 400 synthetic ones.
+
+    The bar is 1.3x, well below the measured 2.27x and well above the 1.0x a dead pool would give.
+    Loose on purpose: this is a regression detector for the pool disappearing, not a benchmark.
+    """
+    import itertools
+    import os
+    import time
+
+    if (os.cpu_count() or 1) < 4:
+        pytest.skip("needs at least 4 cores to say anything about scaling")
+
+    aa = "ACDEFGHIKLMNPQRSTVWY"
+    # Distinct junctions with the V and J anchors of a real key untouched, so every one resolves: the
+    # timing would mean nothing if half of them took the no-scenario fast path. Asserted below.
+    mids = ["".join(p) for p in itertools.product(aa, repeat=2)]
+    keys = pl.DataFrame({"cdr3": [f"CASS{m}IRSSYEQYF" for m in mids],
+                         "v.segm": ["TRBV10-3*01"] * len(mids),
+                         "j.segm": ["TRBJ2-7*01"] * len(mids)}).sort("cdr3", "v.segm", "j.segm")
+
+    junction.infer(keys.head(20), "HomoSapiens", "TRB", workers=1)   # load the model, once
+    serial_start = time.perf_counter()
+    serial_out = junction.infer(keys, "HomoSapiens", "TRB", workers=1)
+    serial = time.perf_counter() - serial_start
+    parallel_start = time.perf_counter()
+    junction.infer(keys, "HomoSapiens", "TRB", workers=4)
+    parallel = time.perf_counter() - parallel_start
+
+    assert (serial_out["cdr3nt"] != "").all(), "the timing set must not take the no-scenario path"
+    assert serial / parallel > 1.3, (
+        f"four workers bought {serial / parallel:.2f}x over {keys.height} keys "
+        f"({serial:.2f} s -> {parallel:.2f} s); the pool is overhead rather than parallelism")

@@ -14,6 +14,7 @@ uv run vdjdb make legacy --tables out/tables  # the legacy files, from the table
 uv run vdjdb convert airr --tables out/tables # AIRR Rearrangement + Reactivity
 uv run vdjdb motifs --tables out/tables       # TCRNET + TCREMP
 uv run vdjdb summary --legacy out/legacy      # the dashboard, rendered offline and checked
+uv run vdjdb identity check --tables out/tables # the identifier invariants
 uv run vdjdb diff <reference.zip> out/legacy  # compare against a released zip
 uv run pytest -q
 ```

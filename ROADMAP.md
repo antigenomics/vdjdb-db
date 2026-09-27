@@ -712,12 +712,16 @@ them:
 re-running under a new model rewrites those columns and no id. Phase 9e already calls `mhcmatch` for
 catalogue validation; this keeps its output instead of discarding it.
 
-### 10.7 Legacy structure ids are stored verbatim
+### 10.7 The legacy structure id is preserved, not redefined
 
-`TCR_hash` is the identifier linking a record to a generated structure, and it ships exactly as
-curated. It is stored as is: never recomputed, never renamed, never derived from the levels above,
-and structure evidence keys on it. The new ids are additive, so a consumer holding a `TCR_hash` is
-never asked to migrate, and invariant 7 fails the build if one moves on a record whose key did not.
+`TCR_hash` is the identifier linking a record to a structure. It comes from the legacy recipe and
+nothing else: sha256 over a fixed field list, empty unless every required field is present
+(`assemble.master.add_tcr_hash`). That recipe reproduces the values in the released `vdjdb.txt`
+exactly, which is why it is preserved rather than redefined, and it is never recomputed under a new
+scheme, renamed, or derived from the levels above. Structure evidence keys on it.
+
+The levels above are additive, so a consumer holding a `TCR_hash` is never asked to migrate, and
+invariant 7 fails the build if one moves on a clonotype whose key did not.
 
 ## 11. Tuning and validation of motif clustering
 
@@ -1184,7 +1188,7 @@ invariants of §10.5, the promiscuity columns of §10.6, and one definition of "
     today.
 11. `docs/standards/identity.md`: the five levels, the two mechanisms and why each level has the one
     it has, the lifecycle fields, the seven invariants, how to resolve an id you hold, and the
-    statement that `TCR_hash` is stored verbatim and never migrated.
+    statement that `TCR_hash` is preserved from the legacy recipe and never redefined.
 
 **Closes when:** `identity check` passes every invariant; the permuted-order test passes; a rebuild
 after adding and then removing a chunk leaves every other id unchanged; and the four dashboard

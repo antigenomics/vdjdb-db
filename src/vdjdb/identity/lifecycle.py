@@ -23,7 +23,7 @@ from pathlib import Path
 
 import polars as pl
 
-from .levels import LEVELS, Level, level_of
+from .levels import LEVELS, level_of
 
 #: One row per id ever seen. No key columns: a key is recomputable and an id's history is not.
 LIFECYCLE_COLUMNS: tuple[str, ...] = (
@@ -182,7 +182,3 @@ def unknown_prefixes(now: pl.DataFrame) -> list[str]:
     """
     return [i for i in now["id"].to_list() if level_of(i) is None]
 
-
-def level_by_column(column: str) -> Level | None:
-    """The level owning an id column, for a caller holding a column name rather than a level."""
-    return next((lv for lv in LEVELS if lv.column == column), None)

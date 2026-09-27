@@ -101,11 +101,11 @@ publication reports about the record.
 The receptor is not here: a chain is an observation, so it is a row of `chains`, while
 `vdjdb_full.txt` folds both chains into paired columns and leaves half of them blank.
 
-33 columns:
+35 columns:
 
 | Group | Columns |
 |---|---|
-| identity | `record_id` |
+| identity | `record_id`, `pmhc_id`, `epitope_id` |
 | antigen | `species`, `mhc.a`, `mhc.b`, `mhc.class`, `antigen.epitope`, `antigen.gene`, `antigen.species` |
 | provenance | `reference.id` |
 | sample | `meta.study.id`, `.cell.subset`, `.subject.cohort`, `.subject.id`, `.replica.id`, `.clone.id`, `.tissue` - the id fields that are part of identity |
@@ -126,7 +126,8 @@ Primary key `(record_id, gene)`. This is the level `vdjdb.txt` is written at. Ch
 table so that record fields are not duplicated per chain, as in `vdjdb.txt`, and not folded into
 paired alpha/beta columns, as in `vdjdb_full.txt`.
 
-27 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `cdr3`, `v.segm`, `d.segm`, `j.segm`,
+28 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `clone_id`, `cdr3`, `v.segm`,
+`d.segm`, `j.segm`,
 `v.end`, `j.start`, `cdr3nt`, `cdr3nt.pgen`, `cdr3nt.margin`, `v.inferred`, `j.inferred`,
 `d.inferred`, `d.start`, `d.end`, `d.posterior`, `d.entropy`, `cdr3.original`, `fix.needed`,
 `fix.good`, `v.fix.type`, `j.fix.type`, `v.canonical`, `j.canonical`, `TCR_hash`.
@@ -145,10 +146,16 @@ done to it, and `v.canonical` / `j.canonical` say whether the anchors are the ex
 legacy release the same field is a JSON number on one row and a string on the next.
 `emit/legacy.py` reassembles the blob on the way out, and nothing else may.
 
-`clonotype_id` is a seeded hash of `(species, gene, cdr3, v.segm, j.segm)`. Records reporting the same
-receptor chain share it, and it is the level motif evidence and the independent-study support count
-attach at. It is a hash rather than a counter so that adding a chunk does not renumber every
-clonotype.
+`clonotype_id` is `CT` plus 16 hex digits of a sha256 over `(species, gene, cdr3, v.segm, j.segm)`.
+Records reporting the same receptor chain share it, and it is the level motif evidence and the
+independent-study support count attach at. `clone_id` is `CX` plus 16 hex digits over the record's two
+sorted `clonotype_id`s, and is the empty string on the 99,459 records reporting a single chain.
+
+Both are hashes of their own keys rather than counters, so adding or removing a chunk cannot renumber
+anything, and sha256 rather than a library hash function so that a dependency upgrade cannot renumber
+the database either. `records.pmhc_id` and `records.epitope_id` are the antigen-side equivalents.
+[Identifiers](standards/identity.md) is the reference: the five levels, the two mechanisms, the
+lifecycle fields and the seven invariants `vdjdb identity check` asserts.
 
 `d.segm` is the curated D call, as the publication reported it. `d.inferred`, `d.start` and `d.end`
 describe the D of the recombination scenario that produced `cdr3nt`, so the coordinates index that
@@ -364,7 +371,14 @@ the rewrite fixes.
 
 ---
 
-## 6. Record registry
+## 6. Record registry and the identity lifecycle
+
+`identity-lifecycle.tsv` is one row per id ever published, at any level: `id`, `level`, `state`,
+`first_release`, `last_release`, `replaced_by`. No key columns, because a key is recomputable from
+`chunks/` and an id's history is not. 15.9 MB for 274,683 derived ids, so it ships as a release asset
+beside the zips and is listed in `SHA256SUMS`. It is written by `vdjdb release` and never by a build:
+a curation branch that adds a clonotype and removes it again has retired nothing. A build with no
+previous copy produces exactly the same ids and reports only that the history is unknown.
 
 `records.registry.tsv` maps `record_id` to its state, hashes, provenance and amendment history, so an
 id survives a curator fixing a typo. It is not committed: at 72.7 MB for 192,753 records (19.8 MB

@@ -73,6 +73,7 @@ uv run vdjdb build --out out/                 # the definitive tables, then ever
 uv run vdjdb make legacy --tables out/tables  # the legacy files
 uv run vdjdb motifs --tables out/tables       # TCRNET + TCREMP
 uv run vdjdb summary --legacy out/legacy      # the dashboard, offline
+uv run vdjdb identity check --tables out/tables # the identifier invariants
 uv run vdjdb diff <reference.zip> out/legacy  # compare against a released zip
 uv run pytest -q
 ```
