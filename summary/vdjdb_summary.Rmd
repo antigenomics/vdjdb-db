@@ -13,7 +13,7 @@ params:
 
 <!--
 The release dashboard. Its published fragment -- everything between `!summary_embed_start!` and
-`!summary_embed_end!` -- is extracted by `MakeEmbedableHtml.py` and injected into vdjdb-web's
+`!summary_embed_end!` -- is extracted by `vdjdb.summary.render` and injected into vdjdb-web's
 `/overview`, so three properties of the output are load-bearing and asserted by
 `summary/check_summary.py`: the base64 images are single unbroken lines, there are no `<div>`
 wrappers, and the filename does not change.

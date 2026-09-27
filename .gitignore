@@ -93,6 +93,8 @@ summary/*.pdf
 # this rule swallowed the pandoc template until it was renamed to embed.tpl, and the
 # same trap applies to summary/*.txt, which is why committed tables there are .tsv.
 summary/*.html
+# knitr's intermediate, written beside the document every render.
+summary/*.knit.md
 # knitr's per-document figure directory and Rscript's stray default device, both build leavings.
 summary/*_files/
 Rplots.pdf
@@ -138,3 +140,7 @@ ref/
 
 # Sphinx output.
 docs/_build/
+
+# Raw third-party downloads a curation notebook consumes. The origin and the fetch command are in
+# processing/README.md; a 1.3 MB GEO blob does not belong in the history of a curation repo.
+processing/raw_data/

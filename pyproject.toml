@@ -52,13 +52,13 @@ packages = ["src/vdjdb"]
 [tool.ruff]
 line-length = 110
 src = ["src", "tests"]
-# Retired Groovy-era Python and the pandas pipeline being replaced. Reference only -- reformatting
-# them would bury the real diff in noise. Both leave the tree in ROADMAP phases 5 and 14.
-# Vendored or retired code, reference only -- reformatting it would bury the real diff.
-# _legacy_fixer is a verbatim copy that phase 5 deletes; py_src and the Groovy-era
-# script leave the tree in phases 4 and 14.
-exclude = ["py_src", "src/AlignBestSegments.py", "src/vdjdb/annotate/_legacy_fixer",
-           "src/vdjdb/validate/metrics_lib.py"]
+# Four kinds of code that must not be reformatted, for four different reasons:
+#   attic          retired reference. `tests/unit/test_schema.py` parses the Groovy at test time.
+#   _legacy_fixer  a verbatim copy, and still live -- the k-mer V/J guesser arda does not replace.
+#   metrics_lib    vendored verbatim so the benchmark metrics stay comparable with the reference.
+#   processing     a curator's one-off notebooks, not library code.
+exclude = ["attic", "src/vdjdb/annotate/_legacy_fixer",
+           "src/vdjdb/validate/metrics_lib.py", "processing"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
