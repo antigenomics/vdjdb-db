@@ -96,7 +96,16 @@ def lint_file(path: Path) -> list[Finding]:
 
 
 def lint(paths: list[Path]) -> list[Finding]:
+    """Text-level checks over several chunks.
+
+    A path that does not exist is reported, not raised on. A pull request withdrawing a chunk names
+    a file that is gone by the time the check runs, and `read_bytes` turned that into a
+    `FileNotFoundError` traceback with no finding and no usable message.
+    """
     findings: list[Finding] = []
     for p in sorted(paths):
+        if not p.is_file():
+            findings.append(Finding(p.name, "missing-file", f"{p} does not exist"))
+            continue
         findings.extend(lint_file(p))
     return findings

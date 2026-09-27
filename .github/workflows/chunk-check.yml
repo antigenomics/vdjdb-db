@@ -69,7 +69,11 @@ jobs:
         id: changed
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- chunks/ > changed.txt
+            # --diff-filter=ACMR: added, copied, modified, renamed, never Deleted. A pull request
+            # that withdraws a chunk lists a path that no longer exists, and `vdjdb qc` opened it
+            # and died with a FileNotFoundError traceback instead of reporting anything.
+            git diff --name-only --diff-filter=ACMR \
+              "origin/${{ github.base_ref }}...HEAD" -- chunks/ > changed.txt
           else
             git ls-files chunks/ > changed.txt
           fi
