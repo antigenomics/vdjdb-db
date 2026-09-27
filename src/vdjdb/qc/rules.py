@@ -88,6 +88,29 @@ RULES: dict[str, pl.Expr] = {
         (_blank("cdr3.alpha") & ~(_blank("v.alpha") & _blank("j.alpha")))
         | (_blank("cdr3.beta") & ~(_blank("v.beta") & _blank("j.beta")))
     ),
+
+    # `meta.structure.id` is specified as "PDB structure ID if one exists, blank otherwise"
+    # (docs/standards/chunk-format.md), and `score.confidence` reads it as the strongest evidence
+    # there is: a non-empty value awards 3 outright, above every sequencing and specificity term,
+    # because a solved TCR:pMHC complex is direct proof of binding.
+    #
+    # So the field is not free text, and anything in it that is not a PDB id awards the top score
+    # for evidence that does not exist. Measured 2026-09-28: 2,765 of the 3,246 rows carrying a
+    # value hold a figure or table reference instead - `Fig.2, Fig. 3, Fig.4, ...` 2,352 rows,
+    # `Fig 9, Supp Fig 5, Supp Table 5-8` 400, `Fig3b,Fig3c` 12, `56I` 1 - and because the score is
+    # a maximum over the sample signature they pull 6,004 rows to 3. Blanking them would move 3,960
+    # of those to 0 and 2,044 to 1.
+    #
+    # The shape is the PDB entry id: a digit then three alphanumerics, case-insensitive. That is the
+    # whole check; whether the entry exists and contains the receptor is a network question and
+    # belongs in the structure pass of #402, not in a chunk gate that must run offline.
+    #
+    # Advisory: the corpus fails it on 2,765 rows today, and what to do with those is a curation
+    # decision rather than a submission error.
+    "structure id is not a PDB id": (
+        _blank("meta.structure.id")
+        | pl.col("meta.structure.id").str.contains(r"^[0-9][A-Za-z0-9]{3}$")
+    ),
 }
 
 

@@ -81,7 +81,7 @@ meta.epitope.id | Epitope id (e.g. ``FL10``)
 meta.tissue | Tissue used to isolate T-cells: ``PBMC``, ``spleen``, etc. or ``TCL`` (T-cell culture) if isolated from re-stimulated T-cells
 meta.donor.MHC | Donor MHC list if available, blank otherwise. IMGT nomenclature (e.g. HLA-A*02:01) is preferable. Allele group names (e.g. ``A02``, ``B18``) are also accepted (do not use an asterisk in such cases). Use a comma to separate alleles.
 meta.donor.MHC.method | Donor MHC typing method if available, blank otherwise
-meta.structure.id | PDB structure ID if one exists, blank otherwise. A record with associated structural data gets the highest confidence score.
+meta.structure.id | PDB structure ID if one exists, blank otherwise. A record with associated structural data gets the highest confidence score, so the field is **not free text**: a figure or table reference here awards that score for evidence the reader cannot check. QC reports anything that is not a four-character PDB entry id under ``structure id is not a PDB id``.
 comment | Plain text comment, maximum 140 characters
 
 > **Note:**
