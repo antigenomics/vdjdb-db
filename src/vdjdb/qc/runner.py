@@ -28,9 +28,36 @@ from .lint import Finding, lint
 from .rules import check, summarise
 
 #: Reported, never fatal. See the module docstring.
+#: Findings that are reported but do not fail the run.
+#:
+#: The test for membership is whether the reader can produce the right record anyway. `chunks/` is
+#: the submitters' data: the reader adapts to the shape a file arrives in and says what it found,
+#: and a file is never edited into a shape the reader finds convenient. Rewriting the corpus to
+#: silence a lint costs the thing the chunk-change rule exists to protect -- once every line of a
+#: file has changed, a curation edit and a line-ending change are indistinguishable in `git log`.
+#:
+#: `prose-column-name` and `empty-column-name` are here for that reason, verified rather than
+#: assumed. `PMID_24512815.txt` carries two sentences of documentation as column names and
+#: `PMID_40694338.txt` opens with an unnamed column holding a row serial; columns are selected by
+#: name, so both are ignored, and both files read with every field in the right column
+#: (`cdr3.beta`, `v.beta`, `species`, `antigen.epitope` and `reference.id` all check out). A header
+#: the reader cannot map is a different matter and still fails.
 ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form", "duplicate",
+                      # A named path that is gone: the caller passed a stale list, which is worth
+                      # reporting but is not a defect in anybody's data.
+                      "missing-file",
+                      # The reader ignores columns it cannot name and reads the rest correctly.
+                      "prose-column-name", "empty-column-name",
                       # #561: only a curator can decide which of the two chains is the wrong one.
-                      "alpha and beta cdr3 identical"})
+                      "alpha and beta cdr3 identical",
+                      # A named V or J whose chain has no CDR3. The call is information and the row
+                      # is kept; the chain cannot reach an output, which is what this tells the
+                      # submitter while they can still supply the sequence.
+                      "segment call with no cdr3"})
+
+
+class _NothingToRead(Exception):
+    """Every named path was missing. `lint` said so already; there is no table to check."""
 
 
 def _report_frame(lint_findings: list[Finding], row_findings: pl.DataFrame) -> pl.DataFrame:
@@ -54,9 +81,19 @@ def run_qc(paths: list[Path] | None, *, strict: bool = True, report: Path | None
     """Return an exit code: 0 clean, 1 if any fatal finding was raised under ``strict``."""
     targets = list(paths) if paths else chunk_files(Paths.discover().chunks)
     lint_findings = lint(targets)
+    # `lint` has already reported any path that is gone. Drop them before reading, or a stale path
+    # in the caller's list is diagnosed as `unreadable`, which means "this header cannot be parsed"
+    # and sends a curator looking at a file that is not the problem.
+    targets = [p for p in targets if p.is_file()]
     try:
+        if not targets:
+            raise _NothingToRead
         rows = read_chunks(targets, deduplicate=False)
         row_findings = check(rows)
+    except _NothingToRead:
+        rows = pl.DataFrame()
+        row_findings = pl.DataFrame(schema={"chunk.file": pl.Utf8, "chunk.row": pl.UInt32,
+                                            "rule": pl.Utf8})
     except Exception as exc:
         # A chunk whose header is wrong cannot be parsed as a table at all, and that is the most
         # common submission mistake. Raising here produced a traceback and skipped the `--report`

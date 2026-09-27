@@ -281,6 +281,20 @@ FIELDS: dict[str, Field] = dict([
                "candidate's. Near 1 means the choice among synonymous histories was near-arbitrary."),
     _f("cdr3.original", type=SEQ, autocomplete=0, data_type="cdr3", title="CDR3 as submitted",
        comment="The CDR3 as the reference publication reported it, before repair."),
+    _f("v.segm.submitted", searchable=0, autocomplete=0, title="V as submitted",
+       comment="The V call as the reference publication reported it, before IMGT harmonisation and "
+               "allele disambiguation. Compare with v.segm to see what the build decided."),
+    _f("j.segm.submitted", searchable=0, autocomplete=0, title="J as submitted",
+       comment="The J call as the reference publication reported it, before harmonisation."),
+    _f("d.segm.submitted", searchable=0, autocomplete=0, title="D as submitted",
+       comment="The D call as the reference publication reported it, before harmonisation. Beta "
+               "only; the alpha locus has no D."),
+    _f("v.segm.arda", searchable=0, autocomplete=0, title="V called by the markup engine",
+       comment="The V allele the markup engine aligned the junction against, which is evidence "
+               "about the sequence rather than about what was reported. It is NOT what ships: "
+               "v.segm carries the curated call. Empty where the engine named no allele."),
+    _f("j.segm.arda", searchable=0, autocomplete=0, title="J called by the markup engine",
+       comment="The J allele the markup engine aligned against. Not what ships; see v.segm.arda."),
     _f("fix.needed", searchable=0, autocomplete=0, data_type="bool", title="Fix needed",
        comment="Whether the repaired CDR3 differs from the submitted one."),
     _f("fix.good", searchable=0, autocomplete=0, data_type="bool", title="Fix good",
@@ -428,6 +442,9 @@ CHAIN_COLUMNS: tuple[str, ...] = (
     "d.inferred", "d.start", "d.end", "d.posterior", "d.entropy",
     "cdr3.original", "fix.needed", "fix.good",
     "v.fix.type", "j.fix.type", "v.canonical", "j.canonical",
+    # The submitted call, and the call the markup engine would have made, beside the shipped one.
+    "v.segm.submitted", "j.segm.submitted", "d.segm.submitted",
+    "v.segm.arda", "j.segm.arda",
     "TCR_hash",
 )
 

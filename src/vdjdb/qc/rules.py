@@ -72,6 +72,22 @@ RULES: dict[str, pl.Expr] = {
     # defect only a curator can fix.
     "alpha and beta cdr3 identical": (_blank("cdr3.alpha") | _blank("cdr3.beta")
                                       | (pl.col("cdr3.alpha") != pl.col("cdr3.beta"))),
+    # A V or J call for a chain whose CDR3 is blank. The call is real information and the row is
+    # kept, but the chain cannot reach any output: every shipped table is keyed on the CDR3, so the
+    # segment is carried in `chunks/` and dropped by the build, which is the kind of silent loss a
+    # submitter should hear about while they can still fix it.
+    #
+    # Two ways a row gets here. A submission that names the genes and omits the sequence, which is
+    # the case this flags for the submitter. And #561, where the alpha CDR3 was a copy of the beta
+    # and was cleared, leaving the paper's genuine alpha V and J behind on purpose -- that is a
+    # deliberate state, recorded in the row's `comment`, and the flag keeps it visible rather than
+    # letting it look like a clean record.
+    #
+    # Advisory: it reports a chain that cannot ship, not a row that is wrong.
+    "segment call with no cdr3": ~(
+        (_blank("cdr3.alpha") & ~(_blank("v.alpha") & _blank("j.alpha")))
+        | (_blank("cdr3.beta") & ~(_blank("v.beta") & _blank("j.beta")))
+    ),
 }
 
 
