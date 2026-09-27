@@ -61,9 +61,8 @@ Download the latest release zip from
 [vdjdb.com](https://vdjdb.com), served by [VDJdb-web](https://github.com/antigenomics/vdjdb-web).
 
 [vdjmatch](https://github.com/antigenomics/vdjmatch) can resolve a release for you when annotating
-repertoires. That path is work in progress: it takes the first `.zip` asset it finds, so it picks an
-arbitrary one as soon as a release contains more than one. The fix is to select by role from
-`manifest.json`, and it ships in vdjmatch before VDJdb publishes a multi-zip release.
+repertoires. That path is work in progress; see the vdjmatch repository. Standalone annotation from a
+downloaded release is planned.
 
 ## Building it
 
