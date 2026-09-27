@@ -74,6 +74,38 @@ large diff that is mostly format difference, and the work is in classifying it.
 Start with one release, 2023-06-01: recent enough to share most of the schema, old enough that a
 rule which only fits 2026 will not fit it.
 
+## `dev` and `master` cannot be deleted
+
+The repository has `delete_branch_on_merge` enabled, which is right for feature branches and wrong for
+the long-lived ones: a `dev` to `master` pull request has `dev` as its **head**, so merging it used to
+delete `dev`. That happened on PR #573 and again on PR #584. Nothing was lost except the ref - every
+commit stays reachable from `master` - but a contributor pulling in the window between the merge and the
+restore gets a confusing error, and the symptom does not look like a branch-protection question.
+
+It is fixed by a ruleset rather than by turning the setting off, so feature branches still tidy
+themselves up:
+
+| Ruleset | Refs | Rules | Bypass actors |
+|---|---|---|---|
+| `no-deletion-dev-master` | `refs/heads/dev`, the default branch | `deletion` | **none** |
+| `protect-dev` | `refs/heads/dev` | `deletion`, `non_fast_forward`, `required_status_checks` | org admin, admin, triage |
+| `vdjdb-master` | the default branch | `deletion`, `non_fast_forward`, `pull_request`, `required_status_checks` | org admin |
+
+⚠ **The bypass list is why `protect-dev` alone did not work.** It already carried a `deletion` rule, but
+a merge runs as the person merging, and an admin's `always` bypass covers the deletion too. A GitHub
+ruleset's bypass list applies to the whole ruleset and cannot be set per rule, so the deletion rule needs
+its own ruleset with an empty bypass list. That is what `no-deletion-dev-master` is, and it holds: a
+`git push origin --delete dev` from an admin is now rejected with `GH013`.
+
+`protect-dev` keeps its bypass on purpose, so a maintainer can still push a fix to `dev` directly when a
+status check is stuck. Deletion is the only thing nobody may do.
+
+If `dev` is ever absent again, the restore is one command, and the commit is the merge's second parent:
+
+```bash
+git push origin $(git rev-parse master^2):refs/heads/dev
+```
+
 ## Reproducibility
 
 Same inputs, same bytes: in another process, on another host, at another core count.
