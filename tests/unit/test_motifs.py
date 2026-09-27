@@ -10,6 +10,7 @@ import pytest
 from vdjdb.motifs import cluster as C
 from vdjdb.motifs import emit as E
 from vdjdb.motifs import pwm as P
+from vdjdb.motifs import tcremp as TE
 from vdjdb.motifs import tcrnet as T
 
 
@@ -121,6 +122,61 @@ def test_cluster_numbering_follows_content_not_vertex_order():
     key = ["junction_aa", "cid"]
     assert a.sort("junction_aa").select(key).equals(b.sort("junction_aa").select(key))
     assert a.filter(pl.col("junction_aa") == "CWWWW").height == 0     # below MIN_CLUSTER
+
+
+def _tied_strata() -> tuple[pl.DataFrame, np.ndarray]:
+    """One epitope, two DBSCAN clusters that tie on every field the cid order used to read.
+
+    Same size, same CDR3 length, and the same lexicographically smallest member -- `CASSF` is in
+    both, under a different V. That combination is not hypothetical: measured 2026-09-27 on the
+    2026-06-03 corpus, human `GILGFVFTL` has two 47-member strata both starting `CAAGGSQGNLIF`, and
+    mouse `VEALYLVSG` two of five.
+    """
+    cohort = pl.DataFrame({
+        "species": ["HomoSapiens"] * 4, "gene": ["TRA"] * 4, "antigen.epitope": ["EEE"] * 4,
+        "junction_aa": ["CASSF", "CASSG", "CASSF", "CASSH"],
+        "v_call": ["TRAV1*01", "TRAV1*01", "TRAV2*01", "TRAV2*01"],
+        "j_call": ["TRAJ1*01"] * 4,
+    })
+    return cohort, np.array([0, 0, 1, 1])
+
+
+def test_two_tied_tcremp_strata_both_get_a_cid():
+    """Neither of a tied pair is dropped or merged, and repeated calls agree.
+
+    The contract, not the determinism: the row-order test below is the one that fails when the
+    ordering key is incomplete. This one fixes what the pair is *called*, so a later change to the
+    key shows up as two named cids changing rather than as a silent renumbering.
+    """
+    cohort, labels = _tied_strata()
+    X = np.zeros((4, 2))
+    runs = [TE.clusters(cohort, X, labels=labels, min_cluster=2) for _ in range(3)]
+    first = runs[0].sort("junction_aa", "v_call").select("junction_aa", "v_call", "cid")
+    for r in runs[1:]:
+        assert r.sort("junction_aa", "v_call").select("junction_aa", "v_call", "cid").equals(first)
+    assert set(first["cid"]) == {"H.A.EEE.1L5", "H.A.EEE.2L5"}
+
+
+def test_a_tcremp_cid_follows_the_cluster_and_not_the_row_order():
+    """The nondeterminism the tiebreak removes, and the gate on it.
+
+    Measured 2026-09-27: three runs of `vdjdb motifs --methods tcremp` on byte-identical tables
+    produced three different `cluster_members_tcremp.txt`, differing only in which of a tied pair got
+    which number -- 104 rows over two epitopes, with the partition itself unchanged. The ordering key
+    ran out of fields and the sort left equal keys wherever it happened to; `(__label, __len)`
+    identifies a stratum within an epitope, so adding both leaves nothing to break arbitrarily.
+
+    A cid is a URL in `vdjdb-web`, so the numbering has to be a function of the content
+    (CLAUDE.md hard rule 7).
+    """
+    cohort, labels = _tied_strata()
+    X = np.arange(8, dtype=float).reshape(4, 2)
+    order = [2, 0, 3, 1]
+    straight = TE.clusters(cohort, X, labels=labels, min_cluster=2)
+    shuffled = TE.clusters(cohort[order], X[order], labels=labels[order], min_cluster=2)
+    key = ["junction_aa", "v_call", "cid"]
+    assert (straight.sort("junction_aa", "v_call").select(key)
+            .equals(shuffled.sort("junction_aa", "v_call").select(key)))
 
 
 #: `H.B.ALSKGVHFV.1` position 8 of the 2026-06-03 release: counts N1 G1 D3 S4 over csz 9, with the

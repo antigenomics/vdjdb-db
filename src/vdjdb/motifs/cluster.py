@@ -9,14 +9,14 @@ The edges come from one batched ``seqtree.Index.search_batch`` over the enriched
 not from a Python double loop: at 1,702 clonotypes for GILGFVFTL alone a quadratic scan is 1.4M
 comparisons per epitope (CLAUDE.md hard rule 8, rung 2).
 
-**A connected component is not always a motif.** Percolation is a real failure mode: one extra
+A connected component is not always a motif. Percolation is a measured failure mode: one extra
 substitution of scope can fuse every sub-motif of an epitope into a single giant component that
-holds a large share of its records and has no readable logo. :func:`_leiden` is the alternative --
+takes a large share of its records and has no readable logo. :func:`_leiden` is the alternative --
 CPM Leiden subdivides a component into communities whose internal density clears a resolution, and
-every community it returns is connected, which is exactly the guarantee Louvain does not give. At
-resolution 0 it *is* the connected components, so the two are one knob rather than two code paths.
+every community it returns is connected, which is the guarantee Louvain does not give. At
+resolution 0 it is the connected components, so the two are one knob rather than two code paths.
 
-**Cluster numbering is content-derived, not a counter.** Raw component numbers depend on vertex
+Cluster numbering is content-derived, not a counter. Raw component numbers depend on vertex
 insertion order and on the graph library's internals, so they move between releases and every
 bookmarked ``vdjdb.com`` motif URL breaks. Components are ordered by size descending then by their
 lexicographically smallest member, so a cluster whose membership is unchanged keeps its number
@@ -54,13 +54,13 @@ def _edges(seqs: list[str], scope: str) -> list[tuple[int, int]]:
 
 
 def _recruited(seqs: list[str], enriched: list[int], scope: str) -> list[int]:
-    """Vertices of the motif graph: the enriched clonotypes **and their neighbours**.
+    """Vertices of the motif graph: the enriched clonotypes and their neighbours.
 
     Stage I of the legacy Rmd's two-stage construction -- ``compute_edges(enriched, all)`` then
     ``compute_edges(from, to, combine = TRUE)``. A clonotype that is one substitution from an
     enriched one joins the graph even when its own degree did not clear the threshold, because the
-    motif is the neighbourhood, not the set of rows that passed a test. Omitting this was the whole
-    of phase 10's coverage gap against the shipped files.
+    motif is the neighbourhood, not the set of rows that passed a test. Omitting this accounted for
+    phase 10's coverage gap against the shipped files.
 
     Returned sorted, so the vertex order does not depend on hit order (CLAUDE.md hard rule 7).
     """
@@ -119,7 +119,7 @@ def _layout(n: int, edges: list[tuple[int, int]]) -> list[tuple[float, float]]:
 
     Display coordinates only -- nothing downstream reads them. Seeded from
     :data:`vdjdb.config.SEED`, because an unseeded layout is a different picture every build and
-    would make the file's digest meaningless (CLAUDE.md hard rule 7).
+    the file's digest would change with it (CLAUDE.md hard rule 7).
     """
     import random
 
@@ -144,7 +144,7 @@ def clusters(scored: pl.DataFrame, *, scope: str | None = None,
     """Cluster every ``(species, gene, epitope)`` group of :func:`~vdjdb.motifs.tcrnet.enriched_clonotypes`.
 
     ``scored`` is every scored clonotype with an ``enriched`` flag, not only the ones that passed:
-    the graph is built over the enriched set **and its neighbours** (:func:`_recruited`).
+    the graph is built over the enriched set and its neighbours (:func:`_recruited`).
 
     ``resolution`` picks the partition: ``None`` or ``0`` takes connected components, anything
     higher runs CPM Leiden inside each of them. It defaults per chain from
@@ -160,7 +160,7 @@ def clusters(scored: pl.DataFrame, *, scope: str | None = None,
     for (species, gene, epitope), grp in scored.group_by(
             ["species", "gene", "antigen.epitope"], maintain_order=True):
         # The graph must use the same ball the enrichment was scored over, which is per chain. The
-        # scored frame carries it, so the two cannot drift apart.
+        # scope travels on the scored frame, so the two cannot drift apart.
         chain_scope = scope or (grp["scope"][0] if "scope" in grp.columns
                                 else TUNED.get(gene, {}).get("scope", "1,0,0,1"))
         floor = min_cluster if min_cluster is not None \
@@ -182,12 +182,16 @@ def clusters(scored: pl.DataFrame, *, scope: str | None = None,
             pl.Series("__label", labels),
             pl.Series("x", [p[0] for p in xy]), pl.Series("y", [p[1] for p in xy]),
         )
-        sizes = g.group_by("__label").agg(pl.len().alias("csz"),
-                                          pl.col("junction_aa").min().alias("__first"))
+        sizes = g.group_by("__label", maintain_order=True).agg(
+            pl.len().alias("csz"), pl.col("junction_aa").min().alias("__first"))
         # Size descending, then the smallest member: a number that follows the content, not the
-        # order the vertices happened to arrive in.
+        # order the vertices happened to arrive in. `__label` closes the key: two clusters of one
+        # epitope that tie on size and on smallest member would otherwise be numbered in whatever
+        # order the sort left them, which is how the TCREMP path came out different between two runs
+        # of the same build. Measured 2026-09-27, no TCRNET cluster pair ties on the first two
+        # fields, so this changes no current output -- it is the case that has to stay impossible.
         order = (sizes.filter(pl.col("csz") >= floor)
-                      .sort(["csz", "__first"], descending=[True, False])
+                      .sort(["csz", "__first", "__label"], descending=[True, False, False])
                       .with_row_index("__n", offset=1))
         if not order.height:
             continue
