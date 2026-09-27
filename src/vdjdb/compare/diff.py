@@ -1,4 +1,4 @@
-"""The difference ledger -- the instrument every later phase is measured with.
+"""Comparison of a candidate build against a released bundle.
 
 ``vdjdb diff <reference> <candidate>`` compares a released bundle against a freshly built one in
 three passes:
@@ -10,12 +10,11 @@ three passes:
    reproduced byte-for-byte by anyone, including the pipeline that produced it;
 3. **row-level classification** -- rows keyed on a stable identity, bucketed into
    ``only-in-reference`` / ``only-in-candidate`` / ``changed`` / ``identical``, and every changed
-   **cell** attributed to a declared rule in ``rules/expected_diffs.toml``.
+   cell attributed to a declared rule in ``rules/expected_diffs.toml``.
 
-The gate is deliberately two-sided: an unattributed difference fails, and **a rule that fires a
-different number of times than it declares also fails**. Without the second half a rule is a
-description rather than a measurement, and a regression that happens to touch a declared column
-would pass silently.
+The gate is two-sided: an unattributed difference fails, and a rule that fires a different number
+of times than it declares also fails. Without the second half a rule is a description rather than a
+measurement, and a regression that touches a declared column would pass with no error.
 """
 from __future__ import annotations
 
@@ -33,7 +32,7 @@ import polars as pl
 
 from ..schema import FULL_COLUMNS, SLIM_COLUMNS, VDJDB_COLUMNS
 
-#: Row identity per tabular file. Keys are **not** unique -- one paper reporting the same TCR in
+#: Row identity per tabular file. Keys are not unique -- one paper reporting the same TCR in
 #: several donors is several rows -- so rows are compared as a multiset within each key group.
 #:
 #: The key must mirror the record identity, not merely the receptor. A narrower key was tried first
@@ -69,8 +68,18 @@ WIDTHS: dict[str, int] = {
     "motif_pwms.txt": 27,
 }
 
-#: Compared line-by-line rather than row-by-row: they are short, and their rows are the schema.
-LINEWISE = ("vdjdb.meta.txt", "vdjdb.slim.meta.txt", "latest-version.txt")
+#: Compared line-by-line, by position. One line, no identity of its own.
+LINEWISE = ("latest-version.txt",)
+
+#: The metadata files: one row per column of the table they describe, so the row identity is the
+#: column name in field 1 and not the line number. Comparing them by position reported the single
+#: inserted ``TCR_hash`` row as eight changed lines, because every row after it shifted down one.
+#:
+#: Their order is gated elsewhere, twice over: ``test_header_is_the_name_column_of_the_metadata``
+#: asserts the name column is the data file's header, and :func:`_compare_table` fails a candidate
+#: whose header is reordered. It is also why these are read as lines rather than parsed as a table:
+#: the shipped ``web.method`` row has a space where a tab belongs, so the reference is ragged.
+KEYED_LINES = ("vdjdb.meta.txt", "vdjdb.slim.meta.txt")
 
 #: Identity fields that live inside a JSON column rather than in a column of their own. They are
 #: the seven ``meta.*`` members of :data:`CHUNK_DEDUP_KEY`: without them a study reporting one TCR
@@ -80,13 +89,13 @@ JSON_KEYS: dict[str, tuple[str, tuple[str, ...]]] = {
                            "replica.id", "clone.id", "tissue")),
 }
 
-#: Surrogate keys: values carry no information, only the partition they induce does.
+#: Surrogate keys: the values mean nothing on their own, only the partition they induce.
 #:
 #: ``complex.id`` is a counter allocated while walking the master table, so its values follow the
 #: chunk order ``os.listdir`` happened to return. Comparing it by value made 185,868 of 284,546
-#: rows "changed" in the first real run -- 58 % of the table, none of it a difference in the data.
-#: It is instead **renumbered canonically** on both sides before comparison, so a genuine change in
-#: which chains are grouped into one clone still shows up, and a reshuffle does not.
+#: rows "changed" in the first run -- 58 % of the table, none of it a difference in the data.
+#: It is instead renumbered canonically on both sides before comparison, so a change in which
+#: chains are grouped into one clone still shows up, and a reshuffle does not.
 SURROGATE: dict[str, str] = {"vdjdb.txt": "complex.id", "vdjdb.slim.txt": "complex.id"}
 
 
@@ -145,7 +154,7 @@ class DiffReport:
 
     @property
     def stale_renames(self) -> list[str]:
-        """Declared renames that matched nothing. A rule outliving its data is a silent lie."""
+        """Declared renames that matched nothing; a declaration outliving its data fails the run."""
         fired = self.rename_counts
         return sorted(r for r in self.rename_declared if not fired.get(r))
 
@@ -233,8 +242,8 @@ def _contested(a: pl.DataFrame, b: pl.DataFrame) -> pl.Series:
 
     Materialising both tables costs 6.26 million tuples on ``vdjdb.txt`` and dominates the run.
     Instead, hash each row once in polars, count ``(key, row hash)`` pairs on both sides, and keep
-    only the keys where some count disagrees. On a real rebuild that is 14 keys of 208,447, so the
-    Python-level pairing below runs on ~0.007 % of the table.
+    only the keys where some count disagrees. On a rebuild of the current corpus that is 14 keys of
+    208,447, so the Python-level pairing below runs on ~0.007 % of the table.
     """
     def counts(df: pl.DataFrame) -> pl.DataFrame:
         return (df.group_by("__key", "__hash").len()
@@ -270,7 +279,7 @@ def _canonical_surrogate(name: str, df: pl.DataFrame, col: str,
                .agg(pl.col("__k").sort().str.join("\x1e").alias("__label"),
                     pl.col("__row").min().alias("__i")))
     # `sort` must be stable and the tiebreak explicit: groups with an identical label are exactly
-    # the ambiguous ones, and an unstable sort there made the whole ledger non-reproducible
+    # the ambiguous ones, and an unstable sort there made the comparison non-reproducible
     # (158 / 152 / 158 changed rows across three identical runs).
     order = (label.filter(pl.col(col) != "0")
                   .sort("__label", "__i", maintain_order=True)
@@ -282,12 +291,12 @@ def _canonical_surrogate(name: str, df: pl.DataFrame, col: str,
 
 
 #: Fixed so a row hash is the same value in every run, on every host, and in every process.
-#: polars seeds its hash from the value alone when given one, so this is what makes the ledger
+#: polars seeds its hash from the value alone when given one, so a fixed seed makes the comparison
 #: reproducible rather than merely repeatable.
 _HASH_SEED = 20260925
 
 #: Above this many unmatched rows in one key group, pair by sort order instead of by best match.
-#: The quadratic search is worth it at 2-10 rows and pointless at 1,000.
+#: The quadratic search is affordable at 2-10 rows and not at 1,000.
 _PAIR_LIMIT = 24
 
 
@@ -296,10 +305,10 @@ def _pair(left: list[tuple[str, ...]],
     """Pair rows that share a key but are not identical, minimising the reported difference.
 
     Sort order is the wrong correspondence: two rows of one study that differ in a field outside
-    the identity key get crossed, and then *every* field that distinguishes them reports as changed.
-    Greedy nearest-match instead pairs each row with the candidate it differs from least, so the
-    ledger reports the smallest set of differences consistent with the data rather than an artifact
-    of collation.
+    the identity key get crossed, and then every field that distinguishes them reports as changed.
+    Greedy nearest-match pairs each row with the candidate it differs from least, so the report
+    lists the smallest set of differences consistent with the data rather than an artifact of
+    collation.
     """
     if not left or not right:
         return []
@@ -392,6 +401,19 @@ def _compare_lines(name: str, ref: bytes, cand: bytes) -> FileReport:
                       compared_rows=True)
 
 
+def _compare_keyed_lines(name: str, ref: bytes, cand: bytes) -> FileReport:
+    """Compare two metadata files by column name, reporting a whole differing line as one cell."""
+    raw_r, can_r = _digests(ref)
+    raw_c, can_c = _digests(cand)
+    a = {line.split("\t")[0]: line for line in ref.decode().splitlines()}
+    b = {line.split("\t")[0]: line for line in cand.decode().splitlines()}
+    cells = tuple(CellDiff(name, "line", a[k], b[k], k)
+                  for k in sorted(a.keys() & b.keys()) if a[k] != b[k])
+    return FileReport(name, raw_r == raw_c, can_r == can_c, len(a), len(b),
+                      len(a.keys() - b.keys()), len(b.keys() - a.keys()),
+                      len(cells), cells, compared_rows=True)
+
+
 def _compare_opaque(name: str, ref: bytes, cand: bytes) -> FileReport:
     raw_r, can_r = _digests(ref)
     raw_c, can_c = _digests(cand)
@@ -412,8 +434,8 @@ class Rule:
     to: str | None = None
     rows: int = -1      # -1 = "no declared count"; see DiffReport.miscounted_rules
     #: For a JSON column, the member that must be among the differing ones. Without it, one rule
-    #: on `meta` covers every field inside it, and the largest column in the database becomes a
-    #: place for regressions to hide.
+    #: on `meta` covers every field inside it, so a regression in any of those fields is
+    #: attributed to that rule.
     json_field: str | None = None
 
     def matches(self, c: CellDiff) -> bool:
@@ -427,16 +449,16 @@ class Rule:
 
 @dataclass(frozen=True, slots=True)
 class Rename:
-    """A declared value rewrite, applied to the **reference** before rows are keyed.
+    """A declared value rewrite, applied to the reference before rows are keyed.
 
     A nomenclature correction to a column that is part of the identity key produces no changed cell:
     it removes a row on one side and adds one on the other, and the cell-level machinery has nothing
-    to attribute. Rewriting the reference first restores the match, so the ledger goes on measuring
-    what *else* moved -- which is the question it exists to answer.
+    to attribute. Rewriting the reference first restores the match, so the comparison still measures
+    what else moved.
 
-    The rewrite itself is not verified by the ledger; it is reviewed as a diff of ``rules/`` and
-    counted by the build's own `nomenclature.tsv` report. What the ledger adds is that a rename which
-    matches **nothing** fails the run, so a declaration cannot quietly outlive the data it describes.
+    The rewrite itself is not verified here; it is reviewed as a diff of ``rules/`` and counted by
+    the build's own `nomenclature.tsv` report. A rename that matches nothing fails the run, so a
+    declaration cannot outlive the data it describes.
     """
 
     columns: tuple[str, ...]
@@ -450,7 +472,7 @@ class Rename:
     when_columns: tuple[str, ...] = ()
     when_contains: str = ""
     #: Exact alternative to ``when_contains``. Required when the evidence column holds peptides: a
-    #: 9-mer epitope really is a substring of a 10-mer one (`SPRWYFYYL` inside `LSPRWYFYYL`), so a
+    #: 9-mer epitope is a substring of a 10-mer one (`SPRWYFYYL` inside `LSPRWYFYYL`), so a
     #: substring predicate would fire on the wrong rows.
     when_equals: str = ""
 
@@ -465,7 +487,7 @@ class Rename:
         return bool(self.when_columns and (self.when_contains or self.when_equals))
 
     def evidence_expr(self, columns: list[str]) -> pl.Expr:
-        """True where one of ``columns`` carries the declared evidence."""
+        """True where one of ``columns`` contains the declared evidence."""
         if self.when_equals:
             return pl.any_horizontal(*[pl.col(c) == self.when_equals for c in columns])
         return pl.any_horizontal(
@@ -493,10 +515,10 @@ def _apply_renames(name: str, df: pl.DataFrame,
                    renames: list[Rename]) -> tuple[pl.DataFrame, dict[str, int]]:
     """Rewrite the reference's declared values, and count what each declaration matched.
 
-    **Simultaneously, per column, in one pass.** Applying them one after another chains them: with
-    ``A -> B`` and ``B -> C`` declared, a cell that was already ``B`` comes out ``C``. That is not a
-    hypothetical -- it silently moved mouse ``TRAV6-1*01`` rows onto ``TRAV6-7/DV9*01`` and turned a
-    clean comparison into 6,334 phantom unmatched rows, in the reference, where nothing had changed.
+    Simultaneously, per column, in one pass. Applying them one after another chains them: with
+    ``A -> B`` and ``B -> C`` declared, a cell that was already ``B`` comes out ``C``. Chaining
+    moved mouse ``TRAV6-1*01`` rows onto ``TRAV6-7/DV9*01`` with no error and turned a clean
+    comparison into 6,334 phantom unmatched rows, in the reference, where nothing had changed.
     """
     counts: dict[str, int] = {}
     per_column: dict[str, dict[str, str]] = {}
@@ -565,9 +587,9 @@ def _json_diff_fields(c: CellDiff) -> frozenset[str]:
 class RowDelta:
     """A declared, measured change in which rows a file contains.
 
-    A nomenclature correction to a column that is part of a file's grouping key genuinely removes
-    one row and adds another -- there is no cell to attribute. Declaring the counts keeps that
-    honest without weakening the gate: an undeclared row delta still fails.
+    A nomenclature correction to a column that is part of a file's grouping key removes one row and
+    adds another -- there is no cell to attribute. Declaring the counts records that without
+    weakening the gate: an undeclared row delta still fails.
     """
 
     file: str
@@ -627,6 +649,8 @@ def diff(reference: Path, candidate: Path, rules_path: Path | None = None,
         a, b = ref.read_bytes(name), cand.read_bytes(name)
         if name in KEYS or name in WIDTHS:
             report.files.append(_compare_table(name, a, b, renames))
+        elif name in KEYED_LINES:
+            report.files.append(_compare_keyed_lines(name, a, b))
         elif name in LINEWISE:
             report.files.append(_compare_lines(name, a, b))
         else:
@@ -644,8 +668,8 @@ def diff(reference: Path, candidate: Path, rules_path: Path | None = None,
 
 
 def render(report: DiffReport) -> str:
-    """The release-notes table. ``--report`` writes this, so the notes write themselves."""
-    out = ["# Difference ledger", ""]
+    """The release-notes table, which ``--report`` writes."""
+    out = ["# Comparison against the reference release", ""]
     if report.missing:
         out += [f"**Missing from the candidate:** {', '.join(report.missing)}", ""]
     if report.added:
@@ -678,11 +702,11 @@ def render(report: DiffReport) -> str:
         for rid, want in sorted(report.rule_expected.items()):
             got = report.rule_counts.get(rid, 0)
             flag = "" if want < 0 or want == got else "  **MISCOUNT**"
-            out.append(f"| `{rid}` | {'—' if want < 0 else want} | {got}{flag} |")
+            out.append(f"| `{rid}` | {'--' if want < 0 else want} | {got}{flag} |")
 
     if report.unattributed:
         by_col = Counter((c.file, c.column) for c in report.unattributed)
-        out += ["", f"## Unattributed differences — {len(report.unattributed)} cells", "",
+        out += ["", f"## Unattributed differences: {len(report.unattributed)} cells", "",
                 "| File | Column | Cells | Example |", "|---|---|---|---|"]
         for (fname, col), n in by_col.most_common(40):
             ex = next(c for c in report.unattributed if c.file == fname and c.column == col)
