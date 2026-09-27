@@ -68,7 +68,7 @@ file = "vdjdb.txt"
 column = "web.cdr3fix.unmp"
 from = "no"
 to = "yes"
-rows = 148
+rows = 147
 
 # pandas type coercion on read. The new reader keeps every cell as the string a curator typed, so
 # these are all corrections of a lossy round-trip -- the reference value is the damaged one.
@@ -134,7 +134,7 @@ id = "json-id-type-epitope"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "epitope.id"
-rows = 10927
+rows = 10929
 
 [[rule]]
 id = "json-id-type-replica"
@@ -148,7 +148,7 @@ id = "json-id-type-clone"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "clone.id"
-rows = 89
+rows = 64
 
 [[rule]]
 id = "pandas-na-gene-symbol-melted"
@@ -202,7 +202,7 @@ rows = 7389
 id = "nomenclature-vend-slim"
 file = "vdjdb.slim.txt"
 column = "v.end"
-rows = 5415
+rows = 5412
 
 [[rule]]
 id = "nomenclature-jstart-slim"
@@ -216,7 +216,7 @@ file = "vdjdb.txt"
 column = "web.cdr3fix.unmp"
 from = "yes"
 to = "no"
-rows = 5299
+rows = 5296
 
 [[rule]]
 id = "nomenclature-tcr-hash-default"
@@ -3087,3 +3087,13 @@ rows = 3
 #
 # `chains` keeps `v.segm.submitted` and `v.segm.arda` beside the shipped `v.segm`, so this is
 # auditable from the tables rather than only from this comment.
+
+# --- proofread/561: 98 alpha chains leave, and the records keep their beta ----------------------
+# `cdr3.alpha` held a copy of the beta CDR3 on 98 records of three references (#561), so it was
+# cleared. A chain row needs a CDR3, so those 98 alpha chains leave the chain table and `vdjdb.txt`,
+# which melts one row per chain, is 98 rows shorter: 284,546 -> 284,448. `vdjdb_full.txt` is
+# unchanged at 192,753 because it is one row per record and every one of those records keeps its
+# beta chain, which is the point of clearing the cell rather than dropping the row.
+#
+# The 98 are inside the `removed` count declared for `vdjdb.txt` above, not a separate rule: there is
+# no changed cell to attribute when a row simply is not there.
