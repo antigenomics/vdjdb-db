@@ -171,7 +171,7 @@ an output of it, and a stale vendored copy would change a call set with no error
 | 14 | merged | `feature/release-tooling` | manifest, three zips, checksums, `latest-version.txt`, tag scheme, changelog; retires the legacy CI | #432 | full release dry-run with no unattributed differences |
 | 15 | part | `feature/aldan3-runner` | self-hosted runner + `build.yml` retargeting | - | identical canonical digests on both runners. `build.yml` carries the `fromJSON(inputs.runner)` retargeting; **no self-hosted runner is registered** (`actions/runners` returns 0), so the second half of the criterion is unmet |
 | 16 | part | `feature/identity` | the four derived id levels, the lifecycle record, `vdjdb identity`, promiscuity columns, one study count | - | every invariant of §10.5 passes; a permuted chunk order changes no id; the dashboard reports 638 of 638 references |
-| 17 | planned | `feature/corpus` | the reference corpus: documents, vocabulary, postings, `score` and `lift` | - | the three files reproducible by digest; `score` reproduces the `refsearch` ranking; `lift` answers a specificity question with an n |
+| 17 | merged | `feature/corpus` | the reference corpus: documents, vocabulary, postings, `score` and `lift` | - | the three files reproducible by digest; `score` reproduces the `refsearch` ranking; `lift` answers a specificity question with an n |
 
 Phases 0 to 14 are merged to `master` as of 2026-09-27, and phase 15 is half landed: the comparison against the last release
 reads PASS with every difference declared and measured, and the release dry-run produces three
@@ -1226,23 +1226,47 @@ client is. This phase builds the corpus and the scorer. A service reading them i
 610 PubMed ids, 51 others (bioRxiv and medRxiv DOIs, an arXiv preprint, PDB entries, a thesis, and
 GitHub issues), and one blank. A document is a reference; the records citing it are its content.
 
-**Three token families in one vocabulary, each prefixed so a consumer can filter.**
+**Four token families in one vocabulary, each token prefixed so a consumer can filter by family
+without a second table.**
 
-| Family | Prefix | Token | Distinct, current build |
+| Family | Prefix | Token | Example |
 |---|---|---|---|
-| text | `w:` | a word of the title or abstract, lowercased | to measure; 610 documents have text |
-| receptor | `v:` | V gene without allele | 228 |
-| receptor | `j:` | J gene without allele | 80 |
-| receptor | `k:` | a CDR3 3-mer | 7,713 over 180,048 distinct CDR3s |
-| receptor | `kv:` | a CDR3 3-mer scoped to the V gene carrying it, `kv:CAS@TRBV9` | to measure |
-| antigen | `e:` | epitope | 2,118 |
-| antigen | `a:` | antigen species and antigen gene | from the epitope catalogue |
-| antigen | `m:` | MHC allele at two fields | from `restriction` |
+| text | `w:` | a word of the title or abstract, lowercased | `w:influenza` |
+| receptor | `v:` | V gene, allele dropped | `v:TRBV9` |
+| receptor | `j:` | J gene, allele dropped | `j:TRBJ2-7` |
+| receptor | `k:` | a CDR3 k-mer | `k:CAS` |
+| receptor | `kv:` | a CDR3 k-mer scoped to the V gene carrying it | `kv:CAS@TRBV9` |
+| antigen | `e:` | the epitope sequence | `e:GILGFVFTL` |
+| antigen | `ek:` | an epitope k-mer | `ek:GIL` |
+| antigen | `a:` | antigen source species | `a:InfluenzaA` |
+| antigen | `g:` | antigen gene | `g:M` |
+| MHC | `m:` | two-field allele, normalised | `m:HLA-A*02:01` |
+| MHC | `ml:` | locus | `ml:HLA-A` |
+| MHC | `mc:` | class | `mc:MHCI` |
 
-`k:` and `kv:` are both in the vocabulary because the question the corpus exists to answer needs
-both. "Is the CAS motif specific to HIV, or to its TRBV?" is a comparison between the lift of `k:CAS`
-on HIV documents and its lift on HIV documents already carrying that V gene. One token cannot express
-that and neither can a single search ranking.
+Each family is in the vocabulary because a question needs it and no other token can stand in.
+
+`k:` **and** `kv:` because "is the CAS motif specific to HIV, or to its TRBV?" is a comparison between
+the lift of `k:CAS` on HIV documents and its lift on HIV documents that already carry that V gene. One
+token cannot express that and neither can a single search ranking.
+
+`ek:` because two epitopes sharing a core, or one epitope reported under two source species, are
+linked by their k-mers and by nothing else. `e:` alone cannot ask "does this motif go with epitopes
+containing `GIL`". k is the same k as the CDR3 family, defaulting to 3: 2,118 epitopes over lengths 7
+to 25 residues, so a 3-mer is frequent enough to have a document frequency worth an idf.
+
+The three MHC granularities because restriction is a hierarchy and a question picks its level. The lift
+of `k:CAS` given `mc:MHCI`, given `ml:HLA-A` and given `m:HLA-A*02:01` are three different claims, and
+collapsing them to one allele token makes the broad ones unaskable. A two-field allele is the
+granularity the database curates at; deeper fields are noise for this purpose and are truncated.
+
+**The MHC dictionary is its own artifact**, `corpus/mhc.parquet`, one row per distinct MHC call in the
+database: the call as curated, the normalised two-field allele, the locus, the chain it sits on, the
+curated class, and whether IPD-IMGT/HLA knows the allele (`proofreading/mhc_alleles.tsv.gz`, 46,005
+alleles). It exists as a table rather than as three token-generating functions because a downstream
+tool that wants to group VDJdb by locus should read one mapping, not re-derive one, and because the
+`known` column makes the dictionary its own proofreading report. The three MHC token families are
+projections of it, so they cannot disagree with each other.
 
 **Weighting.** Sublinear term frequency `1 + log tf`, because a paper reporting 10,000 receptors
 would otherwise dominate every receptor token; smoothed inverse document frequency
@@ -1253,9 +1277,10 @@ comparable. These are scikit-learn's conventions, which makes the implementation
 **The artifact.** Three parquet files in the release, plus the TSVs beside them:
 
 ```
-corpus/documents.parquet   document_id, reference.id, kind, year, n_terms
+corpus/documents.parquet   document_id, reference.id, kind, pmid, year, n_terms, n_records
 corpus/terms.parquet       term_id, term, family, df, idf
 corpus/postings.parquet    document_id, term_id, tf, weight
+corpus/mhc.parquet         mhc, allele, locus, chain, mhc.class, known
 ```
 
 Long postings rather than a sparse-matrix format, because the consumer is polars or duckdb and the
@@ -1263,14 +1288,39 @@ query is a join. `term_id` is assigned by sorted term and `document_id` by sorte
 are total orders and the files are reproducible without a hash. Postings are sorted by
 `(term_id, document_id)`, which makes a term lookup one contiguous slice.
 
-**What is fetched and what is committed.** Receptor and antigen tokens come from `chunks/` and need
-no network. Only the text family does, and it follows hard rule 5's pattern: the running text is an
-input to the build and never an output of it. `vdjdb refs --abstracts` fetches titles and abstracts,
-tokenises them, and writes `corpus/text_terms.tsv` as `reference.id, term, tf` - term counts, no
-running text. That file is a committed, reviewed input refreshed by its own pull request, exactly as
-`summary/reference_years.tsv` already is, so the build stays offline and deterministic. Estimated at
-610 documents and roughly 120 distinct terms each, about 73,000 rows and 2 MB. The tokeniser is in
-the repository, so the transform is auditable even though the text is not kept.
+**The PubMed layer.** `src/vdjdb/corpus/pubmed.py` is the one place that talks to NCBI for
+bibliographic records, and it reuses the transport `summary/references.py` already has rather than
+opening a second one.
+
+* `efetch` with `db=pubmed&retmode=xml`, 200 ids per request, never one per id. One call returns
+  title, abstract, journal, year and DOI together, so the corpus needs no second query.
+* NCBI etiquette is in the transport, not in each caller: a `tool` and `email` parameter, at most
+  three requests a second without an API key, `$NCBI_API_KEY` honoured when present, and retry with
+  backoff on 429 and 5xx. Four requests cover the whole corpus, so this is about being a good client
+  rather than about throughput.
+* An abstract is assembled from its `AbstractText` sections in order, with the structured labels
+  (`BACKGROUND`, `METHODS`) kept as text, because they are words a query can match.
+* A PMID that returns no record is reported, never silently dropped: `reference.id` values are curated
+  and a dead one is a curation finding.
+
+**What is fetched and what is committed.** Receptor, antigen and MHC tokens come from `chunks/` and
+need no network at all. Only the text family does, and it follows hard rule 5's pattern: the running
+text is an input to the build and never an output of it.
+
+`vdjdb corpus refs` fetches the records and writes two committed, reviewed inputs, refreshed by their
+own pull request exactly as `summary/reference_years.tsv` already is, so every build is offline and
+deterministic:
+
+| File | Contents |
+|---|---|
+| `corpus/pubmed.tsv` | `reference.id, pmid, year, journal, title, doi, abstract_words, abstract_sha256` |
+| `corpus/text_terms.tsv` | `reference.id, term, tf` - term counts only |
+
+No abstract text is committed or shipped. `abstract_sha256` is what says whether an abstract changed
+between refreshes, and `abstract_words` its length, so the corpus is auditable without keeping the
+text. Titles are kept because a title is a fact a bibliography carries anyway. Estimated at 610
+documents and roughly 120 distinct terms each, about 73,000 rows and 2 MB. The tokeniser is in the
+repository, so the transform is reproducible from the text even though the text is not stored.
 
 **Two functions, not a framework.**
 
@@ -1308,6 +1358,41 @@ in existence.
 endpoint's own request shape returns a ranking; `lift` answers the CAS-against-TRBV question with a
 number and an n; and `docs/standards/corpus.md` documents the vocabulary, the weighting, the two
 functions and the file schemas.
+
+**State, 2026-09-27: done.** 661 documents, 268,160 terms over twelve families, 1,106,074 postings, in
+2.8 s. Every weight agrees with `sklearn.feature_extraction.text.TfidfVectorizer` to nine decimal
+places, and every document's L2 norm is 1.0.
+
+Four things the work established that the plan did not anticipate.
+
+**The instrument recovers a motif nothing told it about.** Conditioning on `e:GILGFVFTL`, `k:IRS` is
+the highest-lifting of the 2,342 CDR3 3-mers with 50 or more occurrences, at **2.663x** against a
+median of 1.170x, and 25 of the 29 RS-bearing 3-mers sit above that median. The RS motif of
+influenza-M1-specific beta CDR3s is documented immunology and nothing in the build encodes it. The
+control holds too: `k:CAS`, the germline start of nearly every beta CDR3, lifts **0.969** on HIV-1
+documents and 1.006 with TRBV9 held, so it reads as germline rather than antigen-specific.
+`tests/release/test_corpus_reproduction.py` pins all of it.
+
+**A document-level lift cannot answer a common token**, so `lift` has two modes. `k:CAS` is in 614 of
+661 documents, which bounds its document-level lift near 1 however specific it is. The occurrence mode
+is scoped to the term's own family: pooling every family into one denominator flattens the whole
+comparison to within 2 % of 1.0, because the rate then moves with how many epitopes a paper studied.
+
+**The epitope k-mer family earns its place on a measured case.** Searching `GILGFVFTL` puts nine exact
+reporters in the top ten and, tenth, `PMID:27036003`, which reports `GILEFVFTL` and `GILGLVFTL`. Those
+are single-residue variants, and an exact-epitope search cannot find the altered-peptide-ligand study
+of the epitope it is asking about.
+
+**Two spellings of one PMID were silently collapsing.** The corpus carries both `PMID:34433824` and
+`PMID: 34433824`, and a one-PMID-to-one-reference map kept whichever the iteration reached last: the
+first fetch wrote 609 records where 610 references are PubMed ones, with nothing raised. Fixed to
+one-to-many, and `missing` now reports `reference.id` values. 610 records, 65,720 term counts, 8,890
+distinct words, 1.6 MB committed.
+
+The MHC dictionary is 213 rows over 25 loci, and doubles as a proofreading report: 184 `known`, 27
+`unchecked` (murine H2 and the light chain are outside IPD-IMGT/HLA), and exactly two `unknown` -
+`HLA-A*08:01` and `HLA-B*12`, the same two `assemble.epitopes.mhc_status` already finds, because the
+dictionary reads that verdict rather than re-deriving one.
 
 ### Bootstrap order - done, 2026-09-27
 

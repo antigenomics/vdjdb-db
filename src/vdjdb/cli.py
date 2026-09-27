@@ -459,3 +459,125 @@ def identity_lifecycle(
     write(advance(before, now, release=release), out)
     typer.echo(compare(before, now, release=release).as_markdown())
     typer.echo(f"wrote {out} ({now.height:,} active ids)")
+
+
+corpus_app = typer.Typer(
+    help="The reference corpus: build it, refresh its PubMed input, search it, condition on it.",
+    no_args_is_help=True,
+)
+app.add_typer(corpus_app, name="corpus")
+
+
+@corpus_app.command("build")
+def corpus_build(
+    tables: Path = typer.Option(Path("out/tables"), help="A built new-format directory."),
+    out: Path = typer.Option(Path("out/corpus"), help="Where the corpus goes."),
+    k: int = typer.Option(3, help="k of the CDR3 and epitope k-mer families."),
+    text: Path | None = typer.Option(None, help="corpus/text_terms.tsv; default the committed one."),
+) -> None:
+    """Build the corpus: documents, vocabulary, postings and the MHC dictionary.
+
+    Recomputed from the tables every time; nothing is read back from a previous corpus (hard rule 9).
+    The text family needs `corpus/text_terms.tsv`, which `vdjdb corpus refs` writes; without it the
+    corpus builds from the receptor, antigen and MHC families and says so.
+    """
+    import polars as pl
+
+    from .corpus import build as cb
+    from .corpus import pubmed as cp
+
+    need = {n: tables / f"{n}.parquet" for n in ("records", "chains", "restriction")}
+    if missing := [str(p) for p in need.values() if not p.exists()]:
+        typer.secho(f"missing: {', '.join(missing)}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    frames = {n: pl.read_parquet(p) for n, p in need.items()}
+    terms = cp.load_terms(text)
+    if terms.is_empty():
+        typer.secho("no text_terms.tsv: building without the word family "
+                    "(run `vdjdb corpus refs`)", fg=typer.colors.YELLOW)
+    records = (pl.read_csv(cp.PUBMED_TABLE, separator="\t", infer_schema=False)
+               if cp.PUBMED_TABLE.exists() else None)
+    corpus = cb.build(frames["records"], frames["chains"], frames["restriction"],
+                      text_terms=terms, pubmed_records=records, k=k)
+    for name, path in cb.write(corpus, out).items():
+        typer.echo(f"{name:10} {corpus[name].height:>9,} rows  {path}")
+    families = (corpus["terms"].group_by("family").len().sort("len", descending=True))
+    for row in families.iter_rows():
+        typer.echo(f"  {row[0] or '(none)':16} {row[1]:>8,} terms")
+
+
+@corpus_app.command("refs")
+def corpus_refs(
+    tables: Path = typer.Option(Path("out/tables"), help="A built new-format directory."),
+) -> None:
+    """Refresh the committed PubMed input: records and word counts, no running text.
+
+    Hits the network, like `vdjdb refs`, and writes two reviewed inputs that a pull request carries.
+    A build never runs this (hard rule 9): the tables it writes are inputs, not results.
+    """
+    import polars as pl
+
+    from .corpus import pubmed as cp
+
+    path = tables / "records.parquet"
+    if not path.exists():
+        typer.secho(f"no records table at {path}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    refs = sorted(set(pl.read_parquet(path, columns=["reference.id"])["reference.id"].to_list()))
+    records, terms, missing = cp.build_tables(refs)
+    for p in cp.write(records, terms):
+        typer.echo(f"{p}  {p.stat().st_size:,} bytes")
+    typer.echo(f"{records.height:,} PubMed records, {terms.height:,} term counts, "
+               f"{terms['term'].n_unique():,} distinct words")
+    if missing:
+        typer.secho(f"{len(missing)} PMID(s) returned no record: {', '.join(missing[:10])}",
+                    fg=typer.colors.YELLOW, err=True)
+
+
+@corpus_app.command("query")
+def corpus_query(
+    cdr3: str = typer.Option("", help="Space-joined CDR3 motifs, as the refsearch client sends."),
+    epitope: str = typer.Option("", help="Space-joined epitopes."),
+    species: str = typer.Option("", help="Space-joined host species; default the client's three."),
+    extra: str = typer.Option("", help="search_by_antigen and/or filter_stop_words."),
+    corpus: Path = typer.Option(Path("out/corpus"), help="A built corpus."),
+    limit: int = typer.Option(10, help="Rows to return; the refsearch client keeps 10."),
+) -> None:
+    """Rank references against a refsearch-shaped query."""
+    from .corpus import build as cb
+    from .corpus import query as cq
+
+    built = cb.read(corpus)
+    if not built:
+        typer.secho(f"no corpus at {corpus}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    terms = cq.refsearch_query(cdr3, epitope, extra_parameters=extra, species_to_search=species)
+    typer.echo(f"{len(terms)} query tokens")
+    hits = cq.score(built, terms, limit=limit)
+    if hits.is_empty():
+        typer.secho("no document carries any of those tokens", fg=typer.colors.YELLOW)
+        return
+    for row in hits.iter_rows(named=True):
+        typer.echo(f"{row['score']:.6f}  {row['matched']:>3} matched  {row['reference.id']}")
+
+
+@corpus_app.command("lift")
+def corpus_lift(
+    term: str = typer.Argument(..., help="A token, e.g. k:CAS."),
+    given: list[str] = typer.Option(None, "--given", help="Condition on this token; repeatable."),
+    over: str = typer.Option("occurrences", help="documents or occurrences."),
+    corpus: Path = typer.Option(Path("out/corpus"), help="A built corpus."),
+) -> None:
+    """How much more often a token appears among documents carrying the conditions.
+
+    Every number it rests on is printed with it: a lift alone says nothing about how much evidence is
+    under it.
+    """
+    from .corpus import build as cb
+    from .corpus import query as cq
+
+    built = cb.read(corpus)
+    if not built:
+        typer.secho(f"no corpus at {corpus}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    typer.echo(str(cq.lift(built, term, list(given or []), over=over)))
