@@ -80,3 +80,58 @@ jobs:
           name: qc-report
           path: qc-report.tsv
           retention-days: 14
+
+      # What the submitter actually needs to see, on the pull request itself. The job already had
+      # `pull-requests: write` and never used it, so until now a bad chunk meant opening the log or
+      # downloading the artifact. One comment, updated in place on every push, so a branch with ten
+      # pushes does not leave ten comments.
+      - name: Summarise for the pull request
+        if: always() && github.event_name == 'pull_request'
+        run: |
+          python3 - <<'PY' > comment.md
+          import csv, pathlib, collections
+          changed = [l.strip() for l in pathlib.Path("changed.txt").read_text().splitlines() if l.strip()]
+          rows = list(csv.DictReader(open("qc-report.tsv"), delimiter="\t")) \
+              if pathlib.Path("qc-report.tsv").exists() else []
+          print("## chunk-check\n")
+          if changed:
+              print(f"**{len(changed)} chunk file(s) changed.**\n")
+              print("| Chunk | Rows |")
+              print("|---|---:|")
+              for c in sorted(changed):
+                  p = pathlib.Path(c)
+                  n = max(sum(1 for _ in p.open(encoding="utf-8", errors="replace")) - 1, 0) if p.exists() else 0
+                  print(f"| `{p.name}` | {n:,} |")
+              print()
+          else:
+              print("No chunk files changed; the whole corpus was validated instead.\n")
+          if rows:
+              by = collections.Counter(r["code"] for r in rows)
+              print(f"### {len(rows)} QC finding(s)\n")
+              print("| Rule | Count | First example |")
+              print("|---|---:|---|")
+              for code, n in by.most_common():
+                  first = next(r for r in rows if r["code"] == code)
+                  where = f"{pathlib.Path(first['file']).name}:{first['row']}" if first.get("row") else pathlib.Path(first["file"]).name
+                  print(f"| `{code}` | {n} | {where} - {first['detail'][:90]} |")
+              print()
+              print("A rule that blocks the merge fails the job above; the rest are advisory.")
+          else:
+              print("**No QC findings.**")
+          PY
+          cat comment.md
+
+      - name: Post or update the comment
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- chunk-check -->';
+            const body = marker + '\n' + fs.readFileSync('comment.md', 'utf8');
+            const {owner, repo} = context.repo;
+            const issue_number = context.issue.number;
+            const list = await github.rest.issues.listComments({owner, repo, issue_number});
+            const mine = list.data.find(c => c.body && c.body.startsWith(marker));
+            if (mine) await github.rest.issues.updateComment({owner, repo, comment_id: mine.id, body});
+            else await github.rest.issues.createComment({owner, repo, issue_number, body});
