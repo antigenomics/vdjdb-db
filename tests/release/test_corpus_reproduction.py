@@ -28,23 +28,16 @@ MOTIF = "RS"
 #: it, one paper's handful of receptors moves the ratio and the number is noise.
 MIN_OCCURRENCES = 50
 
-#: Measured 2026-09-27 on the 2026-09 build, after PMID:18025130 landed. Frozen so a change in the
-#: weighting shows up here rather than in a conclusion someone draws later.
-#:
-#: Landing that chunk moved two of these, which is what frozen constants are for: ``documents``
-#: 661 -> 662, one new reference, and ``motif_above_median`` 25 -> **26**, because the 40 added HIV-1
-#: records nudged the median down far enough for one more RS-bearing 3-mer to clear it. The headline
-#: numbers did not move: ``k:IRS`` stays the top lift at 2.6636 and the median at 1.1698. So the
-#: finding strengthened slightly rather than drifting, and a curation change of 40 records is visible
-#: here rather than silent.
+#: Measured 2026-09-27 on the 2026-09 build. Frozen so a change in the weighting shows up here rather
+#: than in a conclusion someone draws later.
 EXPECTED = {
-    "documents": 662,
+    "documents": 661,
     "kmers_scored": 2342,
     "top_kmer": "k:IRS",
     "top_lift": 2.663,
     "median_lift": 1.170,
     "motif_kmers": 29,
-    "motif_above_median": 26,
+    "motif_above_median": 25,
 }
 
 #: ``k:CAS`` is the germline-encoded start of nearly every beta CDR3: present in 614 of 661 documents.

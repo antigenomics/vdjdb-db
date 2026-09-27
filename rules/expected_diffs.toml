@@ -162,17 +162,17 @@ rows = 15589
 # is no cell to attribute: one row leaves and another arrives.
 [[row_delta]]
 file = "vdjdb.slim.txt"
-added = 790
-removed = 816
-note = "750 added / 809 removed from pandas-na-gene-symbol seen through the slim grouping key, plus 40 added / 7 removed from landing PMID:18025130: 33 of its records open new slim groups and 7 join existing KRWIILGLNK groups, and a group whose aggregate changes reads as one row leaving and one arriving. One declaration per file, so the two components share a number and are separated here"
+added = 750
+removed = 809
+note = "pandas-na-gene-symbol, seen through the slim grouping key"
 
 # The melt ambiguity of ROADMAP section 14, seen as rows rather than cells: where two
 # indistinguishable records swap, best-match pairing sometimes leaves one on each side.
 [[row_delta]]
 file = "vdjdb.txt"
-added = 820
+added = 780
 removed = 780
-note = "780 added / 780 removed from the legacy melt ambiguity (ROADMAP section 14), plus 40 added from landing PMID:18025130. Nothing is removed by the curation: vdjdb.txt is one row per record per chain, so a new reference adds rows and moves none"
+note = "legacy melt ambiguity; see ROADMAP section 14"
 
 
 # --- ROADMAP phase 9: IMGT segment nomenclature (#389) ------------------------------------------
@@ -235,15 +235,12 @@ file = "vdjdb_full.txt"
 column = "TCR_hash"
 rows = 983
 
-# 298 from the nomenclature regrouping, plus 3 from landing PMID:18025130: its records share a
-# signature with existing KRWIILGLNK rows, so `samples.found` on those rows counts one sample more.
-# A curation addition changing a cell on a pre-existing row is exactly what this count is for.
 [[rule]]
 id = "nomenclature-samples-found"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "samples.found"
-rows = 301
+rows = 298
 
 [[rule]]
 id = "nomenclature-d-multicall-order"
@@ -255,21 +252,17 @@ rows = 43
 # name regroups records: 2 gain a score from a neighbour they now share a signature with, and 3 lose
 # one they were being credited with by a record that is not in fact the same clonotype. Both
 # directions are the same correction, and the losses are the more interesting half.
-# 5 from the nomenclature regrouping, plus 1 from landing PMID:18025130: one pre-existing record now
-# shares a signature with a newly landed one and takes the higher score of the group.
 [[rule]]
 id = "nomenclature-score-regrouped-default"
 file = "vdjdb.txt"
 column = "vdjdb.score"
-rows = 6
+rows = 5
 
-# 4 from the nomenclature regrouping, plus 1 from landing PMID:18025130, the same record seen through
-# the paired projection.
 [[rule]]
 id = "nomenclature-score-regrouped-full"
 file = "vdjdb_full.txt"
 column = "vdjdb.score"
-rows = 5
+rows = 4
 
 
 # --- ROADMAP phase 9: input hygiene ------------------------------------------------------------
@@ -2918,9 +2911,9 @@ files = "vdjdb.slim.txt"
 # END generated renames
 [[row_delta]]
 file = "vdjdb_full.txt"
-added = 653
+added = 613
 removed = 613
-note = "613 added / 613 removed from declared corrections whose reference value is not injective, plus 40 added from landing PMID:18025130: the legacy fixer had already resolved an odd segment spelling onto a real allele, and the class-II chain-order swap rewrites two columns at once. See ROADMAP sections 23-25"
+note = "declared corrections whose reference value is not injective: the legacy fixer had already resolved an odd segment spelling onto a real allele, and the class-II chain-order swap rewrites two columns at once. See ROADMAP sections 23-25"
 
 
 # --- the generated metadata ---------------------------------------------------------------------
