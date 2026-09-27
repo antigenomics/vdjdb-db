@@ -2,18 +2,39 @@
 <meta charset="utf-8">
 <title>VDJdb summary dashboard</title>
 <!--
-  Placeholder. The docs job replaces this file with the fragment from the last successful build,
-  with `continue-on-error: true` -- a 30-minute database build must never block a typo fix in the
-  docs. If you are reading this text on the published site, that download did not happen.
+  The dashboard tab. This page fetches `vdjdb_summary_embed.html` from beside it and shows it the
+  way vdjdb.com does; if that file is absent it says so instead of showing a blank frame.
+  `docs.yml` downloads the fragment from the last successful `build.yml` on master with
+  `continue-on-error: true`, so a 30-minute database build never blocks a typo fix in the docs, and
+  the published tab tracks master rather than the last release.
+
+  Semantic UI comes from a CDN because the fragment's tables are styled by vdjdb-web's bundle, not
+  by the fragment. Without it the tables render unstyled and the tab misrepresents /overview.
+  This mirrors `summary/preview/index.html`, which does the same thing for a local render.
 -->
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.css">
 <style>
-  body { font-family: system-ui, sans-serif; margin: 0; display: grid; place-items: center;
-         height: 100vh; background: #fafafa; color: #555; text-align: center; }
-  code { background: #eee; padding: .1em .3em; border-radius: 3px; }
+  body { margin: 0; background: #fff; font-family: Lato, "Helvetica Neue", Arial, sans-serif; }
+  /* vdjdb-web renders /overview in a 1127 px content column. Match it, or the responsive image
+     rule added for #460 cannot be judged here. */
+  #frame { max-width: 1127px; margin: 0 auto; padding: 1rem 1.5rem; }
+  #miss { display: none; padding: 2rem; color: #555; text-align: center; }
+  #miss code { background: #eee; padding: .1em .3em; border-radius: 3px; }
 </style>
-<div>
-  <p><strong>The dashboard is not in this build of the docs.</strong></p>
-  <p>It is downloaded from the last successful database build. Render it yourself with<br>
+
+<div id="frame"></div>
+<div id="miss">
+  <p><strong>This build of the docs has no dashboard.</strong></p>
+  <p>It is downloaded from the last successful database build on <code>master</code>.
+     Render it yourself with<br>
      <code>uv run vdjdb summary --legacy out/legacy</code>, then open
      <code>summary/preview/</code>.</p>
 </div>
+
+<script>
+  fetch("vdjdb_summary_embed.html")
+    .then(r => r.ok ? r.text() : Promise.reject(new Error(String(r.status))))
+    .then(html => { document.getElementById("frame").innerHTML = html; })
+    .catch(() => { document.getElementById("miss").style.display = "block"; });
+</script>
