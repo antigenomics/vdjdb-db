@@ -102,6 +102,11 @@ jobs:
       - name: Identity
         run: uv run vdjdb identity check --tables out/tables
 
+      # The corpus is offline: the word family needs `corpus/text_terms.tsv`, a committed input
+      # refreshed by its own pull request, and the other eleven families come from `chunks/`.
+      - name: Corpus
+        run: uv run vdjdb corpus build --tables out/tables --out out/corpus
+
       - name: Motifs
         run: uv run vdjdb motifs --tables out/tables --out out/motifs
 
