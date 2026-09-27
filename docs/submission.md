@@ -24,7 +24,7 @@ An [XLS template](https://raw.githubusercontent.com/antigenomics/vdjdb-db/master
 
 > **CAUTION** Check that nothing is corrupted on import from the XLS template: ``x/X`` frequencies turned into dates, bad encoding, and similar. The format of every field is pre-set to *text* to prevent this.
 
-## A submission that cannot land yet goes to `withheld/`
+## A submission that cannot land yet goes to `pending/` or `withheld/`
 
 Not every chunk can land when it arrives. It may be in a format that predates the current
 specification, carry a species or a nomenclature the build has no germline or allele reference for, or
@@ -35,23 +35,40 @@ reads it, and the submission is lost the moment someone tidies the branch list. 
 unlanded on branches for eight and ten years and were recovered only by checking every unmerged branch
 against the tracker.
 
-Move it to `withheld/` instead, which is an input directory no build reads, so the file stays tracked,
-greppable and reviewable and the records are there when whatever blocks them is fixed.
+Both directories are inputs that no build reads, so the file stays tracked, greppable and reviewable
+and the records are there when whatever blocks them is fixed. Which one depends on where the problem
+is - in the file, or in the build:
 
-1. Copy the chunk to `withheld/` under the same name, **unchanged**. Do not repair it on the way in:
-   the file should stay what the submitter sent, so the next curator sees the original.
+| Directory | The chunk | What has to change | Who changes it |
+|---|---|---|---|
+| `pending/` | is in the current format and parses cleanly | the **build** gains a reference it lacks - a species vocabulary, a germline set, an allele database | a maintainer |
+| `withheld/` | predates the current specification and cannot be read at all | the **file** is re-exported against the current column set | a curator, or the submitting author |
+
+The difference is checkable rather than a judgement. The five chunks in `withheld/` carry 34- or
+36-column headers beginning `cdr3.alpha`; the current header is 33 columns beginning `chunk.id`. A
+chunk whose header matches a shipping chunk does not belong there, however far it is from landing:
+filing it under `withheld/` tells the next curator to re-export a file that needs no re-export.
+
+`pending/PMID_22058411.txt` is the worked example. Its header is identical to a chunk that ships and
+`vdjdb qc` parses all 53 rows; every row then fails one rule, `bad species`, because `species` is
+`BosTaurus` and three parts of the build have no bovine input. Nothing about the file is wrong.
+
+Either way:
+
+1. `git mv` or copy the chunk under the same name, **unchanged**. Do not repair it on the way in: the
+   file should stay what the submitter sent, so the next curator sees the original.
 2. Commit it on a chunk branch through `dev`, with a message naming what blocks it and what would
    unblock it.
 3. Comment on the issue with the new path, the blocking reason, and the condition that would let it
-   land. Leave the issue **open** - it is still a pending submission, and closing it makes a withheld
+   land. Leave the issue **open** - it is still a pending submission, and closing it makes a blocked
    chunk indistinguishable from a rejected one. If no issue exists, open one.
 
 Name the blocker in terms someone can act on. "Bad format" is not one; "33-column header predates the
 `.tsv` migration, needs re-export from the source table" is.
 
 This applies to a chunk you merely doubt as much as to one that fails a QC rule. A record you are
-unsure of is better in `withheld/` with the doubt written down than silently dropped or silently
-shipped.
+unsure of is better quarantined with the doubt written down than silently dropped or silently shipped.
+Use `pending/` when you expect it to land and `withheld/` when the file itself has to change first.
 
 The repository includes curation skills in `skills/`, for use with [Claude Code](https://claude.ai/code) (Anthropic's CLI agent) and with GitHub Copilot's agent mode. A skill is an instructional document that guides an AI assistant through a multi-step curation, formatting or quality-control task on VDJdb chunks.
 
