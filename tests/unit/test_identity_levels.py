@@ -324,3 +324,104 @@ def test_the_counts_table_names_every_level_even_at_zero() -> None:
     assert counts.height == len(LEVELS)
     assert counts.filter(pl.col("level") == "clonotype")["added"][0] == 1
     assert counts.filter(pl.col("level") == "pmhc")["added"][0] == 0
+
+
+# --------------------------------------------------------------------------------------------
+# The checks that need history, and the branches that skip
+# --------------------------------------------------------------------------------------------
+
+def _consistent() -> dict[str, pl.DataFrame]:
+    rec = derive(derive(records(), PMHC), EPITOPE)
+    ch = derive(chains(), CLONOTYPE).with_columns(pl.lit("").alias(CLONE.column)).drop("species")
+    return {"records": rec, "chains": ch}
+
+
+def test_a_partial_build_is_checked_rather_than_refused() -> None:
+    """`vdjdb identity` runs against a directory mid-build, so a missing table skips its checks."""
+    tables = _consistent()
+    assert checks.check({"chains": tables["chains"]}) == []
+    assert checks.check({}) == []
+
+
+def test_an_unknown_prefix_in_the_build_is_reported_against_history() -> None:
+    tables = _consistent()
+    forged = tables["chains"].with_columns(pl.lit("ZZforged").alias(CLONOTYPE.column))
+    previous = lifecycle.advance(lifecycle.empty(), _present(("CTaaa", "clonotype")), release="v1")
+    found = checks.check({"records": tables["records"], "chains": forged},
+                         previous_lifecycle=previous)
+    assert any(f.invariant == 5 and "prefix belonging to no level" in f.what for f in found)
+
+
+def test_a_published_level_emptying_is_reported() -> None:
+    """Not an error, but never an accident either, so a human accepts it rather than a build."""
+    previous = lifecycle.advance(lifecycle.empty(),
+                                 _present(("PMaaa", "pmhc"), ("CTbbb", "clonotype")), release="v1")
+    only_chains = {"chains": _consistent()["chains"]}
+    found = checks.check(only_chains, previous_lifecycle=previous)
+    assert any(f.invariant == 5 and "pmhc" in f.what and "now has none" in f.what for f in found)
+
+
+def test_an_empty_antigen_id_on_a_record_is_reported() -> None:
+    tables = _consistent()
+    blanked = tables["records"].with_columns(pl.lit("").alias(PMHC.column))
+    found = checks.check({"records": blanked, "chains": tables["chains"]})
+    assert any(f.invariant == 6 and "pmhc_id is empty" in f.what for f in found)
+
+
+def test_an_evidence_row_naming_no_chain_is_reported() -> None:
+    tables = _consistent()
+    evidence = pl.DataFrame({"record_id": ["VDJDB0000000404"], "gene": ["TRB"]})
+    found = checks.check({**tables, "evidence": evidence})
+    assert any(f.invariant == 6 and "evidence row names a chain" in f.what for f in found)
+
+
+def test_a_moved_tcr_hash_on_an_unchanged_clonotype_is_reported() -> None:
+    """Invariant 7. The structure link ships as curated, so it must not move under a stable key."""
+    tables = _consistent()
+    previous_chains = tables["chains"].with_columns(pl.lit("was-abc").alias("TCR_hash"))
+    found = checks.check(tables, previous_chains=previous_chains)
+    assert [f.invariant for f in found] == [7]
+    assert "TCR_hash moved" in found[0].what
+    assert checks.check(tables, previous_chains=tables["chains"]) == []
+
+
+def test_a_finding_reads_as_a_sentence_with_its_row_count() -> None:
+    text = str(checks.Finding(6, "a clone covers one chain", 3, "('VDJDB1', 'CXaaa')"))
+    assert text.startswith("invariant 6: a clone covers one chain, 3 rows")
+    assert "e.g." in text
+    assert "e.g." not in str(checks.Finding(1, "something", 1))
+
+
+def test_read_tables_takes_what_is_there(tmp_path) -> None:
+    assert checks.read_tables(tmp_path) == {}
+    records().write_parquet(tmp_path / "records.parquet")
+    assert set(checks.read_tables(tmp_path)) == {"records"}
+
+
+# --------------------------------------------------------------------------------------------
+# The lifecycle over a build rather than over literals
+# --------------------------------------------------------------------------------------------
+
+def test_present_reads_every_level_it_finds_and_ignores_blanks() -> None:
+    tables = _consistent()
+    now = lifecycle.present(tables)
+    assert set(now["level"]) == {"clonotype", "pmhc", "epitope"}, "clone_id is blank in this fixture"
+    assert now.height == 3
+    with_clone = {**tables,
+                  "chains": tables["chains"].with_columns(pl.lit("CXaaa").alias(CLONE.column))}
+    assert lifecycle.present(with_clone).filter(pl.col("level") == "clone").height == 1
+
+
+def test_present_on_nothing_is_an_empty_frame_with_the_right_shape() -> None:
+    empty = lifecycle.present({})
+    assert empty.is_empty()
+    assert empty.columns == ["id", "level"]
+
+
+def test_the_report_renders_a_table_naming_every_level() -> None:
+    report = lifecycle.compare(lifecycle.empty(), _present(("CTaaa", "clonotype")), release="v9")
+    text = report.as_markdown()
+    assert "release v9" in text
+    for level in LEVELS:
+        assert f"| {level.name} |" in text
+    assert "| clonotype | 1 | 0 | 0 |" in text

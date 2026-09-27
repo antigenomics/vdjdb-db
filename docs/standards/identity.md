@@ -158,8 +158,11 @@ new model rewrites those columns and no id.
 
 ## Legacy structure ids
 
-`TCR_hash` is the identifier linking a record to a generated structure, and it ships exactly as
-curated. It is stored as is: never recomputed, never renamed, never derived from the levels above.
-Structure evidence keys on it. The identifiers on this page are additive, so a consumer holding a
-`TCR_hash` is never asked to migrate, and invariant 7 fails the build if one moves on a clonotype
-whose key did not.
+`TCR_hash` is the identifier linking a record to a generated structure. It is produced by the legacy
+recipe and nothing else: sha256 over a fixed field list, empty unless every required field is present
+(`vdjdb.assemble.master.add_tcr_hash`). That recipe reproduces the values in the released `vdjdb.txt`
+exactly, which is why it is preserved rather than redefined, and it is never recomputed under a new
+scheme, renamed, or derived from the levels above. Structure evidence keys on it.
+
+The identifiers on this page are additive, so a consumer holding a `TCR_hash` is never asked to
+migrate, and invariant 7 fails the build if one moves on a clonotype whose key did not.
