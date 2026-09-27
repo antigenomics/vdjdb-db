@@ -126,7 +126,11 @@ def markup(keys: pl.DataFrame, gene: str | None = None) -> pl.DataFrame:
         if organism is None:
             # An unknown species is not a reason to drop records: mark them unmapped and let the
             # QC rules complain about the species, which is the actual defect.
-            out.append(part.with_columns(_unmapped(part)))
+            out.append(part.with_columns(_unmapped(part)).with_columns(
+                # Same schema as the mapped branch: arda named nothing, so it proposes nothing.
+                pl.lit("").alias("__varda"), pl.lit("").alias("__jarda"),
+                pl.col("v").alias("__v"), pl.col("j").alias("__j"),
+            ))
             continue
         records = markup_records(part, v="__gv", j="__gj", organism=organism,
                                  max_replace=MAX_REPLACE)
@@ -135,13 +139,28 @@ def markup(keys: pl.DataFrame, gene: str | None = None) -> pl.DataFrame:
             *(pl.Series(tmp, [f[key] for f in fixes], dtype=_FIX_DTYPES[ty])
               for key, tmp, ty in FIX_FIELDS)
         ).with_columns(
-            # arda returns an empty segment id when it cannot resolve the call; the legacy kept
-            # the closest match it had. Dropping the call as well as the coordinates would fail
-            # the legacy "a CDR3 needs a V and a J" filter and cost 11,619 rows of vdjdb.txt --
-            # a coverage regression, which phase 5 must not produce. The coordinates stay -1,
-            # recording that nothing was located.
-            pl.when(pl.col("__v") == "").then(pl.col("__gv")).otherwise(pl.col("__v")).alias("__v"),
-            pl.when(pl.col("__j") == "").then(pl.col("__gj")).otherwise(pl.col("__j")).alias("__j"),
+            # arda's own call is kept as evidence, under its own name, and is what `chains` reports
+            # as `v.segm.arda` / `j.segm.arda`. It is not what ships: see the two rules below.
+            pl.col("__v").str.replace_all(";", ",").alias("__varda"),
+            pl.col("__j").str.replace_all(";", ",").alias("__jarda"),
+        ).with_columns(
+            # **The engine's allele-resolved call ships, and that is not new.** The markup engine
+            # names the allele it aligned against, so a bare `TRBV12-3` comes back `TRBV12-3*01`.
+            # Measured before assuming it: the 2026-06-03 release carries an allele suffix on
+            # **282,277 of 284,546** `v.segm` cells (99.2 %) and 282,763 `j.segm` (99.4 %), while
+            # only **37.0 %** of submitted `v.beta` and 40.2 % of `j.beta` carry one. So every
+            # release VDJdb has shipped already published the fixer's resolved allele rather than
+            # the curator's bare call, and keeping the bare call instead was tried and moved
+            # 183,345 of 284,546 rows -- a far bigger change than the swap it was meant to avoid.
+            # `chains` records what was submitted next to it, so neither is lost.
+            #
+            # Where the engine cannot resolve the call the guesser's stands: dropping it would fail
+            # the legacy "a CDR3 needs a V and a J" filter and cost 11,619 rows of `vdjdb.txt`. The
+            # coordinates then stay -1, recording that nothing was located.
+            pl.when(pl.col("__varda") != "").then(pl.col("__varda"))
+              .otherwise(pl.col("__gv")).alias("__v"),
+            pl.when(pl.col("__jarda") != "").then(pl.col("__jarda"))
+              .otherwise(pl.col("__gj")).alias("__j"),
         ))
     return pl.concat(out, how="vertical").drop("__gv", "__gj").sort(KEY)
 
