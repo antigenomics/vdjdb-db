@@ -38,7 +38,10 @@ jobs:
           enable-cache: true
 
       - name: Install
-        run: uv sync --frozen --extra dev
+        # `test` as well as `dev`: the guard step below runs pytest, which is in the `test`
+        # extra, and without it the step fails to spawn rather than failing a check. The same
+        # gap `8c8384d` closed in the docs job.
+        run: uv sync --frozen --extra dev --extra test
 
       - name: Lint and type-check
         run: |

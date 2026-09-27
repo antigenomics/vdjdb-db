@@ -24,6 +24,35 @@ An [XLS template](https://raw.githubusercontent.com/antigenomics/vdjdb-db/master
 
 > **CAUTION** Check that nothing is corrupted on import from the XLS template: ``x/X`` frequencies turned into dates, bad encoding, and similar. The format of every field is pre-set to *text* to prevent this.
 
+## A submission that cannot land yet goes to `withheld/`
+
+Not every chunk can land when it arrives. It may be in a format that predates the current
+specification, carry a species or a nomenclature the build has no germline or allele reference for, or
+raise a question only the submitting author can settle.
+
+**Leaving it on a branch is the one wrong answer.** A branch is invisible: nothing indexes it, no build
+reads it, and the submission is lost the moment someone tidies the branch list. Two submissions sat
+unlanded on branches for eight and ten years and were recovered only by checking every unmerged branch
+against the tracker.
+
+Move it to `withheld/` instead, which is an input directory no build reads, so the file stays tracked,
+greppable and reviewable and the records are there when whatever blocks them is fixed.
+
+1. Copy the chunk to `withheld/` under the same name, **unchanged**. Do not repair it on the way in:
+   the file should stay what the submitter sent, so the next curator sees the original.
+2. Commit it on a chunk branch through `dev`, with a message naming what blocks it and what would
+   unblock it.
+3. Comment on the issue with the new path, the blocking reason, and the condition that would let it
+   land. Leave the issue **open** - it is still a pending submission, and closing it makes a withheld
+   chunk indistinguishable from a rejected one. If no issue exists, open one.
+
+Name the blocker in terms someone can act on. "Bad format" is not one; "33-column header predates the
+`.tsv` migration, needs re-export from the source table" is.
+
+This applies to a chunk you merely doubt as much as to one that fails a QC rule. A record you are
+unsure of is better in `withheld/` with the doubt written down than silently dropped or silently
+shipped.
+
 The repository includes curation skills in `skills/`, for use with [Claude Code](https://claude.ai/code) (Anthropic's CLI agent) and with GitHub Copilot's agent mode. A skill is an instructional document that guides an AI assistant through a multi-step curation, formatting or quality-control task on VDJdb chunks.
 
 ## Available skills
