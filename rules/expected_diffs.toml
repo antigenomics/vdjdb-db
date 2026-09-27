@@ -57,7 +57,7 @@ rows = 178661
 id = "legacy-melt-ambiguity-cdr3fix"
 file = "vdjdb.txt"
 column = "cdr3fix"
-rows = 17985
+rows = 17970
 
 # --- phase 4, feature/pipeline-core -----------------------------------------------------------
 # jStart == -1 is truthy in Python, where the Groovy tested jStart > -1, so unmapped records are
@@ -162,18 +162,18 @@ rows = 14966
 # is no cell to attribute: one row leaves and another arrives.
 [[row_delta]]
 file = "vdjdb.slim.txt"
-added = 9161
-removed = 9286
-note = "pandas-na-gene-symbol seen through the slim grouping key (750/809) + the arda markup engine; see the arda-cdr3fix block below"
+added = 9213
+removed = 9305
+note = "pandas-na-gene-symbol seen through the slim grouping key (750/809) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161): 40 records arrive, 33 of them as new slim groups and 7 joining groups that already existed, which rekeys those 7 + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 12 slim groups"
 
 # The melt ambiguity of ROADMAP section 14, seen as rows rather than cells: where two
 # indistinguishable records swap, best-match pairing sometimes leaves one on each side. 780 of
 # these; the rest are the markup engine, see the block at the end of this file.
 [[row_delta]]
 file = "vdjdb.txt"
-added = 11378
-removed = 11476
-note = "legacy melt ambiguity (780) + the arda markup engine naming the segment the curator reported (10,605); see the arda-cdr3fix block below"
+added = 11433
+removed = 11491
+note = "legacy melt ambiguity (780) + the arda markup engine naming the segment the curator reported (10,605; see the arda-cdr3fix block below) + PMID_18025130 landing (#161), 40 records + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 15 records"
 
 
 # --- ROADMAP phase 9: IMGT segment nomenclature (#389) ------------------------------------------
@@ -196,19 +196,19 @@ rows = 10477
 id = "nomenclature-vend-full-beta"
 file = "vdjdb_full.txt"
 column = "cdr3fix.beta"
-rows = 7389
+rows = 7374
 
 [[rule]]
 id = "nomenclature-vend-slim"
 file = "vdjdb.slim.txt"
 column = "v.end"
-rows = 5412
+rows = 5406
 
 [[rule]]
 id = "nomenclature-jstart-slim"
 file = "vdjdb.slim.txt"
 column = "j.start"
-rows = 11194
+rows = 11179
 
 [[rule]]
 id = "nomenclature-now-mapped"
@@ -216,7 +216,7 @@ file = "vdjdb.txt"
 column = "web.cdr3fix.unmp"
 from = "yes"
 to = "no"
-rows = 5296
+rows = 5289
 
 [[rule]]
 id = "nomenclature-tcr-hash-default"
@@ -241,7 +241,7 @@ id = "nomenclature-samples-found"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "samples.found"
-rows = 1727
+rows = 1730
 
 [[rule]]
 id = "nomenclature-d-multicall-order"
@@ -257,13 +257,13 @@ rows = 55
 id = "nomenclature-score-regrouped-default"
 file = "vdjdb.txt"
 column = "vdjdb.score"
-rows = 123
+rows = 124
 
 [[rule]]
 id = "nomenclature-score-regrouped-full"
 file = "vdjdb_full.txt"
 column = "vdjdb.score"
-rows = 63
+rows = 64
 
 
 # --- ROADMAP phase 9: input hygiene ------------------------------------------------------------
@@ -2912,9 +2912,9 @@ files = "vdjdb.slim.txt"
 # END generated renames
 [[row_delta]]
 file = "vdjdb_full.txt"
-added = 10963
-removed = 10963
-note = "declared corrections whose reference value is not injective (613) + the arda markup engine; see the arda-cdr3fix block below"
+added = 11018
+removed = 10978
+note = "declared corrections whose reference value is not injective (613) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161), 40 records + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 15 records"
 
 
 # --- the generated metadata ---------------------------------------------------------------------
