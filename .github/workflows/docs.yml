@@ -26,6 +26,13 @@ on:
       - 'tests/unit/test_docs.py'
       - '.github/workflows/docs.yml'
       - 'pyproject.toml'
+  # A chunk pushed to master rebuilds the dashboard in `build.yml`, but nothing above triggers on
+  # `chunks/**`, so without this the published dashboard would keep showing the fragment from the
+  # last docs change. Redeploy whenever a database build on master succeeds.
+  workflow_run:
+    workflows: [build]
+    types: [completed]
+    branches: [master]
   workflow_dispatch:
 
 concurrency:
@@ -39,6 +46,8 @@ permissions:
 
 jobs:
   sphinx:
+    # A failed build has no dashboard artifact to publish.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

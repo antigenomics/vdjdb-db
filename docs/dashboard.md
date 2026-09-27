@@ -3,7 +3,7 @@
 `vdjdb-web` injects a fragment of this dashboard into its `/overview` page. The fragment is produced
 by `uv run vdjdb summary`, which renders `summary/vdjdb_summary.Rmd` against the legacy projection
 of the current build, then runs **one more pandoc pass** over knitr's intermediate with
-`summary/embed.html` and `summary/embed.lua` to emit the fragment directly, and verifies the result
+`summary/embed.tpl` and `summary/embed.lua` to emit the fragment directly, and verifies the result
 against a committed fingerprint. The R never runs twice; only pandoc does.
 
 That pass replaced a script that line-scanned pandoc's finished output for `<div`,
@@ -17,7 +17,7 @@ because this pass never passes `--section-divs` and so emits none.
 resolved once by `vdjdb refs` and committed; the document stops rather than plotting an incomplete
 year axis if any reference is missing from it.
 
-## Three properties are load-bearing
+## Three properties the fragment must keep
 
 Any one of them failing silently blanks `/overview`, so `summary/check_summary.py` asserts all three
 on every render:
