@@ -258,12 +258,35 @@ def refs(
 
     Network-bound and not part of a build: the table is a committed, reviewed input that makes the
     dashboard render offline, refreshed by its own pull request (hard rule 9).
+
+    Reads the built `records`, not `chunks/`, because the table has to key on the reference id the
+    dashboard will see: #347 rewrites a DOI or a publisher URL into a PMID, so resolving the raw chunk
+    values drops every reference the harmonisation converts. Measured: three of them, covering 669
+    records.
+
+    That leaves a staleness hazard, which the check below closes. Resolving against a build that
+    predates a newly landed chunk writes the table without that chunk's reference, and the dashboard
+    then fails in CI fifteen minutes later with "1 reference(s) have no year". `records` carries
+    `chunk.file`, so the build states which chunks it saw and the comparison is exact rather than a
+    guess from modification times, which a branch switch alone would invalidate.
     """
     import polars as pl
 
+    from .io.chunks import chunk_files
     from .summary import references as refs_mod
 
-    records = pl.read_parquet(tables / "records.parquet")
+    built = tables / "records.parquet"
+    if not built.exists():
+        typer.secho(f"no records table at {built}; run `vdjdb build` first",
+                    fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    records = pl.read_parquet(built)
+    seen = set(records["chunk.file"].unique().to_list())
+    if unseen := sorted({p.name for p in chunk_files()} - seen):
+        typer.secho(f"{built} was built without {len(unseen)} chunk(s) that exist now: "
+                    f"{', '.join(unseen[:5])}. Their references would be resolved away silently. "
+                    f"Re-run `vdjdb build` first.", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
     table = refs_mod.refresh(records, out or refs_mod.TABLE)
     for row in table.group_by("source").len().sort("source").iter_rows():
         typer.echo(f"{row[0]:14} {row[1]:>5,}")
