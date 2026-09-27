@@ -97,9 +97,9 @@ def tables(sc: pl.DataFrame) -> str:
         ref = g.filter(pl.col("algo").is_in(REFS)).select(SHOW)
         fam = (g.filter(~pl.col("algo").is_in(REFS)).sort("f1", descending=True)
                 .group_by("algo", maintain_order=True).first().select(SHOW))
-        out += [f"\n### {gene} — the reference rows\n",
+        out += [f"\n### {gene}: the reference rows\n",
                 md(ref, FMT, BEST),
-                f"\n### {gene} — best cell per algorithm, ranked on F1\n",
+                f"\n### {gene}: best cell per algorithm, ranked on F1\n",
                 md(pl.concat([ref, fam]).sort("f1", descending=True), FMT, BEST)]
 
     rows = []
@@ -113,7 +113,7 @@ def tables(sc: pl.DataFrame) -> str:
                          "do-nothing partition": f.format(tr[axis]),
                          "legacy bar": f.format(lg[axis]),
                          "excludes it?": "yes" if tr[axis] < lg[axis] else "**no**"})
-    out += ["\n### The instrument audit — which bars the do-nothing partition clears\n",
+    out += ["\n### The instrument audit: which bars the do-nothing partition clears\n",
             md(pl.DataFrame(rows))]
 
     for gene in ("TRA", "TRB"):
@@ -130,9 +130,9 @@ def floors(sc: pl.DataFrame) -> str:
 
     A cell is admissible at an absolute floor ``f`` exactly when purity and precision both clear
     ``f`` and ``Q`` and epitope coverage clear legacy's -- the rule in ``clusterlab.admissible``,
-    which is why this can be re-derived here without re-running a sweep (CLAUDE.md 0b). The floors
-    are the ones the argument turns on: legacy's own, the round number that was proposed, the
-    do-nothing partition's measured purity, and the adopted 0.94.
+    which is why this can be re-derived here without re-running a sweep (CLAUDE.md 0b). The four
+    floors compared are legacy's own, the round number proposed, the do-nothing partition's measured
+    purity, and the adopted 0.94.
     """
     out, win = [], []
     for gene in ("TRA", "TRB"):
@@ -169,7 +169,7 @@ def floors(sc: pl.DataFrame) -> str:
                               if ceil is not None and ceil > tr["purity"]
                               else f"-{tr['purity'] - ceil:.4f}" if ceil is not None else "--")})
     return "\n".join([
-        "\n### The purity floor, swept — how many configurations each floor admits\n",
+        "\n### The purity floor, swept: how many configurations each floor admits\n",
         md(pl.DataFrame(out)),
         "\n### The usable window for an absolute floor, per chain\n",
         md(pl.DataFrame(win))])

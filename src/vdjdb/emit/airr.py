@@ -12,14 +12,14 @@ They are linked by ``cell_id``, which is the ``record_id``: a VDJdb record is on
 report on one T-cell clone, and a clone is the unit AIRR's ``Cell`` names. Both fields are standard
 AIRR, so nothing here invents a join key.
 
-**Both source shapes speak the same column names.** The tidy ``chains`` table uses ``cdr3``,
-``v.segm``, ``j.segm`` -- exactly what legacy ``vdjdb.txt`` calls them -- so :func:`rearrangement`
-and :func:`reactivity` take one frame in VDJdb vocabulary and there is no second implementation for
-the legacy path to drift from. :func:`from_tables` and :func:`from_legacy` differ only in how they
+Both source shapes use the same column names. The tidy ``chains`` table uses ``cdr3``, ``v.segm``,
+``j.segm`` -- exactly what legacy ``vdjdb.txt`` calls them -- so :func:`rearrangement` and
+:func:`reactivity` take one frame in VDJdb vocabulary and there is no second implementation for the
+legacy path to drift from. :func:`from_tables` and :func:`from_legacy` differ only in how they
 assemble that input.
 
 ``Receptor`` joins them once the nucleotide junction exists (phase 8): its two domain columns are
-the *complete* mature variable domain and non-nullable, so they are rebuilt by stitching germline V
+the complete mature variable domain and non-nullable, so they are rebuilt by stitching germline V
 and J around the junction (:mod:`vdjdb.annotate.contig`). A receptor is a two-domain object by
 definition, so only paired records appear there; a single chain is a Rearrangement, which is already
 shipped.
@@ -72,7 +72,7 @@ RECEPTOR_COLUMNS: tuple[str, ...] = (
 )
 
 #: Domain 1 is the heavy/beta/delta chain, domain 2 the light/alpha/gamma one -- the schema's
-#: controlled vocabularies say so, and swapping them would be silently wrong rather than rejected.
+#: controlled vocabularies say so, and swapping them would validate while being wrong.
 _DOMAIN = {1: "TRB", 2: "TRA"}
 
 #: VDJdb spells the MHC class without the hyphen AIRR's controlled vocabulary requires.
@@ -95,11 +95,11 @@ def _reactivity_method() -> pl.Expr:
 
     Not :func:`vdjdb.emit.legacy._web_method`, which answers a different question (a coarse filter
     class for the web front end, ``sort`` / ``culture`` / ``other``). A CD137-expression sort is a
-    ``sort`` there and is *not* a multimer assay here, so reusing it would mislabel 462 records.
+    ``sort`` there and is not a multimer assay here, so reusing it would mislabel 462 records.
 
     Everything the corpus does not name as a multimer or a target assay becomes ``annotated``, which
-    is precisely what the spec asks for: *"delineated as `annotated` if annotated from an external
-    source"*. VDJdb curates from publications, so ``annotated`` is the honest default, not a gap.
+    is what the spec asks for: *"delineated as `annotated` if annotated from an external
+    source"*. VDJdb curates from publications, so ``annotated`` is the correct default, not a gap.
     """
     m = pl.col("method.identification").str.to_lowercase()
     multimer = pl.any_horizontal(*[m.str.contains(k, literal=True) for k in _MULTIMER])
@@ -112,8 +112,8 @@ def _reactivity_method() -> pl.Expr:
 def rearrangement(chains: pl.DataFrame) -> pl.DataFrame:
     """One AIRR Rearrangement row per chain.
 
-    ``chains`` must carry ``record_id``, ``gene``, ``cdr3``, ``v.segm``, ``j.segm`` and ``d.segm``
-    under those names -- which both the tidy table and legacy ``vdjdb.txt`` already do.
+    ``chains`` must have ``record_id``, ``gene``, ``cdr3``, ``v.segm``, ``j.segm`` and ``d.segm``
+    under those names, which both the tidy table and legacy ``vdjdb.txt`` already do.
     """
     d = pl.col("d.segm") if "d.segm" in chains.columns else pl.lit("")
     return chains.select(
@@ -126,11 +126,11 @@ def rearrangement(chains: pl.DataFrame) -> pl.DataFrame:
         pl.lit("T").alias("productive"),
         pl.col("v.segm").alias("v_call"), d.alias("d_call"), pl.col("j.segm").alias("j_call"),
         pl.lit("").alias("sequence_alignment"), pl.lit("").alias("germline_alignment"),
-        # The inferred nucleotide junction (#461) when this source carries one: the tidy `chains`
+        # The inferred nucleotide junction (#461) when this source has one: the tidy `chains`
         # table does, legacy `vdjdb.txt` never did.
         (pl.col("cdr3nt") if "cdr3nt" in chains.columns else pl.lit("")).alias("junction"),
-        # VDJdb's `cdr3` *is* the junction: Cys104..Phe/Trp118 inclusive. The identity here and the
-        # two-residue trim below are the whole reason `convert.coords` exists.
+        # VDJdb's `cdr3` is the junction: Cys104..Phe/Trp118 inclusive. The identity here and the
+        # two-residue trim below are what `convert.coords` exists for.
         pl.col("cdr3").alias("junction_aa"),
         pl.lit("").alias("v_cigar"), pl.lit("").alias("d_cigar"), pl.lit("").alias("j_cigar"),
         pl.col("gene").alias("locus"),
@@ -142,10 +142,10 @@ def rearrangement(chains: pl.DataFrame) -> pl.DataFrame:
 def reactivity(records: pl.DataFrame) -> pl.DataFrame:
     """One AIRR Reactivity row per record.
 
-    ``reactivity_value`` / ``reactivity_unit`` carry ``vdjdb.score``, which is what the spec asks a
+    ``reactivity_value`` / ``reactivity_unit`` hold ``vdjdb.score``, which is what the spec asks a
     non-physical assay for: *"For inferred and annotated methods this should indicate a
-    confidence/quality level"*, recommended keyword ``confidence``. VDJdb's score is exactly a
-    confidence in the specificity annotation, 0 to 3.
+    confidence/quality level"*, recommended keyword ``confidence``. VDJdb's score is a confidence in
+    the specificity annotation, 0 to 3.
     """
     return records.select(
         pl.col("record_id").alias("reactivity_id"),
@@ -171,13 +171,13 @@ def reactivity(records: pl.DataFrame) -> pl.DataFrame:
 
 
 def receptor(chains: pl.DataFrame, records: pl.DataFrame) -> pl.DataFrame:
-    """One AIRR Receptor row per **paired** record whose two variable domains can be rebuilt.
+    """One AIRR Receptor row per paired record whose two variable domains can be rebuilt.
 
     A receptor is a two-domain object: both ``receptor_variable_domain_*_aa`` are required and
     non-nullable, so a record with one chain has no Receptor row. It is not dropped -- its chain is
     in the Rearrangement file, which is where AIRR puts a single rearranged sequence.
 
-    ``receptor_hash`` is AIRR's: sha256 over the concatenated domain sequences. It is **not** VDJdb's
+    ``receptor_hash`` is AIRR's: sha256 over the concatenated domain sequences. It is not VDJdb's
     ``TCR_hash``, which hashes CDR3s, segments, MHC and epitope and is what the structure store is
     keyed on. Two hashes, two purposes, both kept.
     """
@@ -219,8 +219,8 @@ def from_legacy(vdjdb_txt: pl.DataFrame) -> dict[str, pl.DataFrame]:
     collapsing the duplicated record fields back to one row per record.
     """
     # A CSV reader turns an empty field into a null; empty string is the only missing marker here
-    # (CLAUDE.md rule 6). 854 records ship with no `reference.id` at all, so this is load-bearing
-    # rather than defensive: without it they compare unequal to the same records in the tables.
+    # (CLAUDE.md rule 6). 854 records ship with no `reference.id` at all, and without this fill they
+    # compare unequal to the same records in the tables.
     df = vdjdb_txt.fill_null("").with_columns(
         pl.col("method").str.json_decode(
             dtype=pl.Struct([pl.Field("identification", pl.Utf8)])

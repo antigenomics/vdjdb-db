@@ -1,15 +1,15 @@
 """Publication year for every ``reference.id`` in the database, resolved once and committed.
 
-The dashboard plots records by year. Until now it resolved PubMed ids by calling NCBI eutils **at
-render time** and covered everything else with a literal fourteen-entry table inside the Rmd, last
-updated in 2021. Measured on the current database that table misses **38 of the 52 non-PubMed
-references** -- every PDB structure entry curated since, plus an arXiv preprint -- and each missing
+The dashboard plots records by year. Until now it resolved PubMed ids by calling NCBI eutils at
+render time and covered everything else with a literal fourteen-entry table inside the Rmd, last
+updated in 2021. Measured on the current database, that table misses 38 of the 52 non-PubMed
+references -- every PDB structure entry curated since, plus an arXiv preprint -- and each missing
 one drops out of the by-year panels without a warning.
 
 So the table is resolved here, once, into ``summary/reference_years.tsv``: a committed, reviewed
-input refreshed by its own pull request and **never written by a build**. That is the carve-out hard
-rule 9 makes for a derived table whose whole purpose is to make the build offline and deterministic,
-and it is why :func:`refresh` is a separate command rather than a step of ``vdjdb summary``.
+input refreshed by its own pull request and never written by a build. That is the carve-out hard
+rule 9 makes for a derived table that exists to make the build offline and deterministic, and it is
+why :func:`refresh` is a separate command rather than a step of ``vdjdb summary``.
 
 Five kinds of reference, four resolvers, no per-record calls (hard rule 3):
 
@@ -26,7 +26,7 @@ Five kinds of reference, four resolvers, no per-record calls (hard rule 3):
 Anything left unresolved is reported by count and kept out of the table rather than guessed, and a
 blank ``reference.id`` is neither: it is the known curation gap on 854 records, excluded explicitly.
 
-⚠ **Nothing here reads TCRvdb.**
+⚠ Nothing here reads TCRvdb.
 """
 from __future__ import annotations
 
@@ -39,17 +39,17 @@ from pathlib import Path
 
 import polars as pl
 
-#: Where the resolved table lives. ``.tsv``, never ``.txt`` -- ``summary/*.txt`` is gitignored, so a
-#: ``.txt`` here would silently never be committed.
+#: Where the resolved table goes. ``.tsv``, never ``.txt`` -- ``summary/*.txt`` is gitignored, so a
+#: ``.txt`` here would never be committed and nothing would report it.
 TABLE = Path("summary/reference_years.tsv")
 
 #: NCBI asks for no more than a few hundred ids per esummary request.
 PMID_CHUNK = 200
 
-# Tolerant of stray whitespace inside the identifier: 22 records carry `PMID: 34433824`
+# Tolerant of stray whitespace inside the identifier: 22 records have `PMID: 34433824`
 # with a space, which a strict pattern drops from the year plots without saying so. The
 # table still keys on the database's literal value -- only the lookup is forgiving, and the
-# malformed id remains visible as a curation item rather than being silently repaired.
+# malformed id stays visible as a curation item rather than being repaired here.
 _PMID = re.compile(r"^PMID:\s*(\d+)\s*$")
 _PDB = re.compile(r"^https?://www\.rcsb\.org/structure/(\w+)/?$", re.IGNORECASE)
 _ARXIV = re.compile(r"^https?://arxiv\.org/abs/(\d{2})(\d{2})\.\d+", re.IGNORECASE)
@@ -57,7 +57,7 @@ _BIORXIV = re.compile(r"^https?://doi\.org/10\.1101/(\d{4})\.\d{2}\.\d{2}\.")
 _ISSUE = re.compile(r"^https?://github\.com/([\w-]+)/([\w-]+)/issues/(\d+)")
 
 #: Two references no API resolves: a thesis repository and a vendor application note. Their years
-#: come from the table this module replaces, which is the only record of them -- carried over rather
+#: come from the table this module replaces, which is the only record of them -- taken over rather
 #: than re-derived, and listed here so the provenance is visible instead of buried in an Rmd chunk.
 LITERAL: dict[str, int] = {
     "http://mediatum.ub.tum.de/doc/1136748": 2014,
@@ -109,7 +109,7 @@ def _issues(refs: list[tuple[str, str, str]]) -> dict[str, int]:
     """``{url: year}`` for GitHub issues -- one GraphQL query with an alias per issue.
 
     Uses ``gh`` rather than a bare request because the token is already configured there, and an
-    unauthenticated GitHub API call is rate-limited to the point of being unreliable in CI.
+    unauthenticated GitHub API call is rate-limited too hard to be reliable in CI.
     """
     if not refs:
         return {}
@@ -131,7 +131,7 @@ def _issues(refs: list[tuple[str, str, str]]) -> dict[str, int]:
 def resolve(reference_ids: list[str]) -> pl.DataFrame:
     """``(reference.id, year, source)`` for every id that resolves. Unresolved ids are omitted.
 
-    Blank ids are dropped first: 854 records carry no ``reference.id`` at all, which is a curation
+    Blank ids are dropped first: 854 records have no ``reference.id`` at all, which is a curation
     gap (``ROADMAP.md``), not a lookup failure, and counting it as one would hide it.
     """
     ids = sorted({r for r in reference_ids if r and r.strip()})
@@ -139,7 +139,7 @@ def resolve(reference_ids: list[str]) -> pl.DataFrame:
 
     # A list of pairs, not a ``{pmid: ref}`` dict: the same paper can appear under two spellings --
     # `PMID:34433824` and `PMID: 34433824` both occur -- and a dict would keep one and drop the
-    # other's 22 records from the year plots, which is the failure this whole module exists to end.
+    # other's 22 records from the year plots, which is the failure this module exists to end.
     pmids = [(m[1], r) for r in ids if (m := _PMID.match(r))]
     years = _pubmed(sorted({p for p, _ in pmids}))
     for pmid, ref in pmids:
@@ -179,7 +179,7 @@ def refresh(records: pl.DataFrame, out: Path = TABLE) -> pl.DataFrame:
 
 
 def load(path: Path = TABLE) -> pl.DataFrame:
-    """The committed table. Raises if it is missing -- a silent fallback is what caused the drift."""
+    """The committed table. Raises if it is missing; a fallback table is what went four years stale."""
     if not path.exists():
         raise FileNotFoundError(
             f"{path} is missing; run `vdjdb refs` to rebuild it. The dashboard must not fall back "
@@ -188,7 +188,7 @@ def load(path: Path = TABLE) -> pl.DataFrame:
 
 
 def unresolved(records: pl.DataFrame, table: pl.DataFrame) -> pl.DataFrame:
-    """References in the database with no year, and how many records each carries."""
+    """References in the database with no year, and how many records each has."""
     return (records.filter(pl.col("reference.id").str.strip_chars() != "")
             .group_by("reference.id").len().rename({"len": "records"})
             .join(table.select("reference.id"), on="reference.id", how="anti")

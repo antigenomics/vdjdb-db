@@ -1,13 +1,13 @@
 # 2026-09-26  Shared scoring harness for the clustering bake-off (VDJdb motif stage).
 #
-# Every candidate algorithm is scored through ONE code path -- produce a label vector in the
+# Every candidate algorithm is scored through ONE code path: produce a label vector in the
 # tcremp contract (-1 noise, otherwise unique across epitopes), push it through clusters() so the
 # legacy length-split and the min_cluster post-filter apply identically, then measure:
 #
 #   lift       independent-study lift on the NON-DISPLAY denominator (docs/denoising.md 6.1)
 #   f1         F1 of `clustered` predicting `replicated` -- the ranking statistic. Lift falls to
 #              1.0 mechanically as retention -> 1, so it cannot compare methods that sit at
-#              different retentions; F1 has no such bias and is what section 11.1 actually ranks.
+#              different retentions; F1 has no such bias, and it is what section 11.1 ranks.
 #   q,h,p      the homogeneity-parsimony trade-off (clustereval)
 #   purity/precision/retention   metrics_lib, vendored
 #   epitopes   epitopes with >=1 shipped cid -- the fourth admissibility axis
@@ -71,10 +71,11 @@ def context(db: dict, gene: str, *, n_components: int = tcremp.N_COMPONENTS) -> 
 
 
 def _measure(ctx: dict, mm: pl.DataFrame) -> dict:
-    """Every instrument, for any frame carrying ``(antigen.epitope, cdr3aa, v.segm, j.segm)``.
+    """Every instrument, for any frame with ``(antigen.epitope, cdr3aa, v.segm, j.segm)``.
 
-    Legacy's shipped file and a candidate's output go through exactly this, so the two cannot be
-    scored by different code -- the mistake that made section 35's first TRA reading wrong by 1.6x.
+    Legacy's shipped file and a candidate's output both go through this function, so the two cannot
+    be scored by different code. Scoring them separately made section 35's first TRA reading wrong
+    by 1.6x.
     """
     s = mb.score(mb.assign(ctx["bench"], mm))
     q = qscore.score(ctx["bench"], mm)
@@ -114,7 +115,7 @@ def admissible(ctx: dict, row: dict, *, purity_floor: float | None = None) -> bo
     """The four-axis rule of docs/denoising.md 7.1.
 
     ``purity_floor`` replaces the legacy-relative purity/precision bar with an absolute one when
-    given -- the 0.94 floor of docs/clustering.md section 8.1. Q and epitope coverage stay
+    given: the 0.94 floor of docs/clustering.md section 8.1. Q and epitope coverage stay
     legacy-relative either way.
     """
     leg = ctx["legacy"]

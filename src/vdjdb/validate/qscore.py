@@ -2,8 +2,8 @@
 
 ``Q = 2hp/(h+p)`` (Tiffeau-Mayer, `arXiv:2607.20799 <https://arxiv.org/abs/2607.20799>`_), the
 score `~/vcs/manuscripts/2026-immrep25-audit` places its cohort ladder with. Homogeneity ``h`` asks
-whether clusters predict the epitope; parsimony ``p`` asks whether they do it **without shattering
-each epitope into singletons**. Both are normalised by the maximum attainable for the given label
+whether clusters predict the epitope; parsimony ``p`` asks whether they do it without shattering
+each epitope into singletons. Both are normalised by the maximum attainable for the given label
 partition, so a chain's epitope count and sizes divide out.
 
 It replaces the purity/retention pair this repo used through sections 31-34, because those are two
@@ -20,15 +20,15 @@ one cluster per chain      0    1    **0**
 (percolate)
 =========================  ===  ===  =====
 
-Measured on the reference implementation, so those three rows are asserted rather than asserted-to-be.
+Those three rows are measured against the reference implementation, and asserted in the tests.
 
-⚠ **This is the algorithm-comparison instrument, not the tuning objective.** Production runs motif
+⚠ This is the algorithm-comparison instrument, not the tuning objective. Production runs motif
 detection inside one epitope's record set, so no other epitope's records are present and ``h`` is
-1.000 by construction there -- which is why the frame below is keyed on the **clonotype**, never on
+1.000 by construction there, which is why the frame below is keyed on the clonotype, never on
 ``(epitope, clonotype)``. What picks the shipped configuration is the section 11.1 independent-study
 objective in :mod:`vdjdb.motifs.tcremp`; see section 35.
 
-⚠ **Nothing here reads TCRvdb.**
+⚠ Nothing here reads TCRvdb.
 """
 from __future__ import annotations
 
@@ -40,10 +40,10 @@ from .motif_bench import KEY, members_map
 def frame(cohort_df: pl.DataFrame, members: pl.DataFrame) -> pl.DataFrame:
     """One row per ``(epitope, clonotype)`` with the cluster it landed in.
 
-    A clonotype recorded against two epitopes appears twice and carries the **same** cluster both
-    times, which is what lets ``h`` fall below 1. Unclustered clonotypes are kept as singletons
-    rather than dropped -- that is how ``p`` charges a clustering for low coverage, and why
-    retention does not need to be a separate axis.
+    A clonotype recorded against two epitopes appears twice with the same cluster both times,
+    which is what lets ``h`` fall below 1. Unclustered clonotypes are kept as singletons rather than
+    dropped: that is how ``p`` charges a clustering for low coverage, and why retention does not
+    need to be a separate axis.
     """
     return (cohort_df.select("antigen.epitope", *KEY).unique(maintain_order=True)
             .join(members_map(members), on=KEY, how="left")

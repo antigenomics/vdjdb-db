@@ -12,7 +12,7 @@ Layout mirrors the pipeline stages; see ``ROADMAP.md`` for which are implemented
     emit/      the legacy / new-VDJdb / AIRR writers
     convert/   coordinate-space and format conversions
     motifs/    TCRNET and TCREMP motif inference
-    compare/   the release difference ledger
+    compare/   the comparison against a released bundle
     release/   manifest, zips, changelog
 """
 

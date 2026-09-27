@@ -8,10 +8,10 @@ VDJdb
        <p class="proj-intro__eyebrow">T-CELL RECEPTOR ANTIGEN SPECIFICITY</p>
        <p class="proj-intro__lead">VDJdb is a curated database of T-cell receptor sequences of known
        antigen specificity. <strong>A chunk is one publication</strong> and a chunk row is one
-       record reporting both chains &mdash; so two matching rows in two chunks are independent
-       reports, never duplicates. Everything shipped is a projection of two tidy tables, and every
+       record reporting both chains, so two matching rows in two chunks are independent
+       reports, never duplicates. Every shipped file is a projection of two tidy tables, and every
        column, vocabulary and score rule on this site is rendered from the build&rsquo;s own field
-       registry rather than written out beside it.</p>
+       registry.</p>
        <p class="proj-intro__links">
          <a href="getting-started.html">Get the data</a>
          <span>&middot;</span>
@@ -39,7 +39,7 @@ VDJdb
      </a>
      <a class="proj-card" href="standards/confidence-score.html">
        <h3>Confidence score</h3>
-       <p>0&ndash;3, and what each level actually asserts about the evidence.</p>
+       <p>0&ndash;3, and what each level asserts about the evidence.</p>
      </a>
      <a class="proj-card" href="denoising.html">
        <h3>Motifs and denoising</h3>
@@ -47,7 +47,7 @@ VDJdb
      </a>
      <a class="proj-card" href="clustering.html">
        <h3>Clustering</h3>
-       <p>Six algorithms, 252 configurations, one harness &mdash; and why the shipped one survived.</p>
+       <p>Six algorithms, 252 configurations, one harness, and the scorecard of the shipped one.</p>
      </a>
    </div>
 

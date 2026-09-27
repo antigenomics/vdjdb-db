@@ -1,8 +1,8 @@
-"""Coordinate conversions. **The only module allowed to do this.**
+"""Coordinate conversions. The only module that may do this.
 
 Four coordinate spaces meet in this codebase and three of them disagree with AIRR on two axes at
 once (origin and closedness), so an ad-hoc `+1` in a call site is indistinguishable from a correct
-one until someone plots a motif two residues off:
+one until a motif is plotted two residues off:
 
 ======================================  ===============================================
 VDJdb ``v.end`` / ``j.start``           0-based, **junction** amino-acid space
@@ -11,20 +11,20 @@ VDJdb ``v.end`` / ``j.start``           0-based, **junction** amino-acid space
 AIRR ``*_sequence_start`` / ``_end``    1-based closed, full-**sequence** nucleotide space
 ======================================  ===============================================
 
-Every function here is total, pure and its own inverse's counterpart, and every pair has a
-round-trip test. Nothing composes them for you: a caller states the conversion it wants, in order,
-so the reader of that call site can check it.
+Every function here is total and pure, and every pair has a round-trip test. Nothing composes them
+for you: a caller states the conversion it wants, in order, so the reader of that call site can
+check it.
 
-**Junction is not CDR3.** VDJdb's ``cdr3`` column holds the *junction*: Cys104 through Phe/Trp118,
-**both anchors included**. AIRR's ``junction_aa`` is the same thing, so that mapping is the identity;
-AIRR's ``cdr3_aa`` and ``arda``'s ``cdr3_aa`` exclude both anchors and are two residues shorter.
-Conflating them silently corrupts every coordinate downstream of it (CLAUDE.md, domain conventions).
+Junction is not CDR3. VDJdb's ``cdr3`` column holds the junction: Cys104 through Phe/Trp118, both
+anchors included. AIRR's ``junction_aa`` is the same thing, so that mapping is the identity; AIRR's
+``cdr3_aa`` and ``arda``'s ``cdr3_aa`` exclude both anchors and are two residues shorter. Conflating
+them corrupts every coordinate downstream, with no error (CLAUDE.md, domain conventions).
 """
 from __future__ import annotations
 
 import polars as pl
 
-#: Residues the junction carries at each end that IMGT CDR3 does not: Cys104 and Phe/Trp118.
+#: Residues the junction has at each end that IMGT CDR3 does not: Cys104 and Phe/Trp118.
 ANCHOR = 1
 
 #: Nucleotides per amino acid. Named because `* 3` in a coordinate expression reads as a typo.

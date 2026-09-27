@@ -1,10 +1,10 @@
 """Keep proprietary held-out data out of the repository and out of every release.
 
 TCRvdb / MATCHMAKERS (Messemaker et al., doi:10.1101/2025.04.28.651095) is licensed for academic,
-non-commercial use with **no redistribution, in whole or in part**. So
-TCRvdb may be read during validation and must never be written anywhere this repository publishes.
+non-commercial use with no redistribution, in whole or in part. So TCRvdb may be read during
+validation and must never be written anywhere this repository publishes.
 
-It is also *held out*: motif clustering is tuned on the independent-study support count, and TCRvdb
+It is also held out: motif clustering is tuned on the independent-study support count, and TCRvdb
 is touched once at the end to validate. Tuning on it would invalidate it. See ROADMAP section 8 and
 docs/outputs.md section 7.
 
@@ -25,7 +25,7 @@ from pathlib import Path
 
 ENV_VAR = "VDJDB_TCRVDB"
 
-#: Filename fingerprints of the proprietary distribution. Matched case-insensitively on the whole
+#: Filename fingerprints of the proprietary distribution. Matched case-insensitively on the full
 #: path, so a copy renamed into a subdirectory is still caught.
 PROPRIETARY_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"tcrvdb", re.I),
@@ -33,7 +33,7 @@ PROPRIETARY_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"\d{2}_\d{2}_\d{4}_TCRvdb", re.I),
 )
 
-#: Column names that only appear together in the TCRvdb distribution. A file carrying all of these
+#: Column names that only appear together in the TCRvdb distribution. A file with all of these
 #: is a copy of it whatever it is called.
 _FINGERPRINT_COLUMNS = frozenset({"clonotype_aa", "epitope_aa", "hla_short", "padj", "baseMean"})
 
@@ -51,10 +51,10 @@ class ProprietaryLeak:
 
 
 def tcrvdb_path() -> Path:
-    """Where the held-out TCRvdb table lives, from ``$VDJDB_TCRVDB``.
+    """Where the held-out TCRvdb table sits, from ``$VDJDB_TCRVDB``.
 
     Raises if unset or missing, rather than falling back to a path inside the repository -- a
-    default here is exactly how a proprietary file ends up committed.
+    default here is how a proprietary file ends up committed.
     """
     raw = os.environ.get(ENV_VAR)
     if not raw:

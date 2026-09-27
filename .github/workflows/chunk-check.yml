@@ -7,8 +7,8 @@ name: chunk-check
 
 on:
   # EVERY pull request, with no path filter, because this is a REQUIRED status check: a filtered
-  # workflow simply does not run on a PR that misses its paths, the required check stays pending,
-  # and the PR is blocked forever. A docs-only PR would have hit exactly that.
+  # workflow does not run on a PR that misses its paths, the required check stays pending, and the
+  # PR is blocked forever. A docs-only PR would have hit that.
   #
   # The cost is small and the behaviour is better: with no chunks changed the QC step falls back to
   # the whole corpus, which takes seconds, so every PR validates the data it is sitting on.
@@ -81,7 +81,7 @@ jobs:
           path: qc-report.tsv
           retention-days: 14
 
-      # What the submitter actually needs to see, on the pull request itself. The job already had
+      # What the submitter needs to see, on the pull request itself. The job already had
       # `pull-requests: write` and never used it, so until now a bad chunk meant opening the log or
       # downloading the artifact. One comment, updated in place on every push, so a branch with ten
       # pushes does not leave ten comments.

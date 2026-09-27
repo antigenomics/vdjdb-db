@@ -3,16 +3,15 @@
 Five of the dashboard's eight figures are ordinary geoms. They are drawn here instead of in R, in
 the style the VDJdb papers already use: `~/vcs/manuscripts/2026-vdjdb-update` has no R at all --
 every published figure is matplotlib with an Arial 7pt / 0.6pt-linewidth rcParams block and
-`pdf.fonttype = 42` so the text stays editable. This module carries the same block, so a dashboard
+`pdf.fonttype = 42` so the text stays editable. This module repeats the same block, so a dashboard
 panel and a paper panel are the same object.
 
-**Three panels are deliberately not here.** The COVID and self-antigen alluvia need `ggalluvial`
+Three panels are deliberately not here. The COVID and self-antigen alluvia need `ggalluvial`
 and the TRBV-HLA chord needs `circlize`, and neither has a faithful Python counterpart -- plotly's
 Sankey is a different object and every Python chord library draws a visibly different figure. Those
-stay in R. Porting them "approximately" would change published figures to save a dependency, which
-is the wrong trade.
+stay in R, because an approximate port would change published figures to save a dependency.
 
-Every panel here was checked cell by cell against the R it replaces, on the real corpus:
+Every panel here was checked cell by cell against the R it replaces, on the current corpus:
 
 =====================  ==============  =============
 panel                  cells compared  differences
@@ -24,11 +23,11 @@ epitope length                     24              0
 confidence score                   16              0
 =====================  ==============  =============
 
-Every function takes already-computed data and returns a `Figure`. The computation lives in
-:func:`cumulative` and friends so it can be checked against the R that it replaces -- which it was:
-the by-year numbers agree on all 408 (chain, metric, year) cells.
+Every function takes already-computed data and returns a `Figure`. The computation sits in
+:func:`cumulative` and its siblings so it can be checked against the R it replaces: the by-year
+numbers agree on all 408 (chain, metric, year) cells.
 
-⚠ **Nothing here reads TCRvdb.**
+⚠ Nothing here reads TCRvdb.
 """
 from __future__ import annotations
 
@@ -73,7 +72,7 @@ def cohort(legacy: Path) -> pl.DataFrame:
 def cumulative(legacy: Path, years: Path) -> pl.DataFrame:
     """``(chains, metric, year, total)`` -- distinct keys first seen at or before each year.
 
-    The same quantity the R document plots, by the same method: a key's **first** year, tabulated
+    The same quantity the R document plots, by the same method: a key's first year, tabulated
     and cumulated. The form it replaced cross-joined every (year, year) pair, roughly 7M rows.
     """
     full = pl.read_csv(legacy / "vdjdb_full.txt", separator="\t", infer_schema_length=0,
@@ -84,7 +83,7 @@ def cumulative(legacy: Path, years: Path) -> pl.DataFrame:
             .select(
                 "reference.id", "antigen.epitope",
                 # `concat_str` with the nulls filled, NOT `+`: polars propagates a null through a
-                # string concatenation, so one absent field made the whole key null and the rows
+                # string concatenation, so one absent field made the key null and the rows
                 # vanished at the `!= ""` filter. R's `paste` never does that, which is why the
                 # port lost (TRA, tcr) and (TRB, tcr) entirely and got 25 other cells wrong.
                 pl.concat_str(
@@ -136,7 +135,7 @@ def by_year(cum: pl.DataFrame, annotations: pl.DataFrame | None = None):
         ax.set_title(titles[metric], fontsize=7)
         ax.spines[["top", "right"]].set_visible(False)
         # Every two years, as `scale_x_continuous(breaks = seq(1995, max, by = 2))` does. A denser
-        # axis than matplotlib picks, and the one readers of this figure are used to.
+        # axis than matplotlib picks, and the one readers of this figure expect.
         ax.set_xticks(range(1995, int(cum["year"].max()) + 1, 2))
         ax.tick_params(axis="x", rotation=90)
         if annotations is not None:
@@ -226,8 +225,8 @@ def nrd0(v) -> float:
 def spectratype(cohort_df: pl.DataFrame, *, lo: int = 5, hi: int = 25, adjust: float = 3.0):
     """CDR3 length distribution per chain, stacked by epitope and coloured by epitope length.
 
-    The fill is a *Spectral* gradient over epitopes ordered by their own length, which is what
-    `fct_reorder(epi_len) %>% as.integer()` does in the R -- the colour carries epitope length,
+    The fill is a Spectral gradient over epitopes ordered by their own length, which is what
+    `fct_reorder(epi_len) %>% as.integer()` does in the R -- the colour encodes epitope length,
     not identity, so the stack reads as "short epitopes at one end of the spectrum".
 
     The dotted overlay is a Gaussian KDE scaled to counts, using R's own bandwidth rule -- see
@@ -279,7 +278,7 @@ def v_hla(cohort_df: pl.DataFrame, *, min_records: int = 10) -> pl.DataFrame:
     """``(gene, mhc.class, mhc, v, records)`` for the V-gene x MHC-allele heatmap.
 
     Three columns are comma-separated lists and all three are exploded, so one slim row can land in
-    several cells. ``records`` therefore counts **distinct source rows**, not exploded ones --
+    several cells. ``records`` therefore counts distinct source rows, not exploded ones --
     `length(unique(id))` in the R, and the reason the row id is assigned before the explosion
     rather than after.
 
@@ -291,8 +290,8 @@ def v_hla(cohort_df: pl.DataFrame, *, min_records: int = 10) -> pl.DataFrame:
          .select("id", "gene", "mhc.class", "mhc.a", "mhc.b", "v.segm")
          .with_columns(pl.col("mhc.a", "mhc.b", "v.segm").str.split(","))
          # Pinned: Polars 2.0 flips the default. `str.split` on an empty cell yields `[""]`,
-         # never an empty list, so this changes nothing here -- and pinning is what stops an
-         # upgrade quietly moving a published figure.
+         # never an empty list, so this changes nothing here -- and pinning stops an upgrade from
+         # moving a published figure with no error.
          .explode("mhc.a", empty_as_null=False)
          .explode("mhc.b", empty_as_null=False)
          .explode("v.segm", empty_as_null=False)
@@ -361,7 +360,7 @@ def v_hla_heatmap(cells: pl.DataFrame, *, cap: int = 1000):
                                  cmap=cmap, norm=norm, edgecolors="none")
             # Tick labels on the OUTSIDE edges only. Labelling every panel puts the right
             # column's y-axis text on top of the left column's tiles, and repeats the allele names
-            # on both rows -- which is what `facet_grid` avoids by construction.
+            # on both rows, which `facet_grid` avoids by construction.
             if r == len(genes) - 1:
                 ax.set_xticks(np.arange(len(xs)) + 0.5, xs, rotation=90, fontsize=5)
             else:

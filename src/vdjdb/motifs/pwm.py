@@ -1,31 +1,31 @@
 """Per-cluster position weight matrices, and the background they are read against.
 
 Stage three. A cluster is a set of CDR3s; its logo is one column per position, and each column is
-read *against* what the background repertoire puts there, so that a residue the germline supplies
+read against what the background repertoire puts there, so that a residue the germline supplies
 anyway does not look informative.
 
-**The shipped files delete letters, and this is why they do not.** The legacy pipeline left-joined
-each cluster column against a frozen background PWM and then applied ``filter(total.bg > 0)``. Any
-``(pos, aa)`` the background had never seen at that ``(v, j, len)`` was dropped -- which is exactly
-the rarest and most informative residues. Measured on the 2026-06-03 release: **1.00 % of letter
-mass deleted across 253 of 589 clusters**, per-position ``freq`` then summing to less than 1 (minimum
-observed 0.111), and ``I`` computed on a truncated distribution and therefore **inflated**. A further
-**31 of the cids in `cluster_members.txt` lost every row**, so the web draws them in the tree with no
-logo. ``need.impute`` was computed *after* the filter, so it was ``FALSE`` on all 13,456 rows and the
+The shipped files delete letters. The legacy pipeline left-joined each cluster column against a
+frozen background PWM and then applied ``filter(total.bg > 0)``. Any ``(pos, aa)`` the background
+had never seen at that ``(v, j, len)`` was dropped, which is the rarest and most informative
+residues. Measured on the 2026-06-03 release: 1.00 % of letter mass deleted across 253 of 589
+clusters, per-position ``freq`` then summing to less than 1 (minimum observed 0.111), and ``I``
+computed on a truncated distribution and therefore inflated. A further 31 of the cids in
+`cluster_members.txt` lost every row, so the web draws them in the tree with no logo.
+``need.impute`` was computed after the filter, so it was ``FALSE`` on all 13,456 rows and the
 imputation machinery was dead code. ROADMAP section 8.5.
 
 :func:`cluster_pwms` replaces the filter with a three-level cascade -- ``(v, j, len)`` -> ``(len)``
 -> uniform -- taking the finest level that has any observation at that position. The legacy already
-had the ``+1`` pseudocount; what it lacked was a level to fall back **to**, so a missing stratum
-meant a deleted row rather than a coarser prior. Nothing is dropped, ``freq`` sums to 1 by
-construction, and ``need.impute`` records which level was actually used.
+had the ``+1`` pseudocount; what it lacked was a level to fall back to, so a missing stratum meant a
+deleted row rather than a coarser prior. Nothing is dropped, ``freq`` sums to 1 by construction, and
+``need.impute`` records which level was used.
 
 Every formula here is `vdjdb-motifs/scripts/compute_motif_pwms.py`'s, verbatim, so the two files'
 columns mean the same thing. That matters most for ``I.norm``, which is a halved cross-entropy
 against the background and not the difference of two informations.
 
-⚠ **Assert the sign, do not chase the shipped numbers.** At the 253 affected clusters the new
-``sum(I)`` must come out *lower* than the shipped value, because the shipped one was computed over a
+⚠ Assert the sign, do not chase the shipped numbers. At the 253 affected clusters the new
+``sum(I)`` must come out lower than the shipped value, because the shipped one was computed over a
 distribution missing its tail. A rewrite that reproduces the shipped numbers has reproduced the bug.
 :func:`information_delta` is that check.
 """
@@ -47,7 +47,7 @@ _LOG_N = math.log(len(ALPHABET))
 
 #: Pseudocount on the background frequency, ``(count.bg + 1) / (total.bg + 1)``. Taken verbatim
 #: from `vdjdb-motifs/scripts/compute_motif_pwms.py`, which is what the shipped `freq.bg` column
-#: means, so the two files' numbers stay comparable. ⚠ It is **not** a normalised distribution --
+#: means, so the two files' numbers stay comparable. ⚠ It is not a normalised distribution --
 #: over the 20 residues it sums to slightly more than 1 -- but `I.norm` is defined against it.
 PSEUDOCOUNT = 1.0
 
@@ -61,8 +61,8 @@ def counts(seqs: list[str], length: int) -> np.ndarray:
 
     One ``frombuffer`` and one ``bincount`` per column -- no Python loop over sequences. Residues
     outside :data:`ALPHABET` are dropped by the ``-1`` code, which cannot happen on ``chunks/``
-    (the unconventional-AA records are quarantined out of the build) but would silently corrupt a
-    column if it did.
+    (the unconventional-AA records are quarantined out of the build) but would corrupt a column
+    with no error if it did.
     """
     if not seqs:
         return np.zeros((length, len(ALPHABET)), dtype=np.int64)
@@ -77,9 +77,9 @@ def background_pwms(background: pl.DataFrame, strata: pl.DataFrame) -> dict:
     ``(v.segm.repr, j.segm.repr, len)`` triples in use. Returns
     ``{("vj_len", v, j, len): array, ("len", len): array}``.
 
-    The background's calls are **gene-level** (``TRBV24-1``) while a cluster's representative is an
+    The background's calls are gene-level (``TRBV24-1``) while a cluster's representative is an
     allele (``TRBV24-1*01``), so the join is on the gene. Matching the strings as given would miss
-    every triple and silently collapse the cascade to its ``len`` level.
+    every triple and collapse the cascade to its ``len`` level with no error.
 
     Only the strata actually in use are materialised -- a full ``(v, j, len, pos, aa)`` explode over
     a 15M-row control is ~225M rows for the handful of triples the clusters need (CLAUDE.md
@@ -111,8 +111,8 @@ def _background_column(bg: dict, v: str, j: str, length: int,
                        pos: int) -> tuple[np.ndarray, np.ndarray, str]:
     """The finest background column at ``pos``, the coarse one beside it, and the level used.
 
-    The coarse column is the ``len`` level, which the legacy file carries as ``count.bg.i`` /
-    ``total.bg.i`` -- there to be imputed *from*, though the legacy never did because it computed
+    The coarse column is the ``len`` level, written to the legacy file as ``count.bg.i`` /
+    ``total.bg.i`` -- there to be imputed from, though the legacy never did because it computed
     ``need.impute`` after the filter that would have set it.
     """
     coarse = bg.get(("len", length))
@@ -139,10 +139,10 @@ def _information(freq: np.ndarray) -> float:
 def _information_norm(freq: np.ndarray, freq_bg: np.ndarray) -> float:
     """``-sum(p log q) / log 20 / 2`` -- the column's cross-entropy against the background, halved.
 
-    `compute_motif_pwms.py`'s ``info_norm``, verbatim. **Not** ``I`` minus the background's own
-    information, which is the natural guess and gives a different number; the shipped column is a
-    cross-entropy, and the halving is the source's, not a derivation. Only residues the cluster
-    shows contribute, so the sum runs over the observed support.
+    `compute_motif_pwms.py`'s ``info_norm``, verbatim. Not ``I`` minus the background's own
+    information, which gives a different number; the shipped column is a cross-entropy, and the
+    halving is the source's, not a derivation. Only residues the cluster shows contribute, so the
+    sum runs over the observed support.
     """
     obs = freq > 0
     return -float((freq[obs] * np.log(freq_bg[obs])).sum()) / _LOG_N / 2.0
@@ -152,7 +152,7 @@ def cluster_pwms(members: pl.DataFrame, background: pl.DataFrame) -> pl.DataFram
     """One row per ``(cid, len, pos, aa)`` with counts, frequencies and information.
 
     ``members`` is the output of :func:`vdjdb.motifs.cluster.clusters`. A cluster spanning several
-    CDR3 lengths gets one **stratum** per length: the PWM is a fixed-width object and a column is
+    CDR3 lengths gets one stratum per length: the PWM is a fixed-width object and a column is
     only meaningful among sequences of the same length (ROADMAP section 8.6).
 
     ``I`` is the column's own information; ``I.norm`` is it net of the background column's, so a
@@ -202,7 +202,7 @@ def cluster_pwms(members: pl.DataFrame, background: pl.DataFrame) -> pl.DataFram
 def information_delta(pwms: pl.DataFrame, shipped: pl.DataFrame) -> pl.DataFrame:
     """Per-cluster ``sum(I)``, ours against the shipped file's -- the sign assertion of section 8.5.
 
-    At a cluster the legacy filter truncated, ours must be **lower**: the shipped ``I`` was computed
+    At a cluster the legacy filter truncated, ours must be lower: the shipped ``I`` was computed
     over a distribution missing its rarest residues, and dropping mass from a distribution can only
     make it look more determined than it is. A cluster where ours is higher is a bug in this module,
     not an improvement.

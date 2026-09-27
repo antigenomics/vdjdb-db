@@ -68,7 +68,7 @@ def test_metadata_differs_from_the_groovy_only_in_the_declared_ways() -> None:
     """Every difference from the shipped metadata is one of the three declared fixes.
 
     This is the test that makes ``rules/expected_diffs.toml``'s metadata rules honest: if the
-    registry starts differing in some *other* way, this fails rather than the ledger silently
+    registry starts differing in some *other* way, this fails rather than the comparison silently
     absorbing it.
     """
     groovy = _groovy_list("METADATA_LINES")

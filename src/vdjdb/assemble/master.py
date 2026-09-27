@@ -1,11 +1,11 @@
 """Assemble the master table: read, patch, fix, score, hash.
 
-This is ``runBuidDatabase.py``'s main flow. The legacy version spent essentially all of its 344 s
-in seven ``master_table.T.apply(...)`` calls -- transpose the whole frame, then call a Python
-function per row -- plus an ``iterrows()`` over ~192k rows in the score factory.
+This is ``runBuidDatabase.py``'s main flow. The legacy version spent nearly all of its 344 s in
+seven ``master_table.T.apply(...)`` calls -- transpose the frame, then call a Python function per
+row -- plus an ``iterrows()`` over ~192k rows in the score factory.
 
-Everything vectorises except the CDR3 fixer, which is genuinely per-sequence. That one is called on
-the **distinct** ``(species, cdr3, v, j)`` set and joined back (CLAUDE.md rule 4): the functions are
+Everything vectorises except the CDR3 fixer, which is per-sequence. That one is called on the
+distinct ``(species, cdr3, v, j)`` set and joined back (CLAUDE.md rule 4): the functions are
 deterministic in their arguments, so deduplicating cannot change a value, and the key set is
 roughly half the row count.
 """
@@ -34,14 +34,14 @@ HASH_FIELDS: tuple[str, ...] = (
     "mhc.a", "mhc.b", "antigen.epitope",
 )
 
-#: A hash is produced only when **both chains and the pMHC are present**. The other three of
+#: A hash is produced only when both chains and the pMHC are present. The other three of
 #: :data:`HASH_FIELDS` may be empty and still hash.
 #:
-#: This looks arbitrary and is: in the legacy it fell out of ``NaN`` propagating through ``+``. A
-#: chain's V or J is set by the fixer, which returns ``""`` when it cannot name one -- an empty
-#: string, which concatenates fine -- whereas a chain with no CDR3 at all is never fixed and stays
-#: ``NaN``, which poisons the concatenation. So "V could not be identified" still hashes and "there
-#: is no alpha chain" does not. Treating an empty V as missing dropped 326 hashes that ship today.
+#: In the legacy this fell out of ``NaN`` propagating through ``+``. A chain's V or J is set by the
+#: fixer, which returns ``""`` when it cannot name one -- an empty string, which concatenates fine --
+#: whereas a chain with no CDR3 at all is never fixed and stays ``NaN``, which poisons the
+#: concatenation. So "V could not be identified" still hashes and "there is no alpha chain" does not.
+#: Treating an empty V as missing dropped 326 hashes that ship today.
 HASH_REQUIRED: tuple[str, ...] = ("cdr3.alpha", "cdr3.beta", "mhc.a", "mhc.b", "antigen.epitope")
 
 
@@ -64,12 +64,12 @@ def fix_cdr3(df: pl.DataFrame, engine: str = "legacy") -> pl.DataFrame:
     """Repair the CDR3 and locate the V and J germline parts, per chain.
 
     Rewrites ``cdr3.*``, ``v.*`` and ``j.*``, and adds one column per :data:`FIX_FIELDS` member
-    (``__vend.alpha``, ``__jfix.beta``, ...). The legacy ``cdr3fix`` JSON blob is **not** produced
+    (``__vend.alpha``, ``__jfix.beta``, ...). The legacy ``cdr3fix`` JSON blob is not produced
     here: a blob is not a variable, and reassembling one is the legacy exporter's job.
 
     Two engines, both measured on the corrected corpus with arda-mapper 2.29.0 (ROADMAP §28):
 
-    * ``legacy`` -- the vendored k-mer scanner. **Still the default**, and what the shipped build
+    * ``legacy`` -- the vendored k-mer scanner. Still the default, and what the shipped build
       uses, pending the swap decision.
     * ``arda`` -- ``arda.cdr3fix``. Agrees with the legacy on 99.91 % of repaired alpha sequences and
       leads on all four coverage measures: it gains 3,781 alpha and 1,851 beta V-end mappings and
@@ -96,10 +96,10 @@ def fix_cdr3(df: pl.DataFrame, engine: str = "legacy") -> pl.DataFrame:
             .with_columns(
                 # A chain with no CDR3 loses its V and J too. The legacy assigns the fixer result
                 # unconditionally -- `x.vId if x else None` -- so a record annotated `v.alpha =
-                # TRAV2` but carrying no alpha CDR3 has that annotation wiped. It is a data loss,
-                # and the new format keeps those calls; but it is load-bearing here, because the
-                # score signature includes v.alpha, so wiping it merges records the released
-                # scores are computed over as one group.
+                # TRAV2` but with no alpha CDR3 has that annotation wiped. It is a data loss, and
+                # the new format keeps those calls; but it must stay here, because the score
+                # signature includes v.alpha, so wiping it merges records the released scores are
+                # computed over as one group.
                 pl.col("__cdr3").fill_null("").alias(cdr3),
                 pl.col("__v").fill_null("").alias(v),
                 pl.col("__j").fill_null("").alias(j),
@@ -183,8 +183,8 @@ def add_record_ids(df: pl.DataFrame, registry: Path | None = None) -> pl.DataFra
     """Attach a stable ``record_id`` to every row, reconciled against the committed registry.
 
     An id survives a content change -- a curator fixing a typo amends a record rather than deleting
-    one and creating another -- which is what lets external references, structure links and
-    accumulated evidence outlive curation.
+    one and creating another -- so external references, structure links and accumulated evidence
+    outlive curation.
     """
     from ..identity.ids import IdentityRegistry, reconcile
 

@@ -4,8 +4,8 @@
 leave ``v.alpha`` or ``j.beta`` blank -- the README allows it explicitly -- and the legacy build
 then guessed from the CDR3 by longest k-mer hit against the germline parts.
 
-Keeping that guess while swapping the repair is what makes phase 5 a single, attributable
-deviation. Issue #462 replaces the scan with OLGA Pgen scoring of the candidate set.
+Keeping that guess while swapping the repair makes phase 5 a single, attributable deviation.
+Issue #462 replaces the scan with OLGA Pgen scoring of the candidate set.
 """
 from __future__ import annotations
 

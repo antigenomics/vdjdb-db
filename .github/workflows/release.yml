@@ -1,15 +1,15 @@
 # The single human-gated path to a public artifact.
 #
-# Six steps, in order, and the sixth is the one that never happened under `release.sh`:
+# Six steps, in order. Step 6 did not happen under `release.sh`:
 #
 #   plan      derive the version, assert the tag does not exist, assert the ref is master
 #   prepare   rewrite latest-version.txt in the working tree (not committed yet)
 #   build     every zip embeds that same latest-version.txt -- build.yml does this
-#   verify    the difference ledger and the dashboard checks
+#   verify    the comparison against the last release, and the dashboard checks
 #   publish   gh release create, behind `environment: release` with a required reviewer
 #   finalize  COMMIT latest-version.txt, then fetch line 1 and fail on anything but 200
 #
-# There is deliberately **no Zenodo step**. The old webhook archived the source tarball rather than
+# There is deliberately no Zenodo step. The old webhook archived the source tarball rather than
 # the release assets, and the `-ZENODO` twin tags are the symptom of someone re-triggering it. The
 # author deposits by hand; this workflow must never create, mutate or assume a deposition, and must
 # never emit a twin tag (`ROADMAP.md` phase 14 item 4).
@@ -62,8 +62,8 @@ jobs:
   publish:
     needs: [plan, build]
     runs-on: ubuntu-latest
-    # A required reviewer lives on this environment. It is the only human gate in the pipeline and
-    # the only thing between a dispatch and a public artifact.
+    # A required reviewer is configured on this environment. It is the only human gate between a
+    # dispatch and a public artifact.
     environment: release
     steps:
       - uses: actions/checkout@v4
@@ -89,9 +89,6 @@ jobs:
             --notes-file release/RELEASE_NOTES.md \
             release/*.zip release/manifest.json release/SHA256SUMS
 
-      # Step 6. `latest-version.txt` ships inside the zip it names, so it is written before the
-      # build and committed only once the release exists -- committing it earlier would name a
-      # release that might never be published, which is how it came to name the previous one.
       # Step 6. `latest-version.txt` ships inside the zip it names, so it is written before the
       # build and committed only once the release exists -- committing it earlier would name a
       # release that might never be published, which is how it came to name the previous one.

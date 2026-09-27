@@ -1,17 +1,17 @@
 """TCRNET: which clonotypes sit in a denser neighbourhood than the background explains.
 
 Stage one of the motif pipeline. Per ``(species, gene, epitope)`` it counts, for every unique CDR3,
-how many neighbours it has **within the epitope-specific sample** and how many it has in a matched
+how many neighbours it has within the epitope-specific sample and how many it has in a matched
 background repertoire, and keeps the ones whose within-sample degree the background cannot account
 for. Stage two (:mod:`vdjdb.motifs.cluster`) turns those into clusters; stage three
 (:mod:`vdjdb.motifs.pwm`) turns each cluster into a logo.
 
-Two things here are deliberate and neither is obvious from the call site.
+Two choices here are deliberate and not visible from the call site.
 
-**``vdjtools.overlap.tcrnet`` is used as a neighbour counter, not as a test.** Its ``_score``
-computes ``E = (n_target / max(m_control, 1)) * n_control`` with no pseudocount, and
-``scipy.stats.poisson.sf(k - 1, 0.0)`` is **exactly 0.0** for every ``k >= 1``. So every clonotype
-with a within-sample neighbour and no background neighbour gets ``p_enrichment == 0.0``,
+``vdjtools.overlap.tcrnet`` is used as a neighbour counter, not as a test. Its ``_score`` computes
+``E = (n_target / max(m_control, 1)) * n_control`` with no pseudocount, and
+``scipy.stats.poisson.sf(k - 1, 0.0)`` is exactly 0.0 for every ``k >= 1``. So every clonotype with
+a within-sample neighbour and no background neighbour gets ``p_enrichment == 0.0``,
 ``q_value == 0.0``, and sorts to the top. Measured on human TRB, 111,407 unique CDR3s against the
 bundled 250k control: ``n_control == 0`` for 81.0 % of queries and 44,010 rows (39.5 %) get exactly
 zero. A bigger background does not fix it -- mean ``n_control`` scales linearly with ``M``, so ``E``
@@ -19,10 +19,10 @@ is ``M``-invariant in expectation and ``M`` only controls the zero-inflation. Re
 GILGFVFTL: 4,718 of 6,637. ROADMAP section 8.1; filed upstream against ``vdjtools``.
 
 What is used instead is :func:`legacy_pvalue`, which is bit-faithful to the Groovy
-``DegreeStatisticsAnnotator.computePValue`` and carries the pseudocount that removes the pathology.
+``DegreeStatisticsAnnotator.computePValue`` and includes the pseudocount that removes the pathology.
 
-**The background is always passed in.** Left to itself ``tcrnet()`` calls
-``vdjmatch.evalue.background(locus, species)`` with no ``size`` and indexes the entire table.
+The background is always passed in. Left to itself ``tcrnet()`` calls
+``vdjmatch.evalue.background(locus, species)`` with no ``size`` and indexes every row.
 :func:`control_for` loads a bounded, seeded, uniformly reservoir-sampled control instead, and
 :func:`enrich` reads ``M`` back off the index it was given.
 """
@@ -32,10 +32,10 @@ import polars as pl
 
 from ..config import SEED
 
-#: Unique clonotypes **requested** for every background, matching the scale of the 1M
-#: ``vdjdb-web-control`` subsamples the legacy pipeline used. Asking for one number rather than
-#: "the whole table" is what stops ``M`` being whatever each source happens to hold -- human TRA
-#: alone is 2,266,274. Where the source is smaller the whole of it is used, so the realised ``M``
+#: Unique clonotypes requested for every background, matching the scale of the 1M
+#: ``vdjdb-web-control`` subsamples the legacy pipeline used. Requesting a fixed number fixes ``M``
+#: instead of letting each source decide it -- human TRA alone has 2,266,274 unique clonotypes.
+#: Where the source is smaller, all of it is used, so the realised ``M``
 #: is, measured 2026-09-25 after the productive filter: human TRA 1,000,000 · human TRB 1,000,000 ·
 #: mouse TRB 694,241 · mouse TRA 272,827. :func:`enrich` reads it from the index rather than
 #: assuming this constant, because ``M`` enters the statistic directly.
@@ -54,9 +54,9 @@ CONTROLS: dict[tuple[str, str], str] = {
     ("MusMusculus", "TRB"): "mouse_trb_aa",
 }
 
-#: ``(species, gene)`` -> the ``isalgo/airr_control`` asset the **background PWM** is read from.
+#: ``(species, gene)`` -> the ``isalgo/airr_control`` asset the background PWM is read from.
 #: The same files the controls above are sampled from; :func:`background_frame` needs the ``v`` and
-#: ``j`` calls, which a built ``seqtree.Index`` no longer carries.
+#: ``j`` calls, which a built ``seqtree.Index`` no longer stores.
 ASSETS: dict[tuple[str, str], str] = {
     ("HomoSapiens", "TRA"): "human.tra.aa.vdjtools.tsv.gz",
     ("HomoSapiens", "TRB"): "human.trb.aa.vdjtools.tsv.gz",
@@ -68,13 +68,12 @@ ASSETS: dict[tuple[str, str], str] = {
 #: :data:`TUNED`, where TRA takes two.
 SCOPE = "1,0,0,1"
 
-#: Threshold on the enrichment p-value. ⚠ **Applied to the raw p, not a BH-adjusted q**, because
+#: Threshold on the enrichment p-value. ⚠ Applied to the raw p, not a BH-adjusted q, because
 #: that is what the legacy does: `compute_vdjdb_motifs.Rmd` writes `mutate(p.adj = p.value.g)`,
-#: which is an identity -- the name says adjusted and the code adjusts nothing. Measured, the
-#: difference is not small in the direction anyone expects: over 185,738 scored clonotypes BH
-#: `q <= 0.05` calls **53,609** enriched where raw `p <= 0.05` calls **48,418**, because the
+#: which is an identity -- the name says adjusted and the code adjusts nothing. Over 185,738 scored
+#: clonotypes, BH `q <= 0.05` calls 53,609 enriched where raw `p <= 0.05` calls 48,418, because the
 #: p-value distribution is bottom-heavy enough that the step-up threshold rises well above 0.05.
-#: `q.legacy` is computed and carried regardless, so switching is a one-line change and a
+#: `q.legacy` is computed and written regardless, so switching is a one-line change and a
 #: measurement (ROADMAP section 30.3).
 P_THRESHOLD = 0.05
 
@@ -87,8 +86,8 @@ MIN_DEGREE = 2
 #: number for a different purpose and using it here cost 13 epitopes their motifs.
 MIN_SAMPLE = 10
 
-#: **Per-chain parameters, fitted rather than inherited.** Chosen by maximising retention subject to
-#: purity **and** precision staying at or above the shipped TCRNET's, scored in
+#: Per-chain parameters, fitted rather than inherited. Chosen by maximising retention subject to
+#: purity and precision staying at or above the shipped TCRNET's, scored in
 #: :mod:`vdjdb.validate.motif_bench` on one cohort -- the stated acceptance criterion applied
 #: mechanically over `scope` x `p` x `min_degree` x `min_cluster` (ROADMAP section 34).
 #:
@@ -99,17 +98,17 @@ MIN_SAMPLE = 10
 #: TRB   scope 1,0,0,1 · p .01 · mc 5     **0.3337**  0.3218    0.9790    0.9761
 #: ===== ================================ ========= ========= ========= =========
 #:
-#: ⚠ **That table is the legacy comparison, not the tuning criterion.** It maximises retention
-#: subject to purity and precision clearing legacy, and that criterion has **no interior optimum**:
+#: ⚠ That table is the legacy comparison, not the tuning criterion. It maximises retention
+#: subject to purity and precision clearing legacy, and that criterion has no interior optimum:
 #: TRA retention climbs 0.2712 -> 0.4149 -> 0.4692 -> 0.4807 -> 0.5089 across scopes 1 to 5 with
 #: purity never falling below legacy's 0.8658, so it prefers the widest ball tried and would prefer
-#: wider (ROADMAP section 36). What replaced it is `docs/denoising.md` section 7.1.
+#: wider (ROADMAP section 36). `docs/denoising.md` section 7.1 replaced it.
 #:
-#: **The rule these values come from**, in order: a configuration is *admissible* when ``Q``, purity
+#: The rule these values come from, in order: a configuration is admissible when ``Q``, purity
 #: and precision are each at or above the shipped 2026-06-03 annotation; among admissible ones,
-#: **maximise the independent-study lift** (section 11.1). Never the reverse, and never either alone
-#: -- the cells that maximise lift on this corpus reach ``Q = 0.023`` with parsimony ``0.012``, which
-#: is the shattering failure mode ``Q`` exists to catch.
+#: maximise the independent-study lift (section 11.1). Never the reverse, and never either alone
+#: -- the cells that maximise lift on this corpus reach ``Q = 0.023`` with parsimony ``0.012``, the
+#: shattering failure mode ``Q`` exists to catch.
 #:
 #: Chosen on a 56-cell grid ``scope x p x resolution x min_cluster``; the values below are
 #: re-measured on the ``cluster_members.txt`` the build actually writes, over human clonotype-epitope
@@ -123,30 +122,30 @@ MIN_SAMPLE = 10
 #: TRB     3.194   2.855   0.4428  0.4433  0.9790  0.9790  0.3337  0.3218
 #: ======  ======  ======  ======  ======  ======  ======  ======  ======
 #:
-#: TRA improves on **every** axis (+16.1 % lift, +0.011 Q, +0.010 purity, +0.011 precision,
-#: +0.022 retention). TRB carries **one named cost: Q is 0.0005 lower** than the shipped file's,
-#: against +11.9 % lift, equal purity, and higher precision and retention. That shortfall is
-#: rounding-level and stated rather than hidden; it is the only axis on which either chain regresses.
+#: TRA improves on every axis (+16.1 % lift, +0.011 Q, +0.010 purity, +0.011 precision,
+#: +0.022 retention). TRB pays one cost: Q is 0.0005 lower than the shipped file's, against
+#: +11.9 % lift, equal purity, and higher precision and retention. That is the only axis on which
+#: either chain regresses.
 #:
-#: ⚠ **The per-chain split section 34 introduced has collapsed.** Both chains now want the same
-#: thing, and TRA's two-substitution neighbourhood is gone: a wider ball recruits bystanders and
-#: launders them into apparent epitope-specific signal, which costs 1.96x -> 1.30x of lift
+#: ⚠ The per-chain split from section 34 no longer holds: both chains now take the same
+#: configuration, and TRA's two-substitution neighbourhood is gone. A wider ball recruits bystanders
+#: that then read as epitope-specific signal, taking lift from 1.96x to 1.30x
 #: (`docs/denoising.md` section 5). The dict stays per chain because the machinery reads it that way
-#: and TCREMP's optima do still differ.
+#: and TCREMP's optima still differ.
 #:
 #: ``resolution`` selects the graph partition: ``None`` is connected components, a positive value
-#: runs CPM Leiden inside each of them (:func:`vdjdb.motifs.cluster._leiden`). Leiden is **measured
-#: and not enabled**: it raises lift sharply (TRA 1.96x -> 5.35x at resolution 0.5) and cuts
+#: runs CPM Leiden inside each of them (:func:`vdjdb.motifs.cluster._leiden`). Leiden is measured
+#: and not enabled: it raises lift sharply (TRA 1.96x -> 5.35x at resolution 0.5) and cuts
 #: percolation, but only at resolutions where ``Q`` collapses, so no Leiden cell is admissible
 #: (ROADMAP section 36.1).
 #:
-#: ⚠ **Lift is on the non-display denominator** (``docs/denoising.md`` section 6.1). On the full
-#: cohort the same TRB clustering reads **1.426** instead of 3.194, and legacy 1.259 instead of
+#: ⚠ Lift is on the non-display denominator (``docs/denoising.md`` section 6.1). On the full
+#: cohort the same TRB clustering reads 1.426 instead of 3.194, and legacy 1.259 instead of
 #: 2.855 -- the ranking against legacy is the same either way, but the numbers are not, so a lift
-#: figure without its cohort is not a number. TRA is unaffected: exactly 1 of its 57,845 clonotypes
+#: figure needs its cohort named. TRA is unaffected: exactly 1 of its 57,845 clonotypes
 #: is display-derived, so its two denominators agree to the fourth decimal.
 #:
-#: The ranking **survives the correction**: re-scored on the non-display denominator, this TRB cell
+#: The ranking holds after the correction: re-scored on the non-display denominator, this TRB cell
 #: still has the highest lift of all eight swept and is still the only one that does not regress
 #: purity (`2,0,0,2` drops purity to ~0.961, `mc 3` to 0.9769).
 TUNED: dict[str, dict] = {
@@ -159,7 +158,7 @@ def control_for(species: str, gene: str, size: int = CONTROL_SIZE, seed: int = S
     """The background index for one ``(species, gene)``, or ``None`` if there is no background.
 
     Delegates to ``seqtree.control.load_control``, which streams from ``isalgo/airr_control``,
-    filters to the productive 20 and reservoir-samples **uniformly over unique clonotypes** rather
+    filters to the productive 20 and reservoir-samples uniformly over unique clonotypes rather
     than taking the abundance-sorted head. What it stores is the fetched table, which is an input,
     not a computed result (CLAUDE.md hard rule 9); the sample it draws is deterministic in the seed.
     """
@@ -182,9 +181,9 @@ def legacy_pvalue(degree: pl.Expr, n_control: pl.Expr, n_sample: int, m_control:
     neighbour count, ``N`` (``n_sample``) the unique clonotypes in this sample and ``M``
     (``m_control``) the unique clonotypes in the background.
 
-    The ``+1`` numerator is the whole point: it is what stops a clonotype with no background
-    neighbour from being handed a probability of zero. The denominator conditions on the clonotype
-    having at least one neighbour, which is the event that made it a candidate at all.
+    The ``+1`` in the numerator is what stops a clonotype with no background neighbour from getting
+    a probability of zero. The denominator conditions on the clonotype having at least one
+    neighbour, which is the event that made it a candidate at all.
     """
     from scipy.stats import binom
 
@@ -208,7 +207,7 @@ def enrich(sample: pl.DataFrame, control, *, scope: str = SCOPE) -> pl.DataFrame
 
     ``sample`` is the canonical clonotype frame (``junction_aa``, ``v_call``, ``j_call``,
     ``duplicate_count``). Adds ``p.legacy`` and ``q.legacy`` beside the columns ``tcrnet()``
-    returns; ``p_enrichment`` and ``q_value`` are carried through **unused**, for the deviation
+    returns; ``p_enrichment`` and ``q_value`` are passed through unused, for the deviation
     report to quote.
     """
     from vdjtools.overlap import tcrnet
@@ -301,11 +300,11 @@ def _samples(chains: pl.DataFrame, records: pl.DataFrame) -> pl.DataFrame:
 def background_frame(species: str, gene: str) -> pl.DataFrame | None:
     """The background repertoire as ``(cdr3aa, v, j)``, for the PWM prior. ``None`` if there is none.
 
-    A **download**, not a cache: the asset is an input that arrives over the network and is
+    A download, not a cache: the asset is an input that arrives over the network and is
     content-addressed by ``huggingface_hub`` (CLAUDE.md hard rule 9). Only the three columns the
-    PWM needs are read -- the tables carry fourteen and run to 424 MB compressed.
+    PWM needs are read -- the tables have fourteen and run to 424 MB compressed.
 
-    Unlike the enrichment control this is **not** subsampled. The two are different statistics: the
+    Unlike the enrichment control this is not subsampled. The two are different statistics: the
     control fixes ``M`` in a tail probability, where a bounded, seeded draw is what makes the number
     comparable across chains; the PWM prior is a frequency estimate, where every row helps and none
     of them enters a p-value.

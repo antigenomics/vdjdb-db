@@ -1,17 +1,18 @@
 # Column reference
 
-Every table below is built from `vdjdb.schema` **while this page renders**. There is no
-generated file to refresh, so these tables cannot disagree with the build.
+Every table below is built from `vdjdb.schema` while this page renders. There is no
+generated file to refresh, so no copy of these tables can disagree with the build.
 
-## `vdjdb.txt` -- the release table
+## `vdjdb.txt` - the release table
 
 ```{vdjdb-schema} vdjdb
 :columns: name, title, comment
 ```
 
-## `vdjdb.txt` -- as production serves it
+## `vdjdb.txt` - the vdjdb-web variant
 
-Five `evidence.*` columns and a `TCR_hash` row that the release table does not carry.
+The variant served by `vdjdb-web` adds five `evidence.*` columns and a `TCR_hash` row that
+the release table does not have.
 
 ```{vdjdb-schema} vdjdb-web
 :columns: name, title, comment
@@ -31,7 +32,7 @@ Five `evidence.*` columns and a `TCR_hash` row that the release table does not c
 
 ## The definitive tables
 
-`records` and `chains` are the database; every shipped file is a join and a pivot away
+`records` and `chains` are the database. Every shipped file is a join and a pivot away
 from them.
 
 ### `records`
@@ -66,9 +67,9 @@ from them.
 
 ## The motif files
 
-⚠ **Parsed positionally by `vdjdb-web`**, which hands Tablesaw a fixed column-type array
-with no header check. Any inserted, removed or reordered column silently mistypes or
-shifts the whole table: column order is a contract, not a convention.
+⚠ **These two files are parsed positionally by `vdjdb-web`**, which hands Tablesaw a fixed
+column-type array with no header check. An inserted, removed or reordered column mistypes
+or shifts every column after it, without an error. Column order is a contract.
 
 ### `cluster_members.txt`
 

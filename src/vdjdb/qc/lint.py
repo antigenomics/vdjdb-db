@@ -1,8 +1,8 @@
 """Chunk lint: the cheap text-level checks, before anything is parsed as a table.
 
-These run in milliseconds on the whole corpus and catch the class of problem that otherwise
-surfaces as a confusing pandas error three stages later: a file that is not UTF-8, a CRLF file, a
-header with an empty or duplicated column name, a prose sentence used as a column name.
+These run in milliseconds over all 230 chunks and catch the class of problem that otherwise appears
+as a confusing pandas error three stages later: a file that is not UTF-8, a CRLF file, a header with
+an empty or duplicated column name, a prose sentence used as a column name.
 
 Measured on the corpus at the time of writing: 19 distinct header rows across 230 files, 99 files
 CRLF, and four files with malformed headers. The fixes land with the `.tsv` rename (#497); until

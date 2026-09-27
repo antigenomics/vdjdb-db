@@ -6,43 +6,47 @@
 
 ![Splash](images/vdjdb-splash.png)
 
-The primary goal of VDJdb is to facilitate access to existing information on T-cell receptor antigen specificities, i.e. the ability to recognize certain epitopes in certain MHC contexts.
+VDJdb aggregates published information on T-cell receptor antigen specificity - the ability to
+recognize certain epitopes in certain MHC contexts - and curates it into a single repository.
 
-Our mission is to both aggregate the scarce TCR specificity information available so far and to create a curated repository to store such data.
+Routine updates keep the database current, and a validation scheme standardizes how specificity is
+reported:
 
-In addition to routine database updates providing the most up-to-date information, we make our best to ensure data consistency and fight irregularities in TCR specificity reporting with a complex database validation scheme:
+* All available information on the experimental setup used to identify an antigen-specific TCR
+  sequence is taken into account and reduced to a single confidence score, assigned at the database
+  generation stage, which highlights the most reliable records.
+* Each record is also checked automatically against a database of V/J segment germline sequences,
+  which standardizes reporting of the V-J junctions and CDR3 sequences that define a T-cell clone.
 
-* We take into account all available information on experimental setup used to identify antigen-specific TCR sequences and assign a single confidence score to highlight the most reliable records at the database generation stage.
-* Each database record is also automatically checked against a database of V/J segment germline sequences to ensure standardized and consistent reporting of V-J junctions and CDR3 sequences that define T-cell clones.
-
-This repository hosts the submissions to the database and the build that validates, assembles and publishes it. **`chunks/` is the data** - one file per publication - and everything else is machinery.
+This repository holds the submissions to the database and the build that validates, assembles and
+publishes it. `chunks/` is the data, one file per publication; everything else is machinery.
 
 ## Documentation
 
-**<https://docs.isalgo.dev/vdjdb-db/>** is the full specification. Every column table, vocabulary
-and score rule on that site is rendered from the build's own field registry while the page builds,
-so it cannot disagree with the code.
+<https://docs.isalgo.dev/vdjdb-db/> is the full specification. Every column table, vocabulary and
+score rule on that site is rendered from the build's own field registry while the page builds, so
+the site and the code cannot disagree.
 
-Two parts of it answer most questions:
+Two sections answer most questions:
 
-- **[Specification](https://docs.isalgo.dev/vdjdb-db/standards/chunk-format.html)** - what a
+- [Specification](https://docs.isalgo.dev/vdjdb-db/standards/chunk-format.html) - what a
   submission may contain, and
-  **[every shipped column](https://docs.isalgo.dev/vdjdb-db/standards/columns.html)**, table by
+  [every shipped column](https://docs.isalgo.dev/vdjdb-db/standards/columns.html), table by
   table, generated from the registry.
-- **[Dashboard](https://docs.isalgo.dev/vdjdb-db/dashboard.html)** - the summary panels for the
-  current state of `chunks/`, rebuilt by CI on every push to `master`. It is not tied to a release,
-  so records added since the last zip show up there as they land.
+- [Dashboard](https://docs.isalgo.dev/vdjdb-db/dashboard.html) - the summary panels for the
+  current state of `chunks/`, rebuilt by CI on every push to `master`. The dashboard is not tied to
+  a release, so records added since the last zip appear there as they land.
 
-Readable in the tree as well:
+The same pages are readable in the tree:
 
 | | |
 |---|---|
 | [Getting started](docs/getting-started.md) | what is in a release, and how to build one |
-| [The chunk format](docs/standards/chunk-format.md) | every complex, method and meta column a submission may carry |
+| [The chunk format](docs/standards/chunk-format.md) | every complex, method and meta column a submission may contain |
 | [Column reference](docs/standards/columns.md) | every shipped table, generated from the registry |
 | [The confidence score](docs/standards/confidence-score.md) | 0–3, and what each level asserts |
 | [CDR3 fixing](docs/standards/cdr3-fixing.md) | how V/J anchors are repaired, and what `cdr3fix` records |
-| [AIRR mapping](docs/standards/airr-mapping.md) | which VDJdb column is which AIRR field, and which deliberately is not |
+| [AIRR mapping](docs/standards/airr-mapping.md) | which VDJdb column maps to which AIRR field, and which columns deliberately do not |
 | [Build outputs](docs/outputs.md) | every file the build produces and its contract |
 | [Denoising](docs/denoising.md) | what the motif stage is for, and the rule that tunes it |
 | [Clustering](docs/clustering.md) | six algorithms, 252 configurations, one harness |
@@ -57,9 +61,9 @@ Download the latest release zip from
 [vdjdb.com](https://vdjdb.com), served by [VDJdb-web](https://github.com/antigenomics/vdjdb-web).
 
 [vdjmatch](https://github.com/antigenomics/vdjmatch) can resolve a release for you when annotating
-repertoires, but that path is **work in progress**: it takes the first `.zip` asset it finds, so it
-picks an arbitrary one as soon as a release carries more than one. Selecting by role from
-`manifest.json` is the fix, and it ships in vdjmatch before VDJdb publishes a multi-zip release.
+repertoires. That path is work in progress: it takes the first `.zip` asset it finds, so it picks an
+arbitrary one as soon as a release contains more than one. The fix is to select by role from
+`manifest.json`, and it ships in vdjmatch before VDJdb publishes a multi-zip release.
 
 ## Building it
 
@@ -70,7 +74,7 @@ uv run vdjdb build --out out/                 # the definitive tables, then ever
 uv run vdjdb make legacy --tables out/tables  # the legacy files
 uv run vdjdb motifs --tables out/tables       # TCRNET + TCREMP
 uv run vdjdb summary --legacy out/legacy      # the dashboard, offline
-uv run vdjdb diff <reference.zip> out/legacy  # the difference ledger
+uv run vdjdb diff <reference.zip> out/legacy  # compare against a released zip
 uv run pytest -q
 ```
 
@@ -79,12 +83,12 @@ uv run pytest -q
 ## Contributing
 
 New records are submitted as chunks - see [the submission guide](docs/submission.md). A chunk pull
-request is checked in under three minutes by `chunk-check`; the specification it is checked against
-is the documentation above.
+request is checked in under three minutes by `chunk-check`, against the specification documented
+above.
 
 ## Citing
 
-Please cite the **most recent** paper:
+Please cite the most recent paper:
 
 > Daniil V. Luppov, Anna E. Koneva, Dmitry V. Bagaev, Anastasiia V. Alexandrova, Elizaveta K.
 > Vlasova, Dmitry M. Chudakov, Chihiro Motozono, Andrew K. Sewell & Mikhail Shugay. VDJdb in 2026:
