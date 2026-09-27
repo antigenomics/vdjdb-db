@@ -28,7 +28,23 @@ from .lint import Finding, lint
 from .rules import check, summarise
 
 #: Reported, never fatal. See the module docstring.
+#: Findings that are reported but do not fail the run.
+#:
+#: The test for membership is whether the reader can produce the right record anyway. `chunks/` is
+#: the submitters' data: the reader adapts to the shape a file arrives in and says what it found,
+#: and a file is never edited into a shape the reader finds convenient. Rewriting the corpus to
+#: silence a lint costs the thing the chunk-change rule exists to protect -- once every line of a
+#: file has changed, a curation edit and a line-ending change are indistinguishable in `git log`.
+#:
+#: `prose-column-name` and `empty-column-name` are here for that reason, verified rather than
+#: assumed. `PMID_24512815.txt` carries two sentences of documentation as column names and
+#: `PMID_40694338.txt` opens with an unnamed column holding a row serial; columns are selected by
+#: name, so both are ignored, and both files read with every field in the right column
+#: (`cdr3.beta`, `v.beta`, `species`, `antigen.epitope` and `reference.id` all check out). A header
+#: the reader cannot map is a different matter and still fails.
 ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form", "duplicate",
+                      # The reader ignores columns it cannot name and reads the rest correctly.
+                      "prose-column-name", "empty-column-name",
                       # #561: only a curator can decide which of the two chains is the wrong one.
                       "alpha and beta cdr3 identical"})
 
