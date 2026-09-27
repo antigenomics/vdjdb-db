@@ -28,10 +28,11 @@ MOTIF = "RS"
 #: it, one paper's handful of receptors moves the ratio and the number is noise.
 MIN_OCCURRENCES = 50
 
-#: Measured 2026-09-27 on the 2026-09 build. Frozen so a change in the weighting shows up here rather
-#: than in a conclusion someone draws later.
+#: Measured 2026-09-27 on the 2026-09 build, `documents` re-measured 2026-09-28 when `PMID_18025130`
+#: landed (#161). Frozen so a change in the weighting shows up here rather than in a conclusion
+#: someone draws later.
 EXPECTED = {
-    "documents": 661,
+    "documents": 662,
     "kmers_scored": 2342,
     "top_kmer": "k:IRS",
     "top_lift": 2.663,
@@ -40,7 +41,7 @@ EXPECTED = {
     "motif_above_median": 25,
 }
 
-#: ``k:CAS`` is the germline-encoded start of nearly every beta CDR3: present in 614 of 661 documents.
+#: ``k:CAS`` is the germline-encoded start of nearly every beta CDR3: present in 615 of 662 documents.
 #: It must not read as antigen-specific, and a weighting that made it look so would be wrong in the
 #: way that matters most, because it is the first thing anyone will query.
 GERMLINE_KMER = "k:CAS"
