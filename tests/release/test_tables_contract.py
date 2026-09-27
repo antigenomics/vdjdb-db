@@ -17,12 +17,8 @@ from vdjdb.schema import CHAIN_COLUMNS, EVIDENCE_TABLE_COLUMNS, RECORD_COLUMNS
 
 pytestmark = pytest.mark.release
 
-#: One chunk row is one record, so this is the row count the build reads. It moves with curation, not
-#: with code: 192,753 until PMID:18025130 landed 40 records on 2026-09-27. Frozen anyway, because a
-#: count that changes without a chunk changing is the interesting case, and
-#: `tests/release/test_reference_contract.py` holds the *release*'s 192,753 separately - that one is a
-#: property of the shipped zip and must not follow the build.
-EXPECTED_RECORDS = 192_793
+#: One chunk row is one record, so this is the row count the build reads.
+EXPECTED_RECORDS = 192_753
 
 
 @pytest.fixture(scope="module")
