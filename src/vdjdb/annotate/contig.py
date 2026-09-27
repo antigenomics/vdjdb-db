@@ -1,17 +1,17 @@
 """The mature variable domain of a chain, for AIRR ``Receptor``.
 
-AIRR's ``receptor_variable_domain_{1,2}_aa`` is the **complete** mature variable domain --
+AIRR's ``receptor_variable_domain_{1,2}_aa`` is the complete mature variable domain --
 *"from and including the first AA after the signal peptide to and including the last AA that is
 completely encoded by the J gene"* -- and it is non-nullable. VDJdb has a junction and two allele
 calls, so the domain has to be rebuilt: V framework 5' of Cys104, the junction, J framework 3' of
-[FW]118, then translated. ``vdjtools.model.stitch_contig`` does exactly that, given the nucleotide
-junction phase 8a infers.
+[FW]118, then translated. ``vdjtools.model.stitch_contig`` does that, given the nucleotide junction
+phase 8a infers.
 
-**The stitch factorises, so it is one polars expression rather than 200k Python calls.** The V part
+The stitch factorises, so it is one polars expression rather than 200k Python calls. The V part
 depends only on the V allele and the J part only on the J allele, so probing each allele once with a
 sentinel junction yields two small lookup tables, and the contig is a ``concat_str``. Verified
-against ``stitch_contig`` itself on 3,987 real chains: **identical on all of them**, 0 mismatches.
-That is CLAUDE.md rule 8 -- vectorise before parallelising -- and it turns a 2.5-minute stage into
+against ``stitch_contig`` itself on 3,987 chains: identical on all of them, 0 mismatches. That is
+CLAUDE.md rule 8 -- vectorise before parallelising -- and it turns a 2.5-minute stage into
 milliseconds plus ~60 probe calls per locus.
 """
 from __future__ import annotations
@@ -25,7 +25,7 @@ _SENTINEL = "NNNNNNNNNNNN"
 
 
 def _flanks(model: object, locus: str) -> tuple[dict[str, str], dict[str, str]]:
-    """``{v_allele: 5' framework}``, ``{j_allele: 3' framework}``, by probing the real stitcher."""
+    """``{v_allele: 5' framework}``, ``{j_allele: 3' framework}``, by probing ``stitch_contig``."""
     from vdjtools.model import stitch_contig
 
     genes_v = model.genomic["genes_v"]        # type: ignore[attr-defined]

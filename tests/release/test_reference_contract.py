@@ -111,7 +111,7 @@ def test_row_counts(name: str, reference: Path) -> None:
     assert rows == EXPECTED_ROWS[name]
 
 
-def test_the_ledger_finds_no_difference_between_a_release_and_itself(reference: Path) -> None:
+def test_the_comparison_finds_no_difference_between_a_release_and_itself(reference: Path) -> None:
     """The instrument's own zero point. If this drifts, nothing measured with it means anything."""
     report = diff(reference, reference)
     assert report.ok

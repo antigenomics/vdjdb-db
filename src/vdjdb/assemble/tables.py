@@ -1,7 +1,7 @@
 """The definitive tables: tidy, flat, linked by ``record_id``.
 
-This is the pipeline's real output. Everything shipped -- legacy, AIRR, the new format -- is a
-**join and a pivot** away from here, never a parallel assembly.
+These are the pipeline's output. Everything shipped -- legacy, AIRR, the new format -- is a join and
+a pivot away from here, never a parallel assembly.
 
 One observational unit per table, one variable per column, one observation per row:
 
@@ -12,22 +12,22 @@ One observational unit per table, one variable per column, one observation per r
 ``evidence``     PK ``(record_id, evidence_id)``  one piece of supporting evidence
 ===============  ==============================  ==========================================
 
-**One chunk row is one record.** A chunk is one publication, a row is its report on one clone, and
-that row reports both chains. So ``records`` has exactly as many rows as the build reads --
-192,753 -- and ``record_id`` is a key without qualification.
+One chunk row is one record. A chunk is one publication, a row is its report on one clone, and that
+row reports both chains. So ``records`` has exactly as many rows as the build reads -- 192,753 -- and
+``record_id`` is a key without qualification.
 
 ``method.*`` and ``meta.*`` are on ``records`` because the README says what they are: how the
-*publication* established the specificity. They describe the record, not the act of typing it in.
+publication established the specificity. They describe the record, not the act of typing it in.
 ``submitter``, ``comment`` and ``chunk.id`` are the curation's own, and they sit here too, because
 a record and its curation are the same row.
 
 Identity is the complex-information columns plus the id fields -- per the README, *"duplicate
 records ... will not be considered as duplicates in case they have distinct id fields"* -- plus the
-chunk, because two chunks are two papers. Ids are assigned **before** CDR3 repair: two trimmed
+chunk, because two chunks are two papers. Ids are assigned before CDR3 repair: two trimmed
 sequences that repair to the same full one are still two observations, and assigning afterwards
 merged 215 pairs the publications reported separately.
 
-Three untidy shapes in the legacy format disappear here, and each of them is a join or a pivot in
+Three untidy shapes in the legacy format are absent here, and each of them is a join or a pivot in
 the other direction:
 
 * **paired alpha/beta columns** (``vdjdb_full.txt``) -- a chain is an observation, so it is a row.
@@ -67,16 +67,16 @@ def build_records(master: pl.DataFrame) -> pl.DataFrame:
 def build_chains(master: pl.DataFrame) -> pl.DataFrame:
     """One row per TCR chain: the wide alpha/beta columns pivoted long.
 
-    A record contributes a row per chain it actually has, so the blanks that fill half of
-    ``vdjdb_full.txt`` simply do not exist.
+    A record contributes a row per chain it has, so the blanks that fill half of ``vdjdb_full.txt``
+    do not exist here.
     """
     parts = []
     for gene, tag in _GENES:
         d = f"d.{gene}" if f"d.{gene}" in master.columns else None
         parts.append(
             # A chain row exists when the curator described a chain at all. A D call with no
-            # CDR3 is poor curation, not absence, and dropping it would silently lose 34 values
-            # the legacy still ships.
+            # CDR3 is poor curation, not absence, and dropping it would lose 34 values the legacy
+            # still ships.
             master.filter((pl.col(f"cdr3.{gene}") != "")
                           | (pl.col(d) != "" if d else pl.lit(False))).select(
                 pl.col("record_id"),
@@ -103,7 +103,7 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
             )
         )
     # The junction-nucleotide columns are added afterwards, by `vdjdb.annotate.junction`: they need
-    # the species, which lives on `records`, and a model load per (species, locus).
+    # the species, which is on `records`, and a model load per (species, locus).
     produced = [c for c in CHAIN_COLUMNS
                 if c not in (*NT_COLUMNS, *D_COLUMNS, *INFERRED_COLUMNS)]
     # Sorted by the key, so the table has one order and it is the key's.

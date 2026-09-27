@@ -93,10 +93,10 @@ def test_nothing_to_do_yields_an_empty_report_not_an_error():
     assert report.is_empty() and out["v.alpha"][0] == "TRAV12-2*01"
 
 
-# -- the generated ledger block ----------------------------------------------------------------
+# -- the generated rename block ----------------------------------------------------------------
 
 def test_a_rename_is_declared_only_when_the_fixer_leaves_the_old_spelling_alone():
-    """The injectivity condition, and the reason the ledger can trust the block.
+    """The injectivity condition, and the reason the comparison can trust the block.
 
     `get_closest_id` simplifies `TRAV6-7-DV9` to `TRAV6` and then tries `TRAV6-1*01`, `TRAV6-2*01`,
     ... taking the first hit -- so the reference ships `TRAV6-1*01` and is indistinguishable from
@@ -180,7 +180,7 @@ def test_a_different_gene_is_not_touched():
     assert out["j.alpha"].to_list() == ["TRAJ42*01"]
 
 
-def test_the_allele_rename_carries_its_evidence_into_the_ledger():
+def test_the_allele_rename_carries_its_evidence_into_the_rules():
     """Not injective on value alone: the fixer resolves a bare `TRAJ24` to `*01`, so the reference
     ships the same value for the records the CDR3 corrects and the ones it does not."""
     report = pl.DataFrame({"issue": ["#327"] * 2, "column": ["j.alpha"] * 2,
@@ -247,7 +247,7 @@ def test_a_class_one_pair_is_left_alone():
 
 
 def test_the_chain_swap_is_not_declared_as_a_rename():
-    """It rewrites two columns at once; the ledger takes it as a declared row delta."""
+    """It rewrites two columns at once; the comparison takes it as a declared row delta."""
     report = pl.DataFrame({"issue": ["mhc-chain-order"], "column": ["mhc.a,mhc.b"],
                            "from": ["beta,alpha"], "to": ["alpha,beta"], "rows": [149]})
     assert N.render_mhc_renames(report) == ""

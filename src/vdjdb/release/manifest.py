@@ -2,15 +2,15 @@
 
 ``release.sh`` gathered a bundle with ``cp *.txt``, which would have swept in
 ``vdjdb_full_filtered.txt``, three ``*_broken.txt`` and three ``*_scored.txt`` side tables. The
-shipped zip contains none of them, so the script that produced the release was not the script that
-defined it -- somebody's manual step was. :data:`BUNDLES` is that definition, written down.
+shipped zip contains none of them, so a manual step, not the script, defined the release.
+:data:`BUNDLES` is that definition, written down.
 
-Three bundles per release, each named by **role** rather than by position. ``vdjmatch`` currently
-takes the *first* ``.zip`` asset it finds, so the moment a release carries more than one zip it
-picks an arbitrary bundle; ``manifest.json`` is the durable fix, and it ships from the first
-multi-zip release whether or not anything reads it yet (``ROADMAP.md`` section 3.1).
+Three bundles per release, each named by role rather than by position. ``vdjmatch`` currently takes
+the first ``.zip`` asset it finds, so once a release has more than one zip it picks an arbitrary
+bundle; ``manifest.json`` is the durable fix, and it ships from the first multi-zip release whether
+or not anything reads it yet (``ROADMAP.md`` section 3.1).
 
-**Member basenames are a contract.** ``vdjmatch`` looks inside the zip for ``vdjdb.txt``,
+Member basenames are a contract. ``vdjmatch`` looks inside the zip for ``vdjdb.txt``,
 ``vdjdb.slim.txt`` and ``vdjdb_full.txt`` by basename, and ``vdjdb-web`` resolves the rest as
 ``<database.path>/<name>``. The directory prefix has never mattered to either; the basenames always
 have (``docs/outputs.md`` section 2).
@@ -23,7 +23,7 @@ import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
-#: Read in blocks rather than whole: the legacy `vdjdb.txt` is 240 MB.
+#: Read in blocks rather than all at once: the legacy `vdjdb.txt` is 240 MB.
 _CHUNK = 1 << 20
 
 
@@ -35,7 +35,7 @@ class Member:
     #: The name inside the zip. Defaults to the source's basename, which is the contract.
     name: str = ""
     #: A member the bundle is still valid without -- the TCREMP motif tables, which only ship when
-    #: the motif stage ran. A *required* member that is missing fails the release.
+    #: the motif stage ran. A required member that is missing fails the release.
     optional: bool = False
 
     def member_name(self) -> str:
@@ -144,7 +144,7 @@ def write_zip(bundle: Bundle, build: Path, out: Path, version: str) -> Path:
     """Write the bundle's zip. Deterministic: members in declared order, fixed timestamps.
 
     A zip records an mtime per member, so archiving the same bytes twice produces different files
-    unless the timestamp is pinned -- and "same inputs, same bytes" is hard rule 7.
+    unless the timestamp is pinned, and "same inputs, same bytes" is hard rule 7.
     """
     target = out / bundle.filename.format(version=version)
     target.parent.mkdir(parents=True, exist_ok=True)

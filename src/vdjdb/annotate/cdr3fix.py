@@ -15,18 +15,17 @@ Measured on 20,000 rows of the 2026-06-03 release (``random.seed(42)``), agreeme
 ``good``           95.68 %
 ``jFixType``       95.44 %
 ``jStart``         91.02 %      of the 1,797 disagreements: 556 VDJdb-unmapped that arda maps,
-                                1,241 where both map and **arda is smaller in every case**
-                                (mode -2, range -1..-8), and **0** coverage regressions
+                                1,241 where both map and arda is smaller in every case
+                                (mode -2, range -1..-8), and 0 coverage regressions
 =================  ===========  ==============================================================
 
-The deviation is one-directional and explainable, which is what makes it acceptable: arda never
-loses a mapping the legacy had.
+The deviation is one-directional: arda never loses a mapping the legacy had.
 
 ``Cdr3Markup.to_cdr3fix()`` emits VDJdb's JSON keys and fix-type names verbatim, so the flat
-columns below carry the same values the legacy ones did.
+columns below hold the same values the legacy ones did.
 
-**Species.** VDJdb spells species ``HomoSapiens``; arda wants ``human``. ``arda.cdr3fix``'s own
-``VDJDB_SPECIES`` map is the translation, and it is the authority -- do not hand-roll one.
+Species. VDJdb spells species ``HomoSapiens``; arda wants ``human``. ``arda.cdr3fix``'s own
+``VDJDB_SPECIES`` map is the translation and the authority -- do not hand-roll one.
 """
 from __future__ import annotations
 
@@ -39,20 +38,20 @@ from ..assemble.master import _FIX_DTYPES, FIX_FIELDS
 
 
 def ensure_reference() -> Path:
-    """Make sure arda resolves a real germline reference, and say so loudly if it cannot.
+    """Make sure arda resolves a germline reference, and raise if it cannot.
 
     arda decides it is running from a source checkout by walking up from its own ``__file__``
     looking for a directory with ``database/`` and a project marker. Installed into this project's
-    ``.venv``, that walk reaches **this repository**, which has both -- so arda points at
+    ``.venv``, that walk reaches this repository, which has both -- so arda points at
     ``vdjdb-db/database/vdj``, which does not exist. Before arda 2.28 ``load_anchors`` then returned
     an empty dict rather than raising, and all 191,447 CDR3s came back ``FailedBadSegment`` with
-    ``vEnd = -1``: a misconfiguration silently becomes a database of wrong annotations.
+    ``vEnd = -1``: a misconfiguration becomes a database of wrong annotations, with no error.
 
     Fixed upstream (arda ``_source_root`` now requires ``database/vdj``). Until that release is
-    pinned, point ``$ARDA_HOME`` at the per-user cache -- **fetching the reference into it first if
-    it is not there**, because arda's own auto-fetch fires only when ``_source_root()`` is ``None``
-    and here it is not. Without that, a clean machine has no reference at all: measured, the first
-    CI run of ``build.yml`` failed exactly this way.
+    pinned, point ``$ARDA_HOME`` at the per-user cache, fetching the reference into it first if it
+    is not there, because arda's own auto-fetch fires only when ``_source_root()`` is ``None`` and
+    here it is not. Without that, a clean machine has no reference at all: the first CI run of
+    ``build.yml`` failed this way.
     """
     from arda.cdr3fix import load_anchors
     from arda.paths import cache_root, database_dir
@@ -65,10 +64,10 @@ def ensure_reference() -> Path:
         # arda auto-fetches the reference, but ONLY when `_source_root()` is None -- and here it
         # is not, because the walk finds this repository. So the fetch that would have happened on
         # a plain install never fires, and a clean machine (a CI runner, a new checkout) has no
-        # reference at all. Fetching it here is what makes the build work from nothing.
+        # reference at all. Fetching it here lets the build run from nothing.
         #
         # This is a download of an input, not a cache of a result: hard rule 9's explicit
-        # carve-out. The germline reference is data arriving, not something remembered.
+        # carve-out. The germline reference is data arriving, not a result being remembered.
         from arda._database_fetch import fetch_database
 
         fetch_database(cache / "database")
@@ -91,18 +90,18 @@ def ensure_reference() -> Path:
 #: record, so the 191,447 distinct keys cost ~6 s; the join back is free.
 KEY: tuple[str, ...] = ("species", "cdr3", "v", "j")
 
-#: Residues arda may **substitute** to make a CDR3 conform to the germline it was handed. Zero.
+#: Residues arda may substitute to make a CDR3 conform to the germline it was handed. Zero.
 #:
 #: The legacy default was 1, and arda aligns more sensitively, so keeping it would have rewritten
-#: **4,486** curated human CDR3s rather than 649 -- and the rewrites are wrong for this database.
+#: 4,486 curated human CDR3s rather than 649 -- and the rewrites are wrong for this database.
 #: `CAAADSWGKLQF` with `TRAJ24*01` becomes `CAAADSWGKLEF`, because `WGKLEF` is what `*01` encodes.
-#: But `WGKLQF` is the `*02` signature: the sequence is right and the **allele call** is wrong
-#: (issue #327, where 66 % of explicit `*01` calls carry the `*02` motif). Substituting the residue
+#: But `WGKLQF` is the `*02` signature: the sequence is right and the allele call is wrong
+#: (issue #327, where 66 % of explicit `*01` calls show the `*02` motif). Substituting the residue
 #: destroys the evidence that would fix the call.
 #:
-#: Measured, it costs nothing: both ends map on **165,223** of 174,630 distinct human keys at
+#: Measured, it costs nothing: both ends map on 165,223 of 174,630 distinct human keys at
 #: either setting, and `good` is marginally higher at 0 (164,925 against 164,899). Trimming and
-#: extending are unaffected -- 2,588 against 2,620 -- because those repair a *truncated* sequence
+#: extending are unaffected -- 2,588 against 2,620 -- because those repair a truncated sequence
 #: rather than contradicting a reported one.
 MAX_REPLACE = 0
 
@@ -139,8 +138,8 @@ def markup(keys: pl.DataFrame, gene: str | None = None) -> pl.DataFrame:
             # arda returns an empty segment id when it cannot resolve the call; the legacy kept
             # the closest match it had. Dropping the call as well as the coordinates would fail
             # the legacy "a CDR3 needs a V and a J" filter and cost 11,619 rows of vdjdb.txt --
-            # a coverage regression, which is exactly what phase 5 must not produce. The
-            # coordinates stay -1, which is the honest part of the answer.
+            # a coverage regression, which phase 5 must not produce. The coordinates stay -1,
+            # recording that nothing was located.
             pl.when(pl.col("__v") == "").then(pl.col("__gv")).otherwise(pl.col("__v")).alias("__v"),
             pl.when(pl.col("__j") == "").then(pl.col("__gj")).otherwise(pl.col("__j")).alias("__j"),
         ))
@@ -150,11 +149,11 @@ def markup(keys: pl.DataFrame, gene: str | None = None) -> pl.DataFrame:
 def guess_missing_segments(keys: pl.DataFrame, gene: str | None = None) -> pl.DataFrame:
     """Name a V or J for rows that have none, using the legacy k-mer guesser.
 
-    **arda repairs a CDR3; it does not guess a segment.** Given a blank ``v``, ``markup_records``
+    arda repairs a CDR3; it does not guess a segment. Given a blank ``v``, ``markup_records``
     reports ``FailedBadSegment`` rather than proposing one, and the record then fails the legacy
     build's "a CDR3 needs a V and a J" filter. Measured: swapping both halves at once dropped
-    **13,844 of 284,546** rows from ``vdjdb.txt`` -- a coverage regression, and the one thing the
-    phase 5 acceptance criterion forbids.
+    13,844 of 284,546 rows from ``vdjdb.txt`` -- a coverage regression, which the phase 5
+    acceptance criterion forbids.
 
     So the guesser stays on the legacy k-mer scan for now. Replacing it is its own deviation, with
     its own measurement: issue #462 and ROADMAP phase 8, where candidate segments are scored by

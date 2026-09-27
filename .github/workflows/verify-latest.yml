@@ -1,8 +1,8 @@
 # Does `latest-version.txt` still name the current release?
 #
 # Measured on 2026-09-26: line 1 named `2026-05-16` while the published latest was
-# `2026-06-03-ZENODO` -- and **both URLs returned 200**. So "does line 1 resolve" would not have
-# caught it. The check has to compare the tag, which is what this does.
+# `2026-06-03-ZENODO`, and both URLs returned 200. So "does line 1 resolve" would not have caught
+# it. This check compares the tag instead.
 name: verify-latest
 
 on:

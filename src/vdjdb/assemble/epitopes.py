@@ -8,17 +8,17 @@ Two tidy tables, both derived from ``records`` and both shipped:
                  mhc.b)``
 ===============  =================================================  ===============================
 
-**Why the key is the epitope *and* the species.** A peptide sequence is not unique to one organism:
+The key is the epitope and the species, because a peptide sequence is not unique to one organism:
 13 epitopes in the corpus are reported under two species, and they are not errors --
 ``VEALYLVCG`` is insulin B in both ``HomoSapiens``/``INS`` and ``MusMusculus``/``Ins2``, and
 ``KLPDDFMGC`` is conserved between SARS-CoV and SARS-CoV-2. ``patches/antigen_epitope_species_gene.dict``
-is keyed on the peptide alone and so cannot express any of them; this table can, and that is the
-reason it exists rather than being a view over the patch.
+is keyed on the peptide alone and cannot express any of them; this table can, which is why it is a
+table rather than a view over the patch.
 
-**MHC alleles are checked, not assumed.** ``proofreading/mhc_alleles.tsv.gz`` is the local mirror of
+MHC alleles are checked, not assumed. ``proofreading/mhc_alleles.tsv.gz`` is the local mirror of
 IPD-IMGT/HLA (<https://www.ebi.ac.uk/ipd/imgt/hla/>), 46,005 alleles at full four-field resolution.
-A VDJdb call is usually two-field, so membership is decided by **prefix**: ``HLA-A*02:01`` matches
-the 504 rows beginning ``HLA-A*02:01:``. One-field calls such as ``HLA-A*02`` are allele *groups* and
+A VDJdb call is usually two-field, so membership is decided by prefix: ``HLA-A*02:01`` matches
+the 504 rows beginning ``HLA-A*02:01:``. One-field calls such as ``HLA-A*02`` are allele groups and
 are accepted the same way. Non-HLA names -- murine ``H2-Db``, ``B2M`` -- have no such authority and
 are marked ``unchecked`` rather than invalid.
 """
@@ -83,7 +83,7 @@ def build_epitopes(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
         .agg(
             # One epitope under one species may still be labelled with two gene symbols; the
             # catalogue reports the dominant one and `epitopes.conflicts` in the report lists the
-            # rest, rather than silently choosing.
+            # rest, so the choice is visible.
             pl.col("antigen.gene").mode().sort().first().alias("antigen.gene"),
             pl.col("mhc.class").mode().sort().first().alias("mhc.class"),
             pl.len().alias("records"),

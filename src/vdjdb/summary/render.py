@@ -3,25 +3,24 @@
 Three steps, each able to fail the build on its own:
 
 1. ``rmarkdown::render`` on ``summary/vdjdb_summary.Rmd``, pointed at the legacy projection of this
-   build, with ``clean = FALSE`` so knitr's intermediate survives. The render makes **no network
-   call** -- publication years come from the committed table :mod:`vdjdb.summary.references`
-   writes -- so it is reproducible and runs offline.
+   build, with ``clean = FALSE`` so knitr's intermediate survives. The render makes no network call
+   -- publication years come from the committed table :mod:`vdjdb.summary.references` writes -- so
+   it is reproducible and runs offline.
 2. one more `pandoc` pass over that intermediate with ``summary/embed.html`` and
-   ``summary/embed.lua``, which **emit the publishable fragment directly**.
+   ``summary/embed.lua``, which emit the publishable fragment directly.
 3. ``summary/check_summary.py`` asserts the structure, the palette and the three contracts
    ``vdjdb-web`` depends on, against the committed fingerprint.
 
-**Step 2 replaced a post-processing script and that is the point.** ``MakeEmbedableHtml.py``
-line-scanned pandoc's finished output for ``<div``, ``<pre class="r">`` and ``<table>`` -- three
-guesses about markup that each silently blank ``/overview`` when they stop matching. Stating the
-same transforms on the document tree costs one extra pandoc invocation (the R never runs twice) and
-removes the guesses. Verified against the string-surgery output: identical line count, identical
-image digests, and the only textual difference is the position of one attribute inside 8 ``<img>``
-tags.
+Step 2 operates on pandoc's document tree rather than on rendered HTML text. The script it replaced,
+``MakeEmbedableHtml.py``, line-scanned pandoc's finished output for ``<div``, ``<pre class="r">``
+and ``<table>``; when any of those three patterns stopped matching, ``/overview`` went blank with no
+error. The tree-level pass costs one extra pandoc invocation (the R never runs twice). Verified
+against the string-surgery output: identical line count, identical image digests, and the only
+textual difference is the position of one attribute inside 8 ``<img>`` tags.
 
 ``-auto_identifiers`` is deliberate: without it pandoc puts an ``id`` on every ``<h4>``, which the
 rmarkdown path did not because it hung ids on section ``<div>``s instead. Adding anchors to the
-fragment is a reasonable thing to want and a separate decision from this refactor.
+fragment is a separate decision from this refactor.
 
 The paper figures (``summary/vdjdb_paper_figures.Rmd``) are not part of a release and are not
 rendered here; they need ``maps`` and ``scatterpie``, which the release path deliberately does not.
@@ -43,8 +42,8 @@ FRAGMENT = SUMMARY / "vdjdb_summary_embed.html"
 # DATA directory (`templates/NAME`), not the working directory. A local pandoc that happens
 # to find the file anyway hides it; a clean runner fails with
 # "Could not find data file 'templates/embed.html'".
-#: ``.tpl``, NOT ``.html``: `.gitignore` carries `summary/*.html` because the rendered
-#: dashboard is generated, and it silently swallowed this template -- a source file -- so
+#: ``.tpl``, NOT ``.html``: `.gitignore` lists `summary/*.html` because the rendered
+#: dashboard is generated, and it also excluded this template -- a source file -- so
 #: the runner never had it and pandoc reported "Could not find data file". The repo already
 #: dodges the same trap for `summary/*.txt` by committing tables as `.tsv` (CLAUDE.md).
 TEMPLATE = (SUMMARY / "embed.tpl").resolve()
@@ -75,11 +74,11 @@ def extract(intermediate: Path = INTERMEDIATE, fragment: Path = FRAGMENT, *,
     ``--embed-resources`` resolves them from the working directory.
 
     ``assets`` switches the figures from inlined base64 to files written there, referenced as
-    ``asset_prefix + name``. Measured on the current dashboard: the fragment goes from **5.14 MB to
-    94.8 KB, 55x smaller**, and the 3.78 MB of PNGs become separately cacheable rather than
+    ``asset_prefix + name``. Measured on the current dashboard: the fragment goes from 5.14 MB to
+    94.8 KB, 55x smaller, and the 3.78 MB of PNGs become separately cacheable rather than
     re-sent on every page load.
 
-    **It is not the default, and cannot be until vdjdb-web changes.** The Scala side matches
+    It is not the default, and cannot be until vdjdb-web changes. The Scala side matches
     ``data:image/png;base64`` to find the images; pointed at a fragment with external ``src``
     attributes it would render eight broken images. The capability ships ready for that change.
     """

@@ -1,14 +1,13 @@
 # AIRR mapping
 
 `vdjdb convert airr` emits AIRR Rearrangement, Receptor and Reactivity from the definitive
-tables. The mapping below is declared once, on the field registry, so both converters --
-new-format and legacy -- fall out of one statement rather than two hand-written lists.
+tables. The mapping below is declared once, on the field registry, and both converters -
+new-format and legacy - read it from there.
 
-**An empty mapping is not "no counterpart exists"** but "none that is the *same*
-quantity". VDJdb's `v.end` is an amino-acid offset in junction space and AIRR's
-`v_sequence_end` a nucleotide offset in sequence space; declaring them equal would be a
-lie. `vdjdb.convert.coords` is the one module allowed to convert between the four
-coordinate spaces this codebase meets.
+An empty mapping means that no AIRR field holds the same quantity, not that no related
+field exists. VDJdb's `v.end` is an amino-acid offset in junction space, while AIRR's
+`v_sequence_end` is a nucleotide offset in sequence space. `vdjdb.convert.coords` is the
+only module that converts between the four coordinate spaces used in this codebase.
 
 ```{vdjdb-vocabulary} airr
 ```

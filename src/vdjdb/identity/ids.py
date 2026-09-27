@@ -1,31 +1,31 @@
 """Stable VDJdb record identifiers.
 
-The problem this solves: a VDJdb record has no identifier today. It is a row in a chunk file, and
-the only thing that names it is its own content. So when a curator fixes a typo in a CDR3, the old
-record silently disappears and a new one silently appears, and nothing downstream can tell that from
-a genuine deletion plus a genuine addition. Citations to vdjdb.com, structure links keyed on
-``TCR_hash``, and evidence accumulated across releases all break invisibly.
+A VDJdb record has no identifier today. It is a row in a chunk file, and the only thing that names it
+is its own content. So when a curator fixes a typo in a CDR3, the old record disappears and a new one
+appears, and nothing downstream can tell that from a deletion plus an addition. Citations to
+vdjdb.com, structure links keyed on ``TCR_hash``, and evidence accumulated across releases all break,
+with no error.
 
-Identity here is therefore **two-level**:
+Identity here is therefore two-level:
 
 ``record_id``
-    Opaque, assigned once, never reused, and *stable across content changes*. This is what external
+    Opaque, assigned once, never reused, and stable across content changes. This is what external
     references point at. Format ``VDJDB<10 digits>``, allocated monotonically.
 
 ``content_hash``
     sha256 over the record's canonical content. Changes whenever anything about the record changes.
-    This is what *detects* a change; it is never an identifier.
+    This is what detects a change; it is never an identifier.
 
 Plus a lifecycle (``active`` / ``amended`` / ``retired``) and provenance back to the chunk file, the
 row within it, and the commit that last touched it.
 
-**Matching cascade.** On each build, records from ``chunks/`` are reconciled against the committed
+Matching cascade. On each build, records from ``chunks/`` are reconciled against the committed
 registry in three passes, most specific first:
 
 1. **Exact** natural key -> the same ``record_id``, unchanged.
 2. **Amendment**: within the same chunk and the same ``reference.id``, a record whose natural key
-   differs from an unmatched registry entry in **exactly one field** is treated as that entry,
-   amended. This is what makes a typo fix traceable instead of a delete-plus-insert. Ambiguous
+   differs from an unmatched registry entry in exactly one field is treated as that entry,
+   amended. This makes a typo fix traceable instead of a delete-plus-insert. Ambiguous
    matches (two equally good candidates) are refused and fall through -- a wrong link is worse than
    a new id.
 3. **New**: anything still unmatched gets a fresh id. Registry entries still unmatched afterwards
@@ -46,18 +46,17 @@ import polars as pl
 
 from ..schema import ALL_COLUMNS, CHUNK_DEDUP_KEY
 
-#: The fields that identify a record. A change in any of these is an *amendment*; a change anywhere
+#: The fields that identify a record. A change in any of these is an amendment; a change anywhere
 #: else is re-annotation that keeps the same record.
 #:
-#: ``CHUNK_DEDUP_KEY`` **plus the chunk**. A chunk is one paper, so two rows in two chunks are
+#: ``CHUNK_DEDUP_KEY`` plus the chunk. A chunk is one paper, so two rows in two chunks are
 #: independent reports rather than one record seen twice, however identical their fields (CLAUDE.md,
 #: the data model). Deduplication is within a chunk; identity is per curated line.
 #:
 #: Two earlier versions were wrong in opposite directions. A narrower key that stopped at
-#: ``reference.id`` collided on **20,769 of 192,753** records -- one paper reporting the same TCR
+#: ``reference.id`` collided on 20,769 of 192,753 records -- one paper reporting the same TCR
 #: against the same epitope in several donors is several records. Dropping ``chunk.file`` merged
-#: **19** pairs that are two papers' independent reports, which is exactly the signal phase 11
-#: tunes against.
+#: 19 pairs that are two papers' independent reports, the signal phase 11 tunes against.
 NATURAL_KEY: tuple[str, ...] = (*CHUNK_DEDUP_KEY, "chunk.file")
 
 ID_PREFIX = "VDJDB"
@@ -110,8 +109,8 @@ def canonical_content_hash(row: dict[str, object]) -> str:
     """Hash of every build-relevant field, in a fixed order.
 
     Changes whenever anything about the record changes -- including method and meta, which the
-    natural key ignores. That is the point: the natural key answers "is this the same record", the
-    content hash answers "has it changed".
+    natural key ignores. The natural key answers "is this the same record"; the content hash
+    answers "has it changed".
     """
     return _hash([str(row.get(c) or "").strip() for c in ALL_COLUMNS])
 
@@ -170,8 +169,8 @@ class IdentityRegistry:
     def load(cls, path: Path) -> IdentityRegistry:
         if not path.exists():
             return cls()
-        # Empty string is the only missing marker (CLAUDE.md), and the polars kwarg that spells
-        # that has been renamed across versions -- normalise after the read instead.
+        # Empty string is the only missing marker (CLAUDE.md), and the polars kwarg for that has
+        # been renamed across versions -- normalise after the read instead.
         df = pl.read_csv(path, separator="\t", infer_schema=False, quote_char=None).fill_null("")
         missing = set(REGISTRY_COLUMNS) - set(df.columns)
         if missing:
@@ -240,7 +239,7 @@ def reconcile(
 ) -> tuple[pl.DataFrame, IdentityRegistry, ReconcileReport]:
     """Assign a ``record_id`` to every row of ``records``, updating ``registry`` in place.
 
-    ``records`` must carry ``ALL_COLUMNS`` plus ``chunk.file`` and ``chunk.row``.
+    ``records`` must have ``ALL_COLUMNS`` plus ``chunk.file`` and ``chunk.row``.
     ``commits`` maps a chunk filename to the commit that last touched it.
     """
     commits = commits or {}
@@ -293,8 +292,8 @@ def reconcile(
                 by_bucket[(e.chunk_file, prev[ref_idx])].append(e)
 
         # The registry does not store the raw key, only its hash, so amendment matching needs the
-        # previous build's key fields. They are carried in `note` as the reference id plus the
-        # packed key; see `_pack_note`. Entries written by older versions simply do not match.
+        # previous build's key fields. They are recorded in `note` as the reference id plus the
+        # packed key; see `_pack_note`. Entries written by older versions do not match.
         for i in unmatched_rows:
             row, key = rows[i], keys[i]
             bucket = by_bucket.get((str(row.get("chunk.file") or ""), key[ref_idx]), [])

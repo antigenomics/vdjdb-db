@@ -4,25 +4,25 @@
     uv run python summary/check_summary.py --write-baseline
 
 There is no committed image baseline -- ``.gitignore`` excludes ``summary/*.html`` -- so the
-reference is a **committed fingerprint** (``summary/fingerprint.json``) plus, optionally, a previous
+reference is a committed fingerprint (``summary/fingerprint.json``) plus, optionally, a previous
 release's fragment for a perceptual comparison. Three layers, cheapest first:
 
 **Structural**, exact, no image decoding. The ordered ``<h4>`` list, the ordered ``<th>`` text of
 every Semantic UI table, the image count, and each image's width and height read straight out of the
-PNG IHDR in the first 32 base64 characters -- the cheapest possible detector for a ``fig.width`` /
-``dpi`` / ``fig.retina`` regression. Plus the three contracts ``vdjdb-web`` depends on: single-line
-base64, no ``<div>``, no document scaffolding.
+PNG IHDR in the first 32 base64 characters -- the cheapest detector for a ``fig.width`` / ``dpi`` /
+``fig.retina`` regression. Plus the three contracts ``vdjdb-web`` depends on: single-line base64,
+no ``<div>``, no document scaffolding.
 
 **Style**, needs Pillow. Each panel is quantised and checked for at least three of its declared
-ColorBrewer anchors within :data:`DELTA_E`, with an anti-assertion that no panel carries three
-viridis anchors -- that is what makes "someone swapped ``Set1`` for viridis" a red build. An ink
-fraction outside :data:`INK_BAND` catches a blank or collapsed facet.
+ColorBrewer anchors within :data:`DELTA_E`, plus an assertion that no panel shows three viridis
+anchors, which is what makes a swap of ``Set1`` for viridis a red build. An ink fraction outside
+:data:`INK_BAND` catches a blank or collapsed facet.
 
 **Perceptual**, needs a previous fragment. SSIM per panel against it, loose and asymmetric because
-the database grows: fail below :data:`SSIM_FAIL`, warn below :data:`SSIM_WARN`. The point is
-catching "panel 7 is a solid grey block now", not pixel equality.
+the database grows: fail below :data:`SSIM_FAIL`, warn below :data:`SSIM_WARN`. It catches a panel
+that has become a solid grey block, not pixel differences.
 
-⚠ **Nothing here reads TCRvdb.**
+⚠ Nothing here reads TCRvdb.
 """
 from __future__ import annotations
 
@@ -40,11 +40,11 @@ BASELINE = Path("summary/fingerprint.json")
 
 #: CIE76 distance under which a quantised colour counts as a palette anchor.
 DELTA_E = 3.0
-#: Fraction of non-white pixels a panel must carry: below is blank, above is a solid block.
+#: Fraction of non-white pixels a panel must have: below is blank, above is a solid block.
 INK_BAND = (0.01, 0.80)
 SSIM_FAIL, SSIM_WARN = 0.55, 0.80
 
-#: ColorBrewer anchors the dashboard actually uses, and the viridis anchors it must NOT.
+#: ColorBrewer anchors the dashboard uses, and the viridis anchors it must not.
 SET1 = ["#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00"]
 VIRIDIS = ["#440154", "#21918c", "#fde725", "#3b528b", "#5ec962"]
 
@@ -63,7 +63,7 @@ def png_size(payload: str) -> tuple[int, int]:
     """Width and height from the PNG IHDR, decoded from the first 32 base64 characters.
 
     An IHDR sits at bytes 16..24 of every PNG, so 32 base64 characters (24 bytes) always contain it
-    and the rest of a multi-megabyte payload never has to be decoded.
+    and the rest of a multi-megabyte payload is never decoded.
     """
     head = base64.b64decode(payload[:32] + "=" * (-len(payload[:32]) % 4))
     return struct.unpack(">II", head[16:24])
@@ -138,10 +138,9 @@ def _hits(colours: list[tuple[int, int, int]], anchors: list[str]) -> int:
 def style(html: str, *, allow_skip: bool = False) -> list[str]:
     """Palette and ink-fraction checks.
 
-    A missing Pillow is a **failure**, not a skip, unless ``allow_skip``. Pillow arrives
-    transitively today, so an upstream dependency change would otherwise turn this layer off
-    without anything saying so -- and a check that silently downgrades itself is worse than one
-    that is not there, because it still reports success. ``uv sync --extra summary`` provides it.
+    A missing Pillow is a failure, not a skip, unless ``allow_skip``. Pillow arrives transitively
+    today, so an upstream dependency change would otherwise turn this layer off while the run still
+    reported success. ``uv sync --extra summary`` provides it.
     """
     try:
         import numpy as np
@@ -183,7 +182,7 @@ def ssim(a, b) -> float:
 
 
 def perceptual(html: str, reference: Path) -> list[str]:
-    """SSIM per panel against a previous fragment. Loose and asymmetric -- the database grows."""
+    """SSIM per panel against a previous fragment. Loose and asymmetric, because the database grows."""
     try:
         import numpy as np
         from PIL import Image

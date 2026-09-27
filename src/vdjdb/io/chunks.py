@@ -1,6 +1,6 @@
 """Read ``chunks/`` into one polars frame.
 
-``chunks/`` **is** the data: one file per publication, 230 files, ~203k rows. Everything else in the
+``chunks/`` is the data: one file per publication, 230 files, ~203k rows. Everything else in the
 repository is machinery for validating, assembling and publishing it.
 
 Three properties this reader guarantees that the pandas one did not:
@@ -10,13 +10,13 @@ Three properties this reader guarantees that the pandas one did not:
   reproduced byte-for-byte by anyone, including the pipeline that produced it. This reader sorts.
 * **One missing marker.** Every cell is a string and every absent cell is ``""``. The pandas path's
   ``None`` / ``NaN`` / ``""`` three-way ambiguity is the source of more than one shipped bug.
-* **Provenance.** Every row carries ``chunk.file`` and ``chunk.row``, so a record can be traced back
+* **Provenance.** Every row has ``chunk.file`` and ``chunk.row``, so a record can be traced back
   to the line a curator wrote. The identity registry keys amendments on it.
 
-Deduplication is **within a chunk**, and that is not a performance choice. A chunk is one paper, so
-two matching rows in two chunks are two papers reporting the same receptor independently -- the
-strongest evidence the database carries, and the signal motif clustering is tuned against
-(ROADMAP section 11.1). Collapsing them would delete it. Measured: 19 such pairs.
+Deduplication is within a chunk, not globally. A chunk is one paper, so two matching rows in two
+chunks are two papers reporting the same receptor independently -- the strongest evidence the
+database holds, and the signal motif clustering is tuned against (ROADMAP section 11.1). Collapsing
+them would delete it. Measured: 19 such pairs.
 """
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ READABLE: tuple[str, ...] = ALL_COLUMNS + KEPT_CURATION_COLUMNS
 
 
 def chunk_files(directory: Path | None = None) -> list[Path]:
-    """Every chunk file, **sorted**. Hidden files are skipped, as the legacy build skipped them."""
+    """Every chunk file, sorted. Hidden files are skipped, as the legacy build skipped them."""
     d = directory or Paths.discover().chunks
     return sorted(p for p in d.iterdir()
                   if p.suffix in {".txt", ".tsv"} and not p.name.startswith("."))
@@ -47,7 +47,8 @@ def _normalise_header(name: str) -> str:
 
     ``vandesandt-etal-2019-11-04.txt`` writes ``Comment``. Nineteen distinct header rows exist
     across 230 files; the rest of the normalisation is a one-shot migration (#497, phase 3), not a
-    read-time transform, because silently accepting a malformed header is how they accumulated.
+    read-time transform, because accepting a malformed header without an error is how they
+    accumulated.
     """
     n = name.lstrip("﻿").strip()
     return "comment" if n == "Comment" else n
@@ -69,8 +70,8 @@ def read_chunk(path: Path) -> pl.DataFrame:
         truncate_ragged_lines=True,
         null_values=[],
     )
-    # A duplicate column name would make the selection below ambiguous. polars silently renames
-    # the second one (`species_duplicated_0`), so the raw header is the only place to catch it.
+    # A duplicate column name would make the selection below ambiguous. polars renames the second
+    # one (`species_duplicated_0`) without an error, so the raw header is where to catch it.
     with path.open("rb") as fh:
         raw_header = [_normalise_header(c)
                       for c in fh.readline().decode("utf-8", "replace").rstrip("\r\n").split("\t")]
@@ -88,10 +89,10 @@ def read_chunk(path: Path) -> pl.DataFrame:
     return (
         df.select(present)
         # Strip surrounding whitespace, not only the CR a CRLF file leaves behind. It is never
-        # meaningful in a TSV cell and it silently forks a value in two: measured, 758 record-cells
-        # across 8 columns, including `tetramer-sort ` appearing beside `tetramer-sort` (103 records)
-        # and `Nucleocapsid ` (171). `strip_chars()` with no argument also takes the non-breaking
-        # space that one J-gene call carried.
+        # meaningful in a TSV cell and it forks a value in two: measured, 758 record-cells across
+        # 8 columns, including `tetramer-sort ` appearing beside `tetramer-sort` (103 records) and
+        # `Nucleocapsid ` (171). `strip_chars()` with no argument also takes the non-breaking space
+        # that one J-gene call had.
         .with_columns(pl.col(present).cast(pl.Utf8).fill_null("").str.strip_chars())
         .with_columns(
             *(pl.lit("").alias(c) for c in READABLE if c not in present),
@@ -106,7 +107,7 @@ def dedup(df: pl.DataFrame) -> pl.DataFrame:
     """Per-chunk deduplication on :data:`CHUNK_DEDUP_KEY`, keeping the first occurrence.
 
     Per-chunk, not global: the released ``vdjdb_full.txt`` is the per-chunk result, and switching to
-    global would silently drop 19 rows.
+    global would drop 19 rows.
     """
     return df.unique(subset=["chunk.file", *CHUNK_DEDUP_KEY], keep="first", maintain_order=True)
 
@@ -127,7 +128,7 @@ def read_chunks(paths: Iterable[Path] | None = None, *, deduplicate: bool = True
 def independently_reported(df: pl.DataFrame) -> pl.DataFrame:
     """Records reported by more than one chunk -- that is, by more than one paper.
 
-    **Not duplicates.** A chunk is one publication, so the same receptor against the same epitope
+    Not duplicates. A chunk is one publication, so the same receptor against the same epitope
     appearing in two chunks is independent replication. This is evidence, and phase 11 fits the
     motif clustering against it.
     """

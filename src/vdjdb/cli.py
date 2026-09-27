@@ -1,6 +1,6 @@
 """The ``vdjdb`` command.
 
-Every subcommand is implemented; ``vdjdb --help`` is the whole surface.
+Every subcommand is implemented; ``vdjdb --help`` lists them all.
 """
 from __future__ import annotations
 
@@ -112,8 +112,8 @@ def make(
 ) -> None:
     """Project a shipped format out of an already-built database.
 
-    The point of the `make` split: the legacy export reads the **tables that shipped**, never
-    `chunks/`, so it cannot drift into a parallel implementation of the build.
+    The legacy export reads the tables that shipped, never `chunks/`, so it cannot drift into a
+    second implementation of the build.
     """
     from .emit.vdjdb3 import read_tables
 
@@ -130,16 +130,16 @@ def make(
 @app.command()
 def rules(
     chunks: Path | None = typer.Option(None, help="Chunk directory; default chunks/."),
-    out: Path = typer.Option(Path("rules/expected_diffs.toml"), help="Ledger rule file."),
+    out: Path = typer.Option(Path("rules/expected_diffs.toml"), help="Expected-difference rules."),
     report: Path | None = typer.Option(None, help="Also write the harmonisation report as TSV."),
-    reference: Path | None = typer.Option(None, help="Reference bundle the ledger compares against; "
+    reference: Path | None = typer.Option(None, help="Reference bundle the comparison runs against; "
                                                      "antigen renames are derived from it."),
 ) -> None:
-    """Regenerate the ledger's declared renames from the nomenclature harmonisation.
+    """Regenerate the declared renames from the nomenclature harmonisation.
 
     A nomenclature correction to an identity column removes a row and adds one, so it has no cell to
-    attribute. The generated block tells the ledger to apply the same rewrite to the reference before
-    keying; what a reviewer reads is this block's diff.
+    attribute. The generated block tells `vdjdb diff` to apply the same rewrite to the reference
+    before keying; a reviewer reads this block's diff.
     """
     import polars as pl
 
@@ -194,7 +194,7 @@ def convert(
 
     Both sources land on the same emitter: legacy `vdjdb.txt` already speaks VDJdb's column names,
     so there is no second implementation to drift. The legacy path exists for users holding an older
-    release zip; it carries no `d_call` (the file has no D column) and, on the current corpus, 1,501
+    release zip; it has no `d_call` (the file has no D column) and, on the current corpus, 1,501
     fewer chains, which is exactly what the legacy build drops.
     """
     import polars as pl
@@ -256,8 +256,8 @@ def refs(
 ) -> None:
     """Resolve the publication year of every reference and write `summary/reference_years.tsv`.
 
-    Network-bound and **not** part of a build: the table is a committed, reviewed input that makes
-    the dashboard render offline, refreshed by its own pull request (hard rule 9).
+    Network-bound and not part of a build: the table is a committed, reviewed input that makes the
+    dashboard render offline, refreshed by its own pull request (hard rule 9).
     """
     import polars as pl
 
@@ -286,9 +286,9 @@ def release_cmd(
 ) -> None:
     """Assemble the release: three zips, `manifest.json`, `SHA256SUMS`, `latest-version.txt`.
 
-    Does **not** publish. Steps 4-6 of the release -- verify, publish and the commit-then-check of
-    `latest-version.txt` -- belong to `release.yml`, because they touch the repository and the
-    world.
+    Does not publish. Steps 4-6 of the release - verify, publish and the commit-then-check of
+    `latest-version.txt` - belong to `release.yml`, which has the repository write access and
+    network access they need.
     """
     from .release import bundle as b
     from .release import changelog as cl
@@ -316,7 +316,7 @@ def changelog(
     current: Path = typer.Argument(Path("out/legacy"), help="This build's legacy projection."),
     tag: str = typer.Option("", help="Tag to title the notes with."),
 ) -> None:
-    """The reference diff between two releases — which studies arrived, left, or were renamed."""
+    """The reference diff between two releases - which studies arrived, left, or were renamed."""
     from .release import changelog as cl
 
     d = cl.diff(previous, current, years=Path("summary/reference_years.tsv"))
@@ -329,7 +329,7 @@ def diff(
     candidate: Path = typer.Argument(..., help="Candidate build directory or zip."),
     rules: Path = typer.Option(Path("rules/expected_diffs.toml"),
                                help="Declared expected differences."),
-    report: Path | None = typer.Option(None, help="Write the ledger here as Markdown."),
+    report: Path | None = typer.Option(None, help="Write the comparison report here as Markdown."),
     only: str | None = typer.Option(None, help="Comma-separated members to compare; "
                                                "for deliberately partial candidates."),
 ) -> None:

@@ -1,20 +1,19 @@
 """How much to believe the D call, from ``arda.dpost``.
 
 The D segment is short, heavily trimmed, and there are only two of them in TRB, so assigning one from
-a junction is often close to a coin flip. A point estimate that does not say so is misleading, which
-is what this module fixes: :mod:`vdjdb.annotate.junction` says *which* D and *where*, and this says
-*how sure*.
+a junction is often close to a coin flip. :mod:`vdjdb.annotate.junction` says which D and where;
+this says how sure.
 
-Measured on 2,000 distinct human TRB keys: the posterior for the winning gene has median **0.791**
-and falls below 0.6 on **21.8 %**; the entropy over the posterior has median **0.740** and exceeds
-0.9 -- essentially undecidable between TRBD1 and TRBD2 -- on **28.9 %**. Independently, ``infer_nt``
-and ``arda.dpost`` name the same D gene on only **78.5 %**, and the inferred call matches the curated
-``d.segm`` at gene level on 76.5 %. All three numbers say the same thing, so ``d.posterior`` is not a
-decoration: a consumer that filters on it is doing the only correct thing with a D call.
+Measured on 2,000 distinct human TRB keys: the posterior for the winning gene has median 0.791
+and falls below 0.6 on 21.8 %; the entropy over the posterior has median 0.740 and exceeds
+0.9 -- undecidable between TRBD1 and TRBD2 -- on 28.9 %. Independently, ``infer_nt``
+and ``arda.dpost`` name the same D gene on 78.5 %, and the inferred call matches the curated
+``d.segm`` at gene level on 76.5 %. A consumer should filter on ``d.posterior`` rather than take a
+D call at face value.
 
-The posterior reported is for the gene ``d.inferred`` names, **not** for arda's own winner. That is
-deliberate: the two disagree on a fifth of chains, and the number beside a call must be the
-probability of *that* call. When they disagree the posterior is low, which is exactly the signal.
+The posterior reported is for the gene ``d.inferred`` names, not for arda's own winner: the two
+disagree on a fifth of chains, and the number beside a call must be the probability of that call.
+When they disagree the posterior is low, which is the signal to read.
 """
 from __future__ import annotations
 
@@ -44,7 +43,7 @@ def add_d_posterior(chains: pl.DataFrame, records: pl.DataFrame) -> pl.DataFrame
         return keyed.with_columns(*blank).drop("species").sort("record_id", "gene")
 
     # Without this, arda mistakes this repository for its own checkout and every call returns None
-    # -- silently, which is how it went unnoticed for a whole phase. See annotate/cdr3fix.py.
+    # with no error, which is how it went unnoticed for a phase. See annotate/cdr3fix.py.
     ensure_reference()
 
     keys = target.select(_KEY).unique().sort(_KEY)
@@ -52,7 +51,7 @@ def add_d_posterior(chains: pl.DataFrame, records: pl.DataFrame) -> pl.DataFrame
     for sp, cdr3, v, j, d in keys.iter_rows():
         p = posterior_d(cdr3, v, j, SPECIES[sp])
         # by_gene is keyed on the gene; `d.inferred` is an allele. A gene arda did not consider has
-        # probability 0 under its model, which is a real answer, not a missing one.
+        # probability 0 under its model, which is an answer, not a missing value.
         post.append(None if p is None else p.by_gene.get(d.split("*")[0], 0.0))
         ent.append(None if p is None else p.entropy)
 

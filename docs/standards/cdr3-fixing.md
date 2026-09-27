@@ -1,16 +1,15 @@
 # CDR3 fixing
 
+At this stage the build checks each CDR3 sequence against the reported V and J segments:
 
-At this stage, a series of checks is performed for CDR3 sequence and reported V/J segments:
+* For *canonical* CDR3 sequences, those starting with a conserved ``C`` and ending with ``F/W``: checks whether the 5' and 3' germline parts match the corresponding V/J segment sequences.
+* For truncated CDR3 sequences: adds the conserved ``C/F/W`` residues. Further missing residues are added when a relatively large contiguous V/J germline match is present.
+* When an excessive germline part is reported (e.g. ``FGXG`` instead of just ``F`` at the CDR3 3' part), the excess residues are removed.
+* Mismatches in the V/J germline regions are corrected when a reliable non-contiguous V/J match is found.
 
-* In case of *canonical* (starting with conserved ``C`` and ending with ``F/W``) CDR3 sequences: checks if 5' and 3' germline parts match corresponding V/J segment sequences.
-* In case of truncated CDR3 sequences: adds conserved ``C/F/W`` residues. Can add more missing residues in case a relatively large contiguous V/J germline match is present.
-* In case excessive germline part is reported (e.g. ``FGXG`` instead of simply ``F`` at CDR3 3' part), excessive residues are removed.
-* Can correct mismatches in V/J germline regions in case a reliable non-contiguous V/J match is found.
+Repertoire sequencing (RepSeq) data processing software reports *canonical* clonotype sequences, while a high number of antigen-specific TCR sequences in the literature are reported inconsistently. Fixing brings both into the same form, so that RepSeq data can be annotated with database records.
 
-The main reason behind that is that current immune repertoire sequencing (RepSeq) data processing software reports *canonical* clonotype sequences, high number antigen-specific TCR sequences present in literature are reported inconsistently. The latter greatly complicates annotation of RepSeq data using known antigen-specific TCR sequences.
-
-In case of good V/J germline matching and errors in CDR3 sequence, the final CDR3 sequence in the database is replaced by its fixed version. The following report of CDR3 fixer is placed under ``cdr3fix.alpha`` and ``cdr3fix.beta`` columns, e.g.
+When the V/J germline match is good and the CDR3 sequence contains errors, the database carries the fixed sequence in place of the original. The fixer's report is stored in the ``cdr3fix.alpha`` and ``cdr3fix.beta`` columns, e.g.
 
 ```json
 {
@@ -52,8 +51,8 @@ Field descriptions:
 
 field | description
 ------|-------------
-``fixNeeded`` | ``true`` if corrected CDR3 sequence differs from the original one, ``false`` otherwise
-``good`` | ``true`` if the fix can be applied, ``false`` if the fix cannot be applied due to bad V/J entry or no V/J matching
+``fixNeeded`` | ``true`` if the corrected CDR3 sequence differs from the original one, ``false`` otherwise
+``good`` | ``true`` if the fix can be applied, ``false`` if it cannot, due to a bad V/J entry or no V/J match
 ``cdr3`` | Fixed CDR3 sequence
 ``cdr3_old`` | Original CDR3 sequence
 ``jFixType`` | Type of fix applied to CDR3 J germline part
@@ -67,4 +66,4 @@ field | description
 
 > **Note:**
 
-> Possible V and J fix types: ``NoFixNeeded``, ``FixAdd``, ``FixReplace``, ``FixTrim``, ``FailedReplace`` (too many mismatches), ``FailedBadSegment`` (bad segment entry), ``FailedNoAlignment`` (no alignment at all)
+> The V and J fix types are ``NoFixNeeded``, ``FixAdd``, ``FixReplace``, ``FixTrim``, ``FailedReplace`` (too many mismatches), ``FailedBadSegment`` (bad segment entry) and ``FailedNoAlignment`` (no alignment at all).

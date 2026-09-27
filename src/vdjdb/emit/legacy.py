@@ -2,11 +2,10 @@
 
 Nothing here assembles anything. ``records`` and ``chains`` (:mod:`vdjdb.assemble.tables`) are the
 database; this module projects them back into the three shapes ``vdjdb-web`` and standalone clients
-have always read, and it is the **only** place that knows about them.
+have always read, and it is the only place that knows about them.
 
-That direction matters. The legacy files are untidy in three specific ways -- paired alpha/beta
-columns, record fields duplicated per chain, and JSON blobs -- and each is undone here by exactly
-one operation:
+The legacy files are untidy in three specific ways -- paired alpha/beta columns, record fields
+duplicated per chain, and JSON blobs -- and each is undone here by one operation:
 
 =========================  ==================================================================
 ``vdjdb_full.txt``         ``chains`` pivoted **wide** on ``gene``, joined to ``records``
@@ -15,7 +14,7 @@ one operation:
 =========================  ==================================================================
 
 ``vdjdb-web`` parses these positionally (CLAUDE.md hard rule 1), so column order is a contract.
-Every deliberate quirk reproduced here carries a comment saying why; anything without one is a bug.
+Every deliberate quirk reproduced here has a comment saying why; anything without one is a bug.
 """
 from __future__ import annotations
 
@@ -29,7 +28,7 @@ from ..schema import FULL_COLUMNS, META_COLUMNS, METHOD_COLUMNS, SLIM_COLUMNS, V
 from ..schema.fields import render_meta, render_slim_meta
 
 #: Fed to every writer. The release contains no quoted field -- the JSON cells contain ``"``
-#: characters, but a default CSV writer would *wrap* them and double the inner quotes, changing
+#: characters, but a default CSV writer would wrap them and double the inner quotes, changing
 #: every JSON cell in the database.
 _CSV = {"separator": "\t", "quote_style": "never", "line_terminator": "\n",
         "include_header": True}
@@ -70,8 +69,8 @@ def widen_chains(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
         )
         out = out.join(side, on="record_id", how="left")
     # A join does not promise an order. `complex.id` is a positional counter, so an unordered
-    # result would renumber every clone on every run -- exactly the class of defect CLAUDE.md hard
-    # rule 7 exists for. Curation order is the one order that means something here.
+    # result would renumber every clone on every run -- the class of defect CLAUDE.md hard rule 7
+    # exists for. Curation order is the one order that means something here.
     out = out.sort("chunk.file", "chunk.row")
     # An absent chain is an empty string, never a null: one missing marker (CLAUDE.md rule 6).
     fills = [f"cdr3.{s}" for s in _CHAIN_SUFFIX.values()]
@@ -93,7 +92,7 @@ _CHAIN_COL = {
 def _cdr3fix_blob(suffix: str, *, as_json: bool) -> pl.Expr:
     """Reassemble the ``cdr3fix`` JSON blob from the flat columns, in the historical key order.
 
-    ``vdjdb.txt`` ships JSON; ``vdjdb_full.txt`` ships a Python ``dict`` **repr** -- single quotes,
+    ``vdjdb.txt`` ships JSON; ``vdjdb_full.txt`` ships a Python ``dict`` repr -- single quotes,
     so no standard parser reads it. All 122,930 non-empty cells of the 2026-06-03 release are that
     form. It is a defect, reproduced here and fixed in the definitive tables, where every member is
     already a column.
@@ -145,9 +144,9 @@ def _json_map(prefix: str, columns: tuple[str, ...],
               extra: dict[str, pl.Expr] | None = None) -> pl.Expr:
     """A JSON object column with ``json.dumps`` defaults.
 
-    ``struct.json_encode()`` is **not** byte-compatible: it emits ``{"a":"x"}`` where the release
+    ``struct.json_encode()`` is not byte-compatible: it emits ``{"a":"x"}`` where the release
     has ``{"a": "x"}``, and it does not escape non-ASCII, where ``json.dumps`` writes
-    ``M158\\u201366``. Measured at 0.25 s for 200k rows, which is not worth a byte-level fight.
+    ``M158\\u201366``. ``json.dumps`` measures at 0.25 s for 200k rows.
     """
     fields = {c.removeprefix(prefix): pl.col(c) for c in columns}
     if extra:
@@ -158,7 +157,7 @@ def _json_map(prefix: str, columns: tuple[str, ...],
 def build_default(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
     """``vdjdb.txt`` -- one row per chain, paired chains sharing a ``complex.id``.
 
-    ``complex.id`` is assigned **here** and nowhere else: it is a positional counter with no
+    ``complex.id`` is assigned here and nowhere else: it is a positional counter with no
     meaning outside this file, and the definitive tables express pairing by ``record_id``.
     """
     wide = widen_chains(records, chains)
@@ -194,10 +193,11 @@ def build_default(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
                 # Canonical anchors: is this CDR3 bounded by the expected Cys and Phe/Trp?
                 pl.when(pl.col(f"__vCanonical.{suffix}") & pl.col(f"__jCanonical.{suffix}"))
                 .then(pl.lit("no")).otherwise(pl.lit("yes")).alias("web.cdr3fix.nc"),
-                # Unmapped: could the CDR3 be placed on a V *and* a J germline? The shipped build
+                # Unmapped: could the CDR3 be placed on a V and a J germline? The shipped build
                 # tests `cdr3fix["jStart"]` for truthiness where the Groovy tested `jStart > -1`,
                 # and -1 is truthy in Python -- so 7,973 of 284,546 unmapped records are labelled
-                # mapped. Fixed here; declared as `web-unmp-jstart-minus1` in the ledger.
+                # mapped. Fixed here; declared as `web-unmp-jstart-minus1` in
+                # rules/expected_diffs.toml.
                 pl.when((pl.col(f"__vEnd.{suffix}") > -1) & (pl.col(f"__jStart.{suffix}") > -1))
                 .then(pl.lit("no")).otherwise(pl.lit("yes")).alias("web.cdr3fix.unmp"),
             )
@@ -218,7 +218,7 @@ def build_slim(default_db: pl.DataFrame) -> pl.DataFrame:
 
     Non-key fields become a sorted comma-separated set, which is how a consumer sees "this CDR3 was
     reported against this epitope in these studies, with these V genes". ``vdjdb.score`` is the
-    **maximum** rather than a set: a score is a confidence, and the best evidence wins.
+    maximum rather than a set: a score is a confidence, and the best evidence wins.
     """
     fix = pl.col("cdr3fix").str.json_decode(
         dtype=pl.Struct([pl.Field("vEnd", pl.Int64), pl.Field("jStart", pl.Int64)]))
@@ -239,7 +239,7 @@ def build_slim(default_db: pl.DataFrame) -> pl.DataFrame:
 
 
 def write_meta(out: Path) -> list[Path]:
-    """The two metadata files, **generated** rather than tracked, so they cannot drift again."""
+    """The two metadata files, generated rather than tracked, so they cannot drift again."""
     a, b = out / "vdjdb.meta.txt", out / "vdjdb.slim.meta.txt"
     a.write_text(render_meta("vdjdb"))
     b.write_text(render_slim_meta("slim"))

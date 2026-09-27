@@ -89,7 +89,7 @@ def test_the_legacy_export_is_a_projection_of_what_shipped(tmp_path, tables):
     """Phase 6's closing criterion in miniature: `make legacy` reads the tables, never `chunks/`.
 
     On the real corpus the three projected files are byte-identical to the in-memory build and the
-    difference ledger passes; here the same property is asserted cheaply on every run.
+    release comparison passes; here the same property is asserted cheaply on every run.
     """
     direct = legacy.write_all(tables, tmp_path / "direct")
     vdjdb3.write_all(tables, tmp_path / "new")

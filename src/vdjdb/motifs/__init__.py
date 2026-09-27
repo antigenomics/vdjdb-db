@@ -18,15 +18,15 @@ content-addressed by ``seqtree``; enrichment, embeddings, scalers, PCAs, cluster
 recomputed every run, and cluster numbers follow cluster content rather than a stored assignment, so
 they are stable across releases without anything being remembered (CLAUDE.md hard rule 9).
 
-**TCRNET is tuned** under the two-stage rule in ``docs/denoising.md`` section 7.1 -- admissible on
-Q, purity and precision against the shipped annotation, then ranked on independent-study lift. Its
-``TUNED`` carries the scorecard and the one cost it pays. TCREMP is being fitted the same way;
-until it is, its defaults are correct and reproducible but not optimised. ROADMAP section 30 lists
-what remains open, with the measurement that would settle each.
+TCRNET is tuned under the two-stage rule in ``docs/denoising.md`` section 7.1 -- admissible on Q,
+purity and precision against the shipped annotation, then ranked on independent-study lift. Its
+``TUNED`` records the scorecard and the one cost it pays. TCREMP is being fitted the same way;
+until it is, its defaults are reproducible but not optimised. ROADMAP section 30 lists what remains
+open, with the measurement that would settle each.
 
-⚠ **A lift figure is meaningless without its denominator.** Display-selected records contribute no
+⚠ A lift figure needs its denominator stated. Display-selected records contribute no
 independently-replicated pairs while filling a quarter of the human TRB cohort, so lift is scored on
-the non-display subset and the same clustering reads 1.098 or 5.259 depending only on which cohort
+the non-display subset, and the same clustering reads 1.098 or 5.259 depending only on which cohort
 is used (``docs/denoising.md`` section 6.1).
 """
 from __future__ import annotations
@@ -57,9 +57,9 @@ def run_tcrnet(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
     """TCRNET: enrichment, the two-stage neighbourhood graph, connected components.
 
     ``p``, the scope, the Leiden ``resolution`` and ``min_cluster`` all default to
-    :data:`vdjdb.motifs.tcrnet.TUNED`. It is keyed per chain, but both chains currently hold the
-    same configuration -- the per-chain split section 34 introduced did not survive being scored on
-    the corrected objective.
+    :data:`vdjdb.motifs.tcrnet.TUNED`. It is keyed per chain, but both chains currently use the same
+    configuration: the per-chain split from section 34 did not rank above it on the corrected
+    objective.
     """
     scored = tcrnet.enriched_clonotypes(chains, records, p=p, min_sample=min_sample)
     members = cluster.clusters(scored, min_cluster=min_cluster)
@@ -96,9 +96,8 @@ def per_epitope_report(chains: pl.DataFrame, records: pl.DataFrame, out: Path,
 
     The pooled scorecard is an average over a distribution that is strongly bimodal on TRB -- the
     median epitope has under 1 % of its clonotypes clustered while the pooled retention is 32 % -- so
-    the breakdown ships as a report beside every build rather than being recomputed when someone
-    wonders (`docs/clustering.md` section 6). Legacy is not in it: it is a property of a *release*,
-    and the ledger is where releases are compared.
+    the breakdown ships as a report beside every build (`docs/clustering.md` section 6). Legacy is
+    not in it: it is a property of a release, and releases are compared by ``vdjdb diff``.
     """
     from ..assemble.evidence import support_counts
     from ..validate import motif_bench as mb

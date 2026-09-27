@@ -1,12 +1,11 @@
 """IMGT segment nomenclature (#389), driven by the authority table rather than a hand-written map.
 
-``proofreading/imgt_alleles.tsv.gz`` is the authority -- 5,342 alleles across the species VDJdb
-carries -- and it has been sitting in the repository unread by any build code. This module is what
-makes it live.
+``proofreading/imgt_alleles.tsv.gz`` is the authority: 5,342 alleles across the species VDJdb
+covers. This module reads it.
 
-**Nothing is invented and nothing is guessed between two candidates.** A call that IMGT already
-knows is left alone. Otherwise a small set of *mechanical* respellings is generated and the call is
-rewritten **only if exactly one of them is an IMGT name for that species**:
+Nothing is invented and nothing is guessed between two candidates. A call that IMGT already knows
+is left alone. Otherwise a small set of mechanical respellings is generated, and the call is
+rewritten only if exactly one of them is an IMGT name for that species:
 
 =========================  ==========================================  ====================
 respelling                 example                                     chains
@@ -14,19 +13,19 @@ respelling                 example                                     chains
 drop spaces                ``TRBJ 2-7`` -> ``TRBJ2-7``                  2
 ``.`` -> ``-``             ``TRBJ1.2`` -> ``TRBJ1-2``                   21
 ``TCR`` -> ``TR``          ``TCRBD2*02`` -> ``TRBD2*02``                5
-strip zero padding         ``TRAJ04-1`` -> ``TRAJ4-1``                  —
+strip zero padding         ``TRAJ04-1`` -> ``TRAJ4-1``                  -
 ``-DV`` -> ``/DV``         ``TRAV21-DV12`` -> ``TRAV21/DV12``           181
 insert the missing slash   ``TRAV29DV5`` -> ``TRAV29/DV5``              10
 drop a D gene's ``-1``     ``TRBD2-1*01`` -> ``TRBD2*01``               224
 restore the ``/DV`` name   ``TRAV14`` -> ``TRAV14/DV4``                 1,377
 =========================  ==========================================  ====================
 
-Multi-calls are split on ``,`` and ``or``, each member normalised, then rejoined **sorted**, so
-``TRBD2,TRBD1`` and ``TRBD1,TRBD2`` stop being two spellings of one fact (89 chains) and
+Multi-calls are split on ``,`` and ``or``, each member normalised, then rejoined in sorted order,
+so ``TRBD2,TRBD1`` and ``TRBD1,TRBD2`` stop being two spellings of one fact (89 chains) and
 ``TRBD2*01 or TCRBD2*02`` becomes machine-readable.
 
-Measured on the corpus: **1,928 of 2,478** non-IMGT calls are resolved this way. The 550 left are
-not spelling problems and are reported rather than forced:
+Measured on the corpus: 1,928 of 2,478 non-IMGT calls are resolved this way. The 550 left are not
+spelling problems and are reported rather than forced:
 
 * **438 macaque V calls.** 1,333 of 1,771 macaque V calls are valid rhesus IMGT, 206 are valid
   *human* IMGT names applied to macaque records, and 232 are neither. Rewriting a human gene name to
@@ -35,9 +34,9 @@ not spelling problems and are reported rather than forced:
   IMGT candidates and no way to choose. Two candidates is a curation question, not a substitution.
 * **`TRAJ16.5`, `TRAJ01-1*01`**: names with no IMGT counterpart at all.
 
-``proofreading/arden.tsv`` supplies the 122 genuinely historical Arden-era names, which no mechanical
-rule could derive. None of them appear in the current corpus; it is read so that a chunk carrying one
-is normalised on arrival rather than on someone noticing.
+``proofreading/arden.tsv`` supplies the 122 historical Arden-era names, which no mechanical rule
+derives. None appear in the current corpus; the table is read so that a chunk using one is
+normalised on arrival.
 """
 from __future__ import annotations
 
@@ -54,7 +53,7 @@ import polars as pl
 from ..config import Paths
 
 #: VDJdb's species vocabulary -> IMGT's. A species absent here is left untouched: there is no
-#: authority to check it against, and an unchecked rewrite is worse than an odd spelling.
+#: authority table to check its calls against.
 IMGT_SPECIES: dict[str, str] = {
     "HomoSapiens": "Homo sapiens",
     "MusMusculus": "Mus musculus",
@@ -93,7 +92,7 @@ def _arden(root: Path) -> dict[str, str]:
 
 
 def _respellings(call: str, genes: frozenset[str]) -> set[str]:
-    """Every mechanical variant of ``call``. Purely syntactic; the caller decides which is real."""
+    """Every mechanical variant of ``call``. Purely syntactic; the caller decides which to use."""
     out = {call.replace(" ", "")}
     out |= {x.replace(".", "-") for x in out}
     out |= {x.replace("TCR", "TR") for x in out}
@@ -119,8 +118,8 @@ def _respellings(call: str, genes: frozenset[str]) -> set[str]:
 def normalise_call(call: str, species: str, root: Path | None = None) -> str | None:
     """The IMGT spelling of ``call``, or ``None`` if it is already IMGT or cannot be resolved.
 
-    ``None`` means "do not rewrite", which covers both "already correct" and "not decidable" -- the
-    caller distinguishes them by checking membership itself, and the report does.
+    ``None`` means "do not rewrite", which covers both "already correct" and "not decidable"; the
+    caller and the report tell the two apart by checking IMGT membership themselves.
     """
     root = root or Paths.discover().root
     tables = _imgt(root)
@@ -153,7 +152,7 @@ def harmonise_segments(df: pl.DataFrame,
     """Rewrite the segment columns to IMGT spelling. Returns ``(frame, report)``.
 
     The report is one row per ``(species, column, from, to)`` with its count -- the audit trail, and
-    the source of the declared counts in the difference ledger.
+    the source of the declared counts in ``rules/expected_diffs.toml``.
     """
     root = root or Paths.discover().root
     rows: list[dict[str, object]] = []
@@ -201,31 +200,30 @@ _END = "# END generated renames"
 
 def render_renames(report: pl.DataFrame,
                    resolve: Callable[[str, str], str] | None = None) -> str:
-    """The ledger's ``[[rename]]`` block, from :func:`harmonise_segments`'s report.
+    """The ``[[rename]]`` block of ``rules/expected_diffs.toml``, from :func:`harmonise_segments`.
 
-    Generated rather than hand-written, and that is the point: the reviewable artifact is this
-    block's diff in a curation pull request, which lists every name the build rewrote. The ledger's
-    own job is the complementary one -- proving nothing *else* moved.
+    Generated rather than hand-written: the reviewable artifact is this block's diff in a curation
+    pull request, which lists every name the build rewrote. ``vdjdb diff`` then checks that nothing
+    else moved.
 
-    ``resolve(species, call)`` must be the **same** resolution the pipeline applies afterwards. It is
-    not optional bookkeeping: the CDR3 fixer maps a segment name onto its germline table and writes
-    the resolved name back, so harmonising ``TRAV14`` to ``TRAV14/DV4`` does not put ``TRAV14/DV4``
-    in the shipped file -- it puts ``TRAV14/DV4*01``, because the name now *resolves* where the short
-    form never did. A rename declaring the intermediate value rewrites the reference and rescues no
-    row at all, which is worse than declaring nothing. Pairs that resolve to the same name on both
-    sides are dropped: nothing about them reaches the file.
+    ``resolve(species, call)`` must be the same resolution the pipeline applies afterwards. The CDR3
+    fixer maps a segment name onto its germline table and writes the resolved name back, so
+    harmonising ``TRAV14`` to ``TRAV14/DV4`` does not put ``TRAV14/DV4`` in the shipped file -- it
+    puts ``TRAV14/DV4*01``, because the name resolves where the short form did not. A rename
+    declaring the intermediate value rewrites the reference and matches no row. Pairs that resolve
+    to the same name on both sides are dropped: nothing about them reaches the file.
     """
     pairs: dict[tuple[str, str], set[str]] = {}
     rows: dict[tuple[str, str], int] = {}
     for column, species, old, new, n in report.iter_rows():
         if resolve is not None:
             resolved_old, resolved_new = resolve(species, old), resolve(species, new)
-            # Only when the fixer leaves the old spelling alone is the rename **injective**. When it
-            # does not, it has mapped the odd name onto a real allele -- `get_closest_id` simplifies
-            # `TRAV6-7-DV9` to `TRAV6` and then tries `TRAV6-1*01`, `TRAV6-2*01`, ... and takes the
-            # first hit -- so the reference ships `TRAV6-1*01` and is indistinguishable from the
-            # records that genuinely are TRAV6-1. Declaring that rename rewrites both, and the 15
-            # real ones become phantom unmatched rows. Those cases are a declared row delta instead.
+            # Only when the fixer leaves the old spelling alone is the rename injective. When it
+            # does not, it has mapped the odd name onto an existing allele -- `get_closest_id`
+            # simplifies `TRAV6-7-DV9` to `TRAV6` and then tries `TRAV6-1*01`, `TRAV6-2*01`, ... and
+            # takes the first hit -- so the reference ships `TRAV6-1*01` and is indistinguishable
+            # from the records that are TRAV6-1. Declaring that rename rewrites both, and the 15
+            # TRAV6-1 records become phantom unmatched rows. Those are a declared row delta instead.
             # A multi-call never reaches the file as written: `fix_both` splits it, repairs against
             # each member and keeps the best, so what ships is one of them. That is a selection, not
             # a rename, and declaring it produces a rule that matches nothing.
@@ -240,8 +238,8 @@ def render_renames(report: pl.DataFrame,
     import json
 
     # The array-of-tables form, not `rename = [ ... ]`: a bare key after a `[[row_delta]]` header
-    # belongs to *that* table, so an inline array appended to the end of the file silently becomes
-    # a field of the last section. This form is position-independent.
+    # belongs to that table, so an inline array appended to the end of the file becomes a field of
+    # the last section with no error. This form is position-independent.
     out = [_BEGIN]
     for (old, new) in sorted(pairs):
         cols = ",".join(sorted(pairs[(old, new)]))
@@ -277,12 +275,12 @@ def legacy_resolver(root: Path | None = None) -> Callable[[str, str], str]:
 
 def render_allele_renames(report: pl.DataFrame,
                           resolve: Callable[[str, str], str] | None = None) -> str:
-    """The ``[[rename]]`` lines for :func:`disambiguate_alleles`, carrying their evidence.
+    """The ``[[rename]]`` lines for :func:`disambiguate_alleles`, with their evidence.
 
-    An allele correction is **not** injective on value alone -- the 1,047 TRAJ24 records the CDR3
+    An allele correction is not injective on value alone -- the 1,047 TRAJ24 records the CDR3
     identifies as ``*02`` ship the same ``TRAJ24*01`` as the 38 it does not, because the fixer
-    resolves a bare ``TRAJ24`` to ``*01``. So the rename carries the same predicate the rule used,
-    and the ledger applies it to the reference under the same evidence.
+    resolves a bare ``TRAJ24`` to ``*01``. The rename therefore states the same predicate the rule
+    used, and ``vdjdb diff`` applies it to the reference under the same evidence.
     """
     seen: dict[tuple[str, str, str, str], int] = {}
     cdr3_for = {"j.alpha": "cdr3,cdr3.alpha", "j.beta": "cdr3,cdr3.beta",
@@ -312,8 +310,8 @@ def render_mhc_renames(report: pl.DataFrame) -> str:
     """The ``[[rename]]`` lines for :func:`harmonise_mhc`'s value substitutions.
 
     Unconditional and injective: unlike a segment call, an MHC string is not touched by the CDR3
-    fixer, so what the reference ships is what the chunk wrote. The chain-order swap is **not** here
-    -- it rewrites two columns at once and lands in a declared row delta instead.
+    fixer, so what the reference ships is what the chunk wrote. The chain-order swap is not here:
+    it rewrites two columns at once and is a declared row delta instead.
     """
     out = []
     for _issue, column, old, new, n in report.iter_rows():
@@ -355,7 +353,7 @@ class AlleleSignature:
     """Two alleles of one gene that the CDR3 itself tells apart.
 
     Where two alleles differ inside the junction, the sequence is evidence and the call is not: a
-    record whose CDR3 carries the ``*02`` residues *is* ``*02``, whatever the submitter wrote.
+    record whose CDR3 has the ``*02`` residues is ``*02``, whatever the submitter wrote.
     """
 
     issue: str
@@ -369,12 +367,11 @@ class AlleleSignature:
 
 
 #: #327. TRAJ24*01 encodes ``...GGK**FE**F...`` and *02 ``...GGK**LQ**F...``, two residues apart and
-#: both inside the junction. Measured on the corpus: **``WGKFEF`` appears zero times** and ``WGKLQF``
+#: both inside the junction. Measured on the corpus: ``WGKFEF`` appears zero times and ``WGKLQF``
 #: 1,080 times across the TRAJ24 family, including in 73 of the 111 records explicitly called
 #: ``*01``. The original report was that about two thirds of explicit ``*01`` calls are probably
-#: ``*02``; the sequence says it more strongly than that -- not one of them carries the ``*01``
-#: signature. The 364 with neither signature have a CDR3 trimmed short of the anchor and are left
-#: alone: no evidence, no correction.
+#: ``*02``; no record with an explicit ``*01`` call has the ``*01`` signature. The 364 with neither
+#: signature have a CDR3 trimmed short of the anchor and are left alone: no evidence, no correction.
 ALLELE_SIGNATURES: tuple[AlleleSignature, ...] = (
     AlleleSignature(issue="#327", species="HomoSapiens", column="j.alpha", cdr3="cdr3.alpha",
                     prefix="TRAJ24",
@@ -389,7 +386,7 @@ def disambiguate_alleles(df: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFrame]:
         if sig.column not in df.columns or sig.cdr3 not in df.columns:
             continue
         family = (pl.col("species") == sig.species) & pl.col(sig.column).str.starts_with(sig.prefix)
-        # A CDR3 carrying two signatures at once contradicts itself; leave it to a curator.
+        # A CDR3 matching two signatures at once contradicts itself; leave it to a curator.
         hits = [pl.col(sig.cdr3).str.contains(s, literal=True) for s in sig.signatures]
         unambiguous = family & (pl.sum_horizontal(*[h.cast(pl.Int8) for h in hits]) == 1)
         expr = pl.col(sig.column)
@@ -413,14 +410,13 @@ def disambiguate_alleles(df: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFrame]:
 # MHC
 # ---------------------------------------------------------------------------------------------
 
-#: Reference-scoped corrections live in ``patches/mhc.dict``, not here: they are data a curator
-#: reviews as a diff, with the source that justifies each one in the row beside it. The file carries
+#: Reference-scoped corrections belong in ``patches/mhc.dict``, not here: they are data a curator
+#: reviews as a diff, with the source that justifies each one in the row beside it. The file lists
 #: the murine class-II spellings, the alleles that do not exist in IPD-IMGT/HLA, and -- as comments
 #: -- the three cases checked and deliberately left alone.
 MHC_PATCH = "mhc.dict"
 
-#: Class-II alpha-chain genes. ``mhc.a`` is the first chain and carries these; ``mhc.b`` the
-#: second one.
+#: Class-II alpha-chain genes. ``mhc.a`` is the first chain, ``mhc.b`` the second one.
 MHC_ALPHA: tuple[str, ...] = ("HLA-DRA", "HLA-DQA1", "HLA-DQA2", "HLA-DPA1", "HLA-DPA2")
 MHC_BETA: tuple[str, ...] = ("HLA-DRB1", "HLA-DRB3", "HLA-DRB4", "HLA-DRB5", "HLA-DQB1",
                              "HLA-DQB2", "HLA-DPB1", "HLA-DPB2")
@@ -441,18 +437,18 @@ def _mhc_patch(root: Path) -> tuple[tuple[str, str, str], ...]:
 def harmonise_mhc(df: pl.DataFrame, root: Path | None = None) -> tuple[pl.DataFrame, pl.DataFrame]:
     """Collapse MHC spellings and put the alpha chain in ``mhc.a``. Returns ``(frame, report)``.
 
-    Three corrections, each with its own evidence:
+    Two corrections, each with its own evidence:
 
     * **declared corrections** -- ``patches/mhc.dict``: the murine class-II spellings that split one
-      molecule several ways, and the alleles IPD-IMGT/HLA does not carry at all. Each row names the
-      source that justifies it, and a correction may be **scoped to one `reference.id`** where that
-      is the only place it was verified;
-    * **alpha and beta swapped** -- 149 records carry a beta-chain gene in ``mhc.a`` and an
+      molecule several ways, and the alleles IPD-IMGT/HLA does not list at all. Each row names the
+      source that justifies it, and a correction may be scoped to one `reference.id` where that is
+      the only place it was verified;
+    * **alpha and beta swapped** -- 149 records have a beta-chain gene in ``mhc.a`` and an
       alpha-chain gene in ``mhc.b``. The gene symbol says which chain it is, so this needs no
       judgement.
 
-    #564 (``DPA`` vs ``DPA1``, ``DRA1`` vs ``DRA``) is **already fixed** in the corpus: measured, zero
-    chunk rows carry a malformed class-II gene symbol. The issue is stale.
+    #564 (``DPA`` vs ``DPA1``, ``DRA1`` vs ``DRA``) is already fixed in the corpus: zero chunk rows
+    have a malformed class-II gene symbol. The issue is stale.
     """
     rows: list[dict[str, object]] = []
     patch = _mhc_patch(root or Paths.discover().root)
@@ -495,17 +491,16 @@ def harmonise_references(df: pl.DataFrame,
                          root: Path | None = None) -> tuple[pl.DataFrame, pl.DataFrame]:
     """Replace a non-PMID ``reference.id`` with its PubMed id where one exists (#347).
 
-    Driven by ``proofreading/reference_ids.tsv``, a **committed, reviewed input**: the build is
-    offline and deterministic, so no lookup happens here (CLAUDE.md rule 9).
+    Driven by ``proofreading/reference_ids.tsv``, a committed, reviewed input: the build is offline
+    and deterministic, so no lookup happens here (CLAUDE.md rule 9).
 
     #347 asks for DOI and GitHub links to become PMIDs, and most of them cannot. Measured over the
     30,977 records whose reference is not a PMID: the 10x application note is 20,358 of them and is a
     vendor note with no PMID; the eight ``github.com/antigenomics/vdjdb-db/issues/*`` references are
-    4,366 records of **direct submission**, where the issue *is* the reference; 42 are
+    4,366 records of direct submission, where the issue is the reference; 42 are
     ``rcsb.org/structure/*`` PDB entries; one is a computer-science preprint PubMed does not index;
-    and one medRxiv preprint was never indexed. What is left is **668 records across 3 references** --
-    including the bioRxiv preprint that has acquired a PMID since it was submitted, which is exactly
-    the kind of drift a committed table is for.
+    and one medRxiv preprint was never indexed. What is left is 668 records across 3 references,
+    including a bioRxiv preprint that acquired a PMID after it was submitted.
     """
     path = (root or Paths.discover().root) / "proofreading" / "reference_ids.tsv"
     if not path.exists() or "reference.id" not in df.columns:

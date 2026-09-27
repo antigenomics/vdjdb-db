@@ -4,8 +4,8 @@
 #
 # Writes one CSV per sweep into out/reports/tuning/; `report.py` merges them into the committed
 # scorecard. Each sweep produces a label vector in the tcremp contract and hands it to
-# clusterlab.score_labels, so no two methods can be scored by different code -- the mistake that
-# made section 35's first TRA reading wrong by 1.6x.
+# clusterlab.score_labels, so no two methods can be scored by different code. Scoring them
+# separately made section 35's first TRA reading wrong by 1.6x.
 #
 # Nothing here reads TCRvdb. The objective is independent-study replication (ROADMAP section 11.1).
 from __future__ import annotations
@@ -28,7 +28,7 @@ warnings.filterwarnings("ignore", message="The number of clusters detected")
 OUT = Path("out/reports/tuning")
 
 #: The absolute purity floor, per chain. ``None`` would keep the legacy-relative bar; both chains
-#: now carry 0.94, which is the one number that sits above the do-nothing partition on BOTH -- its
+#: now use 0.94, the one number that sits above the do-nothing partition on both chains -- its
 #: purity is 0.9204 (TRA) and 0.9343 (TRB), so 0.93 would admit a partition that clusters nothing
 #: on TRB. Every cell also keeps ``admissible_legacy_bar`` so the two rules can be read side by
 #: side, because on TRA the floor is a tightening rather than a relaxation: the legacy bar there is
@@ -49,7 +49,7 @@ def _gate(ctx, scored, *, recruited: bool) -> np.ndarray:
     """The TCRNET noise model as a boolean mask over the cohort.
 
     ``recruited=False`` is the enrichment test alone; ``True`` adds each enriched clonotype's
-    within-scope neighbours, which is the vertex set the shipped TCRNET actually partitions.
+    within-scope neighbours, which is the vertex set the shipped TCRNET partitions.
     """
     enr = (ctx["grp"].select("antigen.epitope", "junction_aa", "v_call", "j_call")
            .join(scored.filter((pl.col("gene") == ctx["gene"]) & pl.col("enriched"))
@@ -74,7 +74,7 @@ def _gate(ctx, scored, *, recruited: bool) -> np.ndarray:
 
 
 def _strat_labels(X, epitopes, lengths, mcs, m_smooth, gate):
-    """Lumbermark inside each ``(epitope, CDR3 length)`` stratum -- the unit emit actually ships."""
+    """Lumbermark inside each ``(epitope, CDR3 length)`` stratum -- the unit ``emit`` ships."""
     from lumbermark import Lumbermark
 
     out = np.full(len(X), -1, dtype=np.int64)
@@ -126,7 +126,7 @@ def run(which: str) -> None:
                              "admissible_legacy_bar": cl.admissible(ctx, r)})
                 print(cl.line(f"[{gene}] shipped {name}", r), flush=True)
             # One cluster per epitope, nothing excluded: the instrument's blind spot, measured
-            # rather than argued (docs/clustering.md section 8).
+            # (docs/clustering.md section 8).
             triv = np.unique(ctx["epi"], return_inverse=True)[1].astype(np.int64)
             r = cl.score_labels(ctx, triv, min_cluster=1)
             rows.append({"gene": gene, "algo": "trivial", "coef": 0.0, **r,
@@ -136,8 +136,8 @@ def run(which: str) -> None:
 
         # `hybrid-len` is two variants and both belong in the scorecard: the length-stratified
         # partition over EVERY vertex (`-all`, no noise model) and over the enriched gate only
-        # (`-enriched`). Dropping the ungated one would remove the comparison that shows what the
-        # gate buys, which is the whole point of section 9.
+        # (`-enriched`). Dropping the ungated one would remove the comparison that measures what
+        # the gate buys, which is what section 9 asks for.
         variants: list[tuple[str, np.ndarray | None]] = [(which, None)]
         if which.startswith("hybrid"):
             gate = _gate(ctx, scored, recruited=(which == "hybrid-recruited"))

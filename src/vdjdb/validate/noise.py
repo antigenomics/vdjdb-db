@@ -1,19 +1,18 @@
 """How much of a motif is chance, and how much of a lift is publicity.
 
-Two quantities that `docs/denoising.md` argues from, computed rather than asserted.
+Two quantities `docs/denoising.md` uses, computed rather than asserted.
 
-**The chance-recruitment rate** says what fraction of a motif's members a *non-convergent* record
-would supply for free. TCRNET already estimates the background neighbour probability per clonotype,
-so this costs a binomial tail and nothing else -- and it is what turns "a wider ball recruits
-bystanders" from a warning into a number.
+The chance-recruitment rate says what fraction of a motif's members a non-convergent record would
+supply for free. TCRNET already estimates the background neighbour probability per clonotype, so
+this costs a binomial tail and nothing else.
 
-**The publicity-controlled lift** says how much of the independent-study enrichment survives once
+The publicity-controlled lift says how much of the independent-study enrichment survives once
 generation probability is held fixed. A public clonotype is more likely both to be seen by a second
-laboratory *and* to have sequence neighbours, so the raw lift is confounded upward. The control is
-the IMMREP25 audit's: permute the label within strata, so the null keeps the covariate and destroys
+laboratory and to have sequence neighbours, so the raw lift is confounded upward. The control is
+the IMMREP25 audit's: permute the label within strata, so the null keeps the covariate and removes
 only the association.
 
-⚠ **Nothing here reads TCRvdb.**
+⚠ Nothing here reads TCRvdb.
 """
 from __future__ import annotations
 
@@ -28,9 +27,9 @@ from ..config import SEED
 def ball_volume(length: int, subs: int) -> int:
     r"""Number of peptides within ``subs`` substitutions of a length-``length`` CDR3.
 
-    :math:`V_s(L) = \sum_{j \le s} \binom{L}{j} 19^j`. The point of having it is the **ratio**
-    between two scopes: it is the factor by which the chance-neighbour probability inflates when the
-    scope widens, and it is why scope is the most dangerous knob in the motif stage.
+    :math:`V_s(L) = \sum_{j \le s} \binom{L}{j} 19^j`. What this is for is the ratio between two
+    scopes: the factor by which the chance-neighbour probability inflates when the scope widens,
+    which is why scope is the knob with the largest effect in the motif stage.
     """
     return sum(math.comb(length, j) * 19 ** j for j in range(subs + 1))
 
@@ -63,19 +62,19 @@ def controlled_lift(df: pl.DataFrame, *, clustered: str = "clustered",
                     n_perm: int = 1000, seed: int = SEED) -> dict:
     r"""Raw lift, the within-stratum permutation null, and the ratio of the two.
 
-    ``stratum`` holds the covariate to hold fixed -- generation-probability decile, via
-    :func:`pgen_stratum`. The null permutes ``replicated`` **within** each stratum, so a clonotype's
+    ``stratum`` names the covariate to hold fixed -- generation-probability decile, via
+    :func:`pgen_stratum`. The null permutes ``replicated`` within each stratum, so a clonotype's
     publicity is preserved and only its association with the clustering is broken. ``ratio`` above 1
     is enrichment that publicity does not account for; a ratio near 1 means the raw lift was the
     covariate.
 
-    **The permutation is drawn in closed form rather than performed.** Permuting within a stratum
+    The permutation is drawn in closed form rather than performed. Permuting within a stratum
     preserves that stratum's replicated count, so the lift's denominator -- the overall base rate --
     is identical in every draw, and its numerator is the clustered-and-replicated count, which is a
     sum of independent :math:`\mathrm{Hypergeometric}(n_g, k_g, c_g)` draws over strata
     (:math:`n_g` records, :math:`k_g` replicated, :math:`c_g` clustered). Sampling those directly is
-    the same distribution exactly, not an approximation, and measured **300x faster** than shuffling
-    the label vector -- 0.66 s to 2.2 ms at 2,000 draws over 20,000 rows in 10 strata.
+    the same distribution, not an approximation, and measured 300x faster than shuffling the label
+    vector -- 0.66 s to 2.2 ms at 2,000 draws over 20,000 rows in 10 strata.
     """
     rng = np.random.default_rng(seed)
     c = df[clustered].to_numpy().astype(bool)
@@ -109,7 +108,7 @@ def pgen_stratum(df: pl.DataFrame, column: str = "cdr3nt.pgen", *, bins: int = 1
 
     ``log10`` of the generation probability, cut into ``bins`` equal-count bins. Rows with no Pgen
     get their own stratum rather than being dropped -- missing a covariate is not a reason to lose
-    a record, and a separate stratum absorbs whatever they have in common.
+    a record, and a separate stratum absorbs whatever those rows have in common.
     """
     lg = (pl.col(column).cast(pl.Float64).log10()
           .replace([float("inf"), float("-inf")], None))

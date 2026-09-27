@@ -25,8 +25,8 @@ def repo_root(start: Path | None = None) -> Path:
 class Paths:
     """The input directories, derived from one root.
 
-    Only the three below: an output path is a CLI argument, so a property for it was a
-    fourth spelling of `--out` that no caller ever reached for.
+    Only the three below: an output path is a CLI argument, so a property for it would be a
+    fourth spelling of `--out`.
     """
 
     root: Path
@@ -48,13 +48,13 @@ class Paths:
         return cls(repo_root())
 
 
-#: The one seed for the whole build. Every stage that samples, shuffles, initialises a clustering
+#: The one seed for the build. Every stage that samples, shuffles, initialises a clustering
 #: or hashes with a seed takes it from here -- never ``random.seed()`` at module scope, never an
 #: unseeded default, never a per-call literal.
 #:
-#: A build that is merely *repeatable* (same answer twice on one host) is not enough: the difference
-#: ledger declares rules with measured row counts, and a count is meaningless against a measurement
-#: that moves between hosts or processes. Measured cost of getting this wrong: an unstable sort in
-#: the ledger reported 158, 152 and 158 changed rows across three runs of the same comparison, and
-#: manufactured five times the real difference.
+#: A build that is merely repeatable (same answer twice on one host) is not enough:
+#: ``rules/expected_diffs.toml`` declares rules with measured row counts, and a count is meaningless
+#: against a measurement that moves between hosts or processes. Measured cost of getting this wrong:
+#: an unstable sort in ``vdjdb diff`` reported 158, 152 and 158 changed rows across three runs of the
+#: same comparison, five times the number of differences actually present.
 SEED: int = 20260925

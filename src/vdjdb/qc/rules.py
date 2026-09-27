@@ -2,17 +2,17 @@
 
 Ported from ``py_src/ChunkQC.py``, which applied each validator with ``.apply`` per cell and built
 two of its three emptiness masks with ``chunk_df.T.apply`` -- transpose, then row-wise Python. Here
-every rule is one polars expression over the whole frame.
+every rule is one polars expression over the full frame.
 
-Two behavioural notes carried over deliberately:
+Two behaviours are carried over deliberately:
 
 * **``is_MHC_valid`` passes anything not starting with ``HLA``.** The regex only constrains HLA
   spellings; murine ``H2-Kb`` and friends are accepted unchecked. That is why the murine MHC-II
   fragmentation (``I-Ab`` 3,274 vs ``H2-IAb`` 113 vs ``H2-Ab1`` 9) never tripped QC. Phase 9's
   nomenclature rules are where that gets fixed; changing it here would fail 230 chunks at once.
 * **A failing chunk must exit non-zero.** The Groovy build did; the Python port replaced it with
-  ``warnings.warn`` and carried on. Restoring it is free -- measured, 230 of 230 chunks pass today,
-  so there is no quarantine list to grandfather.
+  ``warnings.warn`` and carried on. Measured, 230 of 230 chunks pass today, so restoring the
+  non-zero exit needs no quarantine list.
 """
 from __future__ import annotations
 
@@ -65,7 +65,7 @@ RULES: dict[str, pl.Expr] = {
     "no.cdr3": ~(_blank("cdr3.alpha") & _blank("cdr3.beta")),
     "no.antigen.seq": ~_blank("antigen.epitope"),
     "no.mhc": ~(_blank("mhc.a") | _blank("mhc.b")),
-    # #561. A paired record whose two chains carry the *same* CDR3 is a transcription error: the
+    # #561. A paired record whose two chains have the same CDR3 is a transcription error: the
     # beta sequence copied into the alpha field, with the V and J calls left correct. Which chain is
     # wrong cannot be known from the row, so this reports and does not repair -- 99 records on the
     # current corpus, 98 of them from two references. Advisory, so the build does not fail on a

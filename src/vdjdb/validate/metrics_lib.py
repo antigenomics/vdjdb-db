@@ -18,7 +18,7 @@ This module is the one place in the package that uses pandas; it is a validation
 #   binominal_test, count_clstr_purity  <- /Users/mikesh/vcs/code/tcremp/tcremp/ml_utils.py
 #   precision_recall_fscore, get_clustermetrics <- /Users/mikesh/vcs/code/tcremp/tcremp/metrics.py
 # These define purity / retention / consistency / AMI / precision / recall / F1 exactly
-# as used for the TCREMP paper (Kremlyakova et al. 2025, Table 1). Do not "improve" —
+# as used for the TCREMP paper (Kremlyakova et al. 2025, Table 1). Do not "improve" -
 # the point is bit-identical metric semantics across all compared methods.
 import numpy as np
 import pandas as pd

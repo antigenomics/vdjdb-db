@@ -1,15 +1,15 @@
 """Project the motif tables into the two files ``vdjdb-web`` parses.
 
-⚠ **Both files are parsed positionally.** ``app/backend/server/motifs/Motifs.scala`` hands Tablesaw a
+⚠ Both files are parsed positionally. ``app/backend/server/motifs/Motifs.scala`` hands Tablesaw a
 fixed ``Array[ColumnType]`` with no header check -- 27 entries for ``motif_pwms.txt``, 19 for
-``cluster_members.txt``. An inserted, removed or reordered column silently mistypes or shifts the
-whole table rather than failing. :data:`PWM_COLUMNS` and :data:`MEMBER_COLUMNS` are that contract,
-and the order in them is the only order either file may ever be written in (CLAUDE.md hard rule 1).
+``cluster_members.txt``. An inserted, removed or reordered column mistypes or shifts every following
+column, with no error. :data:`PWM_COLUMNS` and :data:`MEMBER_COLUMNS` are that contract, and the
+order in them is the only order either file may be written in (CLAUDE.md hard rule 1).
 
-Everything this module adds is a join and a rename. The motif tables carry the cluster; the record
+Everything this module adds is a join and a rename. The motif tables supply the cluster; the record
 columns (``antigen.gene``, the MHC) and the per-chain geometry (``v.end``, ``j.start``) come back
-from the definitive tables, exactly as the legacy exporter is a projection of the new build rather
-than a second pipeline (ROADMAP section 6).
+from the definitive tables, in the same way the legacy exporter is a projection of the new build
+rather than a second pipeline (ROADMAP section 6).
 """
 from __future__ import annotations
 
@@ -32,16 +32,17 @@ PWM_COLUMNS: tuple[str, ...] = (
     "antigen.gene", "antigen.species", "mhc.a", "mhc.b", "mhc.class",
 )
 
-#: The record columns both files carry, resolved once per ``(species, epitope)``.
+#: The record columns both files include, resolved once per ``(species, epitope)``.
 _ANNOTATION = ("antigen.gene", "antigen.species", "mhc.a", "mhc.b", "mhc.class")
 
 
 def _annotation(records: pl.DataFrame) -> pl.DataFrame:
     """One annotation row per ``(species, antigen.epitope)``: the modal value of each column.
 
-    An epitope can appear under more than one MHC across publications -- HLA promiscuity is real and
-    is issue #372 -- but the legacy files carry one value per cluster, so the modal one is what a
-    positional reader can be given. Ties break lexicographically, never on frame order (hard rule 7).
+    An epitope can appear under more than one MHC across publications -- HLA promiscuity is
+    documented, and is issue #372 -- but the legacy files hold one value per cluster, so the modal
+    one is what a positional reader gets. Ties break lexicographically, never on frame order
+    (hard rule 7).
     """
     out = records.select("species", "antigen.epitope", *_ANNOTATION)
     for col in _ANNOTATION:
@@ -90,8 +91,8 @@ def cluster_members(members: pl.DataFrame, chains: pl.DataFrame,
 def motif_pwms(pwms: pl.DataFrame, records: pl.DataFrame) -> pl.DataFrame:
     """``motif_pwms.txt`` as a frame, 27 columns in :data:`PWM_COLUMNS` order.
 
-    ``need.impute`` becomes a real flag: ``TRUE`` wherever the ``(v, j, len)`` stratum had nothing
-    at that position and the column was read off the coarser background instead. In the shipped file
+    ``need.impute`` becomes a flag that varies: ``TRUE`` wherever the ``(v, j, len)`` stratum had
+    nothing at that position and the column was read off the coarser background. In the shipped file
     it is ``FALSE`` on all 13,456 rows, because it was computed after the filter that would have set
     it (ROADMAP section 8.5).
     """

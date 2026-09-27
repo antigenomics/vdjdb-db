@@ -1,12 +1,12 @@
-"""The reference diff between two releases -- what a database changelog is actually about (#432).
+"""The reference diff between two releases: the database changelog (#432).
 
-Not a code changelog. A reader of a VDJdb release wants to know **which studies arrived**, how many
-records each brought, and what the totals now are. Everything else in a release is machinery.
+Not a code changelog. A reader of a VDJdb release wants to know which studies arrived, how many
+records each brought, and what the totals now are.
 
-Cheap because the publication years are already a committed input: :mod:`vdjdb.summary.references`
-resolved them once, so dating the new studies costs a join rather than 600 network calls.
+The publication years are already a committed input: :mod:`vdjdb.summary.references` resolved them
+once, so dating the new studies costs a join rather than 600 network calls.
 
-⚠ **Nothing here reads TCRvdb.**
+⚠ Nothing here reads TCRvdb.
 """
 from __future__ import annotations
 
@@ -21,16 +21,15 @@ MEMBER = "vdjdb.slim.txt"
 def _references(source: Path) -> pl.DataFrame:
     """``(reference.id, rows, content)`` from a release zip or a built legacy directory.
 
-    ``vdjdb.slim.txt`` carries a comma-joined ``reference.id`` per row -- one slim row can come from
+    ``vdjdb.slim.txt`` holds a comma-joined ``reference.id`` per row -- one slim row can come from
     several studies -- so the column is split before counting. Counting the joined strings instead
-    would invent a distinct "reference" for every combination that happens to occur, which also
-    means ``rows`` sums to more than the table's row count and is a **reference-row pair** count,
-    not a record count.
+    would invent a distinct "reference" for every combination that occurs. ``rows`` therefore sums
+    to more than the table's row count: it is a reference-row pair count, not a record count.
 
-    ``content`` is a digest of the reference's own ``(cdr3, epitope)`` multiset. It is what makes a
-    **re-identification** distinguishable from a study appearing and another disappearing: issue
-    #347 replaced DOI and preprint URLs with PubMed ids, and without this the release notes would
-    report three studies withdrawn and three added when nothing changed but a name.
+    ``content`` is a digest of the reference's own ``(cdr3, epitope)`` multiset. It distinguishes a
+    re-identification from a study appearing and another disappearing: issue #347 replaced DOI and
+    preprint URLs with PubMed ids, and without this the release notes would report three studies
+    withdrawn and three added when nothing changed but a name.
     """
     if source.is_dir():
         text = (source / MEMBER).read_text()
@@ -43,8 +42,8 @@ def _references(source: Path) -> pl.DataFrame:
                       pl.col("reference.id").str.split(",").alias("ref"))
               # Pinned rather than left to the default, which Polars 2.0 flips. It makes no
               # difference to this data -- `str.split` on an empty cell yields `[""]`, never an
-              # empty list, so the `!= ""` filter below catches it either way -- and pinning is
-              # what stops an upgrade changing a release note without anyone noticing.
+              # empty list, so the `!= ""` filter below catches it either way -- and pinning stops
+              # an upgrade from changing a release note with no error.
               .explode("ref", empty_as_null=False)
               .with_columns(pl.col("ref").str.strip_chars().alias("reference.id"))
               .filter(pl.col("reference.id") != "")
@@ -61,9 +60,9 @@ def diff(previous: Path, current: Path, *, years: Path | None = None) -> dict:
     added = after.join(before.select("reference.id"), on="reference.id", how="anti")
     removed = before.join(after.select("reference.id"), on="reference.id", how="anti")
 
-    # A reference that vanished and one that appeared carrying the SAME rows is one study renamed,
-    # not two events. Matched on content, never on row count alone -- two unrelated studies can
-    # easily contribute the same number of rows.
+    # A reference that vanished and one that appeared with the SAME rows is one study renamed, not
+    # two events. Matched on content, never on row count alone -- two unrelated studies can
+    # contribute the same number of rows.
     renamed = (removed.join(added, on="content", how="inner", suffix="_new")
                .select(pl.col("reference.id").alias("from"),
                        pl.col("reference.id_new").alias("to"),
@@ -87,7 +86,7 @@ def diff(previous: Path, current: Path, *, years: Path | None = None) -> dict:
 
 
 def render(d: dict, *, tag: str = "") -> str:
-    """The release-notes body. Written so the notes can be pasted, not edited."""
+    """The release-notes body, ready to paste without editing."""
     head = f"## VDJdb {tag}".rstrip() if tag else "## This release"
     dr = d["rows_after"] - d["rows_before"]
     ds = d["references_after"] - d["references_before"]

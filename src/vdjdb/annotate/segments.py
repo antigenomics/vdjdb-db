@@ -8,20 +8,20 @@ the true call hidden:
 ======== ====================== ======================
 locus    k-mer scan             Pgen (``infer_nt``)
 ======== ====================== ======================
-TRB V    **0 of 1,189 (0.0 %)**  283 (23.8 %)
-TRA V    **1 of 1,111 (0.1 %)**  557 (50.1 %)
+TRB V    0 of 1,189 (0.0 %)      283 (23.8 %)
+TRA V    1 of 1,111 (0.1 %)      557 (50.1 %)
 TRB J    1,133 (95.9 %)          1,153 (97.5 %)
 TRA J    882 (79.3 %)            1,065 (95.8 %)
 ======== ====================== ======================
 
-The V column is not a comparison, it is a bug: ``Cdr3Fixer.guess_id`` puts ``return ""`` **inside**
-the five-prime loop, so it tries one prefix length and gives up -- 3 non-empty guesses in 4,000
-sequences. The J branch has the same statement correctly in a ``for...else``. So VDJdb's V guesser
-has never worked, and the 711 chains with no V therefore fail the legacy build's "a CDR3 needs a V
-and a J" test and their **records are dropped from `vdjdb.txt` entirely**.
+The V column reflects a bug rather than a comparison: ``Cdr3Fixer.guess_id`` puts ``return ""``
+inside the five-prime loop, so it tries one prefix length and gives up -- 3 non-empty guesses in
+4,000 sequences. The J branch has the same statement correctly in a ``for...else``. So VDJdb's V
+guesser has never worked, and the 711 chains with no V fail the legacy build's "a CDR3 needs a V and
+a J" test, so their records are dropped from `vdjdb.txt`.
 
 What ships here is a new-format column, not a change to that behaviour: ``v.inferred`` and
-``j.inferred`` are filled **only where the curated call is missing**, and the curated columns are
+``j.inferred`` are filled only where the curated call is missing, and the curated columns are
 never touched. Whether the legacy build should start keeping those records is a decision about
 shipped data, and it belongs with #327 in phase 9.
 
@@ -68,8 +68,8 @@ def add_inferred_segments(chains: pl.DataFrame, records: pl.DataFrame) -> pl.Dat
         jmap = _resolver(model, "genes_j", "j_allele")
         groups.append(group)
         for _, _, cdr3, v, j in group.iter_rows():
-            # The missing side goes in as None, which is what makes the model choose it rather
-            # than echo ours back.
+            # The missing side goes in as None, so the model chooses it rather than echoing
+            # ours back.
             s = infer_nt(model, cdr3, v=vmap.get(v) if v else None, j=jmap.get(j) if j else None)
             vs.append("" if v or s is None else (s.v_call or ""))
             js.append("" if j or s is None else (s.j_call or ""))

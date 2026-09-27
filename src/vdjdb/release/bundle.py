@@ -1,29 +1,28 @@
 """Assemble a release: the zips, the manifest, the checksums, and ``latest-version.txt``.
 
-Six steps, and the sixth is the one that never happened:
+Six steps:
 
 1. **plan** -- derive the version from the tag, assert the tag does not already exist;
 2. **prepare** -- rewrite ``latest-version.txt`` in the working tree, idempotently;
 3. **build** -- write every bundle, all embedding that same ``latest-version.txt``;
-4. **verify** -- the difference ledger and the dashboard checks;
+4. **verify** -- the comparison against the last release, and the dashboard checks;
 5. **publish** -- ``gh release create``, behind an environment with a required reviewer;
-6. **finalize** -- *commit* ``latest-version.txt``, then fetch line 1 and fail on anything but 200.
+6. **finalize** -- commit ``latest-version.txt``, then fetch line 1 and fail on anything but 200.
 
-Steps 1-3 are here; 4-6 belong to the workflow, because they touch the repository and the world.
+Steps 1-3 are here; 4-6 belong to the workflow, which has the repository write access and network
+access they need.
 
-**Why ``latest-version.txt`` needs its own step at all.** The file ships *inside* the zip it names,
-so it is self-referential -- but the URL is deterministic from the tag and the tag is chosen before
-the build, which is what makes it solvable.
+``latest-version.txt`` needs its own step because the file ships inside the zip it names. The URL is
+deterministic from the tag and the tag is chosen before the build, so the self-reference resolves.
 
-**The defect was never a missing step, and that is worth knowing before rewriting one.** The
-2026-06-03 prepend was performed, on the day, by a colleague, and committed -- as ``66fd10f`` on the
-**aldan3 GitLab**, which it never left. ``origin`` carries two push URLs, so a push can reach one
-remote and not the other, and the public GitHub repository went on serving the previous release's
-URL while the shipped zip carried the correct one. So the fix is not "prepend harder": it is to
-commit the line *after* the release exists and then verify it, which is what ``release.yml`` does.
+The 2026-06-03 prepend was performed on the day and committed, as ``66fd10f`` on the aldan3 GitLab,
+which it never left. ``origin`` has two push URLs, so a push can reach one remote and not the other,
+and the public GitHub repository went on serving the previous release's URL while the shipped zip
+had the correct one. The fix is to commit the line after the release exists and then verify it,
+which is what ``release.yml`` does.
 
-The verification has to compare the **tag**. Measured while this was written, line 1 named
-``2026-05-16`` and the published latest was ``2026-06-03-ZENODO`` -- and both URLs returned 200.
+The verification compares the tag, not the URL. Measured while this was written, line 1 named
+``2026-05-16`` and the published latest was ``2026-06-03-ZENODO``, and both URLs returned 200.
 """
 from __future__ import annotations
 
@@ -35,7 +34,7 @@ from pathlib import Path
 from . import manifest
 
 #: ``v<YYYY>.<MM>.<PATCH>`` -- CalVer, because this is a dataset with no API to break, and the patch
-#: component is exactly what the date scheme lacked: ``2024-11-27`` needed an asset called
+#: component is what the date scheme lacked: ``2024-11-27`` needed an asset called
 #: ``vdjdb-2024-11-27-fixed.zip`` because there was nowhere to put a re-release.
 TAG = re.compile(r"^v(\d{4})\.(\d{2})\.(\d+)$")
 RELEASES = "https://github.com/antigenomics/vdjdb-db/releases/download"
@@ -53,9 +52,9 @@ def version_of(tag: str) -> str:
 
 
 def legacy_url(tag: str) -> str:
-    """The URL ``latest-version.txt`` line 1 must carry for this release.
+    """The URL ``latest-version.txt`` line 1 must hold for this release.
 
-    The **legacy** bundle, while legacy exists: clients in the wild download line 1 verbatim and
+    The legacy bundle, while legacy exists: clients in the wild download line 1 verbatim and
     expect that layout inside.
     """
     return f"{RELEASES}/{tag}/{manifest.LEGACY.filename.format(version=version_of(tag))}"
@@ -101,9 +100,9 @@ def build(build_dir: Path, out: Path, tag: str, *,
 
 
 def stage(build_dir: Path, repo: Path = Path()) -> None:
-    """Link the two repository files every bundle carries into the build directory.
+    """Copy the two repository files every bundle includes into the build directory.
 
-    ``LICENSE`` and ``latest-version.txt`` live in the repository, not in ``out/``; copying them in
+    ``LICENSE`` and ``latest-version.txt`` sit in the repository, not in ``out/``; copying them in
     rather than reaching out of the build directory keeps :func:`manifest.resolve` able to say that
     every member of every bundle is under one root.
     """

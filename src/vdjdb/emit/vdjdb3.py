@@ -10,8 +10,8 @@ Three fact tables and one view, parquet with a TSV projection of each (`docs/out
 =====================  =========================================================================
 
 The first three are written, not built: :mod:`vdjdb.assemble.tables` produced them and this module
-only chooses a file format. ``vdjdb`` is the one thing derived here, and it is derived every time --
-a consumer who edits it is editing a cache, which is exactly the property the legacy format lacked.
+only chooses a file format. ``vdjdb`` is the one thing derived here, and it is derived on every
+build, so an edit to it is not an edit to the database.
 
 Unlike :mod:`vdjdb.emit.legacy`, nothing here reproduces a byte layout, so the writers are plain:
 default quoting rather than ``quote_style="never"`` (a field containing a tab must survive, not
@@ -44,7 +44,7 @@ EVIDENCE_VIEW: dict[str, str] = {
 }
 
 #: Declared in full, so the view's schema does not change shape as producers land. Everything
-#: without a producer yet is ``false`` -- an honest "no evidence of this kind", not a missing column.
+#: without a producer yet is ``false`` -- "no evidence of this kind", not a missing column.
 #: ``same.study`` has no producer at all: method-level self-validation is phase 9's.
 VIEW_EVIDENCE_COLUMNS: tuple[str, ...] = (*EVIDENCE_VIEW.values(), "evidence.validation.same.study")
 
@@ -58,7 +58,7 @@ def joined(tables: dict[str, pl.DataFrame]) -> pl.DataFrame:
     """``records`` joined to ``chains``, with each evidence type pivoted to a boolean column.
 
     One row per chain -- the level ``vdjdb.txt`` is written at -- so this is the table a user who
-    just wants "one flat thing" should read, and it is the one table here that is purely derived.
+    wants one flat thing should read, and it is the one table here that is purely derived.
     """
     records, chains, evidence = tables["records"], tables["chains"], tables["evidence"]
     out = chains.join(records, on="record_id", how="left")
@@ -68,7 +68,7 @@ def joined(tables: dict[str, pl.DataFrame]) -> pl.DataFrame:
     ).drop_nulls("__col")
     if ev.select(pl.col("gene").fill_null("").eq("").any()).item():
         # Record-level evidence (a structure covers the receptor, not one chain) needs a second
-        # join on `record_id` alone. Nothing produces it yet; refuse rather than drop it silently.
+        # join on `record_id` alone. Nothing produces it yet; raise rather than drop the rows.
         raise NotImplementedError(
             "record-level evidence rows (empty `gene`) need a join on record_id; "
             "add it here when the first producer lands")
@@ -89,7 +89,7 @@ def joined(tables: dict[str, pl.DataFrame]) -> pl.DataFrame:
 def read_tables(d: Path) -> dict[str, pl.DataFrame]:
     """Read the definitive tables back from a build directory.
 
-    This is what makes the legacy export a *projection*: it reads what shipped, never ``chunks/``.
+    This is what makes the legacy export a projection: it reads what shipped, never ``chunks/``.
     """
     return {name: pl.read_parquet(d / f"{name}.parquet") for name in _TABLE_ORDER}
 

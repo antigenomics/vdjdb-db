@@ -1,7 +1,7 @@
 # The specification site -> https://docs.isalgo.dev/vdjdb-db/
 #
 # Pages is already provisioned for this repository with `build_type: workflow`, so there is no
-# setup step -- this workflow is the whole deployment path.
+# setup step -- this workflow is the deployment path.
 #
 # Two things here are deliberate and easy to undo by accident:
 #
