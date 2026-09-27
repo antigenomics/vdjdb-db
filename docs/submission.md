@@ -5,9 +5,11 @@ To submit previously published sequence follow the steps below:
 
 * Create an issue(s) labeled as ``paper`` and named by the paper pubmed id, ``PMID:XXXXXXX``. Note that if paper is a meta-study, you can mark it as ``meta-paper`` and link issues for its references in a reply to this issue. Also note that in case submitting unpublished sequences, choose any appropriate issue name with details on submitter (name, organization, etc) in issue comments.
 
-* Create new branch and add chunk(s) for corresponding papers named as ``PMID_XXXXXXX``. Don't forget to close/reference corresponding issues in the commit message.
+* Branch **from `dev`**, not from `master`, and add chunk(s) for the corresponding papers named as ``PMID_XXXXXXX``. Don't forget to close/reference corresponding issues in the commit message. One commit per chunk.
 
-* Create a pull request for the branch and check if it passes the CI build. If there are any issues, modify them by fixing/removing entries as necessary.
+* Open a pull request **against `dev`**. `chunk-check` runs on it and reports what the submission does: records added or removed, the confidence-score histogram, and any QC error by rule. Fix or remove entries until it is green. A pull request straight into `master` is rejected by `branch-policy`, which only lets `dev` and `hotfix/*` merge there.
+
+* Chunks reach `master` with the next `dev` to `master` merge, once the full build has run green on `dev`. The whole path is `dev` -> chunk branch -> `dev` -> `master`.
 
 The structure of submission chunk is provided below, but first a couple of notes:
 
