@@ -283,6 +283,9 @@ def release_cmd(
     build_dir: Path = typer.Option(Path("out"), "--build", help="What the build produced."),
     out: Path = typer.Option(Path("out/release"), help="Where the assets go."),
     previous: Path | None = typer.Option(None, help="Previous release zip, for the changelog."),
+    previous_lifecycle: Path | None = typer.Option(None, help="Previous release's lifecycle TSV, so "
+                                                             "retirements carry the release that "
+                                                             "last held them."),
 ) -> None:
     """Assemble the release: three zips, `manifest.json`, `SHA256SUMS`, `latest-version.txt`.
 
@@ -290,6 +293,8 @@ def release_cmd(
     `latest-version.txt` - belong to `release.yml`, which has the repository write access and
     network access they need.
     """
+    from .identity.checks import read_tables
+    from .identity.lifecycle import advance, compare, present, read, write
     from .release import bundle as b
     from .release import changelog as cl
 
@@ -297,7 +302,16 @@ def release_cmd(
     b.prepare_latest(tag)
     typer.echo(f"latest-version.txt line 1 -> {b.legacy_url(tag)}")
     b.stage(build_dir)
-    result = b.build(build_dir, out, tag)
+    # The lifecycle is written here and not by a build: a curation branch that adds a clonotype and
+    # removes it again has retired nothing, so only a release moves these rows (`ROADMAP.md` 10.4).
+    lifecycle_path = out / "identity-lifecycle.tsv"
+    before, now = read(previous_lifecycle), present(read_tables(build_dir / "tables"))
+    if not now.is_empty():
+        out.mkdir(parents=True, exist_ok=True)
+        write(advance(before, now, release=tag), lifecycle_path)
+        typer.echo(compare(before, now, release=tag).as_markdown())
+        typer.echo(f"identity-lifecycle.tsv -> {now.height:,} active ids")
+    result = b.build(build_dir, out, tag, extras=(lifecycle_path,))
     for entry in result["bundles"]:
         typer.echo(f"{entry['role']:8} {entry['file']:34} {entry['bytes']:>13,} bytes  "
                    f"{len(entry['members']):>2} members")
@@ -349,3 +363,99 @@ def diff(
 
 if __name__ == "__main__":
     app()
+
+
+identity_app = typer.Typer(
+    help="Stable identifiers: check them, resolve one, compare two releases, write the lifecycle.",
+    no_args_is_help=True,
+)
+app.add_typer(identity_app, name="identity")
+
+
+@identity_app.command("check")
+def identity_check(
+    tables: Path = typer.Option(Path("out/tables"), help="A built new-format directory."),
+    previous: Path | None = typer.Option(None, help="The previous release's lifecycle TSV."),
+    previous_tables: Path | None = typer.Option(None, help="The previous release's tables, for the "
+                                                          "TCR_hash check."),
+) -> None:
+    """Assert the identity invariants on a built directory.
+
+    Six of the seven in `ROADMAP.md` section 10.5. The seventh, that a permuted chunk order changes
+    no id, is a property of two builds and is a unit test rather than a check on one directory.
+    Checks needing history are skipped when `--previous` is absent, because a fork has none.
+    """
+    from .identity.checks import check, read_tables
+    from .identity.lifecycle import read
+
+    built = read_tables(tables)
+    if not built:
+        typer.secho(f"no tables under {tables}", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    prev_chains = read_tables(previous_tables).get("chains") if previous_tables else None
+    found = check(built, previous_lifecycle=read(previous), previous_chains=prev_chains)
+    for name, frame in sorted(built.items()):
+        typer.echo(f"{name:12} {frame.height:>10,} rows")
+    if not found:
+        typer.secho("every invariant holds", fg=typer.colors.GREEN)
+        return
+    for finding in found:
+        typer.secho(str(finding), fg=typer.colors.RED, err=True)
+    raise typer.Exit(1)
+
+
+@identity_app.command("resolve")
+def identity_resolve(
+    identifier: str = typer.Argument(..., help="An id, e.g. CT3efa364e7f84aac9."),
+    lifecycle: Path = typer.Option(..., help="A lifecycle TSV from a release."),
+) -> None:
+    """What happened to one id: its level, state, and the releases that carried it."""
+    from .identity.levels import level_of
+    from .identity.lifecycle import read, resolve
+
+    level = level_of(identifier)
+    if level is None:
+        typer.secho(f"{identifier}: no VDJdb id has that prefix", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+    row = resolve(read(lifecycle), identifier)
+    if row is None:
+        typer.secho(f"{identifier}: a {level} id, never published", fg=typer.colors.YELLOW)
+        raise typer.Exit(1)
+    for key, value in row.items():
+        typer.echo(f"{key:15} {value}")
+
+
+@identity_app.command("diff")
+def identity_diff(
+    previous: Path = typer.Argument(..., help="The previous release's lifecycle TSV."),
+    tables: Path = typer.Option(Path("out/tables"), help="A built new-format directory."),
+    release: str = typer.Option("dev", help="Tag naming the build under comparison."),
+) -> None:
+    """Ids added, returned and retired since a release. Writes nothing."""
+    from .identity.checks import read_tables
+    from .identity.lifecycle import compare, present, read
+
+    report = compare(read(previous), present(read_tables(tables)), release=release)
+    typer.echo(report.as_markdown())
+
+
+@identity_app.command("lifecycle")
+def identity_lifecycle(
+    release: str = typer.Option(..., help="The release tag these ids are first or last seen in."),
+    tables: Path = typer.Option(Path("out/tables"), help="A built new-format directory."),
+    previous: Path | None = typer.Option(None, help="The previous release's lifecycle TSV."),
+    out: Path = typer.Option(Path("out/release/identity-lifecycle.tsv"), help="Where to write it."),
+) -> None:
+    """Write the lifecycle table for a release.
+
+    Called by the release job and not by a build: a curation branch that adds a clonotype and removes
+    it again has not retired anything, so only a release moves these rows.
+    """
+    from .identity.checks import read_tables
+    from .identity.lifecycle import advance, compare, present, read, write
+
+    before = read(previous)
+    now = present(read_tables(tables))
+    write(advance(before, now, release=release), out)
+    typer.echo(compare(before, now, release=release).as_markdown())
+    typer.echo(f"wrote {out} ({now.height:,} active ids)")

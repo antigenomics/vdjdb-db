@@ -87,7 +87,8 @@ jobs:
           gh release create "${{ inputs.tag }}" \
             --title "VDJdb ${{ needs.plan.outputs.version }}" \
             --notes-file release/RELEASE_NOTES.md \
-            release/*.zip release/manifest.json release/SHA256SUMS
+            release/*.zip release/manifest.json release/SHA256SUMS \
+            release/identity-lifecycle.tsv
 
       # Step 6. `latest-version.txt` ships inside the zip it names, so it is written before the
       # build and committed only once the release exists -- committing it earlier would name a

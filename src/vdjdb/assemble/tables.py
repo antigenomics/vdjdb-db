@@ -48,7 +48,7 @@ import polars as pl
 from ..annotate.dgene import D_COLUMNS
 from ..annotate.junction import NT_COLUMNS
 from ..annotate.segments import INFERRED_COLUMNS
-from ..config import SEED
+from ..identity.levels import CLONOTYPE, EPITOPE, PMHC, clone_ids, derive
 from ..schema import CHAIN_COLUMNS, RECORD_COLUMNS
 
 #: Identifies a receptor chain. Every record reporting the same chain shares one ``clonotype_id``:
@@ -60,8 +60,14 @@ _GENES = (("alpha", "TRA"), ("beta", "TRB"))
 
 
 def build_records(master: pl.DataFrame) -> pl.DataFrame:
-    """One row per curated record, with ``record_id`` as a unique primary key."""
-    return master.select(list(RECORD_COLUMNS)).sort("record_id")
+    """One row per curated record, with ``record_id`` as a unique primary key.
+
+    Carries the two antigen-side identifiers: ``pmhc_id`` for the peptide as presented by the
+    curated alleles, ``epitope_id`` for the peptide alone. Both are derived from their own keys, so
+    neither depends on what else the build contains (``ROADMAP.md`` section 10.3).
+    """
+    out = derive(derive(master, PMHC), EPITOPE)
+    return out.select(list(RECORD_COLUMNS)).sort("record_id")
 
 
 def build_chains(master: pl.DataFrame) -> pl.DataFrame:
@@ -85,11 +91,9 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
                 pl.col(f"v.{gene}").alias("v.segm"),
                 (pl.col(d) if d else pl.lit("")).alias("d.segm"),
                 pl.col(f"j.{gene}").alias("j.segm"),
-                # A seeded hash rather than a counter: a counter would renumber every clonotype
-                # the moment a chunk is added, and this id is what accumulated evidence joins on.
-                pl.concat_str(pl.col("species"), pl.lit(tag), pl.col(f"cdr3.{gene}"),
-                              pl.col(f"v.{gene}"), pl.col(f"j.{gene}"),
-                              separator="\x1f").hash(seed=SEED).alias("clonotype_id"),
+                # `species` rides along only so the clonotype key can be hashed below; it is not
+                # in `CHAIN_COLUMNS`, so the final select drops it again.
+                pl.col("species"),
                 pl.col(f"__vend.{gene}").alias("v.end"),
                 pl.col(f"__jstart.{gene}").alias("j.start"),
                 pl.col(f"__cdr3old.{gene}").alias("cdr3.original"),
@@ -105,9 +109,9 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
     # The junction-nucleotide columns are added afterwards, by `vdjdb.annotate.junction`: they need
     # the species, which is on `records`, and a model load per (species, locus).
     produced = [c for c in CHAIN_COLUMNS
-                if c not in (*NT_COLUMNS, *D_COLUMNS, *INFERRED_COLUMNS)]
+                if c not in (*NT_COLUMNS, *D_COLUMNS, *INFERRED_COLUMNS, "clone_id")]
     # Sorted by the key, so the table has one order and it is the key's.
-    return (pl.concat(parts, how="vertical")
+    chains = (pl.concat(parts, how="vertical")
             # 34 rows are a D call with no CDR3, so the fixer was never handed anything and left no
             # result. Empty string is the only missing marker (CLAUDE.md rule 6), `false` is what
             # "nothing was repaired" means, and -1 is what this coordinate space already reads as
@@ -118,9 +122,16 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
                 pl.col("cdr3.original", "v.fix.type", "j.fix.type").fill_null(""),
                 pl.col("fix.needed", "fix.good", "v.canonical", "j.canonical").fill_null(False),
             )
+            .pipe(derive, CLONOTYPE)
             .select(produced)
             .unique(subset=["record_id", "gene"], keep="first", maintain_order=True)
             .sort("record_id", "gene"))
+    # The clone keys on the pair of clonotypes, so it cannot be assigned until both exist and the
+    # duplicate chain rows are gone. A record reporting one chain has no clone and gets an empty
+    # string, not a null: empty is the only missing marker (hard rule 6), and a null here would be
+    # the pandas three-way ambiguity coming back into a shipped table.
+    return (chains.join(clone_ids(chains), on="record_id", how="left", maintain_order="left")
+                  .with_columns(pl.col("clone_id").fill_null("")))
 
 
 def build_tables(master: pl.DataFrame, *, release: str = "dev") -> dict[str, pl.DataFrame]:
