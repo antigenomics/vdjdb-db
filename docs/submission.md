@@ -24,6 +24,37 @@ An [XLS template](https://raw.githubusercontent.com/antigenomics/vdjdb-db/master
 
 > **CAUTION** Check that nothing is corrupted on import from the XLS template: ``x/X`` frequencies turned into dates, bad encoding, and similar. The format of every field is pre-set to *text* to prevent this.
 
+## Every change to `chunks/` happens on a branch that names its reason
+
+`chunks/` is the database. A build can be rewritten and re-verified against the last release; a chunk
+edit changes what VDJdb *says*, and the only instrument that notices is the comparison against the
+last release, which reports it as rows appearing and disappearing with no reason attached. So the
+branch carries the reason, and there are exactly two kinds of branch that may touch `chunks/`:
+
+| Branch | Subject | Names |
+|---|---|---|
+| `chunk/PMID_<id>` | one publication's records | the chunk |
+| `proofread/<issue>-<slug>` | one tracker issue about the data | the issue |
+
+No other branch edits `chunks/`. A branch whose subject is the build, the tests, the documentation or
+the CI leaves the data alone, however mechanical the edit looks - and a mechanical repair across many
+files is not an exception to this, it is the case that most needs it. **A normalisation pass gets its
+own issue** saying what it changes and what it must not, and its own `proofread/` branch.
+
+Line endings are the worked example. 99 of the 230 chunks are CRLF, normalising them touches every
+line of every one of those files, and when that was once folded into a build branch the commit message
+said the content was unchanged and was wrong: 92 files were line-endings only, but 11 carried real
+data-line changes, one of them shifting every field of 2,352 rows by dropping an unnamed leading
+column. The fix for a change of that shape is to make it checkable - for line endings,
+`git diff --ignore-cr-at-eol` on the branch returns empty - and to put it where a reviewer reading
+`git log chunks/` sees one line per reason.
+
+Whichever branch it is, the commit message carries four things: **which files**, and per file how many
+rows it adds, removes or changes; **why**, naming the paper, the tracker issue or the `proofreading/`
+table the change comes from; **what the build shows**, meaning the row-count delta and the score
+histogram if it moved; and **who decided**, where the edit is a curation judgement rather than a
+mechanical repair. The last one is the part no diff can reconstruct later.
+
 ## A submission that cannot land yet goes to `pending/` or `withheld/`
 
 Not every chunk can land when it arrives. It may be in a format that predates the current
