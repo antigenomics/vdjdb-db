@@ -217,9 +217,14 @@ reported under two species, and none of those is an error.
 this is a table rather than a view over the patch.
 
 `restriction` checks each allele against IPD-IMGT/HLA (<https://www.ebi.ac.uk/ipd/imgt/hla/>) by
-prefix, since a VDJdb call is two-field and the authority stores four: `mhc.a.status` and
-`mhc.b.status` are `known`, `unknown`, or `unchecked` where no authority exists (murine and macaque
-names, and `B2M`). Phase 9e adds `mhcmatch` validation: whether the allele could present that peptide,
+prefix, since a VDJdb call is two-field and the authority stores four, and against
+`proofreading/mhc_nonhuman.tsv` for the names that database does not cover (murine `H2-`, macaque
+`Mamu-`, and `B2M`). So `mhc.a.status` and `mhc.b.status` read `known`, `declared` or `unknown`.
+
+**A build carrying an `unknown` or blank call fails**, naming the value, the column, the cell count and
+the chunks that report it, so only `known` and `declared` reach a release. The fix is an entry in
+`patches/mhc.dict` when the call is wrong, or a row in `proofreading/mhc_nonhuman.tsv` when it is a
+species IPD-IMGT/HLA does not cover. Phase 9e adds `mhcmatch` validation: whether the allele could present that peptide,
 not only whether the allele name exists (ROADMAP §12, §27).
 
 ### 3.4 `vdjdb.parquet` - the joined view

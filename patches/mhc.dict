@@ -9,20 +9,31 @@
 # corrections cite `proofreading/mhc.md` and the spelling that dominates the corpus.
 mhc	replacement	reference.id	note
 HLA-A*24:01	HLA-A*24:02	*	#467; no A*24:01 exists in IPD-IMGT/HLA (0 rows against 342 for A*24:02) and doi:10.1016/j.xcrm.2023.101017 reports testing in *24:02
-HLA-A*24:09	HLA-A*24:02	PMID:39286976	the paper is titled "HLA A*24:02-restricted T cell receptors cross-recognize bacterial and preproinsulin peptides"; only the null allele A*24:09N exists
-HLA-A*24:11	HLA-A*24:02	PMID:39286976	as above; only the null allele A*24:11N exists
-HLA-A*24:12	HLA-A*24:02	PMID:39286976	as above; A*24:12 is not an allele at two-field resolution
-HLA-A*24:16	HLA-A*24:02	PMID:39286976	as above; A*24:16 is not an allele at two-field resolution
-H2-IAb	I-Ab	*	murine class II is I-<locus><haplotype> per proofreading/mhc.md, and I-Ab dominates 1,368 : 113
+HLA-A*24:03	HLA-A*24:02	PMID:39286976	#625; the allele field carries a clonotype counter - A*24:03..A*24:20 run consecutively, 18 alleles x 2 epitopes, one distinct clonotype each. Dolton et al., J Clin Invest 134(18) 2024 (PMID:39286976) names A*24:02 for every reagent: "HLA A*24:02-SLPRLFPLL tetramers were used to isolate T cells from 7 of 8 donors" and the PPI epitope is engaged "in the context of HLA A*24:02". A*24:03-A*24:20 appear nowhere in the paper. The abstract's "HLA A*24+" is the donor typing, by antibody clone 4i94 which also binds A*23, not the restriction
+HLA-A*24:04	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*24:05	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*24:06	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*24:07	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*24:08	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*24:09	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*24:10	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*24:11	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*24:12	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*24:13	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*24:14	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*24:15	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*24:16	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*24:17	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*24:18	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*24:19	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*24:20	HLA-A*24:02	PMID:39286976	as above, clonotype counter
+HLA-A*08:01	HLA-B*08:01	*	74 records, HCV NS3 `HPVTKYIM`. `HLA-A` has no `*08` group at any resolution, so the call cannot be an allele; of the 107 alleles in mhcmatch's class I panel the only strong presenter of the peptide is `HLA-B*08:01` at %rank 0.130 (p_present 0.9905), one locus letter away. Same defect class as #597's `HLA-A*80:01` on the `HLA-B*08:01` epitope `FLRGRAYGL`
+HLA-B*12	HLA-B*44	PMID:9971792	the paper types serologically - the same chunk records `HLA-A*02` and `HLA-B*07` for its other three pp65 epitopes - and B12 is the broad antigen that splits into B44 and B45, so no `B*12` group exists. `proofreading/mhc.md` section 9.1 says to record a serological name at low resolution, and for `EFFWDANDIY` the three B*44 alleles in the panel rank 1st, 4th and 11th of 107 against 59th for `HLA-B*45:01` (%rank 2.030 vs 55.290), so B44 is the split. Left at one field: the 1999 typing cannot choose between *44:02 and *44:03
+I-Ab	H2-IAb	*	one prefix for every murine molecule. `H2-` is the MGI symbol prefix (`vdjdb-web`'s Motifs.scala:294 states it and normalises `h-2` to `h2-`), and it is already on every class I string (H2-Db, H2-Kb, H2-Kd, H2-Ld, H2-Dd, H2-Qa-1b), on five of the six class II molecules (H2-IAg7, H2-IAd, H2-IAs, H2-IEd, H2-IEk) and on the three chain genes (H2-Aa, H2-Ab1, H2-Eb1). `I-Ab` was the one string of fifteen without it. Reverses an earlier patch that went the other way on cell counts alone (I-Ab 3,274 : H2-IAb 113); the split cost 768 records their motif badge on the deployed site, measured in that same file
 H2-Ag7	H2-IAg7	*	the I dropped; H2-IAg7 dominates 333 : 3
 H2-Ed	H2-IEd	*	the I dropped; H2-IEd dominates 30 : 2
 H-2Aa	H2-Aa	*	hyphen placement only
 H-2Eb1	H2-Eb1	*	hyphen placement only
 # Checked and deliberately NOT corrected:
-# HLA-A*08:01  74 records, epitope HPVTKYIM (HCV).  HLA-A*08 does not exist at any resolution, so
-#              the call is certainly wrong, but the chunk carries no reference.id to resolve it
-#              against and no source states the intended allele.  Curation, not a patch.
-# HLA-B*12     1 record, PMID:9971792.  A broad serological antigen that splits into B44 and B45;
-#              the paper reports several pp65 epitopes and the abstract does not pin this one.
 # H2-Ab1       9 records.  The IMGT gene symbol for the I-A beta chain, carrying no haplotype, so
 #              mapping it to a molecule needs the paired mhc.a.

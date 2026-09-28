@@ -121,13 +121,19 @@ Same inputs, same bytes: in another process, on another host, at another core co
 
 ## Committed inputs
 
-Two derived tables make the build offline and deterministic. Both are committed, reviewed inputs,
+Three derived tables make the build offline and deterministic. All are committed, reviewed inputs,
 refreshed by their own pull request and never written by a build:
 
 - `summary/reference_years.tsv` - the publication year of every reference, so the dashboard does not
   call NCBI while it renders. Rebuilt by `uv run vdjdb refs`.
 - `docs/tuning/scorecard.tsv` - the clustering bake-off, 252 configurations scored through one
   harness. Rebuilt by `docs/tuning/sweeps.py`.
+- `proofreading/epitope_promiscuity.tsv` - which class I alleles can present each epitope, 13,510
+  (epitope, allele) pairs over 1,729 epitopes, of which 1,739 are pairings VDJdb records and 11,771
+  are alleles only the predictor reaches. Rebuilt by `uv run vdjdb promiscuity`, which loads
+  `mhcmatch`'s reference panel from HuggingFace. It answers a query-side question - filter VDJdb to a
+  donor's HLA type and see every record their T cells could have raised - and makes no claim about the
+  `mhc.a` a publication reported.
 
 Neither is a cache: a cache is a stored answer to the question the build is currently asking, and
 these are inputs that arrive by review.
