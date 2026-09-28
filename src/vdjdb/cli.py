@@ -401,6 +401,63 @@ def refs(
             typer.echo(f"    {ref}  ({n:,} records)", err=True)
 
 
+@app.command(name="promiscuity")
+def promiscuity_cmd(
+    out: Path = typer.Option(Path("proofreading/epitope_promiscuity.tsv"),
+                             help="Where to write the table; the committed path by default."),
+    tier: str = typer.Option("shortlist", help="`mhcmatch` allele panel tier."),
+) -> None:
+    """Which class I alleles can present each epitope VDJdb records. Issue #372.
+
+    Answers "our epitopes are linked to, say, A*02 - what else could present them", so a reader can
+    filter VDJdb against a donor's HLA type and see the records their T cells could plausibly have
+    raised, not only the pairings a publication happened to report. It makes no claim about the
+    `mhc.a` on a record: that is the author's finding, and the only judgement the pipeline passes on
+    it is whether the allele exists, which `vdjdb qc` checks against IPD-IMGT/HLA.
+
+    Network-bound and **not part of a build**: `mhcmatch` fetches its reference data from HuggingFace,
+    so the table is a committed, reviewed input refreshed by its own pull request, exactly like
+    `summary/reference_years.tsv` (hard rule 9). `vdjdb build` never writes it.
+
+    Reads `chunks/` rather than the built tables, because the pairing to mark as recorded is the one a
+    curator typed - harmonisation may repair an MHC spelling on the way through.
+    """
+    import csv as _csv
+
+    from .curate import promiscuity as prom
+    from .io.chunks import chunk_files
+
+    recorded: dict[str, set[str]] = {}
+    for path in chunk_files():
+        with path.open(encoding="utf-8", errors="replace") as fh:
+            for row in _csv.DictReader(fh, delimiter="\t"):
+                ep = (row.get("antigen.epitope") or "").strip()
+                mhc = (row.get("mhc.a") or "").strip()
+                if ep and mhc.startswith(("HLA-A*", "HLA-B*", "HLA-C*")):
+                    recorded.setdefault(ep, set()).add(mhc)
+    scorable = sum(1 for ep in recorded if len(ep) in prom.LENGTHS)
+    typer.echo(f"scoring {scorable:,} of {len(recorded):,} human class I epitopes against the "
+               f"{tier} panel ({len(recorded) - scorable:,} outside {prom.LENGTHS.start}-"
+               f"{prom.LENGTHS.stop - 1} residues)")
+
+    rows, unmatched = prom.presented(recorded, tier=tier)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with out.open("w", encoding="utf-8", newline="") as fh:
+        w = _csv.writer(fh, delimiter="\t", lineterminator="\n")
+        w.writerow(prom.COLUMNS)
+        for r in rows:
+            w.writerow([r.epitope, r.mhc_a, f"{r.percent_rank:.3f}", f"{r.p_present:.4f}",
+                        r.band, r.recorded])
+    epitopes = len({r.epitope for r in rows})
+    kept = sum(r.recorded for r in rows)
+    typer.echo(f"wrote {out} ({len(rows):,} rows over {epitopes:,} epitopes; "
+               f"{kept:,} recorded by VDJdb, {len(rows) - kept:,} predicted only)")
+    if unmatched:
+        typer.echo(f"  {len(unmatched)} allele(s) absent from the panel, so unscored - a gap in the "
+                   f"panel, not a claim about the allele:")
+        typer.echo(f"    {', '.join(unmatched)}")
+
+
 @app.command(name="release")
 def release_cmd(
     tag: str = typer.Option(..., help="v<YYYY>.<MM>.<PATCH>, e.g. v2026.09.1."),
