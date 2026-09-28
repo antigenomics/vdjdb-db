@@ -8,19 +8,35 @@ Marked ``release``: needs the timing report a real build writes (``VDJDB_TIMINGS
 the build recorded it, so the next stage to double would have been found the same way: by somebody
 noticing the build felt slow.
 
-**Why share and not seconds.** Seconds are a property of the host. A 4-vCPU runner is three to four
+**Why share and not seconds.** Seconds are a property of the host. A 4-vCPU runner is two to five
 times slower than the laptop these numbers were first taken on, so a seconds bar is either useless or
 fails on a busy runner - and a bar that fails on a correct build gets deleted, which is the lesson of
-§52.2. Share is a ratio inside one run, so host speed cancels.
+§52.2. Share is a ratio inside one run, so a *uniform* host slowdown cancels.
 
-**What that cannot catch, stated rather than implied**: a *uniform* slowdown moves no share at all.
-The absolute seconds are recorded in the artifact and printed into the step summary for exactly that
-case, where a human comparing two runs is the instrument. What the gate catches is one stage blowing
-up relative to the others, which is the failure that actually happened here (one call at 86 %).
+**Share cancels host speed only when the stages scale alike, and that was measured on both reports
+rather than assumed.** Same corpus, 16-core laptop against the 4-vCPU runner:
 
-The 10-point band is wide on purpose: `add_junction_nt` scales with cores while the polars stages do
-not, so its share genuinely rises on a smaller host. 10 points absorbs that and still fails a stage
-that goes from 1 % to 30 %.
+* **assemble**: 187.3 s against 443.2 s, 2.37x, and the largest share difference over nine stages is
+  **1.3 points**. Every stage there is slower by about the same factor, so the ratio does cancel.
+* **motifs**: 40.1 s against 211.3 s, 5.27x, and the largest share difference over thirteen stages is
+  **33.8 points** - because the per-stage slowdown ranges from 1.46x (`tcrnet.pwm_and_emit`, polars)
+  to 24.0x (`tcrnet.background`, which streams four backgrounds from HuggingFace on the runner and
+  reads them out of the local cache on a laptop).
+
+So the share comparison runs **only when the run's core count matches the count the baseline was
+recorded on**, which the baseline now carries. Under CI that is an assertion rather than a skip: the
+runner is fixed at 4 vCPU, so a mismatch means the baseline was recorded somewhere else and has to be
+re-recorded, and a gate that skips itself is the failure mode that reads as a pass (§59.2).
+
+**What share cannot catch, stated rather than implied**: a uniform slowdown moves no share at all. The
+absolute seconds are recorded in the artifact and printed into the step summary for exactly that case,
+where a human comparing two runs is the instrument. What the gate catches is one stage blowing up
+relative to the others, which is the failure that actually happened here (one call at 86 %).
+
+**Peak RSS needs none of this**, so it is gated absolutely and on every host. Five measurements of
+the motif stage: 6,871 and 6,898 MiB on the laptop, 6,786, 6,802 and 7,531 MiB on the runner. The
+runner spread is 11 %, so it is not the invariant the first pair suggested, and the budget is set
+against the largest observation rather than the flattering one.
 """
 from __future__ import annotations
 
@@ -31,6 +47,21 @@ import polars as pl
 import pytest
 
 pytestmark = pytest.mark.release
+
+#: Stages that are a network fetch rather than a computation. They are timed and recorded - the
+#: runner spends 55.6 s and 73.0 s of the motif stage acquiring four backgrounds over two measured
+#: runs - but they are **excluded from the share comparison, denominator included**, because their
+#: duration is GitHub's network and not this repository's code.
+#:
+#: Without that, the gate is one slow download from red. Measured against the committed baseline,
+#: where the fetch is 0.26803 of the recorded total: if the fetch were free, `tcrnet.enrichment`
+#: renormalises 0.29646 -> 0.40502, delta +0.10856; if it took twice as long,
+#: `background.HomoSapiens.TRB` goes 0.20905 -> 0.32972, delta +0.12067. Both exceed the 0.1 band
+#: while nothing about the code changed, and the fetch already varied 55.6 s -> 73.0 s (1.31x)
+#: between two runs of one commit.
+#:
+#: Compared compute-only, the same two runs differ by at most **0.05290** and the fetch moves nothing.
+NETWORK_STAGES = ("motifs.tcrnet.background.",)
 
 #: report -> (committed share baseline, peak-RSS budget in MiB). Both stages are covered, because
 #: the pipeline's real memory peak is not in the one that was measured first.
@@ -43,9 +74,10 @@ REPORTS = {
 #:
 #: * **assemble 1,577 MiB**, flat across its stages because ``ru_maxrss`` is a high-water mark and the
 #:   peak is set in the first one. Budget 4,096: 2.6x headroom.
-#: * **motifs 6,898 MiB**, and this is the pipeline's real peak - 4.4x the assemble stage, reproducible
-#:   at 6,871 and 6,898 over two runs, set by the two PWM-and-emit steps (1,005 -> 5,442 -> 6,898).
-#:   Budget 10,240: 1.5x headroom, and 6 GB still free on a 16 GB runner.
+#: * **motifs 6,786 to 7,531 MiB**, and this is the pipeline's peak - 4.4x the assemble stage, set by
+#:   the two PWM-and-emit steps (1,005 -> 5,442 -> 6,898 on the laptop). Five measurements: 6,871 and
+#:   6,898 on a 16-core laptop, 6,786, 6,802 and 7,531 on the runner. Budget 10,240: **1.36x headroom
+#:   against the largest**, and 2.6 GB still free on a 16 GB runner.
 #:
 #: ⚠ **The first version of this file gated only the assemble report**, so it asserted 1,577 MiB
 #: against a 16 GB runner while the pipeline actually peaked at 6,898 - 43 % of the runner rather than
@@ -90,8 +122,34 @@ def test_every_stage_in_the_baseline_was_timed(report) -> None:
     assert not missing, f"{name}: not timed by this run: {sorted(missing)}"
 
 
+def _same_host(name: str, timings: pl.DataFrame, baseline: pl.DataFrame) -> None:
+    """Share is comparable within a host class, not across them. See the module docstring."""
+    ran, recorded = int(timings["cores"][0]), int(baseline["cores"][0])
+    if ran == recorded:
+        return
+    assert not os.environ.get("CI"), (
+        f"{name}: the baseline was recorded on {recorded} cores and this CI run has {ran}. Share is "
+        f"not comparable across host classes - re-record the baseline from a CI run.")
+    pytest.skip(f"{name}: baseline recorded on {recorded} cores, this run has {ran}; the share "
+                f"comparison needs one host class. The memory budget still applies.")
+
+
+def _compute_only(df: pl.DataFrame) -> pl.DataFrame:
+    """Drop the network stages and renormalise ``share`` over what is left. See NETWORK_STAGES.
+
+    Both sides of the comparison go through this, so the committed baseline keeps the shares as they
+    were measured and the fetch is excluded from the denominator on the run as well.
+    """
+    d = df.filter(~pl.col("stage").str.starts_with(NETWORK_STAGES[0]))
+    for prefix in NETWORK_STAGES[1:]:
+        d = d.filter(~pl.col("stage").str.starts_with(prefix))
+    return d.with_columns(pl.col("share") / pl.col("share").sum())
+
+
 def test_no_stage_took_a_much_larger_share_than_its_baseline(report) -> None:
     name, timings, baseline, _ = report
+    _same_host(name, timings, baseline)
+    timings, baseline = _compute_only(timings), _compute_only(baseline)
     j = (baseline.join(timings.select("stage", pl.col("share").alias("now")), on="stage", how="left")
          .with_columns((pl.col("now") - pl.col("share")).alias("delta")))
     over = j.filter(pl.col("delta") > pl.col("tolerance"))
@@ -101,8 +159,14 @@ def test_no_stage_took_a_much_larger_share_than_its_baseline(report) -> None:
 
 
 def test_a_new_stage_is_recorded_before_it_can_dominate(report) -> None:
-    """An untimed stage taking a tenth of the build is the defect this file exists to prevent."""
+    """An untimed stage taking a tenth of the build is the defect this file exists to prevent.
+
+    Compute-only for the same reason the share comparison is: `background.HomoSapiens.TRB` is 0.209
+    of the raw total, so a *new* background - one more species or chain in `chunks/` - would clear
+    0.10 on download time alone and red the build for a fetch nobody wrote.
+    """
     name, timings, baseline, _ = report
+    timings, baseline = _compute_only(timings), _compute_only(baseline)
     unknown = timings.filter(~pl.col("stage").is_in(baseline["stage"].to_list()))
     big = unknown.filter(pl.col("share") > 0.10)
     assert big.height == 0, (
