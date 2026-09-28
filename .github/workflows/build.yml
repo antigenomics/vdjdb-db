@@ -40,6 +40,16 @@ on:
       - 'summary/**'
       - 'pyproject.toml'
       - '.github/workflows/build.yml'
+      # `tests/**`: this job is the only place the `release` marks run at all, and the only place a
+      # timing assertion is measured on the 4-vCPU machine its verdict depends on. Without this a
+      # change to a test could only ever be checked by the unit subset `chunk-check` runs, which is
+      # how a bar calibrated on a 16-core laptop reached `dev` and failed here (ROADMAP_local §52).
+      - 'tests/**'
+      # `rules/**`: the declared baselines every gate compares against -- `expected_diffs.toml` for
+      # the release comparison and `motif_metrics.tsv` for the motif metrics. Editing one is exactly
+      # the change that has to re-run the comparison, and until now it triggered nothing, so a
+      # loosened baseline would have been checked by no build at all.
+      - 'rules/**'
   schedule:
     - cron: '0 3 * * 1'
 
@@ -150,6 +160,36 @@ jobs:
           uv run vdjdb diff reference.zip out/legacy \
             --only vdjdb.txt,vdjdb.slim.txt,vdjdb_full.txt,vdjdb.meta.txt,vdjdb.slim.meta.txt \
             --report out/reports/release-diff.md
+
+      # Three sources, one cohort, one code path: the last legacy release, the latest release
+      # (the same file until one ships after 2026-06-03) and what this build produced. Both gates run
+      # -- `current-*` against `latest`, and every source against rules/motif_metrics.tsv.
+      #
+      # This step exists because the motif metrics used to be computed inside test assertions and
+      # thrown away, so the three chunk merges of 2026-09-28 moved the comparator's Q by 0.0042 and
+      # its retention by 0.0059 inside the assertion slack and nobody learned the new values. The
+      # report is written to the step summary whether or not anything regressed: the number that did
+      # not trip a gate is the one nobody would otherwise ever see.
+      - name: Motif metrics
+        run: |
+          uv run vdjdb motif-metrics --tables out/tables --motifs out/motifs \
+            --legacy reference.zip --out out/reports
+        continue-on-error: false
+
+      - name: Motif metrics report
+        if: always()
+        run: |
+          { echo '### Motif metrics'; echo; cat out/reports/motif-metrics.md; } \
+            >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: motif-metrics
+          path: |
+            out/reports/motif-metrics.tsv
+            out/reports/motif-metrics.md
+          retention-days: 90
 
       - name: Tests
         env:
