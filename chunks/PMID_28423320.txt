@@ -10119,7 +10119,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 10118	CAVGGSQGNLIF	TRAV8-6	TRAJ42	CASSIRSSYEQYF	TRBV19		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28423320	antigen-loaded-targets,dextramer-sort		yes	amplicon-seq	direct		CD8+						20354	PBMC			
 10119	CAAGGSQGNLIF	TRAV8-6	TRAJ42	CASSSRSSYEQYF	TRBV19		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28423320	antigen-loaded-targets,dextramer-sort		yes	amplicon-seq			CD8+						20354	PBMC			
 10120	CAASFIIQGAQKLVF	TRAV13-1	TRAJ54	CASSLLGGWSEAFF	TRBV27		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28423320	antigen-loaded-targets,dextramer-sort		yes	amplicon-seq	direct		CD8+						20354	PBMC			
-10121	CAGPGGSSNTGKLIF	TRAV35	TRAJ37	CASSLIYPGELFF	TRBV27		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28423320	antigen-loaded-targets,dextramer-sort		yes	amplicon-seq	direct		CD8+						20354	PBMC			56I
+10121	CAGPGGSSNTGKLIF	TRAV35	TRAJ37	CASSLIYPGELFF	TRBV27		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28423320	antigen-loaded-targets,dextramer-sort		yes	amplicon-seq	direct		CD8+						20354	PBMC			
 10122				CASSPRPGQGNFF	TRBV19		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:28423320	tetramer-sort																
 10123				CASSLQTGVRSYEQYF	TRBV6-5		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:28423320	tetramer-sort											, N					
 10124				CASSLRPLDMNTEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:28423320	tetramer-sort																
