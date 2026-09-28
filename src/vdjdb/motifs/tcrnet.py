@@ -122,6 +122,13 @@ MIN_SAMPLE = 10
 #: TRB     3.194   2.855   0.4428  0.4433  0.9790  0.9790  0.3337  0.3218
 #: ======  ======  ======  ======  ======  ======  ======  ======  ======
 #:
+#:
+#: ⚠ **Measured on the corpus of 2026-09-26 and not restated since.** These numbers chose the
+#: shipped parameter and the comparison they make is internally consistent, but the legacy
+#: column moves whenever a chunk merges - the released file is fixed and the cohort it is
+#: scored against is not. The current value of every axis, for the released files and for this
+#: build, is measured on every build into ``out/reports/motif-metrics.tsv`` and gated against
+#: ``rules/motif_metrics.tsv`` (``vdjdb motif-metrics``). Read those for today's figures.
 #: TRA improves on every axis (+16.1 % lift, +0.011 Q, +0.010 purity, +0.011 precision,
 #: +0.022 retention). TRB pays one cost: Q is 0.0005 lower than the shipped file's, against
 #: +11.9 % lift, equal purity, and higher precision and retention. That is the only axis on which
