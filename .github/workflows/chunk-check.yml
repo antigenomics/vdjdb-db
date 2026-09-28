@@ -118,6 +118,24 @@ jobs:
             uv run vdjdb qc --report qc-report.tsv
           fi
 
+      # Well-formed is not the same question as "the chunk the curator meant". A mistyped epitope
+      # passes every QC rule and silently becomes a new epitope entry, which is how `epitopes` came
+      # to hold 13 peptides under two species (#633). This assembles the corpus - 9.9 s over 192,793
+      # records - and stops before the annotation stages, which cost ten times as much and change
+      # nothing a curator is deciding. `continue-on-error`: a report is not a gate, and `vdjdb qc`
+      # above is what fails the job.
+      # Pull requests only. On a push `changed.txt` is `git ls-files chunks/` - all 231 files - so the
+      # report would treat the whole corpus as the submission, leaving nothing to compare it against
+      # and calling every value in VDJdb new. The comment is posted on pull requests anyway.
+      - name: What the chunk contributes
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: |
+          if [ -s changed.txt ]; then
+            tr '\n' '\0' < changed.txt \
+              | xargs -0 uv run vdjdb submission --out submission.md > /dev/null
+          fi
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -165,6 +183,12 @@ jobs:
               print("A rule that blocks the merge fails the job above; the rest are advisory.")
           else:
               print("**No QC findings.**")
+          # Written by `vdjdb submission`, which is `continue-on-error` - so its absence means the
+          # assembly did not finish, and the QC section above is still the report that matters.
+          _s = pathlib.Path("submission.md")
+          if _s.exists():
+              print()
+              print(_s.read_text())
           PY
           cat comment.md
 

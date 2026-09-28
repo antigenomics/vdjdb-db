@@ -649,13 +649,22 @@ writes lifecycle rows. That is also what keeps a curation pull request readable:
 files moves when a chunk changes.
 
 Sizes. The four derived levels hold 274,683 ids between them, and the table measures **15.9 MB**.
-The record registry is 72.7 MB, because it carries the natural key and the content hash per record.
-Both ship as release assets rather than committed files. The retired rows alone are committed, since
-they are the part a consumer needs and the part that is otherwise lost, and they are small.
+The record registry is **73.7 MB** over 192,629 rows, because it carries the natural key and the content
+hash per record.
 
-A build with no registry still runs. It allocates record ids from 1 and reports that the run is not
-id-stable, which is correct for a fork and for a first build, and is what the code does today by
-accident rather than by decision (`ROADMAP_local.md`, known-not-yet-fixed).
+⚠ **This section used to say both ship as release assets rather than committed files, because 73.7 MB is
+too much to commit per curation PR. That reasoning was wrong and the measurement is in `vdjdb-db#638`:**
+it conflates the one-time blob with the per-PR delta. Committed once, the registry costs **18.9 MB** in
+the pack; a 40-row amendment to it costs **2.0 KB**, because git deltifies a sorted TSV essentially
+perfectly. Committing it uncompressed is therefore affordable and is what `identity/ids.py` was written
+for - a curation PR showing the added, amended and retired rows as a reviewable text diff. Gzipping it
+would cost more per PR, not less, and lose the diff.
+
+A build with no registry still runs. It allocates record ids from 1 in corpus order and **warns that the
+run is not id-stable**, which is correct for a fork, for a first build and for a corpus replayed at an old
+tag. No registry is committed today, so that is the normal path, and the cost is measured: landing one
+40-record chunk moves `record_id` on **168,723 of 192,753 records (87.5 %)**. Invariant 3 below is the
+assertion that would have caught it.
 
 ### 10.5 The consistency machinery
 
