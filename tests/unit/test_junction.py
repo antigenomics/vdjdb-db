@@ -117,8 +117,17 @@ def test_the_worker_count_actually_buys_wall_time():
     import os
     import time
 
-    if (os.cpu_count() or 1) < 4:
+    cores = os.cpu_count() or 1
+    if cores < 4:
         pytest.skip("needs at least 4 cores to say anything about scaling")
+    # ⚠ Refuse to measure a machine that cannot be measured. A ratio taken while the box is
+    # oversubscribed is not a property of the pool: measured 2.26x quiet, 1.62x inside a full suite
+    # run and 1.48x at load average 22 on 16 cores, all with the same correct pool. Skipping is the
+    # honest outcome - the alternative is a bar loose enough to pass under any load, which is a bar
+    # that no longer detects a dead pool (ROADMAP_local section 57.4).
+    load = os.getloadavg()[0]
+    if load > cores:
+        pytest.skip(f"load average {load:.1f} on {cores} cores: too busy to time anything")
 
     aa = "ACDEFGHIKLMNPQRSTVWY"
     # Distinct junctions with the V and J anchors of a real key untouched, so every one resolves: the
@@ -129,20 +138,24 @@ def test_the_worker_count_actually_buys_wall_time():
                          "j.segm": ["TRBJ2-7*01"] * len(mids)}).sort("cdr3", "v.segm", "j.segm")
 
     junction.infer(keys.head(20), "HomoSapiens", "TRB", workers=1)   # load the model, once
-    serial_start = time.perf_counter()
-    serial_out = junction.infer(keys, "HomoSapiens", "TRB", workers=1)
-    serial = time.perf_counter() - serial_start
 
-    def timed(workers: int) -> float:
+    def timed(workers: int) -> tuple[float, object]:
         start = time.perf_counter()
-        junction.infer(keys, "HomoSapiens", "TRB", workers=workers)
-        return time.perf_counter() - start
+        out = junction.infer(keys, "HomoSapiens", "TRB", workers=workers)
+        return time.perf_counter() - start, out
 
-    parallel = min(timed(4), timed(4))
-    bar = 1.7 if (os.cpu_count() or 1) >= 8 else 1.15
+    # Best of two on **both** legs. One-sided noise on either leg moves the ratio, and the machine
+    # this runs on is not quiet: measured 2.26x in isolation and 1.62x inside a full suite run at load
+    # average 19 on 16 cores, which failed a 1.7x bar on a pool that was working correctly. Taking the
+    # best of two on each side compares best case with best case, which is what a ratio under load
+    # means (ROADMAP_local section 57.4).
+    serial, serial_out = min((timed(1) for _ in range(2)), key=lambda r: r[0])
+    parallel = min(timed(4)[0] for _ in range(2))
+    bar = 1.7 if cores >= 8 else 1.15
 
     assert (serial_out["cdr3nt"] != "").all(), "the timing set must not take the no-scenario path"
     assert serial / parallel > bar, (
         f"four workers bought {serial / parallel:.2f}x over {keys.height} keys "
-        f"({serial:.2f} s -> {parallel:.2f} s) on {os.cpu_count()} cores, bar {bar}x; "
+        f"({serial:.2f} s -> {parallel:.2f} s) on {cores} cores at load {load:.1f}, "
+        f"bar {bar}x; "
         f"the pool is overhead rather than parallelism")
