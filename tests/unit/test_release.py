@@ -18,6 +18,21 @@ from vdjdb.release import bundle, manifest
 #: `vdjmatch` looks inside a bundle for these by BASENAME, not by path.
 VDJMATCH_NEEDS = {"vdjdb.txt", "vdjdb.slim.txt", "vdjdb_full.txt"}
 
+#: Every directory a build writes under `out/`, and the command that writes it, taken from the
+#: `build.yml` step list rather than from :data:`manifest.BUNDLES`. The `build_dir` fixture below
+#: creates whatever the declaration names, so it can only check that the code agrees with itself:
+#: `PRIMARY` named `motifs_new/`, the output directory of the sweeps under `docs/tuning/`, and the
+#: fixture dutifully created it, so nothing failed until `vdjdb release` was run against a pipeline
+#: build and raised on two required members.
+WRITTEN_BY = {
+    "tables": "vdjdb build --out out",
+    "legacy": "vdjdb build, or vdjdb make legacy",
+    "airr": "vdjdb build, or vdjdb convert airr",
+    "motifs": "vdjdb motifs",
+    "summary": "vdjdb summary, copied by the Dashboard step",
+    "": "bundle.stage(): LICENSE and latest-version.txt, from the repository root",
+}
+
 
 @pytest.fixture
 def build_dir(tmp_path):
@@ -31,6 +46,41 @@ def build_dir(tmp_path):
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_text(f"contents of {m.source}\n")
     return root
+
+
+def test_every_member_comes_from_a_directory_the_pipeline_writes():
+    for b in manifest.BUNDLES:
+        for m in b.members:
+            d = str(Path(m.source).parent).replace(".", "")
+            assert d in WRITTEN_BY, (
+                f"bundle {b.role!r} member {m.source!r} is under {d!r}/, which no command writes. "
+                f"The directories a build produces are {sorted(k for k in WRITTEN_BY if k)}.")
+
+
+def test_the_motif_members_name_the_directory_the_motifs_command_writes_to():
+    """One default, two readers. `vdjdb motifs --out` decides where the files are; the bundles and
+    `vdjdb motif-metrics` decide where they are looked for, and all three have to agree."""
+    import inspect
+
+    from vdjdb.cli import app
+
+    defaults = {}
+    for c in app.registered_commands:
+        fn = c.callback
+        name = c.name or fn.__name__.replace("_", "-")
+        defaults[name] = {k: v.default.default for k, v in inspect.signature(fn).parameters.items()
+                          if hasattr(v.default, "default")}
+
+    written = Path(defaults["motifs"]["out"])
+    assert written == Path("out/motifs"), (
+        f"`vdjdb motifs --out` defaults to {written}, and the bundles read out/motifs")
+    assert Path(defaults["motif-metrics"]["motifs"]) == written, (
+        "`vdjdb motif-metrics --motifs` must default to the directory `vdjdb motifs` writes")
+    for b in manifest.BUNDLES:
+        for m in b.members:
+            if Path(m.source).name.startswith(("cluster_members", "motif_pwms")):
+                assert Path(m.source).parent == written.relative_to("out"), (
+                    f"bundle {b.role!r} reads {m.source!r}; `vdjdb motifs` writes to {written}")
 
 
 def test_tag_scheme_is_enforced():

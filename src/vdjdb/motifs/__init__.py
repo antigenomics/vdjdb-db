@@ -103,9 +103,9 @@ def run_tcremp(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
                           emit.motif_pwms(_pwms(members), records), out, suffix="_tcremp")
 
 
-def per_epitope_report(chains: pl.DataFrame, records: pl.DataFrame, out: Path,
+def per_epitope_report(chains: pl.DataFrame, records: pl.DataFrame, out: Path, reports: Path,
                        written: dict[str, int]) -> int:
-    """``reports/motifs_per_epitope.tsv``: one row per (gene, method, epitope).
+    """``motifs_per_epitope.tsv``: one row per (gene, method, epitope).
 
     The pooled scorecard is an average over a distribution that is strongly bimodal on TRB -- the
     median epitope has under 1 % of its clonotypes clustered while the pooled retention is 32 % -- so
@@ -146,17 +146,26 @@ def per_epitope_report(chains: pl.DataFrame, records: pl.DataFrame, out: Path,
                   "retention", "clusters", "largest_cluster", "mean_cluster_size",
                   "singleton_clusters", "percolation", "replicated", "tp", "precision", "lift")
           .sort("species", "gene", "method", "clonotypes", descending=[False] * 3 + [True]))
-    path = out / "reports" / "motifs_per_epitope.tsv"
+    path = reports / "motifs_per_epitope.tsv"
     path.parent.mkdir(parents=True, exist_ok=True)
     df.write_csv(path, separator="\t")
     return df.height
 
 
-def run(tables: Path, out: Path, *, p: float | None = None,
+def run(tables: Path, out: Path, reports: Path, *, p: float | None = None,
         min_sample: int = tcrnet.MIN_SAMPLE,
         min_cluster: int | None = None,
         methods: tuple[str, ...] = ("tcrnet", "tcremp")) -> dict[str, int]:
-    """Both methods from the definitive tables. Returns ``{filename: rows}``."""
+    """Both methods from the definitive tables. Returns ``{filename: rows}``.
+
+    ``out`` takes the motif files the release bundles, ``reports`` the two diagnostics. They are
+    separate arguments because the two directories are separate in every consumer:
+    ``release/manifest.py`` reads ``out/motifs/cluster_members.txt`` while ``docs/outputs.md``
+    documents one reports directory, ``out/reports/``. Deriving the second from the first wrote the
+    motif timings to ``out/motifs/reports/`` under CI's ``--out out/motifs`` and to ``out/reports/``
+    under the default, so the gate in ``tests/release/test_build_timings.py`` found the report on a
+    laptop and not on the runner.
+    """
     from .. import timing
 
     timing.reset()
@@ -171,10 +180,10 @@ def run(tables: Path, out: Path, *, p: float | None = None,
         written |= run_tcremp(chains, records, out, min_cluster=min_cluster)
 
     with timing.stage("motifs.per_epitope_report"):
-        rows = per_epitope_report(chains, records, out, written)
+        rows = per_epitope_report(chains, records, out, reports, written)
     if rows:
-        written["reports/motifs_per_epitope.tsv"] = rows
+        written["motifs_per_epitope.tsv"] = rows
     # The motif stage was 200 s of a 29-minute build and had no internal profile, the same gap
     # ROADMAP_local section 49 had to close by hand for assemble (section 57).
-    timing.write(out / "reports" / "motif-timings.tsv", rows=chains.height)
+    timing.write(reports / "motif-timings.tsv", rows=chains.height)
     return written
