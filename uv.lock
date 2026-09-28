@@ -1700,6 +1700,21 @@ wheels = [
 ]
 
 [[package]]
+name = "mhcmatch"
+version = "1.20.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "huggingface-hub" },
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "2.5.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "seqtree" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b8/06/a81dede2c1c5d8a8cb346811eabf3acb969ae8a664fbe2fddf467b9f04e6/mhcmatch-1.20.0.tar.gz", hash = "sha256:19356c668f11fc0429254f8898bde45344fc63c74780f5fc369364355dd573b9", size = 10089969, upload-time = "2026-09-20T02:12:15.52Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/57/14/10f9bb930fb227cf383b1c521b9408693fa37a5b4706d52dec420f2f21b9/mhcmatch-1.20.0-py3-none-any.whl", hash = "sha256:b262aa18a64f8c27ddced9c0dd96314141db9676d9524f385d3c315b18c9e00e", size = 9294778, upload-time = "2026-09-20T02:12:13.233Z" },
+]
+
+[[package]]
 name = "mirpy-lib"
 version = "3.16.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2978,6 +2993,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "arda-mapper" },
+    { name = "mhcmatch" },
     { name = "polars" },
     { name = "typer" },
     { name = "vdjtools" },
@@ -3028,6 +3044,7 @@ requires-dist = [
     { name = "hypothesis", marker = "extra == 'test'", specifier = ">=6" },
     { name = "lumbermark", marker = "extra == 'tuning'", specifier = ">=0.9" },
     { name = "matplotlib", marker = "extra == 'summary'", specifier = ">=3.8" },
+    { name = "mhcmatch", specifier = ">=1.20" },
     { name = "mirpy-lib", extras = ["bench"], marker = "extra == 'motifs'", specifier = ">=3.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.11" },
     { name = "myst-parser", marker = "extra == 'docs'", specifier = ">=3" },
