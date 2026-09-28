@@ -148,19 +148,34 @@ def build_tables(master: pl.DataFrame, *, release: str = "dev") -> dict[str, pl.
     from ..annotate.dgene import add_d_posterior
     from ..annotate.junction import add_junction_nt
     from ..annotate.segments import add_inferred_segments
+    from ..timing import stage
+    from .epitopes import build_epitopes, build_restriction
     from .evidence import build_evidence
 
-
-    records, chains = build_records(master), build_chains(master)
-    chains = add_junction_nt(chains, records)
-    chains = add_d_posterior(chains, records)
-    chains = add_inferred_segments(chains, records).select(CHAIN_COLUMNS)
-    from .epitopes import build_epitopes, build_restriction
+    # Timed so the profile is an output of the build rather than something someone reconstructs with
+    # an ad-hoc script afterwards. The stage names match ROADMAP_local section 49 so the numbers stay
+    # comparable with the profile that produced antigenomics/vdjtools#181.
+    with stage("build_records"):
+        records = build_records(master)
+    with stage("build_chains"):
+        chains = build_chains(master)
+    with stage("annotate.junction.add_junction_nt"):
+        chains = add_junction_nt(chains, records)
+    with stage("annotate.dgene.add_d_posterior"):
+        chains = add_d_posterior(chains, records)
+    with stage("annotate.segments.add_inferred_segments"):
+        chains = add_inferred_segments(chains, records).select(CHAIN_COLUMNS)
+    with stage("build_evidence"):
+        evidence = build_evidence(records, chains, release=release)
+    with stage("build_epitopes"):
+        epitopes = build_epitopes(records, chains)
+    with stage("build_restriction"):
+        restriction = build_restriction(records)
 
     return {
         "records": records,
         "chains": chains,
-        "evidence": build_evidence(records, chains, release=release),
-        "epitopes": build_epitopes(records, chains),
-        "restriction": build_restriction(records),
+        "evidence": evidence,
+        "epitopes": epitopes,
+        "restriction": restriction,
     }

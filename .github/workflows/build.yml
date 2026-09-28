@@ -176,6 +176,16 @@ jobs:
             --legacy reference.zip --out out/reports
         continue-on-error: false
 
+      # The build writes its own profile now, so a stage that doubles is visible in the run that did
+      # it rather than in a hand-made profile weeks later (ROADMAP_local §49 was the hand-made one).
+      # Seconds are recorded and not gated - they are a property of the runner; `share` is gated in
+      # tests/release/test_build_timings.py, because a ratio inside one run cancels host speed.
+      - name: Build timings report
+        if: always()
+        run: |
+          { echo '### Build timings'; echo; echo '```'; \
+            cat out/reports/build-timings.tsv; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Motif metrics report
         if: always()
         run: |
@@ -189,6 +199,7 @@ jobs:
           path: |
             out/reports/motif-metrics.tsv
             out/reports/motif-metrics.md
+            out/reports/build-timings.tsv
           retention-days: 90
 
       - name: Tests
