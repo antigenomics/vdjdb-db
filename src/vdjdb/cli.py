@@ -461,12 +461,15 @@ def diff(
     rules: Path = typer.Option(Path("rules/expected_diffs.toml"),
                                help="Declared expected differences."),
     report: Path | None = typer.Option(None, help="Write the comparison report here as Markdown."),
+    json_out: Path | None = typer.Option(
+        None, "--json", help="Also write the report as JSON, without the per-cell detail, so the "
+                             "release tests can read it instead of running this again."),
     only: str | None = typer.Option(None, help="Comma-separated members to compare; "
                                                "for deliberately partial candidates."),
 ) -> None:
     """Compare a candidate build against a released bundle and attribute every difference."""
     from .compare.diff import diff as run_diff
-    from .compare.diff import render
+    from .compare.diff import render, summary_json
 
     result = run_diff(reference, candidate, rules if rules.exists() else None,
                       only=[s.strip() for s in only.split(",")] if only else None)
@@ -474,6 +477,9 @@ def diff(
     if report:
         report.parent.mkdir(parents=True, exist_ok=True)
         report.write_text(text)
+    if json_out:
+        json_out.parent.mkdir(parents=True, exist_ok=True)
+        json_out.write_text(summary_json(result) + "\n")
     typer.echo(text, nl=False)
     raise typer.Exit(0 if result.ok else 1)
 

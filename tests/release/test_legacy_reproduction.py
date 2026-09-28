@@ -26,7 +26,7 @@ from pathlib import Path
 
 import pytest
 
-from vdjdb.compare.diff import Bundle, DiffReport, diff
+from vdjdb.compare.diff import Bundle, DiffReport, diff, summary_from_json
 from vdjdb.schema import SLIM_COLUMNS, VDJDB_COLUMNS
 
 pytestmark = pytest.mark.release
@@ -66,6 +66,27 @@ def candidate() -> Path:
 
 @pytest.fixture(scope="module")
 def report(reference: Path, candidate: Path) -> DiffReport:
+    """The comparison: read from the build's own JSON when there is a fresh one, else computed.
+
+    `vdjdb diff` already runs in CI, writes the release-notes report and exits non-zero on an
+    undeclared difference. Recomputing it here cost **42 s**, which after the other three fixes was
+    45 % of the whole suite (`ROADMAP_local.md` §57.1, §57.3).
+
+    The JSON omits the per-cell detail on purpose - with it, `asdict` is 211 MB across 485,130 changed
+    cells, and serialising then parsing that costs more than recomputing. Nothing in this module reads
+    `FileReport.cells`; `cells_omitted` is set so that if something ever does, it can refuse rather
+    than read an empty tuple as "no changes".
+
+    Reused only when the JSON is newer than both inputs, for the reason the `motifs` fixture in
+    `test_motif_reproduction.py` documents: a report from an earlier build scored against this build's
+    files reads as a data change rather than as a stale file.
+    """
+    cached = Path(os.environ.get("VDJDB_DIFF_JSON", "out/reports/release-diff.json"))
+    if cached.exists():
+        newest_input = max((p.stat().st_mtime for p in [candidate / "vdjdb.txt", RULES]
+                            if p.exists()), default=0.0)
+        if cached.stat().st_mtime >= newest_input:
+            return summary_from_json(cached.read_text())
     return diff(reference, candidate, RULES, only=LEGACY_MEMBERS)
 
 

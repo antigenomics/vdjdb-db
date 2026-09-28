@@ -64,14 +64,17 @@ def corpus(tables: dict[str, pl.DataFrame]) -> dict[str, pl.DataFrame]:
 
 @pytest.fixture(scope="module")
 def scored(corpus: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
-    """Every CDR3 3-mer's lift on the epitope's documents, above the occurrence floor, best first."""
-    kmers = corpus["terms"].filter(pl.col("family") == "cdr3_kmer")["term"].to_list()
-    out = []
-    for term in kmers:
-        got = query.lift(corpus, term, [f"e:{EPITOPE}"], over="occurrences")
-        if got.lift is not None and got.both >= MIN_OCCURRENCES:
-            out.append((got.lift, term))
-    return sorted(out, reverse=True)
+    """Every CDR3 3-mer's lift on the epitope's documents, above the occurrence floor, best first.
+
+    One `lift_family` call rather than a loop over `lift`. The loop recomputed the condition group and
+    the family totals once per term - the same values every time - and cost **50.7 s**, a quarter of
+    the whole suite, against **0.01 s** batched (`ROADMAP_local.md` §57.1). The two agree term for
+    term, which `tests/unit/test_corpus_query.py` asserts.
+    """
+    scored = query.lift_family(corpus, "cdr3_kmer", [f"e:{EPITOPE}"], over="occurrences",
+                               min_units=MIN_OCCURRENCES)
+    return [(r["lift"], r["term"]) for r in scored.iter_rows(named=True)
+            if r["lift"] is not None]
 
 
 def test_the_corpus_covers_every_offline_family(corpus) -> None:
