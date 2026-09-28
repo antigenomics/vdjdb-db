@@ -87,10 +87,23 @@ def build(
     from .emit.legacy import write_all as write_legacy
     from .emit.vdjdb3 import write_all as write_new
     from .io.chunks import chunk_files
+    from .timing import report as timing_report
+    from .timing import reset as timing_reset
+    from .timing import stage
+    from .timing import write as timing_write
 
+    timing_reset()
     paths = chunk_files(chunks) if chunks else None
-    built = build_tables(build_master(paths, engine=engine), release=release)
+    with stage("assemble.master.build_master"):
+        master = build_master(paths, engine=engine)
+    built = build_tables(master, release=release)
     out.mkdir(parents=True, exist_ok=True)
+
+    # Written every run, next to the other reports: a wall time nobody records is a wall time nobody
+    # can regress against, which is how the 156 s in `add_junction_nt` went unmeasured until someone
+    # profiled it by hand (ROADMAP_local section 49).
+    timings = timing_write(out / "reports" / "build-timings.tsv", rows=built["records"].height)
+    typer.echo(timing_report(timings))
 
     if tables:
         for name, frame in built.items():
