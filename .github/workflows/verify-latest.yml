@@ -2,7 +2,15 @@
 #
 # Measured on 2026-09-26: line 1 named `2026-05-16` while the published latest was
 # `2026-06-03-ZENODO`, and both URLs returned 200. So "does line 1 resolve" would not have caught
-# it. This check compares the tag instead.
+# it. This check compares the tag and the asset instead.
+#
+# **The `-ZENODO` twin is the same release, measured rather than assumed.** The Zenodo webhook
+# archives the source tarball, so someone re-triggered it by cutting a second tag on the same commit,
+# and `releases/latest` is now `2026-06-03-ZENODO` while line 1 names `2026-06-03`. Both releases
+# carry `vdjdb-2026-06-03.zip`, 41,017,409 bytes, sha256 `9ae7724ab2ce9fdb09b1fb82a90c7462f75269f14f669238f8c154a80239cfc1`
+# - downloaded both and compared on 2026-09-28, byte-identical. So the suffix is stripped before the
+# tags are compared, and the asset name is compared as well: a line 1 that lags a release differs in
+# both, which is the case this check exists for. Phase 14 stops the twin being created.
 name: verify-latest
 
 on:
@@ -24,43 +32,60 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # `set +e` because the runner invokes this as `bash -e {0}`, and `set -uo pipefail` adds
+          # flags without removing errexit. This step is written to *record* a bad state and let the
+          # next one report it, so a curl that cannot connect or a `gh` 5xx must not kill it before
+          # `ok=false` is written.
+          set +e
           set -uo pipefail
           URL=$(head -1 latest-version.txt)
           CODE=$(curl -sIL -o /dev/null -w '%{http_code}' "$URL")
           # .../releases/download/<tag>/<asset>
           LINE_TAG=$(echo "$URL" | awk -F/ '{print $(NF-1)}')
+          LINE_ASSET=$(basename "$URL")
           REL_TAG=$(gh release view --json tagName --jq .tagName)
+          REL_ASSET=$(gh release view --json assets --jq '.assets[] | select(.name | endswith(".zip")) | .name' | head -1)
           echo "line1=$URL"            >> "$GITHUB_OUTPUT"
           echo "code=$CODE"            >> "$GITHUB_OUTPUT"
           echo "line_tag=$LINE_TAG"    >> "$GITHUB_OUTPUT"
           echo "latest_tag=$REL_TAG"   >> "$GITHUB_OUTPUT"
-          if [ "$CODE" = "200" ] && [ "$LINE_TAG" = "$REL_TAG" ]; then
+          echo "line_asset=$LINE_ASSET" >> "$GITHUB_OUTPUT"
+          echo "latest_asset=$REL_ASSET" >> "$GITHUB_OUTPUT"
+          if [ "$CODE" = "200" ] && [ "${LINE_TAG%-ZENODO}" = "${REL_TAG%-ZENODO}" ] \
+             && [ "$LINE_ASSET" = "$REL_ASSET" ]; then
             echo "ok=true" >> "$GITHUB_OUTPUT"
           else
             echo "ok=false" >> "$GITHUB_OUTPUT"
           fi
 
       # Idempotent: this runs daily, and a mismatch that nobody has fixed yet must not open a new
-      # issue every morning. It will be true for a while -- `releases/latest` currently points at
-      # the `-ZENODO` twin tag, which is the artefact phase 14 exists to stop creating.
+      # issue every morning.
       - if: steps.check.outputs.ok != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           TITLE="latest-version.txt does not name the current release"
-          if gh issue list --state open --search "in:title \"$TITLE\"" --json number \
-               --jq 'length' | grep -qv '^0$'; then
+          # Captured rather than used directly as a condition: a 5xx from the search would read as
+          # "no open issue" and file another copy of the same report every morning.
+          OPEN=$(gh issue list --state open --search "in:title \"$TITLE\"" --json number --jq 'length')
+          if [ -z "$OPEN" ]; then
+            echo "::warning::could not query open issues; not filing, to avoid a duplicate"
+            exit 0
+          fi
+          if [ "$OPEN" != "0" ]; then
             echo "already reported; not opening a duplicate"
             exit 0
           fi
           gh issue create \
             --title "latest-version.txt does not name the current release" \
-            --label "build" \
+            --label "vdjdb-build-infrastructure" \
             --body "$(printf '%s\n' \
               "Line 1: ${{ steps.check.outputs.line1 }}" \
               "HTTP: ${{ steps.check.outputs.code }}" \
               "Tag on line 1: ${{ steps.check.outputs.line_tag }}" \
               "Latest release: ${{ steps.check.outputs.latest_tag }}" \
+              "Asset on line 1: ${{ steps.check.outputs.line_asset }}" \
+              "Asset on the latest release: ${{ steps.check.outputs.latest_asset }}" \
               "" \
               "A 200 alone does not mean this file is current: it named the previous release for months while resolving fine.")"

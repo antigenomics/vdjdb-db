@@ -173,14 +173,34 @@ def test_the_harness_reproduces_the_published_legacy_bar(gene: str, released: pl
             f"{gene} {axis}: {got[axis]:.4f}, docs/clustering.md publishes {want}")
 
 
-def test_no_source_drifted_from_the_committed_baseline(tables, ours, released) -> None:
+@pytest.fixture(scope="module")
+def measured(tables, ours, released) -> pl.DataFrame:
+    """The metric table: read from the build's own report when there is a fresh one, else computed.
+
+    `vdjdb motif-metrics` already writes this on every build and already runs both gates, so
+    recomputing it here cost 24 s of a 186 s suite to assert what the CLI had just exited 1 on
+    (ROADMAP_local section 57.1). One fixture, shared by both tests, reusing the artifact.
+
+    **Reused only when it is newer than both inputs.** A report from an earlier build scored on this
+    build's cohort is the exact mistake the `motifs` fixture above documents happening on 2026-09-27,
+    and it reads as a metric change rather than as a stale file.
+    """
+    chains, records = tables
+    report = Path(os.environ.get("VDJDB_MOTIF_METRICS", "out/reports/motif-metrics.tsv"))
+    newer_than = [Path(os.environ.get("VDJDB_TABLES", "out/tables")) / "chains.parquet",
+                  Path(os.environ.get("VDJDB_MOTIFS", "out/motifs")) / "cluster_members.txt"]
+    if report.exists() and all(
+            p.exists() and report.stat().st_mtime >= p.stat().st_mtime for p in newer_than):
+        return pl.read_csv(report, separator="\t")
+    return mmv.measure(chains, records, mmv.sources(released, released, ours))
+
+
+def test_no_source_drifted_from_the_committed_baseline(measured) -> None:
     """The recorded numbers, per axis, for all four sources -- including the released files' own.
 
     A fixed released file scored on a changed cohort moves, so this is the gate that catches a
     *corpus* change rather than a code one. It is the check that was missing on 2026-09-28.
     """
-    chains, records = tables
-    measured = mmv.measure(chains, records, mmv.sources(released, released, ours))
     drift = mmv.regressions_against_baseline(measured, mmv.load_baseline())
     assert drift.height == 0, (
         f"{drift.height} axes drifted; explain each and re-record with "
@@ -192,7 +212,7 @@ def test_no_source_drifted_from_the_committed_baseline(tables, ours, released) -
 # --------------------------------------------------------------------------------------------
 
 def test_our_clustering_is_not_worse_than_the_latest_release_on_any_gated_axis(
-        tables, ours, released) -> None:
+        measured) -> None:
     """Both chains, both methods, every gated axis, through the same code the build's gate uses.
 
     An axis that is worse on purpose is declared with its reason in `rules/motif_metrics.tsv` and
@@ -200,8 +220,6 @@ def test_our_clustering_is_not_worse_than_the_latest_release_on_any_gated_axis(
     declared today: our TRA TCREMP percolates more than the release and buys retention, purity, `Q`
     and two epitopes for it.
     """
-    chains, records = tables
-    measured = mmv.measure(chains, records, mmv.sources(released, released, ours))
     bad = mmv.regressions_against_latest(measured, mmv.load_baseline())
     assert bad.height == 0, f"{bad.height} undeclared regressions against the release:\n{bad}"
 

@@ -18,8 +18,12 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Head branch must be dev or hotfix/*
+        # Through `env`, not interpolated into the script: git allows a quote, a backtick and a `$`
+        # in a branch name, and a fork can choose one.
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          head="${{ github.head_ref }}"
+          head="$HEAD_REF"
           case "$head" in
             dev|hotfix/*)
               echo "ok: $head -> master"

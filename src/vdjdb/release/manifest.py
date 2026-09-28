@@ -89,10 +89,15 @@ PRIMARY = Bundle(
         Member("tables/epitopes.tsv"),
         Member("tables/restriction.tsv"),
         Member("tables/vdjdb.schema.json"),
-        Member("motifs_new/cluster_members.txt"),
-        Member("motifs_new/motif_pwms.txt"),
-        Member("motifs_new/cluster_members_tcremp.txt", optional=True),
-        Member("motifs_new/motif_pwms_tcremp.txt", optional=True),
+        # `motifs/`, the directory `vdjdb motifs` writes. It said `motifs_new/` until 2026-09-28,
+        # which is the output directory of the clustering sweeps under `docs/tuning/`, so resolving
+        # this bundle against a pipeline build raised on two required members and the primary zip
+        # could not be built at all. The test fixture was generated from this declaration, so it
+        # created the directory it was asserting about.
+        Member("motifs/cluster_members.txt"),
+        Member("motifs/motif_pwms.txt"),
+        Member("motifs/cluster_members_tcremp.txt", optional=True),
+        Member("motifs/motif_pwms_tcremp.txt", optional=True),
         Member("summary/vdjdb_summary_embed.html"),
         Member("LICENSE"),
     ),
