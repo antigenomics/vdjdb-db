@@ -6,7 +6,7 @@ To submit a previously published sequence, follow the steps below.
 
 * Branch from `dev`, not from `master`, and add one chunk per paper, named ``PMID_XXXXXXX``. One commit per chunk, and close or reference the corresponding issue in the commit message.
 
-* Open a pull request against `dev`. `chunk-check` runs on it and reports what the submission does: records added or removed, the confidence-score histogram, and any QC error by rule. Fix or remove entries until it is green. A pull request straight into `master` is rejected by `branch-policy`, which only lets `dev` and `hotfix/*` merge there.
+* Open a pull request against `dev`. `chunk-check` runs on it and reports what the submission does, as a comment updated in place on every push: the records each changed chunk contributes and their confidence-score histogram, every QC finding by rule, and **every value the chunk introduces that no other chunk carries** - a new epitope, species, gene, MHC allele or reference. That last section is the one to read twice: a mistyped epitope passes every format check and arrives as a new epitope, indistinguishable from a genuine one except that you know which you meant. It also counts the records that repeat a clonotype and pMHC another chunk already reports, which is independent replication rather than duplication and is what raises the score. Fix or remove entries until it is green. A pull request straight into `master` is rejected by `branch-policy`, which only lets `dev` and `hotfix/*` merge there.
 
 * Chunks reach `master` with the next `dev` to `master` merge, once the full build has run green on `dev`. The path is `dev` -> chunk branch -> `dev` -> `master`.
 
