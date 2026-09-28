@@ -97,9 +97,10 @@ RULES: dict[str, pl.Expr] = {
     # So the field is not free text, and anything in it that is not a PDB id awards the top score
     # for evidence that does not exist. Measured 2026-09-28: 2,765 of the 3,246 rows carrying a
     # value hold a figure or table reference instead - `Fig.2, Fig. 3, Fig.4, ...` 2,352 rows,
-    # `Fig 9, Supp Fig 5, Supp Table 5-8` 400, `Fig3b,Fig3c` 12, `56I` 1 - and because the score is
-    # a maximum over the sample signature they pull 6,004 rows to 3. Blanking them would move 3,960
-    # of those to 0 and 2,044 to 1.
+    # `Fig 9, Supp Fig 5, Supp Table 5-8` 400, `Fig3b,Fig3c` 12, `56I` 1. Because the score is a
+    # maximum over the sample signature, they reach much further than their own rows: **4,817 of
+    # the 6,007 records that score 3 owe it to one of those values**, and blanking the field would
+    # take 3,752 of them to 0 and 1,065 to 1.
     #
     # The shape is the PDB entry id: a digit then three alphanumerics, case-insensitive. That is the
     # whole check; whether the entry exists and contains the receptor is a network question and
