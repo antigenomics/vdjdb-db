@@ -362,6 +362,8 @@ they ship in future is open (ROADMAP §9).
 | `records.diff.tsv` | added / amended / retired records against the previous release |
 | `diff-report.md` | the comparison against a reference release (ROADMAP §5) |
 | `motifs_per_epitope.tsv` | one row per (species, gene, method, epitope): clonotypes, clustered, retention, clusters, largest cluster, mean cluster size, singleton clusters, percolation, replicated, tp, precision, lift. 678 rows. Written by `vdjdb motifs` on every run; the pooled motif scorecard averages a strongly bimodal distribution and must not be reported without this table (`docs/clustering.md` §6) |
+| `motif-metrics.tsv` | one row per (species, gene, source, axis): twelve axes for four sources -- the last legacy release, the latest release, this build's two methods, and the partition that clusters nothing. 130 rows. Written by `vdjdb motif-metrics`, which also gates them: `current-*` against `latest` catches a code regression, every source against `rules/motif_metrics.tsv` catches a corpus one. The metrics used to live only inside test assertions, so a corpus change moved them inside the slack and nobody learned the new values |
+| `motif-metrics.md` | the same table as markdown, with each axis against its baseline and against `latest`, written into the CI step summary so the values that did **not** trip a gate are still read |
 | `motifs.debug/` | per-clonotype enrichment statistics, embeddings, cluster labels, eps sweeps, the pooled cross-epitope confusion matrix |
 | `contact_sheet.png` | the eight dashboard panels tiled, for visual review |
 
