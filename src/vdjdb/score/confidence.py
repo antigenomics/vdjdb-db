@@ -10,13 +10,23 @@ The score answers "how much should a reader trust this specificity annotation", 
 * otherwise ``min(sequencing confidence, specificity confidence)``, so a beautifully sequenced
   clonotype with a weak specificity assay scores as low as the assay, and vice versa.
 
-Two behaviours are preserved exactly because the released scores depend on them:
+Three behaviours are preserved exactly because the released scores depend on them:
 
 * ``method.frequency`` is parsed as ``n/m``, ``x%`` or a bare float, and ``n`` alone is the cell
   count -- ``2/47`` means two cells of forty-seven, and a ``%`` form therefore has no cell count;
 * the score is a maximum over the 11-column sample signature, not a per-row value. The same
   clonotype assayed twice takes the better of the two, which is why the score cannot be computed
-  before the full table is assembled.
+  before the full table is assembled;
+* every method term matches a **substring** of the method field, never a token -- see
+  :func:`_contains_any`, which records what that costs and why it stays.
+
+The structure term at the top of this docstring is where the score's one live defect sits.
+``meta.structure.id`` is read as "a solved structure is attached" by testing that the field is
+non-empty, and 2,765 chunk rows hold a figure or table reference there rather than a PDB id.
+Measured 2026-09-28 (vdjdb-db#402): **4,817 of the 6,007 records that score 3 owe it to one of
+those values** - 3,752 would fall to 0 and 1,065 to 1 - so four of every five top-confidence
+records rest on a reference a reader cannot check. The guard is the ``structure id is not a PDB
+id`` QC rule; the repair is a curation decision, so nothing here changes.
 """
 from __future__ import annotations
 
@@ -40,6 +50,23 @@ def _lower(col: str) -> pl.Expr:
 
 
 def _contains_any(col: str, needles: tuple[str, ...]) -> pl.Expr:
+    """Substring, not token. That is the released semantics and it must not be tightened here.
+
+    Every method term in this module matches a substring of a comma-joined method field, because
+    the legacy scorer did and the released scores encode it. It is the right shape for
+    `antigen-loaded-targets` matching `targets`, and the wrong shape for a word that contains
+    another word: `indirect` contains `direct`, so a value spelled that way would take the
+    `_high_specificity` ceiling of 3 and force the sequencing term to 3 with it, awarding the
+    maximum for the opposite of what it says. That `direct` test is written inline in
+    `_high_specificity` rather than routed through here, but it is the same matching rule.
+
+    Measured 2026-09-28 across all 203,348 chunk rows: `method.verification` holds `direct` (338),
+    `direct,antigen-loaded-targets` (82) and `antigen-loaded-targets,direct` (2) and nothing else,
+    so no value is currently matched loosely and no score is affected. Recorded rather than fixed
+    because tightening one needle and not the other six would be inconsistent, and tightening all
+    seven diverges from the release the comparison is measured against. If it ever has to change,
+    it changes for all of them at once, with a declared rule and a re-measured count.
+    """
     e = pl.col(col).str.contains(needles[0], literal=True)
     for n in needles[1:]:
         e = e | pl.col(col).str.contains(n, literal=True)
