@@ -8,19 +8,33 @@ Marked ``release``: needs the timing report a real build writes (``VDJDB_TIMINGS
 the build recorded it, so the next stage to double would have been found the same way: by somebody
 noticing the build felt slow.
 
-**Why share and not seconds.** Seconds are a property of the host. A 4-vCPU runner is three to four
+**Why share and not seconds.** Seconds are a property of the host. A 4-vCPU runner is two to five
 times slower than the laptop these numbers were first taken on, so a seconds bar is either useless or
 fails on a busy runner - and a bar that fails on a correct build gets deleted, which is the lesson of
-§52.2. Share is a ratio inside one run, so host speed cancels.
+§52.2. Share is a ratio inside one run, so a *uniform* host slowdown cancels.
 
-**What that cannot catch, stated rather than implied**: a *uniform* slowdown moves no share at all.
-The absolute seconds are recorded in the artifact and printed into the step summary for exactly that
-case, where a human comparing two runs is the instrument. What the gate catches is one stage blowing
-up relative to the others, which is the failure that actually happened here (one call at 86 %).
+**Share cancels host speed only when the stages scale alike, and that was measured on both reports
+rather than assumed.** Same corpus, 16-core laptop against the 4-vCPU runner:
 
-The 10-point band is wide on purpose: `add_junction_nt` scales with cores while the polars stages do
-not, so its share genuinely rises on a smaller host. 10 points absorbs that and still fails a stage
-that goes from 1 % to 30 %.
+* **assemble**: 187.3 s against 443.2 s, 2.37x, and the largest share difference over nine stages is
+  **1.3 points**. Every stage there is slower by about the same factor, so the ratio does cancel.
+* **motifs**: 40.1 s against 211.3 s, 5.27x, and the largest share difference over thirteen stages is
+  **33.8 points** - because the per-stage slowdown ranges from 1.46x (`tcrnet.pwm_and_emit`, polars)
+  to 24.0x (`tcrnet.background`, which streams four backgrounds from HuggingFace on the runner and
+  reads them out of the local cache on a laptop).
+
+So the share comparison runs **only when the run's core count matches the count the baseline was
+recorded on**, which the baseline now carries. Under CI that is an assertion rather than a skip: the
+runner is fixed at 4 vCPU, so a mismatch means the baseline was recorded somewhere else and has to be
+re-recorded, and a gate that skips itself is the failure mode that reads as a pass (§59.2).
+
+**What share cannot catch, stated rather than implied**: a uniform slowdown moves no share at all. The
+absolute seconds are recorded in the artifact and printed into the step summary for exactly that case,
+where a human comparing two runs is the instrument. What the gate catches is one stage blowing up
+relative to the others, which is the failure that actually happened here (one call at 86 %).
+
+**Peak RSS needs none of this.** Measured on the same two hosts: 6,898 MiB on the laptop against
+6,786 MiB on the runner, 1.6 % apart, so it is gated absolutely and on every host.
 """
 from __future__ import annotations
 
@@ -90,8 +104,21 @@ def test_every_stage_in_the_baseline_was_timed(report) -> None:
     assert not missing, f"{name}: not timed by this run: {sorted(missing)}"
 
 
+def _same_host(name: str, timings: pl.DataFrame, baseline: pl.DataFrame) -> None:
+    """Share is comparable within a host class, not across them. See the module docstring."""
+    ran, recorded = int(timings["cores"][0]), int(baseline["cores"][0])
+    if ran == recorded:
+        return
+    assert not os.environ.get("CI"), (
+        f"{name}: the baseline was recorded on {recorded} cores and this CI run has {ran}. Share is "
+        f"not comparable across host classes - re-record the baseline from a CI run.")
+    pytest.skip(f"{name}: baseline recorded on {recorded} cores, this run has {ran}; the share "
+                f"comparison needs one host class. The memory budget still applies.")
+
+
 def test_no_stage_took_a_much_larger_share_than_its_baseline(report) -> None:
     name, timings, baseline, _ = report
+    _same_host(name, timings, baseline)
     j = (baseline.join(timings.select("stage", pl.col("share").alias("now")), on="stage", how="left")
          .with_columns((pl.col("now") - pl.col("share")).alias("delta")))
     over = j.filter(pl.col("delta") > pl.col("tolerance"))
