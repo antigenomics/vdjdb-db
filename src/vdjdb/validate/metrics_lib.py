@@ -1,6 +1,23 @@
-"""Cluster metrics, vendored VERBATIM. Do not edit -- the point is bit-identical semantics.
+"""Cluster metrics, vendored from TCREMP with exactly one deliberate divergence.
 
-Copied unchanged from `2026-vdjdb-update/review/rev2_benchmark/scripts/metrics_lib.py`, which is
+⚠ **The one divergence is the tie-break in :func:`binominal_test`, and it is a correctness fix.**
+Upstream assigns each cluster its majority label by sorting on ``fraction_matched`` alone and keeping
+the first row, so a cluster split evenly between two epitopes takes whichever the incoming row order
+put first -- and it sorts on ``p_value`` first, a constant 0.0 when ``compute_pvalue=False``, so
+pandas' unstable quicksort permutes the frame before the tie is reached. ``precision``, ``recall``,
+``f1`` and ``ami`` are all computed against that label, so all four depend on row order, while
+``purity`` does not because it sums counts a tie leaves alone. Measured on the human TRB cohort with
+the do-nothing partition, changing nothing but the row order: precision 0.9458, 0.9409, 0.9407,
+0.9458. Two CI runs of the same build disagreed at 0.9459 against 0.9407, which is how it was found.
+
+So the original intent below -- "bit-identical semantics" -- **was never achievable**: an order-
+dependent number cannot be reproduced without reproducing the order, and nothing does. The tie-break
+is now explicit (``fraction_matched``, then ``count_matched``, then the label name) and every affected
+value **rose** by 0.0001 to 0.001, because preferring the larger matched count can never pick a
+minority label where a majority exists. Filed upstream as antigenomics/tcremp#8. See the comment at
+the divergence and ``ROADMAP_local.md`` §53.
+
+Everything else is copied unchanged from `2026-vdjdb-update/review/rev2_benchmark/scripts/metrics_lib.py`, which is
 itself a verbatim copy of the TCREMP source. Phase 11's acceptance criterion is a comparison against
 numbers in that benchmark's `results/metrics_full.tsv`, and a comparison is only a comparison if both
 sides are scored the same way.
@@ -13,13 +30,14 @@ not comparable and mixing them silently rescales every number (ROADMAP section 8
 This module is the one place in the package that uses pandas; it is a validation dependency
 (the ``motifs`` extra), never a build dependency.
 """
-# Vendored VERBATIM from the TCREMP source so the benchmark is self-contained and
-# env-independent. Provenance:
+# Vendored from the TCREMP source so the benchmark is self-contained and env-independent, with the
+# single tie-break divergence the module docstring names. Provenance:
 #   binominal_test, count_clstr_purity  <- /Users/mikesh/vcs/code/tcremp/tcremp/ml_utils.py
 #   precision_recall_fscore, get_clustermetrics <- /Users/mikesh/vcs/code/tcremp/tcremp/metrics.py
-# These define purity / retention / consistency / AMI / precision / recall / F1 exactly
-# as used for the TCREMP paper (Kremlyakova et al. 2025, Table 1). Do not "improve" -
-# the point is bit-identical metric semantics across all compared methods.
+# These define purity / retention / consistency / AMI / precision / recall / F1 as used for the
+# TCREMP paper (Kremlyakova et al. 2025, Table 1). Do not "improve" beyond the tie-break already
+# fixed: every compared method has to be scored by the same code, and a second change would make
+# our numbers incomparable with the benchmark for no stated reason.
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -41,13 +59,36 @@ def binominal_test(df, cluster, group, threshold=0.7, compute_pvalue=True):
         binom_df['p_value'] = 0.0  # p_value is stored but not used by get_clustermetrics; skip for speed
     binom_df_cluster = binom_df[
         [group, cluster, 'total_cluster', 'total_group', 'count_matched', 'fraction_matched', 'fraction_matched_exp',
-         'p_value']].drop_duplicates().sort_values('p_value')
+         'p_value']].drop_duplicates()
     binom_df_cluster['is_cluster'] = binom_df_cluster.apply(
         lambda x: 1 if (x.total_cluster > 1) and (x.cluster != -1) else 0, axis=1)
     binom_df_cluster['enriched_clstr'] = binom_df_cluster.apply(lambda x: 1
     if (x.fraction_matched >= threshold)
        and (x.is_cluster == 1) else 0, axis=1)
-    binom_df_cluster = binom_df_cluster.sort_values(['fraction_matched'], ascending=False)
+    # ⚠ DIVERGENCE FROM THE VENDORED ORIGINAL, and the only one: the tie-break is explicit.
+    #
+    # These two lines assign each cluster its majority `group` (the `label_cluster` that
+    # `precision`, `recall`, `f1` and `ami` are all computed against). Upstream sorts on
+    # `fraction_matched` alone and keeps the first row, so **a cluster split evenly between two
+    # epitopes takes whichever one the incoming row order happened to put first** - and the original
+    # also sorted on `p_value` first, which is a constant 0.0 whenever `compute_pvalue=False`, so
+    # pandas' default unstable quicksort permuted the frame before the tie was even reached.
+    #
+    # Measured on the human TRB cohort with the do-nothing partition, shuffling the input rows and
+    # changing nothing else: precision 0.9458, 0.9409, 0.9407, 0.9458 over four orders, with purity
+    # identical at 0.9345 throughout, because purity sums `count_matched` over the kept rows and a
+    # tie leaves those sums alone. Two CI runs of the same build disagreed at 0.9459 against 0.9407
+    # for exactly this reason (ROADMAP_local section 53), which CLAUDE.md hard rule 7 forbids: the
+    # same inputs must give the same bytes on another host at another core count. Filed upstream as
+    # antigenomics/tcremp#8; this divergence goes away when that lands.
+    #
+    # So: highest `fraction_matched`, then the larger `count_matched`, then the `group` name
+    # ascending. Every term is a property of the data, none is a property of the order, and the
+    # third is only ever reached by a cluster tied on both counts, where any choice is arbitrary and
+    # what matters is that it is the *same* arbitrary choice every time. `kind="stable"` so pandas
+    # cannot reintroduce order dependence between equal keys.
+    binom_df_cluster = binom_df_cluster.sort_values(
+        ['fraction_matched', 'count_matched', group], ascending=[False, False, True], kind='stable')
     binom_df_cluster = binom_df_cluster.drop_duplicates('cluster', keep='first')
     return binom_df_cluster
 
