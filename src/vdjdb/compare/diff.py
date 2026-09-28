@@ -169,19 +169,39 @@ class DiffReport:
                       if want >= 0 and self.rule_counts.get(r, 0) != want)
 
     @property
+    def mismatched_row_deltas(self) -> list[str]:
+        """Files whose measured row buckets differ from what ``[[row_delta]]`` declares.
+
+        A named property rather than a branch inside :attr:`ok`, so :func:`render` can say which file
+        and by how much. It could not before, and a run failing on this alone reported a FAIL with no
+        finding anywhere in it - 0 unattributed cells, 0 miscounted rules, no stale rename - because
+        the declared numbers were never printed. A new chunk is the common cause: its rows are rows
+        the reference cannot contain, so all three totals move at once.
+        """
+        return sorted(f.name for f in self.files if self._delta_of(f) != self._measured_of(f))
+
+    def _delta_of(self, f: FileReport) -> tuple[int, int]:
+        d = self.row_deltas.get(f.name)
+        return (d.removed, d.added) if d else (0, 0)
+
+    @staticmethod
+    def _measured_of(f: FileReport) -> tuple[int, int]:
+        return (f.only_in_reference, f.only_in_candidate)
+
+    @property
+    def uncompared(self) -> list[str]:
+        """Files judged on their canonical digest alone, and failing it.
+
+        A row-level comparison not running is not itself a failure - a file with no identity key is
+        compared by digest - but a digest that also differs leaves nothing said about the file, which
+        is the one case where the comparison has no answer rather than a bad one.
+        """
+        return sorted(f.name for f in self.files if not f.compared_rows and not f.canonical_equal)
+
+    @property
     def ok(self) -> bool:
-        if (self.missing or self.added or self.unattributed or self.miscounted_rules
-                or self.stale_renames):
-            return False
-        for f in self.files:
-            d = self.row_deltas.get(f.name)
-            want = (d.removed, d.added) if d else (0, 0)
-            if (f.only_in_reference, f.only_in_candidate) != want:
-                return False
-            # A file we could not compare row by row is judged on its canonical digest alone.
-            if not f.compared_rows and not f.canonical_equal:
-                return False
-        return True
+        return not (self.missing or self.added or self.unattributed or self.miscounted_rules
+                    or self.stale_renames or self.mismatched_row_deltas or self.uncompared)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -761,6 +781,31 @@ def render(report: DiffReport) -> str:
             got = report.rule_counts.get(rid, 0)
             flag = "" if want < 0 or want == got else "  **MISCOUNT**"
             out.append(f"| `{rid}` | {'--' if want < 0 else want} | {got}{flag} |")
+
+    if report.row_deltas or report.mismatched_row_deltas:
+        out += ["", "## Declared row buckets", "",
+                "A row whose identity changed leaves the reference bucket and arrives in the candidate",
+                "one, so these two counts are declared per file the way a rule's count is.", "",
+                "| File | Declared only ref | Measured | Declared only cand | Measured |",
+                "|---|---|---|---|---|"]
+        for f in sorted(report.files, key=lambda f: f.name):
+            want_ref, want_cand = report._delta_of(f)
+            if not (report.row_deltas.get(f.name) or f.only_in_reference or f.only_in_candidate):
+                continue
+            flag = lambda w, g: f"{g}" if w == g else f"**{g}**"   # noqa: E731
+            out.append(f"| `{f.name}` | {want_ref} | {flag(want_ref, f.only_in_reference)} | "
+                       f"{want_cand} | {flag(want_cand, f.only_in_candidate)} |")
+        if report.mismatched_row_deltas:
+            out += ["", "**MISMATCH** in bold above: "
+                    + ", ".join(f"`{n}`" for n in report.mismatched_row_deltas)
+                    + ". Re-measure and update the `[[row_delta]]` block in "
+                      "`rules/expected_diffs.toml`, extending its `note` with the reason - a landing "
+                      "chunk names the chunk and its record count."]
+
+    if report.uncompared:
+        out += ["", "**Compared by digest only, and the digest differs:** "
+                + ", ".join(f"`{n}`" for n in report.uncompared)
+                + ". No row-level statement was made about these files."]
 
     if report.unattributed:
         by_col = Counter((c.file, c.column) for c in report.unattributed)

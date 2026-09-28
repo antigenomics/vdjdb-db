@@ -34,6 +34,14 @@ attributes every changed cell to a declared rule in `rules/expected_diffs.toml`.
 Any cell difference not matched by a rule fails, and so does a rule that fires a different number of
 times than declared. Every rule therefore declares a measured row count rather than a description.
 
+A correction to an identity column has no cell to attribute: the row leaves the reference bucket and a
+different row arrives in the candidate one. Those two counts are declared per file in a `[[row_delta]]`
+block, with a `note` giving every reason they are what they are, and the run fails if either moves. **A
+new chunk moves all of them**, because its records are rows the reference cannot contain, so landing one
+means re-measuring the three declarations and extending each note with the chunk and its record count -
+the entry for `PMID_18025130` is the worked example. `vdjdb diff --report` prints declared against
+measured per file and flags which one moved.
+
 Canonical equality is the gate; raw equality is informational. The legacy pipeline iterated
 `os.listdir("../chunks")`, which is readdir order and therefore filesystem- and host-dependent, so
 the 2026-06-03 release cannot be reproduced byte-for-byte on another machine, including by the
