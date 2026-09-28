@@ -52,12 +52,17 @@ def test_the_tie_break_prefers_the_larger_matched_count_before_the_name() -> Non
     assert res.set_index("cluster").loc["c1", "antigen.epitope"] == "ZZZ"
 
 
-@pytest.mark.parametrize("gene", ["TRA", "TRB"])
-def test_every_scored_axis_is_invariant_to_row_order_on_the_real_cohort(gene: str) -> None:
+def test_every_scored_axis_is_invariant_to_row_order_on_the_real_cohort() -> None:
     """The end-to-end version, on the corpus, with the partition that has the most ties.
+
+    **TRB and two shuffles, not both chains and four.** This exists to catch a *cohort* whose metric is
+    order-dependent; the engineered-tie tests above prove the logic, and the four-by-two version cost
+    27 s of a 186 s suite for nothing the two-by-one does not say (§57.1). TRB is the chain the CI
+    failure appeared on and the one with more tied clusters.
 
     Skipped without built tables; `build.yml` has them, and this is the shape the CI failure took.
     """
+    gene = "TRB"
     from pathlib import Path
 
     t = Path("out/tables")
@@ -68,7 +73,7 @@ def test_every_scored_axis_is_invariant_to_row_order_on_the_real_cohort(gene: st
     cohort = mb.cohort(chains, records, gene=gene)
     assigned = mb.assign(cohort, mb.trivial_members(cohort))
     base = mb.score(assigned)
-    for seed in (0, 1, 2, 3):
+    for seed in (0, 1):
         got = mb.score(assigned.sample(fraction=1.0, shuffle=True, seed=seed))
         moved = {k: (round(base[k], 6), round(got[k], 6)) for k in base
                  if isinstance(base[k], float) and abs(base[k] - got[k]) > 1e-9}

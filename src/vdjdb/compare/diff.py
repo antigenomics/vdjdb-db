@@ -143,6 +143,10 @@ class DiffReport:
     rule_expected: dict[str, int] = field(default_factory=dict)
     row_deltas: dict[str, RowDelta] = field(default_factory=dict)
     rename_declared: list[str] = field(default_factory=list)
+    #: True when this report was loaded from a summary rather than computed, in which case every
+    #: ``FileReport.cells`` is empty because the cells were not serialised. Anything that needs the
+    #: per-cell detail must assert this is False rather than read an empty tuple as "no changes".
+    cells_omitted: bool = False
 
     @property
     def rename_counts(self) -> dict[str, int]:
@@ -637,6 +641,43 @@ def load_rules(path: Path) -> list[Rule]:
 # ---------------------------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------------------------
+
+def summary_json(report: DiffReport) -> str:
+    """The report without its per-cell detail, as JSON. Small enough to be an artifact.
+
+    **The cells are deliberately left out.** ``dataclasses.asdict`` on a real report is **211 MB**,
+    because the declared differences are 485,130 changed cells across five files, and serialising then
+    parsing that costs more than recomputing the comparison. Every scalar the gate and the release
+    tests read is here; ``unattributed`` is kept in full because it is the failure evidence and is
+    empty on a PASS by construction.
+
+    ``cells_omitted`` is set on load so nothing can read an empty ``cells`` tuple as "no changes"
+    (``ROADMAP_local.md`` section 57.3).
+    """
+    import dataclasses
+    import json
+
+    d = dataclasses.asdict(report)
+    for f in d["files"]:
+        f["cells"] = []
+    d["cells_omitted"] = True
+    return json.dumps(d, indent=1, sort_keys=True)
+
+
+def summary_from_json(text: str) -> DiffReport:
+    """Rebuild a :class:`DiffReport` from :func:`summary_json`. ``cells`` is empty by construction."""
+    import json
+
+    d = json.loads(text)
+    return DiffReport(
+        missing=d["missing"], added=d["added"],
+        files=[FileReport(**{**f, "cells": (), "renames": f.get("renames", {})})
+               for f in d["files"]],
+        unattributed=[CellDiff(**c) for c in d["unattributed"]],
+        rule_counts=d["rule_counts"], rule_expected=d["rule_expected"],
+        row_deltas={k: RowDelta(**v) for k, v in d["row_deltas"].items()},
+        rename_declared=d["rename_declared"], cells_omitted=True)
+
 
 def diff(reference: Path, candidate: Path, rules_path: Path | None = None,
          only: Iterable[str] | None = None) -> DiffReport:
