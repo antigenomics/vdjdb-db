@@ -24,6 +24,7 @@ that is stated rather than papered over.
 """
 from __future__ import annotations
 
+import os
 import resource
 import sys
 import time
@@ -67,6 +68,19 @@ def stage(name: str):
         _STAGES.append((name, time.perf_counter() - start, peak_rss_mb()))
 
 
+def cores_available() -> int:
+    """CPUs this process may actually use.
+
+    ``os.cpu_count()`` reports the machine, not the allocation, so under a SLURM ``-c 4`` cpuset or a
+    container quota it says 40 where four are usable - and the share baseline is keyed on this number
+    (``tests/release/test_build_timings.py``), so an overstated count makes the gate refuse to compare
+    on a host that is in fact the same class as the runner. ``sched_getaffinity`` is Linux-only;
+    macOS has no cpuset to misreport.
+    """
+    getaffinity = getattr(os, "sched_getaffinity", None)
+    return len(getaffinity(0)) if getaffinity else (os.cpu_count() or -1)
+
+
 def frame(*, rows: int | None = None, cores: int | None = None) -> pl.DataFrame:
     """The timings as a table: one row per stage, with its share of the recorded total.
 
@@ -74,8 +88,6 @@ def frame(*, rows: int | None = None, cores: int | None = None) -> pl.DataFrame:
     ``rows`` and ``cores`` are carried because a wall time without the input size and the core count
     is not a measurement (``CLAUDE.md``).
     """
-    import os
-
     total = sum(s for _, s, _ in _STAGES) or 1.0
     return pl.DataFrame({
         "stage": [n for n, _, _ in _STAGES],
@@ -83,7 +95,7 @@ def frame(*, rows: int | None = None, cores: int | None = None) -> pl.DataFrame:
         "share": [round(s / total, 5) for _, s, _ in _STAGES],
         "peak_rss_mb": [round(m, 1) for _, _, m in _STAGES],
         "rows": [rows if rows is not None else -1] * len(_STAGES),
-        "cores": [cores if cores is not None else (os.cpu_count() or -1)] * len(_STAGES),
+        "cores": [cores if cores is not None else cores_available()] * len(_STAGES),
     })
 
 

@@ -245,10 +245,19 @@ def enriched_clonotypes(chains: pl.DataFrame, records: pl.DataFrame, *,
     One background index is loaded per ``(species, gene)`` and reused across that chain's epitopes;
     loading it per epitope would re-index a million clonotypes a few hundred times.
     """
+    from ..timing import stage
+
     df = _samples(chains, records)
     out: list[pl.DataFrame] = []
     for (species, gene), chain in df.group_by(["species", "gene"], maintain_order=True):
-        control = control_for(species, gene, control_size, control_seed)
+        # Timed apart from the enrichment it feeds, because it is a network fetch and the enrichment
+        # is a computation. Measured 2026-09-28 on the same corpus: `motifs.tcrnet.enrichment` took
+        # 3.81 s on a 16-core laptop and 91.59 s on a 4-vCPU runner, 24.0x, where every other stage
+        # in the report was between 1.46x and 9.08x. The laptop has the backgrounds in the
+        # `huggingface_hub` cache and the runner streams all four every build, so one row of the
+        # profile was reporting a download and a computation as one number.
+        with stage(f"motifs.tcrnet.background.{species}.{gene}"):
+            control = control_for(species, gene, control_size, control_seed)
         if control is None:
             continue
         # Per-chain scope and threshold: the two chains do not have the same optimum, and pinning

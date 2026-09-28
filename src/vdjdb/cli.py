@@ -232,14 +232,21 @@ def convert(
 
 @app.command()
 def motifs(
-    out: Path = typer.Option(Path("out"), help="Where to write the motif files."),
+    # `out/motifs`, not `out`: that is where `release/manifest.py`, `vdjdb motif-metrics` and
+    # `tests/release/test_motif_reproduction.py` all read the motif files from, so the default used
+    # to put them somewhere no consumer looked unless `--out` was passed.
+    out: Path = typer.Option(Path("out/motifs"), help="Where to write the motif files."),
+    reports: Path = typer.Option(Path("out/reports"),
+                                 help="Where the two diagnostics go: the per-epitope breakdown and "
+                                      "the stage timings. One reports directory for the whole "
+                                      "build, per docs/outputs.md."),
     tables: Path = typer.Option(Path("out/tables"), help="The definitive tables to infer from."),
     p: float = typer.Option(None, help="Enrichment p threshold (default: per-chain tcrnet.TUNED)."),
     methods: str = typer.Option("tcrnet,tcremp", help="Which methods to run."),
 ) -> None:
     """Infer TCRNET and TCREMP motifs: cluster_members*.txt and motif_pwms*.txt."""
     from .motifs import run
-    written = run(tables, out, p=p,
+    written = run(tables, out, reports, p=p,
                   methods=tuple(m.strip() for m in methods.split(",")))
     for name, rows in written.items():
         typer.echo(f"{name:24} {rows:>9,} rows")
@@ -461,12 +468,15 @@ def diff(
     rules: Path = typer.Option(Path("rules/expected_diffs.toml"),
                                help="Declared expected differences."),
     report: Path | None = typer.Option(None, help="Write the comparison report here as Markdown."),
+    json_out: Path | None = typer.Option(
+        None, "--json", help="Also write the report as JSON, without the per-cell detail, so the "
+                             "release tests can read it instead of running this again."),
     only: str | None = typer.Option(None, help="Comma-separated members to compare; "
                                                "for deliberately partial candidates."),
 ) -> None:
     """Compare a candidate build against a released bundle and attribute every difference."""
     from .compare.diff import diff as run_diff
-    from .compare.diff import render
+    from .compare.diff import render, summary_json
 
     result = run_diff(reference, candidate, rules if rules.exists() else None,
                       only=[s.strip() for s in only.split(",")] if only else None)
@@ -474,6 +484,9 @@ def diff(
     if report:
         report.parent.mkdir(parents=True, exist_ok=True)
         report.write_text(text)
+    if json_out:
+        json_out.parent.mkdir(parents=True, exist_ok=True)
+        json_out.write_text(summary_json(result) + "\n")
     typer.echo(text, nl=False)
     raise typer.Exit(0 if result.ok else 1)
 
