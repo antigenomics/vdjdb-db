@@ -124,7 +124,11 @@ jobs:
       # records - and stops before the annotation stages, which cost ten times as much and change
       # nothing a curator is deciding. `continue-on-error`: a report is not a gate, and `vdjdb qc`
       # above is what fails the job.
+      # Pull requests only. On a push `changed.txt` is `git ls-files chunks/` - all 231 files - so the
+      # report would treat the whole corpus as the submission, leaving nothing to compare it against
+      # and calling every value in VDJdb new. The comment is posted on pull requests anyway.
       - name: What the chunk contributes
+        if: github.event_name == 'pull_request'
         continue-on-error: true
         run: |
           if [ -s changed.txt ]; then
