@@ -62,6 +62,23 @@ jobs:
       # `master` with 629 tests never executed anywhere -- which is how this gap was found. 8 s
       # locally, well inside the 3-minute budget, and it subsumes the guard step below (kept
       # separate so a failure names the proprietary-data guard rather than a test id).
+      # pandoc, because five tests in `test_summary.py` are `skipif(shutil.which("pandoc") is None)`
+      # and this job installed none, so they skipped on every pull request and ran on every laptop.
+      # Pinned to the version `build.yml` pins: the extractor asserts on pandoc-shaped output, so a
+      # different version is a different assertion.
+      - uses: r-lib/actions/setup-pandoc@v2
+        with:
+          pandoc-version: '3.10'
+
+      # Whole-corpus QC, before the unit tests rather than after: `test_qc_advisories.py` reads
+      # `out/reports/qc-summary.tsv` and skips when it is absent, and this job produced it late, at
+      # the repository root, and only for the changed chunks. So the four advisory gates skipped on
+      # every pull request while their own docstring said this is the tier that runs them. 1.0 s
+      # over all 230 chunks; `--no-strict` because the strict verdict belongs to the Chunk QC step
+      # below, which reports it per chunk.
+      - name: QC counts for the advisory gates
+        run: uv run vdjdb qc --no-strict --report out/reports/qc.tsv
+
       - name: Unit tests
         run: uv run pytest tests/unit -q
 

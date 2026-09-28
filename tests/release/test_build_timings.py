@@ -48,6 +48,21 @@ import pytest
 
 pytestmark = pytest.mark.release
 
+#: Stages that are a network fetch rather than a computation. They are timed and recorded - the
+#: runner spends 55.6 s and 73.0 s of the motif stage acquiring four backgrounds over two measured
+#: runs - but they are **excluded from the share comparison, denominator included**, because their
+#: duration is GitHub's network and not this repository's code.
+#:
+#: Without that, the gate is one slow download from red. Measured against the committed baseline,
+#: where the fetch is 0.26803 of the recorded total: if the fetch were free, `tcrnet.enrichment`
+#: renormalises 0.29646 -> 0.40502, delta +0.10856; if it took twice as long,
+#: `background.HomoSapiens.TRB` goes 0.20905 -> 0.32972, delta +0.12067. Both exceed the 0.1 band
+#: while nothing about the code changed, and the fetch already varied 55.6 s -> 73.0 s (1.31x)
+#: between two runs of one commit.
+#:
+#: Compared compute-only, the same two runs differ by at most **0.05290** and the fetch moves nothing.
+NETWORK_STAGES = ("motifs.tcrnet.background.",)
+
 #: report -> (committed share baseline, peak-RSS budget in MiB). Both stages are covered, because
 #: the pipeline's real memory peak is not in the one that was measured first.
 REPORTS = {
@@ -119,9 +134,22 @@ def _same_host(name: str, timings: pl.DataFrame, baseline: pl.DataFrame) -> None
                 f"comparison needs one host class. The memory budget still applies.")
 
 
+def _compute_only(df: pl.DataFrame) -> pl.DataFrame:
+    """Drop the network stages and renormalise ``share`` over what is left. See NETWORK_STAGES.
+
+    Both sides of the comparison go through this, so the committed baseline keeps the shares as they
+    were measured and the fetch is excluded from the denominator on the run as well.
+    """
+    d = df.filter(~pl.col("stage").str.starts_with(NETWORK_STAGES[0]))
+    for prefix in NETWORK_STAGES[1:]:
+        d = d.filter(~pl.col("stage").str.starts_with(prefix))
+    return d.with_columns(pl.col("share") / pl.col("share").sum())
+
+
 def test_no_stage_took_a_much_larger_share_than_its_baseline(report) -> None:
     name, timings, baseline, _ = report
     _same_host(name, timings, baseline)
+    timings, baseline = _compute_only(timings), _compute_only(baseline)
     j = (baseline.join(timings.select("stage", pl.col("share").alias("now")), on="stage", how="left")
          .with_columns((pl.col("now") - pl.col("share")).alias("delta")))
     over = j.filter(pl.col("delta") > pl.col("tolerance"))
