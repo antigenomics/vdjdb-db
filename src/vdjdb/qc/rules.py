@@ -7,9 +7,12 @@ every rule is one polars expression over the full frame.
 Two behaviours are carried over deliberately:
 
 * **``is_MHC_valid`` passes anything not starting with ``HLA``.** The regex only constrains HLA
-  spellings; murine ``H2-Kb`` and friends are accepted unchecked. That is why the murine MHC-II
-  fragmentation (``I-Ab`` 3,274 vs ``H2-IAb`` 113 vs ``H2-Ab1`` 9) never tripped QC. Phase 9's
-  nomenclature rules are where that gets fixed; changing it here would fail 230 chunks at once.
+  spellings; murine ``H2-Kb`` and friends pass without one. That is why the murine MHC-II
+  fragmentation (``I-Ab`` 3,274 vs ``H2-IAb`` 113 vs ``H2-Ab1`` 9) never tripped QC. It stays that way
+  on purpose: QC reads raw chunks, and the murine and serological corrections are declared in
+  ``patches/mhc.dict`` rather than edited into chunks, so a rule here would fail on the very values
+  the patch exists to fix. The gate is :func:`vdjdb.assemble.epitopes.assert_mhc_resolves`, which runs
+  on the harmonised values instead and fails the build on a name neither authority carries.
 * **A failing chunk must exit non-zero.** The Groovy build did; the Python port replaced it with
   ``warnings.warn`` and carried on. Measured, 230 of 230 chunks pass today, so restoring the
   non-zero exit needs no quarantine list.

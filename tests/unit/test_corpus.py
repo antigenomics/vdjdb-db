@@ -78,8 +78,9 @@ def test_the_dictionary_covers_both_chains_and_carries_the_imgt_verdict() -> Non
     d = mhc.dictionary(RESTRICTION)
     assert set(d["chain"]) == {"a", "b"}
     assert d.filter(pl.col("mhc") == "HLA-A*02:01")["status"][0] == "known"
-    # Murine and the light chain are outside the HLA database, so `unchecked` rather than `unknown`.
-    assert set(d.filter(pl.col("mhc").is_in(["H2-Db", "B2M"]))["status"]) == {"unchecked"}
+    # Murine and the light chain are checked against proofreading/mhc_nonhuman.tsv, not the HLA
+    # database, so `declared` rather than `unknown`.
+    assert set(d.filter(pl.col("mhc").is_in(["H2-Db", "B2M"]))["status"]) == {"declared"}
     assert mhc.unrecognised(d).is_empty()
 
 
