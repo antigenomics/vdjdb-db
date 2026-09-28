@@ -171,7 +171,8 @@ def _sha256(s: str) -> str:
 
 
 def build_master(paths: Iterable[Path] | None = None,
-                 registry: Path | None = None, *, engine: str = "arda") -> pl.DataFrame:
+                 registry: Path | None = None, *, engine: str = "arda",
+                 write_registry: Path | None = None, release: str = "dev") -> pl.DataFrame:
     """The master table: one row per curated record, fixed, scored, hashed and identified.
 
     Wide (paired alpha/beta columns) because that is the shape the chunks are written in. It is an
@@ -199,7 +200,7 @@ def build_master(paths: Iterable[Path] | None = None,
     # Identity is assigned on what the publications reported, before any repair. Afterwards, CDR3
     # fixing would have merged 215 pairs of records the publications reported separately -- two
     # trimmed sequences repaired to the same full one are still two observations.
-    df = add_record_ids(df, registry)
+    df = add_record_ids(df, registry, write=write_registry, release=release)
     df = fix_cdr3(df, engine)
     df = add_score(df)
     return add_tcr_hash(df)
@@ -211,7 +212,8 @@ def build_master(paths: Iterable[Path] | None = None,
 REGISTRY = Path("registry") / "records.tsv"
 
 
-def add_record_ids(df: pl.DataFrame, registry: Path | None = None) -> pl.DataFrame:
+def add_record_ids(df: pl.DataFrame, registry: Path | None = None, *,
+                   write: Path | None = None, release: str = "dev") -> pl.DataFrame:
     """Attach a stable ``record_id`` to every row, reconciled against the committed registry.
 
     An id survives a content change -- a curator fixing a typo amends a record rather than deleting
@@ -224,6 +226,13 @@ def add_record_ids(df: pl.DataFrame, registry: Path | None = None) -> pl.DataFra
     allocated before it. That is the state of the repository today (`vdjdb-db#638`), so the warning is
     the normal path rather than an edge case - and it is a warning rather than a failure because a
     fork, a first build and a corpus replayed at an old tag all legitimately have no registry.
+
+    ``write`` rewrites the registry from **this** reconcile, which is the only place it can be written
+    from. :data:`~vdjdb.identity.ids.NATURAL_KEY` carries ``cdr3.alpha`` and ``cdr3.beta``, and this
+    function deliberately runs before :func:`fix_cdr3`, so a registry built from ``build_master``'s
+    return value is keyed on repaired sequences this function never sees. Then nothing matches pass 1
+    and the amendment pass compares each of 192,793 rows against a bucket of leftovers: measured,
+    minutes against three seconds. Reached through ``vdjdb identity update``.
     """
     import warnings
 
@@ -237,7 +246,10 @@ def add_record_ids(df: pl.DataFrame, registry: Path | None = None) -> pl.DataFra
             "database (vdjdb-db#638), and identity diff will read it as every record retired and "
             "re-added.", UserWarning, stacklevel=2)
     reg = IdentityRegistry.load(path)
-    identified, _, _ = reconcile(df, reg, release="dev")
+    identified, updated, _ = reconcile(df, reg, release=release)
+    if write is not None:
+        write.parent.mkdir(parents=True, exist_ok=True)
+        updated.save(write)
     return identified
 
 

@@ -628,6 +628,41 @@ def identity_check(
     raise typer.Exit(1)
 
 
+@identity_app.command("update")
+def identity_update(
+    chunks: Path | None = typer.Option(None, help="Chunk directory; default chunks/."),
+    registry: Path | None = typer.Option(None, help="Registry TSV; default registry/records.tsv."),
+    release: str = typer.Option("unreleased", help="Release recorded on records seen for the "
+                                                   "first time. Leave as `unreleased` on a chunk "
+                                                   "branch; the release job sets the tag."),
+    engine: str = typer.Option("arda", help="CDR3 markup engine: arda or legacy."),
+) -> None:
+    """Reconcile the corpus against the committed registry and rewrite it.
+
+    **This is the command a chunk branch runs.** Without it the registry goes stale the moment a chunk
+    lands, and a stale registry is worse than none: it retires every record of the chunk it has not
+    seen. `vdjdb build` only reads the registry, so nothing else writes this file.
+
+    The diff is the review. A landing chunk adds its records and touches nothing else, which is what
+    makes 93 MB of TSV affordable to commit - measured, one commit of it is 7.0 MB on disk and a
+    later amendment is kilobytes, because git deltifies a sorted table.
+    """
+    from .assemble.master import REGISTRY, build_master
+    from .config import Paths as _P
+    from .identity.ids import IdentityRegistry
+    from .io.chunks import chunk_files
+
+    path = registry or (_P.discover().root / REGISTRY)
+    known = len(IdentityRegistry.load(path).active())
+    # `write_registry` rather than a second `reconcile` here: the registry can only be written from
+    # the reconcile inside the build, because that one runs before `fix_cdr3` and the natural key
+    # carries the CDR3. Reconciling the build's *output* keys every record on its repaired sequence.
+    build_master(chunk_files(chunks) if chunks else None, engine=engine, write_registry=path,
+                 release=release)
+    after = IdentityRegistry.load(path)
+    typer.echo(f"{path}: {known:,} active before -> {len(after.active()):,} after")
+
+
 @identity_app.command("resolve")
 def identity_resolve(
     identifier: str = typer.Argument(..., help="An id, e.g. CT3efa364e7f84aac9."),
