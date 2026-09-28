@@ -755,7 +755,49 @@ records = 80
 
 [[rename]]
 columns = "mhc.a"
+from = "HLA-A*24:03"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:04"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:05"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:06"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:07"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:08"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
 from = "HLA-A*24:09"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:10"
 to = "HLA-A*24:02"
 records = 2
 
@@ -773,7 +815,49 @@ records = 2
 
 [[rename]]
 columns = "mhc.a"
+from = "HLA-A*24:13"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:14"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:15"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
 from = "HLA-A*24:16"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:17"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:18"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:19"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:20"
 to = "HLA-A*24:02"
 records = 2
 
