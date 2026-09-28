@@ -232,6 +232,86 @@ def motifs(
         typer.echo(f"{name:24} {rows:>9,} rows")
 
 
+@app.command(name="motif-metrics")
+def motif_metrics(
+    tables: Path = typer.Option(Path("out/tables"), help="The tables the cohort is read from."),
+    motifs: Path = typer.Option(Path("out/motifs"), help="This build's motif files."),
+    legacy: Path = typer.Option(..., help="The last legacy release: a zip or extracted directory."),
+    latest: Path | None = typer.Option(
+        None, help="The latest release. Defaults to --legacy, which is the truth until a release "
+                   "ships after 2026-06-03."),
+    out: Path = typer.Option(Path("out/reports"), help="Where the report is written."),
+    baseline: Path = typer.Option(Path("rules/motif_metrics.tsv"),
+                                  help="Committed baseline to gate against."),
+    record: bool = typer.Option(
+        False, help="Overwrite the baseline with this run instead of gating against it. For a "
+                    "reviewed commit that explains the move -- never for a build."),
+) -> None:
+    """Score the motif clustering of three sources on this build's cohort, and gate both ways.
+
+    The three are always the same: the last legacy release, the latest release, and this build. A
+    fourth row is the partition that clusters nothing, because a bar it passes is not a bar.
+
+    Exits 1 on an undeclared regression, naming the axis, both values and the delta.
+    """
+    import polars as pl
+
+    from .compare.diff import Bundle
+    from .validate import motif_bench as mb
+    from .validate import motif_metrics as mmv
+
+    chains = pl.read_parquet(tables / "chains.parquet")
+    records = pl.read_parquet(tables / "records.parquet")
+
+    def released(path: Path) -> pl.DataFrame:
+        b = Bundle(path)
+        dest = out / f"_{path.name}.cluster_members.txt"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(b.read_bytes("cluster_members.txt"))
+        return mb.read_members(dest)
+
+    cur = {m: mb.read_members(motifs / f"cluster_members{suffix}.txt")
+           for m, suffix in (("tcrnet", ""), ("tcremp", "_tcremp"))
+           if (motifs / f"cluster_members{suffix}.txt").exists()}
+    if not cur:
+        typer.secho(f"no motif files in {motifs}; run `vdjdb motifs --out {motifs}`",
+                    fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
+
+    measured = mmv.measure(chains, records,
+                           mmv.sources(released(legacy), released(latest or legacy), cur))
+    out.mkdir(parents=True, exist_ok=True)
+    measured.write_csv(out / "motif-metrics.tsv", separator="\t")
+    base = mmv.load_baseline(baseline)
+    (out / "motif-metrics.md").write_text(mmv.report(measured, base) + "\n")
+    typer.echo(f"{out / 'motif-metrics.tsv'}  {measured.height} rows")
+
+    if record:
+        baseline.parent.mkdir(parents=True, exist_ok=True)
+        # Carry the declared reasons forward: re-recording must not silently undeclare a trade that
+        # is still being made, which would turn the next run's pass into an unexplained pass.
+        keep = base.select(*mmv.KEY, "reason") if "reason" in base.columns else None
+        rec = (measured.join(keep, on=list(mmv.KEY), how="left") if keep is not None
+               else measured.with_columns(pl.lit(None, dtype=pl.Utf8).alias("reason")))
+        rec.select(*mmv.COLUMNS).write_csv(baseline, separator="\t")
+        typer.secho(f"baseline rewritten: {baseline}. Say why in the commit message.",
+                    fg=typer.colors.YELLOW)
+        return
+
+    bad = mmv.regressions_against_latest(measured, base)
+    drift = mmv.regressions_against_baseline(measured, base)
+    for title, frame in (("worse than the latest release", bad),
+                         ("drifted from the committed baseline", drift)):
+        if frame.height:
+            typer.secho(f"\n{frame.height} gated axes {title}:", fg=typer.colors.RED, err=True)
+            typer.echo(frame, err=True)
+    if bad.height or drift.height:
+        typer.secho("\nA drift that a corpus change explains is accepted by moving "
+                    f"{baseline} in a commit that says why (--record).", err=True)
+        raise typer.Exit(1)
+    typer.secho("no gated axis regressed", fg=typer.colors.GREEN)
+
+
 @app.command()
 def summary(
     legacy: Path = typer.Option(Path("out/legacy"), help="Legacy projection this build produced."),
