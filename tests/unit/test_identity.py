@@ -270,3 +270,68 @@ def test_an_existing_registry_does_not_warn(tmp_path) -> None:
         warnings.simplefilter("always")
         add_record_ids(df, registry=registry)
     assert not [w for w in caught if "id-stable" in str(w.message)]
+
+
+# ---------------------------------------------------------------------------------------------
+# A registry a build wrote has to be a registry a build can read
+# ---------------------------------------------------------------------------------------------
+
+def _frame(**over):
+    import polars as pl
+
+    from vdjdb.schema import ALL_COLUMNS
+
+    base = {c: [""] for c in ALL_COLUMNS}
+    base.update({k: [v] for k, v in over.items()})
+    return pl.DataFrame({**base, "chunk.file": ["a.txt"], "chunk.row": [1]})
+
+
+def test_a_registry_written_by_a_build_is_matched_by_the_next_build(tmp_path) -> None:
+    """The round trip. Writing it from anywhere else in the pipeline silently breaks every key.
+
+    `NATURAL_KEY` carries `cdr3.alpha` and `cdr3.beta`; `add_record_ids` runs before `fix_cdr3` so a
+    repair does not mint a new id. A registry seeded from `build_master`'s *return* value is therefore
+    keyed on repaired sequences, nothing matches pass 1, and the amendment pass compares every row
+    against a bucket of leftovers - measured at minutes against three seconds on the real corpus.
+    """
+    from vdjdb.assemble.master import add_record_ids
+
+    path = tmp_path / "records.tsv"
+    df = _frame(**{"cdr3.beta": "CASSLAPGATNEKLFF", "antigen.epitope": "GILGFVFTL"})
+    first = add_record_ids(df, registry=path, write=path)
+    assert path.exists()
+    again = add_record_ids(df, registry=path)
+    assert again["record_id"].to_list() == first["record_id"].to_list()
+
+
+def test_a_registry_keyed_on_repaired_sequences_records_an_amendment_nobody_made(tmp_path) -> None:
+    """Why the write has to happen inside the build, stated as the observable consequence.
+
+    The amendment pass does recover the id - a one-field change in the same chunk and reference is an
+    amendment by design - so a registry seeded from the post-repair frame does not corrupt ids. What it
+    does is route every record through that pass, which costs minutes instead of seconds on the real
+    corpus and records an amendment for a record no curator touched.
+    """
+    from vdjdb.assemble.master import add_record_ids
+    from vdjdb.identity.ids import IdentityRegistry
+
+    path = tmp_path / "records.tsv"
+    raw = _frame(**{"cdr3.beta": "ASSLAPGATNEKLF"})           # as submitted, anchors trimmed
+    repaired = _frame(**{"cdr3.beta": "CASSLAPGATNEKLFF"})    # what fix_cdr3 would produce
+    add_record_ids(repaired, registry=path, write=path)       # seeded from the wrong frame
+    kept = add_record_ids(raw, registry=path, write=path)     # what the next build actually passes
+    entry = next(iter(IdentityRegistry.load(path)._by_key.values()))
+    assert kept["record_id"][0] == entry.record_id            # the id survives, via the amendment pass
+    assert entry.amendment_count == 1                         # and an amendment is recorded regardless
+
+
+def test_a_correctly_seeded_registry_records_no_amendment(tmp_path) -> None:
+    """The control for the test above: same two calls, same frame both times."""
+    from vdjdb.assemble.master import add_record_ids
+    from vdjdb.identity.ids import IdentityRegistry
+
+    path = tmp_path / "records.tsv"
+    raw = _frame(**{"cdr3.beta": "ASSLAPGATNEKLF"})
+    add_record_ids(raw, registry=path, write=path)
+    add_record_ids(raw, registry=path, write=path)
+    assert next(iter(IdentityRegistry.load(path)._by_key.values())).amendment_count == 0
