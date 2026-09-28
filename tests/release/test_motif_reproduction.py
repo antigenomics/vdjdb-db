@@ -29,6 +29,7 @@ import pytest
 
 from vdjdb.compare.diff import Bundle
 from vdjdb.validate import motif_bench as mb
+from vdjdb.validate import motif_metrics as mmv
 
 pytestmark = pytest.mark.release
 
@@ -40,12 +41,13 @@ RELEASE_MEMBER_ROWS = 55_636
 RELEASE_MEMBER_CIDS = 1_928
 RELEASE_PWM_CIDS = 1_791
 
-#: The bar `docs/clustering.md` sections 4.1 and 4.2 publish for the released clustering, measured
-#: through this harness on 2026-09-27: TRA purity 0.8658 / precision 0.8567, TRB 0.9790 / 0.9756.
-#: Asserted to two decimals because the cohort is the current corpus and grows with every chunk,
-#: while a point of purity is a real change in the instrument.
-LEGACY_BAR = {"TRA": {"purity": 0.8658, "precision": 0.8567},
-              "TRB": {"purity": 0.9790, "precision": 0.9756}}
+#: The bar `docs/clustering.md` sections 4.1 and 4.2 publish for the released clustering. Asserted to
+#: two decimals only: the exact current values live in `rules/motif_metrics.tsv`, which the build
+#: gates against per axis, and duplicating them here is how the pair went stale -- these read 0.8658
+#: and 0.8567 on TRA until the 2026-09-28 chunk merges moved them to 0.8641 and 0.8548, and the
+#: `abs=0.01` tolerance meant nothing noticed.
+PUBLISHED_BAR = {"TRA": {"purity": 0.8658, "precision": 0.8567},
+                 "TRB": {"purity": 0.9790, "precision": 0.9756}}
 
 #: Fraction of the clonotypes the released TCRNET clustered that ours clusters too. Measured
 #: 2026-09-27: TRA 12,177 of 13,327 (0.914), TRB 35,867 of 36,416 (0.985). The floor is what a
@@ -53,13 +55,11 @@ LEGACY_BAR = {"TRA": {"purity": 0.8658, "precision": 0.8567},
 #: because TRB is where the released clustering is strongest.
 OVERLAP_FLOOR = {"TRA": 0.85, "TRB": 0.95}
 
-#: Axes where our clustering must not fall below the released one. `retention` is included on
-#: purpose: a method can buy purity by clustering almost nothing, and that trade is what the
-#: released TCRNET made (0.2105 on TRA).
-NOT_WORSE = ("purity", "precision", "recall", "f1", "retention")
+#: Which axes must not fall, in which direction, and by how much is now one table:
+#: `vdjdb.validate.motif_metrics.AXES`. It includes `retention` on purpose -- a method can buy purity
+#: by clustering almost nothing, and that is the trade the released TCRNET made (0.2105 on TRA).
 
-#: Slack on those comparisons. The build is deterministic, so this is room for the corpus to grow
-#: between the measurement and the run, not for numerical noise.
+#: Slack on the published-bar comparison only; the per-axis gate carries its own tolerance.
 SLACK = 0.005
 
 
@@ -168,24 +168,42 @@ def test_the_harness_reproduces_the_published_legacy_bar(gene: str, released: pl
                                                          cohorts) -> None:
     """Every comparison below is against these numbers, so they are checked first."""
     got = mb.score(mb.assign(cohorts[gene], _chain(released, gene)))
-    for axis, want in LEGACY_BAR[gene].items():
+    for axis, want in PUBLISHED_BAR[gene].items():
         assert got[axis] == pytest.approx(want, abs=0.01), (
             f"{gene} {axis}: {got[axis]:.4f}, docs/clustering.md publishes {want}")
+
+
+def test_no_source_drifted_from_the_committed_baseline(tables, ours, released) -> None:
+    """The recorded numbers, per axis, for all four sources -- including the released files' own.
+
+    A fixed released file scored on a changed cohort moves, so this is the gate that catches a
+    *corpus* change rather than a code one. It is the check that was missing on 2026-09-28.
+    """
+    chains, records = tables
+    measured = mmv.measure(chains, records, mmv.sources(released, released, ours))
+    drift = mmv.regressions_against_baseline(measured, mmv.load_baseline())
+    assert drift.height == 0, (
+        f"{drift.height} axes drifted; explain each and re-record with "
+        f"`vdjdb motif-metrics --record`:\n{drift}")
 
 
 # --------------------------------------------------------------------------------------------
 # Ours against the release
 # --------------------------------------------------------------------------------------------
 
-@pytest.mark.parametrize("method", ["tcrnet", "tcremp"])
-@pytest.mark.parametrize("gene", GENES)
-def test_our_clustering_is_not_worse_on_any_scored_axis(method: str, gene: str,
-                                                        ours, released, cohorts) -> None:
-    legacy = mb.score(mb.assign(cohorts[gene], _chain(released, gene)))
-    got = mb.score(mb.assign(cohorts[gene], _chain(ours[method], gene)))
-    worse = {a: (round(got[a], 4), round(legacy[a], 4))
-             for a in NOT_WORSE if got[a] < legacy[a] - SLACK}
-    assert not worse, f"{method} {gene} below the released clustering on {worse} (got, released)"
+def test_our_clustering_is_not_worse_than_the_latest_release_on_any_gated_axis(
+        tables, ours, released) -> None:
+    """Both chains, both methods, every gated axis, through the same code the build's gate uses.
+
+    An axis that is worse on purpose is declared with its reason in `rules/motif_metrics.tsv` and
+    capped at the declared value, so the trade stays visible and cannot quietly get worse. One is
+    declared today: our TRA TCREMP percolates more than the release and buys retention, purity, `Q`
+    and two epitopes for it.
+    """
+    chains, records = tables
+    measured = mmv.measure(chains, records, mmv.sources(released, released, ours))
+    bad = mmv.regressions_against_latest(measured, mmv.load_baseline())
+    assert bad.height == 0, f"{bad.height} undeclared regressions against the release:\n{bad}"
 
 
 @pytest.mark.parametrize("gene", GENES)
