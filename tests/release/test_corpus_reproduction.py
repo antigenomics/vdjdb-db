@@ -161,10 +161,17 @@ def test_a_search_returns_the_papers_that_report_the_epitope(corpus, tables) -> 
             f"{reference} ranks for {EPITOPE} while sharing no {tokens.K}-mer with it")
 
 
-def test_the_mhc_dictionary_recognises_all_but_the_two_known_bad_calls(tables) -> None:
-    """The dictionary doubles as a proofreading report, so its findings are pinned."""
+def test_the_mhc_dictionary_recognises_every_call(tables) -> None:
+    """The dictionary doubles as a proofreading report, so its findings are pinned - at none.
+
+    It used to pin two: `HLA-A*08:01`, for which no `HLA-A*08` exists at any resolution, and
+    `HLA-B*12`, a serological broad antigen that split into B*44 and B*45. Both are corrected in
+    `patches/mhc.dict`, and `assert_mhc_resolves` now fails the build on an unresolved call, so this
+    list can only be empty on a build that completed. Empty is the useful state: a row here means a
+    call that arrived since, not one of two strings a reader has to remember to ignore.
+    """
     found = mhc.unrecognised(mhc.dictionary(tables["restriction"]))
-    assert sorted(found["mhc"].unique().to_list()) == ["HLA-A*08:01", "HLA-B*12"]
+    assert found["mhc"].unique().to_list() == []
 
 
 def test_the_corpus_is_reproducible_across_builds(tables) -> None:
