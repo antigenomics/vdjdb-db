@@ -217,6 +217,7 @@ jobs:
             out/reports/qc-summary.tsv
             out/reports/release-diff.json
             out/reports/motif-timings.tsv
+            out/reports/motifs_per_epitope.tsv
           retention-days: 90
 
       - name: Tests
