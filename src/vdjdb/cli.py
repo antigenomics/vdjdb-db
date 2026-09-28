@@ -37,6 +37,29 @@ def qc(
     raise typer.Exit(run_qc(paths or None, strict=strict, report=report))
 
 
+@app.command(name="submission")
+def submission(
+    paths: list[Path] = typer.Argument(..., help="The chunk files a pull request changes."),
+    chunks: Path | None = typer.Option(None, help="Chunk directory; default chunks/."),
+    engine: str = typer.Option("arda", help="CDR3 markup engine: arda or legacy."),
+    out: Path | None = typer.Option(None, help="Write the report here instead of stdout."),
+) -> None:
+    """What the named chunks contribute: records, scores, and values new to VDJdb.
+
+    Assembles the whole corpus - every number is relative to it - and stops before the annotation
+    stages, which cost ten times as much and change nothing a curator decides on.
+    """
+    from .assemble.master import build_master
+    from .curate.submission import report
+
+    text = report([str(p) for p in paths],
+                  build_master(sorted(chunks.glob("*.txt")) if chunks else None, engine=engine))
+    if out:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(text)
+    typer.echo(text, nl=False)
+
+
 @app.command()
 def schema(
     table: str = typer.Option("vdjdb", help="Any declared table: vdjdb, vdjdb-web, slim, full, "
@@ -80,8 +103,11 @@ def build(
     engine: str = typer.Option("arda", help="CDR3 markup engine: arda or legacy."),
 ) -> None:
     """Assemble the database: the definitive tables, and every format projected from them."""
+    import polars as pl
+
     from .assemble.master import build_master
     from .assemble.tables import build_tables
+    from .curate.submission import lookalikes
     from .emit.airr import from_tables as airr_frames
     from .emit.airr import write_all as write_airr
     from .emit.legacy import write_all as write_legacy
@@ -104,6 +130,17 @@ def build(
     # profiled it by hand (ROADMAP_local section 49).
     timings = timing_write(out / "reports" / "build-timings.tsv", rows=built["records"].height)
     typer.echo(timing_report(timings))
+
+    # Advisory, and deliberately not a gate: a value one character from another may be a typo or may
+    # be two stains, two serotypes, or one gene under two species' symbol conventions, and only a
+    # curator knows which. Written every run so the count is a number that can regress.
+    look = lookalikes(master)
+    look.write_csv(out / "reports" / "lookalikes.tsv", separator="\t")
+    if not look.is_empty():
+        within = look.filter(pl.col("same.species"))["folded"].n_unique()
+        typer.echo(f"look-alike values: {look['folded'].n_unique()} group(s) over "
+                   f"{look['column'].n_unique()} column(s), {within} within one species "
+                   f"-> {out / 'reports' / 'lookalikes.tsv'}")
 
     if tables:
         for name, frame in built.items():
