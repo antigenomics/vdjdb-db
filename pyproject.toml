@@ -96,5 +96,8 @@ strict = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 markers = [
-    "release: compares against a real VDJdb release zip; needs VDJDB_REFERENCE_ZIP. Nightly only.",
+    # Not deselected anywhere: `build.yml`'s Tests step is a bare `uv run pytest -q`, so these run
+    # on every push to dev/master and every pull request into master. They skip on a laptop, where
+    # VDJDB_REFERENCE_ZIP is unset, which is the only reason the description used to say "nightly".
+    "release: needs the build artifacts, and VDJDB_REFERENCE_ZIP for the ones that read a released zip. Runs in build.yml, skips elsewhere.",
 ]

@@ -19,6 +19,12 @@ on:
         description: Release tag; when set, the release assets are built and uploaded.
         type: string
         default: ''
+      previous:
+        description: Previous release tag. Without it `vdjdb release` writes no RELEASE_NOTES.md,
+          and `release.yml` publishes with `--notes-file`, so the release would fail after the
+          approval and a 30-minute build.
+        type: string
+        default: ''
   workflow_dispatch:
     inputs:
       runner:
@@ -54,8 +60,11 @@ on:
     - cron: '0 3 * * 1'
 
 concurrency:
-  group: build-${{ github.ref }}
-  cancel-in-progress: true
+  # The event is in the key because `release.yml` calls this workflow, and in a called workflow
+  # `github.ref` is the caller's - so a push to master during a release would share the group and
+  # one would cancel the other mid-flight.
+  group: build-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_call' }}
 
 permissions:
   contents: read
@@ -166,7 +175,18 @@ jobs:
       # input, not caching a result (hard rule 9).
       - name: Reference release
         run: |
-          curl -fsSL -o reference.zip "$(head -1 latest-version.txt)"
+          URL=$(head -1 latest-version.txt)
+          [ -n "$URL" ] || { echo "::error::latest-version.txt line 1 is empty"; exit 1; }
+          # Retried: an unretried 41 MB fetch is a single transient 5xx away from failing this step,
+          # and everything downstream of it - the comparison, the motif metrics and the release half
+          # of the test suite - never runs.
+          #
+          # `--retry-connrefused`, not `--retry-all-errors`: the latter needs curl 7.71 and aldan3
+          # ships 7.68, so a self-hosted runner there (phase 15) would fail on the flag itself rather
+          # than on anything it was meant to survive. Measured 2026-09-28 on a `short`-partition node.
+          # It is also the better flag here - `--retry-all-errors` would retry a 404 five times, and a
+          # reference zip that is not published should fail on the first attempt.
+          curl -fsSL --retry 5 --retry-connrefused --retry-delay 5 -o reference.zip "$URL"
           ls -l reference.zip
 
       # The five members the assembly stage produces. The motif files, the dashboard fragment,
@@ -207,19 +227,22 @@ jobs:
         if: always()
         run: |
           { echo '### QC findings by rule'; echo; echo '```'; \
-            cat out/reports/qc-summary.tsv; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+            cat out/reports/qc-summary.tsv 2>/dev/null || echo '(not produced)'; \
+            echo '```'; } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Build timings report
         if: always()
         run: |
           { echo '### Build timings'; echo; echo '```'; \
-            cat out/reports/build-timings.tsv; echo; \
-            cat out/reports/motif-timings.tsv; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+            cat out/reports/build-timings.tsv 2>/dev/null || echo '(not produced)'; echo; \
+            cat out/reports/motif-timings.tsv 2>/dev/null || echo '(not produced)'; \
+            echo '```'; } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Motif metrics report
         if: always()
         run: |
-          { echo '### Motif metrics'; echo; cat out/reports/motif-metrics.md; } \
+          { echo '### Motif metrics'; echo; \
+            cat out/reports/motif-metrics.md 2>/dev/null || echo '(not produced)'; } \
             >> "$GITHUB_STEP_SUMMARY"
 
       - uses: actions/upload-artifact@v4
@@ -243,7 +266,9 @@ jobs:
 
       - name: Release assets
         if: inputs.tag != ''
-        run: uv run vdjdb release --tag "${{ inputs.tag }}" --build out --out out/release
+        run: |
+          uv run vdjdb release --tag "${{ inputs.tag }}" --build out --out out/release \
+            ${{ inputs.previous && format('--previous {0}', inputs.previous) || '' }}
 
       - uses: actions/upload-artifact@v4
         if: inputs.tag != ''
@@ -254,4 +279,5 @@ jobs:
             out/release/manifest.json
             out/release/SHA256SUMS
             out/release/identity-lifecycle.tsv
+            out/release/RELEASE_NOTES.md
           retention-days: 7

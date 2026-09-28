@@ -89,7 +89,8 @@ def test_every_vdjdb_command_the_docs_name_exists() -> None:
 
 
 @pytest.mark.parametrize("rules_file", ["expected_diffs.toml", "motif_metrics.tsv",
-                                        "build_timings.tsv", "qc_advisories.tsv"])
+                                        "build_timings.tsv", "motif_timings.tsv",
+                                        "qc_advisories.tsv"])
 def test_every_declared_baseline_exists_and_is_not_empty(rules_file: str) -> None:
     """`rules/` holds the declarations every gate compares against. A gate whose baseline vanished
     passes on an empty join, which is the failure mode that reads as success."""
