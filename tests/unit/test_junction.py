@@ -97,12 +97,21 @@ def test_the_worker_count_actually_buys_wall_time():
 
     The correctness test above passes whether or not the threads run in parallel, so it cannot see a
     pool that silently serialised. This measures it. `infer_nt` calls into vdjtools' native path,
-    which releases the GIL for part of the work, so the speedup is real and sublinear: measured on a
-    16-core M3, 1.52x at two workers, **2.27x at the shipped four**, 2.87x at eight, and the same
-    2.28x on 3,000 real corpus keys rather than these 400 synthetic ones.
+    which releases the GIL for part of the work, so the speedup is real and sublinear. Measured on a
+    16-core M3, four workers: **2.26x over these 400 keys**, 2.04x over 1,200 and 2.20x over 3,000, so
+    the key count is not what sets it.
 
-    The bar is 1.3x, well below the measured 2.27x and well above the 1.0x a dead pool would give.
-    Loose on purpose: this is a regression detector for the pool disappearing, not a benchmark.
+    **The bar depends on the core count, because the quantity does.** Four worker threads on a 4-vCPU
+    GitHub runner share those four cores with polars' own pool and the interpreter, and there is no
+    headroom to win: the same 400 keys measured **1.29x** there on 2026-09-28 and failed a flat 1.3x
+    bar that had only ever been checked on a 16-core laptop. A bar that fails on a correct pool is
+    worse than a loose one, because the next person deletes it.
+
+    So: 1.7x where there are at least 8 cores, which is a much tighter detector than the 1.3x it
+    replaces and still 25 % below the measured 2.26x; 1.15x on 4 to 7, which is what a 4-vCPU runner
+    can show while still being nowhere near the 1.0x a dead pool gives. The parallel leg is timed
+    twice and the faster run counts, because a shared runner's scheduler noise is one-sided -- a live
+    pool can be unlucky, a dead one never gets faster on a retry.
     """
     import itertools
     import os
@@ -123,11 +132,17 @@ def test_the_worker_count_actually_buys_wall_time():
     serial_start = time.perf_counter()
     serial_out = junction.infer(keys, "HomoSapiens", "TRB", workers=1)
     serial = time.perf_counter() - serial_start
-    parallel_start = time.perf_counter()
-    junction.infer(keys, "HomoSapiens", "TRB", workers=4)
-    parallel = time.perf_counter() - parallel_start
+
+    def timed(workers: int) -> float:
+        start = time.perf_counter()
+        junction.infer(keys, "HomoSapiens", "TRB", workers=workers)
+        return time.perf_counter() - start
+
+    parallel = min(timed(4), timed(4))
+    bar = 1.7 if (os.cpu_count() or 1) >= 8 else 1.15
 
     assert (serial_out["cdr3nt"] != "").all(), "the timing set must not take the no-scenario path"
-    assert serial / parallel > 1.3, (
+    assert serial / parallel > bar, (
         f"four workers bought {serial / parallel:.2f}x over {keys.height} keys "
-        f"({serial:.2f} s -> {parallel:.2f} s); the pool is overhead rather than parallelism")
+        f"({serial:.2f} s -> {parallel:.2f} s) on {os.cpu_count()} cores, bar {bar}x; "
+        f"the pool is overhead rather than parallelism")
