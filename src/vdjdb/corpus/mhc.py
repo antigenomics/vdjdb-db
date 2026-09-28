@@ -76,10 +76,11 @@ def dictionary(restriction: pl.DataFrame, *, root: Path | None = None) -> pl.Dat
     ``status`` is :func:`vdjdb.assemble.epitopes.mhc_status`, not a second check against the same
     IMGT table. That expression already handles the cases a fresh implementation gets wrong: a
     one-field call like ``HLA-B*07`` is a serotype-level curation and IMGT has no one-field allele
-    name, so matching on full names alone would report a hundred sound calls as unknown, and murine H2
-    and the light chain are outside the HLA database entirely and read ``unchecked`` rather than
-    ``unknown``. Measured on the current build, **no** call is ``unknown``: the two that were,
-    ``HLA-A*08:01`` and ``HLA-B*12``, are corrected in `patches/mhc.dict`.
+    name, so matching on full names alone would report a hundred sound calls as unknown, and murine H2,
+    macaque Mamu and the light chain are checked against ``proofreading/mhc_nonhuman.tsv`` instead, so
+    they read ``declared`` rather than ``unknown``. No call can read ``unknown`` on a build that
+    completed: ``assert_mhc_resolves`` stops it. The last two that did, ``HLA-A*08:01`` and
+    ``HLA-B*12``, are corrected in ``patches/mhc.dict``.
     """
     from ..assemble.epitopes import mhc_status
 
@@ -107,8 +108,9 @@ def dictionary(restriction: pl.DataFrame, *, root: Path | None = None) -> pl.Dat
 def unrecognised(dict_df: pl.DataFrame) -> pl.DataFrame:
     """Calls IPD-IMGT/HLA carries at no field depth. A curation finding, one row each.
 
-    ``unchecked`` is excluded: murine H2 and the class I light chain are outside the HLA database, so
-    including them would bury a genuine finding under fifty expected ones. On the current build this
+    ``declared`` is excluded: murine H2 and the class I light chain are checked against
+    ``proofreading/mhc_nonhuman.tsv``, not the HLA database, so including them would bury a genuine
+    finding under fifty expected ones. On the current build this
     table is **empty**. The two calls it used to carry were ``HLA-A*08:01`` (no ``HLA-A*08`` exists at
     any resolution) and ``HLA-B*12`` (a serotype that split into B*44 and B*45 and is not a current
     allele group); both are corrected in `patches/mhc.dict`, so an entry here now means a call that

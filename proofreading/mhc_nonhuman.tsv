@@ -1,0 +1,31 @@
+# Every MHC name VDJdb records that IPD-IMGT/HLA cannot adjudicate, because it is not human.
+# This file is that adjudication: a name in it resolves, a name outside it fails the build.
+# `proofreading/mhc.md` section 7 is the prose, including why murine names carry the MGI `H2-` prefix.
+#
+# `level` says what kind of name it is, which is why two rows can describe one molecule:
+#   allele     a named allele in a species database (IPD-MHC for Mamu)
+#   molecule   a haplotype-bearing molecule name, the murine convention
+#   chain      an MGI chain-gene symbol, carrying no haplotype, so it names no single molecule
+#   invariant  not an MHC gene at all
+#
+# `species` is `*` where the name is species-independent. Nothing reads it yet; it is here so a
+# call on the wrong organism becomes checkable without re-deriving this table.
+# Lines starting with # are comments and are ignored.
+name	species	mhc.class	level	note
+B2M	*	MHCI	invariant	the class I light chain, not an MHC allele - mhc.b on every class I record
+H2-Db	MusMusculus	MHCI	molecule	
+H2-Dd	MusMusculus	MHCI	molecule	
+H2-Kb	MusMusculus	MHCI	molecule	
+H2-Kd	MusMusculus	MHCI	molecule	
+H2-Ld	MusMusculus	MHCI	molecule	
+H2-Qa-1b	MusMusculus	MHCI	molecule	non-classical class I
+H2-IAb	MusMusculus	MHCII	molecule	
+H2-IAd	MusMusculus	MHCII	molecule	
+H2-IAg7	MusMusculus	MHCII	molecule	the NOD haplotype
+H2-IAs	MusMusculus	MHCII	molecule	
+H2-IEd	MusMusculus	MHCII	molecule	
+H2-IEk	MusMusculus	MHCII	molecule	
+H2-Aa	MusMusculus	MHCII	chain	MGI symbol for the I-A alpha chain; carries no haplotype
+H2-Ab1	MusMusculus	MHCII	chain	MGI symbol for the I-A beta chain; carries no haplotype
+H2-Eb1	MusMusculus	MHCII	chain	MGI symbol for the I-E beta chain; carries no haplotype
+Mamu-A*01	MacacaMulatta	MHCI	allele	IPD-MHC, Macaca mulatta
