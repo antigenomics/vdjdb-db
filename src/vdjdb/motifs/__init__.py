@@ -61,10 +61,15 @@ def run_tcrnet(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
     configuration: the per-chain split from section 34 did not rank above it on the corrected
     objective.
     """
-    scored = tcrnet.enriched_clonotypes(chains, records, p=p, min_sample=min_sample)
-    members = cluster.clusters(scored, min_cluster=min_cluster)
-    return emit.write(emit.cluster_members(members, chains, records),
-                      emit.motif_pwms(_pwms(members), records), out)
+    from ..timing import stage
+
+    with stage("motifs.tcrnet.enrichment"):
+        scored = tcrnet.enriched_clonotypes(chains, records, p=p, min_sample=min_sample)
+    with stage("motifs.tcrnet.cluster"):
+        members = cluster.clusters(scored, min_cluster=min_cluster)
+    with stage("motifs.tcrnet.pwm_and_emit"):
+        return emit.write(emit.cluster_members(members, chains, records),
+                          emit.motif_pwms(_pwms(members), records), out)
 
 
 def run_tcremp(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
@@ -76,18 +81,26 @@ def run_tcremp(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
     geometry and then DBSCAN runs per epitope, so it is never re-estimated on an n of 30-300
     (ROADMAP section 8.4).
     """
+    from ..timing import stage
+
     cohort = tcremp.cohort(chains, records)
     parts = []
     for (species, gene), grp in cohort.group_by(["species", "gene"], maintain_order=True):
         tuned = tcremp.TUNED.get(gene, {})
-        X = tcremp.embed_reduced(grp, species, gene,
-                                 n_components=tuned.get("n_components", tcremp.N_COMPONENTS))
-        eps = tcremp.chain_eps(X, (coef or tcremp.COEF)[gene])
-        parts.append(tcremp.clusters(grp, X, eps, min_cluster=(
-            min_cluster if min_cluster is not None else tuned.get("min_cluster", 5))))
+        # Named per species AND chain: `group_by(["species", "gene"])` yields four groups, so a name
+        # carrying only the gene put human and mouse under one label - measured, the report listed
+        # `embed.TRA` twice with different numbers.
+        with stage(f"motifs.tcremp.embed.{species}.{gene}"):
+            X = tcremp.embed_reduced(grp, species, gene,
+                                     n_components=tuned.get("n_components", tcremp.N_COMPONENTS))
+        with stage(f"motifs.tcremp.dbscan.{species}.{gene}"):
+            eps = tcremp.chain_eps(X, (coef or tcremp.COEF)[gene])
+            parts.append(tcremp.clusters(grp, X, eps, min_cluster=(
+                min_cluster if min_cluster is not None else tuned.get("min_cluster", 5))))
     members = pl.concat([p for p in parts if p.height], how="vertical")
-    return emit.write(emit.cluster_members(members, chains, records),
-                      emit.motif_pwms(_pwms(members), records), out, suffix="_tcremp")
+    with stage("motifs.tcremp.pwm_and_emit"):
+        return emit.write(emit.cluster_members(members, chains, records),
+                          emit.motif_pwms(_pwms(members), records), out, suffix="_tcremp")
 
 
 def per_epitope_report(chains: pl.DataFrame, records: pl.DataFrame, out: Path,
@@ -144,6 +157,9 @@ def run(tables: Path, out: Path, *, p: float | None = None,
         min_cluster: int | None = None,
         methods: tuple[str, ...] = ("tcrnet", "tcremp")) -> dict[str, int]:
     """Both methods from the definitive tables. Returns ``{filename: rows}``."""
+    from .. import timing
+
+    timing.reset()
     chains = pl.read_parquet(tables / "chains.parquet")
     records = pl.read_parquet(tables / "records.parquet")
 
@@ -154,7 +170,11 @@ def run(tables: Path, out: Path, *, p: float | None = None,
     if "tcremp" in methods:
         written |= run_tcremp(chains, records, out, min_cluster=min_cluster)
 
-    rows = per_epitope_report(chains, records, out, written)
+    with timing.stage("motifs.per_epitope_report"):
+        rows = per_epitope_report(chains, records, out, written)
     if rows:
         written["reports/motifs_per_epitope.tsv"] = rows
+    # The motif stage was 200 s of a 29-minute build and had no internal profile, the same gap
+    # ROADMAP_local section 49 had to close by hand for assemble (section 57).
+    timing.write(out / "reports" / "motif-timings.tsv", rows=chains.height)
     return written
