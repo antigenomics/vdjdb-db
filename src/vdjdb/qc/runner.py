@@ -53,7 +53,12 @@ ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form", "duplicate"
                       # A named V or J whose chain has no CDR3. The call is information and the row
                       # is kept; the chain cannot reach an output, which is what this tells the
                       # submitter while they can still supply the sequence.
-                      "segment call with no cdr3"})
+                      "segment call with no cdr3",
+                      # #402: a `meta.structure.id` that is not a PDB entry id. 2,765 rows in the
+                      # corpus hold a figure or table reference there, and the field awards the top
+                      # confidence score, so this has to be visible - but blanking them moves 6,004
+                      # scores, which is a curation decision and not a submission error.
+                      "structure id is not a PDB id"})
 
 
 class _NothingToRead(Exception):
