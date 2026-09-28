@@ -15,6 +15,16 @@ Every number below comes from `docs/tuning/scorecard.tsv`, 252 configurations sc
 harness on one cohort, and the markdown is generated from it by `docs/tuning/report.py`, so no figure
 in this document is transcribed by hand. §11 has the commands.
 
+**The cohort is `chunks/` as of 2026-09-26, and the legacy bar below is that cohort's.** The released
+`cluster_members.txt` never changes, but the corpus it is scored against does, so the bar moves when a
+chunk merges: three merges on 2026-09-28 took TRA's `Q` from 0.1691 to 0.1668, its purity from 0.8658
+to 0.8641 and its precision from 0.8567 to 0.8548, and TRB's `Q` from 0.4433 to 0.4391. **The numbers
+here are not restated for that**, because every configuration in the scorecard was scored against the
+same bar in the same run and re-stating one column would break the comparison the document exists to
+make. The current values of every axis for the released files, the latest release and the build are
+measured on every build and recorded in `rules/motif_metrics.tsv`, which is what a regression is gated
+against (`vdjdb motif-metrics`).
+
 ---
 
 ## 0. Shared contract
