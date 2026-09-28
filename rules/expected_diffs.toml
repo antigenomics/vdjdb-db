@@ -25,6 +25,122 @@
 # [[rule]] id = "web-unmp-jstart-minus1" file = "vdjdb.txt" column = "web.cdr3fix.unmp"
 #          from = "no" to = "yes" rows = 7998
 
+# --- issue #402: meta.structure.id is a TCR:pMHC PDB entry or it is blank ----------------------
+# Declared first, because these cells would otherwise be absorbed by the melt-ambiguity and
+# nomenclature rules below, which are named for other causes: `vdjdb diff` attributes a changed
+# cell to the first matching rule, so a rule has to precede the ones it takes cells from. Each one
+# here is narrowed by `to` or by `from`/`to` so it claims only the cells this change caused and
+# leaves the rest to those rules, which keep their own identity at a re-measured count.
+#
+# The field awards `vdjdb.score` 3 outright - above every sequencing and specificity term, because
+# a solved TCR:pMHC complex is direct proof of binding - and 2,765 chunk rows held a figure or
+# table reference in it. Every value is now either a current `tcrpmhc` entry in the
+# ~/hf/tcren_structures/pdb_catalogue typing of the PDB, or empty: 2,765 non-PDB strings blanked,
+# 55 rows on entries that carry no TCR or no longer exist blanked, 9 moved to the entry that
+# actually holds the record's receptor, 368 upper-cased so the 27 ids written in two cases become
+# one value. 3,220 cells in seven chunks.
+#
+# The id change is the cause and the score change is the consequence, so they are measured apart,
+# and the score rules are split by transition because that is what a reader wants to know: 6,366
+# `vdjdb.txt` cells go 3 -> 0, 1,685 go 3 -> 1 and 188 go 3 -> 2. Records at score 3 fall from
+# 6,007 to 1,791, and all 382 that still carry a structure id are at 3.
+#
+# Two older rules fall to 0 as a result and keep their declarations: `legacy-melt-ambiguity-meta`
+# and `melt-ambiguity-full-structure-id` both describe melt ambiguity *in this same field*, and
+# once the field is repaired there is no residual ambiguity in it to attribute. They are not
+# deleted, because they would fire again the moment the ambiguity returned.
+[[rule]]
+id = "structure-id-repaired-default"
+file = "vdjdb.txt"
+column = "meta"
+json_field = "structure.id"
+rows = 4296
+
+[[rule]]
+id = "structure-id-blanked-full"
+file = "vdjdb_full.txt"
+column = "meta.structure.id"
+to = ""
+rows = 2174
+
+[[rule]]
+id = "structure-id-respelled-full"
+file = "vdjdb_full.txt"
+column = "meta.structure.id"
+rows = 342
+
+[[rule]]
+id = "structure-id-score-default-to-0"
+file = "vdjdb.txt"
+column = "vdjdb.score"
+from = "3"
+to = "0"
+rows = 6366
+
+[[rule]]
+id = "structure-id-score-default-to-1"
+file = "vdjdb.txt"
+column = "vdjdb.score"
+from = "3"
+to = "1"
+rows = 1685
+
+[[rule]]
+id = "structure-id-score-default-to-2"
+file = "vdjdb.txt"
+column = "vdjdb.score"
+from = "3"
+to = "2"
+rows = 188
+
+[[rule]]
+id = "structure-id-score-full-to-0"
+file = "vdjdb_full.txt"
+column = "vdjdb.score"
+from = "3"
+to = "0"
+rows = 3798
+
+[[rule]]
+id = "structure-id-score-full-to-1"
+file = "vdjdb_full.txt"
+column = "vdjdb.score"
+from = "3"
+to = "1"
+rows = 985
+
+[[rule]]
+id = "structure-id-score-full-to-2"
+file = "vdjdb_full.txt"
+column = "vdjdb.score"
+from = "3"
+to = "2"
+rows = 197
+
+[[rule]]
+id = "structure-id-score-slim-to-0"
+file = "vdjdb.slim.txt"
+column = "vdjdb.score"
+from = "3"
+to = "0"
+rows = 1957
+
+[[rule]]
+id = "structure-id-score-slim-to-1"
+file = "vdjdb.slim.txt"
+column = "vdjdb.score"
+from = "3"
+to = "1"
+rows = 392
+
+[[rule]]
+id = "structure-id-score-slim-to-2"
+file = "vdjdb.slim.txt"
+column = "vdjdb.score"
+from = "3"
+to = "2"
+rows = 15
+
 # --- phase 2, feature/golden-harness: the legacy format's own ambiguity -----------------------
 # vdjdb.txt writes one row per chain, so a paired record's TRA row carries nothing about its beta.
 # Two records sharing an alpha and differing in beta melt to two TRA rows that no single-chain key
@@ -42,7 +158,7 @@ id = "legacy-melt-ambiguity-meta"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "structure.id"
-rows = 8
+rows = 0
 
 
 # The canonical complex.id numbering labels each group by its members' identities, so the same
@@ -51,7 +167,7 @@ rows = 8
 id = "legacy-melt-ambiguity-complex-id"
 file = "vdjdb.txt"
 column = "complex.id"
-rows = 178661
+rows = 178659
 
 [[rule]]
 id = "legacy-melt-ambiguity-cdr3fix"
@@ -87,19 +203,19 @@ rows = 10117
 id = "pandas-float-clone-id"
 file = "vdjdb_full.txt"
 column = "meta.clone.id"
-rows = 22
+rows = 23
 
 [[rule]]
 id = "pandas-int-subject-id"
 file = "vdjdb_full.txt"
 column = "meta.subject.id"
-rows = 50
+rows = 52
 
 [[rule]]
 id = "pandas-float-frequency-full"
 file = "vdjdb_full.txt"
 column = "method.frequency"
-rows = 187
+rows = 189
 
 # The same truncation, seen through the method JSON of vdjdb.txt.
 [[rule]]
@@ -134,7 +250,7 @@ id = "json-id-type-epitope"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "epitope.id"
-rows = 10929
+rows = 10931
 
 [[rule]]
 id = "json-id-type-replica"
@@ -222,7 +338,7 @@ rows = 5289
 id = "nomenclature-tcr-hash-default"
 file = "vdjdb.txt"
 column = "TCR_hash"
-rows = 6767
+rows = 6764
 
 [[rule]]
 id = "nomenclature-tcr-hash-slim"
@@ -241,7 +357,7 @@ id = "nomenclature-samples-found"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "samples.found"
-rows = 1730
+rows = 1565
 
 [[rule]]
 id = "nomenclature-d-multicall-order"
@@ -257,13 +373,13 @@ rows = 55
 id = "nomenclature-score-regrouped-default"
 file = "vdjdb.txt"
 column = "vdjdb.score"
-rows = 124
+rows = 42
 
 [[rule]]
 id = "nomenclature-score-regrouped-full"
 file = "vdjdb_full.txt"
 column = "vdjdb.score"
-rows = 64
+rows = 24
 
 
 # --- ROADMAP phase 9: input hygiene ------------------------------------------------------------
@@ -3018,7 +3134,7 @@ rows = 1
 id = "melt-ambiguity-full-method-sequencing"
 file = "vdjdb_full.txt"
 column = "method.sequencing"
-rows = 16
+rows = 17
 
 [[rule]]
 id = "melt-ambiguity-full-cell-subset"
@@ -3054,7 +3170,7 @@ rows = 3
 id = "melt-ambiguity-full-structure-id"
 file = "vdjdb_full.txt"
 column = "meta.structure.id"
-rows = 3
+rows = 0
 
 
 # --- feature/arda-cdr3fix: why 10,605 rows of vdjdb.txt change identity -------------------------
