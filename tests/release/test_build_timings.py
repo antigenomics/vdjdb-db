@@ -34,6 +34,20 @@ pytestmark = pytest.mark.release
 
 BASELINE = Path("rules/build_timings.tsv")
 
+#: Peak RSS budget, MiB. Measured 2026-09-28: **1,577 MiB** on 16 cores over 192,793 records, flat
+#: across stages because ``ru_maxrss`` is a high-water mark and the peak is set in the first one.
+#:
+#: Gated absolutely, unlike the seconds, because peak memory is a property of the data and the code
+#: rather than of the host - the same build allocates the same way anywhere, and if anything a
+#: *smaller* host allocates less, because polars chunks to fewer threads. So the laptop figure is the
+#: conservative one to budget from.
+#:
+#: 4,096 gives 2.6x headroom over the measurement and still leaves 4x margin under a 16 GB hosted
+#: runner, which is the claim this protects: the README put the pandas pipeline at 64 GB, the rewrite
+#: runs in about 1.5, and until now **nothing checked it** - the `benchmark` mark in `pyproject.toml`
+#: promised "runtime and peak-RSS budgets" and no test ever used it.
+PEAK_RSS_BUDGET_MB = 4096
+
 
 @pytest.fixture(scope="module")
 def timings() -> pl.DataFrame:
@@ -72,6 +86,16 @@ def test_a_new_stage_is_recorded_before_it_can_dominate(timings, baseline) -> No
     assert big.height == 0, (
         f"new stage(s) at over 10 % of the build and not in the baseline:\n{big}\n"
         "add them to rules/build_timings.tsv with their measured share")
+
+
+def test_the_build_stays_inside_its_memory_budget(timings) -> None:
+    """The claim is that this build runs on a 16 GB hosted runner. Now something checks it."""
+    peak = timings["peak_rss_mb"].max()
+    assert peak > 0, "the timing report must carry a peak RSS; ru_maxrss is bytes on macOS and " \
+                     "kilobytes on Linux, and getting that wrong reads as a pass"
+    assert peak <= PEAK_RSS_BUDGET_MB, (
+        f"peak RSS {peak:,.0f} MiB over the {PEAK_RSS_BUDGET_MB:,} MiB budget. Profile what allocates, "
+        f"and move the budget only with a measured reason.")
 
 
 def test_the_report_carries_the_input_size_and_the_core_count(timings) -> None:
