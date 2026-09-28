@@ -8,6 +8,12 @@ next time a stage doubles, someone has to notice the build feels slow and profil
 ``CLAUDE.md`` asks for a profile as part of any bottleneck report, and asks for the wall time, the
 share, the input size and the core count. This module makes all four fall out of an ordinary run.
 
+**Peak RSS is gated absolutely, unlike the seconds**, because it is a property of the data and the
+code rather than of the host: the same build allocates the same way on a laptop and on a runner. The
+claim it protects is that this build runs on a 16 GB hosted runner, which the README used to put at
+64 GB for the pandas pipeline, and which nothing checked - the ``benchmark`` mark in
+``pyproject.toml`` promised "runtime and peak-RSS budgets" and **no test ever used it**.
+
 **What is gated and what is only recorded, and why the difference is not laziness.** Absolute seconds
 are a property of the host: a 4-vCPU runner is three to four times slower than the laptop these
 numbers were first measured on, and gating them would either be so loose as to be useless or so tight
@@ -18,16 +24,31 @@ that is stated rather than papered over.
 """
 from __future__ import annotations
 
+import resource
+import sys
 import time
 from contextlib import contextmanager
 from pathlib import Path
 
 import polars as pl
 
-#: ``stage -> seconds``, in call order. Module-level because the stages are spread over three
-#: modules and threading a recorder through every signature would be a worse trade than one list.
+
+def peak_rss_mb() -> float:
+    """The process high-water mark in MiB.
+
+    ``ru_maxrss`` is **kilobytes on Linux and bytes on macOS** - the one portability trap here, and
+    getting it wrong would report the CI runner using a thousandth of its real memory, which is the
+    direction that reads as a pass.
+    """
+    raw = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    return raw / (1024 * 1024) if sys.platform == "darwin" else raw / 1024
+
+
+#: ``stage -> (seconds, peak RSS in MiB after it)``, in call order. Module-level because the stages
+#: are spread over three modules and threading a recorder through every signature would be a worse
+#: trade than one list.
 #: Reset by :func:`reset`; a second build in the same process would otherwise append to the first.
-_STAGES: list[tuple[str, float]] = []
+_STAGES: list[tuple[str, float, float]] = []
 
 
 def reset() -> None:
@@ -41,7 +62,9 @@ def stage(name: str):
     try:
         yield
     finally:
-        _STAGES.append((name, time.perf_counter() - start))
+        # ``ru_maxrss`` is a high-water mark, so the value after a stage is "peak so far" rather than
+        # that stage's own footprint. That is the useful reading: it says which stage raised the peak.
+        _STAGES.append((name, time.perf_counter() - start, peak_rss_mb()))
 
 
 def frame(*, rows: int | None = None, cores: int | None = None) -> pl.DataFrame:
@@ -53,11 +76,12 @@ def frame(*, rows: int | None = None, cores: int | None = None) -> pl.DataFrame:
     """
     import os
 
-    total = sum(s for _, s in _STAGES) or 1.0
+    total = sum(s for _, s, _ in _STAGES) or 1.0
     return pl.DataFrame({
-        "stage": [n for n, _ in _STAGES],
-        "seconds": [round(s, 3) for _, s in _STAGES],
-        "share": [round(s / total, 5) for _, s in _STAGES],
+        "stage": [n for n, _, _ in _STAGES],
+        "seconds": [round(s, 3) for _, s, _ in _STAGES],
+        "share": [round(s / total, 5) for _, s, _ in _STAGES],
+        "peak_rss_mb": [round(m, 1) for _, _, m in _STAGES],
         "rows": [rows if rows is not None else -1] * len(_STAGES),
         "cores": [cores if cores is not None else (os.cpu_count() or -1)] * len(_STAGES),
     })
@@ -73,10 +97,11 @@ def write(path: Path, *, rows: int | None = None) -> pl.DataFrame:
 
 def report(df: pl.DataFrame) -> str:
     """The table as markdown, slowest first, for the CI step summary."""
-    out = ["| stage | seconds | share | rows | cores |", "|---|--:|--:|--:|--:|"]
+    out = ["| stage | seconds | share | peak RSS MiB | rows | cores |",
+           "|---|--:|--:|--:|--:|--:|"]
     for r in df.sort("seconds", descending=True).iter_rows(named=True):
         out.append(f"| `{r['stage']}` | {r['seconds']:.2f} | {r['share']:.1%} | "
-                   f"{r['rows']:,} | {r['cores']} |")
-    total = df["seconds"].sum()
-    out.append(f"| **total** | **{total:.2f}** | | | |")
+                   f"{r['peak_rss_mb']:,.0f} | {r['rows']:,} | {r['cores']} |")
+    out.append(f"| **total** | **{df['seconds'].sum():.2f}** | | "
+               f"**{df['peak_rss_mb'].max():,.0f}** | | |")
     return "\n".join(out)
