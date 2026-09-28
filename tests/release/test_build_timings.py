@@ -33,8 +33,10 @@ absolute seconds are recorded in the artifact and printed into the step summary 
 where a human comparing two runs is the instrument. What the gate catches is one stage blowing up
 relative to the others, which is the failure that actually happened here (one call at 86 %).
 
-**Peak RSS needs none of this.** Measured on the same two hosts: 6,898 MiB on the laptop against
-6,786 MiB on the runner, 1.6 % apart, so it is gated absolutely and on every host.
+**Peak RSS needs none of this**, so it is gated absolutely and on every host. Five measurements of
+the motif stage: 6,871 and 6,898 MiB on the laptop, 6,786, 6,802 and 7,531 MiB on the runner. The
+runner spread is 11 %, so it is not the invariant the first pair suggested, and the budget is set
+against the largest observation rather than the flattering one.
 """
 from __future__ import annotations
 
@@ -57,9 +59,10 @@ REPORTS = {
 #:
 #: * **assemble 1,577 MiB**, flat across its stages because ``ru_maxrss`` is a high-water mark and the
 #:   peak is set in the first one. Budget 4,096: 2.6x headroom.
-#: * **motifs 6,898 MiB**, and this is the pipeline's real peak - 4.4x the assemble stage, reproducible
-#:   at 6,871 and 6,898 over two runs, set by the two PWM-and-emit steps (1,005 -> 5,442 -> 6,898).
-#:   Budget 10,240: 1.5x headroom, and 6 GB still free on a 16 GB runner.
+#: * **motifs 6,786 to 7,531 MiB**, and this is the pipeline's peak - 4.4x the assemble stage, set by
+#:   the two PWM-and-emit steps (1,005 -> 5,442 -> 6,898 on the laptop). Five measurements: 6,871 and
+#:   6,898 on a 16-core laptop, 6,786, 6,802 and 7,531 on the runner. Budget 10,240: **1.36x headroom
+#:   against the largest**, and 2.6 GB still free on a 16 GB runner.
 #:
 #: ⚠ **The first version of this file gated only the assemble report**, so it asserted 1,577 MiB
 #: against a 16 GB runner while the pipeline actually peaked at 6,898 - 43 % of the runner rather than
