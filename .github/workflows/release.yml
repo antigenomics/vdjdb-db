@@ -58,6 +58,10 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       tag: ${{ inputs.tag }}
+      # Declared `required: true` on this workflow and passed nowhere until 2026-09-28, so
+      # `vdjdb release` never wrote RELEASE_NOTES.md and `gh release create --notes-file` below
+      # would have failed after the approval gate and a 30-minute build.
+      previous: ${{ inputs.previous }}
 
   publish:
     needs: [plan, build]

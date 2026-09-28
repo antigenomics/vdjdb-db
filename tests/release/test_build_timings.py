@@ -159,8 +159,14 @@ def test_no_stage_took_a_much_larger_share_than_its_baseline(report) -> None:
 
 
 def test_a_new_stage_is_recorded_before_it_can_dominate(report) -> None:
-    """An untimed stage taking a tenth of the build is the defect this file exists to prevent."""
+    """An untimed stage taking a tenth of the build is the defect this file exists to prevent.
+
+    Compute-only for the same reason the share comparison is: `background.HomoSapiens.TRB` is 0.209
+    of the raw total, so a *new* background - one more species or chain in `chunks/` - would clear
+    0.10 on download time alone and red the build for a fetch nobody wrote.
+    """
     name, timings, baseline, _ = report
+    timings, baseline = _compute_only(timings), _compute_only(baseline)
     unknown = timings.filter(~pl.col("stage").is_in(baseline["stage"].to_list()))
     big = unknown.filter(pl.col("share") > 0.10)
     assert big.height == 0, (
