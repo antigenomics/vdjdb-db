@@ -96,8 +96,14 @@ jobs:
       - name: Install
         run: uv sync --extra motifs --extra test --extra summary
 
+      # `--report` so the per-rule advisory counts are written, not only printed. The gate on them is
+      # in tests/unit/test_qc_advisories.py and runs in the Tests step below.
+      #
+      # It runs here rather than in `chunk-check` on purpose: that job QCs only the *changed* chunks,
+      # so its counts are partial and comparing them against a whole-corpus baseline would fail on
+      # every ordinary submission.
       - name: QC
-        run: uv run vdjdb qc --strict
+        run: uv run vdjdb qc --strict --report out/reports/qc.tsv
 
       - name: Assemble
         run: |
@@ -180,6 +186,12 @@ jobs:
       # it rather than in a hand-made profile weeks later (ROADMAP_local §49 was the hand-made one).
       # Seconds are recorded and not gated - they are a property of the runner; `share` is gated in
       # tests/release/test_build_timings.py, because a ratio inside one run cancels host speed.
+      - name: QC advisory counts
+        if: always()
+        run: |
+          { echo '### QC findings by rule'; echo; echo '```'; \
+            cat out/reports/qc-summary.tsv; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Build timings report
         if: always()
         run: |
@@ -200,6 +212,7 @@ jobs:
             out/reports/motif-metrics.tsv
             out/reports/motif-metrics.md
             out/reports/build-timings.tsv
+            out/reports/qc-summary.tsv
           retention-days: 90
 
       - name: Tests

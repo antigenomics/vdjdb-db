@@ -65,6 +65,25 @@ class _NothingToRead(Exception):
     """Every named path was missing. `lint` said so already; there is no table to check."""
 
 
+def _summary_frame(lint_findings, row_findings: pl.DataFrame) -> pl.DataFrame:
+    """One row per rule that fired: its level, how many findings and how many chunks.
+
+    Sorted by ``(level, rule)`` rather than by count, so a diff between two builds lines up
+    rule-for-rule instead of reordering when a count changes (hard rule 7 -- sort after anything
+    unordered, and ``Counter.most_common`` is ordered by a value that moves).
+    """
+    rows = [{"level": "text", "rule": code, "findings": n, "chunks": -1,
+             "advisory": code in ADVISORY}
+            for code, n in Counter(f.code for f in lint_findings).items()]
+    if row_findings.height:
+        rows += [{"level": "row", "rule": r["rule"], "findings": r["rows"], "chunks": r["chunks"],
+                  "advisory": r["rule"] in ADVISORY}
+                 for r in summarise(row_findings).iter_rows(named=True)]
+    schema = {"level": pl.Utf8, "rule": pl.Utf8, "findings": pl.Int64, "chunks": pl.Int64,
+              "advisory": pl.Boolean}
+    return pl.DataFrame(rows, schema=schema).sort("level", "rule")
+
+
 def _report_frame(lint_findings: list[Finding], row_findings: pl.DataFrame) -> pl.DataFrame:
     text = pl.DataFrame(
         {"file": [f.file for f in lint_findings],
@@ -113,6 +132,11 @@ def run_qc(paths: list[Path] | None, *, strict: bool = True, report: Path | None
     if report is not None:
         report.parent.mkdir(parents=True, exist_ok=True)
         _report_frame(lint_findings, row_findings).write_csv(report, separator="\t")
+        # The per-rule counts beside the per-row report. They were printed and nowhere else: an
+        # advisory that jumped from 209 rows to 2,000 on a chunk merge would pass every gate and show
+        # up only in a log line nobody diffs. `chunks/` is the data, so this is the curation signal.
+        _summary_frame(lint_findings, row_findings).write_csv(
+            report.with_name("qc-summary.tsv"), separator="\t")
 
     print(f"chunks checked: {len(targets)}    rows: {rows.height}")
 
