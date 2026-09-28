@@ -69,6 +69,14 @@ def report(request) -> tuple[str, pl.DataFrame, pl.DataFrame, int]:
     base_path, budget = REPORTS[name]
     got = Path(os.environ.get("VDJDB_REPORTS", "out/reports")) / name
     if not got.exists():
+        # Under CI a missing report is the defect, not a reason to stand down: the build ran, so the
+        # report exists or the stage stopped writing it. `vdjdb motifs` wrote this one to
+        # `<--out>/reports/` for one commit, which put it at `out/motifs/reports/` on the runner and
+        # `out/reports/` on a laptop, and a skip would have made the memory gate silently absent from
+        # every CI run while passing locally.
+        assert not os.environ.get("CI"), (
+            f"no {name} at {got} after a CI build; the stage that writes it either did not run or "
+            f"writes somewhere else now")
         pytest.skip(f"no {name}; run `vdjdb build` and `vdjdb motifs`")
     if not base_path.exists():
         pytest.skip(f"no committed baseline at {base_path}")
