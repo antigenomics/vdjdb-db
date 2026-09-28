@@ -163,19 +163,33 @@ B2M is the invariant light chain of all MHC class I molecules. It is **not an HL
 
 ## 7. Non-Human MHC Naming
 
-### Mouse (MusMusculus) — H-2 system
-| Class | Example names | Notes |
-|---|---|---|
-| Class I | `H-2Db`, `H-2Kb`, `H-2Ld`, `H-2Dd` | Format: `H-2<locus><haplotype>` |
-| Class II | `I-Ab`, `I-Ad`, `I-Ak`, `I-As`, `I-Eb` | Format: `I-<locus><haplotype>` |
+### Mouse (MusMusculus) — H2 system
 
-**Common normalizations needed:**
-- `H2-Db` → `H-2Db` (add hyphen)
-- `IAb` → `I-Ab` (add hyphen after I)
-- `H-2D^b` → `H-2Db`
+**One prefix, `H2-`, for every murine name.** `H2-` is the MGI gene-symbol prefix; `H-2` is the
+classical immunology spelling and is not a symbol. VDJdb records the MGI form, and so does the site:
+`vdjdb-web`'s `app/backend/server/motifs/Motifs.scala` maps `h-2` to `h2-` before joining a record to
+its motif cluster, and states there that `H2-Db` is the symbol and `H-2Db` is not. Two spellings of one
+locus is not a variant, it is a defect: measured on the deployed database, the split alone cost **768
+records their motif badge**.
+
+| Class | Canonical names | Format |
+|---|---|---|
+| Class I | `H2-Db`, `H2-Kb`, `H2-Kd`, `H2-Ld`, `H2-Dd`, `H2-Qa-1b` | `H2-<locus><haplotype>` |
+| Class II molecule | `H2-IAb`, `H2-IAg7`, `H2-IAd`, `H2-IAs`, `H2-IEd`, `H2-IEk` | `H2-I<locus><haplotype>` |
+| Class II chain gene | `H2-Aa`, `H2-Ab1`, `H2-Eb1` | the MGI symbol, carrying no haplotype |
+
+The molecule and the chain-gene rows are two naming levels, not two spellings. A chain gene names the
+α or β chain and says nothing about the haplotype, so it cannot be mapped to a molecule without the
+paired column — which is why the nine `H2-Ab1` records are left as they are rather than patched.
+
+**Normalisations, all declared in `patches/mhc.dict`:**
+- `H-2Aa` → `H2-Aa`, `H-2Eb1` → `H2-Eb1` (prefix)
+- `I-Ab` → `H2-IAb` (prefix; the one murine string of fifteen that lacked it)
+- `H2-Ag7` → `H2-IAg7`, `H2-Ed` → `H2-IEd` (the dropped `I`)
+- `H-2D^b` → `H2-Db` (superscript flattened, then prefix)
 
 For mouse class I: `mhc.b = B2M`, `mhc.class = MHCI`
-For mouse class II: `mhc.b` = β-chain allele (e.g., `I-Ab`), `mhc.class = MHCII`
+For mouse class II: `mhc.b` = β-chain molecule or gene (e.g. `H2-IAb`, `H2-Ab1`), `mhc.class = MHCII`
 
 ### Macaque (MacacaMulatta) — Mamu system
 | Class | Example names |
@@ -226,6 +240,7 @@ Before molecular typing, alleles were named by the antigen they defined. These a
 | `DR4` | `HLA-DRB1*04:XX` | Very ambiguous — multiple DRB1*04 alleles |
 | `DQ2` | Usually `HLA-DQB1*02:01` or `*02:02` | Ambiguous without typing |
 | `B44` | `HLA-B*44:02` or `*44:03` | Two common subtypes |
+| `B12` | `HLA-B*44` or `HLA-B*45` | **Broad antigen, not a group.** It split into B44 and B45, so `HLA-B*12` names nothing at any resolution. Resolve to the split, then stop — a serological typing cannot choose a second field |
 
 > **Rule:** When a serological antigen name is given without molecular typing, record at low resolution (e.g., `HLA-A*02`) and note in the extraction log that higher resolution was not available.
 

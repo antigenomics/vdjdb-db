@@ -6,7 +6,8 @@
 #   prepare   rewrite latest-version.txt in the working tree (not committed yet)
 #   build     every zip embeds that same latest-version.txt -- build.yml does this
 #   verify    the comparison against the last release, and the dashboard checks
-#   publish   gh release create, behind `environment: release` with a required reviewer
+#   publish   gh release create, behind `environment: release`, which needs a required reviewer
+#             added to it in the repository settings - see the note on that job
 #   finalize  COMMIT latest-version.txt, then fetch line 1 and fail on anything but 200
 #
 # There is deliberately no Zenodo step. The old webhook archived the source tarball rather than
@@ -66,8 +67,17 @@ jobs:
   publish:
     needs: [plan, build]
     runs-on: ubuntu-latest
-    # A required reviewer is configured on this environment. It is the only human gate between a
-    # dispatch and a public artifact.
+    # This environment is meant to be the only human gate between a dispatch and a public artifact,
+    # and as of 2026-09-28 it is not one. Measured: `gh api repos/:owner/:repo/environments` returns
+    # `copilot` and `github-pages` only, and this workflow has never run, which is why - GitHub creates
+    # an environment named here on first use, with no protection rules, and lets the job through. So
+    # the first dispatch would publish unreviewed.
+    #
+    # The fix is a repository setting, not a change here: create an environment named `release` and add
+    # a required reviewer to it. A step in this job cannot stand in for that. By the time any step
+    # runs the gate has already been passed or skipped, and reading
+    # `GET /repos/{owner}/{repo}/environments/release` needs a token scope the default
+    # `GITHUB_TOKEN` is not granted, so a guard would fail for the wrong reason and be disabled.
     environment: release
     steps:
       - uses: actions/checkout@v4

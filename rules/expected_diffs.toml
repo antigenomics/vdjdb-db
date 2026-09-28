@@ -167,13 +167,13 @@ rows = 0
 id = "legacy-melt-ambiguity-complex-id"
 file = "vdjdb.txt"
 column = "complex.id"
-rows = 178659
+rows = 178660
 
 [[rule]]
 id = "legacy-melt-ambiguity-cdr3fix"
 file = "vdjdb.txt"
 column = "cdr3fix"
-rows = 17970
+rows = 17969
 
 # --- phase 4, feature/pipeline-core -----------------------------------------------------------
 # jStart == -1 is truthy in Python, where the Groovy tested jStart > -1, so unmapped records are
@@ -278,18 +278,18 @@ rows = 14966
 # is no cell to attribute: one row leaves and another arrives.
 [[row_delta]]
 file = "vdjdb.slim.txt"
-added = 9213
-removed = 9305
-note = "pandas-na-gene-symbol seen through the slim grouping key (750/809) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161): 40 records arrive, 33 of them as new slim groups and 7 joining groups that already existed, which rekeys those 7 + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 12 slim groups"
+added = 9293
+removed = 9385
+note = "pandas-na-gene-symbol seen through the slim grouping key (750/809) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161): 40 records arrive, 33 of them as new slim groups and 7 joining groups that already existed, which rekeys those 7 + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 12 slim groups + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 82 slim groups - 2, the murine `I-Ab -> H2-IAb` rename keying 2 slim groups the previous spelling left unmatched"
 
 # The melt ambiguity of ROADMAP section 14, seen as rows rather than cells: where two
 # indistinguishable records swap, best-match pairing sometimes leaves one on each side. 780 of
 # these; the rest are the markup engine, see the block at the end of this file.
 [[row_delta]]
 file = "vdjdb.txt"
-added = 11433
-removed = 11491
-note = "legacy melt ambiguity (780) + the arda markup engine naming the segment the curator reported (10,605; see the arda-cdr3fix block below) + PMID_18025130 landing (#161), 40 records + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 15 records"
+added = 11514
+removed = 11572
+note = "legacy melt ambiguity (780) + the arda markup engine naming the segment the curator reported (10,605; see the arda-cdr3fix block below) + PMID_18025130 landing (#161), 40 records + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 15 records + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 82 records - 1, the `TRBVIS1 -> TRBV9*01` rename keying the one PMID_16237109 row the previous block did not declare"
 
 
 # --- ROADMAP phase 9: IMGT segment nomenclature (#389) ------------------------------------------
@@ -300,7 +300,7 @@ note = "legacy melt ambiguity (780) + the arda markup engine naming the segment 
 id = "nomenclature-slim-complex-id-renumber"
 file = "vdjdb.slim.txt"
 column = "complex.id"
-rows = 117583
+rows = 117581
 
 [[rule]]
 id = "nomenclature-vend-full-alpha"
@@ -312,19 +312,19 @@ rows = 10477
 id = "nomenclature-vend-full-beta"
 file = "vdjdb_full.txt"
 column = "cdr3fix.beta"
-rows = 7374
+rows = 7372
 
 [[rule]]
 id = "nomenclature-vend-slim"
 file = "vdjdb.slim.txt"
 column = "v.end"
-rows = 5406
+rows = 5404
 
 [[rule]]
 id = "nomenclature-jstart-slim"
 file = "vdjdb.slim.txt"
 column = "j.start"
-rows = 11179
+rows = 11178
 
 [[rule]]
 id = "nomenclature-now-mapped"
@@ -332,32 +332,32 @@ file = "vdjdb.txt"
 column = "web.cdr3fix.unmp"
 from = "yes"
 to = "no"
-rows = 5289
+rows = 5288
 
 [[rule]]
 id = "nomenclature-tcr-hash-default"
 file = "vdjdb.txt"
 column = "TCR_hash"
-rows = 6764
+rows = 6904
 
 [[rule]]
 id = "nomenclature-tcr-hash-slim"
 file = "vdjdb.slim.txt"
 column = "TCR_hash"
-rows = 5291
+rows = 5415
 
 [[rule]]
 id = "nomenclature-tcr-hash-full"
 file = "vdjdb_full.txt"
 column = "TCR_hash"
-rows = 905
+rows = 975
 
 [[rule]]
 id = "nomenclature-samples-found"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "samples.found"
-rows = 1565
+rows = 1571
 
 [[rule]]
 id = "nomenclature-d-multicall-order"
@@ -729,6 +729,12 @@ to = "TRBV17"
 records = 1
 
 [[rename]]
+columns = "v.beta,v.segm"
+from = "TRBVIS1"
+to = "TRBV9*01"
+records = 1
+
+[[rename]]
 columns = "j.alpha,j.segm"
 from = "TRAJ24*01"
 to = "TRAJ24*02"
@@ -737,9 +743,9 @@ when_contains = "WGKLQF"
 records = 1047
 [[rename]]
 columns = "mhc.a"
-from = "H2-IAb"
-to = "I-Ab"
-records = 61
+from = "HLA-A*08:01"
+to = "HLA-B*08:01"
+records = 74
 
 [[rename]]
 columns = "mhc.a"
@@ -749,7 +755,49 @@ records = 80
 
 [[rename]]
 columns = "mhc.a"
+from = "HLA-A*24:03"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:04"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:05"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:06"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:07"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:08"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
 from = "HLA-A*24:09"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:10"
 to = "HLA-A*24:02"
 records = 2
 
@@ -767,9 +815,63 @@ records = 2
 
 [[rename]]
 columns = "mhc.a"
+from = "HLA-A*24:13"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:14"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:15"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
 from = "HLA-A*24:16"
 to = "HLA-A*24:02"
 records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:17"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:18"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:19"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-A*24:20"
+to = "HLA-A*24:02"
+records = 2
+
+[[rename]]
+columns = "mhc.a"
+from = "HLA-B*12"
+to = "HLA-B*44"
+records = 1
+
+[[rename]]
+columns = "mhc.a"
+from = "I-Ab"
+to = "H2-IAb"
+records = 684
 
 [[rename]]
 columns = "mhc.b"
@@ -797,9 +899,9 @@ records = 2
 
 [[rename]]
 columns = "mhc.b"
-from = "H2-IAb"
-to = "I-Ab"
-records = 52
+from = "I-Ab"
+to = "H2-IAb"
+records = 684
 
 [[rename]]
 columns = "reference.id"
@@ -3028,9 +3130,9 @@ files = "vdjdb.slim.txt"
 # END generated renames
 [[row_delta]]
 file = "vdjdb_full.txt"
-added = 11018
-removed = 10978
-note = "declared corrections whose reference value is not injective (613) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161), 40 records + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 15 records"
+added = 11101
+removed = 11061
+note = "declared corrections whose reference value is not injective (613) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161), 40 records + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 15 records + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 83 records"
 
 
 # --- the generated metadata ---------------------------------------------------------------------

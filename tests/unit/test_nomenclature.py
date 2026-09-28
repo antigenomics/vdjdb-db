@@ -202,10 +202,14 @@ def _mhc(a, b, species=None):
 
 
 def test_murine_class_two_spellings_collapse_onto_one_molecule():
-    """Three spellings of I-A(b) split one molecule's records three ways in the motif grouping."""
+    """Three spellings of I-A(b) split one molecule's records three ways in the motif grouping.
+
+    They collapse onto `H2-IAb`, the MGI-prefixed form the other fourteen murine strings already
+    use, not onto the `I-Ab` that happened to carry the most records.
+    """
     out, report = N.harmonise_mhc(_mhc(["H2-IAb", "I-Ab"], ["H2-IAb", "I-Ab"]))
-    assert out["mhc.a"].to_list() == ["I-Ab", "I-Ab"]
-    assert out["mhc.b"].to_list() == ["I-Ab", "I-Ab"]
+    assert out["mhc.a"].to_list() == ["H2-IAb", "H2-IAb"]
+    assert out["mhc.b"].to_list() == ["H2-IAb", "H2-IAb"]
     assert report.filter(pl.col("issue") == "mhc.dict")["rows"].sum() == 2
 
 
