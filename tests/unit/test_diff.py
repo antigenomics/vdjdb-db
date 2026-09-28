@@ -11,7 +11,17 @@ from pathlib import Path
 
 import pytest
 
-from vdjdb.compare.diff import Bundle, Rule, diff, load_row_deltas, load_rules, render
+from vdjdb.compare.diff import (
+    Bundle,
+    DiffReport,
+    FileReport,
+    RowDelta,
+    Rule,
+    diff,
+    load_row_deltas,
+    load_rules,
+    render,
+)
 
 HEADER = ("complex.id\tgene\tcdr3\tv.segm\tj.segm\tspecies\tmhc.a\tmhc.b\tmhc.class\t"
           "antigen.epitope\tantigen.gene\tantigen.species\treference.id\tvdjdb.score\tTCR_hash\t"
@@ -472,3 +482,57 @@ def test_one_row_delta_per_file_loads(tmp_path):
     got = load_row_deltas(rules)
     assert set(got) == {"vdjdb.txt", "vdjdb.slim.txt"}
     assert (got["vdjdb.txt"].added, got["vdjdb.txt"].removed) == (820, 780)
+
+
+# ---------------------------------------------------------------------------------------------
+# The report has to name every reason it failed
+# ---------------------------------------------------------------------------------------------
+
+def _one(**kw) -> DiffReport:
+    """A one-file report, row-compared, with whatever buckets and declaration the test needs."""
+    declared = kw.pop("declared", None)
+    f = FileReport(name="vdjdb.txt", raw_equal=False, canonical_equal=False, compared_rows=True, **kw)
+    return DiffReport(files=[f],
+                      row_deltas={"vdjdb.txt": RowDelta(file="vdjdb.txt", added=declared[1],
+                                                        removed=declared[0])} if declared else {})
+
+
+def test_a_row_bucket_mismatch_names_the_file_and_prints_both_numbers() -> None:
+    """The failure a landing chunk causes, and the one the report used to say nothing about.
+
+    Every other cause writes a section: unattributed cells, miscounted rules, stale renames. This one
+    only flipped the verdict, so a curator whose chunk added 40 records saw FAIL with no finding in the
+    whole report and no indication which of the five gates had refused.
+    """
+    r = _one(only_in_reference=11572, only_in_candidate=11554, declared=(11572, 11514))
+    assert not r.ok
+    assert r.mismatched_row_deltas == ["vdjdb.txt"]
+    text = render(r)
+    assert "Declared row buckets" in text
+    assert "**11554**" in text and "11514" in text        # measured flagged, declared shown
+    assert "rules/expected_diffs.toml" in text            # and where to fix it
+
+
+def test_matching_row_buckets_are_shown_without_a_flag() -> None:
+    r = _one(only_in_reference=11572, only_in_candidate=11514, declared=(11572, 11514))
+    assert r.ok and r.mismatched_row_deltas == []
+    text = render(r)
+    assert "Declared row buckets" in text and "MISMATCH" not in text
+
+
+def test_an_undeclared_bucket_is_a_mismatch_against_zero() -> None:
+    """A file with no declaration may not lose or gain rows; silence is a declaration of none."""
+    r = _one(only_in_reference=0, only_in_candidate=40)
+    assert not r.ok and r.mismatched_row_deltas == ["vdjdb.txt"]
+
+
+def test_a_file_compared_by_digest_alone_that_differs_is_named() -> None:
+    """No row-level statement was made about it, which is the one case with no answer at all."""
+    r = DiffReport(files=[FileReport(name="LICENSE", raw_equal=False, canonical_equal=False)])
+    assert not r.ok and r.uncompared == ["LICENSE"]
+    assert "Compared by digest only" in render(r)
+
+
+def test_a_file_compared_by_digest_alone_that_matches_is_fine() -> None:
+    r = DiffReport(files=[FileReport(name="LICENSE", raw_equal=True, canonical_equal=True)])
+    assert r.ok and r.uncompared == []
