@@ -317,6 +317,13 @@ COEF_GRID: tuple[float, ...] = (0.15, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9, 1.1, 1.3, 1.
 #: TRB     coef 1.55  3.585   2.855   0.4947  0.4433  0.9829  0.9790  105 / 178  103
 #: ======  =========  ======  ======  ======  ======  ======  ======  =========  =========
 #:
+#:
+#: ⚠ **Measured on the corpus of 2026-09-26 and not restated since.** These numbers chose the
+#: shipped parameter and the comparison they make is internally consistent, but the legacy
+#: column moves whenever a chunk merges - the released file is fixed and the cohort it is
+#: scored against is not. The current value of every axis, for the released files and for this
+#: build, is measured on every build into ``out/reports/motif-metrics.tsv`` and gated against
+#: ``rules/motif_metrics.tsv`` (``vdjdb motif-metrics``). Read those for today's figures.
 #: Precision: TRA 0.8931 against legacy's 0.8567, TRB 0.9829 against 0.9756. Retention: TRA 0.2508
 #: against 0.2105, TRB 0.3747 against 0.3218. Both chains improve on all five pooled axes and on
 #: epitope coverage, with no cost to name here, unlike TCRNET's TRB cell.
