@@ -105,6 +105,12 @@ summary/*.txt
 out/
 .venv/
 uv.lock.tmp
+## The release the comparison measures against. `build.yml` downloads it to this exact path before
+## running `vdjdb diff`, and the same name is the convention locally, so it is a fetched input sitting
+## in the working tree of every checkout that has ever compared a build. 72 MB, and it is a published
+## artifact - it is re-downloaded, never restored from here (hard rule 9: fetching an input is not a
+## cache, and committing one would make it look like a cache).
+/reference.zip
 
 ## Proprietary held-out validation data -- TCRvdb / MATCHMAKERS is academic, non-commercial and
 ## NON-REDISTRIBUTABLE. It must never be committed here. Read it via $VDJDB_TCRVDB instead.
