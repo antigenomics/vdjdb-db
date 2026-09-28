@@ -227,3 +227,46 @@ def test_independent_reports_stay_stable_across_rebuilds():
     out2, reg, rep = reconcile(df, reg, release="v2")
     assert out1["record_id"].to_list() == out2["record_id"].to_list()
     assert not rep.added and not rep.retired
+
+
+# ---------------------------------------------------------------------------------------------
+# A build with no registry has to say so
+# ---------------------------------------------------------------------------------------------
+
+def test_a_missing_registry_warns_that_the_build_is_not_id_stable(tmp_path) -> None:
+    """`ROADMAP.md` 10.4 claims the build reports this. Nothing did, and it is the state today.
+
+    Silent is the failure mode that matters: ids allocated from 1 look exactly like ids reconciled
+    against a registry, and the difference only appears when someone compares two releases.
+    """
+    import warnings
+
+    import polars as pl
+
+    from vdjdb.assemble.master import add_record_ids
+    from vdjdb.schema import ALL_COLUMNS
+
+    df = pl.DataFrame({**{c: [""] for c in ALL_COLUMNS}, "chunk.file": ["a.txt"], "chunk.row": [1]})
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        add_record_ids(df, registry=tmp_path / "absent.tsv")
+    messages = [str(w.message) for w in caught if issubclass(w.category, UserWarning)]
+    assert any("not id-stable" in m for m in messages), messages
+
+
+def test_an_existing_registry_does_not_warn(tmp_path) -> None:
+    import warnings
+
+    import polars as pl
+
+    from vdjdb.assemble.master import add_record_ids
+    from vdjdb.identity.ids import REGISTRY_COLUMNS
+    from vdjdb.schema import ALL_COLUMNS
+
+    registry = tmp_path / "records.tsv"
+    registry.write_text("\t".join(REGISTRY_COLUMNS) + "\n")
+    df = pl.DataFrame({**{c: [""] for c in ALL_COLUMNS}, "chunk.file": ["a.txt"], "chunk.row": [1]})
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        add_record_ids(df, registry=registry)
+    assert not [w for w in caught if "id-stable" in str(w.message)]
