@@ -205,16 +205,37 @@ def build_master(paths: Iterable[Path] | None = None,
     return add_tcr_hash(df)
 
 
+#: Where the committed record registry is expected. Absent today, which is why
+#: :func:`add_record_ids` warns: `ROADMAP.md` section 10.4 says a build with no registry "reports that
+#: the run is not id-stable", and until now nothing did.
+REGISTRY = Path("registry") / "records.tsv"
+
+
 def add_record_ids(df: pl.DataFrame, registry: Path | None = None) -> pl.DataFrame:
     """Attach a stable ``record_id`` to every row, reconciled against the committed registry.
 
     An id survives a content change -- a curator fixing a typo amends a record rather than deleting
     one and creating another -- so external references, structure links and accumulated evidence
     outlive curation.
+
+    With no registry to reconcile against, ids are allocated from 1 in corpus order instead, and then
+    none of that holds: measured on this corpus, landing one 40-record chunk moves ``record_id`` on
+    **168,723 of 192,753 records**, because every record sorting after the new chunk shifts by the ids
+    allocated before it. That is the state of the repository today (`vdjdb-db#638`), so the warning is
+    the normal path rather than an edge case - and it is a warning rather than a failure because a
+    fork, a first build and a corpus replayed at an old tag all legitimately have no registry.
     """
+    import warnings
+
     from ..identity.ids import IdentityRegistry, reconcile
 
-    path = registry or (Paths.discover().root / "registry" / "records.tsv")
+    path = registry or (Paths.discover().root / REGISTRY)
+    if not path.exists():
+        warnings.warn(
+            f"no record registry at {path}: record_id is allocated from 1 in corpus order, so this "
+            "build is not id-stable against any other. Adding one chunk renumbers most of the "
+            "database (vdjdb-db#638), and identity diff will read it as every record retired and "
+            "re-added.", UserWarning, stacklevel=2)
     reg = IdentityRegistry.load(path)
     identified, _, _ = reconcile(df, reg, release="dev")
     return identified
