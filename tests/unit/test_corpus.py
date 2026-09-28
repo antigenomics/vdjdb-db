@@ -460,3 +460,38 @@ def test_a_reference_that_resolves_to_nothing_is_reported(monkeypatch) -> None:
     monkeypatch.setattr(pubmed, "fetch", lambda ids: [])
     _, _, missing = pubmed.build_tables(["PMID:1", "PMID:2"])
     assert missing == ["PMID:1", "PMID:2"]
+
+
+def test_lift_family_agrees_with_lift_term_for_term(corpus) -> None:
+    """The batched form is a speedup, so it has to be the same number.
+
+    `lift_family` exists because scoring the 2,342 CDR3 3-mers through `lift` in a loop took 50.7 s
+    against 0.01 s batched, about 2,900x (`ROADMAP_local.md` section 57.1). A fast path that disagrees
+    with the documented one is worse than a slow path, so this pins them together: every term of every
+    family, both `over` modes, and every number rather than only the lift.
+    """
+    for family in sorted(set(corpus["terms"]["family"])):
+        terms = corpus["terms"].filter(pl.col("family") == family)["term"].to_list()
+        for over in ("documents", "occurrences"):
+            batched = {r["term"]: r for r in
+                       query.lift_family(corpus, family, over=over).iter_rows(named=True)}
+            assert set(batched) == set(terms), f"{family}/{over}: term set differs"
+            for term in terms:
+                one, got = query.lift(corpus, term, over=over), batched[term]
+                for field in ("units", "given_units", "term_units", "both"):
+                    assert got[field] == getattr(one, field), \
+                        f"{family}/{over}/{term}: {field} {got[field]} != {getattr(one, field)}"
+                assert (got["lift"] is None) == (one.lift is None), f"{term}: lift nullity differs"
+                if one.lift is not None:
+                    assert got["lift"] == pytest.approx(one.lift, rel=1e-12), f"{term}: lift differs"
+
+
+def test_lift_family_honours_a_condition_and_the_occurrence_floor(corpus) -> None:
+    """Conditioning and `min_units` are the two things the loop did around `lift`, so they move in."""
+    epitope = corpus["terms"].filter(pl.col("family") == "epitope")["term"][0]
+    conditioned = query.lift_family(corpus, "cdr3_kmer", [epitope], over="occurrences")
+    assert conditioned.height, "conditioning on a present epitope returned nothing"
+    assert (conditioned["given_units"] <= conditioned["units"]).all()
+    floor = int(conditioned["both"].max())
+    assert query.lift_family(corpus, "cdr3_kmer", [epitope], over="occurrences",
+                             min_units=floor + 1).height == 0, "min_units did not filter"

@@ -165,7 +165,8 @@ jobs:
         run: |
           uv run vdjdb diff reference.zip out/legacy \
             --only vdjdb.txt,vdjdb.slim.txt,vdjdb_full.txt,vdjdb.meta.txt,vdjdb.slim.meta.txt \
-            --report out/reports/release-diff.md
+            --report out/reports/release-diff.md \
+            --json out/reports/release-diff.json
 
       # Three sources, one cohort, one code path: the last legacy release, the latest release
       # (the same file until one ships after 2026-06-03) and what this build produced. Both gates run
@@ -213,6 +214,7 @@ jobs:
             out/reports/motif-metrics.md
             out/reports/build-timings.tsv
             out/reports/qc-summary.tsv
+            out/reports/release-diff.json
           retention-days: 90
 
       - name: Tests

@@ -171,6 +171,68 @@ def lift(corpus: dict[str, pl.DataFrame], term: str, given: list[str] | None = N
     )
 
 
+def lift_family(corpus: dict[str, pl.DataFrame], family: str,
+                given: list[str] | None = None, *, over: str = "documents",
+                min_units: int = 0) -> pl.DataFrame:
+    """Every term of one ``family``, scored in one pass. The batched form of :func:`lift`.
+
+    One row per term with the same numbers :class:`Lift` carries, so nothing has to be reported
+    without its ``given_units`` (``CLAUDE.md`` section 5a). ``min_units`` drops terms whose ``both``
+    is below it, which is the occurrence floor a comparison across terms needs.
+
+    **Why this exists.** Calling :func:`lift` in a loop recomputes the condition group and the family
+    totals once per term, and both are the same every time: scoring the 2,342 CDR3 3-mers that way
+    took **50.7 s**, a quarter of the whole test suite, at about 22 ms a term
+    (``ROADMAP_local.md`` section 57.1). Reach order rung 1 - one grouped polars expression - and the
+    per-term :func:`lift` stays for the one-shot question it is good at.
+
+    ``tests/unit/test_corpus_query.py`` asserts the two agree term for term, so the fast path cannot
+    drift from the one the docstring of :func:`lift` documents.
+    """
+    if over not in OVER:
+        raise ValueError(f"over must be one of {OVER}, not {over!r}")
+    conditions = list(given or [])
+    members = corpus["terms"].filter(pl.col("family") == family).select("term_id", "term")
+    group = _group(corpus, conditions)                      # computed ONCE, not once per term
+    posts = corpus["postings"].join(members, on="term_id", how="inner")
+
+    if over == "documents":
+        units, given_units = corpus["documents"].height, group.height
+        per_term = (posts.group_by("term", maintain_order=True)
+                    .agg(pl.col("document_id").n_unique().alias("term_units")))
+        both = (posts.join(group, on="document_id", how="semi")
+                .group_by("term", maintain_order=True)
+                .agg(pl.col("document_id").n_unique().alias("both")))
+    else:
+        # The family's own denominator, for the reason `lift` gives: summing every family would put a
+        # CDR3 k-mer over a total including epitope k-mers and V genes.
+        totals = posts.group_by("document_id", maintain_order=True).agg(
+            pl.col("tf").sum().alias("total"))
+        units = int(totals["total"].sum() or 0)
+        given_units = int(totals.join(group, on="document_id", how="semi")["total"].sum() or 0)
+        per_term = (posts.group_by("term", maintain_order=True)
+                    .agg(pl.col("tf").sum().alias("term_units")))
+        both = (posts.join(group, on="document_id", how="semi")
+                .group_by("term", maintain_order=True).agg(pl.col("tf").sum().alias("both")))
+
+    out = (per_term.join(both, on="term", how="left")
+           .with_columns(pl.col("both").fill_null(0))
+           .with_columns(
+               pl.lit(units).alias("units"), pl.lit(given_units).alias("given_units"),
+               (pl.col("both") / given_units if given_units else pl.lit(0.0)).alias("rate_given"),
+               (pl.col("term_units") / units if units else pl.lit(0.0)).alias("rate_overall"))
+           .with_columns(
+               pl.when((pl.lit(given_units) > 0) & (pl.col("rate_overall") > 0))
+               .then(pl.col("rate_given") / pl.col("rate_overall"))
+               .otherwise(None).alias("lift")))
+    # Sorted, with the term as the tiebreak: two terms on the same lift must not swap between runs
+    # (hard rule 7).
+    return (out.filter(pl.col("both") >= min_units)
+            .select("term", "units", "given_units", "term_units", "both", "rate_given",
+                    "rate_overall", "lift")
+            .sort("lift", "term", descending=[True, False], nulls_last=True))
+
+
 def refsearch_query(cdr3: str = "", epitope: str = "", *, extra_parameters: str = "",
                     species_to_search: str = "", k: int = tokens.K) -> list[str]:
     """The token list for a ``vdjdb.com/refsearch/`` request, from the fields the client sends.
