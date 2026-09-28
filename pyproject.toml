@@ -86,5 +86,4 @@ strict = true
 testpaths = ["tests"]
 markers = [
     "release: compares against a real VDJdb release zip; needs VDJDB_REFERENCE_ZIP. Nightly only.",
-    "benchmark: runtime and peak-RSS budgets; needs RUN_BENCHMARK=1.",
 ]
