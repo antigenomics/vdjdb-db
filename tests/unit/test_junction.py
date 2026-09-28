@@ -117,14 +117,24 @@ def test_the_worker_count_actually_buys_wall_time():
     import os
     import time
 
-    cores = os.cpu_count() or 1
+    from vdjdb.timing import cores_available
+
+    # The cores this process may use, not the ones the machine has. `os.cpu_count()` reports 40 on a
+    # SLURM `-c 4` cpuset, which broke this test in two directions at once on 2026-09-28: it chose the
+    # `>= 8` bar of 1.7x for an allocation that had four cores, and it compared a load average of 33.9
+    # against 40 rather than 4, so the guard below that exists for exactly that case did not fire.
+    # Four workers bought 1.56x and the test failed on a pool that was working correctly.
+    cores = cores_available()
     if cores < 4:
         pytest.skip("needs at least 4 cores to say anything about scaling")
     # ⚠ Refuse to measure a machine that cannot be measured. A ratio taken while the box is
     # oversubscribed is not a property of the pool: measured 2.26x quiet, 1.62x inside a full suite
     # run and 1.48x at load average 22 on 16 cores, all with the same correct pool. Skipping is the
-    # honest outcome - the alternative is a bar loose enough to pass under any load, which is a bar
-    # that no longer detects a dead pool (ROADMAP_local section 57.4).
+    # only outcome the measurement supports - the alternative is a bar loose enough to pass under any
+    # load, which is a bar that no longer detects a dead pool (ROADMAP_local section 57.4).
+    #
+    # The load average is the whole machine's even under a cpuset, which is the behaviour wanted here:
+    # a four-core slice of a node that forty other processes are using cannot be timed either.
     load = os.getloadavg()[0]
     if load > cores:
         pytest.skip(f"load average {load:.1f} on {cores} cores: too busy to time anything")
