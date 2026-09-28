@@ -26,8 +26,19 @@ dependencies = [
 [project.optional-dependencies]
 # Motif inference only. mirpy pulls kneed/matplotlib/seaborn/lifelines via its own [bench] extra,
 # which the data build has no use for -- keep them out of the assembly container.
-# pandas is here only for `validate/metrics_lib.py`, which is vendored verbatim and must stay so.
-# The build itself has no pandas dependency and must not acquire one.
+# pandas is here for exactly two call sites, both under `validate/`: `metrics_lib.py`, vendored from
+# TCREMP, and the single `motif_bench.to_pandas()` that feeds it. **The build itself has no pandas
+# dependency and must not acquire one** -- every stage from `chunks/` to the three shipped formats is
+# polars.
+#
+# Why it is still pandas, measured 2026-09-28 on a 143,497-row TRB cohort: `mb.score` (pandas) 2.100 s
+# against `qscore.score` (polars) 0.283 s on the same data, so about 21 s of a ~30-minute build, 1.2 %.
+# `CLAUDE.md` section 10 says not to restructure what is not the bottleneck, and the bottleneck is
+# `infer_nt` at 86 % (antigenomics/vdjtools#181). The reason to keep it is comparability with the
+# benchmark's `metrics_full.tsv`, which is what phase 11's acceptance criterion rests on -- weakened,
+# but not removed, by the one deliberate divergence in that module (the tie-break, antigenomics/tcremp#8).
+# Rewriting it in polars is a rung-1 change worth about 1 % of the build and risks the comparison; it
+# becomes worth doing if that module ever stops being an anchor.
 motifs = ["mirpy-lib[bench]>=3.0", "python-igraph>=0.11", "scikit-learn>=1.4", "pandas>=2.0", "pyarrow>=16", "clustereval>=0.2"]
 test = ["pytest>=8", "hypothesis>=6", "airr>=1.5"]
 # The dashboard checker. Pillow and scipy arrive transitively through mirpy-lib[bench] today, which
