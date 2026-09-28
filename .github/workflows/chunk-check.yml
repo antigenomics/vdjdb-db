@@ -110,7 +110,10 @@ jobs:
       - name: Chunk QC
         run: |
           if [ -s changed.txt ]; then
-            uv run vdjdb qc $(cat changed.txt) --report qc-report.tsv
+            # xargs, not `$(cat ...)`: an unquoted substitution splits a submitter's filename on
+            # spaces into paths that do not exist, which `qc` reports as the *advisory* missing-file
+            # rule - so the chunk is never validated and the job stays green.
+            tr '\n' '\0' < changed.txt | xargs -0 uv run vdjdb qc --report qc-report.tsv
           else
             uv run vdjdb qc --report qc-report.tsv
           fi
@@ -131,7 +134,10 @@ jobs:
         run: |
           python3 - <<'PY' > comment.md
           import csv, pathlib, collections
-          changed = [l.strip() for l in pathlib.Path("changed.txt").read_text().splitlines() if l.strip()]
+          # `if: always()`, and `changed.txt` is written after the lint and unit-test steps - so a
+          # failure there used to add a second red step with a traceback and post an empty comment.
+          _c = pathlib.Path("changed.txt")
+          changed = [l.strip() for l in _c.read_text().splitlines() if l.strip()] if _c.exists() else []
           rows = list(csv.DictReader(open("qc-report.tsv"), delimiter="\t")) \
               if pathlib.Path("qc-report.tsv").exists() else []
           print("## chunk-check\n")
@@ -162,8 +168,12 @@ jobs:
           PY
           cat comment.md
 
+      # `continue-on-error`: on a pull request from a fork the token is read-only whatever the
+      # `permissions:` block says, so posting returns 403. Forks are the population this job exists
+      # for, and failing to comment must not read as failing the check.
       - name: Post or update the comment
         if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           script: |

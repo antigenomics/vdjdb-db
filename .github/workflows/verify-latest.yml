@@ -24,6 +24,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # `set +e` because the runner invokes this as `bash -e {0}`, and `set -uo pipefail` adds
+          # flags without removing errexit. This step is written to *record* a bad state and let the
+          # next one report it, so a curl that cannot connect or a `gh` 5xx must not kill it before
+          # `ok=false` is written.
+          set +e
           set -uo pipefail
           URL=$(head -1 latest-version.txt)
           CODE=$(curl -sIL -o /dev/null -w '%{http_code}' "$URL")
@@ -49,8 +54,14 @@ jobs:
         run: |
           set -euo pipefail
           TITLE="latest-version.txt does not name the current release"
-          if gh issue list --state open --search "in:title \"$TITLE\"" --json number \
-               --jq 'length' | grep -qv '^0$'; then
+          # Captured rather than used directly as a condition: a 5xx from the search would read as
+          # "no open issue" and file another copy of the same report every morning.
+          OPEN=$(gh issue list --state open --search "in:title \"$TITLE\"" --json number --jq 'length')
+          if [ -z "$OPEN" ]; then
+            echo "::warning::could not query open issues; not filing, to avoid a duplicate"
+            exit 0
+          fi
+          if [ "$OPEN" != "0" ]; then
             echo "already reported; not opening a duplicate"
             exit 0
           fi

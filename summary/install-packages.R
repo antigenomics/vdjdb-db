@@ -10,7 +10,18 @@
 #
 # DATED, not `latest`. A snapshot URL that moves is not a pin, and an unpinned upgrade is exactly
 # how `guide = F`, `size =` and `..count..` broke under this document once already.
-SNAPSHOT <- "https://packagemanager.posit.co/cran/__linux__/noble/2026-09-01"
+# The codename is derived, the date is pinned. `noble` was hard-coded, and Posit serves binaries
+# per Ubuntu release: the day `ubuntu-latest` rolls to the next LTS, or a self-hosted runner has a
+# different codename, P3M silently falls back to source tarballs - and `setup-r` with
+# `use-public-rspm: true` installs no -dev headers, so tidyverse fails to compile ten minutes in.
+CODENAME <- tryCatch(
+  sub('"', "", sub("^VERSION_CODENAME=", "",
+                   grep("^VERSION_CODENAME=",
+                        suppressWarnings(readLines("/etc/os-release")), value = TRUE)[1]),
+      fixed = TRUE),
+  error = function(e) NA_character_)
+if (is.na(CODENAME) || !nzchar(CODENAME)) CODENAME <- "noble"
+SNAPSHOT <- sprintf("https://packagemanager.posit.co/cran/__linux__/%s/2026-09-01", CODENAME)
 
 # What the RELEASE half of the Rmd needs. `vdjdb_paper_figures.Rmd` additionally needs `maps`,
 # `scatterpie` and `ggrepel`; the split exists so the release path does not.
