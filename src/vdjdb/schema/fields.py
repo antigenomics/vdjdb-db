@@ -324,8 +324,9 @@ FIELDS: dict[str, Field] = dict([
     _f("references", searchable=0, autocomplete=0, data_type="uint", title="References",
        comment="Distinct publications reporting this row. Two or more is independent replication."),
     _f("mhc.a.status", searchable=0, title="MHC A status",
-       comment="known / unknown / unchecked against IPD-IMGT/HLA by prefix. `unchecked` means there "
-               "is no authority for the name -- a murine molecule, or B2M."),
+       comment="known in IPD-IMGT/HLA by prefix, declared in proofreading/mhc_nonhuman.tsv for a "
+               "name that database does not cover (murine, macaque, B2M), or unknown. A build "
+               "carrying an unknown or blank call fails, so only the first two ever ship."),
     _f("mhc.b.status", searchable=0, title="MHC B status",
        comment="As mhc.a.status, for the second chain."),
 

@@ -88,10 +88,11 @@ rather than by stripping a trailing letter, which would turn the IMGT gene `H2-A
 
 The table doubles as a proofreading report. `status` is
 [`vdjdb.assemble.epitopes.mhc_status`](cdr3-fixing.md), not a second check against the same IMGT file:
-184 calls are `known`, 27 `unchecked` (murine H2 and the class I light chain are outside the HLA
-database), and exactly **two** are `unknown` - `HLA-A*08:01`, for which no `HLA-A*08` exists at any
-resolution, and `HLA-B*12`, a serotype that split into B\*44 and B\*45 and is no longer an allele
-group.
+184 calls are `known` in IPD-IMGT/HLA, 27 `declared` in `proofreading/mhc_nonhuman.tsv` (murine H2,
+macaque Mamu and the class I light chain are outside the HLA database), and **none** is `unknown`,
+because an unknown call fails the build. The two that used to be were `HLA-A*08:01`, for which no
+`HLA-A*08` exists at any resolution, and `HLA-B*12`, a serotype that split into B\*44 and B\*45 and is
+no longer an allele group; both are corrected in `patches/mhc.dict`.
 
 ## Weighting
 
