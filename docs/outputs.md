@@ -358,6 +358,7 @@ they ship in future is open (ROADMAP §9).
 | `vdjdb_full_cdr3aa_broken.txt` | records whose CDR3 is not biologically valid |
 | `vdjdb_full_scored.txt`, `vdjdb.slim.scored.txt`, `vdjdb.scored.txt` | the three tables with a `cluster.member` column |
 | `qc.tsv` | every chunk QC finding: file, row, column, rule, value |
+| `qc-summary.tsv` | one row per rule that fired: level, rule, findings, chunks, whether it is advisory. Written by `vdjdb qc --report`. Gated against `rules/qc_advisories.tsv` with a per-rule tolerance (`tests/unit/test_qc_advisories.py`), because an advisory is advisory since only a curator can resolve it, not because its size does not matter: 10,555 within-chunk duplicates and 209 segment calls with no CDR3 were printed to a log line and recorded nowhere |
 | `chunk-lint.tsv` | text-level findings: encoding, BOM, CRLF, header shape |
 | `records.diff.tsv` | added / amended / retired records against the previous release |
 | `diff-report.md` | the comparison against a reference release (ROADMAP §5) |
