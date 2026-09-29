@@ -80,3 +80,75 @@ def test_nothing_fatal_is_hiding_in_the_baseline(baseline) -> None:
     giving it a tolerance would turn a hard failure into an allowance."""
     fatal = baseline.filter(~pl.col("advisory"))
     assert fatal.height == 0, f"fatal rules must not carry a tolerance:\n{fatal}"
+
+
+def _chunk(**cols):
+    """A minimal frame with the columns the counter rule reads."""
+    import polars as pl
+
+    n = len(next(iter(cols.values())))
+    base = {"chunk.file": ["c.txt"] * n, "chunk.row": list(range(1, n + 1)),
+            "antigen.epitope": ["SIINFEKL"] * n, "antigen.gene": [""] * n,
+            "antigen.species": [""] * n, "mhc.a": [""] * n, "mhc.b": [""] * n}
+    return pl.DataFrame(base | cols)
+
+
+def _counters(frame):
+    from vdjdb.qc.rules import COUNTER_COLUMNS, _no_counter
+
+    return {c for c in COUNTER_COLUMNS
+            if not frame.select(_no_counter(c).all()).item()}
+
+
+def test_a_gene_column_holding_a_consecutive_run_is_a_counter():
+    """#694: `Eef2`..`Eef188`, one label per row in lockstep with the row index."""
+    frame = _chunk(**{"antigen.gene": [f"Eef{n}" for n in range(2, 12)]})
+    assert _counters(frame) == {"antigen.gene"}
+
+
+def test_an_allele_column_holding_a_consecutive_run_is_a_counter():
+    """#625: `HLA-A*24:03`..`HLA-A*24:20`, where the paper types every donor `A*24:02`."""
+    frame = _chunk(**{"mhc.a": [f"HLA-A*24:{n:02d}" for n in range(3, 21)]})
+    assert _counters(frame) == {"mhc.a"}
+
+
+def test_two_neighbouring_alleles_are_not_a_counter():
+    """A paper reporting two restrictions must not trip this - that is #597, a different question."""
+    frame = _chunk(**{"mhc.a": ["HLA-A*02:01", "HLA-A*02:01", "HLA-A*02:06"]})
+    assert _counters(frame) == set()
+
+
+def test_a_sparse_family_is_not_a_counter():
+    """`TRBV5-1, TRBV5-3, TRBV5-8` fills 3 of an 8-wide span. A counter is dense by construction."""
+    frame = _chunk(**{"antigen.gene": ["MAGEA1", "MAGEA3", "MAGEA10"]})
+    assert _counters(frame) == set()
+
+
+def test_one_epitope_does_not_borrow_another_epitope_s_values():
+    """The run has to be dense inside one `(chunk, epitope)`, which is where it should be constant."""
+    import polars as pl
+
+    frame = pl.DataFrame({
+        "chunk.file": ["c.txt"] * 6, "chunk.row": list(range(1, 7)),
+        "antigen.epitope": ["AAA", "AAA", "AAA", "BBB", "BBB", "BBB"],
+        "antigen.gene": ["Eef2", "Eef2", "Eef2", "Eef3", "Eef3", "Eef3"],
+        "antigen.species": [""] * 6, "mhc.a": [""] * 6, "mhc.b": [""] * 6,
+    })
+    assert _counters(frame) == set(), "constant within each epitope, so nothing is a counter"
+
+
+def test_the_corpus_carries_exactly_the_one_declared_counter():
+    """`PMID_39286976.txt`, 38 rows, and `patches/mhc.dict` already repairs it at build time.
+
+    The rule starts as a regression guard on a clean corpus, which is the state #597 argues a new
+    rule should start from: a finding here means a counter that arrived since, not one of a list a
+    reader has to remember to ignore.
+    """
+    import polars as pl
+
+    baseline = pl.read_csv("rules/qc_advisories.tsv", separator="\t")
+    counters = baseline.filter(pl.col("rule").str.starts_with("counter in"))
+    assert counters.height == 1
+    assert counters["rule"].item() == "counter in mhc.a"
+    assert counters["findings"].item() == 38
+    assert counters["chunks"].item() == 1

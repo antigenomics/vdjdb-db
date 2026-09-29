@@ -25,7 +25,7 @@ mhc.a | First MHC chain allele, to the best resolution available, ``HLA-X*XX:XX`
 mhc.b | Second MHC chain allele (``B2M`` for MHCI)
 mhc.class | ``MHCI`` or ``MHCII``
 antigen.epitope | Amino acid sequence of the epitope
-antigen.gene | Parent gene of the epitope sequence (e.g. ``pp24``)
+antigen.gene | Parent gene of the epitope sequence (e.g. ``pp24``). A property of the peptide, so within one chunk and one ``antigen.epitope`` it should be constant. QC reports a dense run of ``prefix``+integer under ``counter in antigen.gene``: dragging a cell down a spreadsheet column increments it, and that turned one epitope's ``Eef2`` into ``Eef2``..``Eef188``, holding 65 clonotypes apart because the column is part of the deduplication key. The same rule covers ``antigen.species``, ``mhc.a`` and ``mhc.b``, and deliberately not ``meta.clone.id`` or ``meta.subject.id``, where a counter is the content
 antigen.species | Parent species of the antigen, to the best clade resolution available (e.g. ``HIV-1``, ``HIV-1*HXB2``)
 reference.id | Pubmed id, doi, etc
 submitter | Name of submitting person/organization

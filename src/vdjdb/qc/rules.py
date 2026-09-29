@@ -95,6 +95,56 @@ def _functional_ok(col: str) -> pl.Expr:
             | (~key.is_in(listed) & ~gene.is_in(bad)))
 
 
+#: Columns that describe the **antigen or its MHC**, so a per-row counter in one of them is a
+#: spreadsheet artefact rather than the column's purpose. Deliberately excludes `meta.clone.id`,
+#: `meta.subject.id` and `meta.study.id`: a counter there *is* the content, and the corpus is full of
+#: legitimate ones (`TCR053`..`TCR075`, `B15/S919_row007`..`row260`, donors `885`..`897`).
+COUNTER_COLUMNS: tuple[str, ...] = ("antigen.gene", "antigen.species", "mhc.a", "mhc.b")
+
+#: Distinct values a run needs before it reads as a counter rather than as two neighbouring alleles.
+COUNTER_MIN_VALUES = 3
+
+#: Share of its own integer span a run must fill. A counter is dense by construction; a gene family a
+#: paper happens to report several members of is not.
+COUNTER_MIN_DENSITY = 0.9
+
+
+def _no_counter(col: str) -> pl.Expr:
+    """True unless ``col`` holds a dense integer run inside one chunk's one epitope.
+
+    Three confirmed instances, in three different columns, each found by hand and each costing real
+    records:
+
+    * #694, `antigen.gene`: `FVVKAYLPVNESFAFTADLRSNTGGQA` carried `Eef2`, `Eef3` ... `Eef188`, one
+      label per row in lockstep with the row index. `antigen.gene` is in `CHUNK_DEDUP_KEY`, so those
+      187 rows were exactly the ones that never deduplicated - 65 clonotypes held apart by a counter,
+      **122 records that were never real**;
+    * #625, `mhc.a`: `HLA-A*24:03` .. `HLA-A*24:20` run consecutively over 18 clonotypes and two
+      epitopes, where the paper types every donor `A*24:02`. Only 4 of the 18 exist in IPD-IMGT/HLA,
+      so the allele-existence gate caught 4 and the other 14 are real names carrying a wrong value;
+    * the B16 chunk's `meta.epitope.id`, the same autofill frozen rather than incremented.
+
+    Dragging a cell down a spreadsheet column increments it, so this is a recurring failure mode and
+    not three accidents. What makes it detectable without judgement is that these columns are
+    properties of the peptide: within one paper and one epitope they should be constant, and a dense
+    run of `prefix`+integer is not a curator reporting two alleles.
+
+    Advisory. The one current finding is #625's, already declared in `patches/mhc.dict` and repaired
+    at build time, so the rule starts as a regression guard on a clean corpus - which is the state
+    #597 says a new rule should start from.
+    """
+    group = ["chunk.file", "antigen.epitope"]
+    prefix = pl.col(col).str.extract(r"^(.*?)\d+$", 1)
+    number = pl.col(col).str.extract(r"(\d+)$", 1).cast(pl.Int64, strict=False)
+    span = number.max().over(group) - number.min().over(group) + 1
+    return ~(
+        (pl.col(col).n_unique().over(group) >= COUNTER_MIN_VALUES)
+        & (prefix.n_unique().over(group) == 1)
+        & prefix.is_not_null()
+        & ((number.n_unique().over(group) / span) >= COUNTER_MIN_DENSITY)
+    )
+
+
 RULES: dict[str, pl.Expr] = {
     "bad cdr3.alpha": _seq_ok("cdr3.alpha"),
     "bad cdr3.beta": _seq_ok("cdr3.beta"),
@@ -181,6 +231,9 @@ RULES: dict[str, pl.Expr] = {
     # `out/reports/functionality.tsv` is the per-chain form with IMGT's spelling and whether the
     # verdict came from the allele or from its gene.
     **{f"non-functional {col}": _functional_ok(col) for col in SEGMENT_QC_COLUMNS},
+    # A spreadsheet counter in a column that describes the antigen (#694, #625). See `_no_counter`
+    # for the three confirmed instances and why the `meta.*` identifier columns are excluded.
+    **{f"counter in {col}": _no_counter(col) for col in COUNTER_COLUMNS},
 }
 
 
