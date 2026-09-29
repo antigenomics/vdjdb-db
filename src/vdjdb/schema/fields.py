@@ -314,9 +314,34 @@ FIELDS: dict[str, Field] = dict([
                "Failed* reason."),
     _f("j.fix.type", searchable=0, title="J fix type", comment="How the J side was repaired."),
     _f("v.canonical", searchable=0, autocomplete=0, data_type="bool", title="V anchor canonical",
-       comment="Whether the CDR3 begins with the Cys104 the V germline predicts."),
+       comment="Whether the CDR3 begins with Cys104, which a TCR junction does by definition. "
+               "False marks a record kept for what it reports and filterable by anyone who wants "
+               "only canonical junctions."),
     _f("j.canonical", searchable=0, autocomplete=0, data_type="bool", title="J anchor canonical",
-       comment="Whether the CDR3 ends with the Phe/Trp118 the J germline predicts."),
+       comment="Whether the CDR3 ends with Phe118 or Trp118, which a TCR junction does by "
+               "definition. False marks a record kept and filterable, not a variant."),
+    # The same two questions asked of the sequence the submitter sent, because the answers differ and
+    # they are two different findings. Post-fix false says "this shipped record is not a canonical
+    # junction, filter it if you want only canonical ones". Submitted false says "the chunk cell is
+    # wrong and the next export of that data will be wrong again". Measured 2026-09-29: the V anchor
+    # is absent on 413 submitted chains and 161 shipped ones, the J anchor on 4,701 and 864 - so
+    # 4,089 repairs are invisible in the shipped pair alone. A chain with no CDR3 at all (34 rows, a
+    # D call and nothing else) reads `true`: an absent sequence has no anchor to be missing, which is
+    # `no.cdr3` and a different finding.
+    _f("v.canonical.submitted", searchable=0, autocomplete=0, data_type="bool",
+       title="V anchor canonical as submitted",
+       comment="Whether the submitted CDR3 began with Cys104, before any repair."),
+    _f("j.canonical.submitted", searchable=0, autocomplete=0, data_type="bool",
+       title="J anchor canonical as submitted",
+       comment="Whether the submitted CDR3 ended with Phe118 or Trp118, before any repair."),
+    # A TCR junction carries exactly one cysteine, the Cys104 it opens with. A second is rare rather
+    # than impossible - the Jurkat receptor has one - so this is a flag on a kept record, like the two
+    # above, and `vdjdb qc` reports it at the import stage where the source is still to hand.
+    # Measured 2026-09-29: 4,026 shipped chains. Asked of the shipped sequence, which is what a
+    # consumer reads; `vdjdb qc` asks it of the raw chunk cell for the submitter.
+    _f("cdr3.one.cysteine", searchable=0, autocomplete=0, data_type="bool",
+       title="Single cysteine",
+       comment="Whether the CDR3 carries no cysteine after the Cys104 it opens with."),
     _f("chunk.file", searchable=0, title="Chunk file",
        comment="The chunk the record was read from. One chunk is one publication."),
     _f("chunk.row", searchable=0, autocomplete=0, data_type="uint", title="Chunk row",
@@ -454,6 +479,10 @@ CHAIN_COLUMNS: tuple[str, ...] = (
     "v.end.inferred", "j.start.inferred",
     "cdr3.original", "fix.needed", "fix.good",
     "v.fix.type", "j.fix.type", "v.canonical", "j.canonical",
+    # The same two anchor questions asked of the sequence as submitted, plus the third condition a
+    # junction has to meet. Post-fix says whether the shipped record is canonical; submitted says
+    # whether the chunk cell is, which is the finding a curator acts on.
+    "v.canonical.submitted", "j.canonical.submitted", "cdr3.one.cysteine",
     # The submitted call, and the call the markup engine would have made, beside the shipped one.
     "v.segm.submitted", "j.segm.submitted", "d.segm.submitted",
     "v.segm.arda", "j.segm.arda",

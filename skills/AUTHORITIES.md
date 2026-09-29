@@ -35,11 +35,22 @@ next submission of the same data.
    residues longer than AIRR's and arda's `cdr3_aa`. A submission exported in IMGT CDR3 space is
    short one residue at each end and passes `vdjdb qc`, because those rules check the alphabet and a
    minimum length, not the ends. `vdjdb submission` is what catches it.
-4. **The anchor residue is read from the germline of the segment the record names, never assumed to
-   be Phe or Trp.** Human `TRAJ35*01` templates `IGFGNVLHC` and mouse `TRAJ7*01` templates
-   `DYSNNRLTL`, so a correct junction on either does not end in F or W. A fixed "ends in F or W" test
-   calls 481 correct chains in the corpus broken and separately misses 125 that are not. Any skill,
-   script or reviewer note stating that rule as an absolute is wrong.
+4. **A TCR junction starts with Cys104 and ends with Phe118 or Trp118. That is the definition, not a
+   heuristic**, and it is checked at submission time, where it is cheap to fix. A sequence failing it
+   is not a variant: it is an export in IMGT CDR3 space, a mis-read anchor, framework left in, or a
+   mis-called allele.
+
+   The germline of the segment the record names says **which** of those it is, never whether it is
+   one. Read it that way round. Measured over the corpus, 864 of 285,989 chains fail the definition:
+   212 sit on an ORF allele whose anchor is genuinely lost, so the *call* is what needs repairing
+   (mouse `TRAJ47`/`TRAJ7`/`TRAJ44` resolve to an ORF `*01` where a functional sibling matches the
+   sequence - the same defect as [#327](https://github.com/antigenomics/vdjdb-db/issues/327)); about
+   200 name a germline that does carry the Phe, so the *sequence* is wrong; 144 name no J at all, so
+   the definition is the only thing left to check them against.
+
+   Germline agreement with a non-functional allele is not a validation. It is the same finding one
+   level up.
+
 5. **Never invent a value.** Every amino acid sequence, gene name, allele, species and reference id
    written into a chunk is confirmed present in the source by a search of the source, and the result
    of that search is logged. A PMID is never guessed. A value that cannot be confirmed is marked

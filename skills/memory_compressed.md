@@ -1,7 +1,7 @@
 # VDJdb Skills — Memory (Compressed)
 
 **Last compressed:** 2026-05-26 (rev 3)
-**Covers sessions through:** 2026-05-27
+**Covers sessions through:** 2026-09-29
 **Full log:** `skills/memory.md`
 
 ---
@@ -14,6 +14,22 @@
 |---|---|---|---|
 
 *None.*
+
+### Skill state
+
+Reconciled 2026-09-29 against the rewritten build. The skills drive `vdjdb qc` / `vdjdb submission` and
+read `proofreading/` and `patches/`; they no longer carry their own copies of the validation rules.
+`skills/AUTHORITIES.md` holds the shared invariants and `tests/unit/test_skills.py` fails any claim that
+drifts from the code. Invocations are `/vdjdb-*`; the short forms are gone.
+
+Open curation debt the reworked skills now report rather than hide:
+
+| Finding | Scale | Where |
+|---|---|---|
+| segment calls IMGT carries at neither level | 3,457 chain-calls, 46 family names a curator must choose within | `out/reports/nomenclature.tsv`, issue #389 |
+| junctions contradicting their own germline | 5,960 chains, 5,097 with a proposed repair | `out/reports/anchors.tsv` |
+| a cysteine after the first residue | 4,325 chunk rows over 108 chunks | `vdjdb qc`, advisory |
+| `antigen.gene` `Spike` (6,307) beside `S` (6) | 6 rows | `out/reports/lookalikes.tsv` |
 
 ### Recently Completed Chunks
 

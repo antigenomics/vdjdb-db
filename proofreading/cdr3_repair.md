@@ -54,6 +54,91 @@ A missing Cys104 deserves a second look even where the rest of the record is cle
 without it, so a first residue that is not Cys while the body still aligns to the V is a sequencing or
 transcription error rather than a variant.
 
+## Two independent sources for the anchor
+
+The germline of the named segment is one. The corpus is the other, and they disagree in useful places -
+a germline that is an ORF allele has lost its anchor, while 285,989 curated chains have not.
+
+**A consensus over already-stable records is not the data validating itself.** The map below requires
+**10 records and 50 % agreement** per gene before it will answer, so a single bad record cannot move a
+gene's anchor and a gene with thin coverage is left alone. Where the two sources agree, a repair is
+well founded. Where they disagree, the disagreement is the finding: mouse `TRAJ47` germline ends in Cys
+because `*01` is an ORF, and every one of the 95 corpus chains on it reads the functional `*02`
+signature. The corpus is right and the call is wrong.
+
+Use the germline to name the defect and the corpus consensus to sanity-check the residue it proposes.
+
+### 3.2 Build anchor maps from existing chunks
+
+Run once per session to build lookup tables:
+
+```python
+import csv, glob, re
+from collections import Counter, defaultdict
+
+FF_J_GENES = frozenset({"TRAJ36", "TRBJ1-1", "TRBJ1-4", "TRBJ2-1", "TRBJ2-2"})
+
+def _normalize_gene(g: str) -> str:
+    g = g.strip().upper()
+    g = re.sub(r"\*\d+$", "", g)
+    g = re.sub(r"^TCRA", "TRA", g)
+    g = re.sub(r"^TCRB", "TRB", g)
+    return g
+
+def build_anchor_maps(chunks_glob="chunks/*.txt"):
+    """
+    Returns:
+        j_map: {normalized_j: (ctx2, terminal)}
+               ctx2 = 2-char anchor immediately before the terminal residue(s)
+               terminal = "FF" or "F" (or "W" for W-terminal genes)
+        v_map: {normalized_v: ctx2}
+               ctx2 = 2-char anchor immediately after leading C
+    """
+    j_ctx: dict[str, Counter] = defaultdict(Counter)
+    v_ctx: dict[str, Counter] = defaultdict(Counter)
+
+    for path in glob.glob(chunks_glob):
+        with open(path) as fh:
+            for row in csv.DictReader(fh, delimiter='\t'):
+                for cdr3_col, j_col, v_col in [
+                    ('cdr3.beta', 'j.beta', 'v.beta'),
+                    ('cdr3.alpha', 'j.alpha', 'v.alpha'),
+                ]:
+                    cdr3 = (row.get(cdr3_col) or '').strip()
+                    j    = (row.get(j_col) or '').strip()
+                    v    = (row.get(v_col) or '').strip()
+                    if len(cdr3) < 5:
+                        continue
+                    jn = _normalize_gene(j) if j else ''
+                    vn = _normalize_gene(v) if v else ''
+                    if v and cdr3.startswith('C'):
+                        v_ctx[vn][cdr3[1:3]] += 1
+                    if j:
+                        if jn in FF_J_GENES and cdr3.endswith('FF'):
+                            j_ctx[jn][cdr3[-4:-2]] += 1
+                        elif jn not in FF_J_GENES and cdr3.endswith(('F', 'W')):
+                            j_ctx[jn][cdr3[-3:-1]] += 1
+
+    j_map: dict[str, tuple[str, str]] = {}
+    for jn, counts in j_ctx.items():
+        total = sum(counts.values())
+        top, top_n = counts.most_common(1)[0]
+        if total >= 10 and top_n / total >= 0.5:
+            terminal = "FF" if jn in FF_J_GENES else "F"
+            j_map[jn] = (top, terminal)
+
+    v_map: dict[str, str] = {}
+    for vn, counts in v_ctx.items():
+        total = sum(counts.values())
+        top, top_n = counts.most_common(1)[0]
+        if total >= 10 and top_n / total >= 0.5:
+            v_map[vn] = top
+
+    return j_map, v_map
+```
+
+Require at least 10 records and 50% consensus for a gene to appear in the anchor maps. Genes with insufficient data are not repaired.
+
 ## Why the proposal is against the submitted sequence
 
 `arda.cdr3fix` repairs most of these on the way through the build, so the shipped `cdr3` is usually

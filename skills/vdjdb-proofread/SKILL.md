@@ -82,6 +82,7 @@ default) any non-advisory finding exits 1.
 | Rule | Why it does not fail |
 |---|---|
 | `non-functional v.alpha`, `non-functional j.alpha`, `non-functional v.beta`, `non-functional j.beta` | IMGT's `ORF`/`P` verdict on the named segment. A P gene can rearrange, and IMGT reclassifies between releases |
+| `internal cysteine in cdr3.alpha`, `internal cysteine in cdr3.beta` | a junction has one cysteine, the Cys104 it opens with. A second is rare and not impossible - the Jurkat receptor has one - so the record is kept and flagged. 1,521 + 2,804 corpus rows over 108 chunks; only the submitter's source settles a given one |
 | `alpha and beta cdr3 identical` | only a curator can say which of the two chains is the wrong one |
 | `segment call with no cdr3` | the call is information; the chain cannot reach an output. Tell the submitter while they can still send the sequence |
 | `structure id is not a PDB id` | 2,765 corpus rows hold a figure or table reference there. Blanking them moves 6,004 scores, which is a curation decision |
@@ -125,6 +126,40 @@ dataset VDJdb already has under another reference - check before landing it.
 
 Applying any proposed repair is a chunk edit: its own branch, its own issue, its own message
 (invariant 1). Nothing applies one automatically.
+
+## Step 3a - the junction definition, and the three flags that carry it
+
+A TCR junction **starts with `C`, ends with `F` or `W`, and carries exactly one cysteine**. That is the
+definition. `vdjdb qc` does not check the first two, because its sequence rules read the alphabet and a
+minimum length; it does check the third, as the advisory `internal cysteine in cdr3.alpha` / `.beta`.
+
+**A record failing the definition is kept and flagged, never dropped.** It can be the best record of
+what a publication reported, and consumers filter on the flag. `chains` ships six booleans for it:
+
+| Column | False means |
+|---|---|
+| `v.canonical`, `j.canonical` | the **shipped** sequence does not open with Cys104 / close with Phe118 or Trp118. 161 and 864 chains |
+| `v.canonical.submitted`, `j.canonical.submitted` | the **submitted** sequence did not. 413 and 4,701 chains - so 4,089 repairs are invisible in the shipped pair alone |
+| `cdr3.one.cysteine` | a cysteine after the first residue. 4,026 chains. `vdjdb qc` asks the same of the raw chunk cell |
+
+A chain with no CDR3 at all reads `true` on all three: an absent sequence has no anchor to be
+missing, and that is `no.cdr3`.
+
+The pair matters because the two answer different questions. Shipped-false tells a consumer this record
+is not a canonical junction. Submitted-false tells a curator **the chunk cell is wrong and the next
+export of that data will be wrong again**, which is the finding to act on. `arda.cdr3fix` repairs most
+of them on the way through, so the shipped `cdr3` is usually right while the chunk keeps the defect.
+
+Then use the germline to say **which** defect a flagged junction has, never whether it is one:
+
+| Germline of the named J | Reading |
+|---|---|
+| carries the Phe, the sequence does not | the **sequence** is wrong - repair it, ~200 chains |
+| is an `ORF` or `P` allele whose anchor is lost | the **call** is wrong - a functional sibling matches, 212 chains, the [#327](https://github.com/antigenomics/vdjdb-db/issues/327) shape |
+| there is no J call | nothing adjudicates it; the definition is the only check, 144 chains |
+
+Germline agreement with a pseudogene has not validated the junction. It is the same finding one level
+up. `out/reports/anchors.tsv` and `proofreading/cdr3_repair.md` carry the per-defect breakdown.
 
 ## Step 4 - the method fields
 

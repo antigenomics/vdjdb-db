@@ -54,17 +54,41 @@ is already known, take the dict's gene and species so the chunk agrees with the 
 
 ### Sequence admission
 
+A TCR junction **starts with `C`, ends with `F` or `W`, and carries no other cysteine**. That is the
+definition of the region, not a statistical tendency. Import is the cheapest place to catch a breach of
+it - before the file has a name, an issue or a commit - and it is where the submitter still has their
+own source open.
+
+**Nothing is dropped for failing the definition.** The record is kept, flagged, and warned about. A
+non-canonical junction can be the best record of what a publication reported, and people filter on the
+flag: the build ships `v.canonical`, `j.canonical` and `cdr3.one.cysteine` on `chains`, plus the same
+three asked of the sequence as submitted, and `vdjdb qc` reports `internal cysteine in cdr3.alpha` /
+`.beta` on the raw chunk.
+
 | Case | Action |
 |---|---|
-| Any character outside the 20 canonical amino acids (`X`, `B`, `*`, `#`) | drop the row, log it |
+| Any character outside the 20 canonical amino acids (`X`, `B`, `*`, `#`) | drop the row, log it - this is an invalid alphabet, not a non-canonical junction |
 | Fewer than 4 residues | drop the row, log it |
-| First or last residue is not the germline anchor | **keep it** - log it; `vdjdb submission` reports it against the actual germline and proposes a repair |
+| Does not start with `C`, or does not end with `F` or `W` | **keep it, and work out which of the four causes below it is.** Fix it at the source where you can, flag it where you cannot, and log either way |
+| Carries a cysteine after the first residue | **keep it and warn.** Rare rather than impossible - the Jurkat receptor has one, and a disulphide-bonded loop is a real thing to report - so check it against the source and say so in the log |
 | Genuinely modified or non-natural residues | ask the user, then `chunks_with_unconventional_aa/` |
 
-`chunks_with_unconventional_aa/` is only for residues outside the canonical 20. A junction whose ends
-disagree with its germline stays in `chunks/` - see invariant 4. Do **not** apply a "starts with C,
-ends with F or W" test here or anywhere: it is not the rule, and it calls 481 correct corpus chains
-broken.
+Four causes of a missing anchor, in the order they are worth checking:
+
+1. **The source is in IMGT CDR3 space.** Both anchors are absent because that coordinate system
+   excludes them. The column is `cdr3_aa`, not `junction_aa` - invariant 3. The whole file is affected,
+   not one row, so check one sequence and you have checked all of them. This is the one to fix rather
+   than flag: re-read the right column.
+2. **Framework was left in.** `YLCSSQEGGYGYTFGSG` carries residues in front of the Cys and behind the
+   Phe. Trim to the anchors.
+3. **The anchor was mis-read.** `GASSDTMNTKIL` for `CASSDTMNTKIL`. One residue, and the V germline says
+   which it should be.
+4. **The V or J call is wrong, and the sequence is right.** Mouse `TRAJ47` resolves to an ORF `*01`
+   whose anchor is genuinely lost, and every corpus chain on it reads the functional `*02` signature.
+   Repair the call, not the sequence - `proofreading/cdr3_repair.md`.
+
+Cause 1 is a whole-file mistake and worth stopping for. Causes 2 to 4 are per-row: fix what the source
+supports and flag the rest. Log the count per cause.
 
 Epitopes are canonical amino acids only. A chemical modification, a non-peptide antigen or a peptide
 pool is flagged and asked about before it is included.

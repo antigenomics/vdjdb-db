@@ -1,10 +1,12 @@
 level	rule	findings	chunks	advisory	tolerance
 row	duplicate	10555	59	true	2000
+row	internal cysteine in cdr3.beta	2804	94	true	700
+row	internal cysteine in cdr3.alpha	1521	69	true	400
+row	non-functional v.beta	1022	74	true	300
 row	non-functional j.alpha	996	65	true	300
 row	non-functional j.beta	338	18	true	150
-row	non-functional v.alpha	38	5	true	50
-row	non-functional v.beta	1022	74	true	300
 row	segment call with no cdr3	209	12	true	50
+row	non-functional v.alpha	38	5	true	50
+text	unknown-column	2	-1	true	0
 text	empty-column-name	1	-1	true	0
 text	prose-column-name	1	-1	true	0
-text	unknown-column	2	-1	true	0

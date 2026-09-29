@@ -59,6 +59,11 @@ ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form", "duplicate"
                       # is kept; the chain cannot reach an output, which is what this tells the
                       # submitter while they can still supply the sequence.
                       "segment call with no cdr3",
+                      # A Cys after the one the junction opens with. Kept and flagged rather than
+                      # gated: the Jurkat receptor carries one, so it is rare and not impossible, and
+                      # 4,325 corpus rows over 108 chunks would fail a gate for a defect a curator has
+                      # to read the source to settle.
+                      "internal cysteine in cdr3.alpha", "internal cysteine in cdr3.beta",
                       # #402: a `meta.structure.id` that is not a PDB entry id. 2,765 rows in the
                       # corpus hold a figure or table reference there, and the field awards the top
                       # confidence score, so this has to be visible - but blanking them moves 6,004

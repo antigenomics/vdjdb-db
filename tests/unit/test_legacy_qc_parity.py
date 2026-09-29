@@ -188,6 +188,18 @@ CHUNK_CASES: tuple[Case, ...] = (
           note="Both chains are required even for class I, where `mhc.b` is always B2M."),
 
     # --- the new rules, with no legacy counterpart ---
+    _case("the-beta-junction-carries-a-second-cysteine",
+          {"cdr3.beta": "CASSYCCGTEAFF"},
+          [], ["internal cysteine in cdr3.beta"], verdict=STRICTER,
+          note="A TCR junction has one cysteine, the Cys104 it opens with. Legacy checked the "
+               "alphabet and a minimum length, so a second Cys passed. 2,804 corpus rows in 94 "
+               "chunks carry one, which is why it reports and does not fail: the Jurkat receptor has "
+               "one, so rare is not impossible and only the source settles it."),
+    _case("the-alpha-junction-carries-a-second-cysteine",
+          {"cdr3.alpha": "CAGCPRYNTDKLIF", "v.alpha": "TRAV27*01", "j.alpha": "TRAJ34*01"},
+          [], ["internal cysteine in cdr3.alpha"], verdict=STRICTER,
+          note="The same rule on the alpha chain, 1,521 corpus rows in 69 chunks."),
+
     _case("both-chains-carry-the-same-cdr3",
           {"cdr3.alpha": "CASSIRSSYEQYF", "v.alpha": "TRAV21*01", "j.alpha": "TRAJ42*01"},
           [], ["alpha and beta cdr3 identical"], verdict=STRICTER,
