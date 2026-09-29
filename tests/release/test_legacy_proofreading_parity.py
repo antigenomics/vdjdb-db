@@ -50,8 +50,10 @@ pytestmark = pytest.mark.release
 #: Legacy's `is_qq_seq_biologically_valid` on the shipped junctions. A rise means a chunk landed with
 #: junctions in the wrong coordinate space; the partition below is what says whether that is reported.
 LEGACY_JUNCTION_FINDINGS = 956
-#: Of those, how many the germline-based check reports. The rest are legacy false positives.
-REPORTED_BY_ANCHORS = 475
+#: Of those, the share the germline-based check reports; the rest are legacy false positives. A share
+#: rather than a count, because both terms grow with the corpus and only their ratio says whether the
+#: check went quiet - the same reasoning the timing gates use. Measured 475 of 956, 0.4969.
+REPORTED_SHARE_FLOOR = 0.45
 #: Legacy's `gene_match_check`, human only, as the driver ran it.
 LEGACY_GENE_FINDINGS = 2582
 #: A band, because both numbers move with every chunk. What must not move is the *remainder*, which is
@@ -89,17 +91,33 @@ def reports() -> dict[str, pl.DataFrame]:
 # vdjdb_full_cdr3aa_broken.txt -> anchors.tsv
 # --------------------------------------------------------------------------------------------
 
-def test_every_junction_the_retired_check_rejected_is_reported_or_justified(chains, reports) -> None:
+@pytest.fixture(scope="module")
+def retired_junction_findings(chains) -> pl.DataFrame:
+    """Every chain the retired `is_qq_seq_biologically_valid` rejects.
+
+    A Python call per row, on purpose. The predicate is simple enough to write as a polars expression
+    and writing it as one would make this a reimplementation of the oracle rather than a use of it,
+    which is the only thing that makes the partition below evidence. 0.3 s over 285,989 chains, and
+    module-scoped so it is paid once.
+    """
+    return chains.filter(
+        ~pl.col("cdr3").map_elements(L.is_qq_seq_biologically_valid, return_dtype=pl.Boolean))
+
+
+def _reported(anchors: pl.DataFrame) -> set[tuple[str, str]]:
+    return set(zip(anchors["record_id"], anchors["gene"], strict=True))
+
+
+def test_every_junction_the_retired_check_rejected_is_reported_or_justified(
+        retired_junction_findings, reports) -> None:
     """The partition with no remainder. A junction legacy called broken is either reported by the
     germline-based check, or the germline it names really does end in that residue."""
-    flagged = chains.filter(
-        ~pl.col("cdr3").map_elements(L.is_qq_seq_biologically_valid, return_dtype=pl.Boolean))
+    flagged = retired_junction_findings
     assert flagged.height == pytest.approx(LEGACY_JUNCTION_FINDINGS, abs=TOLERANCE), (
         f"the retired junction check now rejects {flagged.height} chains against a recorded "
         f"{LEGACY_JUNCTION_FINDINGS}. Re-measure and say in the commit which chunk moved it.")
 
-    reported = set(zip(reports["anchors.tsv"]["record_id"], reports["anchors.tsv"]["gene"],
-                       strict=True))
+    reported = _reported(reports["anchors.tsv"])
     remainder = flagged.filter(
         ~pl.struct("record_id", "gene").map_elements(
             lambda s: (s["record_id"], s["gene"]) in reported, return_dtype=pl.Boolean))
@@ -117,20 +135,22 @@ def test_every_junction_the_retired_check_rejected_is_reported_or_justified(chai
         f"{unaccounted.select('record_id', 'gene', 'species', 'cdr3', 'j.segm', 'anchor').head(10)}")
 
 
-def test_the_share_the_germline_check_reports_has_not_fallen(chains, reports) -> None:
+def test_the_share_the_germline_check_reports_has_not_fallen(
+        retired_junction_findings, reports) -> None:
     """The other half of the partition, gated in its own right.
 
     Without this the first test passes by moving rows from "reported" into "justified", which is
     exactly the regression that would matter: the germline check going quiet on a real defect.
     """
-    flagged = chains.filter(
-        ~pl.col("cdr3").map_elements(L.is_qq_seq_biologically_valid, return_dtype=pl.Boolean))
-    reported = set(zip(reports["anchors.tsv"]["record_id"], reports["anchors.tsv"]["gene"],
-                       strict=True))
-    overlap = sum(1 for r, g in zip(flagged["record_id"], flagged["gene"], strict=True) if (r, g) in reported)
-    assert overlap >= REPORTED_BY_ANCHORS - TOLERANCE, (
+    flagged = retired_junction_findings
+    reported = _reported(reports["anchors.tsv"])
+    overlap = sum(1 for r, g in zip(flagged["record_id"], flagged["gene"], strict=True)
+                  if (r, g) in reported)
+    share = overlap / flagged.height
+    assert share >= REPORTED_SHARE_FLOOR, (
         f"the germline check reports {overlap} of the {flagged.height} junctions the retired build "
-        f"rejected, against a recorded {REPORTED_BY_ANCHORS}. It has gone quiet on something.")
+        f"rejected, a share of {share:.4f} against a floor of {REPORTED_SHARE_FLOOR}. It has gone "
+        "quiet on something.")
 
 
 def test_a_junction_with_no_germline_to_check_is_still_reported(reports) -> None:
