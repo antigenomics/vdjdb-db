@@ -77,6 +77,29 @@ means re-measuring the three declarations and extending each note with the chunk
 the entry for `PMID_18025130` is the worked example. `vdjdb diff --report` prints declared against
 measured per file and flags which one moved.
 
+### What the comparison is, and is not, the instrument for
+
+It runs on the **assembled legacy zip**, so the thing compared is the file a consumer downloads.
+Three of that bundle's twelve members cannot be judged by keying their rows against the reference,
+and `[measured_elsewhere]` in `rules/expected_diffs.toml` names each one with the instrument that
+gates it instead. They are still read, digested, row-counted and printed; what they are exempt from
+is the requirement that every changed cell match a rule.
+
+| Member | Why keying it says nothing | What gates it |
+|---|---|---|
+| `cluster_members.txt` | `cid` is `<species>.<chain>.<epitope>.<n>` and `n` is a position in a sorted list, so one renumbered cluster relabels every cluster after it | `vdjdb motif-metrics`, 18 axes per chain, including `partition_neighbours_preserved` - of every clonotype the release clustered, the fraction of its cluster-mates this build still gives it. Column count and order by `tests/release/test_reference_contract.py` |
+| `motif_pwms.txt` | a row is one PWM cell of one cluster, so it has no identity that survives a re-clustering | the same two |
+| `vdjdb_summary_embed.html` | a fresh render every build | `summary/check_summary.py`: the ordered headings and tables, PNG dimensions decoded from the IHDR, ColorBrewer anchors, and SSIM against the last release |
+| `LICENSE` | not a table | reviewed as a git diff. AGPL-3.0 in the 2026-06-03 release, CC BY-NC-ND 4.0 since `517c7db` |
+
+Measured before those declarations existed: comparing every member of the legacy zip reported **101,877
+unattributed cells**, and every one was in a motif file or in `latest-version.txt` while the five
+legacy tables were fully attributed. The workflow's answer had been `--only` naming those five, which
+is the same exemption with no reason recorded and no digest taken of the other seven.
+
+A member the reference does not contain is declared in `[members]`. Today that is
+`cluster_members_tcremp.txt` and `motif_pwms_tcremp.txt`; an undeclared one still fails.
+
 Canonical equality is the gate; raw equality is informational. The legacy pipeline iterated
 `os.listdir("../chunks")`, which is readdir order and therefore filesystem- and host-dependent, so
 the 2026-06-03 release cannot be reproduced byte-for-byte on another machine, including by the
