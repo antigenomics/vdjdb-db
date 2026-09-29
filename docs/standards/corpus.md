@@ -55,9 +55,18 @@ k is 3 for both k-mer families. Over 2,118 epitopes of 7 to 25 residues and 180,
 3-mer has a document frequency worth an inverse document frequency, while a 5-mer is close to an
 identifier of its own sequence and a 2-mer is in nearly every document.
 
-**Why `k:` and `kv:` both.** "Is the CAS motif specific to HIV, or to its TRBV?" is a comparison
-between the lift of `k:CAS` on HIV documents and its lift on HIV documents already carrying that V
-gene. One token cannot express it and neither can a single search ranking.
+**Why `k:` and `kv:` both.** "Is the `CAS` motif specific to HIV-1, or to its TRBV?" is a
+comparison between the lift of `k:CAS` on an epitope's documents and its lift on
+those documents already carrying that V gene. One token cannot express it and neither can a single
+search ranking.
+
+⚠ **A species condition answers a provenance question, not a specificity one.** `a:HIV-1` is a real and
+useful axis - "which papers and receptors are about this species" is how most questions start - but the
+group it selects is a **union over pMHCs**: every receptor reported against some epitope of that
+species, under whatever restriction each study used. So a lift over it describes that group and is not
+a motif *for* the pathogen, because its members were shown different antigens. Condition on
+`e:<epitope>`, or on that plus a restriction, when the claim is about recognition.
+[Terminology](terminology.md) has the full distinction.
 
 **Why `ek:`.** Two epitopes sharing a core, or one epitope reported under two source species, are
 linked by their k-mers and by nothing else. Measured: searching `GILGFVFTL` puts nine exact reporters

@@ -118,10 +118,18 @@ def lift(corpus: dict[str, pl.DataFrame], term: str, given: list[str] | None = N
     above 1.0 that the two go together, below that they avoid each other. ``None`` where nothing
     carries the condition, which is not a lift of zero and must not be averaged as one.
 
-    This is what answers "is the CAS motif specific to HIV, or to its TRBV?" - compare
-    ``lift(c, "k:CAS", ["a:HIV-1"])`` against ``lift(c, "k:CAS", ["a:HIV-1", "v:TRBV9"])``. If
-    conditioning on the V gene leaves the lift where it was, the k-mer is doing the work; if it moves
-    toward 1.0, the V gene was.
+    This is what separates a CDR3 motif from the V gene that templates it: compare
+    ``lift(c, "k:CAS", ["e:KRWIILGLNK"])`` against
+    ``lift(c, "k:CAS", ["e:KRWIILGLNK", "v:TRBV9"])``. If conditioning on the V gene leaves the lift
+    where it was, the k-mer carries the association; if it moves toward 1.0, the V gene did.
+
+    ⚠ **A species condition is a provenance question, not a specificity one.** ``a:HIV-1`` is a real
+    and useful axis - "which papers and receptors are about this species" is where most questions
+    start - but the group it selects is a *union over pMHCs*: every receptor reported against some
+    epitope of that species, under whatever restriction each study used. A lift over it therefore
+    describes that group and is not a motif *for* the pathogen, because its members were shown
+    different antigens. Condition on ``e:<epitope>``, or on that plus a restriction, when the claim is
+    about recognition. ``docs/standards/terminology.md`` has the distinction.
 
     Measured on the current corpus over occurrences, the answer is neither: `k:CAS` lifts **0.969** on
     HIV-1 documents (28,422 of 739,216 CDR3 3-mer occurrences against 137,751 of 3,473,003 overall),

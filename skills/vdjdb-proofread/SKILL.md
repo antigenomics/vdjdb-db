@@ -172,7 +172,7 @@ up. `out/reports/anchors.tsv` and `proofreading/cdr3_repair.md` carry the per-de
 Resolve in this order, and record which rule answered:
 
 1. **Swapped fields.** `method.verification` filled and `method.identification` blank usually means
-   the two were transposed: identification is how the antigen-specific cells were found, verification
+   the two were transposed: identification is how the epitope-reactive cells were found, verification
    is how the cloned TCR was re-tested. Confirm against the paper before moving the value.
 2. **Structural entries.** A `meta.structure.id` that is a PDB entry, with no other method reported:
    `structural` in both fields.

@@ -557,6 +557,65 @@ def refs(
             typer.echo(f"    {ref}  ({n:,} records)", err=True)
 
 
+@app.command(name="antigens")
+def antigens_cmd(
+    tables: Path = typer.Option(Path("out/tables"), help="A built new-format directory."),
+    out: Path = typer.Option(Path("proofreading/epitope_proteome.tsv"),
+                             help="Where to write the table; the committed path by default."),
+) -> None:
+    """Where each self epitope sits in its own species' proteome, and how exactly. Issue #632.
+
+    Network-bound and **not part of a build**: `mhcmatch` fetches the reference proteome from
+    HuggingFace, so the table is a committed, reviewed input refreshed by its own pull request, the
+    same treatment `summary/reference_years.tsv` and `proofreading/epitope_promiscuity.tsv` get
+    (hard rule 9).
+
+    Three verdicts, spelled as what was measured: `exact`, the peptide is in the proteome and the
+    proteome's `GN=` names the gene; `one_substitution`, one residue differs from a peptide that is;
+    `not_found`, neither within one substitution. Only the first is ever a finding, and then only
+    where the gene symbol disagrees - the other two are questions a reference answers and a sequence
+    cannot, so every row carries its `reference.id` list.
+    """
+    import polars as pl
+
+    from .curate import antigens as ag
+
+    built, records = tables / "epitopes.parquet", tables / "records.parquet"
+    for path in (built, records):
+        if not path.exists():
+            typer.secho(f"no {path.name} at {path}; run `vdjdb build` first",
+                        fg=typer.colors.RED, err=True)
+            raise typer.Exit(2)
+    found = ag.table(ag.sources(pl.read_parquet(built),
+                                pl.read_parquet(records, columns=["antigen.epitope",
+                                                                  "reference.id"])))
+    out.parent.mkdir(parents=True, exist_ok=True)
+    found.write_csv(out, separator="\t", quote_style="never")
+    typer.echo(f"wrote {out} ({found.height:,} rows)")
+    for row in ag.summarise(found).iter_rows(named=True):
+        typer.echo(f"  {row['antigen.species']:14} {row['verdict']:17} "
+                   f"{row['epitopes']:5,} epitope(s)  {row['records']:7,} record(s)")
+    # Epitopes, never records: one peptide is 81.5 % of the `one_substitution` record total, so that
+    # total measures one reagent choice in one antigen. A cohort carries many mutations in one
+    # antigen, and this is the view that says so.
+    genes = ag.by_gene(found)
+    if not genes.is_empty():
+        multi = genes.filter(pl.col("peptides") > 1)
+        typer.echo(f"genes carrying more than one peptide a residue from reference: {multi.height} "
+                   f"- a mutation panel or an antigen screen across a cohort, not a defect")
+        for row in multi.head(6).iter_rows(named=True):
+            typer.echo(f"  {row['antigen.gene']:14} {row['peptides']:3} peptide(s)  "
+                       f"{row['records']:6,} record(s)")
+    clash = ag.gene_disagreements(found)
+    if not clash.is_empty():
+        typer.echo(f"curated gene not the proteome's symbol: {clash.height} epitope(s), "
+                   f"{clash['records'].sum():,} record(s) - a protein name, a legacy alias or a "
+                   f"mislabel, and only a curator can say which")
+        for row in clash.head(5).iter_rows(named=True):
+            typer.echo(f"  {row['antigen.epitope']:18} {row['antigen.gene']:18} -> "
+                       f"{row['source.gene']:10} {row['records']:6,} record(s)")
+
+
 @app.command(name="promiscuity")
 def promiscuity_cmd(
     out: Path = typer.Option(Path("proofreading/epitope_promiscuity.tsv"),
