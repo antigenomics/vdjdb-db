@@ -174,10 +174,17 @@ def test_every_inferred_cdr3nt_back_translates_to_its_own_junction(tables):
 # The model V/J boundary is a fallback, never an override (#631)
 # ---------------------------------------------------------------------------------------------
 
-#: Chains the fallback fills, measured 2026-09-29. The markup engine declines `v.end` on 5,896 and
-#: `j.start` on 1,166; the recombination scenario answers on these. #631 stated 4,060 and 347 - the
-#: `j.start` figure is 349 now, which is the two chunks that landed since it was written.
-FALLBACK_FILLED = {"v.end.inferred": 4_060, "j.start.inferred": 349}
+#: Chains the fallback fills, measured 2026-09-29. The markup engine declines `v.end` on 5,307 and
+#: `j.start` on 1,164; the recombination scenario answers on these. #631 stated 4,060 and 347.
+#:
+#: `v.end.inferred` was 4,060 and is 3,484, and the 576 it lost are a **gain**, which is the case the
+#: slack below exists for: reading `;` and `+` as candidate separators gave 591 chain-calls a real IMGT
+#: name, so arda can now align against a germline where it previously declined. Measured on the same
+#: pair of builds, `v.end` answers on 280,093 chains before and 280,682 after, so 589 cells moved from
+#: a model guess to an alignment fact and 576 of them left this population. A cell the alignment
+#: answers is strictly better than one the model guesses, which is why the fallback shrinking is the
+#: outcome to want rather than one to gate against.
+FALLBACK_FILLED = {"v.end.inferred": 3_484, "j.start.inferred": 346}
 
 #: How far below the recorded count a run may sit before it reads as a regression rather than a
 #: corpus change. Loose on purpose: a curator naming a V that arda can then align is a *gain*, and it
