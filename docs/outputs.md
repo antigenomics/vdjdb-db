@@ -126,11 +126,13 @@ Primary key `(record_id, gene)`. This is the level `vdjdb.txt` is written at. Ch
 table so that record fields are not duplicated per chain, as in `vdjdb.txt`, and not folded into
 paired alpha/beta columns, as in `vdjdb_full.txt`.
 
-28 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `clone_id`, `cdr3`, `v.segm`,
+35 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `clone_id`, `cdr3`, `v.segm`,
 `d.segm`, `j.segm`,
 `v.end`, `j.start`, `cdr3nt`, `cdr3nt.pgen`, `cdr3nt.margin`, `v.inferred`, `j.inferred`,
-`d.inferred`, `d.start`, `d.end`, `d.posterior`, `d.entropy`, `cdr3.original`, `fix.needed`,
-`fix.good`, `v.fix.type`, `j.fix.type`, `v.canonical`, `j.canonical`, `TCR_hash`.
+`d.inferred`, `d.start`, `d.end`, `d.posterior`, `d.entropy`, `v.end.inferred`, `j.start.inferred`,
+`cdr3.original`, `fix.needed`, `fix.good`, `v.fix.type`, `j.fix.type`, `v.canonical`, `j.canonical`,
+`v.segm.submitted`, `j.segm.submitted`, `d.segm.submitted`, `v.segm.arda`, `j.segm.arda`,
+`TCR_hash`.
 
 `cdr3nt` is inferred, not observed (#461): it is the most plausible nucleotide junction behind the
 amino-acid one, from the recombination model. 261,097 of 286,047 chains have one and each
@@ -167,6 +169,21 @@ beta chains that have one.
 their accuracy before using them: recovering a hidden V from the junction alone works on 23.8 % of
 human TRB and 50.1 % of TRA, because the junction contains little V sequence; the J side is 95–98 %
 (ROADMAP §21).
+
+**`v.end.inferred` and `j.start.inferred` are the two sources of a V/J boundary, kept apart on
+purpose (#631).** `v.end` and `j.start` are the germline *alignment*'s answer, from
+`arda.cdr3fix`, and `-1` where it declined - 5,896 chains for `v.end` and 1,166 for `j.start`. The
+`.inferred` pair is the same boundary read off the recombination scenario that produced `cdr3nt`, and
+it is filled **only where the alignment declined**: 4,060 and 349 chains. Everywhere else it is `-1`,
+so the two are distinguishable by column and coalescing them cannot overwrite an alignment answer.
+
+The separation is not fastidiousness. Against the external nucleotide truth in
+`tests/release/test_cdr3fix_accuracy.py`, where both engines answer, the model is **11 points worse**
+on exact `v.end` - 60.8 % against the alignment's 71.3 % - and walks two or more residues past the
+boundary on 136 cases against the alignments' 8 and 9. So it must not replace the alignment. On the
+rows where arda declines it is never more than one residue out of every row the truth set can check,
+and against `-1`, which carries nothing, that is a strict gain. The legacy tables and the `cdr3fix`
+JSON `vdjdb-web` parses keep the alignment's `-1` untouched.
 
 `d.posterior` is the probability of the gene `d.inferred` names, and `d.entropy` how decidable the D
 was at all. A third of beta chains have a posterior below 0.6 and an entropy above 0.9, because TRBD1
