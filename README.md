@@ -9,10 +9,18 @@
 VDJdb aggregates published information on T-cell receptor antigen specificity - the ability to
 recognize certain epitopes in certain MHC contexts - and curates it into a single repository.
 
+> **A note on terminology.** The antigen a T-cell receptor engages is the **peptide-MHC complex**, and
+> the epitope is the part of it that is specifically recognized - the same distinction the antibody
+> field draws between an antigen and the surface bound on it. A receptor does not recognize a pathogen,
+> a gene or a protein; those are the peptide's *provenance*, which `antigen.gene` and `antigen.species`
+> record and which is a useful way to query the database. Confounding the two is the most common
+> imprecision in this field, so the specification states it explicitly:
+> [Terminology](https://docs.isalgo.dev/vdjdb-db/standards/terminology.html).
+
 Routine updates keep the database current, and a validation scheme standardizes how specificity is
 reported:
 
-* All available information on the experimental setup used to identify an antigen-specific TCR
+* All available information on the experimental setup used to identify an epitope-specific TCR
   sequence is taken into account and reduced to a single confidence score, assigned at the database
   generation stage, which highlights the most reliable records.
 * Each record is also checked automatically against a database of V/J segment germline sequences,
