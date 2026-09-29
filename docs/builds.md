@@ -90,7 +90,7 @@ is the requirement that every changed cell match a rule.
 | `cluster_members.txt` | `cid` is `<species>.<chain>.<epitope>.<n>` and `n` is a position in a sorted list, so one renumbered cluster relabels every cluster after it | `vdjdb motif-metrics`, 18 axes per chain, including `partition_neighbours_preserved` - of every clonotype the release clustered, the fraction of its cluster-mates this build still gives it. Column count and order by `tests/release/test_reference_contract.py` |
 | `motif_pwms.txt` | a row is one PWM cell of one cluster, so it has no identity that survives a re-clustering | the same two |
 | `vdjdb_summary_embed.html` | a fresh render every build | `summary/check_summary.py`: the ordered headings and tables, PNG dimensions decoded from the IHDR, ColorBrewer anchors, and SSIM against the last release |
-| `LICENSE` | not a table | reviewed as a git diff. AGPL-3.0 in the 2026-06-03 release, CC BY-NC-ND 4.0 since `517c7db` |
+| `LICENSE` | not a table | shipped verbatim from the repository root |
 
 Measured before those declarations existed: comparing every member of the legacy zip reported **101,877
 unattributed cells**, and every one was in a motif file or in `latest-version.txt` while the five

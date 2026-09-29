@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Build, proofread and release the VDJdb T-cell receptor specificity database"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "AGPL-3.0-only" }
+license = { text = "CC-BY-NC-ND-4.0" }
 authors = [{ name = "Mikhail Shugay", email = "mikhail.shugay@gmail.com" }]
 keywords = ["immunology", "tcr", "vdjdb", "airr", "epitope", "bioinformatics"]
 
