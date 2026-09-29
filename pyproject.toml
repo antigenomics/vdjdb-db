@@ -71,13 +71,12 @@ packages = ["src/vdjdb"]
 [tool.ruff]
 line-length = 110
 src = ["src", "tests"]
-# Four kinds of code that must not be reformatted, for four different reasons:
-#   attic          retired reference. `tests/unit/test_schema.py` parses the Groovy at test time.
-#   _legacy_fixer  a verbatim copy, and still live -- the k-mer V/J guesser arda does not replace.
-#   metrics_lib    vendored verbatim so the benchmark metrics stay comparable with the reference.
-#   processing     a curator's one-off notebooks, not library code.
-exclude = ["attic", "src/vdjdb/annotate/_legacy_fixer",
-           "src/vdjdb/validate/metrics_lib.py", "processing"]
+# Three kinds of code that must not be reformatted, for three different reasons:
+#   attic        retired reference. `tests/unit/test_schema.py` parses the Groovy at test time.
+#   metrics_lib  vendored verbatim so the benchmark metrics stay comparable with the reference.
+#   processing   a curator's one-off notebooks, not library code.
+# `src/vdjdb/annotate/_legacy_fixer` was a fourth until #658 deleted it with `res/`.
+exclude = ["attic", "src/vdjdb/validate/metrics_lib.py", "processing"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]

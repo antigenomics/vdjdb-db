@@ -100,10 +100,11 @@ def test_an_inferred_segment_never_sits_beside_a_curated_one(tables):
     for side in ("v", "j"):
         beside = chains.filter((pl.col(f"{side}.segm.submitted") != "")
                                & (pl.col(f"{side}.inferred") != ""))
+        shown = beside.select("record_id", "gene", f"{side}.segm.submitted",
+                              f"{side}.inferred").head(5)
         assert beside.is_empty(), (
             f"{beside.height} chains carry a proposed {side} beside the one the publication "
-            f"reported:\n{beside.select('record_id', 'gene', f'{side}.segm.submitted',
-                                        f'{side}.inferred').head(5)}")
+            f"reported:\n{shown}")
     assert chains.filter((pl.col("v.segm") == "") & (pl.col("v.inferred") != "")).height > 0
     # The V proposal reaches no shipped column, so `v.segm` is blank wherever `v.inferred` is filled.
     assert chains.filter((pl.col("v.segm") != "") & (pl.col("v.inferred") != "")).is_empty()
