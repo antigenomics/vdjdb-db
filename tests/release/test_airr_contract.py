@@ -18,10 +18,16 @@ from vdjdb.emit.vdjdb3 import read_tables
 
 pytestmark = pytest.mark.release
 
-#: Chains the legacy build drops: the 1,467 chains of 1,141 records whose chain carried a CDR3 with
-#: no V or J (it drops the record whole, both chains), plus 34 D-only chains with no CDR3 at all.
-LEGACY_DROPS_CHAINS = 1_501
-LEGACY_DROPS_RECORDS = 1_141
+#: Chains the legacy build drops: the 998 chains of 845 records whose chain carried a CDR3 with no V
+#: or J (it drops the record whole, both chains), plus 34 D-only chains with no CDR3 at all.
+#:
+#: 1,501 and 1,141 before `res/` was retired (#658). Retiring it moved the J proposal from a k-mer scan
+#: over `res/segments.txt` to the recombination model and arda's germline table, which names 347 more
+#: J calls, so 469 chains of 296 records stop failing the legacy "a CDR3 needs a V and a J" filter and
+#: the gap between the two paths closes by that much. Both numbers falling is the outcome to want: the
+#: tables path always carried these records, and what changed is that legacy now carries them too.
+LEGACY_DROPS_CHAINS = 1_032
+LEGACY_DROPS_RECORDS = 845
 
 
 @pytest.fixture(scope="module")

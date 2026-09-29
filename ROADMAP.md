@@ -165,7 +165,7 @@ an output of it, and a stale vendored copy would change a call set with no error
 | 2 | merged | `feature/golden-harness` | `vdjdb diff` + `expected_diffs.toml` | - | zero diffs against the current pandas build; nothing downstream starts without this |
 | 3 | part | `feature/io-qc` | polars reader, vectorised QC, `--strict` exit-1, chunk header normalisation | - | QC report matches the pandas report row-for-row; harness still zero. ⚠ **The `.tsv` rename did not happen and #497 is open**: `chunks/` is 231 files, all `.txt`. Everything the rename was wanted for did land - one canonical 33-column header, the 19 distinct header rows collapsed to one, the 99 CRLF files converted with `*.txt text eol=lf` in `.gitattributes` so it cannot return (#581), and a reader that fails on an unrecognised header. What is left is the extension, which nothing reads to decide the format, against 231 `git mv`s that break every `git log --follow` boundary and every `PMID_<id>.txt` reference in docs, skills, tests and the tracker. Held deliberately: renaming every file in `chunks/` the week curators start opening chunk pull requests is when it costs most. It wants its own branch under the mechanical-repair rule and a quiet period |
 | 4 | merged | `feature/pipeline-core` | the definitive tables (`records`, `chains`) + harmonize + score + pairing; the legacy export as a projection of them; deletes `py_src/` | #424, #399 | every difference against the release is a declared rule firing its measured count; peak RSS < 8 GB |
-| 5 | part | `feature/arda-cdr3fix` | `arda.cdr3fix` replaces `Cdr3Fixer.py` | - | new `expected_diffs.toml` rule, row count measured then frozen. ⚠ **`res/segments*.txt` is not retired** and this row claimed it was: three call sites still read it, one of them on every build (`_legacy_guess.guess_segments` fills a blank V/J before arda runs, because arda repairs against a *named* germline and never proposes one). Its V half has never worked - 0 of 1,189 TRB and 1 of 1,111 TRA - and `vdjtools` 4.5's batched marginalised pass covers it. Retiring it changes which germline arda repairs against, so it is a data change with its own declared rules: #658 |
+| 5 | done | `feature/arda-cdr3fix`, `feature/retire-res` | `arda.cdr3fix` replaces `Cdr3Fixer.py`; `res/` retired | #658 | new `expected_diffs.toml` rule, row count measured then frozen. `res/segments*.txt` outlived the first branch by three call sites, one of them on every build: `arda.cdr3fix` repairs a junction against a *named* germline and never proposes one, so a blank V or J needed filling first. `feature/retire-res` replaced that with the recombination model falling back to arda's own germline anchor table, deleted `res/` and `annotate/_legacy_fixer/`, and dropped `--engine legacy`. The J proposal gains 347 calls and 469 rows of `vdjdb.txt`; the V proposal is reported as `v.inferred` and does not ship, because a V recovered from a junction alone is right 23.8-50.1 % of the time against a J's 93.6-97.5 % |
 | 6 | merged | `feature/new-format` | ships the definitive tables as parquet + TSV, adds `evidence`, `vdjdb.schema.json` | - | `make legacy` from the shipped tables still passes the harness |
 | 7 | merged | `feature/airr` | `emit/airr.py` (Rearrangement + Reactivity), `convert/coords.py`, `vdjdb convert` | - | `airr.validate_rearrangement` passes on the full table; the legacy path produces nothing the tables path does not |
 | 8 | merged | `feature/junction-nt`, `feature/segment-guess`, `feature/dgene` | one branch each | #461, #462, #463 | generated `cdr3nt` back-translates to `cdr3`. The stage was 87.2 % of assembly on `vdjtools` 3.13 and ran as four worker processes over contiguous slices; 4.5 published `infer_nt_batch` (`antigenomics/vdjtools#181`) and it is now one batched call per (species, locus), **114.93 s → 12.44 s**, #656 |
@@ -217,7 +217,7 @@ Grouped by label, one category per issue and intake winning a tie:
 The intake row is unchanged in substance - two landed - and the other two rows moved because the
 build work both closed issues and filed new ones from its own measurements: the four days added #650
 (the profile double-count), #652 (the shipped zips were never compared), #656 (the junction-nt
-bottleneck) and #658 (`res/` is not retired), and closed #638 among others. That the composition is
+bottleneck) and #658 (`res/` is not retired, since closed), and closed #638 among others. That the composition is
 *stable* is the point of this section: four open issues out of five are a submission queue whatever
 the build does.
 
@@ -939,7 +939,11 @@ plus the meta-file fixes, each as a declared rule with its measured count.
 2. `Cdr3Markup.to_cdr3fix()` emits VDJdb's JSON key-for-key; `v_end` / `j_start` are junction-space,
    which is what the `cdr3` column contains.
 3. Delete `src/vdjdb/annotate/_legacy_fixer/`, the verbatim copy phase 4 bridged through,
-   together with `res/segments.txt` and `res/segments.aaparts.txt`.
+   together with `res/segments.txt` and `res/segments.aaparts.txt`. This took a second branch
+   (`feature/retire-res`, #658): the scanner was still naming the V and J a record leaves blank,
+   because `arda.cdr3fix` repairs against a named germline and never proposes one. What replaced it
+   is `vdjdb.annotate.segments.propose` - the recombination model, falling back to arda's germline
+   anchor table where the model declines and for species no model covers.
 4. Measure the difference against the release, then freeze it as declared rule counts. Expected
    shape from §7: `cdr3` ~2.2 % of rows, `jStart` ~9 %, all of it in the direction arda maps more
    and earlier.
