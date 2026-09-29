@@ -62,28 +62,33 @@ _FIX_DTYPES = {str: pl.Utf8, bool: pl.Boolean, int: pl.Int64}
 #: it aligned against, which is evidence about the sequence; the shipped call is what the curator
 #: reported, harmonised to IMGT. Keeping both is the only way a reader can tell a curation decision
 #: from a markup one, and it is what `chains` reports as `v.segm.arda` / `j.segm.arda`.
+#:
+#: `__gv` / `__gj` are the proposal :func:`vdjdb.annotate.segments.propose` made where the record
+#: named no segment, carried out of the markup so `chains` can report it as `v.inferred` /
+#: `j.inferred` rather than a second stage recomputing it. One computation, two readers: the germline
+#: the repair ran against and the call the table reports cannot disagree.
 CALL_FIELDS: tuple[tuple[str, str], ...] = (("__varda", "v.segm.arda"),
-                                            ("__jarda", "j.segm.arda"))
+                                            ("__jarda", "j.segm.arda"),
+                                            ("__gv", "v.inferred"),
+                                            ("__gj", "j.inferred"))
 
 
 
-def fix_cdr3(df: pl.DataFrame, engine: str = "arda") -> pl.DataFrame:
+def fix_cdr3(df: pl.DataFrame) -> pl.DataFrame:
     """Repair the CDR3 and locate the V and J germline parts, per chain.
 
     Rewrites ``cdr3.*``, ``v.*`` and ``j.*``, and adds one column per :data:`FIX_FIELDS` member
     (``__vend.alpha``, ``__jfix.beta``, ...). The legacy ``cdr3fix`` JSON blob is not produced
     here: a blob is not a variable, and reassembling one is the legacy exporter's job.
 
-    Two engines. ``arda`` is the default and what the shipped build uses; ``legacy`` is the
-    vendored k-mer scanner, kept so the swap stays measurable and reversible.
-
-    * ``arda`` -- ``arda.cdr3fix``, arda-mapper >= 2.30.1. Agrees with the legacy on 99.91 % of
-      repaired alpha sequences and leads on all four coverage measures: it gains 3,781 alpha and
-      1,851 beta V-end mappings and 5,182 alpha and 1,904 beta J-start mappings, against 311 /
-      3,936 and 7 / 138 lost. The 3,936 beta V-ends it declines are calls that name a family with
-      several functional genes, an ambiguity group, or an allele with no shipped anchor -- a
-      curation question, not a markup failure.
-    * ``legacy`` -- the vendored k-mer scanner, what every release up to 2026-06-03 shipped.
+    ``arda.cdr3fix`` is the engine, and the only one: the vendored k-mer scanner it replaced is gone
+    with ``res/`` (#658), and what it produced is still readable in the 2026-06-03 release, which
+    `tests/release/test_cdr3fix_accuracy.py` reads as the comparison arm rather than re-running it.
+    Measured when the swap landed, arda leads on all four coverage measures - it gains 3,781 alpha and
+    1,851 beta V-end mappings and 5,182 alpha and 1,904 beta J-start mappings, against 311 / 3,936 and
+    7 / 138 lost - and agrees with the scanner on 99.91 % of repaired alpha sequences. The 3,936 beta
+    V-ends it declines are calls that name a family with several functional genes, an ambiguity group,
+    or an allele with no shipped anchor: a curation question, not a markup failure.
 
     The coordinates are also more accurate, not merely more numerous, which is the part coverage
     cannot show. Against external nucleotide truth -- the 8,334 VDJdb human TRB records whose
@@ -97,7 +102,6 @@ def fix_cdr3(df: pl.DataFrame, engine: str = "arda") -> pl.DataFrame:
     rows -- and joined back. Both are deterministic in their arguments, so deduplicating cannot
     change a value (CLAUDE.md rule 4).
     """
-    run = _markup_arda if engine == "arda" else _markup_legacy
     for gene in ("alpha", "beta"):
         cdr3, v, j = f"cdr3.{gene}", f"v.{gene}", f"j.{gene}"
         keys = (df.filter(pl.col(cdr3) != "")
@@ -105,7 +109,7 @@ def fix_cdr3(df: pl.DataFrame, engine: str = "arda") -> pl.DataFrame:
                           pl.col(v).alias("v"), pl.col(j).alias("j"))
                   .unique(maintain_order=True)
                   .sort("species", "cdr3", "v", "j"))   # sorted: the join order must not vary
-        lookup = run(keys, gene).rename({"cdr3": cdr3, "v": v, "j": j})
+        lookup = _markup_arda(keys, gene).rename({"cdr3": cdr3, "v": v, "j": j})
         df = (
             df.join(lookup, on=["species", cdr3, v, j], how="left")
             .with_columns(
@@ -132,28 +136,6 @@ def _markup_arda(keys: pl.DataFrame, gene: str) -> pl.DataFrame:
     return markup(keys, gene)
 
 
-def _markup_legacy(keys: pl.DataFrame, gene: str) -> pl.DataFrame:
-    """The vendored k-mer scanner. Kept only to attribute the swap; deleted once that is frozen."""
-    from ..annotate._legacy_fixer import Cdr3Fixer
-
-    res = Paths.discover().res
-    fx = Cdr3Fixer(str(res / "segments.txt"), str(res / "segments.aaparts.txt"))
-    out: list[dict] = []
-    for species, seq, vid, jid in keys.iter_rows():
-        vid = vid or fx.guess_id(seq, species, gene, True) or ""
-        jid = jid or fx.guess_id(seq, species, gene, False) or ""
-        # Always strings: the legacy relied on guess_id having filled the blank, and
-        # `"".split(",")` yields `[""]`, which `fix` treats as "no segment given".
-        out.append(fx.fix_both(seq, vid, jid, species).results_to_dict())
-    return keys.with_columns(
-        *(pl.Series(tmp, [r[key] for r in out], dtype=_FIX_DTYPES[ty])
-          for key, tmp, ty in FIX_FIELDS),
-        # The k-mer scanner names no allele of its own, so it proposes nothing. The columns exist
-        # either way: a table's schema must not depend on which engine ran.
-        *(pl.lit("").alias(tmp) for tmp, _ in CALL_FIELDS),
-    )
-
-
 def add_tcr_hash(df: pl.DataFrame) -> pl.DataFrame:
     """sha256 over :data:`HASH_FIELDS`, empty unless every :data:`HASH_REQUIRED` field is present."""
     complete = pl.all_horizontal(*[pl.col(c) != "" for c in HASH_REQUIRED])
@@ -171,7 +153,7 @@ def _sha256(s: str) -> str:
 
 
 def build_master(paths: Iterable[Path] | None = None,
-                 registry: Path | None = None, *, engine: str = "arda",
+                 registry: Path | None = None, *,
                  write_registry: Path | None = None, release: str = "dev") -> pl.DataFrame:
     """The master table: one row per curated record, fixed, scored, hashed and identified.
 
@@ -201,7 +183,7 @@ def build_master(paths: Iterable[Path] | None = None,
     # fixing would have merged 215 pairs of records the publications reported separately -- two
     # trimmed sequences repaired to the same full one are still two observations.
     df = add_record_ids(df, registry, write=write_registry, release=release)
-    df = fix_cdr3(df, engine)
+    df = fix_cdr3(df)
     df = add_score(df)
     return add_tcr_hash(df)
 

@@ -89,12 +89,25 @@ def test_the_d_posterior_is_a_probability_and_is_often_low(tables):
 
 
 def test_an_inferred_segment_never_sits_beside_a_curated_one(tables):
-    """#462 fills a gap; it does not second-guess a curator. 686 of the 711 chains with no V get a
-    call, which is material for the phase 9 decision, not a change to what ships today."""
+    """#462 fills a gap; it does not second-guess a curator.
+
+    Keyed on the **submitted** call, which is the one a curator wrote. The shipped `j.segm` is not the
+    right test any more: the J proposal reaches it, so `j.inferred` and `j.segm` are the same value on
+    3,272 chains by design (#658). `v.segm` stays blank on all 745 of its own, so there the two tests
+    coincide - which is exactly the asymmetry `vdjdb.annotate.cdr3fix.markup` measured and states.
+    """
     chains = tables["chains"]
-    assert chains.filter((pl.col("v.segm") != "") & (pl.col("v.inferred") != "")).is_empty()
-    assert chains.filter((pl.col("j.segm") != "") & (pl.col("j.inferred") != "")).is_empty()
+    for side in ("v", "j"):
+        beside = chains.filter((pl.col(f"{side}.segm.submitted") != "")
+                               & (pl.col(f"{side}.inferred") != ""))
+        shown = beside.select("record_id", "gene", f"{side}.segm.submitted",
+                              f"{side}.inferred").head(5)
+        assert beside.is_empty(), (
+            f"{beside.height} chains carry a proposed {side} beside the one the publication "
+            f"reported:\n{shown}")
     assert chains.filter((pl.col("v.segm") == "") & (pl.col("v.inferred") != "")).height > 0
+    # The V proposal reaches no shipped column, so `v.segm` is blank wherever `v.inferred` is filled.
+    assert chains.filter((pl.col("v.segm") != "") & (pl.col("v.inferred") != "")).is_empty()
 
 
 def test_no_string_column_is_ever_null(tables):

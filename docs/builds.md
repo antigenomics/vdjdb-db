@@ -121,7 +121,8 @@ The comparison currently runs one build against one release, 2026-06-03. A singl
 distinguish a rule that is correct from a rule that happens to fit that release.
 
 There are 43 published releases, back to 2017-06-13, and each one is a matched pair: the inputs
-(`chunks/`, `patches/`, `res/`, `proofreading/` at that tag) and the outputs (the zip that shipped).
+(`chunks/`, `patches/`, `proofreading/` at that tag, and `res/` for a tag older than the #658
+retirement) and the outputs (the zip that shipped).
 Each pair is a regression test: take a git worktree at the tag and build it with the current code:
 
 ```bash
