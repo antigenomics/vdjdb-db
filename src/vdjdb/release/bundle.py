@@ -60,18 +60,26 @@ def legacy_url(tag: str) -> str:
     return f"{RELEASES}/{tag}/{manifest.LEGACY.filename.format(version=version_of(tag))}"
 
 
-def prepare_latest(tag: str, path: Path = LATEST) -> str:
+def prepare_latest(tag: str, path: Path = LATEST, *, write: bool = True) -> str:
     """Put this release's URL on line 1, idempotently. Returns the file's new content.
 
     Idempotent because a re-run of a failed release must not push the same URL twice, and written
     through a temporary file plus :func:`os.replace` because a half-written
     ``latest-version.txt`` is a bundle member that would ship truncated.
+
+    ``write=False`` computes the content and leaves the file alone (#707). :data:`LATEST` is
+    **tracked**, and a dry run with a tag no release carries left the repository naming a download
+    that 404s - which is the defect `ROADMAP.md` §3.2 records as having already shipped once, from
+    the other direction. The content is still returned, so the bundle member and the tree copy have
+    one source either way, which is the property §3.2 asks for.
     """
     url = legacy_url(tag)
     lines = path.read_text().splitlines() if path.exists() else []
     if not lines or lines[0].strip() != url:
         lines = [url, *(n for n in lines if n.strip() != url)]
     content = "\n".join(lines) + "\n"
+    if not write:
+        return content
     with tempfile.NamedTemporaryFile("w", dir=path.parent or Path(), delete=False) as fh:
         fh.write(content)
         tmp = Path(fh.name)
