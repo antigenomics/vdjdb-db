@@ -97,11 +97,20 @@ def test_the_batch_call_is_the_per_row_loop_and_is_much_faster_than_it():
     catches a regression to the loop, or a batch call that quietly loops internally: neither changes an
     answer, so nothing else here would notice, and this stage was 87 % of the assembly step.
 
-    Measured 2026-09-29 on 3,000 distinct human TRB keys from the corpus, 16 cores: **1.115 ms/key
-    serial against 0.106 ms batched, 10.5x**, with all 3,000 nucleotide sequences identical. The bar is
-    2x, which is far below that and still nowhere near the 1.0x a de-batched call would give; it is not
-    tightened further because `infer_nt_batch` threads internally and a busy 4-vCPU runner has less to
-    win than this laptop does.
+    **The bar is 1.5x, and it is set from the runner rather than from a laptop.** Measured 2026-09-29,
+    16 cores: the ratio barely moves with batch size - 8.69x at 400 keys, 8.46x at 1,200, 9.25x at
+    3,000 - and moves a great deal with threads, falling to 3.68x / 3.38x / 3.59x at `threads=4`. So
+    the shape of the win is thread count, not batch size, and a 4-vCPU runner should see about 3.5x.
+
+    It does not. CI measured **1.58x** on 400 keys at a reported load average of 0.6, which is the
+    thing a load check cannot see: a shared cloud vCPU loses time to steal and a cold cache, and
+    neither shows up in `getloadavg`. The previous 2x bar was calibrated on this laptop's 10.5x and
+    failed a correct build, which is the failure mode `ROADMAP_local` section 52.2 is about.
+
+    So: **best of three**, because contention is one-sided - it only ever makes a run slower, so the
+    fastest of several is the better estimator of what the code does - and a bar of 1.5x, which clears
+    the worst single-shot observation and is still half the distance to the 1.0x a de-batched call
+    gives. A call that loops internally cannot reach it.
 
     The machine is checked before it is timed, for the reason the process-pool version of this test
     had to learn: a ratio taken while the box is oversubscribed is not a property of the code
@@ -130,20 +139,23 @@ def test_the_batch_call_is_the_per_row_loop_and_is_much_faster_than_it():
 
     infer_nt(model, cdr3[0], v=v[0], j=j[0])          # warm the native path, once
 
-    t = time.perf_counter()
-    serial = [infer_nt(model, c, v=vv, j=jj) for c, vv, jj in zip(cdr3, v, j, strict=True)]
-    serial_s = time.perf_counter() - t
-    t = time.perf_counter()
-    batch = infer_nt_batch(model, cdr3, v=v, j=j)
-    batch_s = time.perf_counter() - t
+    serial_s, batch_s = [], []
+    for _ in range(3):
+        t = time.perf_counter()
+        serial = [infer_nt(model, c, v=vv, j=jj) for c, vv, jj in zip(cdr3, v, j, strict=True)]
+        serial_s.append(time.perf_counter() - t)
+        t = time.perf_counter()
+        batch = infer_nt_batch(model, cdr3, v=v, j=j)
+        batch_s.append(time.perf_counter() - t)
 
     assert all(s is not None for s in serial), "the timing set must not take the no-scenario path"
     assert [s.cdr3_nt for s in serial] == batch["cdr3_nt"].to_list(), (
         "the batched call must be the per-row loop field for field")
-    assert serial_s / batch_s > 2.0, (
-        f"batching bought {serial_s / batch_s:.2f}x over {len(cdr3)} keys "
-        f"({serial_s:.2f} s -> {batch_s:.2f} s) on {cores} cores at load {load:.1f}, bar 2.0x; "
-        f"either the loop is back or the batch call is looping internally")
+    ratio = min(serial_s) / min(batch_s)
+    assert ratio > 1.5, (
+        f"batching bought {ratio:.2f}x over {len(cdr3)} keys "
+        f"({min(serial_s):.2f} s -> {min(batch_s):.2f} s, best of 3) on {cores} cores at load "
+        f"{load:.1f}, bar 1.5x; either the loop is back or the batch call is looping internally")
 
 
 # -- the model boundary is a fallback, never an override (#631) ---------------------------------
