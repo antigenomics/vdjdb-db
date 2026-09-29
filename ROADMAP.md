@@ -183,15 +183,15 @@ Phases 0 to 14 are merged to `master` as of 2026-09-27, and phase 15 is half lan
 against the last release reads PASS with every difference declared and measured, and the release dry
 run produces three reproducible bundles. `ROADMAP_local.md` carries the per-phase record.
 
-**`dev` ahead of `master`, 30 commits as of 2026-09-29.** Earlier: the interactive dashboard, the
-junction-anchor check, the junction-nt batch call, the profile fix, and the comparison of the shipped
-bundle rather than of `out/legacy`. That comparison now runs on the assembled legacy zip over all
-twelve of its members - it named five with `--only` until then - and reads PASS. Two declarations make
-that possible and are part of the release contract: `[members]` for a change of bundle shape (today
-the two TCREMP motif tables) and `[measured_elsewhere]` for a member another instrument gates, with
-the instrument named. §5 has both.
+**Promoted to `master` on 2026-09-29, 40 commits, full build green in 12 m 40 s** (#692). It carried
+the interactive dashboard, the junction-anchor check, the junction-nt batch call, the profile fix, and
+the comparison of the shipped bundle rather than of `out/legacy`. That comparison runs on the assembled
+legacy zip over all twelve of its members - it named five with `--only` until then - and reads PASS.
+Two declarations make that possible and are part of the release contract: `[members]` for a change of
+bundle shape (today the two TCREMP motif tables) and `[measured_elsewhere]` for a member another
+instrument gates, with the instrument named. §5 has both.
 
-Since, and closing on the promotion - #658, #672, #675, #647, #671, #648:
+On `master` with that promotion - #658, #672, #675, #647, #671, #648:
 
 | | What | Measured |
 |---|---|--:|
@@ -203,8 +203,31 @@ Since, and closing on the promotion - #658, #672, #675, #647, #671, #648:
 | #671 | a `[[rename]]` scoped to its organism | 79 mouse rows un-mis-keyed |
 | #648 | the spectratype grouped on 500 buckets, not 164,131 CDR3s | dashboard 152 s -> **22.8 s** |
 
+**`dev` ahead of `master` again, four merges as of 2026-09-29.** The build now runs when only
+`registry/` changes, which it did not (#691); `out/reports/epitope-sources.tsv` names every peptide
+whose source is not single-valued and `RGPGRAFVTI` is re-attributed from `P18-I10` to HIV-1 `GP160`
+(#633); and two commits on the B16 chunk (#397), which is the first data in the corpus to record a
+clonotype count:
+
+| | What | Measured |
+|---|---|--:|
+| #397 | 1,556 rows for 485 clonotypes collapse to 485, `method.frequency` as `count/sample total` | records 192,763 -> **192,641** |
+| #694 | a spreadsheet autofill had turned the gene `Eef2` into the run `Eef2`..`Eef188` | 187 rows, 65 clonotypes, **122 records that were never real** |
+| #397 | `meta.epitope.id` was the constant `p12`, and `meta.subject.cohort` held a culture serial | 459 and 485 rows |
+| #397 | `antigen.gene` `Plod1` -> `Plod2`, on `mhcmatch`'s mouse proteome | 49 rows |
+
+QC `duplicate` falls **10,585 -> 9,636** across those, the largest single move the advisory baseline
+has recorded.
+
 #646 is not closed by them: 261 chains still carry a germline-supported repair the build proposes and
-does not apply, and the reasons are per-case. #685 is open and blocks #637's `reference.id` half.
+does not apply, and the reasons are per-case.
+
+**Filed from this work and open:** #693 (the registry retires an id that changed two key fields with
+no `replaced_by` forward pointer - the B16 `Plod2` repair produced 49 of them), #696
+(`method.frequency` conflates a count with a ratio, and the confidence score needs the count), and
+#632 (`antigen.gene` has no authority). #685 is closed and #637's `reference.id` half landed with it;
+what is left of #637 is whether the declared `method.identification` vocabulary is enforced at QC
+time, which is a decision rather than a measurement.
 
 **Dependency state.** `arda-mapper >= 2.31`, `vdjtools >= 4.7`. The 4.5 bump closed the junction-nt
 bottleneck; 4.7 and arda 2.31 carry the two germline-boundary defects this build raised upstream
@@ -221,23 +244,25 @@ the files it creates, the facts it needs (already measured, in §7/§8), and the
 
 ## 4a. Issue tracker composition
 
-Re-measured 2026-09-29 with `gh`: 458 issues, **123 open**, against 440 / 130 on 2026-09-25.
-Grouped by label, one category per issue and intake winning a tie:
+Re-measured 2026-09-29, second pass, with `gh`: 466 issues, **116 open**, against 458 / 123 earlier
+the same day and 440 / 130 on 2026-09-25. Grouped by label, one category per issue, intake winning a
+tie and maintenance winning over proofreading:
 
-| Category | Open, 2026-09-25 | Open, 2026-09-29 | What they are |
-|---|---:|---:|---|
-| data intake | 103 (79 %) | **101 (82 %)** | pending papers, preprints, paper-pending, meta-papers, 10x/Immudex sets, associations, other databases, correspondence |
-| curation quality | 22 | 8 | formatting & proofreading, typos, structural, validation |
-| build infrastructure | 13 | 14 | the build, the summary, maintenance |
+| Category | Open, 2026-09-25 | Open, 2026-09-29 | Open, second pass | What they are |
+|---|---:|---:|---:|---|
+| data intake | 103 (79 %) | 101 (82 %) | **101 (87 %)** | pending papers, preprints, paper-pending, meta-papers, 10x/Immudex sets, associations, other databases, correspondence |
+| curation quality | 22 | 8 | 7 | formatting & proofreading, typos, structural, validation |
+| build infrastructure | 13 | 14 | 8 | the build, the summary, maintenance |
 
-The intake row is unchanged in substance - two landed - and the other two rows moved because the
-build work both closed issues and filed new ones from its own measurements: the four days added #650
-(the profile double-count), #652 (the shipped zips were never compared), #656 (the junction-nt
-bottleneck) and #658 (`res/` is not retired, since closed), and closed #638 among others. That the composition is
-*stable* is the point of this section: four open issues out of five are a submission queue whatever
-the build does.
+The intake row has not moved in eight days. The other two fell because the build work closed what it
+had filed: #685, #637's measurable half, #633's epitope-source report, #647, #671, #672, #675, #658.
 
-Four out of five open issues are a submission queue, not a defect list. This migration closes
+The build work also files issues from its own measurements - #650 (the profile double-count), #652
+(the shipped zips were never compared), #656 (the junction-nt bottleneck), #693, #696 - so the bottom
+two rows move in both directions while the intake row stays where it is. The composition is stable
+under everything the build does, and that is what this section records.
+
+Six open issues out of seven are a submission queue, not a defect list. This migration closes
 issues from the bottom two rows only, and nothing it does shortens the first
 row. Three decisions follow from that:
 
@@ -366,28 +391,48 @@ not drafts; do not re-derive them.
 ### 7.1 The corpus since the 2026-06-03 release
 
 `chunks/` is the data, so a difference in the release comparison is either code or curation, and only
-one of those two can be argued about. This is the accounting that says which. Established 2026-09-27
-between tag `2026-06-03-ZENODO` and `master`.
+one of those two can be argued about. This is the accounting that says which. Re-derived 2026-09-29
+between tag `2026-06-03-ZENODO` and `dev`; it read *no curation change at all* on 2026-09-27, and
+that is no longer true.
 
-**230 chunk files before, 230 after. None added, none removed. Zero records added, removed or
-edited.** Every file has the same number of non-empty lines at both points.
+**230 chunk files before, 231 after. One added.** `chunks/PMID_18025130.txt`, the KK10 and KK10-L6M
+repertoires, recovered from a 2016 branch: 40 records (#161).
 
-103 files differ, and every difference is formatting:
+**98 files differ once line endings are normalised, and two of them changed row count:**
 
-| Change | Files | Records affected |
-|---|---|---|
-| CRLF to LF, content byte-identical after the rewrite | 92 | 0 |
-| final newline added, file exactly one byte larger | 8 | 0 |
-| two prose captions removed from the header of `PMID_24512815.txt` | 1 | 0, and the columns were verified empty in all 270 rows before removal |
-| leading empty column name removed from `PMID_40694338.txt` | 1 | 0, over 2,353 rows |
-| `Comment` renamed `comment` in `vandesandt-etal-2019-11-04.txt` | 1 | 0 |
+| File | Rows before | Rows after | Why |
+|---|--:|--:|---|
+| `Mice_TCRs_..._(Shagina_et_al_2024).txt` | 1,556 | 485 | one row per observation collapsed to one per clonotype, with the count recorded in `method.frequency` (#397) |
+| `PMID_18025130.txt` | - | 40 | the file that was added |
 
-All of it landed in one commit, `b0a479d`, whose 137,538 insertions and 137,538 deletions are equal
-because a line-ending rewrite touches every line and adds none.
+The other 96 changed cells and not rows. Fourteen commits produced all 98, one per reason under the
+mechanical-repair rule, and the union of the files they touch is exactly 98 - so every file that
+differs is accounted for and none differs for a reason nobody wrote down:
 
-So every difference the release comparison reports is attributable to the build, which is what makes
-`rules/expected_diffs.toml` meaningful: a rule there describes a code change, and there is no
-curation change hiding behind it.
+| Change | Files | What moved | Issue |
+|---|--:|---|---|
+| junctions repaired against their own germline anchor, four commits | 78 | 4,838 chains | #646 |
+| `meta.structure.id` made a live TCR:pMHC entry or blank | 7 | 2,223 records | #402 |
+| final newline added, two `paley-etal` rows padded to 33 fields | 10 | 2 rows | #675 |
+| the alpha CDR3 was a copy of the beta: cleared, V and J kept | 3 | 98 records | #561 |
+| two class I epitopes recorded under the wrong HLA gene | 2 | 2 epitopes | #597 |
+| the space closed in `PMID: 34433824` | 2 | 22 records | #637 |
+| `PMID:9971792` Kabat V-beta names converted to IMGT, two J calls corrected | 1 | 47 records | #389 |
+| `PMID_15753288` Arden names converted to IMGT | 1 | 35 calls | #302 |
+| the two chunks in the row-count table above | 2 | 1,556 -> 485, and 40 landing | #397, #161 |
+
+The 99 CRLF files (#581) are not in the 98 and cannot be: the comparison strips `\r` before hashing,
+which is the property that makes a line-ending rewrite invisible to it and a data edit visible.
+
+**Records: 192,753 at the release, 192,641 on `dev`.** Two moves, in opposite directions and both
+declared: +40 from `PMID_18025130` landing, and -152 from the B16 collapse, of which 122 are records
+that were never real (a spreadsheet autofill had kept 65 clonotypes apart) and 30 are repeated
+observations of one clonotype in one mouse.
+
+So a difference the release comparison reports is no longer attributable to the build by default, and
+`rules/expected_diffs.toml` says which is which: the curation changes above each carry their own
+narrowed rule, declared ahead of the unnarrowed pandas-coercion rules that would otherwise absorb
+them, and the three `[[row_delta]]` blocks carry the two chunks that moved rows.
 
 Re-derive it with the two properties that matter, rather than by reading a diff stat:
 
@@ -397,15 +442,15 @@ diff <(git ls-tree -r --name-only 2026-06-03-ZENODO chunks/) \
      <(git ls-tree -r --name-only HEAD chunks/)
 # per file: does the content differ once line endings are normalised?
 for f in $(git ls-tree -r --name-only HEAD chunks/); do
-  a=$(git show "2026-06-03-ZENODO:$f" | tr -d '\r' | shasum -a 256 | cut -c1-16)
+  a=$(git show "2026-06-03-ZENODO:$f" 2>/dev/null | tr -d '\r' | shasum -a 256 | cut -c1-16)
   b=$(git show "HEAD:$f"              | tr -d '\r' | shasum -a 256 | cut -c1-16)
   [ "$a" = "$b" ] || echo "content differs: $f"
 done
 ```
 
-The second loop reports the three header repairs and the eight trailing-newline files, and nothing
-else. `CLAUDE.md` carries the rule this section exists to serve: a commit touching `chunks/` says
-which files, how many rows, why, and who decided.
+`CLAUDE.md` carries the rule this section exists to serve: a commit touching `chunks/` says which
+files, how many rows, why, and who decided. `git log --oneline 2026-06-03-ZENODO..HEAD -- chunks/` is
+the list the table above summarises, and it is 18 commits.
 
 ## 8. Motif inference findings
 
