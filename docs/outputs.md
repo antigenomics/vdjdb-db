@@ -243,16 +243,37 @@ VDJdb's own list of epitopes and the MHCs that present them.
 
 | Table | Key | Rows |
 |---|---|---|
-| `epitopes` | `(antigen.epitope, antigen.species)` | 2,132 |
-| `restriction` | `(antigen.epitope, antigen.species, mhc.a, mhc.b)` | 2,373 |
+| `epitopes` | `(antigen.epitope, antigen.species)` | 2,131 |
+| `restriction` | `(antigen.epitope, antigen.species, mhc.a, mhc.b)` | 2,343 |
 
 `epitopes` has `antigen.gene`, `epitope.length`, `mhc.class`, and the support counts `records`,
 `chains`, `clonotypes` and `references`. 379 epitopes are reported by two or more publications.
 
-The key is the epitope and the species. A peptide is not unique to one organism: 13 epitopes are
-reported under two species, and none of those is an error.
+**The key is the epitope and the species, not the peptide.** A reader who assumes one row per peptide
+- which the table's name invites - joins the records of 12 peptides twice.
 `patches/antigen_epitope_species_gene.dict` is keyed on the peptide alone and cannot express them, so
 this is a table rather than a view over the patch.
+
+Those 12 are three different things, and `out/reports/epitope-sources.tsv` separates them (#633):
+
+* **6 are conserved peptides** - the same sequence in two organisms' proteomes, so two publications are
+  two independent reports. `VEALYLVCG` is in human `INS` and mouse `Ins2`, `RPIIRPATL` in influenza A
+  and B `NP`, `LRVMMLAPF` in *E. coli* and *S.* Typhi `yeiH`. The report marks them `conserved`, which
+  is the column to sort on, so a *new* collision is the only thing to look at.
+* **6 are vocabulary gaps** - one organism written two ways (`AdV` beside `HAdV5`), or `Synthetic` in
+  `antigen.species`, which is a provenance and not a species. These want an alias table and which way
+  each folds is a curator's call (#632, #637).
+* a mis-curation, now repaired: `RGPGRAFVTI` was `HomoSapiens` / `P18-I10` on one row against `HIV-1` /
+  `GP160` on 85, where `P18-I10` is the laboratory name of the HIV-1 V3-loop peptide itself.
+
+The same report carries the other half of the ambiguity, which nothing reported before. `epitopes` keeps
+the **modal** `antigen.gene` for each `(peptide, species)`, and 30 of them have more than one label - so
+the report counts them in a `genes` column beside the label the catalogue kept.
+
+Its first run found `FVVKAYLPVNESFAFTADLRSNTGGQA` carrying **187** labels, `Eef2` to `Eef188`, one per
+record and consecutive: a spreadsheet autofill had incremented one gene name down the column. That is
+repaired (#397, #694) - `mhcmatch`'s mouse proteome assigns the peptide to `Eef2` and to nothing else -
+so the largest remaining is 2.
 
 `restriction` checks each allele against IPD-IMGT/HLA (<https://www.ebi.ac.uk/ipd/imgt/hla/>) by
 prefix, since a VDJdb call is two-field and the authority stores four, and against
@@ -271,8 +292,38 @@ what the submitters meant, so it is reported and never fatal.
 **A build carrying an `unknown` or blank call fails**, naming the value, the column, the cell count and
 the chunks that report it, so only `known`, `unconfirmed` and `declared` reach a release. The fix is an entry in
 `patches/mhc.dict` when the call is wrong, or a row in `proofreading/mhc_nonhuman.tsv` when it is a
-species IPD-IMGT/HLA does not cover. Phase 9e adds `mhcmatch` validation: whether the allele could present that peptide,
-not only whether the allele name exists (ROADMAP §12, §27).
+species IPD-IMGT/HLA does not cover. Whether the allele could *present* that peptide, rather than only
+whether its name exists, is phase 9e: `presentation.tsv` above for the offline half, and the six
+columns below for the model's ranking.
+
+`restriction` also carries six promiscuity columns (ROADMAP §10.6). An epitope is often presented by
+several alleles and the curated one is not always the best binder; both facts belong in the database
+and neither belongs in a key, because a model upgrade would otherwise renumber `pmhc_id` and break
+every external reference while the build passed.
+
+| Column | What it is |
+|---|---|
+| `alleles.reported` | distinct `mhc.a` values VDJdb records for this epitope. **Curation, not prediction**, so it is counted from this table and is present on a class II row where the other four are blank. Two or more means different publications restricted the same peptide differently - the question #372 asks |
+| `mhc.a.top` | the panel allele that presents this epitope best |
+| `mhc.a.rank` | where the curated allele sits in that ranking, 1 being the top |
+| `mhc.a.percentile` | the curated allele's `%Rank_EL` against the human proteome background |
+| `promiscuity` | panel alleles in the strong band for this epitope |
+| `mhcmatch.version` | the model that produced the five above, per row. Empty on a row scored before the column existed |
+
+All six are a **join against the committed `proofreading/epitope_promiscuity.tsv`** (13,510 rows over
+1,729 epitopes and 107 alleles). Nothing is predicted during a build: `mhcmatch` fetches its reference
+data from HuggingFace, and a build that downloads a model is neither offline nor deterministic (hard
+rule 9), so the table is a reviewed input refreshed by `vdjdb promiscuity` through its own pull
+request.
+
+**A curated allele the prediction outranks is not a defect.** The curated allele is the one a
+publication typed a donor for, which a proteome-background ranking has no access to, and most of these
+epitopes are promiscuous. 1,793 of 1,989 class I pairs get a rank; the 196 that do not divide into
+four causes, each a different statement: 86 pairs (16,316 records) name an allele outside the panel,
+86 (10,395) an epitope the table has not been refreshed to cover since it was written, 24 (381) an
+epitope outside the 8-11mer class I range, and the rest resolve only at a depth the panel does not
+name. A deeper spelling such as `HLA-A*02:01:48` is scored at its two-field molecule, because the
+panel is named at two fields and there is no deeper groove.
 
 ### 3.4 `vdjdb.parquet` - the joined view
 
@@ -416,9 +467,13 @@ they ship in future is open (ROADMAP §9).
 | `diff-report.md` | the comparison against a reference release (ROADMAP §5) |
 | `motifs_per_epitope.tsv` | one row per (species, gene, method, epitope): clonotypes, clustered, retention, clusters, largest cluster, mean cluster size, singleton clusters, percolation, replicated, tp, precision, lift. 678 rows. Written by `vdjdb motifs` on every run; the pooled motif scorecard averages a strongly bimodal distribution and must not be reported without this table (`docs/clustering.md` §6) |
 | `motif-timings.tsv` | one row per motif stage: the same columns as `build-timings.tsv`, written by `vdjdb motifs`. `parent` is what makes it add up here: `motifs.tcrnet.background.*` runs inside `motifs.tcrnet.enrichment`, and while both rows carried their inclusive duration the report summed 268.7 s over a 198 s step and every `share` was understated by 36 %. **This is where the pipeline's memory peak is** - 6,898 MiB against the assemble stage's 1,577, set by the two PWM-and-emit steps, so 43 % of a 16 GB runner. Five measurements span 6,786 to 7,531 MiB over two hosts, an 11 % spread on the runner alone, and the 10,240 MiB budget is set against the largest of them. Share gated against `rules/motif_timings.tsv`, peak against a 10,240 MiB budget. Unlike the assemble report, the shares here are **not** comparable across host classes: per-stage slowdown from a 16-core laptop to the 4-vCPU runner ranges from 1.46x to 24.0x, the outlier being the background fetch, so the baseline carries the core count it was recorded on and the comparison runs on that host class only |
-| `lookalikes.tsv` | one row per spelling of a value that some other value differs from only in case or in a `-`, `_`, `.` or space: the column, the folded form both share, the record count, and `same.species`. **Advisory, gated by nothing.** Measured on the current corpus: 20 groups over `antigen.gene`, `method.identification` and `reference.id`, 10 of them within one species. A value one character from another may be a typo or may be two stains, two serotypes, or one gene under two species' symbol conventions - HGNC capitalises `MBP` for human and MGI title-cases `Mbp` for mouse - so `same.species` is the column to sort on and the curator is the only one who can decide. The fold deliberately keeps `+` and `-`: applied to `meta.cell.subset` a stripping fold reports 11 groups and every one is false, because `CD95-` and `CD95+` are two populations. Edit distance was measured and rejected - at ratio 0.85 it returns real gene families (`MAGE-A1`/`A2`/`A3`/`A4`, `PPM1`/`PPM1F`) and distinct organisms (`CMV`/`MCMV`/`LCMV`) |
+| `lookalikes.tsv` | one row per spelling of a value that some other value differs from only in case or in a `-`, `_`, `.` or space: the column, the folded form both share, the record count, and `same.species`. **Advisory, gated by nothing.** Measured on the current corpus: 19 groups over `antigen.gene` and `method.identification`, 9 of them within one species - the `reference.id` pair went when `PMID: 34433824` lost its space (#637). A value one character from another may be a typo or may be two stains, two serotypes, or one gene under two species' symbol conventions - HGNC capitalises `MBP` for human and MGI title-cases `Mbp` for mouse - so `same.species` is the column to sort on and the curator is the only one who can decide. The fold deliberately keeps `+` and `-`: applied to `meta.cell.subset` a stripping fold reports 11 groups and every one is false, because `CD95-` and `CD95+` are two populations. Edit distance was measured and rejected - at ratio 0.85 it returns real gene families (`MAGE-A1`/`A2`/`A3`/`A4`, `PPM1`/`PPM1F`) and distinct organisms (`CMV`/`MCMV`/`LCMV`) |
+| `epitope-sources.tsv` | one row per `(antigen.epitope, antigen.species)` whose source is not single-valued: the modal `antigen.gene` the catalogue kept, `sources` (how many species carry this peptide), `genes` (how many labels this peptide-and-species carries), the record count, and `conserved`. **Advisory, gated by nothing.** Written by `vdjdb build` every run. Measured on the current corpus: 12 peptides under more than one species, 6 of them conserved between two proteomes and marked as such so a new collision is the only thing to read, and 30 rows carrying more than one gene label, the largest carrying 2. `build_epitopes` keeps the modal label and its comment claimed a function listed the rest; that function was never written, so until this report the discarded labels were visible nowhere (#633) |
 | `anchors.tsv` | one row per chain whose `cdr3` contradicts the germline anchor of the V or J it names. VDJdb's `cdr3` is junction space - Cys104 through Phe/Trp118, both included - so a submission in IMGT CDR3 space, one carrying V or J framework past an anchor, or one with a mis-read anchor residue is none of those, and no rule in `vdjdb qc` tests for it: those check the residue alphabet and a minimum length. Written by `vdjdb build` on every run and never a gate. Columns: the chunk and row, the record, the shipped and submitted junctions, the two calls, arda's `v.canonical`/`j.canonical`, the germline anchor residue at each end, the named `defect`, a proposed `repair` sequence where the germline supports one, and a proposed `repair.call` where the junction matches a functional sibling allele instead. Measured on the 2026-09-29 corpus, after #646 repaired 4,838 junctions in `chunks/` and #647 corrected the mouse `TRAJ47` allele: **1,037 of 285,950 chains (0.36 %), 261 with a sequence repair and none with an allele repair** - 672 unexplained, 256 carrying framework past an anchor, 118 `unanchored`, 10 short a J anchor and 5 with a mis-read one. A chain can carry a defect at each end, so those count more than 1,037 between them. The anchor residue is read per segment and never assumed to be F or W: mouse `TRAJ47*01` is `HYANKMIC`, so "ends in Phe or Trp" calls 481 correct junctions broken. `unanchored` is the one case where that universal pair is still the test: with no J call, or one the reference does not have, there is no germline to read, and the check used to decline silently - those 118 chains were reported by the retired build's `vdjdb_full_cdr3aa_broken.txt` and by nothing here. No repair is proposed for them, because there is no germline to propose from |
+| `harmonisation.tsv` | one row per value the build **rewrote**, across the four harmonisation passes `build_master` runs before identity is assigned (#700). The complement of `nomenclature.tsv` below, which names the calls it could *not* resolve: this one names the ones it could, and until #700 the four reports were computed on every build and discarded. Columns: `stage` (`segments`, `alleles`, `mhc`, `references`), the `issue` or patch table the rewrite cites, the `column`, the `species` where the pass scopes by organism, `from`, `to` and the record count. Written by `vdjdb build` on every run, **never a gate** - a rewrite is a declared correction, and the gate on those is `rules/expected_diffs.toml`'s generated `[[rename]]` block. Measured 2026-09-29: **270 rewrites over 7,450 records** - 235 segment respellings (4,146 records), 28 MHC corrections (1,494, of which the class II chain order is 149 records with a beta gene in `mhc.a`), 4 allele calls read off the junction (1,142, the TRAJ24 and mouse TRAJ47 signatures) and 3 `reference.id` values replaced by their PubMed id (668) |
+| `j-calls.tsv` | one row per chain whose J call some **other** J gene explains better (#681). A junction's 3' end is templated by the J germline, so a record's J call can be checked against the sequence the same record reports: match the end - the anchor excluded, so a corrupt anchor cannot vote on its own diagnosis - against every J germline of that species and take the longest run. **This is not the question `anchors.tsv` asks.** That one reads the anchor residue of the segment a record *names*; this one asks whether a different gene explains the whole end better, and measured 2026-09-29 the two overlap on **19 of 718** chains. Columns: the chunk and row's record, the chain's gene and species, the junction, the call as written with the run its own germline supports, and the gene the sequence names with its run. Written by `vdjdb build` on every run, **never a gate** - #681 says re-calling a J from its junction is a curator's decision and what was missing is the list. The rule is stated rather than tuned: the best-matching gene must be unique (a tie is a fact about the germlines, not about the record), its run at least 5 residues (a chance run of 5 on a 20-letter alphabet is ~3e-7 per germline), and the called gene's own run strictly shorter. Measured: **715 chains over 96 chunks** against 285,545 checkable ones, so 99.75 % of J calls are not contradicted by their own junction. The largest single chunk is 106 chains of `PMID_32184241.txt` |
 | `nomenclature.tsv` | one row per segment call IMGT has at neither allele nor gene level, after harmonisation (#389). This is the report the retired build wrote as `vdjdb_full_gene_broken.txt` and `vdjdb_full_allele_broken.txt`, and nothing replaced it: `harmonise_segments` reports what it *rewrote*, `build_master` discards even that, and a call naming a gene no authority carries reached every shipped table with no report anywhere. Columns: the species, the chunk column, the call as written, the `part` that failed (a curator recording two candidates writes `TRBD1,TRBD2`, and each member is resolved separately), the chain count, and `family.members` with up to four `candidates`. Written by `vdjdb build` on every run, **never a gate**. Measured 2026-09-29: **88 rows over 69 distinct names and 3,457 chain-calls**, of which 2,823 are an under-specified *family* - `TRBV6` is nine IMGT genes and the record chose none of them, which only a curator can resolve - and the rest have no IMGT candidate at all, which is a spelling defect or a gene that species does not have. 850 are not human, and the retired check never saw one of those: its table was a 741-row human immunoglobulin list, so the driver ORed both masks with `species != 'HomoSapiens'`. It also compared `int(allele)` against a per-gene allele count rather than asking IMGT, which is a range check wearing the clothes of a membership check - its single finding on the whole corpus, `TRBV28*02`, is an allele IMGT lists. `tests/release/test_legacy_proofreading_parity.py` partitions every retired finding against this report and `anchors.tsv` with no remainder |
+| `presentation.tsv` | one row per `(antigen.epitope, mhc.a, mhc.b, mhc.class)` pair that fails at least one of four checks on whether the recorded MHC could present the recorded epitope at all (ROADMAP phase 9e), and `presentation-summary.tsv` the same counted per finding. `proofreading/mhc_alleles.tsv.gz` answers whether IPD-IMGT/HLA lists a name; this asks whether the name reaches a **binding groove**, which is the 34 residues every presentation model reasons over. `mhcmatch` bundles those pseudosequences - 20,082 class I keys and 11,048 class II, loaded in 0.01 s with no network - so unlike `vdjdb promiscuity`, which fetches a model, this runs inside the build without breaking its offline determinism. The four: the call reaches a pseudosequence key; the key's own class agrees with `mhc.class`; a class I record's epitope fits a class I groove; and one molecule is not filed under two classes. **Advisory, never a gate** - a model is evidence about a pair, never authority over a publication. Measured 2026-09-29: **93 pairs over 1,213 records** of 2,343 and 192,641. 71 reach no groove, of which 64 are murine class II (`mhcmatch`'s class II pseudosequences are HLA, so this is a coverage statement rather than a finding against the record) and 2 are `H2-Qa-1b` and a four-field HLA spelling; 22 are a class I record whose epitope runs 12 to 20 residues; and 21 are `H2-IAb`, filed `MHCII` on 20 pairs and `MHCI` on the 77-record `QVYSLIRPNENPAH`, which is the one all three other checks agree on. An allele resolved by prefix is carried in `mhc.resolution` and is **not** a finding: 87 pairs over 17,836 records are an allele *group* the specification allows, `HLA-A*02` completed to its first member, so `mhcmatch` is guessing rather than the record being wrong |
 | `functionality.tsv` | one row per chain-segment IMGT does not call functional, and `functionality-summary.tsv` the same counted per verdict (#634). `proofreading/imgt_alleles.tsv.gz` has carried IMGT's own F / ORF / P column since phase 9 and nothing read it: `vdjdb qc` asks whether a call *looks* like a TRBV name and `curate/nomenclature.py` asks whether IMGT *has* it, and neither asks whether IMGT thinks the gene is functional. Columns: the record, the chain, `V` or `J`, the call, IMGT's verdict as IMGT spells it, and `level` - `allele` where IMGT names that exact allele, `gene` where the verdict is inherited from the gene's alleles. Written by `vdjdb build` on every run, **never a gate**: a pseudogene V call is not automatically wrong, because a P gene can rearrange - `TRBV21-1` is 303 chains and turns up in real repertoires - and IMGT reclassifies genes between releases, so a gate would fail on a reference update rather than on a curation error. Measured 2026-09-29: **2,608 chain-segments, 1,172 V and 1,436 J**, largest `TRAJ58*01` ORF on 656 chains, `TRBJ1-6*01` ORF on 327 and `TRBV21-1*01` P on 303. The same verdict drives four advisory `non-functional *` rules in `vdjdb qc`. A gene's verdict is every verdict among its alleles and **one functional allele is enough**: `TRBJ2-7` reads `F/ORF` because `*02` is an ORF and it is one of the commonest J calls in VDJdb, so the stricter reading flagged 17,891 chunk rows with nothing actionable in the difference |
 | `build-timings.tsv` | one row per build stage: the parent stage it sits inside, wall seconds **exclusive of any stage timed inside it**, share of the recorded total, peak RSS in MiB, the record count and the core count. Seconds sum to the wall clock and shares sum to 1, which they did not while a nested stage was counted both in its own row and in its parent's - the motif report summed 268.7 s over a 198 s step and understated every share by 36 %. Written by `vdjdb build` on every run. The share is gated against `rules/build_timings.tsv` (`tests/release/test_build_timings.py`); the seconds are recorded and not gated, because they are a property of the host, so a uniform slowdown is visible in the artifact rather than caught by a bar. Peak RSS is gated absolutely at 4,096 MiB for this stage, because memory is a property of the data and the code rather than of the host; measured 1,577 MiB on a laptop and 1,064 MiB on the runner, which allocates less because polars chunks to fewer threads. The share baseline is recorded on the runner and carries its core count: measured, the nine shares here agree to within 1.3 points between 4 and 16 cores, which is why a share gate works for this report. ⚠ The assemble stage is **not** the pipeline's memory peak - see `motif-timings.tsv`. `annotate.junction.add_junction_nt` was 87.2 % of the wall time (`antigenomics/vdjtools#181`); since `vdjtools` 4.5 it is one `infer_nt_batch` call per (species, locus) and **65.2 %** - 108.54 s of a 166.54 s stage on the runner, against 407.64 s of 467.72 s. See `docs/builds.md` |
 | `motif-metrics.tsv` | one row per (species, gene, source, axis): eighteen axes for four sources -- the last legacy release, the latest release, this build's two methods, and the partition that clusters nothing. 180 rows. Thirteen axes score a clustering on this build's cohort; the five `partition_*` axes compare it against **the shipped file**, asking whether a record still has the cluster-mates the last release gave it. Those exist because nothing compared those tables: `vdjdb diff` keys `cluster_members.txt` on `cid`, a cid carries a position in a sorted list, so one renumbered cluster reads as the entire file replaced. Only `partition_neighbours_preserved` is gated, and the reason is measured: 19,971 of the released TRB clustering's 36,906 clonotypes sit in one cluster holding 94.7 % of the file's co-clustered pairs, so a pair-weighted score measures that one blob -- the do-nothing partition reads 0.9991 on it. Written by `vdjdb motif-metrics`, which also gates them: `current-*` against `latest` catches a code regression, every source against `rules/motif_metrics.tsv` catches a corpus one. The metrics used to live only inside test assertions, so a corpus change moved them inside the slack and nobody learned the new values |
@@ -441,12 +496,23 @@ beside the zips and is listed in `SHA256SUMS`. It is written by `vdjdb release` 
 a curation branch that adds a clonotype and removes it again has retired nothing. A build with no
 previous copy produces exactly the same ids and reports only that the history is unknown.
 
-`records.registry.tsv` maps `record_id` to its state, hashes, provenance and amendment history, so an
-id survives a curator fixing a typo. It is not committed: at 72.7 MB for 192,753 records (19.8 MB
-gzipped) it would add ~20 MB to the repo per curation pull request, against a `chunks/` corpus of
-42 MB. It ships as a release asset, and the build fetches the previous release's copy to reconcile
-against, so it is reviewed in the release diff rather than the pull-request diff (ROADMAP §17,
-phase 14).
+`registry/records.tsv` maps `record_id` to its state, hashes, provenance and amendment history, so an
+id survives a curator fixing a typo. **It is committed** and is an input to the build, not an output of
+it: 73.8 MB for 192,883 rows, and kilobytes per amendment in the pack, because a reconciliation rewrites
+only the lines it touched. It was going to ship as a release asset the build fetched, and #672 changed
+that - without a committed copy the registry went stale between releases and landing one 40-record
+chunk moved `record_id` on 168,723 of 192,753 records (#638). It is written **only** by
+`vdjdb identity update`, which a chunk branch runs and commits alongside the chunk; `vdjdb build` reads
+it.
+
+Fifteen columns. Thirteen are the state, the two hashes, the chunk provenance, the release and commit
+at first and last sighting, and the amendment count with the key hash it came from. The other two are
+the lifecycle a consumer follows:
+
+| Column | What it answers |
+|---|---|
+| `amended_from_key_hash` | backwards, and only for an amendment: which key this record used to have |
+| `replaced_by` | forwards, and only for a retirement the amendment pass refused: which id took over. Two key fields moving is a new record by the rule the registry is built on, so the retirement is right and the pointer is what makes it diagnosable rather than a disappearance (#693, ROADMAP §10.4). Written when one id retires from a line of a chunk, exactly one is allocated against that same line, and the two natural keys name the same receptor; empty otherwise, including on every retirement that is a genuine deletion |
 
 ## 6a. Committed, not produced
 

@@ -56,6 +56,12 @@ on:
       # the change that has to re-run the comparison, and until now it triggered nothing, so a
       # loosened baseline would have been checked by no build at all.
       - 'rules/**'
+      # `registry/**`: the same argument for `records.tsv`. It is the committed record-identity input,
+      # `tests/release/test_registry_is_current.py` is the only thing that gates it, and that test
+      # carries the `release` mark so it runs here and nowhere else -- so a commit touching only the
+      # registry was checked by no build. #672 is what that costs: it sat 592 amendments stale and
+      # nothing noticed.
+      - 'registry/**'
   schedule:
     - cron: '0 3 * * 1'
 
@@ -314,9 +320,13 @@ jobs:
             out/reports/qc.tsv
             out/reports/qc-summary.tsv
             out/reports/nomenclature.tsv
+            out/reports/harmonisation.tsv
             out/reports/anchors.tsv
+            out/reports/j-calls.tsv
             out/reports/functionality.tsv
             out/reports/functionality-summary.tsv
+            out/reports/presentation.tsv
+            out/reports/presentation-summary.tsv
             out/reports/lookalikes.tsv
           retention-days: 90
 
