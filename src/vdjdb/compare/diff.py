@@ -492,6 +492,12 @@ class Rename:
     from_: str
     to: str
     files: tuple[str, ...] = ()          # empty = every table
+    #: The organism the rewrite is for. Empty = every organism, which is safe only while ``from_``
+    #: is a spelling nobody uses correctly, and stops being safe the moment it is a real gene
+    #: somewhere else. ``TRAV14-1*01`` is one human record's respelling of ``TRAV14/DV4`` and the
+    #: correct IMGT name of 79 mouse records in the same release: unscoped it rewrote all 80 and
+    #: keyed 79 mouse rows against a gene that is not theirs (#671).
+    species: str = ""
     #: Optional evidence: rewrite only rows where one of these columns contains ``when_contains``.
     #: Without it a rename must be injective on value alone, which an evidence-based correction is
     #: not -- the 1,047 TRAJ24 records the CDR3 identifies as ``*02`` ship the same ``TRAJ24*01`` as
@@ -511,7 +517,19 @@ class Rename:
 
     @property
     def conditional(self) -> bool:
-        return bool(self.when_columns and (self.when_contains or self.when_equals))
+        """True when the rewrite needs a predicate, so it cannot go in a plain value mapping."""
+        return bool(self.species or (self.when_columns
+                                     and (self.when_contains or self.when_equals)))
+
+    def predicate(self, snap: dict[str, str]) -> pl.Expr:
+        """The full condition, read from ``snap``: the species scope and the evidence, if any."""
+        parts = []
+        if self.species and "species" in snap:
+            parts.append(pl.col(snap["species"]) == self.species)
+        evidence = [snap[c] for c in self.when_columns if c in snap]
+        if evidence and (self.when_contains or self.when_equals):
+            parts.append(self.evidence_expr(evidence))
+        return pl.all_horizontal(*parts) if parts else pl.lit(True)
 
     def evidence_expr(self, columns: list[str]) -> pl.Expr:
         """True where one of ``columns`` contains the declared evidence."""
@@ -531,6 +549,7 @@ def load_renames(path: Path) -> list[Rename]:
     return [Rename(columns=tuple(c.strip() for c in r["columns"].split(",")),
                    from_=r["from"], to=r["to"],
                    files=tuple(f.strip() for f in r.get("files", "").split(",") if f.strip()),
+                   species=r.get("species", ""),
                    when_columns=tuple(c.strip() for c in r.get("when_columns", "").split(",")
                                       if c.strip()),
                    when_contains=r.get("when_contains", ""),
@@ -558,10 +577,12 @@ def _apply_renames(name: str, df: pl.DataFrame,
             continue
         mask = pl.any_horizontal(*[pl.col(c) == r.from_ for c in cols])
         if r.conditional:
-            evidence = [c for c in r.when_columns if c in df.columns]
-            if not evidence:
+            if r.species and "species" not in df.columns:
                 continue
-            mask = mask & r.evidence_expr(evidence)
+            evidence = [c for c in r.when_columns if c in df.columns]
+            if r.when_columns and not evidence:
+                continue
+            mask = mask & r.predicate({c: c for c in df.columns})
             conditional.append(r)
         else:
             for c in cols:
@@ -576,7 +597,8 @@ def _apply_renames(name: str, df: pl.DataFrame,
         # Both the target and the evidence are read from the snapshot, so a pair of renames that
         # *swap* two columns works: without it the second would test a column the first has already
         # rewritten, and the order of declaration would decide the answer.
-        touched = {c for r in conditional for c in (*r.columns, *r.when_columns) if c in df.columns}
+        touched = {c for r in conditional
+                   for c in (*r.columns, *r.when_columns, "species") if c in df.columns}
         snap = {c: f"__snap\x1f{c}" for c in sorted(touched)}
         df = df.with_columns(*[pl.col(c).alias(s) for c, s in snap.items()])
         for c in sorted(c for r in conditional for c in r.columns if c in snap):
@@ -584,10 +606,7 @@ def _apply_renames(name: str, df: pl.DataFrame,
             for r in conditional:
                 if c not in r.columns:
                     continue
-                evidence = [snap[e] for e in r.when_columns if e in snap]
-                if not evidence:
-                    continue
-                expr = pl.when((pl.col(snap[c]) == r.from_) & r.evidence_expr(evidence)
+                expr = pl.when((pl.col(snap[c]) == r.from_) & r.predicate(snap)
                                ).then(pl.lit(r.to)).otherwise(expr)
             df = df.with_columns(expr.alias(c))
         df = df.drop(list(snap.values()))
