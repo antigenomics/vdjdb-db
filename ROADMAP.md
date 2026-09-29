@@ -153,6 +153,31 @@ Backgrounds are streamed at build time and only derived statistics (`count.bg`, 
 never the background itself, never a subsampled copy. A background is an input to the build, not
 an output of it, and a stale vendored copy would change a call set with no error.
 
+### 3.4 Cross-repo gate: `arda` CDR3 repair release
+
+`arda.cdr3fix` is the build's only CDR3 repair engine since phase 5. It declines a class of repair the
+`Cdr3Fixer` it replaced applied, so a malformed junction ships: **382** of 190,902 distinct
+`(species, cdr3, v, j)` keys end with a junction that does not run Cys104 to the anchor its own segment
+encodes, and **2,165** are returned `NoFixNeeded` on one residue of germline agreement.
+
+The cause is the reference rather than the algorithm. `Anchor.templated_aa` stops at [FW]118, so
+framework past an anchor has nothing to align to. The retired fixer sliced
+`sequence[reference_point - 3:]` for V and `sequence[:reference_point + 4]` for J, which puts one FR3
+codon before Cys104 and the `[FW]GXG` motif after 118 - and with the flanks present the repair is
+positional, needing no alignment scoring.
+
+Ordering, and it is the same shape as §3.1:
+
+1. arda fixes it - `antigenomics/arda#141` carries the writeup, the two record tables, the recovered
+   legacy source and a partial port on `feature/kmer-cdr3fix`;
+2. arda cuts a release;
+3. the `arda-mapper` bound here moves, and #711 closes.
+
+**Nothing is repaired in this repository in the meantime.** A second repair pass here was built,
+measured and reverted (`606d446`): it reproduced a worse subset of arda's own job and put junction
+classification in two places. `curate/anchors.py` continues to **report** non-canonical junctions, which
+is the curation signal, and applies nothing.
+
 ## 4. Phases
 
 `master` → `dev` → `feature/*` → `dev` → `master`. Every phase is independently mergeable and
@@ -165,7 +190,7 @@ an output of it, and a stale vendored copy would change a call set with no error
 | 2 | merged | `feature/golden-harness` | `vdjdb diff` + `expected_diffs.toml` | - | zero diffs against the current pandas build; nothing downstream starts without this |
 | 3 | part | `feature/io-qc` | polars reader, vectorised QC, `--strict` exit-1, chunk header normalisation | - | QC report matches the pandas report row-for-row; harness still zero. ⚠ **The `.tsv` rename did not happen and #497 is open**: `chunks/` is 231 files, all `.txt`. Everything the rename was wanted for did land - one canonical 33-column header, the 19 distinct header rows collapsed to one, the 99 CRLF files converted with `*.txt text eol=lf` in `.gitattributes` so it cannot return (#581), and a reader that fails on an unrecognised header. What is left is the extension, which nothing reads to decide the format, against 231 `git mv`s that break every `git log --follow` boundary and every `PMID_<id>.txt` reference in docs, skills, tests and the tracker. Held deliberately: renaming every file in `chunks/` the week curators start opening chunk pull requests is when it costs most. It wants its own branch under the mechanical-repair rule and a quiet period |
 | 4 | merged | `feature/pipeline-core` | the definitive tables (`records`, `chains`) + harmonize + score + pairing; the legacy export as a projection of them; deletes `py_src/` | #424, #399 | every difference against the release is a declared rule firing its measured count; peak RSS < 8 GB |
-| 5 | done | `feature/arda-cdr3fix`, `feature/retire-res` | `arda.cdr3fix` replaces `Cdr3Fixer.py`; `res/` retired | #658 | new `expected_diffs.toml` rule, row count measured then frozen. `res/segments*.txt` outlived the first branch by three call sites, one of them on every build: `arda.cdr3fix` repairs a junction against a *named* germline and never proposes one, so a blank V or J needed filling first. `feature/retire-res` replaced that with the recombination model falling back to arda's own germline anchor table, deleted `res/` and `annotate/_legacy_fixer/`, and dropped `--engine legacy`. The J proposal gains 347 calls and 469 rows of `vdjdb.txt`; the V proposal is reported as `v.inferred` and does not ship, because a V recovered from a junction alone is right 23.8-50.1 % of the time against a J's 93.6-97.5 % |
+| 5 | done | `feature/arda-cdr3fix`, `feature/retire-res` | `arda.cdr3fix` replaces `Cdr3Fixer.py`; `res/` retired | #658 | new `expected_diffs.toml` rule, row count measured then frozen. `res/segments*.txt` outlived the first branch by three call sites, one of them on every build: `arda.cdr3fix` repairs a junction against a *named* germline and never proposes one, so a blank V or J needed filling first. `feature/retire-res` replaced that with the recombination model falling back to arda's own germline anchor table, deleted `res/` and `annotate/_legacy_fixer/`, and dropped `--engine legacy`. The J proposal gains 347 calls and 469 rows of `vdjdb.txt`; the V proposal is reported as `v.inferred` and does not ship, because a V recovered from a junction alone is right 23.8-50.1 % of the time against a J's 93.6-97.5 %. ⚠ **Retiring `res/` also removed the flank-carrying segment table the k-mer repair needed, and that is a live regression** (#711, `antigenomics/arda#141`): `Anchor.templated_aa` runs Cys104 through [FW]118 inclusive and stops, so a junction carrying framework past an anchor has nothing to align it to and `arda.cdr3fix` reports the defect without applying the repair. Measured over 190,902 distinct keys: **382** ship a junction that does not run Cys104 to its own segment's anchor, and **2,165** are returned `NoFixNeeded` on a single residue of germline agreement where the retired fixer required a 2-mer hit at offset zero in both sequences. The fix is arda's - it already ships `alleles.fasta` and `anchor_nt` - and reaches this build as a release, per §3.4 |
 | 6 | merged | `feature/new-format` | ships the definitive tables as parquet + TSV, adds `evidence`, `vdjdb.schema.json` | - | `make legacy` from the shipped tables still passes the harness |
 | 7 | merged | `feature/airr` | `emit/airr.py` (Rearrangement + Reactivity), `convert/coords.py`, `vdjdb convert` | - | `airr.validate_rearrangement` passes on the full table; the legacy path produces nothing the tables path does not |
 | 8 | merged | `feature/junction-nt`, `feature/segment-guess`, `feature/dgene` | one branch each | #461, #462, #463 | generated `cdr3nt` back-translates to `cdr3`. The stage was 87.2 % of assembly on `vdjtools` 3.13 and ran as four worker processes over contiguous slices; 4.5 published `infer_nt_batch` (`antigenomics/vdjtools#181`) and it is now one batched call per (species, locus), **114.93 s → 12.44 s**, #656 |
