@@ -178,6 +178,18 @@ measured and reverted (`606d446`): it reproduced a worse subset of arda's own jo
 classification in two places. `curate/anchors.py` continues to **report** non-canonical junctions, which
 is the curation signal, and applies nothing.
 
+**Two measured `arda` bottlenecks ride the same release**, filed from this build's profile per the rule
+that a bottleneck becomes an issue in the repo that owns the slow code:
+
+| issue | what | measured here |
+|---|---|---|
+| `antigenomics/arda#142` | `arda.dpost` has no batch entry point, so `annotate/dgene.py` must call `posterior_d` per key | 134.1 µs/key, 119,034 distinct keys, **15.96 s**, 35.8 % of the build |
+| `antigenomics/arda#143` | `markup_records`' `_align` is a pure-Python dynamic program | 35.4 µs/key, 23,556,016 `max()` calls over 190,624 records, **~7.2 s** |
+
+Together they are 23 s of a 39 s build, against 3.6 s for every line of Python in this repository that
+runs per record. Neither changes an output, so neither gates a release; both move when the `arda-mapper`
+bound does.
+
 ## 4. Phases
 
 `master` → `dev` → `feature/*` → `dev` → `master`. Every phase is independently mergeable and
