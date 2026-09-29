@@ -10,12 +10,17 @@ verdict: ``v.canonical`` and ``j.canonical`` in ``chains``. Measured on the 2026
 285,989 chains (0.346 %) are flagged non-canonical and all 990 have ``fix.good`` false** - and nothing
 read either column. They were written, shipped, and never reported.
 
-Those two columns are not the test used here, because they compare against a fixed Cys / Phe-or-Trp
-rather than against the segment's own germline. Measured against the germline, **481 of the 990 are
-canonical after all** - the junction ends in the residue its J encodes and only the fixed test
-disagrees - and the fixed test separately misses 125 rows whose junction ends in Phe where the
-germline says Cys. So the check below reads every chain and keeps arda's verdict beside its own, which
-is what makes the disagreement visible instead of averaged away.
+Those two columns are the definition - ``startswith("C")`` and ``endswith("F"|"W")``, carried over
+from the legacy fixer's ``vCanonical``/``jCanonical`` - and the definition is what a consumer filters
+on. The germline test below does not replace them and does not overrule them. It answers the next
+question: **which** defect a flagged junction has, so a curator knows what to repair.
+
+Measured on the 2026-09-28 build, of the 864 chains ``j.canonical`` marks: 212 name an allele IMGT
+calls ORF, whose templated anchor is genuinely lost, so the *call* is what is wrong and a functional
+sibling matches the sequence (the shape of #327); about 200 name a germline that does carry the Phe, so
+the *sequence* is wrong; 144 name no J at all, leaving the definition as the only available check. A
+germline that agrees with a flagged junction because the allele is a pseudogene has not validated it -
+that is the same finding one level up, and an earlier revision of this module said otherwise.
 
 **Nothing here fails anything.** A non-canonical junction can be the database's best record of what a
 paper published, and the repair below is a proposal with the germline behind it, not a verdict. The
