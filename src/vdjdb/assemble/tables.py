@@ -70,6 +70,24 @@ def build_records(master: pl.DataFrame) -> pl.DataFrame:
     return out.select(list(RECORD_COLUMNS)).sort("record_id")
 
 
+def _one_cysteine(seq: pl.Expr) -> pl.Expr:
+    """No cysteine after the one a junction opens with. Blank reads as nothing to say, so `true`."""
+    return (seq == "") | ~seq.str.slice(1).str.contains("C", literal=True)
+
+
+def _submitted_anchor(gene: str, residues: str, *, start: bool) -> pl.Expr:
+    """The anchor test on the sequence as submitted.
+
+    `cdr3.original` is written only where the fixer changed the sequence, so where it is empty the
+    shipped sequence *is* the submitted one.
+    """
+    submitted = (pl.when(pl.col(f"__cdr3old.{gene}").fill_null("") != "")
+                 .then(pl.col(f"__cdr3old.{gene}"))
+                 .otherwise(pl.col(f"cdr3.{gene}")))
+    end = submitted.str.slice(0, 1) if start else submitted.str.slice(-1)
+    return (submitted == "") | end.is_in(list(residues))
+
+
 def build_chains(master: pl.DataFrame) -> pl.DataFrame:
     """One row per TCR chain: the wide alpha/beta columns pivoted long.
 
@@ -103,6 +121,12 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
                 pl.col(f"__jfix.{gene}").alias("j.fix.type"),
                 pl.col(f"__vcanon.{gene}").alias("v.canonical"),
                 pl.col(f"__jcanon.{gene}").alias("j.canonical"),
+                # Asked of the submitted sequence, which is `cdr3.original` where a repair happened
+                # and the shipped one where none did - the fixer only writes `cdr3.original` when it
+                # changed something, so an empty cell means "as submitted" rather than "unknown".
+                _submitted_anchor(gene, "C", start=True).alias("v.canonical.submitted"),
+                _submitted_anchor(gene, "FW", start=False).alias("j.canonical.submitted"),
+                _one_cysteine(pl.col(f"cdr3.{gene}")).alias("cdr3.one.cysteine"),
                 # The three stages of a segment call, side by side: what the publication reported,
                 # what ships after IMGT harmonisation and allele disambiguation, and what the markup
                 # engine would have called from the sequence alone. `v.segm` above is the shipped
@@ -130,6 +154,8 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
                 pl.col("v.end", "j.start").fill_null(-1),
                 pl.col("cdr3.original", "v.fix.type", "j.fix.type").fill_null(""),
                 pl.col("fix.needed", "fix.good", "v.canonical", "j.canonical").fill_null(False),
+                pl.col("v.canonical.submitted", "j.canonical.submitted",
+                       "cdr3.one.cysteine").fill_null(True),
             )
             .pipe(derive, CLONOTYPE)
             .select(produced)
