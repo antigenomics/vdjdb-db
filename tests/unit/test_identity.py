@@ -137,6 +137,31 @@ def test_two_records_one_field_apart_amend_by_row_when_no_line_moved():
     assert dict(zip(after["chunk.row"].to_list(), out["record_id"].to_list(), strict=True)) == was
 
 
+def test_a_bulk_repair_amends_every_row_it_touches():
+    """The case the first version of the row tie-break got wrong, and the reason it cannot be narrower.
+
+    Repairing the 4,324 junctions of vdjdb-db#646 moves that many keys at once, so one chunk's bucket
+    holds hundreds of unmatched rows while each row has only its own two or three candidates. A test
+    that asked for a bijection between the bucket's rows and *one row's* candidates never held, and
+    every one of them fell through to a fresh id: 2,066 published identifiers retired and re-minted.
+
+    What makes the row number an identity is that the file still has a row at every number the
+    candidates sit on, which an edit in place always does.
+    """
+    rows = [{"cdr3.beta": f"CASS{a}{b}F", "chunk.row": i}
+            for i, (a, b) in enumerate([("A", "A"), ("A", "B"), ("B", "A"), ("B", "B")])]
+    before = frame(*rows)
+    out, reg, _ = reconcile(before, IdentityRegistry(), release="v1")
+    was = dict(zip(before["chunk.row"].to_list(), out["record_id"].to_list(), strict=True))
+
+    # Every row gains the trailing anchor its germline encodes - one field, every row, in place.
+    after = frame(*[{**r, "cdr3.beta": r["cdr3.beta"] + "F"} for r in rows])
+    out, _, rep = reconcile(after, reg, release="v2")
+    assert not rep.added and not rep.retired, rep
+    assert len(rep.amended) == 4 and {a[1] for a in rep.amended} == {"cdr3.beta"}
+    assert dict(zip(after["chunk.row"].to_list(), out["record_id"].to_list(), strict=True)) == was
+
+
 def test_the_row_tiebreak_is_refused_when_a_line_moved():
     """The other half: three rows become two, so the row numbers no longer pair up and the ambiguity
     stands. A shifted line must not be read as an amendment of whatever now sits on its number.
