@@ -107,6 +107,7 @@ def build(
 
     from .assemble.master import build_master
     from .assemble.tables import build_tables
+    from .curate.anchors import noncanonical
     from .curate.submission import lookalikes
     from .emit.airr import from_tables as airr_frames
     from .emit.airr import write_all as write_airr
@@ -141,6 +142,19 @@ def build(
         typer.echo(f"look-alike values: {look['folded'].n_unique()} group(s) over "
                    f"{look['column'].n_unique()} column(s), {within} within one species "
                    f"-> {out / 'reports' / 'lookalikes.tsv'}")
+
+    # Also advisory. A junction whose first or last residue is not the anchor the segment it names
+    # encodes is a submission in the wrong coordinate space, or a mis-read anchor, and no QC rule
+    # tests for it - they check the residue alphabet and a minimum length. `arda.cdr3fix` repairs most
+    # of them on the way through, which is exactly why this needs reporting: the chunk keeps the wrong
+    # sequence and nobody learns.
+    anchors = noncanonical(master)
+    anchors.write_csv(out / "reports" / "anchors.tsv", separator="\t")
+    if not anchors.is_empty():
+        fixable = anchors.filter(pl.col("repair").is_not_null()).height
+        typer.echo(f"non-canonical junctions: {anchors.height:,} chain(s) over "
+                   f"{anchors['chunk.file'].n_unique()} chunk(s), {fixable:,} with a "
+                   f"germline-supported repair -> {out / 'reports' / 'anchors.tsv'}")
 
     if tables:
         for name, frame in built.items():
