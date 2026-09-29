@@ -431,13 +431,36 @@ def summary(
     assets: Path | None = typer.Option(
         None, help="Write the figures here instead of inlining them. Needs a vdjdb-web change: "
                    "its Scala side finds images by matching data:image/png;base64."),
+    interactive: bool = typer.Option(
+        False, help="Also build the interactive dashboard, one self-contained HTML file."),
+    static: bool = typer.Option(True, help="Render the R dashboard. --no-static builds only the "
+                                          "interactive one, which needs no R."),
+    out: Path = typer.Option(Path("out/summary"), help="Where the interactive dashboard goes."),
 ) -> None:
-    """Render the release dashboard and verify the fragment `vdjdb-web` will serve."""
+    """Render the release dashboard and verify the fragment `vdjdb-web` will serve.
+
+    `--interactive` adds a second, additive artifact and changes nothing about the first. The R
+    document stays the shipped dashboard: `vdjdb-web` injects its fragment into `/overview` and
+    `summary/check_summary.py` gates it. The interactive one is for reading exact values - a hover on
+    a heatmap cell, a legend toggle, a sortable table - and is served from GitHub Pages.
+
+    `--no-static --interactive` needs no R at all, which is what makes it usable on a machine that
+    has not installed the 14 CRAN packages the release document loads.
+    """
     from .summary import render as r
 
-    r.render(legacy, quiet=not verbose)
-    typer.echo(f"{r.extract(assets=assets):,} lines -> {r.FRAGMENT}")
-    if code := r.check(reference=reference):
+    if static:
+        r.render(legacy, quiet=not verbose)
+        typer.echo(f"{r.extract(assets=assets):,} lines -> {r.FRAGMENT}")
+    if interactive:
+        # Imported here, not at module scope: plotly is in the `summary` extra, and `vdjdb --help`
+        # must work without it.
+        from .summary.interactive import build as build_interactive
+
+        written = build_interactive(legacy, r.SUMMARY / "reference_years.tsv",
+                                    out / "vdjdb_interactive.html")
+        typer.echo(f"{written.stat().st_size:,} bytes -> {written}")
+    if static and (code := r.check(reference=reference)):
         raise typer.Exit(code)
 
 

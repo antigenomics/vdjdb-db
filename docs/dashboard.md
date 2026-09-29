@@ -294,6 +294,38 @@ The page below uses the same harness, with the fragment from the last successful
 ```{raw} html
 <iframe src="_static/dashboard.html" title="VDJdb summary dashboard"
         style="width:100%;height:70vh;border:1px solid #d4d4d5;border-radius:4px"></iframe>
+
+## The interactive version
+
+A second, additive artifact. The R document above stays the shipped dashboard - `vdjdb-web` injects
+its fragment into `/overview` and `summary/check_summary.py` gates it - and nothing about it changes.
+This one exists for the three places where the printed panels cannot answer a question:
+
+- **V gene x MHC allele.** 2,343 cells labelled at 8 pt are unreadable in print; hover gives the gene,
+  the allele and the exact record count. The colour scale is capped so a few very large cells do not
+  flatten the rest, and the hover reports the **uncapped** number, so the cap is not something the
+  reader has to know about.
+- **Growth by year.** Four metrics against three chain configurations on one row of axes. Clicking a
+  chain in the legend isolates it across all four at once, and the hover reads all three at one year
+  rather than whichever line the cursor is nearest.
+- **The MHC allele table.** Sortable by any column.
+
+It reads the same data as the static dashboard, through the same functions in `summary/panels.py` -
+the ones checked cell by cell against the R they replace, 408 by-year cells, 2,343 V x MHC, 42
+spectratype, 24 epitope length and 16 score, zero differences. Adding a second set of queries here is
+what would let the two dashboards disagree about a number.
+
+```bash
+uv run vdjdb summary --interactive --legacy out/legacy --out out/summary
+```
+
+`--no-static --interactive` builds only this one and needs **no R at all**, which is what makes it
+usable without the 14 CRAN packages the release document loads. One self-contained HTML file, ~69 KB,
+0.3 s to build: `plotly.js` comes from a CDN rather than being bundled, which is the difference
+between 69 KB and about 4 MB, and GitHub Pages serves the result as an ordinary static asset.
+
+<iframe src="_static/dashboard_interactive.html" title="VDJdb summary, interactive"
+        style="width:100%;height:80vh;border:1px solid #d4d4d5;border-radius:4px"></iframe>
 ```
 
 ## Files
