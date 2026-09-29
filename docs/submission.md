@@ -105,6 +105,68 @@ Use `pending/` when you expect it to land and `withheld/` when the file itself h
 
 The repository includes curation skills in `skills/`, for use with [Claude Code](https://claude.ai/code) (Anthropic's CLI agent) and with GitHub Copilot's agent mode. A skill is an instructional document that guides an AI assistant through a multi-step curation, formatting or quality-control task on VDJdb chunks.
 
+## What `chunk-check` alerts on without failing
+
+Two checks in the pull-request report block nothing and both exist because the thing they catch passes
+every QC rule.
+
+**Look-alike values.** A value that differs from one VDJdb already has only in case or in a `-`, `_`,
+`.` or space will not join it, so every query filtering on one misses the other. `IE1` and `IE-1` are
+two `antigen.gene` values today for the same CMV gene. Two values that look alike can also both be
+right - one stain against another, `MBP` in human against `Mbp` in mouse - which is why this is an
+alert and not a gate.
+
+**Junctions that contradict their own germline.** VDJdb's `cdr3` is **junction space**: Cys104 through
+Phe/Trp118, **both anchors included**. That is two residues longer than AIRR's or arda's `cdr3_aa`.
+A submission exported in IMGT CDR3 space is therefore short an anchor at each end, and it passes
+`vdjdb qc` - those rules check the residue alphabet and a minimum length, not the ends.
+
+Measured on the 2026-09-28 corpus: **5,842 of 285,989 chains (2.04 %)**, and `PMID_15589168.txt` alone
+contributes 935 of them, every one short the trailing Phe. 5,097 get a proposed sequence and 95 get a
+proposed **allele** instead:
+
+| Defect | Chains | Example | Repair |
+|---|--:|---|---|
+| J absent anchor | 3,807 | `CASSNEKLF` on `TRBJ1-4` (`TNEKLFF`) | `CASSNEKLFF` |
+| J under-trimmed | 650 | `YLCSSQEGGYGYTFGSG` | `CSSQEGGYGYTF` |
+| J corrupt anchor | 423 | terminal residue mis-read | germline residue substituted |
+| V + J under-trimmed | 93 | framework at both ends | trimmed at both |
+| V corrupt anchor | 77 | `GASSDTMNTKIL`, `WAVRDIYTTAKFIL` | `CASSDTMNTKIL` |
+| V under-trimmed | 21 | `YFCASSY...` | `CASSY...` |
+| J allele mismatch | 95 | `CAADYANKMIF` on mouse `TRAJ47*01` | the call, `TRAJ47*02` |
+| unexplained | 650 | - | none proposed |
+
+A missing Cys104 is worth a second look even when the rest of the record is fine: no TCR folds without
+it, so a first residue that is not Cys where the body still aligns to the V is a sequencing or
+transcription error rather than a variant.
+
+Two things this check is careful about:
+
+- **The anchor residue is read from the germline of the segment the record names, never assumed to be
+  Phe or Trp.** Mouse `TRAJ47*01` is `HYANKMIC` and human `TRAJ35*01` is `IGFGNVLHC`, so a junction on
+  either ends in Cys. A fixed "ends with F or W" test calls 481 correct chains broken and separately
+  misses 125 that are not.
+- **Where the junction matches a functional sibling allele of the gene, the call is repaired and the
+  sequence is left alone.** An ORF or pseudogene allele has a non-canonical anchor by definition, and
+  arda records that faithfully: of 383 J entries over four organisms only 14 have `templated_aa` not
+  ending in Phe or Trp and 13 of those are marked `ORF` or `P`. So a junction disagreeing with a
+  non-functional allele is evidence about the *call*. 95 mouse chains name `TRAJ47`, which resolves to
+  the ORF `*01` (`HYANKMIC`), and every one reads `DYANKMIF` - exactly `TRAJ47*02`, the functional
+  allele. No record in the corpus reads the `*01` signature. This is the same defect as
+  [#327](https://github.com/antigenomics/vdjdb-db/issues/327), where 66 % of explicit `TRAJ24*01`
+  calls carry the `*02` motif, and rewriting the sequence there would destroy the evidence for it -
+  the reasoning `MAX_REPLACE = 0` already applies to CDR3 repair.
+
+`arda.cdr3fix` repairs most of these on the way through the build, which is the reason the alert
+matters rather than a reason to skip it: the shipped `cdr3` is usually right and **the chunk keeps the
+wrong sequence**, so the next export of that data is wrong again. The repair is therefore proposed
+against the submitted value, not the shipped one - arda may have fixed one end already, and
+`YLCSSQEGGYGYTFGSG` ships as `YLCSSQEGGYGYTF`, framework trimmed behind the anchor and kept in front
+of it.
+
+Applying a repair is a chunk edit, so it follows the rule above: its own branch, its own issue, and a
+message saying which files and rows moved and why. Nothing applies one automatically.
+
 ## Available skills
 
 | Skill | Invocation | Purpose |

@@ -9,6 +9,35 @@
 
 ---
 
+## 0. Which columns the build reads
+
+Stated here so the next unread column is visible as a gap rather than discovered by grep (#634).
+
+| Column | Read by | For |
+|---|---|---|
+| `species` | `curate/nomenclature.py` | scoping every lookup; `IMGT_SPECIES` maps VDJdb's CamelCase to IMGT's binomial |
+| `imgt_gene_id` | `curate/nomenclature.py`, `curate/functionality.py` | does IMGT have this gene; the gene-level functionality verdict |
+| `imgt_allele_id` | `curate/nomenclature.py`, `curate/functionality.py` | does IMGT have this allele; the allele-level verdict |
+| `functionality` | `curate/functionality.py` | F / ORF / P, allele first then gene, per species. Advisory: `out/reports/functionality.tsv` and the four `non-functional *` QC rules |
+| `region_type` | **nothing** | V-REGION / J-REGION / D-REGION / EX0-2. Would let a lookup be scoped to the segment kind rather than trusting the name's prefix |
+| `accession` | **nothing** | the IMGT entry a row came from. Would let a report cite its source |
+
+Two facts about `functionality` that cost measuring:
+
+- **It is species-specific and the table has no duplicates.** IMGT has `TRBV7-1*01` as `ORF` in human,
+  `P` in *Macaca fascicularis* and both *Pongo*, and `F` in five other species. Keyed on
+  `(species, imgt_allele_id)` there are **zero** duplicate rows, so no tie-breaking is needed.
+- **A gene's verdict is every verdict among its alleles, and one functional allele is enough.**
+  `TRBJ2-7` reads `F/ORF` because `*02` is an ORF, and it is one of the commonest J calls in VDJdb.
+  Treating that as non-functional flagged **17,891 chunk rows** where the actionable population is
+  2,608 chain-segments.
+
+Nine forms appear, and the brackets carry meaning - `(F)` uncertain, `[P]` allele-specific - so the
+verdict is reported as IMGT spells it rather than collapsed to a boolean: `F` 4,024, `ORF` 547,
+`P` 464, `(F)` 262, `[F]` 31, `(P)` 6, `[P]` 4, `(ORF)` 2, `[ORF]` 2.
+
+---
+
 ## 1. What is IMGT?
 
 IMGT® (international ImMunoGeneTics information system®, https://www.imgt.org) is the global reference for immunogenetics and immunoinformatics, maintained by CNRS, Université de Montpellier. It provides standardised nomenclature, sequences, and 3D structures for immunoglobulins (IG), T-cell receptors (TR), major histocompatibility complex (MHC), and related proteins across species.

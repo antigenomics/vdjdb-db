@@ -54,11 +54,18 @@ pytestmark = pytest.mark.release
 #: duration is GitHub's network and not this repository's code.
 #:
 #: Without that, the gate is one slow download from red. Measured against the committed baseline,
-#: where the fetch is 0.26803 of the recorded total: if the fetch were free, `tcrnet.enrichment`
-#: renormalises 0.29646 -> 0.40502, delta +0.10856; if it took twice as long,
-#: `background.HomoSapiens.TRB` goes 0.20905 -> 0.32972, delta +0.12067. Both exceed the 0.1 band
-#: while nothing about the code changed, and the fetch already varied 55.6 s -> 73.0 s (1.31x)
+#: where the fetch is 0.36619 of the recorded total: if the fetch were free,
+#: `tcremp.dbscan.HomoSapiens.TRB` renormalises 0.18512 -> 0.29207, delta +0.10695; if it took twice
+#: as long, `background.HomoSapiens.TRB` goes 0.28560 -> 0.41810, delta +0.13250. Both exceed the 0.1
+#: band while nothing about the code changed, and the fetch already varied 55.6 s -> 73.0 s (1.31x)
 #: between two runs of one commit.
+#:
+#: ⚠ **Excluding the fetch did not exclude the download until `vdjdb.timing` stopped double-counting
+#: nested stages.** `background.*` runs inside `motifs.tcrnet.enrichment`, and the old report gave
+#: each stage its inclusive duration, so dropping the four background rows left their seconds sitting
+#: inside the enrichment row - which is why that row read 0.29646 where the enrichment's own compute
+#: is **0.03884**, an eighth of it. Every share in this baseline was also understated by 36 %,
+#: because the raw total counted every nested second twice.
 #:
 #: Compared compute-only, the same two runs differ by at most **0.05290** and the fetch moves nothing.
 NETWORK_STAGES = ("motifs.tcrnet.background.",)

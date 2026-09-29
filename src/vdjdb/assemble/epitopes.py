@@ -81,6 +81,39 @@ def _hla_prefixes(root: Path) -> frozenset[str]:
 
 
 @lru_cache(maxsize=4)
+def _confirmed_prefixes(root: Path) -> frozenset[str]:
+    """Every prefix under which IPD-IMGT/HLA has at least one **Confirmed** allele (#634).
+
+    ``confirmed`` is IPD's own ``Confirmed`` / ``Unconfirmed``: whether the allele has been
+    independently observed, or rests on a single submission. 13,538 of the 46,005 alleles are
+    Confirmed.
+
+    Prefix-wise and *any*, matching :func:`_hla_prefixes`, because a call is a prefix: ``HLA-A*02``
+    names thousands of alleles and the question is whether any of them is confirmed, not whether all
+    are.
+
+    Measured 2026-09-29: **14 calls over 105 records**, where #634 expected four over five. It matched
+    at two-field depth with the expression suffix stripped; matching the call as written finds the
+    deeper ones, and those are the larger population. ``HLA-A*02:01:48`` alone is 80 records, and it
+    is a third-field allele resting on one cell from one submitting group where ``HLA-A*02:01`` has 169
+    Confirmed alleles under it - which is a curation question about what the submitters meant, not a
+    name to reject.
+    """
+    with gzip.open(root / "proofreading" / "mhc_alleles.tsv.gz") as fh:
+        table = pl.read_csv(fh.read(), separator="\t", infer_schema=False)
+    out: set[str] = set()
+    for name in table.filter(pl.col("confirmed") == "Confirmed")["allele_name"]:
+        gene, _, fields = name.partition("*")
+        parts = fields.split(":")
+        bare = _SUFFIX.sub("", parts[-1])
+        for depth in range(1, len(parts) + 1):
+            tail = parts[:depth]
+            out.add(f"{gene}*{':'.join([*tail[:-1], bare if depth == len(parts) else tail[-1]])}")
+        out.add(name)
+    return frozenset(out)
+
+
+@lru_cache(maxsize=4)
 def _nonhuman_names(root: Path) -> frozenset[str]:
     """The declared vocabulary for every MHC name IPD-IMGT/HLA cannot adjudicate.
 
@@ -93,18 +126,29 @@ def _nonhuman_names(root: Path) -> frozenset[str]:
 
 
 def mhc_status(column: str, root: Path | None = None) -> pl.Expr:
-    """``known`` / ``declared`` / ``unknown`` / ``""`` for an MHC column.
+    """``known`` / ``unconfirmed`` / ``declared`` / ``unknown`` / ``""`` for an MHC column.
 
-    ``known`` resolves in IPD-IMGT/HLA, ``declared`` in ``proofreading/mhc_nonhuman.tsv``, and
-    ``unknown`` in neither -- which :func:`assert_mhc_resolves` turns into a build failure.
+    ``known`` resolves in IPD-IMGT/HLA and has at least one Confirmed allele under it;
+    ``unconfirmed`` resolves there and does not; ``declared`` resolves in
+    ``proofreading/mhc_nonhuman.tsv``; ``unknown`` in none of them -- which
+    :func:`assert_mhc_resolves` turns into a build failure.
+
+    **``unconfirmed`` is not fatal and is a refinement of ``known``, not a rejection** (#634). It is
+    the second of two questions: #624's gate asks whether IPD carries the name at any field depth, and
+    all four of these pass it. "Does anyone other than the submitter believe the allele exists" is the
+    more useful question for a call in a specificity database, and an unconfirmed allele is still a
+    real name - 14 calls over 105 records, 80 of them one third-field allele, so what to do about them
+    is a curation decision rather than a submission error.
     """
     root = root or Paths.discover().root
     known = list(_hla_prefixes(root))
+    confirmed = list(_confirmed_prefixes(root))
     declared = list(_nonhuman_names(root))
     return (
         pl.when(pl.col(column) == "").then(pl.lit(""))
         .when(pl.col(column).is_in(declared)).then(pl.lit("declared"))
-        .when(pl.col(column).is_in(known)).then(pl.lit("known"))
+        .when(pl.col(column).is_in(confirmed)).then(pl.lit("known"))
+        .when(pl.col(column).is_in(known)).then(pl.lit("unconfirmed"))
         .otherwise(pl.lit("unknown"))
         .alias(f"{column}.status")
     )

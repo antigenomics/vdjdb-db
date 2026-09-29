@@ -117,3 +117,117 @@ def test_a_numeric_column_is_null_only_where_the_quantity_does_not_exist(tables)
     absent = chains.filter(pl.col("cdr3nt") == "")
     assert absent["cdr3nt.pgen"].null_count() == absent.height
     assert chains.filter(pl.col("cdr3nt") != "")["cdr3nt.pgen"].null_count() == 0
+
+
+# ---------------------------------------------------------------------------------------------
+# The inferred junction nucleotides encode the junction they were inferred from
+# ---------------------------------------------------------------------------------------------
+
+def test_every_inferred_cdr3nt_back_translates_to_its_own_junction(tables):
+    """#461's acceptance criterion, on the corpus rather than on four fixture rows.
+
+    It **is** guaranteed by construction, and this is what holds it to that. `infer_nt_batch`
+    enumerates `(V, delV) x (J, delJ) x (D, delD, position)` and picks the best codon assignment
+    *within* each scenario, so a scenario that cannot spell the given residues has probability zero
+    and is never a candidate. Anything the model cannot encode comes back null rather than wrong:
+    probed on human TRB, a stop codon, an `X`, a `Z`, a one- or two-residue junction, an empty string
+    and a true CDR3 with its anchors stripped are all declined.
+
+    The one input that would read as a mismatch is a **lower-case** junction, where the nucleotides
+    are right and the comparison is case-sensitive. `vdjdb qc` rejects a residue outside the 20
+    upper-case letters and zero chains in the built corpus carry one, so that is closed upstream
+    rather than tolerated here.
+
+    `vdjtools._core.translate_junctions` is the entry point for exactly this column - it is
+    `to_unified_cdr3aa(translate(nt))`, the treatment a *junction* gets, not a generic translate. That
+    is why it is the right instrument here and not merely the fast one: an out-of-frame junction is
+    translated inward from both ends with the untranslatable middle collapsed to `_`, so it reads as a
+    loud mismatch below, where a plain translate would silently drop a trailing partial codon.
+
+    It also does the whole column in one threaded native call: measured on 263,437 sequences, **0.023 s
+    against 0.284 s** for `vdjtools.model.translate` in a Python loop, 12.3x, and identical on every
+    row. Rule 4 and the reach order both - one batched call into existing C++, never a per-row call and
+    never a codon table written here.
+
+    Measured 2026-09-29: 263,437 of 285,989 chains carry an inferred `cdr3nt`, **0 mismatches and 0
+    whose length is not exactly three times the junction's**. The unit test covers four rows, which
+    cannot see a residue class the corpus has and a fixture does not.
+    """
+    from vdjtools._core import translate_junctions
+
+    got = tables["chains"].filter(pl.col("cdr3nt") != "").select("cdr3", "cdr3nt")
+    assert got.height > 250_000, \
+        f"only {got.height:,} chains carry an inferred cdr3nt; the stage produced almost nothing"
+
+    ragged = got.filter(pl.col("cdr3nt").str.len_chars() != 3 * pl.col("cdr3").str.len_chars())
+    assert ragged.height == 0, \
+        f"{ragged.height} inferred sequences are not three nucleotides per residue:\n{ragged.head(5)}"
+
+    wrong = (got.with_columns(pl.Series("back", translate_junctions(got["cdr3nt"].to_list())))
+             .filter(pl.col("back") != pl.col("cdr3")))
+    assert wrong.height == 0, (
+        f"{wrong.height} inferred sequences do not encode their own junction:\n"
+        f"{wrong.head(5)}")
+
+
+# ---------------------------------------------------------------------------------------------
+# The model V/J boundary is a fallback, never an override (#631)
+# ---------------------------------------------------------------------------------------------
+
+#: Chains the fallback fills, measured 2026-09-29. The markup engine declines `v.end` on 5,307 and
+#: `j.start` on 1,164; the recombination scenario answers on these. #631 stated 4,060 and 347.
+#:
+#: `v.end.inferred` was 4,060 and is 3,484, and the 576 it lost are a **gain**, which is the case the
+#: slack below exists for: reading `;` and `+` as candidate separators gave 591 chain-calls a real IMGT
+#: name, so arda can now align against a germline where it previously declined. Measured on the same
+#: pair of builds, `v.end` answers on 280,093 chains before and 280,682 after, so 589 cells moved from
+#: a model guess to an alignment fact and 576 of them left this population. A cell the alignment
+#: answers is strictly better than one the model guesses, which is why the fallback shrinking is the
+#: outcome to want rather than one to gate against.
+FALLBACK_FILLED = {"v.end.inferred": 3_484, "j.start.inferred": 346}
+
+#: How far below the recorded count a run may sit before it reads as a regression rather than a
+#: corpus change. Loose on purpose: a curator naming a V that arda can then align is a *gain*, and it
+#: takes a row out of this population.
+FALLBACK_SLACK = 200
+
+
+@pytest.mark.parametrize(("shipped", "fallback"),
+                         [("v.end", "v.end.inferred"), ("j.start", "j.start.inferred")])
+def test_the_model_boundary_never_lands_where_the_alignment_answered(tables, shipped, fallback):
+    """The safety property, on the corpus. `v.end` and `j.start` are what `vdjdb-web` reads out of
+    the `cdr3fix` JSON and what the legacy tables carry, so a model boundary reaching one of those
+    cells is a data change belonging to a curation decision, not to a build improvement.
+
+    Separate columns rather than a filled one is what makes this hold by construction: the fallback
+    reads -1 wherever the alignment answered, so a consumer coalescing the two cannot overwrite an
+    alignment answer even by accident.
+    """
+    chains = tables["chains"]
+    over = chains.filter((pl.col(shipped) >= 0) & (pl.col(fallback) >= 0))
+    assert over.height == 0, (
+        f"{over.height} chains carry a model {fallback} where the alignment already answered "
+        f"{shipped}:\n{over.select('record_id', 'gene', shipped, fallback).head(5)}")
+
+
+@pytest.mark.parametrize("fallback", sorted(FALLBACK_FILLED))
+def test_the_fallback_still_fills_the_cells_it_was_measured_on(tables, fallback):
+    """A fallback that quietly stopped filling anything is indistinguishable from one that works."""
+    got = tables["chains"].filter(pl.col(fallback) >= 0).height
+    want = FALLBACK_FILLED[fallback]
+    assert got >= want - FALLBACK_SLACK, (
+        f"{fallback} fills {got:,} chains against {want:,} recorded; the fallback has stopped "
+        f"reaching cells it used to")
+
+
+def test_a_filled_boundary_is_inside_the_junction_it_describes(tables):
+    """A residue index outside its own junction is a coordinate-space error, which is the failure
+    mode a conversion between four spaces has (`CLAUDE.md`). -1 is the declared missing marker.
+    """
+    chains = tables["chains"].with_columns(pl.col("cdr3").str.len_chars().alias("n"))
+    for col in FALLBACK_FILLED:
+        bad = chains.filter((pl.col(col) >= 0)
+                            & ((pl.col(col) > pl.col("n")) | (pl.col("n") == 0)))
+        assert bad.height == 0, \
+            f"{bad.height} chains put {col} outside their junction:\n{bad.head(5)}"
+        assert chains[col].null_count() == 0, f"{col} must use -1, never null (rule 6)"

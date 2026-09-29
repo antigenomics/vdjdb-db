@@ -107,6 +107,10 @@ def build(
 
     from .assemble.master import build_master
     from .assemble.tables import build_tables
+    from .curate.anchors import noncanonical
+    from .curate.functionality import report as functionality_report
+    from .curate.functionality import summarise as functionality_summary
+    from .curate.nomenclature import unresolved as unresolved_calls
     from .curate.submission import lookalikes
     from .emit.airr import from_tables as airr_frames
     from .emit.airr import write_all as write_airr
@@ -141,6 +145,48 @@ def build(
         typer.echo(f"look-alike values: {look['folded'].n_unique()} group(s) over "
                    f"{look['column'].n_unique()} column(s), {within} within one species "
                    f"-> {out / 'reports' / 'lookalikes.tsv'}")
+
+    # Also advisory. A junction whose first or last residue is not the anchor the segment it names
+    # encodes is a submission in the wrong coordinate space, or a mis-read anchor, and no QC rule
+    # tests for it - they check the residue alphabet and a minimum length. `arda.cdr3fix` repairs most
+    # of them on the way through, which is exactly why this needs reporting: the chunk keeps the wrong
+    # sequence and nobody learns.
+    anchors = noncanonical(master)
+    anchors.write_csv(out / "reports" / "anchors.tsv", separator="\t")
+    if not anchors.is_empty():
+        fixable = anchors.filter(pl.col("repair").is_not_null()).height
+        typer.echo(f"non-canonical junctions: {anchors.height:,} chain(s) over "
+                   f"{anchors['chunk.file'].n_unique()} chunk(s), {fixable:,} with a "
+                   f"germline-supported repair -> {out / 'reports' / 'anchors.tsv'}")
+
+    # The segment calls no authority carries, after harmonisation (#389). The retired build wrote
+    # these as `vdjdb_full_gene_broken.txt` and `vdjdb_full_allele_broken.txt` and nothing replaced
+    # it: `harmonise_segments` reports what it rewrote, `build_master` discards even that, and a call
+    # naming a gene IMGT does not have reached every shipped table with no report anywhere.
+    # Advisory, and for two different reasons the report separates: a family name is
+    # under-specified and only a curator can pick a member, and a name with no IMGT candidate at all
+    # is a spelling defect or a gene that species does not have.
+    calls = unresolved_calls(master)
+    calls.write_csv(out / "reports" / "nomenclature.tsv", separator="\t")
+    if not calls.is_empty():
+        family = calls.filter(pl.col("family.members") > 0)["chains"].sum()
+        typer.echo(f"segment calls IMGT does not carry: {calls['chains'].sum():,} chain-call(s) over "
+                   f"{calls['part'].n_unique()} name(s), {family:,} of them an under-specified "
+                   f"family -> {out / 'reports' / 'nomenclature.tsv'}")
+
+    # IMGT's own F / ORF / P verdict on the segment each chain names (#634). `imgt_alleles.tsv.gz`
+    # has carried `functionality` since phase 9 and nothing read it: `vdjdb qc` asks whether a call
+    # looks like a TRBV name and `curate.nomenclature` asks whether IMGT has it, and neither asks
+    # whether IMGT thinks the gene is functional. Advisory, like `anchors.tsv` above -- a P gene can
+    # rearrange, and IMGT reclassifies genes between releases.
+    nonfunctional = functionality_report(built["chains"], built["records"])
+    nonfunctional.write_csv(out / "reports" / "functionality.tsv", separator="\t")
+    summary_rows = functionality_summary(nonfunctional)
+    summary_rows.write_csv(out / "reports" / "functionality-summary.tsv", separator="\t")
+    if not nonfunctional.is_empty():
+        typer.echo(f"segments IMGT does not call functional: {nonfunctional.height:,} chain(s) over "
+                   f"{nonfunctional['call'].n_unique()} call(s) "
+                   f"-> {out / 'reports' / 'functionality.tsv'}")
 
     if tables:
         for name, frame in built.items():
@@ -377,13 +423,36 @@ def summary(
     assets: Path | None = typer.Option(
         None, help="Write the figures here instead of inlining them. Needs a vdjdb-web change: "
                    "its Scala side finds images by matching data:image/png;base64."),
+    interactive: bool = typer.Option(
+        False, help="Also build the interactive dashboard, one self-contained HTML file."),
+    static: bool = typer.Option(True, help="Render the R dashboard. --no-static builds only the "
+                                          "interactive one, which needs no R."),
+    out: Path = typer.Option(Path("out/summary"), help="Where the interactive dashboard goes."),
 ) -> None:
-    """Render the release dashboard and verify the fragment `vdjdb-web` will serve."""
+    """Render the release dashboard and verify the fragment `vdjdb-web` will serve.
+
+    `--interactive` adds a second, additive artifact and changes nothing about the first. The R
+    document stays the shipped dashboard: `vdjdb-web` injects its fragment into `/overview` and
+    `summary/check_summary.py` gates it. The interactive one is for reading exact values - a hover on
+    a heatmap cell, a legend toggle, a sortable table - and is served from GitHub Pages.
+
+    `--no-static --interactive` needs no R at all, which is what makes it usable on a machine that
+    has not installed the 14 CRAN packages the release document loads.
+    """
     from .summary import render as r
 
-    r.render(legacy, quiet=not verbose)
-    typer.echo(f"{r.extract(assets=assets):,} lines -> {r.FRAGMENT}")
-    if code := r.check(reference=reference):
+    if static:
+        r.render(legacy, quiet=not verbose)
+        typer.echo(f"{r.extract(assets=assets):,} lines -> {r.FRAGMENT}")
+    if interactive:
+        # Imported here, not at module scope: plotly is in the `summary` extra, and `vdjdb --help`
+        # must work without it.
+        from .summary.interactive import build as build_interactive
+
+        written = build_interactive(legacy, r.SUMMARY / "reference_years.tsv",
+                                    out / "vdjdb_interactive.html")
+        typer.echo(f"{written.stat().st_size:,} bytes -> {written}")
+    if static and (code := r.check(reference=reference)):
         raise typer.Exit(code)
 
 

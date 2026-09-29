@@ -30,7 +30,11 @@ AA = "ARNDCQEGHILKMFPSTWYV"
 _AA_SEQ = rf"^[{AA}]{{4,}}$"
 #: ``HLA-<gene><digit?>*NN(:NN){0,3}``. Anything not starting with ``HLA`` is accepted -- see above.
 _HLA = r"^HLA-[A-Z]+[0-9]?\*\d{2}(:\d{2,3}){0,3}$"
-_REFERENCE = r"(?i)^(PMID:|doi:|https?://)|unpublished"
+#: The legacy prefixes, case-sensitive as legacy matched them, and ``unpublished`` anywhere in
+#: the value, case-insensitive as legacy matched *that*. The blanket ``(?i)`` this carried
+#: accepted ``pmid:1`` where the retired build rejected it, which is a row it caught and this
+#: one waved through. Measured: zero rows in the corpus depend on the leniency.
+_REFERENCE = r"^(PMID:|doi:|https?://)|(?i:unpublished)"
 
 
 def _blank(col: str) -> pl.Expr:
@@ -48,6 +52,34 @@ def _prefix_ok(col: str, prefix: str) -> pl.Expr:
 
 #: ``rule id -> expression that is True when the row is GOOD``. Expressed positively so a rule
 #: reads as the invariant it protects rather than as the failure it catches.
+#: The chunk columns the functionality rule reads. `d.beta` is absent on purpose: IMGT lists two
+#: human TRBD genes and both are functional, so the rule could never fire and a rule that cannot fire
+#: is noise in every report.
+SEGMENT_QC_COLUMNS: tuple[str, ...] = ("v.alpha", "j.alpha", "v.beta", "j.beta")
+
+
+def _functional_ok(col: str) -> pl.Expr:
+    """True unless IMGT calls the named segment ORF or P, per species. See :data:`RULES`.
+
+    Keyed on ``species`` and the call together, because the verdict is species-specific: IMGT has
+    ``TRBV7-1*01`` as ORF in human and P in *Macaca fascicularis*, which is why #634's request to
+    deduplicate a tie was a cross-species artefact - keyed on ``(species, allele)`` the table has zero
+    duplicate rows.
+    """
+    from ..curate.functionality import is_functional, verdicts
+
+    bad = [f"{sp}\t{call}" for (sp, call), (verdict, _) in verdicts().items()
+           if not is_functional(verdict)]
+    key = pl.concat_str(pl.col("species"), pl.col(col), separator="\t")
+    gene = pl.concat_str(pl.col("species"), pl.col(col).str.split("*").list.first(),
+                         separator="\t")
+    listed = [f"{sp}\t{call}" for (sp, call) in verdicts()]
+    # Allele first, then the gene, and a call IMGT lists at neither depth is not this rule's finding.
+    return (_blank(col)
+            | (~key.is_in(bad) & key.is_in(listed))
+            | (~key.is_in(listed) & ~gene.is_in(bad)))
+
+
 RULES: dict[str, pl.Expr] = {
     "bad cdr3.alpha": _seq_ok("cdr3.alpha"),
     "bad cdr3.beta": _seq_ok("cdr3.beta"),
@@ -115,6 +147,19 @@ RULES: dict[str, pl.Expr] = {
         _blank("meta.structure.id")
         | pl.col("meta.structure.id").str.contains(r"^[0-9][A-Za-z0-9]{3}$")
     ),
+    # #634. IMGT's own F / ORF / P verdict on the segment the row names, resolved allele-first and
+    # then gene-level, per species. No other rule asks this: the two above it ask whether the call
+    # *looks* like a TRBV name, and `curate.nomenclature` asks whether IMGT *has* it.
+    #
+    # Advisory, and that is about the biology rather than caution. A pseudogene V call is not
+    # automatically wrong - a P gene can rearrange, and `TRBV21-1` (303 chains) turns up in real
+    # repertoires; `annotate/junction.py` already names it as a pseudogene the recombination model
+    # has no allele for. IMGT also reclassifies genes between releases, so a gate would fail on a
+    # reference update rather than on a curation error. Measured 2026-09-29 over the built corpus:
+    # 2,608 chain-segments, 1,172 V and 1,436 J, the largest being `TRAJ58*01` ORF on 656 chains.
+    # `out/reports/functionality.tsv` is the per-chain form with IMGT's spelling and whether the
+    # verdict came from the allele or from its gene.
+    **{f"non-functional {col}": _functional_ok(col) for col in SEGMENT_QC_COLUMNS},
 }
 
 

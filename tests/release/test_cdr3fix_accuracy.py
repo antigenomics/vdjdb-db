@@ -54,6 +54,7 @@ import polars as pl
 import pytest
 
 from vdjdb.assemble.master import _markup_arda, _markup_legacy
+from vdjdb.convert.coords import nt_to_aa_boundary_expr
 
 pytestmark = pytest.mark.release
 
@@ -73,8 +74,12 @@ KEY = ["species", "cdr3", "v", "j"]
 #: model independently: each is the count of residues the segment touches, so a nucleotide index
 #: converts by **ceiling**, not by `coords.nt_to_aa`, which floors. Under floor the rates drop by
 #: tens of percent and no head-to-head count moves, which is why the assertions are head-to-head.
-def _aa(nt: pl.Expr) -> pl.Expr:
-    return (nt + 2) // 3
+#:
+#: It was spelled out here and nowhere else until the model boundary started shipping as a fallback
+#: (#631). `vdjdb.convert.coords` owns it now, in both a scalar and a column form that
+#: `tests/unit/test_coords.py` asserts agree - two spellings of one coordinate conversion is what
+#: `CLAUDE.md`'s four-spaces table warns about.
+_aa = nt_to_aa_boundary_expr
 
 
 @pytest.fixture(scope="module")
@@ -91,7 +96,7 @@ def truth() -> pl.DataFrame:
             .filter((pl.col("species") == "HomoSapiens") & (pl.col("gene") == "TRB")
                     & (pl.col("cdr3") != "") & (pl.col("v.segm") != "") & (pl.col("j.segm") != ""))
             .select("species", "cdr3", pl.col("v.segm").alias("v"), pl.col("j.segm").alias("j"),
-                    "v.end", "j.start",
+                    "v.end", "j.start", "v.end.inferred", "j.start.inferred",
                     pl.col("v.segm").str.split("*").list.first().alias("vg"),
                     pl.col("j.segm").str.split("*").list.first().alias("jg"))
             .unique(subset=KEY, maintain_order=True).sort(KEY))
@@ -199,3 +204,42 @@ def test_no_engine_walks_further_into_the_junction_than_the_shipped_scanner(trut
     assert over["arda"] / truth.height < 0.05, (
         f"{coord}: arda credits germline two or more residues too far on {over['arda']} of "
         f"{truth.height} records, against the scanner's {over['legacy']}. See antigenomics/arda#133")
+
+
+# -- the model boundary as a fallback where arda declines (#631) --------------------------------
+
+def test_the_model_boundary_is_never_more_than_one_residue_out_where_arda_declines(truth) -> None:
+    """The fallback's accuracy against the external truth, on the rows it is actually used on.
+
+    ⚠ **The comparable set is 7 rows, not the 55 #631 states.** That figure does not reproduce at this
+    overlap: `truth` needs a human TRB record whose junction the 400,000-row control also observed
+    *and* on which every control observation agrees about the boundary, and only 7 of those are rows
+    where arda declined and the model answered. Measured on all 7: **4 exact (0.571) and 7 within one
+    residue (1.000)**.
+
+    So the rate is recorded and the *bound* is gated. An exact-match bar on n = 7 is a bar on noise,
+    and a bar that fails on correct code is one the next person deletes (`ROADMAP_local.md` §52.2).
+    Off-by-at-most-one is a property rather than a rate: it says the model is picking the right codon
+    neighbourhood, which is the claim that justifies shipping it where `-1` carries nothing at all.
+    """
+    for coord, fallback, engine in (("v_end", "v.end.inferred", "arda.v_end"),
+                                    ("j_start", "j.start.inferred", "arda.j_start")):
+        used = truth.filter((pl.col(engine) < 0) & (pl.col(fallback) >= 0))
+        if not used.height:
+            continue          # no row in the overlap needs the fallback for this coordinate
+        off = (used[fallback] - used[f"t.{coord}"]).abs()
+        assert int(off.max()) <= 1, (
+            f"{coord}: the fallback is {int(off.max())} residues out on "
+            f"{int((off > 1).sum())} of {used.height} rows where arda declined\n"
+            f"{used.filter(off > 1).select('cdr3', 'v', 'j', fallback, f't.{coord}').head(5)}")
+
+
+def test_the_comparable_set_for_the_fallback_has_not_vanished(truth) -> None:
+    """Stated as a test so a shrinking overlap is a failure rather than a silently weaker number.
+
+    The bound above is vacuous on an empty set, and `continue` is exactly how it would go quiet.
+    """
+    v_used = truth.filter((pl.col("arda.v_end") < 0) & (pl.col("v.end.inferred") >= 0))
+    assert v_used.height >= 5, (
+        f"only {v_used.height} truth rows exercise the v.end fallback; it was 7 on 2026-09-29, so "
+        f"either the overlap shrank or arda stopped declining")

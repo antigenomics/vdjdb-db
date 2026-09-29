@@ -1,9 +1,9 @@
 """Most-plausible junction nucleotide sequences (#461).
 
 VDJdb records amino-acid junctions; a great deal of downstream work -- generation probability,
-recombination markup, full-contig synthesis -- needs nucleotides. ``vdjtools.model.infer_nt`` asks
-the recombination model for the single most likely nucleotide junction behind an amino-acid one, so
-what this produces is inferred, not observed, and the table says so: ``cdr3nt.pgen`` is its
+recombination markup, full-contig synthesis -- needs nucleotides. ``vdjtools.model.infer_nt_batch``
+asks the recombination model for the single most likely nucleotide junction behind each amino-acid
+one, so what this produces is inferred, not observed, and the table says so: ``cdr3nt.pgen`` is its
 generation probability and ``cdr3nt.margin`` how far it beat the runner-up.
 
 Measured: on 600 distinct human TRB keys the OLGA and arda models agree on 7.2 % of the nucleotide
@@ -11,13 +11,19 @@ sequences they both return (293 both-resolved). The models disagree about which 
 nucleotide histories is most likely, not about the protein. Treat ``cdr3nt`` as a plausible
 representative, never as evidence.
 
+**One batched call per (species, locus), and nothing around it.** ``infer_nt_batch`` releases the GIL
+and partitions the batch across its own kernel threads, so a pool of our own would oversubscribe the
+machine and read as "batching did not help" -- its docstring says so, and hard rule 3 says it here.
+This stage ran as four ``vdjdb infer-nt`` processes over contiguous slices until `vdjtools` 4.5
+published the batch entry point (`antigenomics/vdjtools#181`, opened from this build's profile);
+measured on 3,000 distinct human TRB keys, **1.115 ms/key serial against 0.106 ms batched, 10.5x, and
+all 3,000 nucleotide sequences identical**.
+
 Nothing is cached (CLAUDE.md rule 9). The call is deterministic in ``(species, gene, cdr3, v, j)``,
 so it runs once per distinct key within the build and joins back -- that is rule 4's deduplication,
-not a stored result -- and all 230 chunks cost minutes.
+not a stored result.
 """
 from __future__ import annotations
-
-from concurrent.futures import ThreadPoolExecutor
 
 import polars as pl
 
@@ -37,17 +43,12 @@ MODELS: dict[str, tuple[str, str]] = {
 #: at the sequence beside them. ``arda.dpost`` supplies how much to believe the call
 #: (:mod:`vdjdb.annotate.dgene`), not where it sits.
 NT_COLUMNS: tuple[str, ...] = ("cdr3nt", "cdr3nt.pgen", "cdr3nt.margin",
-                               "d.inferred", "d.start", "d.end")
+                               "d.inferred", "d.start", "d.end",
+                               "v.end.inferred", "j.start.inferred")
 
-#: Contiguous slices of the sorted key set, one per worker. Never a pool of per-record tasks: the
-#: native call releases the GIL only partly (measured 2.11x on 4 threads), and dispatch on 114k
-#: one-row tasks would cost more than it saves. Reassembled in slice order, so the worker count
-#: cannot change the answer (CLAUDE.md rule 7).
-SLICES = 4
-
-#: ``infer_nt`` takes what it calls ``cdr3_aa``, but it means the junction -- Cys104..Phe/Trp118
-#: inclusive, which is what VDJdb's ``cdr3`` column holds. Passing a true CDR3 would infer a
-#: junction two codons short, with no error. See :mod:`vdjdb.convert.coords`.
+#: ``infer_nt_batch`` takes what it calls ``cdr3_aas``, but it means junctions -- Cys104..Phe/Trp118
+#: inclusive, which is what VDJdb's ``cdr3`` column holds. Passing true CDR3s would infer junctions
+#: two codons short, with no error. See :mod:`vdjdb.convert.coords`.
 _JUNCTION_IS_WHAT_IT_WANTS = True
 
 
@@ -76,63 +77,70 @@ def _resolver(model: object, table: str, column: str) -> dict[str, str | None]:
     return {"": None, **{g: a for g, a in sole.items() if g not in alleles}, **alleles}
 
 
-def _infer_slice(rows: list[tuple[str | None, str | None, str]], model: object) -> list[tuple]:
-    from vdjtools.model import infer_nt
-
-    out = []
-    for v, j, cdr3 in rows:
-        s = infer_nt(model, cdr3, v=v, j=j)
-        out.append(("", None, None, "", None, None) if s is None else
-                   (s.cdr3_nt, s.pgen,
-                    s.pgen / s.runner_up_pgen if s.runner_up_pgen else float("inf"),
-                    s.d_call or "", s.d_start, s.d_end))
-    return out
+#: What an unmapped V/J boundary reads as. Already the value ``v.end``/``j.start`` carry where the
+#: markup engine declines, so the fallback columns use it too rather than inventing a second marker.
+UNMAPPED = -1
 
 
-def infer(keys: pl.DataFrame, species: str, gene: str, *, workers: int = SLICES) -> pl.DataFrame:
+def blank_columns(keys: pl.DataFrame) -> pl.DataFrame:
+    """``keys`` plus :data:`NT_COLUMNS`, all empty. The answer for a species with no model."""
+    return keys.with_columns(pl.lit("").alias("cdr3nt"),
+                             pl.lit(None, pl.Float64).alias("cdr3nt.pgen"),
+                             pl.lit(None, pl.Float64).alias("cdr3nt.margin"),
+                             pl.lit("").alias("d.inferred"),
+                             pl.lit(None, pl.Int64).alias("d.start"),
+                             pl.lit(None, pl.Int64).alias("d.end"),
+                             pl.lit(UNMAPPED, pl.Int64).alias("v.end.inferred"),
+                             pl.lit(UNMAPPED, pl.Int64).alias("j.start.inferred"))
+
+
+def infer(keys: pl.DataFrame, species: str, gene: str) -> pl.DataFrame:
     """``(cdr3, v.segm, j.segm)`` -> the same frame plus :data:`NT_COLUMNS`.
 
-    ``keys`` must already be distinct and sorted; an unsupported species returns empty columns
-    rather than raising, because a corpus is allowed to contain species no model covers.
-    """
-    from vdjtools.model import load_bundled
+    ``keys`` must already be distinct and sorted; an unsupported species returns empty columns rather
+    than raising, because a corpus is allowed to contain species no model covers.
 
-    blank = keys.with_columns(pl.lit("").alias("cdr3nt"),
-                              pl.lit(None, pl.Float64).alias("cdr3nt.pgen"),
-                              pl.lit(None, pl.Float64).alias("cdr3nt.margin"),
-                              pl.lit("").alias("d.inferred"),
-                              pl.lit(None, pl.Int64).alias("d.start"),
-                              pl.lit(None, pl.Int64).alias("d.end"))
+    ``infer_nt_batch`` returns one row per input row in input order, with nulls where the model
+    cannot explain a junction, so the result is joined positionally and the worker count cannot
+    change the answer -- there is no worker count (CLAUDE.md rule 7).
+    """
+    from vdjtools.model import infer_nt_batch, load_bundled
+
+    from ..convert.coords import nt_to_aa_boundary_expr
+
     if species not in MODELS or keys.is_empty():
-        return blank
+        return blank_columns(keys)
     source, organism = MODELS[species]
     model = load_bundled(gene, source, organism=organism)
     vmap = _resolver(model, "genes_v", "v_allele")
     jmap = _resolver(model, "genes_j", "j_allele")
-
-    rows = [(vmap.get(v), jmap.get(j), cdr3)
-            for cdr3, v, j in keys.select("cdr3", "v.segm", "j.segm").iter_rows()]
-    n = max(1, min(workers, len(rows)))
-    bounds = [(i * len(rows) // n, (i + 1) * len(rows) // n) for i in range(n)]
-    with ThreadPoolExecutor(n) as pool:
-        parts = list(pool.map(lambda b: _infer_slice(rows[b[0]:b[1]], model), bounds))
-    flat = [r for part in parts for r in part]          # slice order, never completion order
-
+    cdr3, v, j = (keys["cdr3"].to_list(),
+                  [vmap.get(x) for x in keys["v.segm"]],
+                  [jmap.get(x) for x in keys["j.segm"]])
+    got = infer_nt_batch(model, cdr3, v=v, j=j)
     return keys.with_columns(
-        pl.Series("cdr3nt", [r[0] for r in flat], dtype=pl.Utf8),
-        pl.Series("cdr3nt.pgen", [r[1] for r in flat], dtype=pl.Float64),
-        pl.Series("cdr3nt.margin", [r[2] for r in flat], dtype=pl.Float64),
+        got["cdr3_nt"].fill_null("").alias("cdr3nt"),                       # rule 6
+        got["pgen"].alias("cdr3nt.pgen"),
+        # How far the winner beat the runner-up. No runner-up means nothing else was in contention,
+        # which is an unbounded margin rather than a missing one.
+        pl.when(got["runner_up_pgen"].is_null() | (got["runner_up_pgen"] == 0))
+          .then(pl.when(got["pgen"].is_null()).then(None).otherwise(float("inf")))
+          .otherwise(got["pgen"] / got["runner_up_pgen"]).alias("cdr3nt.margin"),
         # 0-based half-open, in the coordinate space of `cdr3nt` above -- vdjtools' Scenario space
         # (CLAUDE.md). TRA has no D, so these stay empty there by construction.
-        pl.Series("d.inferred", [r[3] for r in flat], dtype=pl.Utf8),
-        pl.Series("d.start", [r[4] for r in flat], dtype=pl.Int64),
-        pl.Series("d.end", [r[5] for r in flat], dtype=pl.Int64),
-    )
+        got["d_call"].fill_null("").alias("d.inferred"),
+        got["d_start"].cast(pl.Int64).alias("d.start"),
+        got["d_end"].cast(pl.Int64).alias("d.end"),
+        # The same scenario's V/J boundary, converted out of vdjtools' nucleotide space into the
+        # `v.end`/`j.start` residue space by the fitted ceiling (`convert.coords`). Masked to
+        # UNMAPPED wherever the model explained nothing, so a null pgen and an unmapped boundary
+        # always agree. `add_junction_nt` masks it again against the alignment's answer.
+        nt_to_aa_boundary_expr(got["v_end"], unmapped=UNMAPPED).alias("v.end.inferred"),
+        nt_to_aa_boundary_expr(got["j_start"], unmapped=UNMAPPED).alias("j.start.inferred"))
 
 
-def add_junction_nt(chains: pl.DataFrame, records: pl.DataFrame,
-                    *, workers: int = SLICES) -> pl.DataFrame:
-    """Add :data:`NT_COLUMNS` to ``chains``, one model load per (species, locus)."""
+def add_junction_nt(chains: pl.DataFrame, records: pl.DataFrame) -> pl.DataFrame:
+    """Add :data:`NT_COLUMNS` to ``chains``, one model load and one batched call per (species, locus)."""
     species = records.select("record_id", "species")
     keyed = chains.join(species, on="record_id", how="left")
     resolvable = ((pl.col("cdr3") != "") & (pl.col("v.segm") != "") & (pl.col("j.segm") != ""))
@@ -142,7 +150,7 @@ def add_junction_nt(chains: pl.DataFrame, records: pl.DataFrame,
             keyed.filter(resolvable).group_by("species", "gene", maintain_order=True),
             key=lambda kv: kv[0]):          # sorted: the join order must not vary by group order
         keys = group.select("cdr3", "v.segm", "j.segm").unique().sort("cdr3", "v.segm", "j.segm")
-        parts.append(infer(keys, sp, gene, workers=workers)
+        parts.append(infer(keys, sp, gene)
                      .with_columns(pl.lit(sp).alias("species"), pl.lit(gene).alias("gene")))
 
     lookup = (pl.concat(parts, how="vertical") if parts else
@@ -152,8 +160,21 @@ def add_junction_nt(chains: pl.DataFrame, records: pl.DataFrame,
                                    pl.lit(None, pl.Float64).alias("cdr3nt.margin"),
                                    pl.lit("").alias("d.inferred"),
                                    pl.lit(None, pl.Int64).alias("d.start"),
-                                   pl.lit(None, pl.Int64).alias("d.end")))
+                                   pl.lit(None, pl.Int64).alias("d.end"),
+                                   pl.lit(UNMAPPED, pl.Int64).alias("v.end.inferred"),
+                                   pl.lit(UNMAPPED, pl.Int64).alias("j.start.inferred")))
     return (keyed.join(lookup, on=["species", "gene", "cdr3", "v.segm", "j.segm"], how="left")
             .with_columns(pl.col("cdr3nt", "d.inferred").fill_null(""))   # rule 6
+            # A fallback, never an override (#631). The model's boundary survives only where the
+            # markup engine declined; where the alignment answered, the column reads UNMAPPED and a
+            # consumer coalescing the two cannot overwrite an alignment answer even by accident.
+            # That is stronger than filling the shipped column, and it is what keeps the legacy
+            # export - which reads `v.end` and `j.start` - byte-identical.
+            .with_columns(*[
+                pl.when(pl.col(shipped) == UNMAPPED)
+                  .then(pl.col(fallback).fill_null(UNMAPPED))
+                  .otherwise(pl.lit(UNMAPPED, pl.Int64)).alias(fallback)
+                for shipped, fallback in (("v.end", "v.end.inferred"),
+                                          ("j.start", "j.start.inferred"))])
             .drop("species")
             .sort("record_id", "gene"))
