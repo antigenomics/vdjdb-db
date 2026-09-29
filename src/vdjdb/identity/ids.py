@@ -282,14 +282,25 @@ def reconcile(
     # Pass 2 -- amendment: same chunk and reference, exactly one differing key field.
     unmatched_rows = [i for i, a in enumerate(assigned) if a is None]
     if unmatched_rows:
-        ref_idx = NATURAL_KEY.index("reference.id")
         leftovers = [e for e in registry.active() if e.record_id not in matched_entries]
-        # Bucket candidates by (chunk_file, reference.id) so the scan stays local.
-        by_bucket: dict[tuple[str, str], list[_Entry]] = defaultdict(list)
+        # Bucket candidates by chunk_file, so the scan stays local.
+        #
+        # ⚠ Not by `(chunk_file, reference.id)`, which is what this did until #685. The bucket was
+        # built from the *previous* build's reference and read with the *new* one, so when
+        # `reference.id` was the field that moved the two never agreed, the bucket came back empty,
+        # and the single-field rule this pass exists for was never reached: the record was retired
+        # and a new id minted, silently. Closing the space in `PMID: 34433824` retired 22 published
+        # ids that way.
+        #
+        # The reference was not keeping the scan local either. A chunk is one paper, so 213 of the
+        # 231 chunks carry exactly one `reference.id`; the 18 that carry more are small, the two
+        # largest being `small_datasets_2026-05-29.txt` (1,044 rows, 237 references) and
+        # `PDB_Database.txt` (370 / 209), against a 29,715-row single-reference chunk the second
+        # component did nothing for. The chunk does the localising.
+        by_bucket: dict[str, list[_Entry]] = defaultdict(list)
         for e in leftovers:
-            prev = _unpack_note(e.note)
-            if prev is not None:
-                by_bucket[(e.chunk_file, prev[ref_idx])].append(e)
+            if _unpack_note(e.note) is not None:
+                by_bucket[e.chunk_file].append(e)
 
         # The registry does not store the raw key, only its hash, so amendment matching needs the
         # previous build's key fields. They are recorded in `note` as the reference id plus the
@@ -303,7 +314,7 @@ def reconcile(
 
         for i in unmatched_rows:
             row, key = rows[i], keys[i]
-            bucket = by_bucket.get((str(row.get("chunk.file") or ""), key[ref_idx]), [])
+            bucket = by_bucket.get(str(row.get("chunk.file") or ""), [])
             candidates: list[tuple[_Entry, int]] = []
             for e in bucket:
                 if e.record_id in matched_entries:
