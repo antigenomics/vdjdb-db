@@ -45,27 +45,51 @@ def peak_rss_mb() -> float:
     return raw / (1024 * 1024) if sys.platform == "darwin" else raw / 1024
 
 
-#: ``stage -> (seconds, peak RSS in MiB after it)``, in call order. Module-level because the stages
-#: are spread over three modules and threading a recorder through every signature would be a worse
-#: trade than one list.
+#: One entry per stage, in the order the stages were *entered*: ``[name, parent index, seconds spent
+#: inside it, seconds spent inside its timed children, peak RSS in MiB on exit]``. Module-level
+#: because the stages are spread over three modules and threading a recorder through every signature
+#: would be a worse trade than one list.
 #: Reset by :func:`reset`; a second build in the same process would otherwise append to the first.
-_STAGES: list[tuple[str, float, float]] = []
+_STAGES: list[list] = []
+
+#: Indices into :data:`_STAGES` of the stages currently open, outermost first. This is what makes a
+#: nested stage attributable: without it a child's seconds are counted twice, once in its own row and
+#: once inside its parent's.
+_OPEN: list[int] = []
 
 
 def reset() -> None:
     _STAGES.clear()
+    _OPEN.clear()
 
 
 @contextmanager
 def stage(name: str):
-    """Time one named stage. Nesting is allowed; the report says which are children."""
+    """Time one named stage, exclusive of any stage timed inside it.
+
+    **A nested stage used to be counted twice.** ``motifs.tcrnet.background.*`` runs inside
+    ``motifs.tcrnet.enrichment``, so summing every row gave a motif total of 268.7 s over a step that
+    took 198 s, and every ``share`` in the report was understated by 36 % - including the shares
+    ``tests/release/test_build_timings.py`` gates on, and including the network shares that gate
+    deliberately excludes from its denominator, which it could not actually exclude while the
+    download was also inside the enrichment row. Each stage now reports the time spent in it and
+    *not* in a timed child, so the rows sum to the wall clock exactly once and ``parent`` says where
+    a child belongs.
+    """
+    me = len(_STAGES)
+    _STAGES.append([name, _OPEN[-1] if _OPEN else -1, 0.0, 0.0, 0.0])
+    _OPEN.append(me)
     start = time.perf_counter()
     try:
         yield
     finally:
+        elapsed = time.perf_counter() - start
+        _OPEN.pop()
         # ``ru_maxrss`` is a high-water mark, so the value after a stage is "peak so far" rather than
         # that stage's own footprint. That is the useful reading: it says which stage raised the peak.
-        _STAGES.append((name, time.perf_counter() - start, peak_rss_mb()))
+        _STAGES[me][2], _STAGES[me][4] = elapsed, peak_rss_mb()
+        if _STAGES[me][1] >= 0:
+            _STAGES[_STAGES[me][1]][3] += elapsed
 
 
 def cores_available() -> int:
@@ -81,19 +105,29 @@ def cores_available() -> int:
     return len(getaffinity(0)) if getaffinity else (os.cpu_count() or -1)
 
 
+def _self_seconds() -> list[float]:
+    """Per stage, the seconds spent in it and not in a stage timed inside it."""
+    return [max(e[2] - e[3], 0.0) for e in _STAGES]
+
+
 def frame(*, rows: int | None = None, cores: int | None = None) -> pl.DataFrame:
     """The timings as a table: one row per stage, with its share of the recorded total.
 
-    ``share`` is of the summed leaf stages, not of the process, so it is comparable across hosts.
+    ``seconds`` is exclusive of timed children and ``parent`` names the stage a row sits inside, so
+    the column sums to the wall clock and ``share`` sums to 1. A stage's inclusive duration is its
+    own seconds plus its children's, which is why the parent is recorded rather than the total.
+
     ``rows`` and ``cores`` are carried because a wall time without the input size and the core count
     is not a measurement (``CLAUDE.md``).
     """
-    total = sum(s for _, s, _ in _STAGES) or 1.0
+    self_s = _self_seconds()
+    total = sum(self_s) or 1.0
     return pl.DataFrame({
-        "stage": [n for n, _, _ in _STAGES],
-        "seconds": [round(s, 3) for _, s, _ in _STAGES],
-        "share": [round(s / total, 5) for _, s, _ in _STAGES],
-        "peak_rss_mb": [round(m, 1) for _, _, m in _STAGES],
+        "stage": [e[0] for e in _STAGES],
+        "parent": [_STAGES[e[1]][0] if e[1] >= 0 else "" for e in _STAGES],
+        "seconds": [round(s, 3) for s in self_s],
+        "share": [round(s / total, 5) for s in self_s],
+        "peak_rss_mb": [round(e[4], 1) for e in _STAGES],
         "rows": [rows if rows is not None else -1] * len(_STAGES),
         "cores": [cores if cores is not None else cores_available()] * len(_STAGES),
     })
@@ -108,12 +142,17 @@ def write(path: Path, *, rows: int | None = None) -> pl.DataFrame:
 
 
 def report(df: pl.DataFrame) -> str:
-    """The table as markdown, slowest first, for the CI step summary."""
-    out = ["| stage | seconds | share | peak RSS MiB | rows | cores |",
-           "|---|--:|--:|--:|--:|--:|"]
+    """The table as markdown, slowest first, for the CI step summary.
+
+    ``inside`` is the parent stage, empty for a top-level one. Seconds are exclusive of children, so
+    the total is the wall clock and not the 36 % overstatement summing every row used to give.
+    """
+    out = ["| stage | inside | seconds | share | peak RSS MiB | rows | cores |",
+           "|---|---|--:|--:|--:|--:|--:|"]
     for r in df.sort("seconds", descending=True).iter_rows(named=True):
-        out.append(f"| `{r['stage']}` | {r['seconds']:.2f} | {r['share']:.1%} | "
-                   f"{r['peak_rss_mb']:,.0f} | {r['rows']:,} | {r['cores']} |")
-    out.append(f"| **total** | **{df['seconds'].sum():.2f}** | | "
+        parent = r.get("parent") or ""
+        out.append(f"| `{r['stage']}` | {f'`{parent}`' if parent else ''} | {r['seconds']:.2f} | "
+                   f"{r['share']:.1%} | {r['peak_rss_mb']:,.0f} | {r['rows']:,} | {r['cores']} |")
+    out.append(f"| **total** | | **{df['seconds'].sum():.2f}** | | "
                f"**{df['peak_rss_mb'].max():,.0f}** | | |")
     return "\n".join(out)
