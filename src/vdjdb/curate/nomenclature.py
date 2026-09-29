@@ -67,9 +67,10 @@ SEGMENT_COLUMNS: tuple[str, ...] = ("v.alpha", "j.alpha", "v.beta", "d.beta", "j
 #: A curator recording two possible segments writes a comma, a semicolon, a plus or the word "or".
 #: The three punctuation marks are interchangeable here because no IMGT TR name contains any of them,
 #: and a call is rewritten only when *every* part resolves to a real name, so widening the set cannot
-#: produce a substitution - it either resolves the whole call or leaves it alone. Measured: 590
-#: chain-calls, the largest being mouse ``TRBV12-2+TRBV13-2`` (535) and ``TRBV3-1;TRBV3-2`` (30).
-_SPLIT = re.compile(r"\s*(?:,|\bor\b)\s*")
+#: produce a substitution - it either resolves the whole call or leaves it alone. Measured: 591
+#: chain-calls over 9 spellings, the largest mouse ``TRBV12-2+TRBV13-2`` (535) and
+#: ``TRBV3-1;TRBV3-2`` (30). The retired build rejected every one of them as `gene not in IMGT`.
+_SPLIT = re.compile(r"\s*(?:[,;+]|\bor\b)\s*")
 
 
 @lru_cache(maxsize=8)
@@ -115,6 +116,10 @@ def _respellings(call: str, genes: frozenset[str]) -> set[str]:
     out |= {m.group(1) + _ROMAN[m.group(2)] + m.group(3)
             for m in (re.match(r"^(TR[ABGD][VDJ])([IVX]+)(S\d+)$", x) for x in out)
             if m and m.group(2) in _ROMAN}
+    # An en or em dash standing in for a hyphen: one `j.beta` reads `TRBJ2<en dash>3*01`, copied out of a
+    # typeset table. Neither character appears in any IMGT name, so this cannot touch a correct call,
+    # and a literal one is indistinguishable from a hyphen in a diff - which is how it arrived.
+    out |= {x.replace("\u2013", "-").replace("\u2014", "-") for x in out}
     out |= {x.replace("-DV", "/DV") for x in out}
     out |= {re.sub(r"(?<=\d)(DV\d)", r"/\1", x) for x in out}
     out |= {re.sub(r"^(TR[AB]D\d)-1", r"\1", x) for x in out}
@@ -258,14 +263,14 @@ def unresolved(df: pl.DataFrame, root: Path | None = None) -> pl.DataFrame:
     ``alleles_match_check`` to the repaired master table and filed the rows that failed. Nothing
     replaced it. :func:`harmonise_segments` reports what it *rewrote*, and ``build_master`` discards
     even that, so every row naming a gene no authority carries reached every shipped table with no
-    report anywhere. Measured 2026-09-29 over the built corpus: 97 rows over 78 distinct names
-    and 4,048 chain-calls, against the 2,638 human chain-calls the retired check saw.
+    report anywhere. Measured 2026-09-29 over the built corpus: 88 rows over 69 distinct names
+    and 3,457 chain-calls, against the 2,582 human chain-calls the retired check saw.
 
     Three improvements on the check it replaces, each of which was a legacy defect:
 
     * **All four species, not only human.** The legacy table was human immunoglobulin-focused, so the
       driver ORed both masks with ``species != 'HomoSapiens'`` and no macaque or mouse call was ever
-      checked. 1,385 of the 4,048 chain-calls here are not human.
+      checked. 850 of the 3,457 chain-calls here are not human.
     * **Membership, not a range.** ``alleles_match_check`` compared ``int(allele)`` against a per-gene
       allele count, which passes ``*07`` and fails ``*08`` whether or not IMGT lists either. Its one
       finding on the corpus, ``TRBV28*02``, is an allele IMGT does have.
