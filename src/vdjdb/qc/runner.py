@@ -55,6 +55,13 @@ ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form", "duplicate"
                         ("v.alpha", "j.alpha", "v.beta", "j.beta")),
                       # #561: only a curator can decide which of the two chains is the wrong one.
                       "alpha and beta cdr3 identical",
+                      # #694, #625: a spreadsheet counter in a column that describes the antigen.
+                      # Advisory because the repair is a patch entry or a chunk edit and either is a
+                      # curation decision - and because the one current finding is already declared
+                      # in `patches/mhc.dict`, so the rule is a regression guard rather than a gate
+                      # on live data.
+                      *(f"counter in {c}" for c in
+                        ("antigen.gene", "antigen.species", "mhc.a", "mhc.b")),
                       # A named V or J whose chain has no CDR3. The call is information and the row
                       # is kept; the chain cannot reach an output, which is what this tells the
                       # submitter while they can still supply the sequence.
