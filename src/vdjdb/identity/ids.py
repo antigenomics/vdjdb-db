@@ -37,7 +37,7 @@ records were added, amended or retired, as a reviewable diff.
 from __future__ import annotations
 
 import hashlib
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
@@ -76,8 +76,16 @@ REGISTRY_COLUMNS: tuple[str, ...] = (
     "last_modified_commit",
     "amendment_count",
     "amended_from_key_hash",
+    "replaced_by",
     "note",
 )
+
+#: The receptor a natural key names, by position in :data:`NATURAL_KEY`. Two keys agreeing on all
+#: six describe the same TCR, whatever moved around it -- the test :func:`_successor` applies before
+#: it will link a retired id to a new one.
+RECEPTOR_FIELDS: tuple[int, ...] = tuple(
+    NATURAL_KEY.index(c) for c in
+    ("cdr3.alpha", "v.alpha", "j.alpha", "cdr3.beta", "v.beta", "j.beta"))
 
 
 class RecordState(StrEnum):
@@ -130,6 +138,10 @@ class _Entry:
     last_modified_commit: str
     amendment_count: int
     amended_from_key_hash: str
+    #: The id that took over when this one retired because two key fields moved at once, so a
+    #: consumer holding the old id can follow it forward (`ROADMAP.md` §10.4, #693). Empty on an
+    #: active record, and empty on a retirement that is a genuine deletion.
+    replaced_by: str
     note: str
 
 
@@ -172,7 +184,7 @@ class IdentityRegistry:
         # Empty string is the only missing marker (CLAUDE.md), and the polars kwarg for that has
         # been renamed across versions -- normalise after the read instead.
         df = pl.read_csv(path, separator="\t", infer_schema=False, quote_char=None).fill_null("")
-        missing = set(REGISTRY_COLUMNS) - set(df.columns)
+        missing = set(REGISTRY_COLUMNS) - set(df.columns) - {"replaced_by"}
         if missing:
             raise ValueError(f"{path} is missing registry columns: {sorted(missing)}")
         entries = [
@@ -185,7 +197,10 @@ class IdentityRegistry:
                 last_modified_release=r["last_modified_release"],
                 last_modified_commit=r["last_modified_commit"],
                 amendment_count=int(r["amendment_count"] or 0),
-                amended_from_key_hash=r["amended_from_key_hash"], note=r["note"],
+                amended_from_key_hash=r["amended_from_key_hash"],
+                # Added by #693. A registry written before it has no column, and reading one must
+                # not fail: the field is empty until a retirement fills it.
+                replaced_by=r.get("replaced_by", ""), note=r["note"],
             )
             for r in df.iter_rows(named=True)
         ]
@@ -364,7 +379,9 @@ def reconcile(
                 e.last_modified_release = release
                 e.last_modified_commit = commits.get(e.chunk_file, "")
 
-    # Pass 3 -- allocate new ids.
+    # Pass 3 -- allocate new ids. Each allocation is recorded against the line of the chunk it came
+    # from, so the retirement pass below can answer "which id took over from the one I had".
+    allocated_at: dict[tuple[str, int], list[tuple[str, tuple[str, ...]]]] = defaultdict(list)
     for i, a in enumerate(assigned):
         if a is not None:
             continue
@@ -387,9 +404,11 @@ def reconcile(
             first_seen_release=release, first_seen_commit=commit,
             last_seen_release=release, last_modified_release=release,
             last_modified_commit=commit,
-            amendment_count=0, amended_from_key_hash="", note=_pack_note(keys[i]),
+            amendment_count=0, amended_from_key_hash="", replaced_by="",
+            note=_pack_note(keys[i]),
         )
         report.added.append(rid)
+        allocated_at[(chunk_file, int(row.get("chunk.row") or 0))].append((rid, keys[i]))
 
     # Re-key the registry (amendments changed natural_key_hash) and refresh the amendment notes.
     rekeyed: dict[str, _Entry] = {}
@@ -407,13 +426,96 @@ def reconcile(
     # `added` is hoisted: rebuilding the set inside the loop makes this O(n^2), which on a 192k-row
     # corpus is the difference between a second and several minutes.
     added = set(report.added)
-    for e in registry.active():
-        if e.record_id not in matched_entries and e.record_id not in added:
-            e.state = RecordState.RETIRED
-            report.retired.append(e.record_id)
+    retiring = [e for e in registry.active()
+                if e.record_id not in matched_entries and e.record_id not in added]
+    # How many are retiring from each line, so a line that lost two records links neither: with two
+    # on each side there is no way to say which took over from which.
+    retiring_at: Counter[tuple[str, int]] = Counter((e.chunk_file, e.chunk_row) for e in retiring)
+    for e in retiring:
+        e.state = RecordState.RETIRED
+        e.replaced_by = _successor(e, allocated_at, retiring_at)
+        report.retired.append(e.record_id)
+
+    _backfill_successors(registry)
 
     out = records.with_columns(pl.Series("record_id", assigned, dtype=pl.String))
     return out, registry, report
+
+
+def _backfill_successors(registry: IdentityRegistry) -> int:
+    """Fill ``replaced_by`` on retirements that predate #693. Returns how many it filled.
+
+    The evidence is still in the registry: an active record sitting at the line a retired one left,
+    with the same receptor. The guards are :func:`_successor`'s, one step weaker in only one way -
+    the successor is any active entry at that line rather than one allocated in this run, because
+    the run that allocated it has already happened.
+
+    Runs on every reconciliation and is idempotent: an entry that already has a pointer is skipped,
+    and one that cannot be linked stays empty rather than being linked to something plausible.
+    """
+    active_at: dict[tuple[str, int], list[_Entry]] = defaultdict(list)
+    orphan_at: Counter[tuple[str, int]] = Counter()
+    for e in registry._by_key.values():
+        at = (e.chunk_file, e.chunk_row)
+        if e.state == RecordState.ACTIVE:
+            active_at[at].append(e)
+        elif not e.replaced_by:
+            orphan_at[at] += 1
+
+    filled = 0
+    for e in registry._by_key.values():
+        if e.state != RecordState.RETIRED or e.replaced_by:
+            continue
+        at = (e.chunk_file, e.chunk_row)
+        successors = active_at.get(at, [])
+        if len(successors) != 1 or orphan_at[at] != 1:
+            continue
+        previous, current = _unpack_note(e.note), _unpack_note(successors[0].note)
+        if previous is None or current is None:
+            continue
+        if any(previous[i] != current[i] for i in RECEPTOR_FIELDS):
+            continue
+        e.replaced_by = successors[0].record_id
+        filled += 1
+    return filled
+
+
+def _successor(entry: _Entry,
+               allocated: dict[tuple[str, int], list[tuple[str, tuple[str, ...]]]],
+               retiring: Counter[tuple[str, int]]) -> str:
+    """The id that took over from a retiring one, or empty when nothing can be said. #693.
+
+    The amendment pass keeps a `record_id` when the natural key moved in exactly one field, and
+    refuses when two moved - correctly, because two fields moving is a different record by the rule
+    the registry is built on. But the old id then had no pointer to the new one, which is the failure
+    `ROADMAP.md` §10.4 exists to prevent: a reference that used to resolve returns nothing and a
+    consumer cannot tell a correction from a deletion.
+
+    The link is the same identity argument the `chunk.row` tie-break already makes - *the same line
+    of the same file* - with two guards that make it a fact rather than a guess:
+
+    * **one in, one out.** A line that retired two ids, or that had two allocated against it, links
+      neither. There is no evidence for the pairing.
+    * **the receptor is unchanged.** The two keys must agree on all six of
+      :data:`RECEPTOR_FIELDS`. A new record at the line an old one left is a coincidence; the same
+      TCR at that line, with only its annotation moved, is not.
+
+    The case that motivated it is `#633`'s `RGPGRAFVTI` patch, where one line of
+    `patches/antigen_epitope_species_gene.dict` moves `antigen.species` and `antigen.gene` together
+    because both are one assertion about the peptide's source. The B16 `Plod1 -> Plod2` repair is
+    49 more of the same shape: `antigen.gene` and `meta.subject.cohort` in one commit.
+    """
+    at = (entry.chunk_file, entry.chunk_row)
+    candidates = allocated.get(at, [])
+    if len(candidates) != 1 or retiring[at] != 1:
+        return ""
+    rid, key = candidates[0]
+    previous = _unpack_note(entry.note)
+    if previous is None:
+        return ""
+    if any(previous[i] != key[i] for i in RECEPTOR_FIELDS):
+        return ""
+    return rid
 
 
 # The registry keeps the previous build's natural-key fields so an amendment can be *located*, not
