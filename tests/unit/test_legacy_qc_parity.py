@@ -329,6 +329,12 @@ def _both_master(case: Case) -> tuple[set[str], set[str]]:
     :func:`vdjdb.curate.nomenclature.unresolved` and :func:`vdjdb.curate.anchors.noncanonical`.
     ``unresolved`` reports per call rather than per row, so its finding is collapsed to the legacy
     name to make the two comparable.
+
+    The legacy side reads the call **as submitted** and the new side reads it **after harmonisation**.
+    That asymmetry is the measurement, not a mistake in it: ``runBuidDatabase.py`` ran ``guess_id`` and
+    ``fix_both`` before its checks and no respelling at all, so a call it rejected is a call nothing in
+    that build would ever have repaired. Comparing both sides post-harmonisation would make every
+    ``fixable`` case read as agreement and measure nothing.
     """
     row = CLEAN | case.row
     # Harmonised first, because that is the order `build_master` runs them in and it is what makes
