@@ -1,9 +1,15 @@
 """CDR3 markup against external nucleotide truth, on VDJdb's own records.
 
-`assemble.master.fix_cdr3` documents its two engines on **coverage** - how often each declines - and
+`assemble.master.fix_cdr3` documented its two engines on **coverage** - how often each declines - and
 coverage cannot tell "answers more" from "answers better". The phase 5 swap decision (ROADMAP
 section 28) rests on that measurement alone. These tests supply the missing half, and they do it on
 VDJdb records rather than on synthetic sequences.
+
+There is one engine now. The k-mer scanner was deleted with `res/` (#658), so its arm here is the
+`vEnd` and `jStart` the **2026-06-03 release shipped** rather than a re-run of vendored code. The two
+agree to within a fraction of a point (see
+`test_the_shipped_scanner_answers_on_almost_every_truth_row`), and a release cannot drift from what
+shipped while a vendored copy can.
 
 The reference is `isalgo/airr_control`'s `human.trb.ntvj`: real repertoire clonotypes carrying the
 observed `cdr3nt` together with `VEnd` and `JStart` in nucleotide space. Those coordinates were
@@ -55,12 +61,19 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from vdjdb.assemble.master import _markup_arda, _markup_legacy
+from vdjdb.assemble.master import _markup_arda
 from vdjdb.convert.coords import nt_to_aa_boundary_expr
 
 pytestmark = pytest.mark.release
 
 CONTROL = Path.home() / "hf/airr_control/human.trb.ntvj.vdjtools.tsv.gz"
+
+#: The released zip, read for the **scanner's own answer**. The k-mer scanner was deleted with
+#: `res/` (#658), so the comparison arm is no longer a re-run of vendored code: it is the `vEnd` and
+#: `jStart` the 2026-06-03 release actually shipped, which is what that code produced and is frozen.
+#: Better than re-running it, because a vendored copy can drift from what shipped and a release
+#: cannot.
+REFERENCE = Path(os.environ.get("VDJDB_REFERENCE_ZIP", "reference.zip"))
 
 #: Rows of the control to read. It is frequency-sorted, so this is the expanded end of the
 #: repertoire; enough of it to clear the 100-record bar below by an order of magnitude.
@@ -121,18 +134,63 @@ def truth() -> pl.DataFrame:
     if out.height < MIN_RECORDS:
         pytest.skip(f"only {out.height} overlapping records; need {MIN_RECORDS}")
     only = out.select(KEY)
-    for name, run in (("legacy", _markup_legacy), ("arda", _markup_arda)):
-        got = run(only, "beta").select(
-            *KEY, pl.col("__vend").alias(f"{name}.v_end"),
-            pl.col("__jstart").alias(f"{name}.j_start"))
-        out = out.join(got, on=KEY, how="left", maintain_order="left")
-    return out
+    got = _markup_arda(only, "beta").select(
+        *KEY, pl.col("__vend").alias("arda.v_end"), pl.col("__jstart").alias("arda.j_start"))
+    out = out.join(got, on=KEY, how="left", maintain_order="left")
+    return out.join(_shipped_scanner(), left_on=["cdr3", "vg", "jg"],
+                    right_on=["cdr3", "vg", "jg"], how="left", maintain_order="left")
+
+
+def _shipped_scanner() -> pl.DataFrame:
+    """The scanner's `vEnd` / `jStart` as the 2026-06-03 release shipped them, per gene-level key.
+
+    Keyed the same way the control is - `(cdr3, V gene, J gene)` - because the reference's allele
+    suffix is the one the scanner resolved and the nomenclature phase has since corrected 10,605 of
+    them, so an allele-level key would lose exactly the rows this comparison is about. 123,165
+    distinct beta keys, of which 45 carry two `vEnd` values and 386 two `jStart`; those are dropped
+    rather than averaged, on the same rule the control's own boundary uses.
+    """
+    if not REFERENCE.exists():
+        pytest.skip(f"{REFERENCE} is not present; set VDJDB_REFERENCE_ZIP")
+    from vdjdb.compare.diff import Bundle, _read_table
+
+    ref = _read_table(Bundle(REFERENCE).read_bytes("vdjdb.txt"))
+    return (ref.filter(pl.col("gene") == "TRB")
+            .select("cdr3",
+                    pl.col("v.segm").str.split("*").list.first().alias("vg"),
+                    pl.col("j.segm").str.split("*").list.first().alias("jg"),
+                    pl.col("cdr3fix").str.json_path_match("$.vEnd").cast(pl.Int64).alias("v_end"),
+                    pl.col("cdr3fix").str.json_path_match("$.jStart").cast(pl.Int64)
+                      .alias("j_start"))
+            .group_by("cdr3", "vg", "jg")
+            .agg(pl.col("v_end").n_unique().alias("nv"), pl.col("j_start").n_unique().alias("nj"),
+                 pl.col("v_end").first().alias("legacy.v_end"),
+                 pl.col("j_start").first().alias("legacy.j_start"))
+            .filter((pl.col("nv") == 1) & (pl.col("nj") == 1))
+            .drop("nv", "nj"))
 
 
 def test_the_overlap_is_large_enough_to_draw_a_conclusion_from(truth) -> None:
     """Stated as a test so a shrinking reference is a failure, not a quietly weaker number."""
     assert truth.height >= MIN_RECORDS
     assert truth["cdr3"].n_unique() >= MIN_RECORDS // 2
+
+
+def test_the_shipped_scanner_answers_on_almost_every_truth_row(truth) -> None:
+    """The comparison arm is the release's own cells now, so a **null** means the release has no row
+    for that key - not that the scanner declined. Every head-to-head below filters on `>= 0`, which
+    drops a null silently, so the null count is what has to be gated: a join that quietly stopped
+    matching would read as "the scanner agrees with everything".
+
+    34 of 1,632 on the 2026-06-03 release. Measured against a re-run of the vendored scanner before it
+    was deleted, the two arms agree closely - `v.end` exact 72.90 % here against 72.86 % re-run,
+    `j.start` 95.81 % against 97.06 % - which is what makes reading the release faithful.
+    """
+    missing = truth.filter(pl.col("legacy.v_end").is_null()).height
+    assert missing <= truth.height // 10, (
+        f"the release has no boundary for {missing} of {truth.height} truth rows; the gene-level "
+        f"join has stopped matching, so every head-to-head below is measuring a smaller set than it "
+        f"reports")
 
 
 @pytest.mark.parametrize("coord", ["v_end", "j_start"])
