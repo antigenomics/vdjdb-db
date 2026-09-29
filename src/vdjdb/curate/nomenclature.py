@@ -531,10 +531,20 @@ class AlleleSignature:
 #: ``*01``. The original report was that about two thirds of explicit ``*01`` calls are probably
 #: ``*02``; no record with an explicit ``*01`` call has the ``*01`` signature. The 364 with neither
 #: signature have a CDR3 trimmed short of the anchor and are left alone: no evidence, no correction.
+#: #647. The mouse TRAJ47 pair is the same shape with the anchor itself as the discriminator:
+#: ``*01`` templates ``HYANKMI**C**`` and is an ORF allele, ``*02`` templates ``DYANKMI**F**``.
+#: All 95 mouse TRAJ47 chains read ``ANKMIF`` and none reads ``ANKMIC``, so every one of them is
+#: ``*02``: 81 were written without an allele and resolved to ``*01`` by default, 14 name ``*01``
+#: outright. Human TRAJ47 is untouched, because there both alleles template ``EYGNKLVF`` and the
+#: sequence cannot tell them apart. The three human ``TRAJ47-1`` spellings are a name with no IMGT
+#: counterpart and belong to #389; the species scope keeps them out of reach here.
 ALLELE_SIGNATURES: tuple[AlleleSignature, ...] = (
     AlleleSignature(issue="#327", species="HomoSapiens", column="j.alpha", cdr3="cdr3.alpha",
                     prefix="TRAJ24",
                     signatures={"WGKLQF": "TRAJ24*02", "WGKFEF": "TRAJ24*01"}),
+    AlleleSignature(issue="#647", species="MusMusculus", column="j.alpha", cdr3="cdr3.alpha",
+                    prefix="TRAJ47",
+                    signatures={"ANKMIF": "TRAJ47*02", "ANKMIC": "TRAJ47*01"}),
 )
 
 

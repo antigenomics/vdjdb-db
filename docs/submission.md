@@ -119,20 +119,23 @@ Phe/Trp118, **both anchors included**. That is two residues longer than AIRR's o
 A submission exported in IMGT CDR3 space is therefore short an anchor at each end, and it passes
 `vdjdb qc` - those rules check the residue alphabet and a minimum length, not the ends.
 
-Measured on the 2026-09-28 corpus: **5,842 of 285,989 chains (2.04 %)**, and `PMID_15589168.txt` alone
-contributes 935 of them, every one short the trailing Phe. 5,097 get a proposed sequence and 95 get a
-proposed **allele** instead:
+Measured on the 2026-09-29 corpus, after #646 repaired 4,838 junctions in `chunks/` and #647
+corrected the mouse `TRAJ47` allele: **1,037 of 285,950 chains (0.36 %)**, of which 261 still get a
+proposed sequence and none gets a proposed allele. `PMID_34811538.txt` contributes 243 and
+`PMID_15589168.txt` 170.
 
 | Defect | Chains | Example | Repair |
 |---|--:|---|---|
-| J absent anchor | 3,807 | `CASSNEKLF` on `TRBJ1-4` (`TNEKLFF`) | `CASSNEKLFF` |
-| J under-trimmed | 650 | `YLCSSQEGGYGYTFGSG` | `CSSQEGGYGYTF` |
-| J corrupt anchor | 423 | terminal residue mis-read | germline residue substituted |
-| V + J under-trimmed | 93 | framework at both ends | trimmed at both |
-| V corrupt anchor | 77 | `GASSDTMNTKIL`, `WAVRDIYTTAKFIL` | `CASSDTMNTKIL` |
-| V under-trimmed | 21 | `YFCASSY...` | `CASSY...` |
-| J allele mismatch | 95 | `CAADYANKMIF` on mouse `TRAJ47*01` | the call, `TRAJ47*02` |
-| unexplained | 650 | - | none proposed |
+| J unexplained | 469 | `CAAFAGYMLPY` | none proposed |
+| J under-trimmed | 236 | `CAAGGQFYGYT` | `CAAGGQF` |
+| V unexplained | 203 | `AQGLLTGGGNKLTF` | none proposed |
+| J unanchored | 117 | `CAAGGSQGNLI`, no J the reference has | none proposed |
+| V under-trimmed | 20 | `FRAPCSCKDDHKLMF` | `CSCKDDHKLMF` |
+| J absent anchor | 10 | `CASSHPGTSAILSTTGELF` | `CASSHPGTSAILSTTGELFF` |
+| J corrupt anchor | 5 | `CAGSLGGFGNVLHF` on `TRAJ35*01` | `CAGSLGGFGNVLHC` |
+| V unanchored | 1 | no V the reference has | none proposed |
+
+A chain can carry a defect at each end, so these count more than 1,037 between them.
 
 A missing Cys104 is worth a second look even when the rest of the record is fine: no TCR folds without
 it, so a first residue that is not Cys where the body still aligns to the V is a sequencing or
