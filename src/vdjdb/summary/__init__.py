@@ -12,6 +12,6 @@ a derived table that exists to make the build offline.
 """
 from __future__ import annotations
 
-from . import references, render
+from . import interactive, references, render
 
-__all__ = ["references", "render"]
+__all__ = ["interactive", "references", "render"]
