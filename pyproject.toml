@@ -48,7 +48,10 @@ test = ["pytest>=8", "hypothesis>=6", "airr>=1.5"]
 # The dashboard checker. Pillow and scipy arrive transitively through mirpy-lib[bench] today, which
 # means an upstream dependency change would silently disable the style and perceptual layers rather
 # than fail -- a check that quietly downgrades itself is worse than no check. Declared so it cannot.
-summary = ["pillow>=10", "numpy>=1.26", "scipy>=1.11", "matplotlib>=3.8"]
+summary = ["pillow>=10", "numpy>=1.26", "scipy>=1.11", "matplotlib>=3.8",
+           # The interactive dashboard. `plotly.js` itself is loaded from a CDN, so
+           # this is the figure builder only and adds no bundled JavaScript.
+           "plotly>=5.20"]
 # The clustering bake-off under docs/tuning/ only. Lumbermark is measured, not shipped
 # (docs/clustering.md section 9), so it must not reach the build container -- `uv sync --extra
 # tuning` when re-running the sweeps, never the default install.
