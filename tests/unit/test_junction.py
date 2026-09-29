@@ -63,10 +63,44 @@ def test_the_inferred_nucleotides_back_translate_to_the_junction_they_came_from(
 
 
 def test_the_worker_count_does_not_change_the_answer():
-    """CLAUDE.md rule 7. Contiguous slices over a sorted key set, reassembled in slice order."""
+    """CLAUDE.md rule 7. Contiguous slices over a sorted key set, reassembled in slice order.
+
+    `workers=1` runs in this process and `workers=4` starts four `vdjdb infer-nt` processes, so this
+    also checks the parquet round trip between them: the nullable Int64 `d.start`/`d.end` and the
+    Float64 pgen columns have to come back with the dtypes and the nulls they went out with.
+    """
     one = junction.infer(KEYS, "HomoSapiens", "TRB", workers=1)
     four = junction.infer(KEYS, "HomoSapiens", "TRB", workers=4)
     assert one.equals(four)
+    assert one.schema == four.schema
+
+
+def test_a_worker_that_cannot_run_raises_rather_than_falling_back(monkeypatch):
+    """CLAUDE.md section 0e: a dead pool must not be indistinguishable from a slow one.
+
+    The whole reason this stage is worth parallelising is that it is minutes long, so a silent
+    fallback to the serial path would read as "the build got slower again" and never be diagnosed.
+    """
+    monkeypatch.setattr(junction.sys, "executable", "/nonexistent/python")
+    with pytest.raises((RuntimeError, OSError)):
+        junction.infer(KEYS, "HomoSapiens", "TRB", workers=4)
+
+
+def test_a_slice_of_the_key_set_is_the_same_rows_the_parent_would_have_given_it():
+    """`bounds` is the one definition of a slice, used by the parent and by each worker.
+
+    Two copies of this arithmetic is how a worker count starts changing an answer, so the property
+    asserted is the one that matters: the slices tile the key set exactly, in order, with no gap and
+    no overlap, for every count.
+    """
+    import itertools
+
+    for count in (1, 2, 3, 4, 7, 16):
+        seen = [junction.bounds(KEYS.height, i, count) for i in range(count)]
+        assert seen[0][0] == 0 and seen[-1][1] == KEYS.height
+        assert all(a[1] == b[0] for a, b in itertools.pairwise(seen))
+        rebuilt = pl.concat([KEYS.slice(lo, hi - lo) for lo, hi in seen], how="vertical")
+        assert rebuilt.equals(KEYS)
 
 
 def test_a_species_with_no_model_gets_empty_columns_rather_than_an_error():
@@ -95,11 +129,16 @@ def test_a_chain_missing_a_call_keeps_its_row_and_gets_no_nucleotides(missing):
 def test_the_worker_count_actually_buys_wall_time():
     """CLAUDE.md section 0e: a pool that never ran is indistinguishable from a slow one.
 
-    The correctness test above passes whether or not the threads run in parallel, so it cannot see a
-    pool that silently serialised. This measures it. `infer_nt` calls into vdjtools' native path,
-    which releases the GIL for part of the work, so the speedup is real and sublinear. Measured on a
-    16-core M3, four workers: **2.26x over these 400 keys**, 2.04x over 1,200 and 2.20x over 3,000, so
-    the key count is not what sets it.
+    The correctness test above passes whether or not the workers run in parallel, so it cannot see a
+    stage that silently serialised. This measures it. Each worker is a separate `vdjdb infer-nt`
+    process, so the only thing that caps the speedup is the fixed cost of starting one - interpreter,
+    import and one model load. Measured on a 16-core M3, four workers: **2.48x over these 400 keys**
+    and 3.47x over 4,000, with the four children costing 0.23 s of startup between them, which is why
+    the ratio improves with the key count rather than being set by it.
+
+    Threads were tried first and are the reason this is processes: `infer_nt` holds the GIL for part
+    of its work, so a ThreadPoolExecutor got 2.52x on four workers where four processes get 3.96x,
+    and 3.06x against 7.38x on eight (4,000 human TRB keys, 2026-09-29).
 
     **The bar depends on the core count, because the quantity does.** Four worker threads on a 4-vCPU
     GitHub runner share those four cores with polars' own pool and the interpreter, and there is no
@@ -168,4 +207,4 @@ def test_the_worker_count_actually_buys_wall_time():
         f"four workers bought {serial / parallel:.2f}x over {keys.height} keys "
         f"({serial:.2f} s -> {parallel:.2f} s) on {cores} cores at load {load:.1f}, "
         f"bar {bar}x; "
-        f"the pool is overhead rather than parallelism")
+        f"the workers are overhead rather than parallelism")

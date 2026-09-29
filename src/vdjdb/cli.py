@@ -303,6 +303,46 @@ def motifs(
         typer.echo(f"{name:24} {rows:>9,} rows")
 
 
+@app.command(name="infer-nt")
+def infer_nt_slice(
+    keys: Path = typer.Option(..., help="parquet or TSV of distinct cdr3, v.segm, j.segm"),
+    species: str = typer.Option(..., help="VDJdb species, e.g. HomoSapiens"),
+    gene: str = typer.Option(..., help="locus, e.g. TRB"),
+    out: Path = typer.Option(..., help="where to write this slice, parquet or TSV"),
+    slice_: str = typer.Option("0/1", "--slice", metavar="INDEX/COUNT",
+                               help="contiguous slice INDEX of COUNT over the key file"),
+) -> None:
+    """Infer junction nucleotides for one contiguous slice of a key file.
+
+    The worker `vdjdb build` starts, one process per slice - and the same command run by hand, by
+    `parallel`, or by `srun`, which is the point of it being a command rather than a thread::
+
+        uv run vdjdb build --out out/ --tables out/tables   # starts these itself
+        seq 0 3 | parallel uv run vdjdb infer-nt --keys keys.parquet --species HomoSapiens \\
+            --gene TRB --slice {}/4 --out part.{}.parquet
+
+    Slices are half-open and contiguous and the parent concatenates them in slice order, so the
+    worker count cannot change the answer (CLAUDE.md rule 7).
+    """
+    import polars as pl
+
+    from .annotate.junction import infer_one_slice
+
+    index, _, count = slice_.partition("/")
+    if not count.isdigit() or not index.isdigit() or not 0 <= int(index) < int(count):
+        raise typer.BadParameter(
+            f"--slice wants INDEX/COUNT with 0 <= INDEX < COUNT, got {slice_!r}")
+    df = (pl.read_parquet(keys) if keys.suffix == ".parquet"
+          else pl.read_csv(keys, separator="\t", infer_schema_length=0))
+    got = infer_one_slice(df, species, gene, int(index), int(count))
+    out.parent.mkdir(parents=True, exist_ok=True)
+    if out.suffix == ".parquet":
+        got.write_parquet(out)
+    else:
+        got.write_csv(out, separator="\t")
+    typer.echo(f"{out}: {got.height:,} of {df.height:,} keys (slice {slice_})")
+
+
 @app.command(name="motif-metrics")
 def motif_metrics(
     tables: Path = typer.Option(Path("out/tables"), help="The tables the cohort is read from."),
