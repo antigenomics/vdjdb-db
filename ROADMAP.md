@@ -735,9 +735,20 @@ would cost more per PR, not less, and lose the diff.
 
 A build with no registry still runs. It allocates record ids from 1 in corpus order and **warns that the
 run is not id-stable**, which is correct for a fork, for a first build and for a corpus replayed at an old
-tag. No registry is committed today, so that is the normal path, and the cost is measured: landing one
-40-record chunk moves `record_id` on **168,723 of 192,753 records (87.5 %)**. Invariant 3 below is the
-assertion that would have caught it.
+tag. That used to be the normal path and the cost was measured: landing one 40-record chunk moved
+`record_id` on **168,723 of 192,753 records (87.5 %)**. `registry/records.tsv` has been committed since
+2026-09-29 (#674), so it is now the exception, and
+`tests/release/test_registry_is_current.py` fails the run on any amendment, retirement or allocation the
+committed file does not already hold. Invariant 3 below is the assertion that would have caught the 87.5 %.
+
+⚠ **`replaced_by` is specified in the table above and is not in the file.** The registry's columns end at
+`amended_from_key_hash` and `note`, and `amended_from_key_hash` points backwards and only for amendments.
+So when the amendment pass correctly refuses - two key fields moved at once, which is
+`test_two_field_change_is_a_new_record_not_an_amendment` - the record retires and a new id is allocated
+with nothing linking them, which is the failure this section opens by naming. It fired for the first time
+on #633's `RGPGRAFVTI` patch, where one assertion about a peptide's source moves `antigen.species` and
+`antigen.gene` together: `VDJDB0000021117` retired and `VDJDB0000192799` took the same line of the same
+chunk. Tracked in #693, with the fix being the column plus an assertion, not a looser amendment rule.
 
 ### 10.5 The consistency machinery
 

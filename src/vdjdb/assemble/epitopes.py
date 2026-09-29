@@ -202,8 +202,11 @@ def build_epitopes(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
         per_record.group_by(KEY)
         .agg(
             # One epitope under one species may still be labelled with two gene symbols; the
-            # catalogue reports the dominant one and `epitopes.conflicts` in the report lists the
-            # rest, so the choice is visible.
+            # catalogue reports the dominant one and `curate.submission.epitope_sources` counts the
+            # rest into `out/reports/epitope-sources.tsv`, so the choice is visible. That comment
+            # used to name an `epitopes.conflicts` that was never written, which meant the discarded
+            # labels were reported nowhere -- including the 187 `Eef2`..`Eef188` labels on one
+            # peptide, an index written into `antigen.gene` (#633).
             pl.col("antigen.gene").mode().sort().first().alias("antigen.gene"),
             pl.col("mhc.class").mode().sort().first().alias("mhc.class"),
             pl.len().alias("records"),
