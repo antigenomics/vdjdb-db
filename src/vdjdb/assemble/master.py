@@ -130,77 +130,6 @@ def fix_cdr3(df: pl.DataFrame) -> pl.DataFrame:
     return df
 
 
-def repair_anchors(df: pl.DataFrame) -> pl.DataFrame:
-    """Trim, add or substitute an anchor residue the markup engine leaves non-canonical.
-
-    A junction is Cys104 through Phe/Trp118 inclusive, and `vdjdb.curate.anchors` already decides,
-    against the germline of the segment a record names, whether a submitted junction carries framework
-    past an anchor (``under-trimmed``), is short one (``absent anchor``) or has one mis-read
-    (``corrupt anchor``). It computed those repairs and only reported them, so the shipped junction
-    stayed wrong.
-
-    **The retired k-mer scanner applied them and this build did not, which is a regression.**
-    `PMID_11046006` submits ``YFCASSQSPGGVAFFGQG``; the 2026-06-03 release ships ``CASSQSPGGVAFF``,
-    and this build shipped ``CASSQSPGGVAFFGQG`` - arda trimmed the front and left the back, which is
-    the half-repair the report calls ``under-trimmed``. Measured on the 2026-09-30 corpus, 33
-    junctions are repaired here: 17 land on the release's own value and 16 on a more correct one,
-    because the anchor is read per segment and `TRAJ35*01` templates ``IGFGNVLHC`` while mouse
-    `TRAJ7*01` templates ``DYSNNRLTL``, so those junctions end in Cys and Leu where the release's
-    fixed Phe-or-Trp test wrote an F. None is worse than the release.
-
-    Runs **after** :func:`add_record_ids` and **before** :func:`fix_cdr3`, and both halves matter.
-    After the identifiers, because a repair that makes two submitted junctions identical must not
-    merge two observations a publication reported separately - record count is unchanged by this pass.
-    Before the markup, because the repair changes the junction's length at either end: `v.end` and
-    `j.start` computed on the submitted sequence would index into a sequence that no longer ships,
-    which is how the first revision of this pass corrupted a coordinate that
-    `tests/release/test_cdr3fix_accuracy.py` caught.
-
-    The submitted sequence is kept in ``__submitted.<gene>`` so ``cdr3fix.cdr3_old`` still reports
-    what the curator wrote rather than what this pass handed to arda.
-    """
-    from ..curate.anchors import repairs
-
-    for gene in ("alpha", "beta"):
-        cdr3, v, j = f"cdr3.{gene}", f"v.{gene}", f"j.{gene}"
-        keys = (df.filter(pl.col(cdr3) != "")
-                  .select("species", pl.col(cdr3).alias("cdr3"),
-                          pl.col(v).alias("v"), pl.col(j).alias("j"))
-                  .unique(maintain_order=True)
-                  .sort("species", "cdr3", "v", "j"))   # sorted: the join order must not vary
-        fixes = repairs(keys).rename({"cdr3": cdr3, "v": v, "j": j})
-        if fixes.is_empty():
-            df = df.with_columns(pl.lit(None, pl.Utf8).alias(f"__submitted.{gene}"))
-            continue
-        df = (df.join(fixes.select("species", cdr3, v, j, "__repaired"),
-                      on=["species", cdr3, v, j], how="left")
-                .with_columns(
-                    pl.when(pl.col("__repaired").is_not_null()).then(pl.col(cdr3))
-                      .otherwise(None).alias(f"__submitted.{gene}"),
-                    pl.coalesce(pl.col("__repaired"), pl.col(cdr3)).alias(cdr3))
-                .drop("__repaired"))
-    return df
-
-
-def carry_submitted_junction(df: pl.DataFrame) -> pl.DataFrame:
-    """Put the curator's junction back into ``cdr3_old`` where :func:`repair_anchors` changed it.
-
-    :func:`fix_cdr3` sets ``__cdr3old`` from arda's own output, and arda was handed the repaired
-    sequence, so without this the legacy ``cdr3fix`` blob would report the repaired junction as the
-    one that arrived. ``fixNeeded`` is forced true for the same reason: something was fixed.
-    """
-    for gene in ("alpha", "beta"):
-        sub = f"__submitted.{gene}"
-        if sub not in df.columns:
-            continue
-        df = df.with_columns(
-            pl.coalesce(pl.col(sub), pl.col(f"__cdr3old.{gene}")).alias(f"__cdr3old.{gene}"),
-            pl.when(pl.col(sub).is_not_null()).then(True)
-              .otherwise(pl.col(f"__fixneeded.{gene}")).alias(f"__fixneeded.{gene}"),
-        ).drop(sub)
-    return df
-
-
 def _markup_arda(keys: pl.DataFrame, gene: str) -> pl.DataFrame:
     from ..annotate.cdr3fix import markup
 
@@ -278,12 +207,7 @@ def build_master(paths: Iterable[Path] | None = None,
     # fixing would have merged 215 pairs of records the publications reported separately -- two
     # trimmed sequences repaired to the same full one are still two observations.
     df = add_record_ids(df, registry, write=write_registry, release=release)
-    # Before the markup, not after it: the repair changes the junction's length at both ends, so
-    # `v.end` and `j.start` computed on the submitted sequence would point into a sequence that no
-    # longer exists. Repairing first means arda marks up what ships.
-    df = repair_anchors(df)
     df = fix_cdr3(df)
-    df = carry_submitted_junction(df)
     df = add_score(df)
     return add_tcr_hash(df)
 
