@@ -189,18 +189,31 @@ jobs:
           curl -fsSL --retry 5 --retry-connrefused --retry-delay 5 -o reference.zip "$URL"
           ls -l reference.zip
 
-      # The five members the assembly stage produces. The motif files, the dashboard fragment,
-      # LICENSE and latest-version.txt come from later steps, so `--only` names what exists at this
-      # point rather than letting the file-set pass fail on a candidate that is partial on purpose.
+      # The comparison runs on the **assembled legacy zip**, not on out/legacy, and on all twelve of
+      # its members rather than five.
+      #
+      # It named five with `--only` until 2026-09-29, because a candidate member the reference has
+      # not got failed the file-set pass outright and the two motif files reported 101,877
+      # unattributed cells. Both are declared now: `[members]` covers the two new TCREMP tables and
+      # `[measured_elsewhere]` names the instrument that gates each member this comparison cannot
+      # judge, with its reason. So the thing compared is the file a consumer downloads, and the seven
+      # members that were never looked at are at least read, digested and counted.
+      #
+      # `candidate` rather than a version: no tag is dispatched on a scheduled build, and the zip is
+      # an input to this step, not an asset. `Release layout` above already ran `bundle.stage`, so
+      # LICENSE and latest-version.txt are in place.
       #
       # Both metadata files are compared here as of 2026-09-27. They are keyed on the column name
       # rather than the line number, so the inserted TCR_hash row reads as one added row instead of
-      # eight changed lines, and rules/expected_diffs.toml declares the rest. Measured on all five:
-      # every declared rule fires at its declared count and the comparison exits 0.
+      # eight changed lines, and rules/expected_diffs.toml declares the rest.
       - name: Compare against the last release
         run: |
-          uv run vdjdb diff reference.zip out/legacy \
-            --only vdjdb.txt,vdjdb.slim.txt,vdjdb_full.txt,vdjdb.meta.txt,vdjdb.slim.meta.txt \
+          uv run python -c "
+          from pathlib import Path
+          from vdjdb.release import manifest
+          print(manifest.write_zip(manifest.LEGACY, Path('out'), Path('out'), 'candidate'))
+          "
+          uv run vdjdb diff reference.zip out/vdjdb-legacy-candidate.zip \
             --report out/reports/release-diff.md \
             --json out/reports/release-diff.json
 

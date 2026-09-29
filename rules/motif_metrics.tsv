@@ -5,6 +5,11 @@ HomoSapiens	TRA	current-tcremp	epitopes	up	0.0	105.0
 HomoSapiens	TRA	current-tcremp	f1_assignment	up	0.005	0.9022	
 HomoSapiens	TRA	current-tcremp	h	up	0.005	0.963794	
 HomoSapiens	TRA	current-tcremp	p	up	0.005	0.095864	
+HomoSapiens	TRA	current-tcremp	partition_ari	record	0.0	0.816099	
+HomoSapiens	TRA	current-tcremp	partition_clonotypes_reference	record	0.0	15016.0	
+HomoSapiens	TRA	current-tcremp	partition_clonotypes_shared	record	0.0	8530.0	
+HomoSapiens	TRA	current-tcremp	partition_neighbours_preserved	baseline	0.005	0.342975	
+HomoSapiens	TRA	current-tcremp	partition_pairs_preserved	record	0.0	0.403873	
 HomoSapiens	TRA	current-tcremp	percolation_excess	down	0.005	0.06225	declared 2026-09-28, ROADMAP_local.md 51.3: our TCREMP percolates more than the 2026-06-03 release on TRA - median 0.4762 against 0.4583 on their own covered sets, and an excess of +0.0622 on the 98 epitopes both cover, which is the comparable figure. It buys retention 0.2071 -> 0.2513 (+2,647 clonotypes), purity 0.8641 -> 0.9109, precision 0.8548 -> 0.8935, Q 0.1668 -> 0.1744 and coverage 103 -> 105. Same direction as section 38.2 measured on the previous corpus, so it is a property of DBSCAN at TRA's shipped radius, not a new defect; the fix would be a tighter coef and 38.1 measured that TRA is bound by Q at 1.75. Worse than this value fails.
 HomoSapiens	TRA	current-tcremp	percolation_median	down	0.005	0.4762	declared 2026-09-28, ROADMAP_local.md 51.3: our TCREMP percolates more than the 2026-06-03 release on TRA - median 0.4762 against 0.4583 on their own covered sets, and an excess of +0.0622 on the 98 epitopes both cover, which is the comparable figure. It buys retention 0.2071 -> 0.2513 (+2,647 clonotypes), purity 0.8641 -> 0.9109, precision 0.8548 -> 0.8935, Q 0.1668 -> 0.1744 and coverage 103 -> 105. Same direction as section 38.2 measured on the previous corpus, so it is a property of DBSCAN at TRA's shipped radius, not a new defect; the fix would be a tighter coef and 38.1 measured that TRA is bound by Q at 1.75. Worse than this value fails.
 HomoSapiens	TRA	current-tcremp	precision	up	0.005	0.8937	
@@ -18,6 +23,11 @@ HomoSapiens	TRA	current-tcrnet	epitopes	up	0.0	103.0
 HomoSapiens	TRA	current-tcrnet	f1_assignment	up	0.005	0.8722	
 HomoSapiens	TRA	current-tcrnet	h	up	0.005	0.960252	
 HomoSapiens	TRA	current-tcrnet	p	up	0.005	0.099176	
+HomoSapiens	TRA	current-tcrnet	partition_ari	record	0.0	0.994505	
+HomoSapiens	TRA	current-tcrnet	partition_clonotypes_reference	record	0.0	15016.0	
+HomoSapiens	TRA	current-tcrnet	partition_clonotypes_shared	record	0.0	12011.0	
+HomoSapiens	TRA	current-tcrnet	partition_neighbours_preserved	baseline	0.005	0.702424	
+HomoSapiens	TRA	current-tcrnet	partition_pairs_preserved	record	0.0	0.719417	
 HomoSapiens	TRA	current-tcrnet	percolation_excess	down	0.005	-0.06115	
 HomoSapiens	TRA	current-tcrnet	percolation_median	down	0.005	0.3958	
 HomoSapiens	TRA	current-tcrnet	precision	up	0.005	0.8687	
@@ -31,6 +41,11 @@ HomoSapiens	TRA	latest	epitopes	up	0.0	103.0
 HomoSapiens	TRA	latest	f1_assignment	up	0.005	0.8595	
 HomoSapiens	TRA	latest	h	up	0.005	0.962659	
 HomoSapiens	TRA	latest	p	up	0.005	0.091315	
+HomoSapiens	TRA	latest	partition_ari	record	0.0	1.0	
+HomoSapiens	TRA	latest	partition_clonotypes_reference	record	0.0	15016.0	
+HomoSapiens	TRA	latest	partition_clonotypes_shared	record	0.0	15016.0	
+HomoSapiens	TRA	latest	partition_neighbours_preserved	baseline	0.005	1.0	
+HomoSapiens	TRA	latest	partition_pairs_preserved	record	0.0	1.0	
 HomoSapiens	TRA	latest	percolation_excess	down	0.005	0.0	
 HomoSapiens	TRA	latest	percolation_median	down	0.005	0.4583	
 HomoSapiens	TRA	latest	precision	up	0.005	0.8548	
@@ -44,6 +59,11 @@ HomoSapiens	TRA	legacy	epitopes	up	0.0	103.0
 HomoSapiens	TRA	legacy	f1_assignment	up	0.005	0.8595	
 HomoSapiens	TRA	legacy	h	up	0.005	0.962659	
 HomoSapiens	TRA	legacy	p	up	0.005	0.091315	
+HomoSapiens	TRA	legacy	partition_ari	record	0.0	1.0	
+HomoSapiens	TRA	legacy	partition_clonotypes_reference	record	0.0	15016.0	
+HomoSapiens	TRA	legacy	partition_clonotypes_shared	record	0.0	15016.0	
+HomoSapiens	TRA	legacy	partition_neighbours_preserved	baseline	0.005	1.0	
+HomoSapiens	TRA	legacy	partition_pairs_preserved	record	0.0	1.0	
 HomoSapiens	TRA	legacy	percolation_excess	down	0.005	0.0	
 HomoSapiens	TRA	legacy	percolation_median	down	0.005	0.4583	
 HomoSapiens	TRA	legacy	precision	up	0.005	0.8548	
@@ -57,6 +77,11 @@ HomoSapiens	TRA	trivial	epitopes	up	0.0	118.0
 HomoSapiens	TRA	trivial	f1_assignment	up	0.005	0.9227	
 HomoSapiens	TRA	trivial	h	up	0.005	0.894997	
 HomoSapiens	TRA	trivial	p	up	0.005	0.713999	
+HomoSapiens	TRA	trivial	partition_ari	record	0.0	0.187241	
+HomoSapiens	TRA	trivial	partition_clonotypes_reference	record	0.0	15016.0	
+HomoSapiens	TRA	trivial	partition_clonotypes_shared	record	0.0	13108.0	
+HomoSapiens	TRA	trivial	partition_neighbours_preserved	baseline	0.005	0.749027	
+HomoSapiens	TRA	trivial	partition_pairs_preserved	record	0.0	0.734521	
 HomoSapiens	TRA	trivial	percolation_excess	down	0.005	-0.2169	
 HomoSapiens	TRA	trivial	percolation_median	down	0.005	0.2532	
 HomoSapiens	TRA	trivial	precision	up	0.005	0.9243	
@@ -70,6 +95,11 @@ HomoSapiens	TRB	current-tcremp	epitopes	up	0.0	104.0
 HomoSapiens	TRB	current-tcremp	f1_assignment	up	0.005	0.9827	
 HomoSapiens	TRB	current-tcremp	h	up	0.005	0.992753	
 HomoSapiens	TRB	current-tcremp	p	up	0.005	0.329119	
+HomoSapiens	TRB	current-tcremp	partition_ari	record	0.0	0.997675	
+HomoSapiens	TRB	current-tcremp	partition_clonotypes_reference	record	0.0	36906.0	
+HomoSapiens	TRB	current-tcremp	partition_clonotypes_shared	record	0.0	32047.0	
+HomoSapiens	TRB	current-tcremp	partition_neighbours_preserved	baseline	0.005	0.7921	
+HomoSapiens	TRB	current-tcremp	partition_pairs_preserved	record	0.0	0.996604	
 HomoSapiens	TRB	current-tcremp	percolation_excess	down	0.005	-0.0809	
 HomoSapiens	TRB	current-tcremp	percolation_median	down	0.005	0.6522	
 HomoSapiens	TRB	current-tcremp	precision	up	0.005	0.9821	
@@ -83,6 +113,11 @@ HomoSapiens	TRB	current-tcrnet	epitopes	up	0.0	109.0
 HomoSapiens	TRB	current-tcrnet	f1_assignment	up	0.005	0.978	
 HomoSapiens	TRB	current-tcrnet	h	up	0.005	0.992031	
 HomoSapiens	TRB	current-tcrnet	p	up	0.005	0.284899	
+HomoSapiens	TRB	current-tcrnet	partition_ari	record	0.0	0.999902	
+HomoSapiens	TRB	current-tcrnet	partition_clonotypes_reference	record	0.0	36906.0	
+HomoSapiens	TRB	current-tcrnet	partition_clonotypes_shared	record	0.0	35095.0	
+HomoSapiens	TRB	current-tcrnet	partition_neighbours_preserved	baseline	0.005	0.922439	
+HomoSapiens	TRB	current-tcrnet	partition_pairs_preserved	record	0.0	0.995236	
 HomoSapiens	TRB	current-tcrnet	percolation_excess	down	0.005	-0.1111	
 HomoSapiens	TRB	current-tcrnet	percolation_median	down	0.005	0.7059	
 HomoSapiens	TRB	current-tcrnet	precision	up	0.005	0.9768	
@@ -96,6 +131,11 @@ HomoSapiens	TRB	latest	epitopes	up	0.0	103.0
 HomoSapiens	TRB	latest	f1_assignment	up	0.005	0.9777	
 HomoSapiens	TRB	latest	h	up	0.005	0.992736	
 HomoSapiens	TRB	latest	p	up	0.005	0.281912	
+HomoSapiens	TRB	latest	partition_ari	record	0.0	1.0	
+HomoSapiens	TRB	latest	partition_clonotypes_reference	record	0.0	36906.0	
+HomoSapiens	TRB	latest	partition_clonotypes_shared	record	0.0	36906.0	
+HomoSapiens	TRB	latest	partition_neighbours_preserved	baseline	0.005	1.0	
+HomoSapiens	TRB	latest	partition_pairs_preserved	record	0.0	1.0	
 HomoSapiens	TRB	latest	percolation_excess	down	0.005	0.0	
 HomoSapiens	TRB	latest	percolation_median	down	0.005	0.7778	
 HomoSapiens	TRB	latest	precision	up	0.005	0.9765	
@@ -109,6 +149,11 @@ HomoSapiens	TRB	legacy	epitopes	up	0.0	103.0
 HomoSapiens	TRB	legacy	f1_assignment	up	0.005	0.9777	
 HomoSapiens	TRB	legacy	h	up	0.005	0.992736	
 HomoSapiens	TRB	legacy	p	up	0.005	0.281912	
+HomoSapiens	TRB	legacy	partition_ari	record	0.0	1.0	
+HomoSapiens	TRB	legacy	partition_clonotypes_reference	record	0.0	36906.0	
+HomoSapiens	TRB	legacy	partition_clonotypes_shared	record	0.0	36906.0	
+HomoSapiens	TRB	legacy	partition_neighbours_preserved	baseline	0.005	1.0	
+HomoSapiens	TRB	legacy	partition_pairs_preserved	record	0.0	1.0	
 HomoSapiens	TRB	legacy	percolation_excess	down	0.005	0.0	
 HomoSapiens	TRB	legacy	percolation_median	down	0.005	0.7778	
 HomoSapiens	TRB	legacy	precision	up	0.005	0.9765	
@@ -122,6 +167,11 @@ HomoSapiens	TRB	trivial	epitopes	up	0.0	178.0
 HomoSapiens	TRB	trivial	f1_assignment	up	0.005	0.9402	
 HomoSapiens	TRB	trivial	h	up	0.005	0.949446	
 HomoSapiens	TRB	trivial	p	up	0.005	0.79158	
+HomoSapiens	TRB	trivial	partition_ari	record	0.0	0.993902	
+HomoSapiens	TRB	trivial	partition_clonotypes_reference	record	0.0	36906.0	
+HomoSapiens	TRB	trivial	partition_clonotypes_shared	record	0.0	35649.0	
+HomoSapiens	TRB	trivial	partition_neighbours_preserved	baseline	0.005	0.939418	
+HomoSapiens	TRB	trivial	partition_pairs_preserved	record	0.0	0.999099	
 HomoSapiens	TRB	trivial	percolation_excess	down	0.005	-0.5051	
 HomoSapiens	TRB	trivial	percolation_median	down	0.005	0.2812	
 HomoSapiens	TRB	trivial	precision	up	0.005	0.9459	

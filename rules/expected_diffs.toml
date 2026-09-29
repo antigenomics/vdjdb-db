@@ -3315,3 +3315,49 @@ rows = 0
 #
 # The 98 are inside the `removed` count declared for `vdjdb.txt` above, not a separate rule: there is
 # no changed cell to attribute when a row simply is not there.
+
+# --- the bundle's member list ------------------------------------------------------------------
+# Members this release ships that the reference does not, and members it drops. A change of shape
+# is declared here or it fails: before this existed, any new member failed the file-set pass
+# outright, so the only way to run the comparison was `--only` naming the reference's own members -
+# which is why CI compared five legacy tables and never the two motif files it also ships.
+#
+# The TCREMP tables are a new method, not a new projection of an old one: `cluster_members.txt` and
+# `motif_pwms.txt` still carry TCRNET's clustering in the positional order `vdjdb-web`'s
+# `Motifs.scala` parses, and `vdjdb-web` already resolves the `_tcremp` pair optionally
+# (ROADMAP section 2). So nothing that reads the 2026-06-03 bundle reads anything different here.
+[members]
+added = ["cluster_members_tcremp.txt", "motif_pwms_tcremp.txt"]
+removed = []
+
+# --- members this comparison is not the instrument for -------------------------------------------
+# A member is listed here with the thing that gates it instead. It is still read, digested,
+# row-counted and printed in the report; what it is exempt from is the requirement that every
+# changed cell match a rule and every row bucket match a declaration.
+#
+# Measured on the legacy zip assembled 2026-09-29 against the 2026-06-03 release: with nothing
+# declared, the comparison reported 101,877 unattributed cells and FAILED - and every one of those
+# cells was in a motif file or in `latest-version.txt`, while the five legacy tables were fully
+# attributed. So the honest reading was already "the tables are clean and the motif files cannot be
+# compared this way", and nothing in the repository said so. The workflow's answer was `--only`
+# naming the five comparable members, which is the same exemption with no reason attached and no
+# record of the other seven.
+[measured_elsewhere]
+# The clustering is a re-implementation, and `cid` is `<species>.<chain>.<epitope>.<n>` where `n` is
+# a position in a sorted list - so one renumbered cluster relabels every cluster after it. Measured:
+# 32,703 of 55,636 reference rows key to nothing in the candidate, and 22,933 of the rest differ in
+# `x`/`y` alone, which are graph-layout coordinates on a different scale (-496.7 against -1.35).
+# What gates them instead: `vdjdb motif-metrics` scores 18 axes per chain against both the released
+# clustering and a committed baseline, including `partition_neighbours_preserved`, which asks of
+# every clonotype the release clustered what fraction of its cluster-mates this build still gives it
+# - 0.9224 on TRB and 0.7024 on TRA as of 2026-09-29. Column count and order, which `vdjdb-web`
+# parses positionally, are gated by tests/release/test_reference_contract.py.
+"cluster_members.txt" = "`vdjdb motif-metrics` (18 axes incl. `partition_neighbours_preserved`) and `tests/release/test_reference_contract.py` (19 columns, fixed order)"
+"motif_pwms.txt" = "`vdjdb motif-metrics` and `tests/release/test_reference_contract.py` (27 columns, fixed order). Its rows are PWM cells of a cluster, so they have no identity that survives a re-clustering"
+# A fresh render on every build, and three layers already gate it: the ordered headings, tables and
+# PNG dimensions decoded from the IHDR; the ColorBrewer anchors; and SSIM against the last release.
+"vdjdb_summary_embed.html" = "`summary/check_summary.py` -- structural, style and perceptual layers, against `summary/fingerprint.json` and the previous release"
+# AGPL-3.0 in the 2026-06-03 release, CC BY-NC-ND 4.0 here. Changed at the repository root in
+# `517c7db` on 2026-09-26, deliberately and by the author; recorded here so the shipped bundle's
+# licence change is a declaration rather than an unexplained digest difference.
+"LICENSE" = "the repository root file, reviewed as a git diff. AGPL-3.0 -> CC BY-NC-ND 4.0 in `517c7db`"
