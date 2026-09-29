@@ -9,6 +9,41 @@
 
 ---
 
+## 0. Which columns the build reads
+
+Stated here so the next unread column is visible as a gap rather than discovered by grep (#634).
+
+| Column | Read by | For |
+|---|---|---|
+| `allele_name` | `assemble/epitopes.py` | every prefix at every field depth, so an MHC call resolves by hash lookup rather than a scan. 46,005 alleles give 53,313 prefixes |
+| `confirmed` | `assemble/epitopes.py` | `Confirmed` / `Unconfirmed`. A call with no Confirmed allele under it reads `unconfirmed` rather than `known` - a refinement, never fatal |
+| `sequence_type` | **nothing** | genomic / cDNA. Would say how much of the allele was actually sequenced |
+| `partial` | **nothing** | whether the deposited sequence is incomplete |
+| `cell_count`, `group_count` | **nothing** | how many cells and submitting groups the allele rests on. A finer-grained form of `confirmed` |
+
+`confirmed` is prefix-wise and **any**: `HLA-A*02` names thousands of alleles and the question is
+whether any of them is confirmed, not whether all are. 13,538 of the 46,005 alleles are `Confirmed`.
+
+**14 calls over 105 records** resolve only to alleles IPD has never confirmed, measured 2026-09-29.
+#634 expected four calls over five records; it matched at two-field depth with the expression suffix
+stripped, and matching the call as written finds the deeper ones too - which are the larger and more
+actionable population:
+
+| call | records | why it is interesting |
+|---|---:|---|
+| `HLA-A*02:01:48` | **80** | a third-field allele resting on `cell_count` 1 from `group_count` 1, where `HLA-A*02:01` has **169** Confirmed alleles under it |
+| `HLA-A*02:01:59` | 5 | as above |
+| `HLA-A*24:02:84` | 3 | as above |
+| `HLA-A*02:01:98`, `HLA-B*35:42:02`, `HLA-B*27:05:31`, `HLA-A*01:01:73`, `HLA-DQA1*01:11`, `HLA-A*24:02:33` | 2 each | |
+| `HLA-A*02:266`, `HLA-B*37:01:10`, `HLA-A*02:256`, `HLA-B*57:06`, `HLA-A*02:01:110` | 1 each | a two-field call on one record is likelier a typo for a common allele than a typing result |
+
+The existence gate cannot make this distinction - every one of them carries a name IPD has - and "does
+anyone other than the submitter believe this allele exists" is the second, more useful question.
+Advisory: an unconfirmed allele is a real name, and 80 records naming one third-field allele is a
+curation decision about what the submitters meant, not a submission error to reject.
+
+---
+
 ## 1. Overview of IPD-IMGT/HLA
 
 The IPD-IMGT/HLA database is the authoritative repository for human HLA sequences and nomenclature, maintained by the Anthony Nolan Research Institute (UCL) and the European Bioinformatics Institute (EMBL-EBI). As of Release 3.64.0 (April 2026), the database contains **46,005 named HLA alleles** across all loci.

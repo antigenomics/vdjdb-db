@@ -91,6 +91,37 @@ def nt_to_aa(i: int, *, one_based: bool = False) -> int:
     return i // CODON if not one_based else (i - 1) // CODON + 1
 
 
+def nt_to_aa_boundary(i: int) -> int:
+    """A V/J boundary in nucleotides -> the same boundary in ``v.end``/``j.start`` space.
+
+    **Ceiling, not floor, and that was fitted rather than reasoned.** ``v.end`` and ``j.start`` are
+    documented as "0-based amino acid, junction space" without stating closedness, and the two
+    readings differ by one whenever a boundary falls inside a codon - which is most of the time,
+    because a V/J boundary is a nucleotide event and nothing aligns it to a codon edge.
+
+    Fitted twice independently, against the external nucleotide truth in
+    ``tests/release/test_cdr3fix_accuracy.py`` and against the recombination model: each of these is
+    the **count of residues the segment touches**, so a partly-covered codon counts, and the
+    conversion is ``(i + 2) // 3``. Under :func:`nt_to_aa`, which floors, the exact-match rates
+    against that truth set drop by tens of percent and no head-to-head count moves.
+
+    Here rather than in either caller, because a coordinate conversion in two places is a
+    coordinate conversion that will disagree in one of them (``CLAUDE.md``, the four spaces table).
+    """
+    return (i + CODON - 1) // CODON
+
+
+def nt_to_aa_boundary_expr(nt: pl.Expr, *, unmapped: int = -1) -> pl.Expr:
+    """:func:`nt_to_aa_boundary` over a column, with nulls and negatives as ``unmapped``.
+
+    The same arithmetic as the scalar above and asserted against it in ``tests/unit/test_coords.py``,
+    because two spellings of one conversion is the thing that module comment warns about. A column is
+    needed because the build converts 187,055 boundaries at once, not one.
+    """
+    return (pl.when(nt.is_null() | (nt < 0)).then(pl.lit(unmapped, pl.Int64))
+            .otherwise(((nt + CODON - 1) // CODON).cast(pl.Int64)))
+
+
 # -- junction space <-> sequence space ---------------------------------------------------------
 
 def to_sequence(pos: int, junction_start: int) -> int:

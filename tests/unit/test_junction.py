@@ -75,6 +75,9 @@ def test_a_chain_missing_a_call_keeps_its_row_and_gets_no_nucleotides(missing):
         "record_id": ["r1", "r2"], "gene": ["TRB", "TRB"],
         "cdr3": ["CASSIRSSYEQYF", "CASSPGQGAYEQYF"],
         "v.segm": ["TRBV10-3*01", "TRBV5-1*01"], "j.segm": ["TRBJ2-7*01", "TRBJ2-7*01"],
+        # The markup engine's boundaries. `build_chains` always produces them, and
+        # `add_junction_nt` masks its own fallback against them (#631).
+        "v.end": [3, 4], "j.start": [6, 7],
     }).with_columns(pl.when(pl.col("record_id") == "r2").then(pl.lit(""))
                     .otherwise(pl.col(missing)).alias(missing))
     records = pl.DataFrame({"record_id": ["r1", "r2"],
@@ -141,3 +144,54 @@ def test_the_batch_call_is_the_per_row_loop_and_is_much_faster_than_it():
         f"batching bought {serial_s / batch_s:.2f}x over {len(cdr3)} keys "
         f"({serial_s:.2f} s -> {batch_s:.2f} s) on {cores} cores at load {load:.1f}, bar 2.0x; "
         f"either the loop is back or the batch call is looping internally")
+
+
+# -- the model boundary is a fallback, never an override (#631) ---------------------------------
+
+def _two_chains(v_end: list[int], j_start: list[int]) -> tuple[pl.DataFrame, pl.DataFrame]:
+    chains = pl.DataFrame({
+        "record_id": ["r1", "r2"], "gene": ["TRB", "TRB"],
+        "cdr3": ["CASSIRSSYEQYF", "CASSLGQAYEQYF"],
+        "v.segm": ["TRBV10-3*01", "TRBV7-9*01"], "j.segm": ["TRBJ2-7*01", "TRBJ2-7*01"],
+        "v.end": v_end, "j.start": j_start,
+    })
+    records = pl.DataFrame({"record_id": ["r1", "r2"],
+                            "species": ["HomoSapiens", "HomoSapiens"]})
+    return chains, records
+
+
+def test_the_model_boundary_is_dropped_where_the_alignment_answered():
+    """The whole safety property of #631: a fallback cannot become an override.
+
+    `v.end` and `j.start` are what `vdjdb-web` reads out of the `cdr3fix` JSON and what the legacy
+    tables carry, so changing one of those cells is a data change belonging to a curation decision.
+    Masking here rather than at the emitter is what makes that impossible instead of merely unlikely.
+    """
+    got = junction.add_junction_nt(*_two_chains([3, 4], [6, 7])).sort("record_id")
+    assert got["v.end.inferred"].to_list() == [junction.UNMAPPED] * 2
+    assert got["j.start.inferred"].to_list() == [junction.UNMAPPED] * 2
+    assert got["v.end"].to_list() == [3, 4], "the alignment's answer is untouched"
+
+
+def test_the_model_boundary_survives_where_the_alignment_declined():
+    got = junction.add_junction_nt(*_two_chains([junction.UNMAPPED, 4],
+                                                [6, junction.UNMAPPED])).sort("record_id")
+    assert got["v.end.inferred"][0] > 0, "arda declined the V boundary; the model has one"
+    assert got["v.end.inferred"][1] == junction.UNMAPPED
+    assert got["j.start.inferred"][0] == junction.UNMAPPED
+    assert got["j.start.inferred"][1] > 0
+    # And the boundaries are inside the junction they describe, in residues.
+    for row in got.iter_rows(named=True):
+        n = len(row["cdr3"])
+        for col in ("v.end.inferred", "j.start.inferred"):
+            assert row[col] == junction.UNMAPPED or 0 <= row[col] <= n, f"{col} {row[col]} of {n}"
+
+
+def test_a_species_with_no_model_gets_an_unmapped_boundary_not_a_null():
+    """-1 is what this coordinate space already reads as "not mapped" (rule 6's spirit)."""
+    got = junction.add_junction_nt(*_two_chains([junction.UNMAPPED] * 2, [junction.UNMAPPED] * 2))
+    chains, records = _two_chains([junction.UNMAPPED] * 2, [junction.UNMAPPED] * 2)
+    records = records.with_columns(pl.lit("MacacaMulatta").alias("species"))
+    got = junction.add_junction_nt(chains, records)
+    assert got["v.end.inferred"].to_list() == [junction.UNMAPPED] * 2
+    assert got["v.end.inferred"].null_count() == 0
