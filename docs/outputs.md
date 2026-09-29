@@ -464,12 +464,23 @@ beside the zips and is listed in `SHA256SUMS`. It is written by `vdjdb release` 
 a curation branch that adds a clonotype and removes it again has retired nothing. A build with no
 previous copy produces exactly the same ids and reports only that the history is unknown.
 
-`records.registry.tsv` maps `record_id` to its state, hashes, provenance and amendment history, so an
-id survives a curator fixing a typo. It is not committed: at 72.7 MB for 192,753 records (19.8 MB
-gzipped) it would add ~20 MB to the repo per curation pull request, against a `chunks/` corpus of
-42 MB. It ships as a release asset, and the build fetches the previous release's copy to reconcile
-against, so it is reviewed in the release diff rather than the pull-request diff (ROADMAP §17,
-phase 14).
+`registry/records.tsv` maps `record_id` to its state, hashes, provenance and amendment history, so an
+id survives a curator fixing a typo. **It is committed** and is an input to the build, not an output of
+it: 73.8 MB for 192,883 rows, and kilobytes per amendment in the pack, because a reconciliation rewrites
+only the lines it touched. It was going to ship as a release asset the build fetched, and #672 changed
+that - without a committed copy the registry went stale between releases and landing one 40-record
+chunk moved `record_id` on 168,723 of 192,753 records (#638). It is written **only** by
+`vdjdb identity update`, which a chunk branch runs and commits alongside the chunk; `vdjdb build` reads
+it.
+
+Fifteen columns. Thirteen are the state, the two hashes, the chunk provenance, the release and commit
+at first and last sighting, and the amendment count with the key hash it came from. The other two are
+the lifecycle a consumer follows:
+
+| Column | What it answers |
+|---|---|
+| `amended_from_key_hash` | backwards, and only for an amendment: which key this record used to have |
+| `replaced_by` | forwards, and only for a retirement the amendment pass refused: which id took over. Two key fields moving is a new record by the rule the registry is built on, so the retirement is right and the pointer is what makes it diagnosable rather than a disappearance (#693, ROADMAP §10.4). Written when one id retires from a line of a chunk, exactly one is allocated against that same line, and the two natural keys name the same receptor; empty otherwise, including on every retirement that is a genuine deletion |
 
 ## 6a. Committed, not produced
 

@@ -786,14 +786,32 @@ tag. That used to be the normal path and the cost was measured: landing one 40-r
 `tests/release/test_registry_is_current.py` fails the run on any amendment, retirement or allocation the
 committed file does not already hold. Invariant 3 below is the assertion that would have caught the 87.5 %.
 
-⚠ **`replaced_by` is specified in the table above and is not in the file.** The registry's columns end at
-`amended_from_key_hash` and `note`, and `amended_from_key_hash` points backwards and only for amendments.
-So when the amendment pass correctly refuses - two key fields moved at once, which is
-`test_two_field_change_is_a_new_record_not_an_amendment` - the record retires and a new id is allocated
-with nothing linking them, which is the failure this section opens by naming. It fired for the first time
-on #633's `RGPGRAFVTI` patch, where one assertion about a peptide's source moves `antigen.species` and
-`antigen.gene` together: `VDJDB0000021117` retired and `VDJDB0000192799` took the same line of the same
-chunk. Tracked in #693, with the fix being the column plus an assertion, not a looser amendment rule.
+**`replaced_by` landed 2026-09-29 (#693), and the amendment rule is unchanged.** It was specified in the
+table above and absent from the file: the columns ended at `amended_from_key_hash` and `note`, and
+`amended_from_key_hash` points backwards and only for amendments. So when the amendment pass correctly
+refused - two key fields moved at once, which is `test_two_field_change_is_a_new_record_not_an_amendment`
+- the record retired and a new id was allocated with nothing linking them, which is the failure this
+section opens by naming.
+
+The link is the same identity argument the `chunk.row` tie-break already makes, *the same line of the
+same file*, with two guards that make it a fact rather than a guess:
+
+* **one in, one out.** A line that retired two ids, or had two allocated against it, links neither.
+* **the receptor is unchanged.** The two natural keys must agree on all six of `cdr3.alpha`, `v.alpha`,
+  `j.alpha`, `cdr3.beta`, `v.beta`, `j.beta`. A new record at the line an old one left is a coincidence;
+  the same TCR at that line with only its annotation moved is not.
+
+Both directions are tested, and the refusals matter as much as the links: a different TCR at that line
+writes nothing, and so does a second retirement from it.
+
+`_backfill_successors` runs on every reconciliation and fills retirements that predate the column from
+the same evidence, so the field is not empty for everything that already happened. It is idempotent and
+it links nothing it cannot prove. **50 of the 242 retired ids now carry a pointer**: the one that
+prompted the issue - #633's `RGPGRAFVTI`, where one assertion about a peptide's source moves
+`antigen.species` and `antigen.gene` together, `VDJDB0000021117` -> `VDJDB0000192799` - and the 49 from
+the B16 `Plod1 -> Plod2` repair, which moves `antigen.gene` and `meta.subject.cohort` in one commit. The
+other 192 stay empty and should: 157 of them are the B16 rows that collapsed, which are deletions and
+not amendments, and a pointer there would be a lie.
 
 ### 10.5 The consistency machinery
 
