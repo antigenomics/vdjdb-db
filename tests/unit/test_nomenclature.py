@@ -420,3 +420,32 @@ def test_an_unscoped_rename_still_rewrites_every_organism():
     out, _ = _apply_renames("vdjdb_full.txt", ref,
                             [Rename(columns=("mhc.a",), from_="I-Ab", to="H2-IAb")])
     assert out["mhc.a"].to_list() == ["H2-IAb"] * 2
+
+
+def test_the_four_harmonisation_reports_union_into_one_frame(tmp_path):
+    """#700. The passes rewrite values and their reports were discarded by `build_master`.
+
+    Each returns a different set of extra columns, so the union has to widen rather than concat: a
+    `pl.concat` over the four raises on the schemas alone. What it must not do is lose a rewrite or
+    invent a column, which is what the two assertions on the counts check.
+    """
+    from vdjdb.assemble.master import HARMONISATION_REPORT, _write_harmonisation
+
+    segments = pl.DataFrame({"column": ["v.beta"], "species": ["HomoSapiens"],
+                             "from": ["TCRBV9"], "to": ["TRBV9"], "rows": pl.Series([3], dtype=pl.UInt32)})
+    alleles = pl.DataFrame({"issue": ["#327"], "column": ["j.alpha"], "species": ["HomoSapiens"],
+                            "from": ["TRAJ24"], "to": ["TRAJ24*02"], "signature": ["WGKLQF"],
+                            "rows": pl.Series([974], dtype=pl.UInt32)})
+    mhc = pl.DataFrame({"issue": ["mhc-chain-order"], "column": ["mhc.a,mhc.b"],
+                        "from": ["beta,alpha"], "to": ["alpha,beta"], "rows": [149]})
+    references = pl.DataFrame({"from": ["doi:10/x"], "to": ["PMID:1"], "rows": [17]})
+
+    path = tmp_path / "reports" / "harmonisation.tsv"
+    report = _write_harmonisation(path, segments, alleles, mhc, references)
+
+    assert report.columns == list(HARMONISATION_REPORT)
+    assert report.height == 4, "one row per rewrite, and `signature` must not become a fifth"
+    assert report["rows"].sum() == 3 + 974 + 149 + 17
+    # The pass that reports no species writes an empty cell, not a quoted one: hard rule 6.
+    assert "\"\"" not in path.read_text()
+    assert report.filter(pl.col("stage") == "references")["issue"].item() == "#347"

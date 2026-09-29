@@ -123,7 +123,7 @@ def build(
     timing_reset()
     paths = chunk_files(chunks) if chunks else None
     with stage("assemble.master.build_master"):
-        master = build_master(paths)
+        master = build_master(paths, write_report=out / "reports" / "harmonisation.tsv")
     built = build_tables(master, release=release)
     out.mkdir(parents=True, exist_ok=True)
 
@@ -177,6 +177,16 @@ def build(
     # Advisory, and for two different reasons the report separates: a family name is
     # under-specified and only a curator can pick a member, and a name with no IMGT candidate at all
     # is a spelling defect or a gene that species does not have.
+    # What the four harmonisation passes rewrote, written by `build_master` itself because that is
+    # where the reports are produced (#700). The complement of `nomenclature.tsv` below: this names
+    # the values the build changed, that one the calls it could not resolve.
+    harmonised = pl.read_csv(out / "reports" / "harmonisation.tsv", separator="\t",
+                             infer_schema=False)
+    if not harmonised.is_empty():
+        typer.echo(f"values harmonised: {harmonised['rows'].cast(pl.Int64).sum():,} record(s) over "
+                   f"{harmonised.height} rewrite(s) in {harmonised['stage'].n_unique()} pass(es) "
+                   f"-> {out / 'reports' / 'harmonisation.tsv'}")
+
     calls = unresolved_calls(master)
     calls.write_csv(out / "reports" / "nomenclature.tsv", separator="\t")
     if not calls.is_empty():
