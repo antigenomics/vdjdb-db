@@ -153,3 +153,40 @@ def test_a_corpus_with_no_look_alikes_gives_an_empty_frame_with_the_schema() -> 
     got = lookalikes(rows(NEW, OLD))
     assert got.is_empty()
     assert got.columns == ["column", "folded", "spelling", "records", "spellings", "same.species"]
+
+
+def test_a_peptide_under_two_species_is_reported_with_its_source_count() -> None:
+    """#633. `epitopes` is keyed on `(epitope, species)`, so this is two rows there by design."""
+    from vdjdb.curate.submission import epitope_sources
+
+    frame = rows(("a.txt", 0, "CA", "CB", "VEALYLVCG", "HomoSapiens", "INS", *NEW[7:]),
+                 ("b.txt", 0, "CC", "CD", "VEALYLVCG", "MusMusculus", "Ins2", *NEW[7:]))
+    got = epitope_sources(frame)
+    assert got.height == 2
+    assert got["sources"].to_list() == [2, 2]
+    assert got["genes"].to_list() == [1, 1]
+    assert got["conserved"].all(), "VEALYLVCG is in human INS and mouse Ins2"
+
+
+def test_two_gene_labels_for_one_peptide_and_species_are_reported_too() -> None:
+    """`build_epitopes` keeps the modal label and said a function listed the rest. It did not exist,
+    so the discarded labels were reported nowhere -- including 187 on one peptide."""
+    from vdjdb.curate.submission import epitope_sources
+
+    frame = rows(("a.txt", 0, "CA", "CB", "ESDPIVAQY", "HomoSapiens", "TTN", *NEW[7:]),
+                 ("b.txt", 0, "CC", "CD", "ESDPIVAQY", "HomoSapiens", "TTN", *NEW[7:]),
+                 ("c.txt", 0, "CE", "CF", "ESDPIVAQY", "HomoSapiens", "TITIN", *NEW[7:]))
+    got = epitope_sources(frame)
+    assert got.height == 1                       # one (epitope, species)
+    assert got["sources"][0] == 1 and got["genes"][0] == 2
+    assert got["antigen.gene"][0] == "TTN", "the modal label, matching what the catalogue keeps"
+    assert not got["conserved"][0]
+
+
+def test_a_single_sourced_peptide_is_not_reported() -> None:
+    from vdjdb.curate.submission import epitope_sources
+
+    got = epitope_sources(rows(NEW, OLD))
+    assert got.is_empty()
+    assert got.columns == ["antigen.epitope", "antigen.species", "antigen.gene",
+                           "sources", "genes", "records", "conserved"]

@@ -109,7 +109,7 @@ def build(
     from .curate.functionality import report as functionality_report
     from .curate.functionality import summarise as functionality_summary
     from .curate.nomenclature import unresolved as unresolved_calls
-    from .curate.submission import lookalikes
+    from .curate.submission import epitope_sources, lookalikes
     from .emit.airr import from_tables as airr_frames
     from .emit.airr import write_all as write_airr
     from .emit.legacy import write_all as write_legacy
@@ -143,6 +143,19 @@ def build(
         typer.echo(f"look-alike values: {look['folded'].n_unique()} group(s) over "
                    f"{look['column'].n_unique()} column(s), {within} within one species "
                    f"-> {out / 'reports' / 'lookalikes.tsv'}")
+
+    # Advisory too, and for the same reason: `epitopes` is keyed on (epitope, species, gene), so a
+    # peptide with two sources is two rows by design. A conserved peptide, a vocabulary gap and a
+    # mis-curation all look like this, and only the third is a defect (#633).
+    sources = epitope_sources(master)
+    sources.write_csv(out / "reports" / "epitope-sources.tsv", separator="\t")
+    if not sources.is_empty():
+        two_species = sources.filter(pl.col("sources") > 1)["antigen.epitope"].n_unique()
+        two_genes = sources.filter(pl.col("genes") > 1).height
+        conserved = sources.filter(pl.col("conserved"))["antigen.epitope"].n_unique()
+        typer.echo(f"epitopes with an ambiguous source: {two_species} under more than one species "
+                   f"({conserved} a known conserved peptide), {two_genes} with more than one gene "
+                   f"label -> {out / 'reports' / 'epitope-sources.tsv'}")
 
     # Also advisory. A junction whose first or last residue is not the anchor the segment it names
     # encodes is a submission in the wrong coordinate space, or a mis-read anchor, and no QC rule

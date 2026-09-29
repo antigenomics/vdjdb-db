@@ -115,6 +115,73 @@ def lookalikes(records: pl.DataFrame) -> pl.DataFrame:
     }).sort("same.species", "records", descending=[True, True])
 
 
+#: Peptides that really do occur in two organisms' proteomes, so two `(species, gene)` rows for them
+#: are two independent reports rather than a defect. Named here, not re-diagnosed each run: the report
+#: marks them `conserved` so a *new* collision is the only thing a reader has to look at.
+#:
+#: Checked one by one against the sequences, 2026-09-29 (#633). `VEALYLVCG` is in human `INS` and mouse
+#: `Ins2`; `RPIIRPATL` in influenza A and B `NP`; `LRVMMLAPF` in *E. coli* and *S.* Typhi `yeiH`;
+#: `LPRWYFYYL` in HCoV-HKU1 and HCoV-OC43; `KLPDDFMGC` and `TDDNALAYY` in SARS-CoV and SARS-CoV-2.
+#: The set may shrink and must not grow without a sequence behind the entry.
+CONSERVED_EPITOPES: frozenset[str] = frozenset({
+    "VEALYLVCG", "RPIIRPATL", "LRVMMLAPF", "LPRWYFYYL", "KLPDDFMGC", "TDDNALAYY",
+})
+
+
+def epitope_sources(records: pl.DataFrame) -> pl.DataFrame:
+    """Peptides whose source is not single-valued. Advisory, never a gate.
+
+    Two questions, one report, because both are "which protein is this peptide from" and a reader
+    wants them side by side:
+
+    * **more than one species for one peptide.** ``epitopes`` is keyed on
+      ``(antigen.epitope, antigen.species)``, so this is two rows there by design and a uniqueness
+      constraint would be the wrong instrument. ``sources`` counts them.
+    * **more than one gene label for one ``(peptide, species)``.** ``build_epitopes`` takes the modal
+      label and its comment said ``epitopes.conflicts`` listed the rest -- a function that was never
+      written, so until now the discarded labels were reported nowhere. ``genes`` counts them and
+      ``antigen.gene`` is the modal one the catalogue kept.
+
+    Three different things produce a row and only the third is a defect:
+
+    * **a conserved peptide** - the same sequence in two organisms' proteomes, so two studies are two
+      independent reports. :data:`CONSERVED_EPITOPES` names the ones checked against a sequence, and
+      ``conserved`` carries it, so a reader sorts on it being false and reads what is left.
+    * **a vocabulary gap** - one organism or one gene written two ways (``AdV`` beside ``HAdV5``,
+      ``HEXON`` beside ``Hexon``), or ``Synthetic`` in ``antigen.species``, which is a provenance and
+      not a species. These want an alias table and which way each folds is a curator's call
+      (#632, #637). :func:`lookalikes` finds the case-and-separator subset of them.
+    * **a mis-curation** - a peptide attributed to the wrong proteome, or a gene field holding
+      something that is not a gene. ``RGPGRAFVTI`` was ``HomoSapiens`` / ``P18-I10`` on one row,
+      against ``HIV-1`` / ``GP160`` on 85, where ``P18-I10`` is the laboratory name of the HIV-1
+      V3-loop peptide itself; ``patches/`` answers that one now. The largest remaining is
+      ``FVVKAYLPVNESFAFTADLRSNTGGQA`` with **187 gene labels**, ``Eef2`` to ``Eef188``, one per
+      record - an index written into ``antigen.gene``, the same shape as the clonotype counter #625
+      found in ``mhc.a``.
+    """
+    cols = ("antigen.epitope", "antigen.species", "antigen.gene")
+    schema = {"antigen.epitope": pl.Utf8, "antigen.species": pl.Utf8, "antigen.gene": pl.Utf8,
+              "sources": pl.UInt32, "genes": pl.UInt32, "records": pl.UInt32,
+              "conserved": pl.Boolean}
+    if any(c not in records.columns for c in cols):
+        return pl.DataFrame(schema=schema)
+    per_species = (
+        records.group_by("antigen.epitope", "antigen.species")
+        # The modal label, matching what `build_epitopes` keeps, with ties broken by sort order so
+        # the two agree run to run (hard rule 7).
+        .agg(pl.col("antigen.gene").mode().sort().first().alias("antigen.gene"),
+             pl.col("antigen.gene").n_unique().cast(pl.UInt32).alias("genes"),
+             pl.len().cast(pl.UInt32).alias("records"))
+        .with_columns(pl.len().over("antigen.epitope").cast(pl.UInt32).alias("sources"))
+    )
+    return (per_species.filter((pl.col("sources") > 1) | (pl.col("genes") > 1))
+            .with_columns(pl.col("antigen.epitope")
+                          .is_in(list(CONSERVED_EPITOPES)).alias("conserved"))
+            .select(*schema)
+            .sort("conserved", "records", "antigen.epitope",
+                  descending=[False, True, False]))
+
+
 def report(files: list[str], records: pl.DataFrame) -> str:
     """Markdown: per chunk, the records and scores it contributes and the values it introduces."""
     from .anchors import noncanonical
