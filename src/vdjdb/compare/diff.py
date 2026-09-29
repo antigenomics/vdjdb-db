@@ -735,7 +735,11 @@ def summary_from_json(text: str) -> DiffReport:
         unattributed=[CellDiff(**c) for c in d["unattributed"]],
         rule_counts=d["rule_counts"], rule_expected=d["rule_expected"],
         row_deltas={k: RowDelta(**v) for k, v in d["row_deltas"].items()},
-        rename_declared=d["rename_declared"], cells_omitted=True)
+        rename_declared=d["rename_declared"],
+        # Without this the round trip drops the exemptions and `ok` reads False on a report that
+        # passed: the release tests read the build's JSON rather than recomputing the comparison, so
+        # a field missing here is a field the gate does not have.
+        elsewhere=d.get("elsewhere", {}), cells_omitted=True)
 
 
 def diff(reference: Path, candidate: Path, rules_path: Path | None = None,
