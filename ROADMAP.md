@@ -198,8 +198,8 @@ Since, and closing on the promotion - #658, #672, #675, #647, #671, #648:
 | #658 | `res/` retired; arda's IMGT reference replaces a 2023 import's by-product | J proposal +347 calls |
 | #672 | `registry/records.tsv` committed, refreshed and gated | 592 amendments were stale |
 | #675 | ten input files given a final newline, two rows padded to 33 fields | 12 files |
-| #646 | junctions repaired against their own germline anchor, four commits | **4,838** chains |
-| #647 | the mouse TRAJ47 allele read off the junction | `anchors.tsv` 5,959 -> **1,037** |
+| #646 | junctions repaired against their own germline anchor, four commits | **4,838** chains, `anchors.tsv` 5,959 -> 1,132 |
+| #647 | the mouse TRAJ47 allele read off the junction | 95 chains, `J allele mismatch` 95 -> **0** |
 | #671 | a `[[rename]]` scoped to its organism | 79 mouse rows un-mis-keyed |
 | #648 | the spectratype grouped on 500 buckets, not 164,131 CDR3s | dashboard 152 s -> **22.8 s** |
 
