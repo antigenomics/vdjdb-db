@@ -366,3 +366,22 @@ def test_a_slash_inside_an_imgt_gene_name_is_left_alone(call):
 def test_an_ambiguous_slash_is_a_curation_decision_and_is_refused():
     """`TRBV11/2` could be `TRBV11-2` or two genes. Guessing which is not a spelling fix."""
     assert N.normalise_call("TRBV11/2", "HomoSapiens") is None
+
+
+def test_the_mouse_traj47_rule_reads_the_anchor_residue_itself():
+    """#647. *01 templates `HYANKMIC` and is ORF; *02 templates `DYANKMIF`. All 95 mouse chains
+    read the Phe, so all 95 are *02 -- 81 written with no allele and 14 naming *01."""
+    out, report = N.disambiguate_alleles(_traj24(["TRAJ47", "TRAJ47*01"], ["CAANKMIF"] * 2,
+                                                 ["MusMusculus"] * 2))
+    assert out["j.alpha"].to_list() == ["TRAJ47*02"] * 2
+    assert report["rows"].sum() == 2
+
+
+def test_human_traj47_is_out_of_reach_of_the_mouse_rule():
+    """Both human alleles template `EYGNKLVF`, so the sequence cannot decide and must not try. The
+    three human `TRAJ47-1` spellings are a name IMGT has not got (#389) and the species scope is
+    what keeps them from being rewritten into a real gene here."""
+    calls = ["TRAJ47", "TRAJ47*01", "TRAJ47-1*01"]
+    out, report = N.disambiguate_alleles(_traj24(calls, ["CAANKMIF"] * 3))
+    assert out["j.alpha"].to_list() == calls
+    assert report.is_empty()
