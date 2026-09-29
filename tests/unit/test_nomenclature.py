@@ -385,3 +385,38 @@ def test_human_traj47_is_out_of_reach_of_the_mouse_rule():
     out, report = N.disambiguate_alleles(_traj24(calls, ["CAANKMIF"] * 3))
     assert out["j.alpha"].to_list() == calls
     assert report.is_empty()
+
+
+def test_a_rename_declares_the_species_it_is_for_and_rewrites_only_that_one(tmp_path):
+    """#671. `TRAV14-1*01` is one human record's respelling of `TRAV14/DV4` and 79 mouse records'
+    correct IMGT name. A rename keyed on the value alone declares one rewrite for both and keys
+    the mouse rows against a gene that is not theirs. Generate, load and apply, in one pass."""
+    import polars as pl
+
+    from vdjdb.compare.diff import _apply_renames, load_renames
+
+    report = pl.DataFrame({"column": ["v.alpha"], "species": ["HomoSapiens"],
+                           "from": ["TRAV14-1*01"], "to": ["TRAV14/DV4*01"],
+                           "rows": pl.Series([1], dtype=pl.UInt32)})
+    path = tmp_path / "rules.toml"
+    N.write_renames(report, path, lambda sp, c: c)
+    assert 'species = "HomoSapiens"' in path.read_text()
+
+    ref = pl.DataFrame({"species": ["HomoSapiens", "MusMusculus", "MusMusculus"],
+                        "v.alpha": ["TRAV14-1*01"] * 3})
+    out, counts = _apply_renames("vdjdb_full.txt", ref, load_renames(path))
+    assert out["v.alpha"].to_list() == ["TRAV14/DV4*01", "TRAV14-1*01", "TRAV14-1*01"]
+    assert counts["TRAV14-1*01 -> TRAV14/DV4*01"] == 1
+
+
+def test_an_unscoped_rename_still_rewrites_every_organism():
+    """The scope is opt-in: the 352 renames that carry no species keep rewriting every row, which is
+    what the committed block was measured against."""
+    import polars as pl
+
+    from vdjdb.compare.diff import Rename, _apply_renames
+
+    ref = pl.DataFrame({"species": ["HomoSapiens", "MusMusculus"], "mhc.a": ["I-Ab"] * 2})
+    out, _ = _apply_renames("vdjdb_full.txt", ref,
+                            [Rename(columns=("mhc.a",), from_="I-Ab", to="H2-IAb")])
+    assert out["mhc.a"].to_list() == ["H2-IAb"] * 2
