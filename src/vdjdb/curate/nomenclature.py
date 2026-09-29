@@ -333,8 +333,11 @@ def render_renames(report: pl.DataFrame,
     declaring the intermediate value rewrites the reference and matches no row. Pairs that resolve
     to the same name on both sides are dropped: nothing about them reaches the file.
     """
-    pairs: dict[tuple[str, str], set[str]] = {}
-    rows: dict[tuple[str, str], int] = {}
+    # Keyed on the species too, because a rename is a statement about one organism's nomenclature:
+    # `TRAV14-1*01` is one human record's respelling and 79 mouse records' correct IMGT name, and a
+    # key that drops the species declares one rewrite for both (#671).
+    pairs: dict[tuple[str, str, str], set[str]] = {}
+    rows: dict[tuple[str, str, str], int] = {}
     for column, species, old, new, n in report.iter_rows():
         if resolve is not None:
             resolved_old, resolved_new = resolve(species, old), resolve(species, new)
@@ -352,7 +355,7 @@ def render_renames(report: pl.DataFrame,
             if resolved_old != old or resolved_new == old:
                 continue
             old, new = old, resolved_new
-        key = (old, new)
+        key = (species, old, new)
         pairs.setdefault(key, set()).update(LEGACY_COLUMNS.get(column, (column,)))
         rows[key] = rows.get(key, 0) + int(n)
     import json
@@ -361,13 +364,14 @@ def render_renames(report: pl.DataFrame,
     # belongs to that table, so an inline array appended to the end of the file becomes a field of
     # the last section with no error. This form is position-independent.
     out = [_BEGIN]
-    for (old, new) in sorted(pairs):
-        cols = ",".join(sorted(pairs[(old, new)]))
+    for key in sorted(pairs):
+        species, old, new = key
         out += ["[[rename]]",
-                f"columns = {json.dumps(cols)}",
+                f"columns = {json.dumps(','.join(sorted(pairs[key])))}",
                 f"from = {json.dumps(old)}",
                 f"to = {json.dumps(new)}",
-                f"records = {rows[(old, new)]}",
+                f"species = {json.dumps(species)}",
+                f"records = {rows[key]}",
                 ""]
     out.append(_END)
     return "\n".join(out) + "\n"
@@ -441,7 +445,7 @@ def render_allele_renames(report: pl.DataFrame,
     resolves a bare ``TRAJ24`` to ``*01``. The rename therefore states the same predicate the rule
     used, and ``vdjdb diff`` applies it to the reference under the same evidence.
     """
-    seen: dict[tuple[str, str, str, str], int] = {}
+    seen: dict[tuple[str, str, str, str, str], int] = {}
     cdr3_for = {"j.alpha": "cdr3,cdr3.alpha", "j.beta": "cdr3,cdr3.beta",
                 "v.alpha": "cdr3,cdr3.alpha", "v.beta": "cdr3,cdr3.beta"}
     out = []
@@ -450,14 +454,15 @@ def render_allele_renames(report: pl.DataFrame,
             old, new = resolve(species, old), resolve(species, new)
         if old == new:
             continue
-        key = (column, old, new, signature)
+        key = (column, species, old, new, signature)
         seen[key] = seen.get(key, 0) + int(n)
-    for (column, old, new, signature), n in sorted(seen.items()):
+    for (column, species, old, new, signature), n in sorted(seen.items()):
         cols = ",".join(sorted(set(LEGACY_COLUMNS.get(column, (column,)))))
         out += ["[[rename]]",
                 f"columns = {json.dumps(cols)}",
                 f"from = {json.dumps(old)}",
                 f"to = {json.dumps(new)}",
+                f"species = {json.dumps(species)}",
                 f"when_columns = {json.dumps(cdr3_for.get(column, 'cdr3'))}",
                 f"when_contains = {json.dumps(signature)}",
                 f"records = {n}",
