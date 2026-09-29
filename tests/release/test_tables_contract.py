@@ -168,3 +168,59 @@ def test_every_inferred_cdr3nt_back_translates_to_its_own_junction(tables):
     assert wrong.height == 0, (
         f"{wrong.height} inferred sequences do not encode their own junction:\n"
         f"{wrong.head(5)}")
+
+
+# ---------------------------------------------------------------------------------------------
+# The model V/J boundary is a fallback, never an override (#631)
+# ---------------------------------------------------------------------------------------------
+
+#: Chains the fallback fills, measured 2026-09-29. The markup engine declines `v.end` on 5,896 and
+#: `j.start` on 1,166; the recombination scenario answers on these. #631 stated 4,060 and 347 - the
+#: `j.start` figure is 349 now, which is the two chunks that landed since it was written.
+FALLBACK_FILLED = {"v.end.inferred": 4_060, "j.start.inferred": 349}
+
+#: How far below the recorded count a run may sit before it reads as a regression rather than a
+#: corpus change. Loose on purpose: a curator naming a V that arda can then align is a *gain*, and it
+#: takes a row out of this population.
+FALLBACK_SLACK = 200
+
+
+@pytest.mark.parametrize(("shipped", "fallback"),
+                         [("v.end", "v.end.inferred"), ("j.start", "j.start.inferred")])
+def test_the_model_boundary_never_lands_where_the_alignment_answered(tables, shipped, fallback):
+    """The safety property, on the corpus. `v.end` and `j.start` are what `vdjdb-web` reads out of
+    the `cdr3fix` JSON and what the legacy tables carry, so a model boundary reaching one of those
+    cells is a data change belonging to a curation decision, not to a build improvement.
+
+    Separate columns rather than a filled one is what makes this hold by construction: the fallback
+    reads -1 wherever the alignment answered, so a consumer coalescing the two cannot overwrite an
+    alignment answer even by accident.
+    """
+    chains = tables["chains"]
+    over = chains.filter((pl.col(shipped) >= 0) & (pl.col(fallback) >= 0))
+    assert over.height == 0, (
+        f"{over.height} chains carry a model {fallback} where the alignment already answered "
+        f"{shipped}:\n{over.select('record_id', 'gene', shipped, fallback).head(5)}")
+
+
+@pytest.mark.parametrize("fallback", sorted(FALLBACK_FILLED))
+def test_the_fallback_still_fills_the_cells_it_was_measured_on(tables, fallback):
+    """A fallback that quietly stopped filling anything is indistinguishable from one that works."""
+    got = tables["chains"].filter(pl.col(fallback) >= 0).height
+    want = FALLBACK_FILLED[fallback]
+    assert got >= want - FALLBACK_SLACK, (
+        f"{fallback} fills {got:,} chains against {want:,} recorded; the fallback has stopped "
+        f"reaching cells it used to")
+
+
+def test_a_filled_boundary_is_inside_the_junction_it_describes(tables):
+    """A residue index outside its own junction is a coordinate-space error, which is the failure
+    mode a conversion between four spaces has (`CLAUDE.md`). -1 is the declared missing marker.
+    """
+    chains = tables["chains"].with_columns(pl.col("cdr3").str.len_chars().alias("n"))
+    for col in FALLBACK_FILLED:
+        bad = chains.filter((pl.col(col) >= 0)
+                            & ((pl.col(col) > pl.col("n")) | (pl.col("n") == 0)))
+        assert bad.height == 0, \
+            f"{bad.height} chains put {col} outside their junction:\n{bad.head(5)}"
+        assert chains[col].null_count() == 0, f"{col} must use -1, never null (rule 6)"

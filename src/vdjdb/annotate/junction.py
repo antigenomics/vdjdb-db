@@ -43,7 +43,8 @@ MODELS: dict[str, tuple[str, str]] = {
 #: at the sequence beside them. ``arda.dpost`` supplies how much to believe the call
 #: (:mod:`vdjdb.annotate.dgene`), not where it sits.
 NT_COLUMNS: tuple[str, ...] = ("cdr3nt", "cdr3nt.pgen", "cdr3nt.margin",
-                               "d.inferred", "d.start", "d.end")
+                               "d.inferred", "d.start", "d.end",
+                               "v.end.inferred", "j.start.inferred")
 
 #: ``infer_nt_batch`` takes what it calls ``cdr3_aas``, but it means junctions -- Cys104..Phe/Trp118
 #: inclusive, which is what VDJdb's ``cdr3`` column holds. Passing true CDR3s would infer junctions
@@ -76,6 +77,11 @@ def _resolver(model: object, table: str, column: str) -> dict[str, str | None]:
     return {"": None, **{g: a for g, a in sole.items() if g not in alleles}, **alleles}
 
 
+#: What an unmapped V/J boundary reads as. Already the value ``v.end``/``j.start`` carry where the
+#: markup engine declines, so the fallback columns use it too rather than inventing a second marker.
+UNMAPPED = -1
+
+
 def blank_columns(keys: pl.DataFrame) -> pl.DataFrame:
     """``keys`` plus :data:`NT_COLUMNS`, all empty. The answer for a species with no model."""
     return keys.with_columns(pl.lit("").alias("cdr3nt"),
@@ -83,7 +89,9 @@ def blank_columns(keys: pl.DataFrame) -> pl.DataFrame:
                              pl.lit(None, pl.Float64).alias("cdr3nt.margin"),
                              pl.lit("").alias("d.inferred"),
                              pl.lit(None, pl.Int64).alias("d.start"),
-                             pl.lit(None, pl.Int64).alias("d.end"))
+                             pl.lit(None, pl.Int64).alias("d.end"),
+                             pl.lit(UNMAPPED, pl.Int64).alias("v.end.inferred"),
+                             pl.lit(UNMAPPED, pl.Int64).alias("j.start.inferred"))
 
 
 def infer(keys: pl.DataFrame, species: str, gene: str) -> pl.DataFrame:
@@ -97,6 +105,8 @@ def infer(keys: pl.DataFrame, species: str, gene: str) -> pl.DataFrame:
     change the answer -- there is no worker count (CLAUDE.md rule 7).
     """
     from vdjtools.model import infer_nt_batch, load_bundled
+
+    from ..convert.coords import nt_to_aa_boundary_expr
 
     if species not in MODELS or keys.is_empty():
         return blank_columns(keys)
@@ -120,7 +130,13 @@ def infer(keys: pl.DataFrame, species: str, gene: str) -> pl.DataFrame:
         # (CLAUDE.md). TRA has no D, so these stay empty there by construction.
         got["d_call"].fill_null("").alias("d.inferred"),
         got["d_start"].cast(pl.Int64).alias("d.start"),
-        got["d_end"].cast(pl.Int64).alias("d.end"))
+        got["d_end"].cast(pl.Int64).alias("d.end"),
+        # The same scenario's V/J boundary, converted out of vdjtools' nucleotide space into the
+        # `v.end`/`j.start` residue space by the fitted ceiling (`convert.coords`). Masked to
+        # UNMAPPED wherever the model explained nothing, so a null pgen and an unmapped boundary
+        # always agree. `add_junction_nt` masks it again against the alignment's answer.
+        nt_to_aa_boundary_expr(got["v_end"], unmapped=UNMAPPED).alias("v.end.inferred"),
+        nt_to_aa_boundary_expr(got["j_start"], unmapped=UNMAPPED).alias("j.start.inferred"))
 
 
 def add_junction_nt(chains: pl.DataFrame, records: pl.DataFrame) -> pl.DataFrame:
@@ -144,8 +160,21 @@ def add_junction_nt(chains: pl.DataFrame, records: pl.DataFrame) -> pl.DataFrame
                                    pl.lit(None, pl.Float64).alias("cdr3nt.margin"),
                                    pl.lit("").alias("d.inferred"),
                                    pl.lit(None, pl.Int64).alias("d.start"),
-                                   pl.lit(None, pl.Int64).alias("d.end")))
+                                   pl.lit(None, pl.Int64).alias("d.end"),
+                                   pl.lit(UNMAPPED, pl.Int64).alias("v.end.inferred"),
+                                   pl.lit(UNMAPPED, pl.Int64).alias("j.start.inferred")))
     return (keyed.join(lookup, on=["species", "gene", "cdr3", "v.segm", "j.segm"], how="left")
             .with_columns(pl.col("cdr3nt", "d.inferred").fill_null(""))   # rule 6
+            # A fallback, never an override (#631). The model's boundary survives only where the
+            # markup engine declined; where the alignment answered, the column reads UNMAPPED and a
+            # consumer coalescing the two cannot overwrite an alignment answer even by accident.
+            # That is stronger than filling the shipped column, and it is what keeps the legacy
+            # export - which reads `v.end` and `j.start` - byte-identical.
+            .with_columns(*[
+                pl.when(pl.col(shipped) == UNMAPPED)
+                  .then(pl.col(fallback).fill_null(UNMAPPED))
+                  .otherwise(pl.lit(UNMAPPED, pl.Int64)).alias(fallback)
+                for shipped, fallback in (("v.end", "v.end.inferred"),
+                                          ("j.start", "j.start.inferred"))])
             .drop("species")
             .sort("record_id", "gene"))
