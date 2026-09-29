@@ -324,6 +324,8 @@ jobs:
             out/reports/anchors.tsv
             out/reports/functionality.tsv
             out/reports/functionality-summary.tsv
+            out/reports/presentation.tsv
+            out/reports/presentation-summary.tsv
             out/reports/lookalikes.tsv
           retention-days: 90
 

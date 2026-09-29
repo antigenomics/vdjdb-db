@@ -116,3 +116,52 @@ def test_unconfirmed_is_a_refinement_of_known_and_never_fatal() -> None:
     records = pl.DataFrame({"mhc.a": ["HLA-A*02:266"], "mhc.b": ["B2M"],
                             "chunk.file": ["PMID_1.txt"]})
     assert_mhc_resolves(records)        # must not raise
+
+
+def test_a_class_two_allele_written_at_four_fields_still_reaches_its_groove():
+    """ROADMAP phase 9e, and the workaround for `antigenomics/mhcmatch#3`.
+
+    `mhcmatch`'s `resolve_allele` trims to two fields and `class2_key` does not, so the same molecule
+    resolves or does not depending on how deep the submitter's spelling went. 29 of the corpus's 354
+    class II pairs are only reachable after the trim. Delete this with the workaround when the
+    upstream fix ships.
+    """
+    from vdjdb.curate.presentation import resolve
+
+    shallow = resolve("HLA-DRA*01:01", "HLA-DRB1*11:01", "MHCII")
+    deep = resolve("HLA-DRA*01:02:03", "HLA-DRB1*11:01:02", "MHCII")
+    assert shallow == ("DRB1_1101", "exact")
+    assert deep == shallow, "a deeper spelling of one molecule is the same groove"
+
+
+def test_a_murine_class_two_molecule_has_no_hla_pseudosequence_and_says_so():
+    """Not a defect in the corpus. `mhcmatch`'s class II pseudosequences are HLA.
+
+    Reported rather than passed over, because a reader needs to know which pairs a presentation
+    model cannot score at all - that is a coverage statement, not a finding against the record.
+    """
+    from vdjdb.curate.presentation import resolve
+
+    assert resolve("H2-IAb", "H2-IAb", "MHCII") == ("", "none")
+
+
+def test_one_molecule_filed_under_two_classes_names_which_side_is_the_outlier():
+    """The check that needs no authority at all, and the one that found `H2-IAb` on 77 records."""
+    import polars as pl
+
+    from vdjdb.curate.presentation import report
+
+    restriction = pl.DataFrame({
+        "antigen.epitope": ["QVYSLIRPNENPAH", "AAAAAAAAAAAAAAA", "SIINFEKL"],
+        "antigen.species": ["", "", ""],
+        "mhc.a": ["H2-IAb", "H2-IAb", "H2-Kb"],
+        "mhc.b": ["H2-IAb", "H2-IAb", "B2M"],
+        "mhc.class": ["MHCI", "MHCII", "MHCI"],
+        "records": [77, 537, 10], "references": [1, 20, 1],
+    })
+    flagged = report(restriction)
+    outlier = flagged.filter(pl.col("mhc.class") == "MHCI").filter(pl.col("mhc.a") == "H2-IAb")
+    assert outlier.height == 1
+    assert "molecule is also MHCII on 1 of 2" in outlier["finding"].item()
+    assert "epitope is 14 residues" in outlier["finding"].item()
+    assert "H2-Kb" not in flagged["mhc.a"].to_list(), "a consistent class I pair is not a finding"
