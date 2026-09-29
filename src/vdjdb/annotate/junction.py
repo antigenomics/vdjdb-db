@@ -104,7 +104,7 @@ def infer(keys: pl.DataFrame, species: str, gene: str) -> pl.DataFrame:
     cannot explain a junction, so the result is joined positionally and the worker count cannot
     change the answer -- there is no worker count (CLAUDE.md rule 7).
     """
-    from vdjtools.model import infer_nt_batch, load_bundled
+    from vdjtools.model import germline_boundary, infer_nt_batch, load_bundled
 
     from ..convert.coords import nt_to_aa_boundary_expr
 
@@ -118,6 +118,24 @@ def infer(keys: pl.DataFrame, species: str, gene: str) -> pl.DataFrame:
                   [vmap.get(x) for x in keys["v.segm"]],
                   [jmap.get(x) for x in keys["j.segm"]])
     got = infer_nt_batch(model, cdr3, v=v, j=j)
+    # A second batched call, for the boundary only. `Scenario.v_end` is a property of the argmax
+    # recombination history, and maximising P(sequence) explains N-region nucleotides as templated
+    # whenever it can, so it credits the germline too far (`antigenomics/vdjtools#182`, opened from
+    # this column's measurement). `germline_boundary` asks the germline alignment instead. Measured
+    # against `isalgo/airr_control`'s `human.trb.ntvj` on 8,132 VDJdb human TRB junctions with
+    # unambiguous nucleotide truth: `v.end` exact 7,554 of 8,132 (92.89 %) against the history's
+    # 7,244 (89.08 %), `j.start` 7,966 (97.96 %) against 7,483 (92.02 %). It costs 2.67 us/row
+    # against `infer_nt_batch`'s 82.81, so 3.2 % for four points of accuracy on one coordinate and
+    # six on the other.
+    #
+    # It needs a germline to align against, so where our call was `None` and the DP marginalised, the
+    # allele the DP settled on goes in - the same allele `v.inferred` records. Passing `None` through
+    # instead would decline on 2,221 chains the scenario answered, and a boundary conditional on a
+    # named allele is what both columns then mean.
+    bounds = germline_boundary(
+        model, cdr3,
+        v=[a or b for a, b in zip(v, got["v_call"].to_list(), strict=True)],
+        j=[a or b for a, b in zip(j, got["j_call"].to_list(), strict=True)])
     return keys.with_columns(
         got["cdr3_nt"].fill_null("").alias("cdr3nt"),                       # rule 6
         got["pgen"].alias("cdr3nt.pgen"),
@@ -131,12 +149,13 @@ def infer(keys: pl.DataFrame, species: str, gene: str) -> pl.DataFrame:
         got["d_call"].fill_null("").alias("d.inferred"),
         got["d_start"].cast(pl.Int64).alias("d.start"),
         got["d_end"].cast(pl.Int64).alias("d.end"),
-        # The same scenario's V/J boundary, converted out of vdjtools' nucleotide space into the
-        # `v.end`/`j.start` residue space by the fitted ceiling (`convert.coords`). Masked to
-        # UNMAPPED wherever the model explained nothing, so a null pgen and an unmapped boundary
-        # always agree. `add_junction_nt` masks it again against the alignment's answer.
-        nt_to_aa_boundary_expr(got["v_end"], unmapped=UNMAPPED).alias("v.end.inferred"),
-        nt_to_aa_boundary_expr(got["j_start"], unmapped=UNMAPPED).alias("j.start.inferred"))
+        # The germline alignment's V/J boundary, converted out of vdjtools' nucleotide space into
+        # the `v.end`/`j.start` residue space by the fitted ceiling (`convert.coords`). Null where
+        # there is no germline to align against - no call, or a call this model does not carry -
+        # which `nt_to_aa_boundary_expr` reads as UNMAPPED. `add_junction_nt` masks it again against
+        # the markup engine's answer, so it only ever fills where that declined.
+        nt_to_aa_boundary_expr(bounds["v_end"], unmapped=UNMAPPED).alias("v.end.inferred"),
+        nt_to_aa_boundary_expr(bounds["j_start"], unmapped=UNMAPPED).alias("j.start.inferred"))
 
 
 def add_junction_nt(chains: pl.DataFrame, records: pl.DataFrame) -> pl.DataFrame:
