@@ -22,7 +22,7 @@ legacy finding         chains/calls  accounted for by                           
 =====================  ============  ================================================  ============
 `cdr3 not C..[WF]`     956 chains    `anchors.tsv`                                     475
                                      the J germline really does end in that residue    481
-`gene not in IMGT`     2,638 calls   `nomenclature.tsv`                                2,638
+`gene not in IMGT`     2,582 calls   `nomenclature.tsv`                                2,582
 `allele out of range`  1 call        IMGT lists the allele                             1
 =====================  ============  ================================================  ============
 
@@ -53,7 +53,7 @@ LEGACY_JUNCTION_FINDINGS = 956
 #: Of those, how many the germline-based check reports. The rest are legacy false positives.
 REPORTED_BY_ANCHORS = 475
 #: Legacy's `gene_match_check`, human only, as the driver ran it.
-LEGACY_GENE_FINDINGS = 2638
+LEGACY_GENE_FINDINGS = 2582
 #: A band, because both numbers move with every chunk. What must not move is the *remainder*, which is
 #: asserted at zero.
 TOLERANCE = 400
