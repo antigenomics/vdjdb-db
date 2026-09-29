@@ -19,7 +19,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 18				CVSSYGAGLDEQYF	TRBV6-3		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19017975	tetramer-sort			sanger			CD8+							PBMC			
 19				CASSPHQADTQYF	TRBV7-3		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19017975	tetramer-sort			sanger			CD8+							PBMC			
 20				CASSPHQAGTQYF	TRBV7-3		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19017975	tetramer-sort			sanger			CD8+							PBMC			
-21				RASSPHQADTQY	TRBV7-3		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19017975	tetramer-sort			sanger			CD8+							PBMC			
+21				CASSPHQADTQYF	TRBV7-3		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19017975	tetramer-sort			sanger			CD8+							PBMC			
 22				CAISEPTGTSGEGEQFF	TRBV10-3		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19017975	tetramer-sort			sanger			CD8+							PBMC			
 23				CASSSSTGTGRCLLPNNTEAFF	TRBV11-3		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19017975	tetramer-sort			sanger			CD8+							PBMC			
 24				CASSLRSNTGELFF	TRBV11-3		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19017975	tetramer-sort			sanger			CD8+							PBMC			
@@ -97,7 +97,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 96				CATSSSWDLNQPRHF	TRBV15		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19017975	tetramer-sort			sanger			CD8+							PBMC			
 97				CATSSSWDPNQPQHF	TRBV15		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19017975	tetramer-sort			sanger			CD8+							PBMC			
 98				CATSSSWDRNQPQHF	TRBV15		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19017975	tetramer-sort			sanger			CD8+							PBMC			
-99				RATSREGPNQPQH	TRBV15		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19017975	tetramer-sort			sanger			CD8+							PBMC			
+99				CATSREGPNQPQHF	TRBV15		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19017975	tetramer-sort			sanger			CD8+							PBMC			
 100				CATSRDLVAETQYF	TRBV15		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19017975	tetramer-sort			sanger			CD8+							PBMC			
 101				CASSPRQGGKQPQHF	TRBV18		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19017975	tetramer-sort			sanger			CD8+							PBMC			
 102				CASSIGETGGIPQHF	TRBV19		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:19017975	tetramer-sort			sanger			CD8+							PBMC			

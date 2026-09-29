@@ -467,7 +467,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 478				CASSRDRGSNQPQYF	TRBV9-1		TRBJ1-5	MacacaMulatta	Mamu-A*01	B2M	MHCI	STPESANL	Tat	SIV	PMID:19349463	tetramer-sort	2/56		sanger			CD8+		High-svl	r96133	infected		SL8	PBMC			
 479				CASKGSRLGLGNEQFF	TRBV13F		TRBJ2-1	MacacaMulatta	Mamu-A*01	B2M	MHCI	STPESANL	Tat	SIV	PMID:19349463	tetramer-sort	2/56		sanger			CD8+		High-svl	r96133	infected		SL8	PBMC			
 480				CASSLNRVSNQPQYF	TRBV14-1		TRBJ1-5	MacacaMulatta	Mamu-A*01	B2M	MHCI	STPESANL	Tat	SIV	PMID:19349463	tetramer-sort	2/56		sanger			CD8+		High-svl	r96133	infected		SL8	PBMC			
-481				RASSQIPRAGYYDYT	TRBV7-1		TRBJ1-2	MacacaMulatta	Mamu-A*01	B2M	MHCI	STPESANL	Tat	SIV	PMID:19349463	tetramer-sort	1/56		sanger			CD8+		High-svl	r96133	infected		SL8	PBMC			
+481				CASSQIPRAGYYDYTF	TRBV7-1		TRBJ1-2	MacacaMulatta	Mamu-A*01	B2M	MHCI	STPESANL	Tat	SIV	PMID:19349463	tetramer-sort	1/56		sanger			CD8+		High-svl	r96133	infected		SL8	PBMC			
 482				CASSQIPGAGYYDYTF	TRBV7-1		TRBJ1-2	MacacaMulatta	Mamu-A*01	B2M	MHCI	STPESANL	Tat	SIV	PMID:19349463	tetramer-sort	1/56		sanger			CD8+		High-svl	r96133	infected		SL8	PBMC			
 483				CASSQVGGLSNQPQYF	TRBV9-1		TRBJ1-5	MacacaMulatta	Mamu-A*01	B2M	MHCI	STPESANL	Tat	SIV	PMID:19349463	tetramer-sort	1/56		sanger			CD8+		High-svl	r96133	infected		SL8	PBMC			
 484				CASSPGRGSNQPQYF	TRBV9-1		TRBJ1-5	MacacaMulatta	Mamu-A*01	B2M	MHCI	STPESANL	Tat	SIV	PMID:19349463	tetramer-sort	1/56		sanger			CD8+		High-svl	r96133	infected		SL8	PBMC			
