@@ -88,3 +88,31 @@ def test_build_restriction_refuses_to_assemble_an_unresolved_call() -> None:
                        "reference.id": ["PMID:1"], "chunk.file": ["PMID_1.txt"]})
     with pytest.raises(ValueError, match="HLA-A\\*08:01"):
         build_restriction(df)
+
+
+# -- IPD's Confirmed / Unconfirmed, as a fourth status (#634) ------------------------------------
+
+def test_a_call_with_no_confirmed_allele_under_it_reads_unconfirmed() -> None:
+    """The second of two questions. #624's gate asks whether IPD carries the name at any field depth
+    and all four of these pass it; this asks whether anyone other than the submitter believes the
+    allele exists, which for a two-field call in a specificity database is the more useful one.
+    """
+    assert _status("HLA-A*02:266", "HLA-B*57:06", "HLA-DQA1*01:11") == ["unconfirmed"] * 3
+
+
+def test_a_call_with_a_confirmed_allele_under_it_stays_known() -> None:
+    """Prefix-wise and *any*: `HLA-A*02` names thousands of alleles and the question is whether any
+    is confirmed, not whether all are.
+    """
+    assert _status("HLA-A*02", "HLA-A*02:01", "HLA-DRB1*15:01") == ["known"] * 3
+
+
+def test_unconfirmed_is_a_refinement_of_known_and_never_fatal() -> None:
+    """4 calls over 5 records. A gate here would reject almost nothing at a cost to those records,
+    and an unconfirmed allele is a real name (#634).
+    """
+    from vdjdb.assemble.epitopes import assert_mhc_resolves
+
+    records = pl.DataFrame({"mhc.a": ["HLA-A*02:266"], "mhc.b": ["B2M"],
+                            "chunk.file": ["PMID_1.txt"]})
+    assert_mhc_resolves(records)        # must not raise
