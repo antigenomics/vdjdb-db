@@ -1,7 +1,7 @@
 chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
 1				CAISERAIRGTSGLTDTQYF	TRBV10-3		TRBJ2-3	HomoSapiens	HLA-B*15	B2M	MHCI	TQGYFPDWQNY	Nef	HIV-1	PMID:21562156	tetramer-sort	50/67		sanger			CD8+	56		10001			TY11	PBMC			
 2				CAISECAIRGTSGLTDTQYF	TRBV10-3		TRBJ2-3	HomoSapiens	HLA-B*15	B2M	MHCI	TQGYFPDWQNY	Nef	HIV-1	PMID:21562156	tetramer-sort	1/67		sanger			CD8+	2		10001			TY11	PBMC			
-3				CAISERAIRGTSGLTDTQYL	TRBV10-3		TRBJ2-3	HomoSapiens	HLA-B*15	B2M	MHCI	TQGYFPDWQNY	Nef	HIV-1	PMID:21562156	tetramer-sort	1/67		sanger			CD8+	2		10001			TY11	PBMC			
+3				CAISERAIRGTSGLTDTQYF	TRBV10-3		TRBJ2-3	HomoSapiens	HLA-B*15	B2M	MHCI	TQGYFPDWQNY	Nef	HIV-1	PMID:21562156	tetramer-sort	1/67		sanger			CD8+	2		10001			TY11	PBMC			
 4				CASSQAAGGRAFF	TRBV4-2		TRBJ1-1	HomoSapiens	HLA-B*15	B2M	MHCI	TQGYFPDWQNY	Nef	HIV-1	PMID:21562156	tetramer-sort	11/67		sanger			CD8+	25		10001			TY11	PBMC			
 5				CASSQAEGGQNHF	TRBV4-2		TRBJ2-7	HomoSapiens	HLA-B*15	B2M	MHCI	TQGYFPDWQNY	Nef	HIV-1	PMID:21562156	tetramer-sort	1/67		sanger			CD8+	9		10001			TY11	PBMC			
 6				CASSLAPGGIAFF	TRBV4-2		TRBJ1-1	HomoSapiens	HLA-B*15	B2M	MHCI	TQGYFPDWQNY	Nef	HIV-1	PMID:21562156	tetramer-sort	3/67		sanger			CD8+	5		10001			TY11	PBMC			

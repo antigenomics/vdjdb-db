@@ -83,7 +83,7 @@ file = "vdjdb.txt"
 column = "vdjdb.score"
 from = "3"
 to = "1"
-rows = 1696
+rows = 1694
 
 [[rule]]
 id = "structure-id-score-default-to-2"
@@ -91,7 +91,7 @@ file = "vdjdb.txt"
 column = "vdjdb.score"
 from = "3"
 to = "2"
-rows = 188
+rows = 187
 
 [[rule]]
 id = "structure-id-score-full-to-0"
@@ -107,7 +107,7 @@ file = "vdjdb_full.txt"
 column = "vdjdb.score"
 from = "3"
 to = "1"
-rows = 997
+rows = 995
 
 [[rule]]
 id = "structure-id-score-full-to-2"
@@ -115,7 +115,7 @@ file = "vdjdb_full.txt"
 column = "vdjdb.score"
 from = "3"
 to = "2"
-rows = 197
+rows = 196
 
 [[rule]]
 id = "structure-id-score-slim-to-0"
@@ -167,13 +167,13 @@ rows = 0
 id = "legacy-melt-ambiguity-complex-id"
 file = "vdjdb.txt"
 column = "complex.id"
-rows = 179309
+rows = 179037
 
 [[rule]]
 id = "legacy-melt-ambiguity-cdr3fix"
 file = "vdjdb.txt"
 column = "cdr3fix"
-rows = 18397
+rows = 18386
 
 # --- phase 4, feature/pipeline-core -----------------------------------------------------------
 # jStart == -1 is truthy in Python, where the Groovy tested jStart > -1, so unmapped records are
@@ -214,20 +214,20 @@ rows = 23
 id = "pandas-int-subject-id"
 file = "vdjdb_full.txt"
 column = "meta.subject.id"
-rows = 52
+rows = 56
 
 [[rule]]
 id = "pandas-float-frequency-full"
 file = "vdjdb_full.txt"
 column = "method.frequency"
-rows = 189
+rows = 196
 
 # The same truncation, seen through the method JSON of vdjdb.txt.
 [[rule]]
 id = "pandas-float-frequency-json"
 file = "vdjdb.txt"
 column = "method"
-rows = 1648
+rows = 1665
 
 # `NA` is influenza neuraminidase, a real gene symbol. pandas read it as a missing value, and
 # `if NaN:` is True in Python, so the legacy assigned the missing value and blanked the gene.
@@ -248,7 +248,7 @@ id = "json-id-type-subject"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "subject.id"
-rows = 41952
+rows = 41951
 
 [[rule]]
 id = "json-id-type-epitope"
@@ -283,8 +283,8 @@ rows = 14953
 # is no cell to attribute: one row leaves and another arrives.
 [[row_delta]]
 file = "vdjdb.slim.txt"
-added = 9706
-removed = 9424
+added = 9707
+removed = 9425
 note = "pandas-na-gene-symbol seen through the slim grouping key (750/809) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161): 40 records arrive, 33 of them as new slim groups and 7 joining groups that already existed, which rekeys those 7 + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 12 slim groups + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 82 slim groups - 2, the murine `I-Ab -> H2-IAb` rename keying 2 slim groups the previous spelling left unmatched + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names: mouse `TRBV12-2+TRBV13-2` (535), `TRBV3-1;TRBV3-2` (30), `TRBV12-3;TRBV12-4` (20), five one-record spellings, and one `TRBJ2` J call written with an en dash. 42 of them rekey a slim group + retiring `res/` (#658): see the res-retirement block below"
 
 # The melt ambiguity of ROADMAP section 14, seen as rows rather than cells: where two
@@ -292,8 +292,8 @@ note = "pandas-na-gene-symbol seen through the slim grouping key (750/809) + the
 # these; the rest are the markup engine, see the block at the end of this file.
 [[row_delta]]
 file = "vdjdb.txt"
-added = 12004
-removed = 11593
+added = 11999
+removed = 11627
 note = "legacy melt ambiguity (780) + the arda markup engine naming the segment the curator reported (10,605; see the arda-cdr3fix block below) + PMID_18025130 landing (#161), 40 records + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 15 records + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 82 records - 1, the `TRBVIS1 -> TRBV9*01` rename keying the one PMID_16237109 row the previous block did not declare + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names (mouse `TRBV12-2+TRBV13-2` 535, `TRBV3-1;TRBV3-2` 30, `TRBV12-3;TRBV12-4` 20, five at one record each, and one `TRBJ2` J call written with an en dash), 48 of which rekey a record + retiring `res/` (#658): see the res-retirement block below"
 
 
@@ -305,19 +305,19 @@ note = "legacy melt ambiguity (780) + the arda markup engine naming the segment 
 id = "nomenclature-slim-complex-id-renumber"
 file = "vdjdb.slim.txt"
 column = "complex.id"
-rows = 115192
+rows = 115191
 
 [[rule]]
 id = "nomenclature-vend-full-alpha"
 file = "vdjdb_full.txt"
 column = "cdr3fix.alpha"
-rows = 10573
+rows = 10564
 
 [[rule]]
 id = "nomenclature-vend-full-beta"
 file = "vdjdb_full.txt"
 column = "cdr3fix.beta"
-rows = 7655
+rows = 7643
 
 # 5,404 before the arda 2.31 bump. Two slim rows now agree with the reference: arda places a `v.end`
 # on alleles whose IMGT germline record is truncated instead of answering -1 (`antigenomics/arda#135`),
@@ -328,13 +328,13 @@ rows = 7655
 id = "nomenclature-vend-slim"
 file = "vdjdb.slim.txt"
 column = "v.end"
-rows = 5398
+rows = 5397
 
 [[rule]]
 id = "nomenclature-jstart-slim"
 file = "vdjdb.slim.txt"
 column = "j.start"
-rows = 11165
+rows = 11164
 
 [[rule]]
 id = "nomenclature-now-mapped"
@@ -348,13 +348,13 @@ rows = 5284
 id = "nomenclature-tcr-hash-default"
 file = "vdjdb.txt"
 column = "TCR_hash"
-rows = 6895
+rows = 6904
 
 [[rule]]
 id = "nomenclature-tcr-hash-slim"
 file = "vdjdb.slim.txt"
 column = "TCR_hash"
-rows = 5421
+rows = 5422
 
 [[rule]]
 id = "nomenclature-tcr-hash-full"
@@ -367,7 +367,7 @@ id = "nomenclature-samples-found"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "samples.found"
-rows = 1564
+rows = 1809
 
 [[rule]]
 id = "nomenclature-d-multicall-order"
@@ -383,7 +383,7 @@ rows = 55
 id = "nomenclature-score-regrouped-default"
 file = "vdjdb.txt"
 column = "vdjdb.score"
-rows = 44
+rows = 48
 
 [[rule]]
 id = "nomenclature-score-regrouped-full"
@@ -3140,8 +3140,8 @@ files = "vdjdb.slim.txt"
 # END generated renames
 [[row_delta]]
 file = "vdjdb_full.txt"
-added = 11457
-removed = 11417
+added = 11452
+removed = 11442
 note = "declared corrections whose reference value is not injective (613) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161), 40 records + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 15 records + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 83 records + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names, 49 of which rekey a record. The retired build rejected all 591 as `gene not in IMGT`, and this is the repair that answers it + retiring `res/` (#658): see the res-retirement block below"
 
 
@@ -3270,7 +3270,7 @@ rows = 15
 id = "melt-ambiguity-full-replica-id"
 file = "vdjdb_full.txt"
 column = "meta.replica.id"
-rows = 5
+rows = 6
 
 [[rule]]
 id = "melt-ambiguity-full-verification"
@@ -3375,6 +3375,27 @@ rows = 0
 #
 # No row bucket moves and no other rule's count changes: `cdr3` is in the comparison key and it is
 # unchanged, so nothing is rekeyed. `records` and `chains` hold at 192,793 and 285,989.
+
+# --- #646 second pass: 514 corrupt anchors substituted, and 30 records merge ----------------------
+# The first pass added a missing anchor or trimmed framework and never changed a residue. This one
+# replaces the anchor residue itself with the one the germline of the named segment encodes, so the
+# shipped `cdr3` moves on 514 chains - and `cdr3` is in the comparison key, which is why twenty rule
+# counts and all three row buckets move with it rather than four cells.
+#
+# **30 records merge.** A base-call error at a conserved anchor made one clone look like two: once the
+# anchor is right, 33 rows duplicate a sibling inside their own chunk and deduplication collapses them,
+# while 3 whose amendment was ambiguous take new ids. `records` 192,793 -> 192,763 and `chains`
+# 285,989 -> 285,950. That is the repair working, not a loss: the retired ids are recorded in
+# `registry/records.tsv` with their amendment trail, and the surviving record carries the same
+# observation.
+#
+# `out/reports/anchors.tsv` falls from 1,635 non-canonical chains to 1,132 and from 773
+# germline-supported repairs to 261, which is the regression check #646 asks for.
+#
+# The counts that move furthest are the ones keyed on identity rather than on a cell:
+# `legacy-melt-ambiguity-complex-id` 179,309 -> 179,037 and `nomenclature-samples-found` 1,564 ->
+# 1,809, because `samples.found` counts records sharing a signature and merging two changes it for
+# every record in that signature's group.
 
 # --- the bundle's member list ------------------------------------------------------------------
 # Members this release ships that the reference does not, and members it drops. A change of shape
