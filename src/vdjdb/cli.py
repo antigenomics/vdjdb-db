@@ -591,7 +591,7 @@ def promiscuity_cmd(
         w.writerow(prom.COLUMNS)
         for r in rows:
             w.writerow([r.epitope, r.mhc_a, f"{r.percent_rank:.3f}", f"{r.p_present:.4f}",
-                        r.band, r.recorded])
+                        r.band, r.recorded, r.mhcmatch_version])
     epitopes = len({r.epitope for r in rows})
     kept = sum(r.recorded for r in rows)
     typer.echo(f"wrote {out} ({len(rows):,} rows over {epitopes:,} epitopes; "

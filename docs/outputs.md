@@ -292,8 +292,38 @@ what the submitters meant, so it is reported and never fatal.
 **A build carrying an `unknown` or blank call fails**, naming the value, the column, the cell count and
 the chunks that report it, so only `known`, `unconfirmed` and `declared` reach a release. The fix is an entry in
 `patches/mhc.dict` when the call is wrong, or a row in `proofreading/mhc_nonhuman.tsv` when it is a
-species IPD-IMGT/HLA does not cover. Phase 9e adds `mhcmatch` validation: whether the allele could present that peptide,
-not only whether the allele name exists (ROADMAP §12, §27).
+species IPD-IMGT/HLA does not cover. Whether the allele could *present* that peptide, rather than only
+whether its name exists, is phase 9e: `presentation.tsv` above for the offline half, and the six
+columns below for the model's ranking.
+
+`restriction` also carries six promiscuity columns (ROADMAP §10.6). An epitope is often presented by
+several alleles and the curated one is not always the best binder; both facts belong in the database
+and neither belongs in a key, because a model upgrade would otherwise renumber `pmhc_id` and break
+every external reference while the build passed.
+
+| Column | What it is |
+|---|---|
+| `alleles.reported` | distinct `mhc.a` values VDJdb records for this epitope. **Curation, not prediction**, so it is counted from this table and is present on a class II row where the other four are blank. Two or more means different publications restricted the same peptide differently - the question #372 asks |
+| `mhc.a.top` | the panel allele that presents this epitope best |
+| `mhc.a.rank` | where the curated allele sits in that ranking, 1 being the top |
+| `mhc.a.percentile` | the curated allele's `%Rank_EL` against the human proteome background |
+| `promiscuity` | panel alleles in the strong band for this epitope |
+| `mhcmatch.version` | the model that produced the five above, per row. Empty on a row scored before the column existed |
+
+All six are a **join against the committed `proofreading/epitope_promiscuity.tsv`** (13,510 rows over
+1,729 epitopes and 107 alleles). Nothing is predicted during a build: `mhcmatch` fetches its reference
+data from HuggingFace, and a build that downloads a model is neither offline nor deterministic (hard
+rule 9), so the table is a reviewed input refreshed by `vdjdb promiscuity` through its own pull
+request.
+
+**A curated allele the prediction outranks is not a defect.** The curated allele is the one a
+publication typed a donor for, which a proteome-background ranking has no access to, and most of these
+epitopes are promiscuous. 1,793 of 1,989 class I pairs get a rank; the 196 that do not divide into
+four causes, each a different statement: 86 pairs (16,316 records) name an allele outside the panel,
+86 (10,395) an epitope the table has not been refreshed to cover since it was written, 24 (381) an
+epitope outside the 8-11mer class I range, and the rest resolve only at a depth the panel does not
+name. A deeper spelling such as `HLA-A*02:01:48` is scored at its two-field molecule, because the
+panel is named at two fields and there is no deeper groove.
 
 ### 3.4 `vdjdb.parquet` - the joined view
 
