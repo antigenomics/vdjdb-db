@@ -49,6 +49,20 @@ which is two there.
 identity catches a batch call that is not the same computation, and the ratio catches a regression to
 the loop or a batch call that loops internally, neither of which changes an answer.
 
+**Every inferred sequence encodes the junction it came from, and that is by construction rather than
+by luck.** The DP enumerates `(V, delV) x (J, delJ) x (D, delD, position)` and picks the best codon
+assignment *within* each scenario, so a scenario that cannot spell the given residues has probability
+zero and is never a candidate; anything the model cannot encode comes back null rather than wrong.
+Probed on human TRB: a stop codon, an `X`, a `Z`, a one- or two-residue junction, an empty string and
+a true CDR3 with its anchors stripped are all declined. The one input that survives with a difference
+is a lower-case junction, where the nucleotides are right and the comparison is case-sensitive - and
+`vdjdb qc` rejects a residue outside the 20 upper-case letters, with zero such chains in the corpus.
+Measured on the built corpus: **263,437 of 285,989 chains carry an inferred `cdr3nt`, 0 mismatches, 0
+whose length is not exactly three nucleotides per residue**, gated by
+`tests/release/test_tables_contract.py`. That check translates the whole column in one threaded native
+call, `vdjtools._core.translate_junctions` - 0.023 s against 0.284 s for `vdjtools.model.translate` in
+a Python loop, 12.3x, identical on every row.
+
 It previously ran as four worker processes over contiguous parquet slices of the key set, each an
 ordinary invocation of a subcommand that existed only to be that worker. The subcommand,
 `src/vdjdb/__main__.py`, the slice arithmetic and the worker-count argument are all gone: one batched
