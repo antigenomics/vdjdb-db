@@ -163,7 +163,8 @@ jobs:
       # costs a second and needs no tag.
       - name: Release layout
         run: |
-          uv run python -c "
+          . .github/stage-timing.sh
+          stage release-layout uv run python -c "
           from pathlib import Path
           from vdjdb.release import bundle, manifest
           bundle.stage(Path('out'))
@@ -214,12 +215,13 @@ jobs:
       # eight changed lines, and rules/expected_diffs.toml declares the rest.
       - name: Compare against the last release
         run: |
-          uv run python -c "
+          . .github/stage-timing.sh
+          stage release-zip uv run python -c "
           from pathlib import Path
           from vdjdb.release import manifest
           print(manifest.write_zip(manifest.LEGACY, Path('out'), Path('out'), 'candidate'))
           "
-          uv run vdjdb diff reference.zip out/vdjdb-legacy-candidate.zip \
+          stage release-compare uv run vdjdb diff reference.zip out/vdjdb-legacy-candidate.zip \
             --report out/reports/release-diff.md \
             --json out/reports/release-diff.json
 
