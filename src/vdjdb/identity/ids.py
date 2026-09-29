@@ -294,11 +294,12 @@ def reconcile(
         # The registry does not store the raw key, only its hash, so amendment matching needs the
         # previous build's key fields. They are recorded in `note` as the reference id plus the
         # packed key; see `_pack_note`. Entries written by older versions do not match.
-        # Which row numbers each bucket still has to place, for the bijection test below.
-        rows_awaiting: dict[tuple[str, str], set[int]] = defaultdict(set)
-        for i in unmatched_rows:
-            bucket_key = (str(rows[i].get("chunk.file") or ""), keys[i][ref_idx])
-            rows_awaiting[bucket_key].add(int(rows[i].get("chunk.row") or 0))
+        # Every row number each chunk still has, for the "no line moved" test below. Built from all
+        # rows of the chunk, not only the unmatched ones: what makes a row number an identity is that
+        # the file still has a row there, whether or not that row needs matching.
+        rows_present: dict[str, set[int]] = defaultdict(set)
+        for r in rows:
+            rows_present[str(r.get("chunk.file") or "")].add(int(r.get("chunk.row") or 0))
 
         for i in unmatched_rows:
             row, key = rows[i], keys[i]
@@ -315,23 +316,26 @@ def reconcile(
                     candidates.append((e, d))
             if len(candidates) > 1:
                 # Two records of one chunk can both be one field from this row, and the field's value
-                # is then not enough to say which. `chunk.row` can be, but only when no line moved:
-                # a deleted line shifts every row number after it, so the number alone is a guess.
+                # is then not enough to say which. `chunk.row` is - but only when no line moved, because
+                # a deleted line shifts every number after it and the number alone would be a guess.
                 #
-                # The condition that makes it exact is a bijection - the unmatched rows of this bucket
-                # and its candidate entries occupy the *same* set of row numbers, so pairing them by
-                # row number is forced and nothing shifted. Where the sets differ, the ambiguity
-                # stands and pass 3 mints a new id, which is what
-                # `test_ambiguous_amendment_is_refused` asks for.
+                # What separates the two is whether the chunk still has a row at every number the
+                # candidates sit on. An edit in place leaves all of them there, so matching by number
+                # is an identity: the same line of the same file. A removed line takes its number with
+                # it, the test fails, the ambiguity stands, and pass 3 mints a new id - which is what
+                # `test_ambiguous_amendment_is_refused` asks for and what
+                # `test_the_row_tiebreak_is_refused_when_a_line_moved` asserts from the other side.
                 #
-                # The case that needed it: `menon_etal_2024.txt` rows 26 and 27 carry
-                # `TRBV5-3;TRBV5-5;TRBV5-8` and `TRBV5-3;TRBV5-8`, and normalising `;` to `,`
-                # (`52cb4e2`) moved both keys by that one field. Each new row then had two candidates,
-                # so `VDJDB0000187889` and `...890` were retired and re-minted - two published ids lost
-                # to a separator. Both row numbers were unchanged, so the bijection holds and they
-                # amend in place.
-                here = rows_awaiting.get((str(row.get("chunk.file") or ""), key[ref_idx]), set())
-                if here == {c[0].chunk_row for c in candidates} and len(here) == len(candidates):
+                # Two cases needed it, and the first is why the condition cannot be narrower. Repairing
+                # the 4,324 junctions of vdjdb-db#646 moves that many keys at once, so a chunk's bucket
+                # holds hundreds of unmatched rows and each row has its own two or three candidates: a
+                # bijection between the bucket's rows and *one row's* candidates never holds, and the
+                # first version of this test therefore refused every one of them - 2,066 published ids
+                # retired and re-minted. The second is `menon_etal_2024.txt` rows 26 and 27, whose
+                # `TRBV5-3;TRBV5-5;TRBV5-8` and `TRBV5-3;TRBV5-8` both moved one field when `;` became
+                # `,` (`52cb4e2`), costing `VDJDB0000187889` and `...890` their ids.
+                present = rows_present.get(str(row.get("chunk.file") or ""), set())
+                if all(c[0].chunk_row in present for c in candidates):
                     candidates = [c for c in candidates
                                   if c[0].chunk_row == int(row.get("chunk.row") or 0)]
             if len(candidates) == 1:
