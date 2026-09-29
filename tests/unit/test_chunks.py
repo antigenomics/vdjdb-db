@@ -31,7 +31,10 @@ def _chunk(tmp: Path, name: str, rows: list[dict[str, str]], *,
 
 
 def _row(**kw: str) -> dict[str, str]:
-    base = {"cdr3.beta": "CASSA", "v.beta": "TRBV1*01", "j.beta": "TRBJ1*01",
+    # Real, functional human calls. `TRBV1*01` stood here until #634 made IMGT's F / ORF / P verdict
+    # a rule: it is a human *pseudogene*, so the "clean" row was never clean and
+    # `test_every_rule_is_expressed_as_an_invariant` failed on a rule that was working.
+    base = {"cdr3.beta": "CASSA", "v.beta": "TRBV10-3*01", "j.beta": "TRBJ2-7*01",
             "species": "HomoSapiens", "mhc.a": "HLA-A*02:01", "mhc.b": "B2M",
             "mhc.class": "MHCI", "antigen.epitope": "GILGFVFTL", "antigen.gene": "M",
             "antigen.species": "InfluenzaA", "reference.id": "PMID:1"}
