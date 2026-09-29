@@ -294,6 +294,12 @@ def reconcile(
         # The registry does not store the raw key, only its hash, so amendment matching needs the
         # previous build's key fields. They are recorded in `note` as the reference id plus the
         # packed key; see `_pack_note`. Entries written by older versions do not match.
+        # Which row numbers each bucket still has to place, for the bijection test below.
+        rows_awaiting: dict[tuple[str, str], set[int]] = defaultdict(set)
+        for i in unmatched_rows:
+            bucket_key = (str(rows[i].get("chunk.file") or ""), keys[i][ref_idx])
+            rows_awaiting[bucket_key].add(int(rows[i].get("chunk.row") or 0))
+
         for i in unmatched_rows:
             row, key = rows[i], keys[i]
             bucket = by_bucket.get((str(row.get("chunk.file") or ""), key[ref_idx]), [])
@@ -307,6 +313,27 @@ def reconcile(
                 d = _single_field_difference(key, prev)
                 if d is not None:
                     candidates.append((e, d))
+            if len(candidates) > 1:
+                # Two records of one chunk can both be one field from this row, and the field's value
+                # is then not enough to say which. `chunk.row` can be, but only when no line moved:
+                # a deleted line shifts every row number after it, so the number alone is a guess.
+                #
+                # The condition that makes it exact is a bijection - the unmatched rows of this bucket
+                # and its candidate entries occupy the *same* set of row numbers, so pairing them by
+                # row number is forced and nothing shifted. Where the sets differ, the ambiguity
+                # stands and pass 3 mints a new id, which is what
+                # `test_ambiguous_amendment_is_refused` asks for.
+                #
+                # The case that needed it: `menon_etal_2024.txt` rows 26 and 27 carry
+                # `TRBV5-3;TRBV5-5;TRBV5-8` and `TRBV5-3;TRBV5-8`, and normalising `;` to `,`
+                # (`52cb4e2`) moved both keys by that one field. Each new row then had two candidates,
+                # so `VDJDB0000187889` and `...890` were retired and re-minted - two published ids lost
+                # to a separator. Both row numbers were unchanged, so the bijection holds and they
+                # amend in place.
+                here = rows_awaiting.get((str(row.get("chunk.file") or ""), key[ref_idx]), set())
+                if here == {c[0].chunk_row for c in candidates} and len(here) == len(candidates):
+                    candidates = [c for c in candidates
+                                  if c[0].chunk_row == int(row.get("chunk.row") or 0)]
             if len(candidates) == 1:
                 e, d = candidates[0]
                 prev = _unpack_note(e.note)
