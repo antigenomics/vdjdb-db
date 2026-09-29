@@ -42,6 +42,7 @@ from pathlib import Path
 
 import polars as pl
 
+from ..compare import clustering
 from . import motif_bench as mb
 from . import qscore
 
@@ -86,6 +87,27 @@ SOURCES = ("legacy", "latest", "current-tcrnet", "current-tcremp", "trivial")
 #: ``clusters`` and ``clonotypes`` are recorded and not gated: more clusters is better for coverage
 #: and worse for parsimony, so neither direction is a regression on its own, and ``Q`` already
 #: charges for the trade.
+#:
+#: ``partition_*`` is the one family measured **against the shipped file** rather than against the
+#: cohort: :func:`vdjdb.compare.clustering.agreement` asks whether this source still gives a record
+#: the cluster-mates ``latest`` gave it. Purity and retention are statistics about a clustering;
+#: these say whether the table a consumer downloads still groups the records the last one grouped,
+#: which is what `vdjdb-web` shows when it lists a record's neighbours.
+#:
+#: They exist because nothing compared those tables. ``vdjdb diff`` keys ``cluster_members.txt`` on
+#: ``cid``, and a cid carries a position in a sorted list, so one renumbered cluster reads as the
+#: whole file replaced - which is why the CI comparison names its five members with ``--only`` and
+#: skips the motif files entirely.
+#:
+#: Only ``partition_neighbours_preserved`` is gated, and the reason is measured: 19,971 of the
+#: released TRB clustering's 36,906 clonotypes sit in one cluster, which holds 94.7 % of the file's
+#: co-clustered pairs, so ``partition_pairs_preserved`` and ``partition_ari`` are measurements of
+#: whether that one blob was reproduced - the do-nothing partition scores 0.9991 and 0.9939 on them.
+#: They are recorded because they are the exact quantity and because the blob is worth watching.
+#:
+#: Direction ``baseline``: gated against the committed baseline only, never against ``latest``. These
+#: are agreement *with* ``latest``, so ``latest``'s own value is 1.0 by construction and comparing a
+#: candidate to it would fail every candidate that is not byte-identical.
 AXES: dict[str, tuple[str, float]] = {
     "purity": ("up", 0.005),
     "precision": ("up", 0.005),
@@ -100,6 +122,11 @@ AXES: dict[str, tuple[str, float]] = {
     "percolation_excess": ("down", 0.005),
     "clusters": ("record", 0.0),
     "clonotypes": ("record", 0.0),
+    "partition_neighbours_preserved": ("baseline", 0.005),
+    "partition_pairs_preserved": ("record", 0.0),
+    "partition_ari": ("record", 0.0),
+    "partition_clonotypes_reference": ("record", 0.0),
+    "partition_clonotypes_shared": ("record", 0.0),
 }
 
 KEY = ("species", "gene", "source", "axis")
@@ -132,6 +159,8 @@ def measure(chains: pl.DataFrame, records: pl.DataFrame,
         cohort = mb.cohort(chains, records, species=species, gene=gene)
         per_gene = {**members_by_source, "trivial": mb.trivial_members(cohort)}
         ref = per_gene.get("latest")
+        ref_chain = (ref.filter((pl.col("gene") == gene) & (pl.col("species") == species))
+                     if ref is not None else None)
         reference_epitopes: list[str] = []
         reference_pe: pl.DataFrame | None = None
         if ref is not None:
@@ -160,6 +189,16 @@ def measure(chains: pl.DataFrame, records: pl.DataFrame,
                                        else float(mine) - float(theirs)),
                 "clusters": float(q["clusters"]), "clonotypes": float(q["clustered"]),
             }
+            # Against the shipped table, not the cohort. `ref_chain` is `latest` restricted to this
+            # chain, so a source is compared with the file it would replace.
+            agr = (clustering.agreement(ref_chain, mm) if ref_chain is not None
+                   else dict.fromkeys(("neighbours_preserved", "pairs_preserved", "ari",
+                                       "clonotypes.reference", "clonotypes.shared"), 0.0))
+            vals |= {"partition_neighbours_preserved": agr["neighbours_preserved"],
+                     "partition_pairs_preserved": agr["pairs_preserved"],
+                     "partition_ari": agr["ari"],
+                     "partition_clonotypes_reference": agr["clonotypes.reference"],
+                     "partition_clonotypes_shared": agr["clonotypes.shared"]}
             for axis, value in vals.items():
                 rows.append({"species": species, "gene": gene, "source": source, "axis": axis,
                              "direction": AXES[axis][0], "tolerance": AXES[axis][1],
@@ -182,8 +221,9 @@ def load_baseline(path: Path = BASELINE) -> pl.DataFrame:
 
 
 def _worse(now: pl.Expr, was: pl.Expr, direction: pl.Expr, tol: pl.Expr) -> pl.Expr:
+    """``baseline`` behaves like ``up`` here and is excluded from the ``latest`` comparison."""
     return (pl.when(now.is_null()).then(pl.lit(True))
-            .when(direction == "up").then(now < was - tol)
+            .when(direction.is_in(["up", "baseline"])).then(now < was - tol)
             .when(direction == "down").then(now > was + tol)
             .otherwise(pl.lit(False)))
 
@@ -219,7 +259,10 @@ def regressions_against_latest(measured: pl.DataFrame,
     """
     latest = (measured.filter(pl.col("source") == "latest")
               .select("species", "gene", "axis", pl.col("value").alias("latest")))
-    cur = measured.filter(pl.col("source").str.starts_with("current-"))
+    # `baseline`-direction axes are agreement *with* `latest`, so its own value is 1.0 by
+    # construction and this comparison would fail every candidate that is not byte-identical to it.
+    cur = measured.filter(pl.col("source").str.starts_with("current-")
+                          & (pl.col("direction") != "baseline"))
     j = cur.join(latest, on=["species", "gene", "axis"], how="inner")
     bad = (j.filter(_worse(pl.col("value"), pl.col("latest"), pl.col("direction"),
                            pl.col("tolerance")))

@@ -484,6 +484,37 @@ def test_one_row_delta_per_file_loads(tmp_path):
     assert (got["vdjdb.txt"].added, got["vdjdb.txt"].removed) == (820, 780)
 
 
+def test_a_declared_new_member_is_not_a_failure_and_an_undeclared_one_is(tmp_path) -> None:
+    """The release ships the two TCREMP tables the reference has not got.
+
+    Until this was declarable, any new member failed the file-set pass, so the only way to run the
+    comparison at all was `--only` naming the reference's own members - which is why CI compared five
+    legacy tables and never the two motif files the same release ships.
+    """
+    ref, cand = tmp_path / "ref", tmp_path / "cand"
+    for d in (ref, cand):
+        d.mkdir()
+        (d / "cluster_members.txt").write_text("cid\n1\n")
+    (cand / "cluster_members_tcremp.txt").write_text("cid\n1\n")
+    (cand / "motif_pwms_tcremp.txt").write_text("cid\n1\n")
+
+    rules = tmp_path / "rules.toml"
+    rules.write_text('[members]\nadded = ["cluster_members_tcremp.txt"]\n')
+    report = diff(ref, cand, rules)
+    assert report.added == ["motif_pwms_tcremp.txt"], "only the undeclared member is reported"
+
+
+def test_a_declared_removed_member_is_not_reported_missing(tmp_path) -> None:
+    ref, cand = tmp_path / "ref", tmp_path / "cand"
+    for d in (ref, cand):
+        d.mkdir()
+    (ref / "gone.txt").write_text("a\n1\n")
+    (ref / "also_gone.txt").write_text("a\n1\n")
+    rules = tmp_path / "rules.toml"
+    rules.write_text('[members]\nremoved = ["gone.txt"]\n')
+    assert diff(ref, cand, rules).missing == ["also_gone.txt"]
+
+
 # ---------------------------------------------------------------------------------------------
 # The report has to name every reason it failed
 # ---------------------------------------------------------------------------------------------
