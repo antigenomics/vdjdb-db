@@ -418,3 +418,78 @@ def test_a_correctly_seeded_registry_records_no_amendment(tmp_path) -> None:
     add_record_ids(raw, registry=path, write=path)
     add_record_ids(raw, registry=path, write=path)
     assert next(iter(IdentityRegistry.load(path)._by_key.values())).amendment_count == 0
+
+
+def _entry(rid: str, key: tuple[str, ...], *, row: int, chunk: str = "c.txt",
+           state: str = "active", replaced_by: str = ""):
+    from vdjdb.identity.ids import _Entry, _hash, _pack_note
+    return _Entry(record_id=rid, state=state, natural_key_hash=_hash(list(key)),
+                  content_hash=_hash(list(key)), chunk_file=chunk, chunk_row=row,
+                  first_seen_release="dev", first_seen_commit="", last_seen_release="dev",
+                  last_modified_release="dev", last_modified_commit="", amendment_count=0,
+                  amended_from_key_hash="", replaced_by=replaced_by, note=_pack_note(key))
+
+
+def _key(**over) -> tuple[str, ...]:
+    from vdjdb.identity.ids import NATURAL_KEY
+    base = dict.fromkeys(NATURAL_KEY, "")
+    base["cdr3.alpha"], base["cdr3.beta"] = "CAVX", "CASSY"
+    base["chunk.file"] = "c.txt"
+    base.update(over)
+    return tuple(base[c] for c in NATURAL_KEY)
+
+
+def test_a_retirement_that_moved_two_key_fields_points_at_the_id_that_took_over():
+    """#693, and `ROADMAP.md` §10.4: an id that vanishes is the failure nobody can diagnose.
+
+    Two key fields moving is a new record by the rule the amendment pass is built on, so the
+    retirement is right. What was missing is the pointer from the old id to the new one.
+    """
+    from vdjdb.identity.ids import IdentityRegistry, RecordState, reconcile
+    from vdjdb.schema import ALL_COLUMNS
+
+    before = _key(**{"antigen.gene": "Plod1", "meta.subject.cohort": "C1"})
+    registry = IdentityRegistry([_entry("VDJDB0000000001", before, row=1)])
+
+    row = dict.fromkeys(ALL_COLUMNS, "")
+    row |= {"cdr3.alpha": "CAVX", "cdr3.beta": "CASSY", "antigen.gene": "Plod2",
+            "meta.subject.cohort": "", "chunk.file": "c.txt", "chunk.row": 1}
+    _, registry, report = reconcile(pl.DataFrame([row]), registry, release="dev")
+
+    assert report.amended == [], "two fields moved, so this is not an amendment"
+    assert len(report.added) == 1 and len(report.retired) == 1
+    old = next(e for e in registry._by_key.values() if e.record_id == "VDJDB0000000001")
+    assert old.state == RecordState.RETIRED
+    assert old.replaced_by == report.added[0]
+
+
+def test_a_successor_is_refused_when_the_receptor_is_not_the_same_one():
+    """A new record at the line an old one left is a coincidence until the CDR3s agree."""
+    from vdjdb.identity.ids import IdentityRegistry, reconcile
+    from vdjdb.schema import ALL_COLUMNS
+
+    before = _key(**{"antigen.gene": "Plod1", "meta.subject.cohort": "C1"})
+    registry = IdentityRegistry([_entry("VDJDB0000000001", before, row=1)])
+
+    row = dict.fromkeys(ALL_COLUMNS, "")
+    row |= {"cdr3.alpha": "CAVZZZ", "cdr3.beta": "CASSZZZ", "antigen.gene": "Plod2",
+            "meta.subject.cohort": "", "chunk.file": "c.txt", "chunk.row": 1}
+    _, registry, _report = reconcile(pl.DataFrame([row]), registry, release="dev")
+
+    old = next(e for e in registry._by_key.values() if e.record_id == "VDJDB0000000001")
+    assert old.replaced_by == "", "a different TCR at that line says nothing about the old id"
+
+
+def test_two_retirements_from_one_line_link_neither():
+    """One in, one out. With two on a side the pairing has no evidence, so nothing is written."""
+    from collections import Counter
+
+    from vdjdb.identity.ids import _successor
+
+    a = _entry("VDJDB0000000001", _key(**{"antigen.gene": "Plod1"}), row=1)
+    allocated = {("c.txt", 1): [("VDJDB0000000009", _key(**{"antigen.gene": "Plod2"}))]}
+    assert _successor(a, allocated, Counter({("c.txt", 1): 1})) == "VDJDB0000000009"
+    assert _successor(a, allocated, Counter({("c.txt", 1): 2})) == ""
+    two = {("c.txt", 1): [("VDJDB0000000009", _key()), ("VDJDB0000000010", _key())]}
+    assert _successor(a, two, Counter({("c.txt", 1): 1})) == ""
+
