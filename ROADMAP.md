@@ -183,16 +183,32 @@ Phases 0 to 14 are merged to `master` as of 2026-09-27, and phase 15 is half lan
 against the last release reads PASS with every difference declared and measured, and the release dry
 run produces three reproducible bundles. `ROADMAP_local.md` carries the per-phase record.
 
-**`dev` ahead of `master`, 2026-09-29.** What is on `dev` and not promoted: the interactive dashboard,
-the junction-anchor check, the junction-nt batch call, the profile fix, and the comparison of the
-shipped bundle rather than of `out/legacy`. The comparison now runs on the assembled legacy zip over
-all twelve of its members - it named five with `--only` until then - and reads PASS. Two declarations
-make that possible and are part of the release contract: `[members]` for a change of bundle shape
-(today the two TCREMP motif tables) and `[measured_elsewhere]` for a member another instrument gates,
-with the instrument named. §5 has both.
+**`dev` ahead of `master`, 30 commits as of 2026-09-29.** Earlier: the interactive dashboard, the
+junction-anchor check, the junction-nt batch call, the profile fix, and the comparison of the shipped
+bundle rather than of `out/legacy`. That comparison now runs on the assembled legacy zip over all
+twelve of its members - it named five with `--only` until then - and reads PASS. Two declarations make
+that possible and are part of the release contract: `[members]` for a change of bundle shape (today
+the two TCREMP motif tables) and `[measured_elsewhere]` for a member another instrument gates, with
+the instrument named. §5 has both.
 
-**Dependency state.** `arda-mapper >= 2.30.1`, `vdjtools >= 4.5`. The 4.5 bump is what closed the
-junction-nt bottleneck; nothing else in the build reads a 4.x-only API.
+Since, and closing on the promotion - #658, #672, #675, #647, #671, #648:
+
+| | What | Measured |
+|---|---|--:|
+| #658 | `res/` retired; arda's IMGT reference replaces a 2023 import's by-product | J proposal +347 calls |
+| #672 | `registry/records.tsv` committed, refreshed and gated | 592 amendments were stale |
+| #675 | ten input files given a final newline, two rows padded to 33 fields | 12 files |
+| #646 | junctions repaired against their own germline anchor, four commits | **4,838** chains |
+| #647 | the mouse TRAJ47 allele read off the junction | `anchors.tsv` 5,959 -> **1,037** |
+| #671 | a `[[rename]]` scoped to its organism | 79 mouse rows un-mis-keyed |
+| #648 | the spectratype grouped on 500 buckets, not 164,131 CDR3s | dashboard 152 s -> **22.8 s** |
+
+#646 is not closed by them: 261 chains still carry a germline-supported repair the build proposes and
+does not apply, and the reasons are per-case. #685 is open and blocks #637's `reference.id` half.
+
+**Dependency state.** `arda-mapper >= 2.31`, `vdjtools >= 4.7`. The 4.5 bump closed the junction-nt
+bottleneck; 4.7 and arda 2.31 carry the two germline-boundary defects this build raised upstream
+(`arda#135` `TruncatedGermline`, and `germline_boundary`), and nothing else here reads a 4.x-only API.
 
 Phase 2 came first: the harness had to show zero diffs against the then-current build before any
 behaviour changed, so that later differences could be attributed.
