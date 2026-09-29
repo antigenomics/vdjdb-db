@@ -131,6 +131,12 @@ The moment a release contains more than one zip, vdjmatch picks an arbitrary one
 Corollary: the legacy zip's member basenames must stay `vdjdb.txt`, `vdjdb.slim.txt`,
 `vdjdb_full.txt`, which is what vdjmatch's member lookup keys on.
 
+**State, checked 2026-09-29: unmet.** `_zip_asset` is still the four lines above. `manifest.json`
+ships a `role` per bundle from this side, so step 1 has everything it needs to key on, and the
+release dry-run produces the three zips - but until the patch and the release land, a VDJdb release
+carrying more than one zip gives vdjmatch an arbitrary one. This gate belongs to the author; nothing
+in this repository closes it.
+
 ### 3.2 Phase −1: unblocking fixes
 
 None of the three is part of the rewrite.
@@ -138,7 +144,7 @@ None of the three is part of the rewrite.
 | Fix | Blocks |
 |---|---|
 | The `vdjmatch` patch above | "three zips per release" |
-| Correct `latest-version.txt` line 1; delete the stale `database/` copy | every client that still reads it |
+| Correct `latest-version.txt` line 1; delete the stale `database/` copy | every client that still reads it. **Done**: line 1 names `2026-06-03/vdjdb-2026-06-03.zip`, which is the published latest release's asset, and `database/latest-version.txt` is untracked - only `dummy` and the two `*.meta.txt` files are. `release.yml` writes line 1 before the build and commits it after the release exists, then fetches it and fails on anything but 200 |
 | Replace the seven `.T.apply` calls and the `ScoreFactory` `iterrows` | "runs on 16 GB GitHub-hosted runners" |
 
 ### 3.3 Backgrounds
@@ -159,10 +165,10 @@ an output of it, and a stale vendored copy would change a call set with no error
 | 2 | merged | `feature/golden-harness` | `vdjdb diff` + `expected_diffs.toml` | - | zero diffs against the current pandas build; nothing downstream starts without this |
 | 3 | merged | `feature/io-qc` | polars reader, vectorised QC, `--strict` exit-1, chunk header normalisation, `.tsv` rename | #497 | QC report matches the pandas report row-for-row; harness still zero |
 | 4 | merged | `feature/pipeline-core` | the definitive tables (`records`, `chains`) + harmonize + score + pairing; the legacy export as a projection of them; deletes `py_src/` | #424, #399 | every difference against the release is a declared rule firing its measured count; peak RSS < 8 GB |
-| 5 | merged | `feature/arda-cdr3fix` | `arda.cdr3fix` replaces `Cdr3Fixer.py`; retires `res/segments*.txt` | - | new `expected_diffs.toml` rule, row count measured then frozen |
+| 5 | part | `feature/arda-cdr3fix` | `arda.cdr3fix` replaces `Cdr3Fixer.py` | - | new `expected_diffs.toml` rule, row count measured then frozen. ⚠ **`res/segments*.txt` is not retired** and this row claimed it was: three call sites still read it, one of them on every build (`_legacy_guess.guess_segments` fills a blank V/J before arda runs, because arda repairs against a *named* germline and never proposes one). Its V half has never worked - 0 of 1,189 TRB and 1 of 1,111 TRA - and `vdjtools` 4.5's batched marginalised pass covers it. Retiring it changes which germline arda repairs against, so it is a data change with its own declared rules: #658 |
 | 6 | merged | `feature/new-format` | ships the definitive tables as parquet + TSV, adds `evidence`, `vdjdb.schema.json` | - | `make legacy` from the shipped tables still passes the harness |
 | 7 | merged | `feature/airr` | `emit/airr.py` (Rearrangement + Reactivity), `convert/coords.py`, `vdjdb convert` | - | `airr.validate_rearrangement` passes on the full table; the legacy path produces nothing the tables path does not |
-| 8 | merged | `feature/junction-nt`, `feature/segment-guess`, `feature/dgene` | one branch each | #461, #462, #463 | generated `cdr3nt` back-translates to `cdr3` |
+| 8 | merged | `feature/junction-nt`, `feature/segment-guess`, `feature/dgene` | one branch each | #461, #462, #463 | generated `cdr3nt` back-translates to `cdr3`. The stage was 87.2 % of assembly on `vdjtools` 3.13 and ran as four worker processes over contiguous slices; 4.5 published `infer_nt_batch` (`antigenomics/vdjtools#181`) and it is now one batched call per (species, locus), **114.93 s → 12.44 s**, #656 |
 | 9 | merged | `feature/harmonize-rules` | nomenclature rule tables | #327, #389, #347, #368, #564, #467, #561 | each rule gets an `expected_diffs.toml` entry with a measured row count |
 | 10 | merged | `feature/motifs-tcrnet` | TCRNET on `vdjtools`, streaming backgrounds | - | deviation report accepted |
 | 11 | merged | `feature/motifs-tcremp` | TCREMP + per-epitope DBSCAN; new motif schema; legacy projections | - | beats the shipped `cluster_members_tcremp.txt` re-scored in our harness, per §8.4 |
@@ -173,9 +179,20 @@ an output of it, and a stale vendored copy would change a call set with no error
 | 16 | part | `feature/identity` | the four derived id levels, the lifecycle record, `vdjdb identity`, promiscuity columns, one study count | - | every invariant of §10.5 passes; a permuted chunk order changes no id; the dashboard reports 638 of 638 references |
 | 17 | merged | `feature/corpus` | the reference corpus: documents, vocabulary, postings, `score` and `lift` | - | the three files reproducible by digest; `score` reproduces the `refsearch` ranking; `lift` answers a specificity question with an n |
 
-Phases 0 to 14 are merged to `master` as of 2026-09-27, and phase 15 is half landed: the comparison against the last release
-reads PASS with every difference declared and measured, and the release dry-run produces three
-reproducible bundles. `ROADMAP_local.md` carries the per-phase record.
+Phases 0 to 14 are merged to `master` as of 2026-09-27, and phase 15 is half landed: the comparison
+against the last release reads PASS with every difference declared and measured, and the release dry
+run produces three reproducible bundles. `ROADMAP_local.md` carries the per-phase record.
+
+**`dev` ahead of `master`, 2026-09-29.** What is on `dev` and not promoted: the interactive dashboard,
+the junction-anchor check, the junction-nt batch call, the profile fix, and the comparison of the
+shipped bundle rather than of `out/legacy`. The comparison now runs on the assembled legacy zip over
+all twelve of its members - it named five with `--only` until then - and reads PASS. Two declarations
+make that possible and are part of the release contract: `[members]` for a change of bundle shape
+(today the two TCREMP motif tables) and `[measured_elsewhere]` for a member another instrument gates,
+with the instrument named. §5 has both.
+
+**Dependency state.** `arda-mapper >= 2.30.1`, `vdjtools >= 4.5`. The 4.5 bump is what closed the
+junction-nt bottleneck; nothing else in the build reads a 4.x-only API.
 
 Phase 2 came first: the harness had to show zero diffs against the then-current build before any
 behaviour changed, so that later differences could be attributed.
@@ -188,18 +205,24 @@ the files it creates, the facts it needs (already measured, in §7/§8), and the
 
 ## 4a. Issue tracker composition
 
-Measured 2026-09-25 with `gh`: 440 issues, 130 open. Grouped by label, the open ones are
+Re-measured 2026-09-29 with `gh`: 458 issues, **123 open**, against 440 / 130 on 2026-09-25.
+Grouped by label, one category per issue and intake winning a tie:
 
-| Category | Open | What they are |
-|---|---|---|
-| data intake | 103 (79 %) | pending papers (79), preprints (9), paper-pending (3), meta-papers (4), 10x/Immudex sets (5), associations (9), other databases (1), correspondence (2) |
-| curation quality | 22 | formatting & proofreading (18), typos, structural, validation |
-| build infrastructure | 13 | the build, the summary, maintenance |
+| Category | Open, 2026-09-25 | Open, 2026-09-29 | What they are |
+|---|---:|---:|---|
+| data intake | 103 (79 %) | **101 (82 %)** | pending papers, preprints, paper-pending, meta-papers, 10x/Immudex sets, associations, other databases, correspondence |
+| curation quality | 22 | 8 | formatting & proofreading, typos, structural, validation |
+| build infrastructure | 13 | 14 | the build, the summary, maintenance |
 
-Some issues have more than one label, so the columns overlap slightly.
+The intake row is unchanged in substance - two landed - and the other two rows moved because the
+build work both closed issues and filed new ones from its own measurements: the four days added #650
+(the profile double-count), #652 (the shipped zips were never compared), #656 (the junction-nt
+bottleneck) and #658 (`res/` is not retired), and closed #638 among others. That the composition is
+*stable* is the point of this section: four open issues out of five are a submission queue whatever
+the build does.
 
 Four out of five open issues are a submission queue, not a defect list. This migration closes
-issues from the bottom two rows only, thirteen of them, and nothing it does shortens the first
+issues from the bottom two rows only, and nothing it does shortens the first
 row. Three decisions follow from that:
 
 * `chunk-check.yml` has a three-minute budget, because it is the job the submission queue runs
@@ -235,6 +258,39 @@ with no metadata row; `vdjdb.score` and `TCR_hash` are listed after `cdr3fix` bu
 
 Any unmatched difference fails. A rule that fires a different number of times than declared also
 fails, which is why every rule declares a measured row count rather than a description.
+
+### What the comparison runs on, and what it is not the instrument for
+
+It runs on the **assembled legacy zip**, so the thing compared is the file a consumer downloads. It
+compared `out/legacy` with five members named by `--only` until 2026-09-29, which left seven of the
+bundle's twelve members unread; running it on the zip with nothing declared gave **101,877
+unattributed cells**, every one in a motif file or in `latest-version.txt` while the five legacy
+tables were fully attributed.
+
+Two declarations replace the `--only`, and both are part of the release contract:
+
+```toml
+[members]
+added = ["cluster_members_tcremp.txt", "motif_pwms_tcremp.txt"]
+
+[measured_elsewhere]
+"cluster_members.txt" = "vdjdb motif-metrics, 18 axes; column order by test_reference_contract.py"
+```
+
+`[members]` declares a change of bundle shape - an undeclared new or missing member still fails.
+`[measured_elsewhere]` names, per member, the instrument that gates it instead; such a member is still
+read, digested, row-counted and printed, and is exempt only from cell attribution and the row-bucket
+declaration. Four members are listed: the two motif tables, because `cid` carries a position in a
+sorted list and one renumbered cluster relabels every cluster after it (32,703 of 55,636 reference
+rows key to nothing); `vdjdb_summary_embed.html`, gated by `summary/check_summary.py` on three layers;
+and `LICENSE`, which ships verbatim from the repository root.
+
+What replaces the row comparison for the clustering is a per-record measure:
+`partition_neighbours_preserved` asks, of every clonotype the last release clustered, what fraction of
+its cluster-mates this build still gives it - **0.9224 on TRB and 0.7024 on TRA**. It is per record
+rather than per pair because the released TRB clustering puts 19,971 of its 36,906 clonotypes in one
+cluster holding 94.7 % of the file's co-clustered pairs, so a pair-weighted score measures that one
+blob: the do-nothing partition reads 0.9991 on it (`docs/clustering.md` §8.0).
 
 ### Canonical equality
 
@@ -275,7 +331,8 @@ not drafts; do not re-derive them.
 | `arda.cdr3fix` vs shipped `cdr3fix`, 20,000-row sample (seed 42) | `cdr3` 97.81 % · `vFixType` 97.95 % · `vEnd` 96.53 % · `good` 95.68 % · `jFixType` 95.44 % · `jStart` 91.02 % | arda 2.27.0 |
 | …of the 1,797 `jStart` disagreements | 556 VDJdb-unmapped → arda-mapped · 1,241 both mapped, arda smaller in every case (mode −2, range −1…−8) · 0 coverage regressions | NW with free end gaps vs k-mer longest-hit |
 | `arda.cdr3fix.markup_batch` throughput | 27 µs/record → 5.2 s for 191,440 distinct keys | not vectorised internally; fast enough at this scale |
-| `vdjtools.model.infer_nt` | 3.11 ms/record → ~15 min for 284,546 rows | human TRB, warm, single-threaded |
+| `vdjtools.model.infer_nt`, per row | 3.11 ms/record on `vdjtools` 3.13, 1.115 ms on 4.5 | human TRB, warm, single-threaded |
+| `vdjtools.model.infer_nt_batch` | **0.106 ms/key, 10.5x the per-row loop, and all 3,000 nucleotide sequences identical** | 3,000 distinct human TRB keys, 16 cores, `vdjtools` 4.5. End to end: `add_junction_nt` 114.93 s → 12.44 s, the assemble stage 148.08 s → 37.96 s, `vdjdb build` 45.9 s wall |
 | `vdjdb.txt` row/field shape | 284,546 rows, all exactly 22 fields, zero empty `cdr3fix` | keep and assert; raggedness is not a current defect |
 | Quote characters in the release tables | present in every `method` / `meta` / `cdr3fix` cell, because they are JSON. What is absent is a *quoted field*: no field begins with `"` | the plan's "zero `\"` characters" was wrong. `quote_style="never"` is still exact: a default CSV writer would wrap every JSON cell and double its quotes |
 | `vdjdb_full.txt` rebuilt by the current pandas pipeline vs the 2026-06-03 release | 119,169,153 bytes both, 192,755 lines both, canonical digest identical, raw digest differs | the reproduction contract holds on the largest table; the raw difference is exactly the `os.listdir` chunk order |
@@ -922,10 +979,12 @@ holds.
 One branch each; all three write new-format columns only, so the harness stays green by
 construction.
 
-1. junction-nt (#461): `vdjtools.model.infer_nt` on the unique `(species, cdr3, v, j)` set, four
-   big contiguous slices, never a per-record pool. 3.11 ms/record → ~15 min (§7). No cache: the
-   ~15 min is inside the budget and the output is authoritative data, not a derived convenience
-   (hard rule 9). Test: the generated `cdr3nt` back-translates to the input `cdr3`.
+1. junction-nt (#461): `vdjtools.model.infer_nt_batch` on the unique `(species, cdr3, v, j)` set,
+   one call per (species, locus) and nothing wrapping it - it releases the GIL and partitions the
+   batch across its own kernel threads, so a pool of ours would oversubscribe the machine (hard rule
+   3). 0.106 ms/key, 12.44 s for the corpus (§7). No cache: the output is authoritative data, not a
+   derived convenience (hard rule 9). Test: the generated `cdr3nt` back-translates to the input
+   `cdr3`, and the batched result equals the per-row loop field for field.
 2. segment-guess (#462): kmer candidates vectorised, ties broken by one `pgen_aa_batch` call.
 3. dgene: `arda.dpost.posterior_d` (human IGH/TRB/TRD + mouse TRB only; it returns `None`
    elsewhere rather than guessing, and that `None` must be preserved, not defaulted).
