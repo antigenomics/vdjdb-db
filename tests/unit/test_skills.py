@@ -204,10 +204,7 @@ def _subcommands() -> set[str]:
 def test_every_vdjdb_command_a_skill_shows_exists(doc: Path) -> None:
     """The skills now drive the CLI rather than carrying their own copy of what it does, which is only
     an improvement while the command names are right."""
-    known = _subcommands() | {"run"}          # `uv run vdjdb ...`
-    shown = set(VDJDB_COMMAND.findall(doc.read_text())) - {"qc"} | (
-        {"qc"} if "vdjdb qc" in doc.read_text() else set())
-    unknown = sorted(shown - known)
+    unknown = sorted(set(VDJDB_COMMAND.findall(doc.read_text())) - _subcommands())
     assert not unknown, f"{doc.relative_to(ROOT)} shows `vdjdb {unknown}`, which the CLI has not"
 
 
