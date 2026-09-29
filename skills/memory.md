@@ -1,11 +1,14 @@
 # VDJdb Skills — Session Memory
 
-This file is the **full running log** for all Claude Code sessions working on the VDJdb curation pipeline using the `/extract`, `/format`, and `/proofread` skills.
+> **Historical. Closed 2026-05-31, and no skill writes to it.** This was the running log for
+> sessions using the curation skills when they were invoked as `/extract`, `/format` and
+> `/proofread`; those are now `/vdjdb-extract`, `/vdjdb-format` and `/vdjdb-proofread`, and the
+> record of a curation decision goes where a reviewer will find it: the chunk's commit message, per
+> the chunk-change rule in `CLAUDE.md`, and a comment on that chunk's PMID issue. Entries below are
+> kept for the decisions they record, not as a protocol to continue.
 
-**Rules:**
-- Append entries; never delete
-- Compress into `memory_compressed.md` when this file exceeds ~300 lines
-- Always update the "Chunks in progress" table in `memory_compressed.md` at the end of each session
+Original protocol, no longer in force: append entries and never delete; compress into
+`memory_compressed.md` past ~300 lines; update the "Chunks in progress" table each session.
 
 ---
 
