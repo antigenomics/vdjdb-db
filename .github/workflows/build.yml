@@ -266,6 +266,22 @@ jobs:
               || echo '  (not produced)'; \
             echo '```'; } >> "$GITHUB_STEP_SUMMARY"
 
+
+      - name: Motif metrics report
+        if: always()
+        run: |
+          { echo '### Motif metrics'; echo; \
+            cat out/reports/motif-metrics.md 2>/dev/null || echo '(not produced)'; } \
+            >> "$GITHUB_STEP_SUMMARY"
+
+
+      - name: Tests
+        env:
+          VDJDB_REFERENCE_ZIP: reference.zip
+        run: |
+          . .github/stage-timing.sh
+          stage tests uv run pytest -q
+
       - name: Build timings report
         if: always()
         run: |
@@ -276,13 +292,6 @@ jobs:
             cat out/reports/build-timings.tsv 2>/dev/null || echo '(not produced)'; echo; \
             cat out/reports/motif-timings.tsv 2>/dev/null || echo '(not produced)'; \
             echo '```'; } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Motif metrics report
-        if: always()
-        run: |
-          { echo '### Motif metrics'; echo; \
-            cat out/reports/motif-metrics.md 2>/dev/null || echo '(not produced)'; } \
-            >> "$GITHUB_STEP_SUMMARY"
 
       # Everything the build measured, in one place. It was named `motif-metrics` and carried the
       # build timings, the QC summary and the release comparison as well, and it carried none of the
@@ -310,13 +319,6 @@ jobs:
             out/reports/functionality-summary.tsv
             out/reports/lookalikes.tsv
           retention-days: 90
-
-      - name: Tests
-        env:
-          VDJDB_REFERENCE_ZIP: reference.zip
-        run: |
-          . .github/stage-timing.sh
-          stage tests uv run pytest -q
 
       - name: Release assets
         if: inputs.tag != ''
