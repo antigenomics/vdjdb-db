@@ -19658,7 +19658,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 19913	CAVKDSGGYQKVTF	TRAV8-1	TRAJ13					HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		TACCTTAGTCACACGC-1					
 19914				CASSWDRGKETQYF	TRBV6-6	TRBD1	TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		TACCTTAGTGATAAAC-1					
 19915				CASSLRLPNFRETQYF	TRBV5-1		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		TACCTTAGTGCCTTGG-1					
-19916	CAVRVSSNTGKLIC	TRAV3	TRAJ37					HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		TACCTTAGTGCTGTAT-1					
+19916	CAVRVSSNTGKLIF	TRAV3	TRAJ37					HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		TACCTTAGTGCTGTAT-1					
 19917	CALMDSSYKLIF	TRAV16	TRAJ12					HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		TACCTTAGTTCCCTTG-1					
 19918	CAALAFGNEKLTF	TRAV21	TRAJ48					HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		TACCTTATCAAGGCTT-1					
 19919	CALDFDLGVTRKLPLEL	TRAV6	TRAJ13					HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		TACCTTATCCTAAGTG-1					
