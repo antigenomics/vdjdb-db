@@ -258,8 +258,8 @@ def unresolved(df: pl.DataFrame, root: Path | None = None) -> pl.DataFrame:
     ``alleles_match_check`` to the repaired master table and filed the rows that failed. Nothing
     replaced it. :func:`harmonise_segments` reports what it *rewrote*, and ``build_master`` discards
     even that, so every row naming a gene no authority carries reached every shipped table with no
-    report anywhere. Measured 2026-09-29 over the built corpus: 97 rows over 78 distinct names and 4,048 chain-calls,
-    against the 2,638 human chain-calls the retired check saw.
+    report anywhere. Measured 2026-09-29 over the built corpus: 97 rows over 78 distinct names
+    and 4,048 chain-calls, against the 2,638 human chain-calls the retired check saw.
 
     Three improvements on the check it replaces, each of which was a legacy defect:
 
