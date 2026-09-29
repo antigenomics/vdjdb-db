@@ -1,7 +1,7 @@
 level	rule	findings	chunks	advisory	tolerance
-row	duplicate	10555	59	true	2000
-row	internal cysteine in cdr3.beta	2804	94	true	700
-row	internal cysteine in cdr3.alpha	1521	69	true	400
+row	duplicate	9636	64	true	2000
+row	internal cysteine in cdr3.beta	2599	93	true	700
+row	internal cysteine in cdr3.alpha	1464	69	true	400
 row	non-functional v.beta	1022	74	true	300
 row	non-functional j.alpha	996	65	true	300
 row	non-functional j.beta	338	18	true	150
