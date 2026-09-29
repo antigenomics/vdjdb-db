@@ -233,18 +233,31 @@ def test_no_skill_tells_a_curator_to_write_the_classical_murine_prefix() -> None
                 f"{where} has `H-2` in the target cell of a from/to row:\n  {line.strip()}")
 
 
-def test_no_skill_states_the_fixed_junction_anchor_rule() -> None:
-    """"Starts with C, ends with F or W" was the retired build's `is_qq_seq_biologically_valid`. Over
-    the corpus it calls 481 correct chains broken - `TRAJ35*01` templates `IGFGNVLHC` - and misses 125
-    that are not consistent. The anchor is read from the germline of the segment the record names.
+def test_the_skills_state_the_junction_definition(_unused: None = None) -> None:
+    """A TCR junction starts with Cys104 and ends with Phe118 or Trp118, and has one cysteine. That is
+    the definition of the region, and an earlier revision of this test forbade stating it - on the
+    reading that germline agreement could make a non-canonical junction correct. It cannot: of the 864
+    corpus chains that fail the J anchor, 212 agree with an *ORF* allele's lost anchor, which is the
+    mis-called-allele finding one level up, and about 200 disagree with a germline that does carry the
+    Phe. The definition is what `v.canonical`, `j.canonical` and `cdr3.one.cysteine` ship as flags.
+
+    So this asserts the reverse: the skills that admit sequences say what a junction is.
     """
-    pattern = re.compile(r"end(?:s|ing)?\s+(?:with|in)\s+`?(?:F|Phe)`?(?:/|\s+or\s+)`?(?:W|Trp)`?",
-                         re.I)
-    for doc in (*DOCUMENTS, ROOT / "proofreading" / "cdr3_repair.md"):
-        for n, line in enumerate(doc.read_text().splitlines(), start=1):
-            if not pattern.search(line):
-                continue
-            # Naming the retired rule in order to reject it is the point of several of these lines.
-            assert re.search(r"\bno\b|not|never|calls|misses|assumed|retired|only\s+14|fixed", line, re.I), (
-                f"{doc.relative_to(ROOT)}:{n} states the fixed anchor rule as if it held:\n"
-                f"  {line.strip()}")
+    for name in ("vdjdb-extract", "vdjdb-proofread"):
+        body = _body(SKILLS / name / "SKILL.md")
+        assert re.search(r"start(?:s)? with `?C`?", body), f"{name} does not state the V anchor"
+        assert re.search(r"end(?:s)? (?:with|in) `?F`?", body), f"{name} does not state the J anchor"
+    shared = SHARED.read_text()
+    assert "definition" in shared and "Cys104" in shared, (
+        "AUTHORITIES.md no longer states the junction definition as a definition")
+
+
+def test_the_flags_a_skill_names_are_columns_the_build_ships() -> None:
+    """The skills tell a curator that a non-canonical record is kept and filterable. That is only true
+    while the columns carrying the flag exist."""
+    from vdjdb.schema import CHAIN_COLUMNS
+
+    named = {"v.canonical", "j.canonical", "cdr3.one.cysteine",
+             "v.canonical.submitted", "j.canonical.submitted"}
+    missing = sorted(named - set(CHAIN_COLUMNS))
+    assert not missing, f"the skills promise flags `chains` does not carry: {missing}"

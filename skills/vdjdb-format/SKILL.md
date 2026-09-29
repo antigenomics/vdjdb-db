@@ -63,10 +63,22 @@ Apply in order:
 6. **Ambiguous multi-calls** stay as a comma-separated list with no spaces (`TRBV7-2,TRBV7-3`), each
    part checked separately. The build reads `,`, `;`, `+` and `or` as separators.
 
-Do not check an allele number against a count of known alleles for the gene. That was the retired
-build's `alleles_match_check`, and it is a range check wearing the clothes of a membership check:
-`*07` passed and `*08` failed whether or not IMGT listed either. Its single finding on the whole
-corpus, `TRBV28*02`, is an allele IMGT has. Ask membership, of `imgt_alleles.tsv.gz`.
+**Bound the allele number.** An allele far above any real count is a spreadsheet artefact, not a
+call: someone drag-fills a column and gets `*01`, `*02`, `*03` ... `*112`. Two cheap checks catch it,
+and both fire on **zero** corpus rows today, so neither costs anything to enforce:
+
+- **Per value.** The highest allele number any TCR gene has in `imgt_alleles.tsv.gz` is 10, and the
+  highest in the whole corpus is `*08`. Anything past the named gene's own allele count is suspect;
+  anything past about 12 is not a call at all.
+- **Across rows.** The drag-fill signature is a *run*: the same gene with allele numbers stepping by
+  one down consecutive rows. Measured over `chunks/`, there is no such run of 5 or more anywhere, so
+  one appearing is the artefact and nothing else.
+
+Then adjudicate a flagged value against `imgt_alleles.tsv.gz` rather than deleting it on the bound
+alone - the bound is the detector, membership is the verdict. That order matters, because the bound
+has false positives on genes with many alleles: `TRAV8-4*07`, `TRBV20-1*07`, `TRBV7-9*07` and mouse
+`TRAV14D-3/DV8*08` are 19 corpus calls that IMGT does list. The retired build flagged one of them and
+had no membership test to resolve it with; now there is one.
 
 A gene whose IMGT functionality is `ORF` or `P` is reported, not rejected. `vdjdb qc` calls it
 `non-functional <column>` and treats it as advisory: a pseudogene can rearrange, and IMGT
