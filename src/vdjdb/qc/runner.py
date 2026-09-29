@@ -48,6 +48,11 @@ ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form", "duplicate"
                       "missing-file",
                       # The reader ignores columns it cannot name and reads the rest correctly.
                       "prose-column-name", "empty-column-name",
+                      # #634. IMGT's F / ORF / P verdict on a named segment. A pseudogene call is not
+                      # automatically wrong - a P gene can rearrange - and IMGT reclassifies genes
+                      # between releases, so a gate here would fail on a reference update.
+                      *(f"non-functional {c}" for c in
+                        ("v.alpha", "j.alpha", "v.beta", "j.beta")),
                       # #561: only a curator can decide which of the two chains is the wrong one.
                       "alpha and beta cdr3 identical",
                       # A named V or J whose chain has no CDR3. The call is information and the row

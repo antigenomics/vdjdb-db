@@ -108,6 +108,8 @@ def build(
     from .assemble.master import build_master
     from .assemble.tables import build_tables
     from .curate.anchors import noncanonical
+    from .curate.functionality import report as functionality_report
+    from .curate.functionality import summarise as functionality_summary
     from .curate.submission import lookalikes
     from .emit.airr import from_tables as airr_frames
     from .emit.airr import write_all as write_airr
@@ -155,6 +157,20 @@ def build(
         typer.echo(f"non-canonical junctions: {anchors.height:,} chain(s) over "
                    f"{anchors['chunk.file'].n_unique()} chunk(s), {fixable:,} with a "
                    f"germline-supported repair -> {out / 'reports' / 'anchors.tsv'}")
+
+    # IMGT's own F / ORF / P verdict on the segment each chain names (#634). `imgt_alleles.tsv.gz`
+    # has carried `functionality` since phase 9 and nothing read it: `vdjdb qc` asks whether a call
+    # looks like a TRBV name and `curate.nomenclature` asks whether IMGT has it, and neither asks
+    # whether IMGT thinks the gene is functional. Advisory, like `anchors.tsv` above -- a P gene can
+    # rearrange, and IMGT reclassifies genes between releases.
+    nonfunctional = functionality_report(built["chains"], built["records"])
+    nonfunctional.write_csv(out / "reports" / "functionality.tsv", separator="\t")
+    summary_rows = functionality_summary(nonfunctional)
+    summary_rows.write_csv(out / "reports" / "functionality-summary.tsv", separator="\t")
+    if not nonfunctional.is_empty():
+        typer.echo(f"segments IMGT does not call functional: {nonfunctional.height:,} chain(s) over "
+                   f"{nonfunctional['call'].n_unique()} call(s) "
+                   f"-> {out / 'reports' / 'functionality.tsv'}")
 
     if tables:
         for name, frame in built.items():

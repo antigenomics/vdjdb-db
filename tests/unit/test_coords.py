@@ -67,3 +67,37 @@ def test_the_two_origins_do_not_agree_by_accident():
 @given(st.integers(min_value=0, max_value=500), st.integers(min_value=0, max_value=5_000))
 def test_junction_space_to_sequence_space_round_trips(pos, start):
     assert coords.from_sequence(coords.to_sequence(pos, start), start) == pos
+
+
+# -- the fitted V/J boundary conversion ---------------------------------------------------------
+
+@pytest.mark.parametrize("nt", range(0, 40))
+def test_the_boundary_conversion_has_one_definition(nt: int) -> None:
+    """The scalar and the column form are the same arithmetic, asserted rather than assumed.
+
+    Two spellings of one coordinate conversion is what the module comment warns about, and this is
+    the only thing that stops them drifting - the scalar is what a reader reasons with and the
+    expression is what the build runs on 187,055 boundaries.
+    """
+    scalar = coords.nt_to_aa_boundary(nt)
+    column = (pl.DataFrame({"nt": [nt]})
+              .select(coords.nt_to_aa_boundary_expr(pl.col("nt")))
+              .item())
+    assert scalar == column
+
+
+def test_the_boundary_conversion_ceilings_where_nt_to_aa_floors() -> None:
+    """Fitted, not reasoned: each is the count of residues the segment touches, so a partly-covered
+    codon counts. Under floor the exact-match rates against the external truth set in
+    `tests/release/test_cdr3fix_accuracy.py` drop by tens of percent.
+    """
+    assert [coords.nt_to_aa_boundary(i) for i in range(7)] == [0, 1, 1, 1, 2, 2, 2]
+    assert [coords.nt_to_aa(i) for i in range(7)] == [0, 0, 0, 1, 1, 1, 2]
+
+
+@pytest.mark.parametrize("bad", [None, -1, -7])
+def test_an_unmapped_boundary_stays_unmapped(bad) -> None:
+    """A null or a negative is "the engine declined", and it must not become residue 0."""
+    got = (pl.DataFrame({"nt": [bad]}, schema={"nt": pl.Int64})
+           .select(coords.nt_to_aa_boundary_expr(pl.col("nt"))).item())
+    assert got == -1
