@@ -26,7 +26,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 26	CAGGGNQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/172		sanger			CD8+		Older	DonorB				PBMC			
 27	CAGGGSQENLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/172		sanger			CD8+		Older	DonorB				PBMC			
 28	CAGGGSQGNRIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/172		sanger			CD8+		Older	DonorB				PBMC			
-29	CAGGGSQGNLIS	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/172		sanger			CD8+		Older	DonorB				PBMC			
+29	CAGGGSQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/172		sanger			CD8+		Older	DonorB				PBMC			
 30	CAGGGSQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	97/172		sanger			CD8+		Older	DonorB				PBMC			
 31	CAGASGSSNTGKLIF	TRAV27*01	TRAJ37*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	12/172		sanger			CD8+		Older	DonorB				PBMC			
 32	CAGAVGSSNTGKLIF	TRAV27*01	TRAJ37*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/172		sanger			CD8+		Older	DonorB				PBMC			
@@ -50,12 +50,12 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 50	CAGALYNQGGKLIF	TRAV27*01	TRAJ23*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/150		sanger			CD8+		Older	DonorE				PBMC			
 51	CAGASGSARQLTF	TRAV27*01	TRAJ22*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	78/150		sanger			CD8+		Older	DonorE				PBMC			
 52	CAGVLFWFCKATDLTF	TRAV27*01	TRAJ22*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	3/150		sanger			CD8+		Older	DonorE				PBMC			
-53	CAGASGSARQLTI	TRAV27*01	TRAJ22*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/150		sanger			CD8+		Older	DonorE				PBMC			
+53	CAGASGSARQLTF	TRAV27*01	TRAJ22*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/150		sanger			CD8+		Older	DonorE				PBMC			
 54	CAGASGSARQLTF	TRAV27*01	TRAJ22*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/150		sanger			CD8+		Older	DonorE				PBMC			
 55	CAGSGYNFNKFYF	TRAV27*01	TRAJ21*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	3/150		sanger			CD8+		Older	DonorE				PBMC			
 56	CAGAKVDDYKLSF	TRAV27*01	TRAJ20*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	35/150		sanger			CD8+		Older	DonorE				PBMC			
 57	CAGAPGDDYKLSF	TRAV27*01	TRAJ20*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	2/150		sanger			CD8+		Older	DonorE				PBMC			
-58	CAGAKVDDYKLSS	TRAV27*01	TRAJ20*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/150		sanger			CD8+		Older	DonorE				PBMC			
+58	CAGAKVDDYKLSF	TRAV27*01	TRAJ20*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/150		sanger			CD8+		Older	DonorE				PBMC			
 59	CAPAPQETSGSRLTF	TRAV27*01	TRAJ58*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	2/166		sanger			CD8+		Older	DonorF				PBMC			
 60	CAGYTTSYDKVIF	TRAV27*01	TRAJ50*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/166		sanger			CD8+		Older	DonorF				PBMC			
 61	CAGAPSYDKVIF	TRAV27*01	TRAJ50*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/166		sanger			CD8+		Older	DonorF				PBMC			
@@ -260,7 +260,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 260	CAMTLKAAGNKLTF	TRAV12-3	TRAJ17*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/128		sanger			CD8+		Older	DonorF				PBMC			
 261	CAAANQAGTALIF	TRAV12-2,TRAV12-3	TRAJ15*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	3/128		sanger			CD8+		Older	DonorF				PBMC			
 262	CVVTAGSALIF	TRAV12-1	TRAJ15*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	2/128		sanger			CD8+		Older	DonorF				PBMC			
-263	CAVKKGSGGYQKVTS	TRAV12-2	TRAJ13*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	4/128		sanger			CD8+		Older	DonorF				PBMC			
+263	CAVKKGSGGYQKVTF	TRAV12-2	TRAJ13*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	4/128		sanger			CD8+		Older	DonorF				PBMC			
 264	CVVNANTGGFKTIF	TRAV12-1	TRAJ9*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/128		sanger			CD8+		Older	DonorF				PBMC			
 265	CAMMKTGGFKTIF	TRAV12-3	TRAJ9*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	8/128		sanger			CD8+		Older	DonorF				PBMC			
 266	CAVKETGGFKTIF	TRAV12-2	TRAJ9*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/128		sanger			CD8+		Older	DonorF				PBMC			
@@ -315,7 +315,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 315	CAMGSVYGGATNKLIF	TRAV12-3	TRAJ33*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/77		sanger			CD8+		Middle-aged	Donor3				PBMC			
 316	CAVNIPLGARLMF	TRAV12-2	TRAJ31*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/77		sanger			CD8+		Middle-aged	Donor3				PBMC			
 317	CAVRDRDDKIIF	TRAV12-2	TRAJ30*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/77		sanger			CD8+		Middle-aged	Donor3				PBMC			
-318	CVVIGSGNTPLVL	TRAV12-1	TRAJ29*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	2/77		sanger			CD8+		Middle-aged	Donor3				PBMC			
+318	CVVIGSGNTPLVF	TRAV12-1	TRAJ29*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	2/77		sanger			CD8+		Middle-aged	Donor3				PBMC			
 319	CARDGGGNTPLVF	TRAV12-2,TRAV12-3	TRAJ29*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	19/77		sanger			CD8+		Middle-aged	Donor3				PBMC			
 320	CAVKEGAGSYQLTF	TRAV12-2	TRAJ28*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/77		sanger			CD8+		Middle-aged	Donor3				PBMC			
 321	CASGAGSYQLTF	TRAV12-2,TRAV12-3	TRAJ28*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	21/77		sanger			CD8+		Middle-aged	Donor3				PBMC			
@@ -591,7 +591,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 591	CAGGYGGSQGNHIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	7/163		sanger			CD8+		Middle-aged	Donor2				PBMC			
 592	CAGGGSQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	12/163		sanger			CD8+		Middle-aged	Donor2				PBMC			
 593	CAGEGGGSQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	5/163		sanger			CD8+		Middle-aged	Donor2				PBMC			
-594	CAGAYGGSQGNLIL	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/163		sanger			CD8+		Middle-aged	Donor2				PBMC			
+594	CAGAYGGSQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/163		sanger			CD8+		Middle-aged	Donor2				PBMC			
 595	CAGAYGGSQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	7/163		sanger			CD8+		Middle-aged	Donor2				PBMC			
 596	CATPGDGGSQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/163		sanger			CD8+		Middle-aged	Donor2				PBMC			
 597	CAGATDAGNMLTF	TRAV27*01	TRAJ39*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	2/163		sanger			CD8+		Middle-aged	Donor2				PBMC			
@@ -650,12 +650,12 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 650	CAGVGGGSQENLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/160		sanger			CD8+		Middle-aged	Donor8				PBMC			
 651	CAGPGGQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	21/160		sanger			CD8+		Middle-aged	Donor8				PBMC			
 652	CAGGGSRGNRIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	2/160		sanger			CD8+		Middle-aged	Donor8				PBMC			
-653	CAGGGSQGNLIS	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/160		sanger			CD8+		Middle-aged	Donor8				PBMC			
+653	CAGGGSQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/160		sanger			CD8+		Middle-aged	Donor8				PBMC			
 654	CAGGGSQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	35/160		sanger			CD8+		Middle-aged	Donor8				PBMC			
 655	CAAGGSQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	2/160		sanger			CD8+		Middle-aged	Donor8				PBMC			
 656	CAGAYGGSQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	43/160		sanger			CD8+		Middle-aged	Donor8				PBMC			
 657	CAGAPGGGSQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	2/160		sanger			CD8+		Middle-aged	Donor8				PBMC			
-658	CAGALGGGSQGNLIL	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/160		sanger			CD8+		Middle-aged	Donor8				PBMC			
+658	CAGALGGGSQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/160		sanger			CD8+		Middle-aged	Donor8				PBMC			
 659	CAGALGGGSQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	11/160		sanger			CD8+		Middle-aged	Donor8				PBMC			
 660	CAGAGGGSQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	16/160		sanger			CD8+		Middle-aged	Donor8				PBMC			
 661	CAGVGGGSQGNLIF	TRAV27*01	TRAJ42*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	8/160		sanger			CD8+		Middle-aged	Donor8				PBMC			
@@ -764,7 +764,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 764	CAWDGGGNTPLVF	TRAV12-2,TRAV12-3	TRAJ29*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/149		sanger			CD8+		Middle-aged	Donor7				PBMC			
 765	CAVEGAGSGAGSYQLTF	TRAV12-2	TRAJ28*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/149		sanger			CD8+		Middle-aged	Donor7				PBMC			
 766	CAVPSGAGSYQLTF	TRAV12-2	TRAJ28*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	11/149		sanger			CD8+		Middle-aged	Donor7				PBMC			
-767	CAVPSGAGSYQLTL	TRAV12-2	TRAJ28*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/149		sanger			CD8+		Middle-aged	Donor7				PBMC			
+767	CAVPSGAGSYQLTF	TRAV12-2	TRAJ28*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/149		sanger			CD8+		Middle-aged	Donor7				PBMC			
 768	CAVSTGGGNELTF	TRAV12-2	TRAJ10*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	8/149		sanger			CD8+		Middle-aged	Donor7				PBMC			
 769				CASSIRSSYEQYF	TRBV19-1*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	7/106		sanger			CD8+		Middle-aged	Donor1				PBMC			
 770				CASSARVGNEQYF	TRBV19-1*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:25609818	cultured-T-cells	1/106		sanger			CD8+		Middle-aged	Donor1				PBMC			
