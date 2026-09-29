@@ -55,8 +55,8 @@ k is 3 for both k-mer families. Over 2,118 epitopes of 7 to 25 residues and 180,
 3-mer has a document frequency worth an inverse document frequency, while a 5-mer is close to an
 identifier of its own sequence and a 2-mer is in nearly every document.
 
-**Why `k:` and `kv:` both.** "Is this CDR3 motif carrying the association, or the V gene that
-templates it?" is a comparison between the lift of `k:CAS` on an epitope's documents and its lift on
+**Why `k:` and `kv:` both.** "Is the `CAS` motif specific to HIV-1, or to its TRBV?" is a
+comparison between the lift of `k:CAS` on an epitope's documents and its lift on
 those documents already carrying that V gene. One token cannot express it and neither can a single
 search ranking.
 

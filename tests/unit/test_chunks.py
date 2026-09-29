@@ -146,6 +146,35 @@ def test_a_field_outside_the_dedup_key_does_not_split_a_duplicate(tmp_path: Path
     assert dedup(read_chunk(p)).height == 1
 
 
+def test_the_read_path_loses_nothing_but_declared_duplicates() -> None:
+    """Every row `chunks/` holds is a record or a within-chunk duplicate on `CHUNK_DEDUP_KEY`.
+
+    `EXPECTED_RECORDS` in `tests/release/test_tables_contract.py` pins the total, and a total tells
+    you a number moved without telling you why. This pins the *reason*: the only transformation
+    between the files and the frame the build reads is the declared deduplication. A filter added to
+    the read path - dropping a blank CDR3, skipping a species with no germline - would lose curated
+    records silently, and the release tier is where it would otherwise be noticed, needing a
+    reference zip a laptop does not have.
+
+    Runs on the corpus rather than a fixture, because a fixture cannot catch a filter conditioned on
+    a value only real data carries.
+    """
+    # Counted off disk, because that is the only count no part of the read path can influence.
+    # Comparing two reads against each other cannot catch a filter inside `read_chunk`: it would
+    # apply to both sides of the comparison and the equality would still hold.
+    on_disk = sum(len([ln for ln in f.read_bytes().split(b"\n") if ln.strip()]) - 1
+                  for f in chunk_files())
+    raw = read_chunks(deduplicate=False)
+    assert raw.height == on_disk, (
+        f"{on_disk - raw.height} curated line(s) did not survive reading. The reader normalises "
+        "and annotates; it must never select.")
+
+    kept = read_chunks()
+    assert kept.equals(dedup(raw)), "the read path applied something other than dedup()"
+    # Provenance survives for every kept row, so any record traces back to a curator's line.
+    assert kept.select("chunk.file", "chunk.row").n_unique() == kept.height
+
+
 # --------------------------------------------------------------------------------------------
 # Row rules
 # --------------------------------------------------------------------------------------------
