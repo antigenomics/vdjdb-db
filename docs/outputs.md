@@ -164,11 +164,23 @@ describe the D of the recombination scenario that produced `cdr3nt`, so the coor
 sequence (0-based, half-open). They agree with the curated call at gene level on 78.4 % of the 40,892
 beta chains that have one.
 
-`v.inferred` and `j.inferred` hold a model-proposed call only where the curator named none (#462):
-686 of the 711 chains with no V, 298 of the 596 with no J. They never sit beside a curated call. Read
-their accuracy before using them: recovering a hidden V from the junction alone works on 23.8 % of
-human TRB and 50.1 % of TRA, because the junction contains little V sequence; the J side is 95–98 %
-(ROADMAP §21).
+`v.inferred` and `j.inferred` hold a call proposed from the junction, and only where the publication
+named no segment (#462, #658): 706 of the 745 chains with no V, and 3,272 chains with no submitted J.
+They never sit beside a curated call.
+
+The two do not have the same standing, and the split is deliberate. **`j.inferred` also ships**, in
+`j.segm`, as the equivalent has in every release; `v.inferred` ships nowhere, and `v.segm` stays blank
+on all 745 chains whose publication left it blank. The reason is measured: recovering a hidden J from
+the junction alone works on 93.6–97.5 % of chains at gene level, because a J germline templates a
+distinctive 3′ motif, while a V works on 23.8–50.1 %, because the junction contains little V sequence
+and most of what it does contain templates the same `CAS`. So the J proposal is good enough to be the
+record's J and the V proposal is not; it is offered beside the blank instead.
+
+Two sources answer, in order: the recombination model (`vdjtools.model.infer_nt_batch`, with the blank
+side marginalised), then arda's germline anchor table where the model declines - which is also the only
+source for a species no model covers, and is what fills the 74 macaque `j.alpha` blanks that nothing
+filled before. Until #658 this was a k-mer scan over `res/segments.txt`, a by-product of a 2023 IMGT
+import whose V half never worked at all: 3 non-empty guesses in 4,000 sequences.
 
 **`v.end.inferred` and `j.start.inferred` are the two sources of a V/J boundary, kept apart on
 purpose (#631).** `v.end` and `j.start` are `arda.cdr3fix`'s answer, read off its protein alignment

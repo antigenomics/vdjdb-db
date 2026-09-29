@@ -41,7 +41,6 @@ def qc(
 def submission(
     paths: list[Path] = typer.Argument(..., help="The chunk files a pull request changes."),
     chunks: Path | None = typer.Option(None, help="Chunk directory; default chunks/."),
-    engine: str = typer.Option("arda", help="CDR3 markup engine: arda or legacy."),
     out: Path | None = typer.Option(None, help="Write the report here instead of stdout."),
 ) -> None:
     """What the named chunks contribute: records, scores, and values new to VDJdb.
@@ -53,7 +52,7 @@ def submission(
     from .curate.submission import report
 
     text = report([str(p) for p in paths],
-                  build_master(sorted(chunks.glob("*.txt")) if chunks else None, engine=engine))
+                  build_master(sorted(chunks.glob("*.txt")) if chunks else None))
     if out:
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(text)
@@ -100,7 +99,6 @@ def build(
     legacy: bool = typer.Option(True, help="Write the legacy projection."),
     airr: bool = typer.Option(True, help="Write the AIRR projection."),
     release: str = typer.Option("dev", help="Release tag recorded on new evidence rows."),
-    engine: str = typer.Option("arda", help="CDR3 markup engine: arda or legacy."),
 ) -> None:
     """Assemble the database: the definitive tables, and every format projected from them."""
     import polars as pl
@@ -125,7 +123,7 @@ def build(
     timing_reset()
     paths = chunk_files(chunks) if chunks else None
     with stage("assemble.master.build_master"):
-        master = build_master(paths, engine=engine)
+        master = build_master(paths)
     built = build_tables(master, release=release)
     out.mkdir(parents=True, exist_ok=True)
 
@@ -241,11 +239,11 @@ def rules(
     import polars as pl
 
     from .curate.nomenclature import (
+        allele_resolver,
         disambiguate_alleles,
         harmonise_mhc,
         harmonise_references,
         harmonise_segments,
-        legacy_resolver,
         write_renames,
     )
     from .curate.patch import apply_antigen_patch
@@ -269,7 +267,7 @@ def rules(
     if reference is not None:
         ref_table = _read_table(Bundle(reference).read_bytes("vdjdb.txt"))
         antigen_block = render_patch_renames(ref_table, patched)
-    n = write_renames(rep, out, legacy_resolver(), alleles, mhc, (antigen_block,))
+    n = write_renames(rep, out, allele_resolver(), alleles, mhc, (antigen_block,))
     typer.echo(f"{n} renames, {rep['rows'].sum():,} spelling + {alleles['rows'].sum():,} allele "
                f"+ {mhc['rows'].sum():,} MHC records, written to {out}")
     if report:
@@ -704,7 +702,6 @@ def identity_update(
     release: str = typer.Option("unreleased", help="Release recorded on records seen for the "
                                                    "first time. Leave as `unreleased` on a chunk "
                                                    "branch; the release job sets the tag."),
-    engine: str = typer.Option("arda", help="CDR3 markup engine: arda or legacy."),
 ) -> None:
     """Reconcile the corpus against the committed registry and rewrite it.
 
@@ -726,7 +723,7 @@ def identity_update(
     # `write_registry` rather than a second `reconcile` here: the registry can only be written from
     # the reconcile inside the build, because that one runs before `fix_cdr3` and the natural key
     # carries the CDR3. Reconciling the build's *output* keys every record on its repaired sequence.
-    build_master(chunk_files(chunks) if chunks else None, engine=engine, write_registry=path,
+    build_master(chunk_files(chunks) if chunks else None, write_registry=path,
                  release=release)
     after = IdentityRegistry.load(path)
     typer.echo(f"{path}: {known:,} active before -> {len(after.active()):,} after")

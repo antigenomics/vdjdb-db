@@ -67,7 +67,7 @@ rows = 2223
 id = "structure-id-respelled-full"
 file = "vdjdb_full.txt"
 column = "meta.structure.id"
-rows = 342
+rows = 340
 
 [[rule]]
 id = "structure-id-score-default-to-0"
@@ -75,7 +75,7 @@ file = "vdjdb.txt"
 column = "vdjdb.score"
 from = "3"
 to = "0"
-rows = 6402
+rows = 6403
 
 [[rule]]
 id = "structure-id-score-default-to-1"
@@ -83,7 +83,7 @@ file = "vdjdb.txt"
 column = "vdjdb.score"
 from = "3"
 to = "1"
-rows = 1698
+rows = 1696
 
 [[rule]]
 id = "structure-id-score-default-to-2"
@@ -107,7 +107,7 @@ file = "vdjdb_full.txt"
 column = "vdjdb.score"
 from = "3"
 to = "1"
-rows = 998
+rows = 997
 
 [[rule]]
 id = "structure-id-score-full-to-2"
@@ -123,7 +123,7 @@ file = "vdjdb.slim.txt"
 column = "vdjdb.score"
 from = "3"
 to = "0"
-rows = 1988
+rows = 1987
 
 [[rule]]
 id = "structure-id-score-slim-to-1"
@@ -131,7 +131,7 @@ file = "vdjdb.slim.txt"
 column = "vdjdb.score"
 from = "3"
 to = "1"
-rows = 404
+rows = 403
 
 [[rule]]
 id = "structure-id-score-slim-to-2"
@@ -167,13 +167,13 @@ rows = 0
 id = "legacy-melt-ambiguity-complex-id"
 file = "vdjdb.txt"
 column = "complex.id"
-rows = 178687
+rows = 179309
 
 [[rule]]
 id = "legacy-melt-ambiguity-cdr3fix"
 file = "vdjdb.txt"
 column = "cdr3fix"
-rows = 17970
+rows = 17966
 
 # --- phase 4, feature/pipeline-core -----------------------------------------------------------
 # jStart == -1 is truthy in Python, where the Groovy tested jStart > -1, so unmapped records are
@@ -227,7 +227,7 @@ rows = 189
 id = "pandas-float-frequency-json"
 file = "vdjdb.txt"
 column = "method"
-rows = 1644
+rows = 1648
 
 # `NA` is influenza neuraminidase, a real gene symbol. pandas read it as a missing value, and
 # `if NaN:` is True in Python, so the legacy assigned the missing value and blanked the gene.
@@ -235,7 +235,7 @@ rows = 1644
 id = "pandas-na-gene-symbol"
 file = "vdjdb_full.txt"
 column = "antigen.gene"
-rows = 10348
+rows = 10323
 
 # The same pandas coercions seen through the meta JSON of vdjdb.txt -- and there they are worse,
 # because the damage reaches the JSON *type*. pandas inferred these identifier columns as numbers,
@@ -275,7 +275,7 @@ rows = 64
 id = "pandas-na-gene-symbol-melted"
 file = "vdjdb.txt"
 column = "antigen.gene"
-rows = 14966
+rows = 14953
 
 # --- declared row deltas -----------------------------------------------------------------------
 # vdjdb.slim.txt groups on antigen.gene, so restoring the influenza neuraminidase symbol `NA` --
@@ -283,18 +283,18 @@ rows = 14966
 # is no cell to attribute: one row leaves and another arrives.
 [[row_delta]]
 file = "vdjdb.slim.txt"
-added = 9251
-removed = 9343
-note = "pandas-na-gene-symbol seen through the slim grouping key (750/809) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161): 40 records arrive, 33 of them as new slim groups and 7 joining groups that already existed, which rekeys those 7 + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 12 slim groups + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 82 slim groups - 2, the murine `I-Ab -> H2-IAb` rename keying 2 slim groups the previous spelling left unmatched + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names: mouse `TRBV12-2+TRBV13-2` (535), `TRBV3-1;TRBV3-2` (30), `TRBV12-3;TRBV12-4` (20), five one-record spellings, and one `TRBJ2` J call written with an en dash. 42 of them rekey a slim group"
+added = 9706
+removed = 9424
+note = "pandas-na-gene-symbol seen through the slim grouping key (750/809) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161): 40 records arrive, 33 of them as new slim groups and 7 joining groups that already existed, which rekeys those 7 + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 12 slim groups + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 82 slim groups - 2, the murine `I-Ab -> H2-IAb` rename keying 2 slim groups the previous spelling left unmatched + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names: mouse `TRBV12-2+TRBV13-2` (535), `TRBV3-1;TRBV3-2` (30), `TRBV12-3;TRBV12-4` (20), five one-record spellings, and one `TRBJ2` J call written with an en dash. 42 of them rekey a slim group + retiring `res/` (#658): see the res-retirement block below"
 
 # The melt ambiguity of ROADMAP section 14, seen as rows rather than cells: where two
 # indistinguishable records swap, best-match pairing sometimes leaves one on each side. 780 of
 # these; the rest are the markup engine, see the block at the end of this file.
 [[row_delta]]
 file = "vdjdb.txt"
-added = 11466
-removed = 11524
-note = "legacy melt ambiguity (780) + the arda markup engine naming the segment the curator reported (10,605; see the arda-cdr3fix block below) + PMID_18025130 landing (#161), 40 records + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 15 records + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 82 records - 1, the `TRBVIS1 -> TRBV9*01` rename keying the one PMID_16237109 row the previous block did not declare + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names (mouse `TRBV12-2+TRBV13-2` 535, `TRBV3-1;TRBV3-2` 30, `TRBV12-3;TRBV12-4` 20, five at one record each, and one `TRBJ2` J call written with an en dash), 48 of which rekey a record"
+added = 12004
+removed = 11593
+note = "legacy melt ambiguity (780) + the arda markup engine naming the segment the curator reported (10,605; see the arda-cdr3fix block below) + PMID_18025130 landing (#161), 40 records + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 15 records + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 82 records - 1, the `TRBVIS1 -> TRBV9*01` rename keying the one PMID_16237109 row the previous block did not declare + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names (mouse `TRBV12-2+TRBV13-2` 535, `TRBV3-1;TRBV3-2` 30, `TRBV12-3;TRBV12-4` 20, five at one record each, and one `TRBJ2` J call written with an en dash), 48 of which rekey a record + retiring `res/` (#658): see the res-retirement block below"
 
 
 # --- ROADMAP phase 9: IMGT segment nomenclature (#389) ------------------------------------------
@@ -305,13 +305,13 @@ note = "legacy melt ambiguity (780) + the arda markup engine naming the segment 
 id = "nomenclature-slim-complex-id-renumber"
 file = "vdjdb.slim.txt"
 column = "complex.id"
-rows = 117608
+rows = 115192
 
 [[rule]]
 id = "nomenclature-vend-full-alpha"
 file = "vdjdb_full.txt"
 column = "cdr3fix.alpha"
-rows = 10477
+rows = 10464
 
 [[rule]]
 id = "nomenclature-vend-full-beta"
@@ -328,7 +328,7 @@ rows = 7373
 id = "nomenclature-vend-slim"
 file = "vdjdb.slim.txt"
 column = "v.end"
-rows = 5402
+rows = 5398
 
 [[rule]]
 id = "nomenclature-jstart-slim"
@@ -342,19 +342,19 @@ file = "vdjdb.txt"
 column = "web.cdr3fix.unmp"
 from = "yes"
 to = "no"
-rows = 5288
+rows = 5284
 
 [[rule]]
 id = "nomenclature-tcr-hash-default"
 file = "vdjdb.txt"
 column = "TCR_hash"
-rows = 6873
+rows = 6895
 
 [[rule]]
 id = "nomenclature-tcr-hash-slim"
 file = "vdjdb.slim.txt"
 column = "TCR_hash"
-rows = 5385
+rows = 5421
 
 [[rule]]
 id = "nomenclature-tcr-hash-full"
@@ -367,7 +367,7 @@ id = "nomenclature-samples-found"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "samples.found"
-rows = 1527
+rows = 1564
 
 [[rule]]
 id = "nomenclature-d-multicall-order"
@@ -383,13 +383,13 @@ rows = 55
 id = "nomenclature-score-regrouped-default"
 file = "vdjdb.txt"
 column = "vdjdb.score"
-rows = 42
+rows = 44
 
 [[rule]]
 id = "nomenclature-score-regrouped-full"
 file = "vdjdb_full.txt"
 column = "vdjdb.score"
-rows = 24
+rows = 25
 
 
 # --- ROADMAP phase 9: input hygiene ------------------------------------------------------------
@@ -429,7 +429,7 @@ rows = 102
 id = "patch-antigen-score-slim"
 file = "vdjdb.slim.txt"
 column = "vdjdb.score"
-rows = 1
+rows = 3
 
 [[rule]]
 id = "patch-antigen-gene-default"
@@ -3140,9 +3140,9 @@ files = "vdjdb.slim.txt"
 # END generated renames
 [[row_delta]]
 file = "vdjdb_full.txt"
-added = 11052
-removed = 11012
-note = "declared corrections whose reference value is not injective (613) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161), 40 records + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 15 records + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 83 records + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names, 49 of which rekey a record. The retired build rejected all 591 as `gene not in IMGT`, and this is the repair that answers it"
+added = 11457
+removed = 11417
+note = "declared corrections whose reference value is not injective (613) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161), 40 records + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 15 records + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 83 records + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names, 49 of which rekey a record. The retired build rejected all 591 as `gene not in IMGT`, and this is the repair that answers it + retiring `res/` (#658): see the res-retirement block below"
 
 
 # --- the generated metadata ---------------------------------------------------------------------
@@ -3325,6 +3325,34 @@ rows = 0
 #
 # The 98 are inside the `removed` count declared for `vdjdb.txt` above, not a separate rule: there is
 # no changed cell to attribute when a row simply is not there.
+
+# --- retiring `res/` (#658): a better J proposal, and what it moves --------------------------------
+# A record that names no J gets one proposed, because `arda.cdr3fix` repairs a junction against a
+# named germline and the legacy export drops a chain with no V and no J. That proposal came from a
+# k-mer scan over `res/segments.txt`, a 2023 by-product of an IMGT import; it now comes from the
+# recombination model, falling back to arda's own germline anchor table where the model declines.
+#
+# Measured over 285,989 chains: `j.segm` blank falls from 630 to 283 and `j.start` unmapped from 1,164
+# to 817, so 347 chains gain a J call. 11 sequences are repaired as a consequence - all the same
+# defect, a `TRBJ2-1` junction missing its second Phe (`CASSQEVAGATGELF` -> `...GELFF`), which is the
+# #646 shape and could not be seen while the J was unnamed.
+#
+# Row counts: `vdjdb.txt` 284,488 -> 284,957 (+469) and `vdjdb.slim.txt` 197,637 -> 198,011 (+374),
+# which are the chains that now pass the legacy "a CDR3 needs a V and a J" filter. `vdjdb_full.txt`
+# is unchanged at 192,793: it is one row per record, and every one of those records already shipped.
+#
+# Every miscount this caused is re-declared above rather than explained away, and there are 21 of
+# them, because `j.segm` sits in the comparison key three ways at once: a changed J call moves a row
+# between the `only ref` and `only cand` buckets, a new row joins the keyed intersection and every
+# rule counting cells in it gains or loses rows, and the slim grouping key renumbers `complex.id`.
+# The largest movers are `nomenclature-slim-complex-id-renumber` (117,608 -> 115,192) and
+# `legacy-melt-ambiguity-complex-id` (178,687 -> 179,309).
+#
+# **The V proposal is deliberately not part of this.** It never shipped - the k-mer scanner's V half
+# returned "" on every sequence - and it still does not: `v.segm` blank stays at 745. A V recovered
+# from a junction alone is right 23.8-50.1 % of the time at gene level against a J's 93.6-97.5 %, so
+# it is reported as `v.inferred` (706 chains) and nowhere else. `vdjdb.annotate.cdr3fix.markup` holds
+# the measurement.
 
 # --- the bundle's member list ------------------------------------------------------------------
 # Members this release ships that the reference does not, and members it drops. A change of shape
