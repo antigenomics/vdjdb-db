@@ -3357,7 +3357,7 @@ removed = []
 # A fresh render on every build, and three layers already gate it: the ordered headings, tables and
 # PNG dimensions decoded from the IHDR; the ColorBrewer anchors; and SSIM against the last release.
 "vdjdb_summary_embed.html" = "`summary/check_summary.py` -- structural, style and perceptual layers, against `summary/fingerprint.json` and the previous release"
-# AGPL-3.0 in the 2026-06-03 release, CC BY-NC-ND 4.0 here. Changed at the repository root in
-# `517c7db` on 2026-09-26, deliberately and by the author; recorded here so the shipped bundle's
-# licence change is a declaration rather than an unexplained digest difference.
+# The bundle ships whatever `LICENSE` is at the repository root, which is where the licence is set.
+# AGPL-3.0 in the 2026-06-03 release, CC BY-NC-ND 4.0 since `517c7db`; declared so the comparison
+# records it rather than reporting an unexplained digest difference.
 "LICENSE" = "the repository root file, reviewed as a git diff. AGPL-3.0 -> CC BY-NC-ND 4.0 in `517c7db`"
