@@ -109,6 +109,8 @@ def build(
     from .curate.functionality import report as functionality_report
     from .curate.functionality import summarise as functionality_summary
     from .curate.nomenclature import unresolved as unresolved_calls
+    from .curate.presentation import report as presentation_report
+    from .curate.presentation import summarise as presentation_summary
     from .curate.submission import epitope_sources, lookalikes
     from .emit.airr import from_tables as airr_frames
     from .emit.airr import write_all as write_airr
@@ -208,6 +210,21 @@ def build(
         typer.echo(f"segments IMGT does not call functional: {nonfunctional.height:,} chain(s) over "
                    f"{nonfunctional['call'].n_unique()} call(s) "
                    f"-> {out / 'reports' / 'functionality.tsv'}")
+
+    # Whether the recorded MHC could present the recorded epitope at all (ROADMAP phase 9e). IPD-IMGT
+    # /HLA answers whether a name exists; this asks whether it reaches a binding groove, which is what
+    # every presentation model reasons over. Offline and deterministic - `mhcmatch` bundles the
+    # pseudosequences - so it belongs in the build, unlike `vdjdb promiscuity`, which fetches a model.
+    # Advisory, for the reason the module states: a model is evidence about a pair, never authority
+    # over a publication.
+    presented = presentation_report(built["restriction"])
+    presented.write_csv(out / "reports" / "presentation.tsv", separator="\t")
+    presentation_summary(presented).write_csv(out / "reports" / "presentation-summary.tsv",
+                                              separator="\t")
+    if not presented.is_empty():
+        typer.echo(f"MHC calls with no groove or a class that disagrees: {presented.height:,} "
+                   f"(epitope, MHC) pair(s), {presented['records'].sum():,} record(s) "
+                   f"-> {out / 'reports' / 'presentation.tsv'}")
 
     if tables:
         for name, frame in built.items():
