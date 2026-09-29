@@ -110,6 +110,47 @@ def test_unambiguous_amendment_is_taken_even_with_other_records_present():
     assert not rep.added and not rep.retired
 
 
+def test_two_records_one_field_apart_amend_by_row_when_no_line_moved():
+    """The bijection that makes `chunk.row` exact rather than a guess.
+
+    Both rows are one field from both registry entries, so the field's value cannot say which is
+    which - and `test_ambiguous_amendment_is_refused` is right that a row number alone cannot either,
+    because deleting a line shifts every number after it. What settles it is that the two unmatched
+    rows and the two candidates occupy the *same* pair of row numbers: nothing moved, so the pairing
+    is forced.
+
+    The case: `menon_etal_2024.txt` rows 26 and 27 carry `TRBV5-3;TRBV5-5;TRBV5-8` and
+    `TRBV5-3;TRBV5-8`, and normalising `;` to `,` moved both keys by that one field. Without this,
+    `VDJDB0000187889` and `...890` retire and two fresh ids are minted - two published identifiers
+    lost to a separator.
+    """
+    before = frame({"v.beta": "TRBV5-3;TRBV5-5;TRBV5-8", "chunk.row": 26},
+                   {"v.beta": "TRBV5-3;TRBV5-8", "chunk.row": 27})
+    out, reg, _ = reconcile(before, IdentityRegistry(), release="v1")
+    was = dict(zip(before["chunk.row"].to_list(), out["record_id"].to_list(), strict=True))
+
+    after = frame({"v.beta": "TRBV5-3,TRBV5-5,TRBV5-8", "chunk.row": 26},
+                  {"v.beta": "TRBV5-3,TRBV5-8", "chunk.row": 27})
+    out, reg, rep = reconcile(after, reg, release="v2")
+    assert not rep.added and not rep.retired, rep
+    assert len(rep.amended) == 2 and {a[1] for a in rep.amended} == {"v.beta"}
+    assert dict(zip(after["chunk.row"].to_list(), out["record_id"].to_list(), strict=True)) == was
+
+
+def test_the_row_tiebreak_is_refused_when_a_line_moved():
+    """The other half: three rows become two, so the row numbers no longer pair up and the ambiguity
+    stands. A shifted line must not be read as an amendment of whatever now sits on its number.
+    """
+    before = frame({"v.beta": "TRBV5-3;TRBV5-5", "chunk.row": 0},
+                   {"v.beta": "TRBV5-3;TRBV5-8", "chunk.row": 1},
+                   {"v.beta": "TRBV5-3;TRBV5-9", "chunk.row": 2})
+    _, reg, _ = reconcile(before, IdentityRegistry(), release="v1")
+    after = frame({"v.beta": "TRBV5-3,TRBV5-5", "chunk.row": 0},
+                  {"v.beta": "TRBV5-3,TRBV5-8", "chunk.row": 1})
+    _, _, rep = reconcile(after, reg, release="v2")
+    assert len(rep.amended) < 2, rep.amended
+
+
 def test_removed_record_is_retired_not_deleted():
     df = frame({}, {"cdr3.beta": "CASSLLLGGF"})
     out1, reg, _ = reconcile(df, IdentityRegistry(), release="v1")
