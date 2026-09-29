@@ -103,8 +103,6 @@ This applies to a chunk you merely doubt as much as to one that fails a QC rule.
 unsure of is better quarantined with the doubt written down than silently dropped or silently shipped.
 Use `pending/` when you expect it to land and `withheld/` when the file itself has to change first.
 
-The repository includes curation skills in `skills/`, for use with [Claude Code](https://claude.ai/code) (Anthropic's CLI agent) and with GitHub Copilot's agent mode. A skill is an instructional document that guides an AI assistant through a multi-step curation, formatting or quality-control task on VDJdb chunks.
-
 ## What `chunk-check` alerts on without failing
 
 Two checks in the pull-request report block nothing and both exist because the thing they catch passes
@@ -167,38 +165,54 @@ of it.
 Applying a repair is a chunk edit, so it follows the rule above: its own branch, its own issue, and a
 message saying which files and rows moved and why. Nothing applies one automatically.
 
-## Available skills
+## Curation skills
 
-| Skill | Invocation | Purpose |
+`skills/` holds six curation skills: instruction documents that walk an agent through one multi-step
+curation task each. They are for [Claude Code](https://claude.ai/code), which loads a skill when its
+description matches the request, and they are plain Markdown, so GitHub Copilot's agent mode and any
+other reader can follow them directly.
+
+Each one **drives `vdjdb` and reads the authority tables** rather than carrying its own copy of what
+the build does. That is deliberate. A skill that restates a validation rule is a second copy of it,
+and the copies drift: before they were reconciled, two of these documents told a curator to normalise
+murine MHC names toward `H-2Db`, which is backwards - `H2-` is the MGI gene symbol prefix,
+`patches/mhc.dict` declares the conversion in the other direction, and the split between the two
+spellings had already cost 768 records their motif badge on the deployed site.
+
+`tests/unit/test_skills.py` is what stops that happening again. It asserts that every repository path
+a skill names exists, that no skill names a retired one, that every QC rule name it quotes is in
+`vdjdb.qc.rules.RULES` with the right fatal-or-advisory verdict, that every `vdjdb` subcommand it shows
+is in the CLI, and that neither of the two specific claims that were wrong - the murine prefix
+direction and the fixed "ends in Phe or Trp" junction rule - can be written again.
+
+| Skill | Invocation | What it does |
 |---|---|---|
-| `vdjdb-extract` | `/extract [file]` | Extract TCR:pMHC records from raw source files (PDFs, Excel, AIRR-format, 10x Genomics) into VDJdb-format TSV chunks |
-| `vdjdb-format` | `/format [file]` | Normalise V/J gene names (IMGT), MHC allele format, species names, and method vocabulary |
-| `vdjdb-harmonize` | `/harmonize [file]` | Canonicalize `antigen.gene` and `antigen.species` using `patches/antigen_epitope_species_gene.dict`, `proofreading/gene_aliases.tsv`, and `proofreading/species_aliases.tsv`; detects spurious values and warns about epitope substrings |
-| `vdjdb-proofread` | `/proofread [file]` | Run ChunkQC validation, enhanced IMGT gene checks, CDR3 canonical repair, MHC consistency checks, and confidence score estimation |
-| `vdjdb-publish` | `/vdjdb-publish` | For each new or modified chunk, find or create a GitHub issue (`PMID:N`), commit the chunk with `Fixes #N`; processes one chunk at a time with user confirmation |
-| `vdjdb-duplicates` | `/vdjdb-duplicates` | Audit duplicate TCR records (beta-only and paired), classify by publication source and author overlap, flag high-frequency records from assay artifacts |
+| [`vdjdb-extract`](https://github.com/antigenomics/vdjdb-db/blob/master/skills/vdjdb-extract/SKILL.md) | `/vdjdb-extract [path]` | Raw sources - supplementary tables, PDFs, 10x Genomics output, AIRR TSVs, Adaptive ImmunoSEQ exports - into a chunk TSV, with every value verified back against the source and an extraction log |
+| [`vdjdb-format`](https://github.com/antigenomics/vdjdb-db/blob/master/skills/vdjdb-format/SKILL.md) | `/vdjdb-format [file]` | Controlled-vocabulary fields to the spelling VDJdb records: IMGT gene and allele names, IPD-IMGT/HLA and murine H2 MHC names, species, method vocabulary, reference prefixes |
+| [`vdjdb-harmonize`](https://github.com/antigenomics/vdjdb-db/blob/master/skills/vdjdb-harmonize/SKILL.md) | `/vdjdb-harmonize [file]` | `antigen.gene` and `antigen.species` against the epitope dictionary and the alias tables, blanks resolved by IEDB or the publication, and the table rows that make the result derivable next time |
+| [`vdjdb-proofread`](https://github.com/antigenomics/vdjdb-db/blob/master/skills/vdjdb-proofread/SKILL.md) | `/vdjdb-proofread [file]` | `vdjdb qc` and `vdjdb submission`, every finding explained with its fix and its authority, the method and MHC questions the rules cannot decide, and the `chunks/` / `pending/` / `withheld/` decision |
+| [`vdjdb-publish`](https://github.com/antigenomics/vdjdb-db/blob/master/skills/vdjdb-publish/SKILL.md) | `/vdjdb-publish` | One commit per chunk on a chunk branch against `dev`, its PMID issue found or created, `registry/records.tsv` refreshed, and the message the chunk-change rule requires |
+| [`vdjdb-duplicates`](https://github.com/antigenomics/vdjdb-db/blob/master/skills/vdjdb-duplicates/SKILL.md) | `/vdjdb-duplicates` | Corpus-wide: which clonotypes and pMHC pairs recur, same-lab versus independent replication by author overlap, within-chunk read depth, and inconsistent MHC restriction |
 
-## Using with Claude Code
+The pipeline is `extract` → `format` → `proofread` → `publish`. `harmonize` runs standalone or from
+`proofread`; `duplicates` is an audit over the built database rather than a stage.
 
-1. Install the [Claude Code](https://claude.ai/code) CLI, or open the repo in the Claude Code desktop app.
-2. Invoke any skill by typing `/skill-name [arguments]` in the chat.
-3. Each skill asks for confirmation before making a commit or a GitHub API call.
+[`skills/AUTHORITIES.md`](https://github.com/antigenomics/vdjdb-db/blob/master/skills/AUTHORITIES.md)
+is the one document all six link to. It names the authority for each question, the five invariants no
+skill may relax - `chunks/` is the submitter's data, empty string is the only missing marker, `cdr3`
+is junction space, the anchor comes from the germline, never invent a value - and the judgement calls
+that are escalated to a curator rather than resolved by any tool.
 
-## Using with GitHub Copilot
-
-Skills are plain Markdown documents and can be referenced directly in Copilot chat:
-
-```
-@workspace /skills/vdjdb-extract/SKILL.md - extract data from supplementary table X
-```
+Every skill asks before a commit or a GitHub API call.
 
 ## Reference files for proofreading
 
 | File | Role |
 |---|---|
-| `proofreading/gene_aliases.tsv` | Free-text antigen gene names → VDJdb canonical symbols (136+ mappings) |
+| `proofreading/gene_aliases.tsv` | Free-text antigen gene names → VDJdb canonical symbols |
 | `proofreading/species_aliases.tsv` | Source organism substrings → canonical CamelCase species names |
-| `proofreading/cdr3_repair.md` | CDR3 canonical repair algorithm using V/J germline context |
+| `proofreading/cdr3_repair.md` | The junction anchor rule, the defects it names, and why a repair is proposed against the submitted sequence |
 | `proofreading/imgt.md` | IMGT V/D/J gene naming rules |
-| `proofreading/mhc.md` | HLA/MHC allele naming and validation rules |
+| `proofreading/mhc.md` | HLA/MHC allele naming and validation rules, non-human systems, and the precedent fills for a blank class II partner chain |
+| `proofreading/mhc_nonhuman.tsv` | Every MHC name IPD-IMGT/HLA cannot adjudicate: murine `H2-`, macaque Mamu, the light chain |
 | `patches/antigen_epitope_species_gene.dict` | Epitope-keyed authority: epitope → (species, gene) |
