@@ -36,10 +36,12 @@ case is the same shape - the J germline's leading residue matching the junction 
 paying for the next mismatch - and the fix takes it to 1.
 
 The `declines` column of that table was measured on gene-level V/J calls. This fixture passes the
-shipped `v.segm` and `j.segm`, which carry an allele on 99.2 % of cells, and the allele changes the
-answer: arda declines `v.end` for any allele whose `cdr3_anchors.tsv` status is `truncated`, where
-the same gene without a suffix resolves to `*01` and maps. That is antigenomics/arda#135, and it is
-why the `v.end` decline assertion below is a strict xfail while the `j.start` one is not.
+shipped `v.segm` and `j.segm`, which carry an allele on 99.2 % of cells, and the allele used to change
+the answer: arda declined `v.end` for any allele whose `cdr3_anchors.tsv` status is `truncated`, where
+the same gene without a suffix resolved to `*01` and mapped. That was antigenomics/arda#135, opened
+from this fixture and fixed in arda 2.31.0, which places the boundary a truncated germline supports
+and marks it `TruncatedGermline`. Both decline assertions below are now plain assertions, and on this
+overlap arda declines nothing.
 
 These assertions are written to hold both before and after that arda release, so the pin can move
 without a test rewrite. What they refuse is a *regression*: an engine that declines more than it
@@ -149,30 +151,24 @@ def test_both_engines_land_within_one_residue_of_the_nucleotide_boundary(truth, 
             f"{engine} {coord}: only {near} of {truth.height} within one residue")
 
 
-@pytest.mark.xfail(strict=True, reason="antigenomics/arda#135: arda declines v_end on alleles "
-                                       "whose cdr3_anchors.tsv status is truncated")
 def test_arda_declines_far_less_often_than_the_shipped_scanner(truth) -> None:
-    """Why the swap was proposed - and the one place it does not hold, which is a V-side allele gap.
+    """Why the swap was proposed, now holding on both coordinates.
 
     On `j.start` arda declines strictly less often, which is the half that was never in doubt and is
     the larger half: the swap took `j.start` coverage from 277,939 to 284,880 of 286,047 chains.
 
-    On `v.end` it declines *more*, and the cause is not the alignment. `cdr3_anchors.tsv` marks 63
-    human V alleles `status = truncated`, because IMGT ships those allele records as partial
-    sequences that stop inside the anchor region, and `cdr3fix` answers `FailedBadSegment` for all
-    of them - including the 38 whose `templated_aa` is still 3 residues or longer and would place a
-    boundary perfectly well. Measured 2026-09-28 over the 114,117 distinct human TRB
-    `(cdr3, v.segm, j.segm)` keys in the built corpus: the scanner declines `v.end` on 1,791, arda
-    on 2,672, and 2,566 keys are declined by arda while the scanner maps them. 1,702 of those carry
-    no allele at all and mostly name a family rather than a gene (`TRBV6`, `TRBV12`), where
-    declining is the correct answer; 851 carry an allele, 837 of them `*02`, and `TRBV11-2*02` alone
-    is 802.
+    On `v.end` it used to decline *more*, and the cause was never the alignment. `cdr3_anchors.tsv`
+    marks 63 human V alleles `status = truncated`, because IMGT ships those allele records as partial
+    sequences that stop inside the anchor region, and `cdr3fix` answered `FailedBadSegment` for all
+    of them - including the 38 whose `templated_aa` is still 3 residues or longer and places a
+    boundary perfectly well. That was `antigenomics/arda#135`, opened from this fixture's own
+    measurement and fixed in arda 2.31.0, which places the boundary those germlines support and marks
+    it `TruncatedGermline` so the caller can see it is a lower bound.
 
-    Kept as a strict xfail rather than relaxed, because the 7 cases this fixture can check against
-    external nucleotides say the boundary is genuinely there: truth places `v.end` at 4 or 5, the
-    scanner matches it exactly on 5 of 7 and within one residue on 7 of 7, and arda answers -1 on
-    all 7. So there is nothing to concede here - the assertion is right and arda#135 is the bug.
-    Delete the marker when that ships; strict makes the pass itself the notification.
+    Measured on the current corpus, 285,989 chains: `v.end` unmapped falls from 5,307 to 4,163, and
+    1,144 chains move `FailedBadSegment` -> `TruncatedGermline` with `fix.good` false -> true on
+    1,139 of them. `TRBV11-2*02` is 850 of the 1,144. No chain loses a boundary and no `cdr3` changes.
+    On this fixture's overlap arda now declines `v.end` on 0 rows, against 0 for the scanner.
     """
     counts = {e: truth.filter(pl.col(f"{e}.v_end") < 0).height for e in ("legacy", "arda")}
     assert counts["arda"] <= counts["legacy"], counts
@@ -234,12 +230,26 @@ def test_the_model_boundary_is_never_more_than_one_residue_out_where_arda_declin
             f"{used.filter(off > 1).select('cdr3', 'v', 'j', fallback, f't.{coord}').head(5)}")
 
 
-def test_the_comparable_set_for_the_fallback_has_not_vanished(truth) -> None:
-    """Stated as a test so a shrinking overlap is a failure rather than a silently weaker number.
+def test_the_fallback_is_unexercised_here_because_arda_declines_on_nothing(truth) -> None:
+    """Why the bound above now checks no rows, asserted rather than left to be discovered.
 
-    The bound above is vacuous on an empty set, and `continue` is exactly how it would go quiet.
+    The bound is vacuous on an empty set and `continue` is exactly how it would go quiet, so the
+    emptiness needs a stated cause. It has one: arda 2.31.0 places a boundary on every row of this
+    overlap, both coordinates, so there is nothing left for a fallback to fill here. Before it, 7
+    rows exercised the `v.end` fallback (4 exact, 7 within one residue).
+
+    This is the notification if that reverses. arda declining again makes the count non-zero, this
+    test fails, and the bound above starts checking rows on the same run.
+
+    The fallback is still filled in the build - 2,442 chains for `v.end.inferred` and 488 for
+    `j.start.inferred` - on chains this control does not observe. `tests/release/test_tables_contract.py`
+    gates those counts; only the comparison against external nucleotides is what has run out of rows.
     """
-    v_used = truth.filter((pl.col("arda.v_end") < 0) & (pl.col("v.end.inferred") >= 0))
-    assert v_used.height >= 5, (
-        f"only {v_used.height} truth rows exercise the v.end fallback; it was 7 on 2026-09-29, so "
-        f"either the overlap shrank or arda stopped declining")
+    for coord, fallback in (("v_end", "v.end.inferred"), ("j_start", "j.start.inferred")):
+        declined = truth.filter(pl.col(f"arda.{coord}") < 0)
+        assert declined.height == 0, (
+            f"arda declines {coord} on {declined.height} truth rows, so the fallback bound above is "
+            f"checking them again - read its result rather than this test's")
+        assert truth.filter(pl.col(fallback) >= 0).height == 0, (
+            f"{fallback} is filled on a truth row where arda answered; the fallback is supposed to "
+            f"be masked to -1 wherever the markup engine mapped the boundary")

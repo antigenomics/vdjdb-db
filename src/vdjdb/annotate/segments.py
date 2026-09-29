@@ -6,7 +6,7 @@ against the germline parts. Measured against the curated calls on 1,200 human ch
 the true call hidden:
 
 ======== ====================== ======================
-locus    k-mer scan             Pgen (``infer_nt``)
+locus    k-mer scan             Pgen (``infer_nt_batch``)
 ======== ====================== ======================
 TRB V    0 of 1,189 (0.0 %)      283 (23.8 %)
 TRA V    1 of 1,111 (0.1 %)      557 (50.1 %)
@@ -43,7 +43,7 @@ _KEY = ("species", "gene", "cdr3", "v.segm", "j.segm")
 
 def add_inferred_segments(chains: pl.DataFrame, records: pl.DataFrame) -> pl.DataFrame:
     """Add :data:`INFERRED_COLUMNS`, empty wherever the curator already named the segment."""
-    from vdjtools.model import infer_nt, load_bundled
+    from vdjtools.model import infer_nt_batch, load_bundled
 
     from .junction import _resolver
 
@@ -58,25 +58,29 @@ def add_inferred_segments(chains: pl.DataFrame, records: pl.DataFrame) -> pl.Dat
         return keyed.with_columns(*blank).drop("species").sort("record_id", "gene")
 
     keys = target.select(_KEY).unique().sort(_KEY)
-    groups, vs, js = [], [], []
+    parts = []
     # Grouped so each model loads once; sorted so the order never depends on group iteration.
+    # One batched call per group and nothing around it (hard rule 3): `infer_nt_batch` returns the
+    # per-row loop field for field and parallelises across the batch with its own kernel threads.
     for (sp, gene), group in sorted(keys.group_by("species", "gene", maintain_order=True),
                                     key=lambda kv: kv[0]):
         source, organism = MODELS[sp]
         model = load_bundled(gene, source, organism=organism)
         vmap = _resolver(model, "genes_v", "v_allele")
         jmap = _resolver(model, "genes_j", "j_allele")
-        groups.append(group)
-        for _, _, cdr3, v, j in group.iter_rows():
-            # The missing side goes in as None, so the model chooses it rather than echoing
-            # ours back.
-            s = infer_nt(model, cdr3, v=vmap.get(v) if v else None, j=jmap.get(j) if j else None)
-            vs.append("" if v or s is None else (s.v_call or ""))
-            js.append("" if j or s is None else (s.j_call or ""))
+        # The missing side goes in as None, so the model chooses it rather than echoing ours back.
+        got = infer_nt_batch(model, group["cdr3"].to_list(),
+                             v=[vmap.get(x) if x else None for x in group["v.segm"]],
+                             j=[jmap.get(x) if x else None for x in group["j.segm"]])
+        parts.append(group.with_columns(
+            # Only where the curator named nothing: a call the record already carries is never
+            # overwritten, and a row the model could not explain keeps the empty string (rule 6).
+            pl.when(pl.col("v.segm") == "").then(got["v_call"].fill_null(""))
+              .otherwise(pl.lit("")).alias("v.inferred"),
+            pl.when(pl.col("j.segm") == "").then(got["j_call"].fill_null(""))
+              .otherwise(pl.lit("")).alias("j.inferred")))
 
-    ordered = pl.concat(groups, how="vertical")
-    lookup = ordered.with_columns(pl.Series("v.inferred", vs, dtype=pl.Utf8),
-                                  pl.Series("j.inferred", js, dtype=pl.Utf8))
+    lookup = pl.concat(parts, how="vertical")
     return (keyed.join(lookup, on=_KEY, how="left")
             .with_columns(pl.col("v.inferred", "j.inferred").fill_null(""))
             .drop("species")

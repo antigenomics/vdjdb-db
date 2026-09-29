@@ -178,13 +178,18 @@ rows = 17970
 # --- phase 4, feature/pipeline-core -----------------------------------------------------------
 # jStart == -1 is truthy in Python, where the Groovy tested jStart > -1, so unmapped records are
 # labelled mapped. This is a currently-shipping data error; see ROADMAP section 7.
+# 145 before the arda 2.31 bump. `unmp` needs both `vEnd > -1` and `jStart > -1`, so the two rows that
+# left are rows where the reference said "mapped", this build said "unmapped" because arda declined the
+# V boundary, and arda now places it (`antigenomics/arda#135`). 1,140 rows of `vdjdb.txt` flip
+# "yes" -> "no" in total; the other 1,138 are on rows the nomenclature phase rekeys, so they are in the
+# row buckets rather than here.
 [[rule]]
 id = "web-unmp-jstart-minus1"
 file = "vdjdb.txt"
 column = "web.cdr3fix.unmp"
 from = "no"
 to = "yes"
-rows = 145
+rows = 143
 
 # pandas type coercion on read. The new reader keeps every cell as the string a curator typed, so
 # these are all corrections of a lossy round-trip -- the reference value is the damaged one.
@@ -314,11 +319,16 @@ file = "vdjdb_full.txt"
 column = "cdr3fix.beta"
 rows = 7373
 
+# 5,404 before the arda 2.31 bump. Two slim rows now agree with the reference: arda places a `v.end`
+# on alleles whose IMGT germline record is truncated instead of answering -1 (`antigenomics/arda#135`),
+# and on two of these the boundary it places is the one the reference shipped. 1,144 chains change
+# `v.end` in total, but the other 1,142 sit on rows whose `v.segm` the nomenclature phase already
+# rekeys, so they have no reference cell to compare and are counted in the row buckets below.
 [[rule]]
 id = "nomenclature-vend-slim"
 file = "vdjdb.slim.txt"
 column = "v.end"
-rows = 5404
+rows = 5402
 
 [[rule]]
 id = "nomenclature-jstart-slim"
