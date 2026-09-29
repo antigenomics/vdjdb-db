@@ -176,7 +176,7 @@ an output of it, and a stale vendored copy would change a call set with no error
 | 13 | merged | `feature/docs` | Sphinx site, generated schema tables, dashboard tab, Pages | - | zero-warning build, deploys |
 | 14 | merged | `feature/release-tooling` | manifest, three zips, checksums, `latest-version.txt`, tag scheme, changelog; retires the legacy CI | #432 | full release dry-run with no unattributed differences |
 | 15 | part | `feature/aldan3-runner` | self-hosted runner + `build.yml` retargeting | - | identical canonical digests on both runners. `build.yml` carries the `fromJSON(inputs.runner)` retargeting; **no self-hosted runner is registered** (`actions/runners` returns 0), so the second half of the criterion is unmet |
-| 16 | part | `feature/identity` | the four derived id levels, the lifecycle record, `vdjdb identity`, promiscuity columns, one study count | - | every invariant of §10.5 passes; a permuted chunk order changes no id; the dashboard reports every reference on the row. All three hold, and `record_id` is stable across rebuilds since the registry became a committed input (#674). **Only step 9, the promiscuity columns, is outstanding**, and it waits on phase 9e rather than on this branch: 9e introduces the `mhcmatch` call and adding it twice would put two model versions in one build |
+| 16 | part | `feature/identity` | the four derived id levels, the lifecycle record, `vdjdb identity`, promiscuity columns, one study count | - | every invariant of §10.5 passes; a permuted chunk order changes no id; the dashboard reports every reference on the row. All three hold, and `record_id` is stable across rebuilds since the registry became a committed input (#674). **Only step 9, the promiscuity columns, is outstanding.** It waited on phase 9e, whose deterministic half landed 2026-09-29, and the two no longer collide: `curate/presentation.py` reads `mhcmatch`'s bundled pseudosequences inside the build, while the model-based scoring stays in `vdjdb promiscuity` and reaches the build only through the committed `proofreading/epitope_promiscuity.tsv` (13,510 rows). So step 9 is a join against a reviewed input, not a second model in the build |
 | 17 | merged | `feature/corpus` | the reference corpus: documents, vocabulary, postings, `score` and `lift` | - | the three files reproducible by digest; `score` reproduces the `refsearch` ranking; `lift` answers a specificity question with an n |
 
 Phases 0 to 14 are merged to `master` as of 2026-09-27, and phase 15 is half landed: the comparison
@@ -1132,10 +1132,36 @@ Four checks, in increasing strength, each a column on `restriction` and an advis
    a pair, not authority over a publication, and its false-positive rate has to be stated with any
    threshold.
 
-Checks 1–3 are deterministic string and length work and belong in the build. Check 4 needs a model
+Checks 1-3 are deterministic string and length work and belong in the build. Check 4 needs a model
 and its reference data (fetched from `isalgo/pmhc_data` on first use), so it runs as its own CI job
 over the 2,381 `(epitope, MHC)` pairs and publishes a report, not inside `vdjdb build`, whose
 offline determinism (hard rule 9) must not depend on a download.
+
+**Checks 1-3 landed 2026-09-29** as `vdjdb.curate.presentation`, writing `out/reports/presentation.tsv`
+and its summary on every build. Three things the measurement changed about the plan as written:
+
+* **check 3 ships in one direction only.** A class I groove is closed at both ends, so a 14-mer on
+  `HLA-A*02:01` is a question worth asking; a class II record carrying a 9-mer is not, because a paper
+  reporting the eluted peptide's core rather than the whole 15-to-25-mer is doing something normal.
+  Symmetric, it flags 41 pairs of which 18 carry 7,735 records of 9-mer cores. Asymmetric, 23 pairs.
+* **a fourth check was added and is the one that found something.** One molecule filed under two
+  `mhc.class` values needs no authority at all: `H2-IAb` is `MHCII` on 20 pairs and `MHCI` on the
+  77-record `QVYSLIRPNENPAH`, which is also a 14-mer, so three checks agree on it independently.
+* **check 1's `nearest` is not a finding.** 87 pairs over 17,836 records resolve by prefix, and
+  almost all are an allele *group* the specification allows - `HLA-A*02` completed to `HLA-A*02:01`,
+  which is `mhcmatch` guessing rather than the record being wrong. It is carried in `mhc.resolution`
+  so a reader can see which scores rest on a guess, and left out of `finding`.
+
+Total: **93 pairs over 1,213 records** of 2,343 and 192,641, against check 2 firing zero times - a
+class I allele on an `MHCII` record does not occur, and the check stays because that is what it is
+for. 64 of the 71 unreachable calls are murine class II, where `mhcmatch`'s class II pseudosequences
+being HLA is a coverage statement rather than a finding against the record.
+
+One upstream defect fell out and is filed as `antigenomics/mhcmatch#3`: `resolve_allele` trims an
+allele to two fields and `class2_key` does not, so `HLA-DRB1*11:01:02` builds a key the bundled FASTA
+cannot have while `HLA-DRB1*11:01` resolves - the same molecule and the same groove. 29 of the
+corpus's 354 class II pairs are reachable only after trimming, which `curate/presentation.py` does as
+a workaround with a test that goes when the fix ships.
 
 What these checks would already have caught, from phase 9d's own findings: `HLA-A*08:01` on 74
 records (no HLA-A\*08 locus exists, so no pseudosequence), the four null/nonexistent `HLA-A*24:*`
