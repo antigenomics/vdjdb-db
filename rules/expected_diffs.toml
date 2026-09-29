@@ -229,6 +229,39 @@ file = "vdjdb.txt"
 column = "method"
 rows = 1671
 
+# --- issue #633: RGPGRAFVTI was attributed to the human proteome -------------------------------
+# One row of `PDB_Database.txt` curated the HIV-1 V3-loop peptide as `HomoSapiens` / `P18-I10`,
+# against `HIV-1` / `GP160` on the other 85. `P18-I10` is the laboratory name of the peptide itself,
+# so that cell held the epitope's own designation in the gene field. One line in
+# `patches/antigen_epitope_species_gene.dict` answers it, and the patch is keyed on the peptide, so it
+# asserts the same source for all 86.
+#
+# Narrowed by `from`, and declared before `pandas-na-gene-symbol` below, for the reason the
+# `meta.structure.id` block already gives: `vdjdb diff` attributes a cell to the first matching rule,
+# `pandas-na-gene-symbol` is unnarrowed on `antigen.gene`, and it would otherwise absorb this cell
+# under a rule named for another cause. Moving the `patch-antigen-gene-*` rules above it instead would
+# swallow all 10,323 of the `NA` cells, which is worse.
+#
+# The species half needs no new rule: nothing earlier covers `antigen.species`, so
+# `patch-antigen-species-default` and `-full` claim it and move off 0 for the first time. In
+# `vdjdb.slim.txt` both columns are part of the grouping key, so there the change is two rows leaving
+# and two arriving rather than a cell, and it is in the row bucket.
+[[rule]]
+id = "antigen-gene-p18-i10-full"
+file = "vdjdb_full.txt"
+column = "antigen.gene"
+from = "P18-I10"
+to = "GP160"
+rows = 1
+
+[[rule]]
+id = "antigen-gene-p18-i10-default"
+file = "vdjdb.txt"
+column = "antigen.gene"
+from = "P18-I10"
+to = "GP160"
+rows = 2
+
 # `NA` is influenza neuraminidase, a real gene symbol. pandas read it as a missing value, and
 # `if NaN:` is True in Python, so the legacy assigned the missing value and blanked the gene.
 [[rule]]
@@ -283,9 +316,9 @@ rows = 14953
 # is no cell to attribute: one row leaves and another arrives.
 [[row_delta]]
 file = "vdjdb.slim.txt"
-added = 9690
-removed = 9408
-note = "pandas-na-gene-symbol seen through the slim grouping key (750/809) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161): 40 records arrive, 33 of them as new slim groups and 7 joining groups that already existed, which rekeys those 7 + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 12 slim groups + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 82 slim groups - 2, the murine `I-Ab -> H2-IAb` rename keying 2 slim groups the previous spelling left unmatched + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names: mouse `TRBV12-2+TRBV13-2` (535), `TRBV3-1;TRBV3-2` (30), `TRBV12-3;TRBV12-4` (20), five one-record spellings, and one `TRBJ2` J call written with an en dash. 42 of them rekey a slim group + retiring `res/` (#658): see the res-retirement block below + the mouse TRAJ47 allele correction (#647): 95 chains read `...DYANKMIF`, the `*02` germline exactly, and none reads `*01`'s `HYANKMIC`, so all 95 are `*02` - 81 were written with no allele and 14 name `*01`. 84 of the 90 distinct record keys were already unmatched, because retiring `res/` resolved the bare calls and the #646 repairs moved the junction; the remaining 6 leave the matched set + closing the space in `PMID: 34433824` (#637): 22 records over `chunks/PMID_34433824.txt` (20) and `chunks/PDB_Database.txt` (2). The two spellings were two references for one paper, sharing the epitope `GQVELGGGNAVEVCK`, and `reference.id` is part of the identity key, so all 22 rekey"
+added = 9692
+removed = 9410
+note = "pandas-na-gene-symbol seen through the slim grouping key (750/809) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161): 40 records arrive, 33 of them as new slim groups and 7 joining groups that already existed, which rekeys those 7 + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 12 slim groups + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 82 slim groups - 2, the murine `I-Ab -> H2-IAb` rename keying 2 slim groups the previous spelling left unmatched + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names: mouse `TRBV12-2+TRBV13-2` (535), `TRBV3-1;TRBV3-2` (30), `TRBV12-3;TRBV12-4` (20), five one-record spellings, and one `TRBJ2` J call written with an en dash. 42 of them rekey a slim group + retiring `res/` (#658): see the res-retirement block below + the mouse TRAJ47 allele correction (#647): 95 chains read `...DYANKMIF`, the `*02` germline exactly, and none reads `*01`'s `HYANKMIC`, so all 95 are `*02` - 81 were written with no allele and 14 name `*01`. 84 of the 90 distinct record keys were already unmatched, because retiring `res/` resolved the bare calls and the #646 repairs moved the junction; the remaining 6 leave the matched set + closing the space in `PMID: 34433824` (#637): 22 records over `chunks/PMID_34433824.txt` (20) and `chunks/PDB_Database.txt` (2). The two spellings were two references for one paper, sharing the epitope `GQVELGGGNAVEVCK`, and `reference.id` is part of the identity key, so all 22 rekey + #633's `RGPGRAFVTI` patch: `antigen.gene` and `antigen.species` are both part of the slim grouping key, so re-attributing one record from `HomoSapiens`/`P18-I10` to `HIV-1`/`GP160` moves 2 slim groups"
 
 # The melt ambiguity of ROADMAP section 14, seen as rows rather than cells: where two
 # indistinguishable records swap, best-match pairing sometimes leaves one on each side. 780 of
@@ -312,7 +345,7 @@ note = "legacy melt ambiguity (780) + the arda markup engine naming the segment 
 id = "nomenclature-slim-complex-id-renumber"
 file = "vdjdb.slim.txt"
 column = "complex.id"
-rows = 115186
+rows = 115184
 
 [[rule]]
 id = "nomenclature-vend-full-alpha"
@@ -454,13 +487,13 @@ rows = 0
 id = "patch-antigen-species-default"
 file = "vdjdb.txt"
 column = "antigen.species"
-rows = 0
+rows = 2
 
 [[rule]]
 id = "patch-antigen-species-full"
 file = "vdjdb_full.txt"
 column = "antigen.species"
-rows = 0
+rows = 1
 
 [[rule]]
 id = "patch-antigen-gene-slim"
