@@ -117,6 +117,9 @@ def lookalikes(records: pl.DataFrame) -> pl.DataFrame:
 
 def report(files: list[str], records: pl.DataFrame) -> str:
     """Markdown: per chunk, the records and scores it contributes and the values it introduces."""
+    from .anchors import noncanonical
+    from .anchors import report as anchor_report
+
     names = sorted({Path(f).name for f in files})
     mine = records.filter(pl.col("chunk.file").is_in(names))
     rest = records.filter(~pl.col("chunk.file").is_in(names))
@@ -174,6 +177,14 @@ def report(files: list[str], records: pl.DataFrame) -> str:
                 ""]
         out += [f"* {t}" for t in typos]
         out.append("")
+
+    # The junction anchors, against the germline of the segment each record names. No QC rule tests
+    # this - they check the residue alphabet and a minimum length - and `arda.cdr3fix` repairs most of
+    # them on the way through, so without this section the chunk keeps the wrong sequence and the
+    # submitter never learns.
+    anchor_text = anchor_report(noncanonical(mine))
+    if anchor_text:
+        out += [anchor_text]
 
     # A row keyed identically to one another chunk already reports is not a duplicate - two chunks are
     # two independent reports (CLAUDE.md) - but it is the thing that raises the score, so say so.

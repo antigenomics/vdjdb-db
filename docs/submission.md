@@ -105,6 +105,61 @@ Use `pending/` when you expect it to land and `withheld/` when the file itself h
 
 The repository includes curation skills in `skills/`, for use with [Claude Code](https://claude.ai/code) (Anthropic's CLI agent) and with GitHub Copilot's agent mode. A skill is an instructional document that guides an AI assistant through a multi-step curation, formatting or quality-control task on VDJdb chunks.
 
+## What `chunk-check` alerts on without failing
+
+Two checks in the pull-request report block nothing and both exist because the thing they catch passes
+every QC rule.
+
+**Look-alike values.** A value that differs from one VDJdb already has only in case or in a `-`, `_`,
+`.` or space will not join it, so every query filtering on one misses the other. `IE1` and `IE-1` are
+two `antigen.gene` values today for the same CMV gene. Two values that look alike can also both be
+right - one stain against another, `MBP` in human against `Mbp` in mouse - which is why this is an
+alert and not a gate.
+
+**Junctions that contradict their own germline.** VDJdb's `cdr3` is **junction space**: Cys104 through
+Phe/Trp118, **both anchors included**. That is two residues longer than AIRR's or arda's `cdr3_aa`.
+A submission exported in IMGT CDR3 space is therefore short an anchor at each end, and it passes
+`vdjdb qc` - those rules check the residue alphabet and a minimum length, not the ends.
+
+Measured on the 2026-09-28 corpus: **5,842 of 285,989 chains (2.04 %)**, and `PMID_15589168.txt` alone
+contributes 935 of them, every one short the trailing Phe. Four defects are named, three with a repair
+the germline supports:
+
+| Defect | Chains | Example | Repair |
+|---|--:|---|---|
+| J absent anchor | 3,807 | `CASSNEKLF` on `TRBJ1-4` (`TNEKLFF`) | `CASSNEKLFF` |
+| J under-trimmed | 642 | `YLCSSQEGGYGYTFGSG` | trim to the anchors |
+| J corrupt anchor | 420 | last residue mis-read | substitute the germline residue |
+| V corrupt anchor | 77 | `GASSDTMNTKIL`, `WAVRDIYTTAKFIL` | `CASSDTMNTKIL` |
+| unexplained | 648 | - | none proposed |
+| anchor table suspect | 108 | `CPDYANKMIF` on mouse `TRAJ47*01` | none - see below |
+
+A missing Cys104 is worth a second look even when the rest of the record is fine: no TCR folds without
+it, so a first residue that is not Cys where the body still aligns to the V is a sequencing or
+transcription error rather than a variant.
+
+Two things this check is careful about:
+
+- **The anchor residue is read from the germline of the segment the record names, never assumed to be
+  Phe or Trp.** Mouse `TRAJ47*01` is `HYANKMIC` and human `TRAJ35*01` is `IGFGNVLHC`, so a junction on
+  either ends in Cys. A fixed "ends with F or W" test calls 481 correct chains broken and separately
+  misses 125 that are not.
+- **Where the junction carries the near-universal residue and the germline table does not, the table
+  is what gets reported.** 108 chains, 95 of them mouse `TRAJ47*01`, whose `templated_aa` is
+  `HYANKMIC` where every record reads `DYANKMIF` - the middle `YANKMI` is identical, so the frame is
+  right and both terminal residues are not. Those are listed and never repaired: the evidence points
+  at arda's reference, which this repository does not own.
+
+`arda.cdr3fix` repairs most of these on the way through the build, which is the reason the alert
+matters rather than a reason to skip it: the shipped `cdr3` is usually right and **the chunk keeps the
+wrong sequence**, so the next export of that data is wrong again. The repair is therefore proposed
+against the submitted value, not the shipped one - arda may have fixed one end already, and
+`YLCSSQEGGYGYTFGSG` ships as `YLCSSQEGGYGYTF`, framework trimmed behind the anchor and kept in front
+of it.
+
+Applying a repair is a chunk edit, so it follows the rule above: its own branch, its own issue, and a
+message saying which files and rows moved and why. Nothing applies one automatically.
+
 ## Available skills
 
 | Skill | Invocation | Purpose |
