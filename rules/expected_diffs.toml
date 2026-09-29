@@ -173,7 +173,7 @@ rows = 179309
 id = "legacy-melt-ambiguity-cdr3fix"
 file = "vdjdb.txt"
 column = "cdr3fix"
-rows = 17966
+rows = 18397
 
 # --- phase 4, feature/pipeline-core -----------------------------------------------------------
 # jStart == -1 is truthy in Python, where the Groovy tested jStart > -1, so unmapped records are
@@ -311,13 +311,13 @@ rows = 115192
 id = "nomenclature-vend-full-alpha"
 file = "vdjdb_full.txt"
 column = "cdr3fix.alpha"
-rows = 10464
+rows = 10573
 
 [[rule]]
 id = "nomenclature-vend-full-beta"
 file = "vdjdb_full.txt"
 column = "cdr3fix.beta"
-rows = 7373
+rows = 7655
 
 # 5,404 before the arda 2.31 bump. Two slim rows now agree with the reference: arda places a `v.end`
 # on alleles whose IMGT germline record is truncated instead of answering -1 (`antigenomics/arda#135`),
@@ -334,7 +334,7 @@ rows = 5398
 id = "nomenclature-jstart-slim"
 file = "vdjdb.slim.txt"
 column = "j.start"
-rows = 11179
+rows = 11165
 
 [[rule]]
 id = "nomenclature-now-mapped"
@@ -3353,6 +3353,28 @@ rows = 0
 # from a junction alone is right 23.8-50.1 % of the time at gene level against a J's 93.6-97.5 %, so
 # it is reported as `v.inferred` (706 chains) and nowhere else. `vdjdb.annotate.cdr3fix.markup` holds
 # the measurement.
+
+# --- #646: repairing 4,324 junctions in the chunks moves the cdr3fix blob, not the sequence ---------
+# The chunks now hold the junction the build was repairing on the way through, so `arda.cdr3fix` has
+# nothing to fix on those chains and the blob records that: `cdr3_old` empties, `fixNeeded` goes false,
+# and `vFixType` / `jFixType` go `FixAdd` or `FixTrim` -> `NoFixNeeded`. The shipped `cdr3` does not
+# move at all - the repair applied is the one the engine already produced, which is how it was chosen.
+#
+# `vEnd` and `jStart` do move, and toward the truth. arda's repair branches set the boundary from the
+# germline's whole `templated_aa` rather than the part that aligns, so a repaired junction's coordinate
+# over-credits the germline by the residues it added: `CAARITGEKLF` on `TRBJ1-4*01` reports jStart 5
+# where the same repaired `CAARITGEKLFF` read directly reports 7, and 7 is right (`TNEKLFF` is 7
+# residues, `EKLFF` is what aligns, 12 - 5 = 7). Filed as antigenomics/arda#140. Repairing the chunk
+# takes those chains off the repair branch, so the coordinate comes out the way it does for every
+# record that never needed fixing.
+#
+#   legacy-melt-ambiguity-cdr3fix   17,966 -> 18,397   (+431)
+#   nomenclature-vend-full-alpha    10,464 -> 10,573   (+109)
+#   nomenclature-vend-full-beta      7,373 ->  7,655   (+282)
+#   nomenclature-jstart-slim        11,179 -> 11,165    (-14)
+#
+# No row bucket moves and no other rule's count changes: `cdr3` is in the comparison key and it is
+# unchanged, so nothing is rekeyed. `records` and `chains` hold at 192,793 and 285,989.
 
 # --- the bundle's member list ------------------------------------------------------------------
 # Members this release ships that the reference does not, and members it drops. A change of shape
