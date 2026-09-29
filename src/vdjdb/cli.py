@@ -623,6 +623,8 @@ def release_cmd(
     previous_lifecycle: Path | None = typer.Option(None, help="Previous release's lifecycle TSV, so "
                                                              "retirements carry the release that "
                                                              "last held them."),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Leave the tracked latest-version.txt "
+                                                         "alone. For checking the bundle shape."),
 ) -> None:
     """Assemble the release: three zips, `manifest.json`, `SHA256SUMS`, `latest-version.txt`.
 
@@ -636,9 +638,16 @@ def release_cmd(
     from .release import changelog as cl
 
     version = b.version_of(tag)
-    b.prepare_latest(tag)
-    typer.echo(f"latest-version.txt line 1 -> {b.legacy_url(tag)}")
+    # `latest-version.txt` is tracked, so a dry run with a tag no release carries would leave the
+    # repository naming a download that 404s (#707).
+    latest = b.prepare_latest(tag, write=not dry_run)
+    where = "computed, tree left alone" if dry_run else "line 1"
+    typer.echo(f"latest-version.txt {where} -> {b.legacy_url(tag)}")
     b.stage(build_dir)
+    # `stage` copies the tracked file, which a dry run did not update, so the bundle would otherwise
+    # carry the *previous* release's line 1 while every other member named this tag.
+    if dry_run:
+        (build_dir / "latest-version.txt").write_text(latest)
     # The lifecycle is written here and not by a build: a curation branch that adds a clonotype and
     # removes it again has retired nothing, so only a release moves these rows (`ROADMAP.md` 10.4).
     lifecycle_path = out / "identity-lifecycle.tsv"
