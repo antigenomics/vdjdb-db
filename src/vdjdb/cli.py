@@ -108,6 +108,7 @@ def build(
     from .curate.anchors import noncanonical
     from .curate.functionality import report as functionality_report
     from .curate.functionality import summarise as functionality_summary
+    from .curate.jcalls import report as jcall_report
     from .curate.nomenclature import unresolved as unresolved_calls
     from .curate.presentation import report as presentation_report
     from .curate.presentation import summarise as presentation_summary
@@ -217,6 +218,17 @@ def build(
     # pseudosequences - so it belongs in the build, unlike `vdjdb promiscuity`, which fetches a model.
     # Advisory, for the reason the module states: a model is evidence about a pair, never authority
     # over a publication.
+    # J calls the junction itself contradicts (#681). Not the question `anchors.tsv` asks - that one
+    # reads the anchor residue of the segment a record names, this one asks whether some other gene
+    # explains the whole 3' end better, and the two overlap on 19 of 718 chains. Advisory: #681 says
+    # re-calling a J from its junction is a curator's decision, and what was missing is the list.
+    contradicted = jcall_report(built["chains"], built["records"])
+    contradicted.write_csv(out / "reports" / "j-calls.tsv", separator="\t")
+    if not contradicted.is_empty():
+        typer.echo(f"J calls contradicted by their own junction: {contradicted.height:,} chain(s) "
+                   f"over {contradicted['chunk.file'].n_unique()} chunk(s) "
+                   f"-> {out / 'reports' / 'j-calls.tsv'}")
+
     presented = presentation_report(built["restriction"])
     presented.write_csv(out / "reports" / "presentation.tsv", separator="\t")
     presentation_summary(presented).write_csv(out / "reports" / "presentation-summary.tsv",
