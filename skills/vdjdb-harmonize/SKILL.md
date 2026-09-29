@@ -1,371 +1,186 @@
 ---
 name: vdjdb-harmonize
-description: Harmonize antigen.gene and antigen.species fields in a VDJdb chunk to canonical VDJdb naming. Detects spurious gene/species names, resolves inconsistencies (same epitope → multiple names), and warns about epitopes that are exact substrings of longer epitopes. Invoked standalone or from /proofread when spurious values are detected.
+description: Canonicalise antigen.gene and antigen.species in a VDJdb chunk against the epitope dictionary and the gene and species alias tables, detect spurious values (UniProt descriptions, "[species]" annotations, "Probable"/"Chain A," prefixes, multi-word organism names), resolve blanks from the publication, flag one epitope that is a substring of another, and extend the alias tables where they have no entry. Use when antigen.gene or antigen.species carry free text rather than symbols, or when vdjdb-proofread reports antigen fields that disagree across a chunk.
 ---
 
-# /harmonize — VDJdb Antigen Gene/Species Harmonization Skill
+# vdjdb-harmonize
 
-## Purpose
+Bring `antigen.gene` and `antigen.species` to the names VDJdb records, and extend the tables where
+they have no answer. Runs standalone or from [proofread](../vdjdb-proofread/SKILL.md) step 5.
 
-Normalize `antigen.gene` and `antigen.species` values in a chunk to the VDJdb canonical vocabulary. This skill uses a unified, layered lookup system drawing from two patch sources:
-
-- **`patches/antigen_epitope_species_gene.dict`** — epitope-keyed authority: maps known epitopes directly to their canonical species + gene. This is the highest-confidence source.
-- **`proofreading/gene_aliases.tsv`** — free-text gene name aliases → VDJdb gene name.
-- **`proofreading/species_aliases.tsv`** — species substring fragments → VDJdb species name. Checked in order; first match wins.
+Read [`skills/AUTHORITIES.md`](../AUTHORITIES.md) first.
 
 ## Invocation
 
 ```
-/harmonize [path-to-tsv]
+/vdjdb-harmonize [path-to-tsv]
 ```
 
-Or called automatically from `/proofread` (Step 6a) when spurious antigen fields are detected.
+## Why this is a skill and not a build stage
 
----
+`patches/antigen_epitope_species_gene.dict` is applied by the build (`vdjdb.curate.patch`) and covers
+515 epitopes, which is 166,153 of the 203,348 chunk rows - 81.7 %, measured 2026-09-29. Nothing in
+the build reads the two alias tables, and that is deliberate: mapping free text onto a gene symbol is
+a curation
+decision, made once, recorded in a table, and applied to the chunk before it lands. The build applies
+declared patches; it does not guess at prose.
 
-## Step 1 — Load Lookup Tables
+So the deliverable here is two things, and the second matters more: **the chunk, and the table rows
+that made the chunk's values derivable.** A value normalised without a table row behind it comes back
+on the next submission of the same data.
 
-Load all three sources at the start of the session:
+## The three sources, in priority order
+
+| Priority | Source | Keyed on | Rows |
+|---|---|---|---:|
+| 1 | `patches/antigen_epitope_species_gene.dict` | the epitope, exactly | 515 |
+| 2 | `proofreading/gene_aliases.tsv` | free-text gene name, exact after stripping | 202 |
+| 3 | `proofreading/species_aliases.tsv` | lowercase substring of the organism, **first match wins** | 84 |
+
+An epitope in source 1 settles both fields; skip 2 and 3 for that row. The species table is ordered,
+so a more specific fragment must sit above a less specific one (`human herpesvirus 4` before
+`herpesvirus`) - when you add a row, add it in the right place, not at the end.
+
+## Step 1 - load and apply
 
 ```python
 import csv, re
 
-# 1a. Epitope → (species, gene) from patches/
-epitope_dict = {}  # {epitope: (species, gene)}
+def _table(path, header):
+    """Two-column TSV, comments skipped, header row skipped by its own first field."""
+    with open(path) as f:
+        rows = [r for r in csv.reader(f, delimiter='\t')
+                if r and not r[0].startswith('#') and r[0] != header]
+    return [(r[0].strip(), r[1].strip()) for r in rows]
+
+epitopes = {}                     # epitope -> (species, gene)
 with open('patches/antigen_epitope_species_gene.dict') as f:
-    reader = csv.DictReader(f, delimiter='\t')
-    for row in reader:
-        ep = row['antigen.epitope'].strip()
-        epitope_dict[ep] = (row['antigen.species'].strip(), row['antigen.gene'].strip())
+    for r in csv.DictReader(f, delimiter='\t'):
+        epitopes[r['antigen.epitope'].strip()] = (r['antigen.species'].strip(),
+                                                  r['antigen.gene'].strip())
+genes = dict(_table('proofreading/gene_aliases.tsv', 'source_name'))
+species = _table('proofreading/species_aliases.tsv', 'fragment')   # a list: the order is the rule
 
-# 1b. Gene alias table
-gene_map = {}  # {raw_name: canonical}
-with open('proofreading/gene_aliases.tsv') as f:
-    for line in f:
-        line = line.strip()
-        if not line or line.startswith('#'): continue
-        parts = line.split('\t')
-        if len(parts) >= 2 and parts[0] not in ('source_name', 'vdjdb_name'):
-            gene_map[parts[0].strip()] = parts[1].strip()
+SUFFIXES = (' protein', ' glycoprotein', ' polyprotein', ' precursor')
 
-# 1c. Species fragment list (order-sensitive)
-species_fragments = []  # [(fragment_lower, canonical), ...]
-with open('proofreading/species_aliases.tsv') as f:
-    for line in f:
-        line = line.strip()
-        if not line or line.startswith('#'): continue
-        parts = line.split('\t')
-        if len(parts) >= 2 and parts[0] != 'fragment':
-            species_fragments.append((parts[0].strip().lower(), parts[1].strip()))
-```
-
----
-
-## Step 2 — Harmonization Functions
-
-Use this unified pipeline for every row:
-
-```python
-GENE_STRIP_SUFFIXES = (' protein', ' glycoprotein', ' polyprotein', ' precursor')
-
-def harmonize_gene(raw: str) -> str:
-    """Map raw antigen.gene to VDJdb canonical name."""
-    if not raw:
-        return raw
-    # Strip embedded [species] annotation (e.g. "pp65 [CMV]")
-    s = re.sub(r'\s*\[[^\]]+\]\s*$', '', raw).strip()
-    # Exact match
-    if s in gene_map:
-        return gene_map[s]
-    # Strip common trailing suffixes and retry
-    for suffix in GENE_STRIP_SUFFIXES:
-        if s.lower().endswith(suffix) and len(s) > len(suffix):
-            stripped = s[:-len(suffix)].strip()
-            if stripped in gene_map:
-                return gene_map[stripped]
-            if len(stripped) >= 2:
-                return stripped   # cleaned fallback
+def gene(raw):
+    s = re.sub(r'\s*\[[^\]]+\]\s*$', '', raw).strip()     # drop a trailing "[CMV]"
+    if s in genes:
+        return genes[s]
+    for suf in SUFFIXES:
+        if s.lower().endswith(suf) and len(s) > len(suf):
+            stripped = s[:-len(suf)].strip()
+            return genes.get(stripped, stripped)
     return s
 
-def harmonize_species(raw: str) -> str:
-    """Map raw antigen.species to VDJdb canonical name via substring fragments."""
-    if not raw:
-        return raw
+def organism(raw):
     low = raw.lower()
-    for fragment, canonical in species_fragments:
-        if fragment in low:
-            return canonical
-    return raw  # unchanged if no match
+    return next((c for frag, c in species if frag in low), raw)
 
-def harmonize_row(row: dict) -> dict:
-    """Apply full harmonization pipeline to a single row."""
+def harmonise(row):
     ep = row.get('antigen.epitope', '').strip()
-
-    # Priority 1: epitope dict (most authoritative)
-    if ep in epitope_dict:
-        canon_species, canon_gene = epitope_dict[ep]
-        row['antigen.species'] = canon_species
-        row['antigen.gene'] = canon_gene
-        return row
-
-    # Priority 2: alias tables
-    raw_gene = row.get('antigen.gene', '').strip()
-    raw_species = row.get('antigen.species', '').strip()
-    new_gene = harmonize_gene(raw_gene)
-    new_species = harmonize_species(raw_species)
-
-    if new_gene != raw_gene:
-        row['antigen.gene'] = new_gene
-    if new_species != raw_species:
-        row['antigen.species'] = new_species
-
+    if ep in epitopes:
+        row['antigen.species'], row['antigen.gene'] = epitopes[ep]
+    else:
+        row['antigen.gene'] = gene(row.get('antigen.gene', '').strip())
+        row['antigen.species'] = organism(row.get('antigen.species', '').strip())
     return row
 ```
 
----
+## Step 2 - what counts as spurious
 
-## Step 3 — Detect Spurious Values
+These are the patterns that say a value is a description rather than a name. They are what triggers
+this skill from `/vdjdb-proofread`, and what to fix here.
 
-Before harmonizing, scan the chunk and flag any rows where `antigen.gene` or `antigen.species` looks suspicious. These are the patterns that trigger automatic `/harmonize` invocation from `/proofread`:
+**`antigen.gene`:**
 
-### 3a. Spurious `antigen.gene` indicators
-
-| Pattern | Example | Action |
+| Pattern | Example | Fix |
 |---|---|---|
-| Contains `[...]` species annotation | `pp65 [CMV]` | Strip annotation, re-lookup |
-| Ends with ` protein`, ` glycoprotein`, ` polyprotein`, ` precursor` | `Spike glycoprotein` | Strip suffix, canonical lookup |
-| Starts with `Probable `, `Putative `, `Chain [A-Z], `, `MULTISPECIES:` | `Probable ATP-dependent RNA helicase DDX5` | Strip prefix, canonical lookup |
-| Length > 25 characters | `RNA-directed RNA polymerase catalytic subunit` | Alias lookup; convert to HGNC symbol or abbreviation |
-| Contains `,` (comma) | `Sterol-4-alpha-carboxylate 3-dehydrogenase, decarboxylating` | Full description — look up in `proofreading/gene_aliases.tsv`, convert to gene symbol |
-| Contains spaces AND is not a known multi-word canonical name | `Nucleoprotein M1` | Flag for manual review |
-| Matches `Polyprotein` or `polyprotein` exactly | | Flag — epitopes from polyprotein should have specific gene assigned; look up by epitope in dict |
-| Null / empty | | Flag `no.antigen.gene` |
+| a `[species]` annotation | `pp65 [CMV]` | strip, re-look-up |
+| a trailing ` protein` / ` glycoprotein` / ` polyprotein` / ` precursor` | `Spike glycoprotein` | strip, re-look-up |
+| a `Probable ` / `Putative ` / `Chain A, ` / `MULTISPECIES:` prefix | `Chain A, Nucleoprotein` | strip, re-look-up |
+| a full UniProt description, or a comma | `Sterol-4-alpha-carboxylate 3-dehydrogenase, decarboxylating` | alias table; add the row |
+| exactly `Polyprotein` | | resolve by epitope - a polyprotein epitope has a specific gene |
+| blank, and `antigen.species` is not `Synthetic` | | step 4 |
 
-**VDJdb gene naming conventions:**
-- Human/mouse genes: HGNC uppercase symbol (e.g., `PABPC1`, `SMC1A`, `COL18A1`)
-- Viral genes: use established short names from literature (e.g., `pp65`, `BMLF1`, `Gag`, `Pol`, `Tax`)
-- Bacterial/parasitic genes: use standard gene symbol or protein abbreviation (e.g., `glnA`, `GRA6`, `yeiH`)
-- Avoid: full UniProt protein descriptions, parenthetical qualifiers, `Chain [X],` prefixes from PDB entries
-- Special cases: `P protein` (HBV) → `Pol`; LCMV `Gp33(variant)` → `GPC`; `MULTISPECIES:` prefix → strip prefix then look up
+**`antigen.species`:**
 
-```python
-KNOWN_MULTIWORD_GENES = {'PB1-F2', 'non-structural', 'Large T antigen', 'HLA-DRB1',
-                          'HLA-DQB1', 'HLA-DPB1', 'NY-ESO-1', 'CORT_0A05310'}  # extend as needed
-
-def is_spurious_gene(gene: str) -> bool:
-    if not gene: return True
-    if re.search(r'\[.+\]', gene): return True
-    if any(gene.lower().endswith(s) for s in GENE_STRIP_SUFFIXES): return True
-    if len(gene) > 30 and gene not in KNOWN_MULTIWORD_GENES: return True
-    if gene.lower() in ('polyprotein', 'unknown', 'na', 'n/a'): return True
-    return False
-```
-
-### 3b. Spurious `antigen.species` indicators
-
-| Pattern | Example | Action |
+| Pattern | Example | Fix |
 |---|---|---|
-| Contains full scientific name with spaces | `Human herpesvirus 4` | Fragment match lookup in `proofreading/species_aliases.tsv` |
-| Contains parenthetical common name | `Columba livia (carrier pigeon)` | Strip parens, apply CamelCase: `ColumbaLivia` |
-| Known alias variants | `HIV`, `HTLV`, `Influenza`, `IAV` | Map to canonical |
-| Capitalization mismatch | `Epstein barr virus`, `influenzaA` | Normalise |
-| Not in known canonical set | anything not in the list below | Flag for review |
+| a multi-word scientific name | `Human herpesvirus 4` | fragment table → `EBV` |
+| a parenthetical common name | `Columba livia (carrier pigeon)` | strip, CamelCase → `ColumbaLivia` |
+| casing | `Epstein barr virus`, `influenzaA`, `synthetic` | normalise; `Synthetic` is capitalised |
+| blank | | step 4 |
 
-**VDJdb species naming conventions:**
-- Two-word binomial names → CamelCase with no space: `Homo sapiens` → `HomoSapiens`, `Bacillus subtilis` → `BacillusSubtilis`
-- Common abbreviations for well-known pathogens: `EBV`, `CMV`, `HIV-1`, `SARS-CoV-2`, `InfluenzaA`, etc.
-- Strip parenthetical common names and former names: `Columba livia (carrier pigeon)` → `ColumbaLivia`; `Schinkia azotoformans (Bacillus azotiformans)` → `SchinkiaAzotoformans`
-- Genus-only entries (when species is unknown): keep as single CamelCase word: `Bacillus [genus]` → `Bacillus`
-- `PseudomonasFluorescens`, `PseudomonasAeruginosa` — already CamelCase but missing space between genus and species (both are acceptable as-is if already in database)
+**Conventions:** two-word binomials become CamelCase with no space (`BacillusSubtilis`); well-known
+pathogens keep their established abbreviation (`EBV`, `CMV`, `HIV-1`, `SARS-CoV-2`, `InfluenzaA`); a
+genus with unknown species stays one CamelCase word (`Bacillus`); human and mouse genes take the HGNC
+or MGI symbol (`PABPC1`, `G6pc2`); viral genes take the short name the literature uses (`pp65`,
+`BMLF1`, `Gag`, `Tax`).
 
-**Known canonical `antigen.species` values** (derive from existing chunks):
-```
-EBV, CMV, MCMV, HSV-1, HSV-2, VZV, InfluenzaA, InfluenzaB, SARS-CoV-2, SARS-CoV,
-HCoV-OC43, HCoV-HKU1, HIV-1, HCV, HBV, YFV, DENV, DENV1, DENV2, DENV3, DENV3/4,
-LCMV, HTLV-1, MLV, RSV, MCPyV, HomoSapiens, MusMusculus, RattusNorvegicus,
-MacacaMulatta, GallusGallus, M.tuberculosis, PlasmodiumFalciparum, PlasmodiumBerghei,
-Trypanosoma cruzi, SIV, CoxsackievirusB, Wheat, ManducaSexta
+Do not hold a hardcoded list of accepted species in this file - it drifts the moment a chunk lands.
+Derive it:
+
+```bash
+cut -f15 chunks/*.txt | sort | uniq -c | sort -rn
 ```
 
-```python
-CANONICAL_SPECIES = {
-    'EBV', 'CMV', 'MCMV', 'HSV-1', 'HSV-2', 'VZV', 'InfluenzaA', 'InfluenzaB',
-    'SARS-CoV-2', 'SARS-CoV', 'HCoV-OC43', 'HCoV-HKU1', 'HIV-1', 'HCV', 'HBV',
-    'YFV', 'DENV', 'DENV1', 'DENV2', 'DENV3', 'DENV3/4', 'LCMV', 'HTLV-1',
-    'MLV', 'RSV', 'MCPyV', 'HomoSapiens', 'MusMusculus', 'RattusNorvegicus',
-    'MacacaMulatta', 'GallusGallus', 'M.tuberculosis', 'PlasmodiumFalciparum',
-    'PlasmodiumBerghei', 'Trypanosoma cruzi', 'SIV', 'CoxsackievirusB',
-    'Wheat', 'ManducaSexta',
-}
+A value absent from that output is new to VDJdb, which `vdjdb submission` also reports, and new is not
+the same as wrong.
 
-def is_spurious_species(species: str) -> bool:
-    if not species: return True
-    if species in CANONICAL_SPECIES: return False
-    if ' ' in species: return True   # multi-word → likely not normalised
-    return True  # unknown single token → flag
+## Step 3 - consistency, within the chunk and against the corpus
+
+Two checks, both advisory, both needing a curator:
+
+**One epitope with two gene or species values.** After step 1, group the chunk's rows by
+`antigen.epitope` and report any epitope with more than one `antigen.gene` or `antigen.species`. What
+remains after the dict has been applied is a gap in the dict: resolve it and add the row.
+
+**Spellings that differ only in case or a separator.** `IE1` and `IE-1` are two `antigen.gene` values
+for one CMV gene, and no query filtering on one finds the other. The build computes this over the
+whole corpus:
+
+```bash
+uv run vdjdb build --out out/        # writes out/reports/lookalikes.tsv
 ```
 
----
+Sort that report on `same.species` - `true` means the two spellings sit on one `antigen.species`, so
+one of them is wrong. `false` can be correct: HGNC capitalises human symbols and MGI title-cases
+mouse ones, so `MBP` and `Mbp` are two conventions for one gene and both stay.
 
-## Step 4 — Cross-Chunk Consistency Check
+## Step 4 - blank antigen fields
 
-After harmonizing individual rows, check for same-epitope inconsistencies across the chunk (and optionally across all of `chunks/`):
+A blank `antigen.gene` is only valid when `antigen.species` is `Synthetic` - a mimotope or designed
+peptide has no source gene. `vdjdb qc` fails any other blank as `bad antigen.gene`. A blank
+`antigen.species` is not currently a QC rule and has to be caught here.
 
-```python
-from collections import defaultdict
+Resolve in this order:
 
-def check_consistency(rows: list[dict]) -> list[str]:
-    warnings = []
-    ep_genes = defaultdict(set)
-    ep_species = defaultdict(set)
-    for r in rows:
-        ep = r.get('antigen.epitope', '').strip()
-        g = r.get('antigen.gene', '').strip()
-        s = r.get('antigen.species', '').strip()
-        if ep:
-            if g: ep_genes[ep].add(g)
-            if s: ep_species[ep].add(s)
-    for ep, genes in ep_genes.items():
-        if len(genes) > 1:
-            warnings.append(f'INCONSISTENT antigen.gene for epitope {ep!r}: {genes} — check patches/antigen_epitope_species_gene.dict')
-    for ep, sps in ep_species.items():
-        if len(sps) > 1:
-            warnings.append(f'INCONSISTENT antigen.species for epitope {ep!r}: {sps} — check patches/antigen_epitope_species_gene.dict')
-    return warnings
-```
+1. **The epitope dictionary** - it may already carry the epitope.
+2. **The rest of the corpus** - `grep -h '<EPITOPE>' chunks/*.txt | cut -f13,14,15 | sort -u`. Another
+   paper's curated answer for the same peptide is the strongest available prior.
+3. **The publication.** Fetch the abstract for the row's `reference.id` and read the antigen context.
+   A neoantigen study is `HomoSapiens`; a cross-reactivity study varies per epitope.
+4. **Genuinely unknown, and curated as such** - for structural entries with no reported antigen, write
+   `Unknown` rather than leaving blank, so a checked-and-unknown value is distinguishable from an
+   unchecked one.
 
-If the epitope dict has a definitive entry, the inconsistency will be resolved by Step 2. Report remaining inconsistencies (those the dict does not cover) for manual curation.
+Confirm species assignments that a related pathogen could explain. `SARS-CoV` and `SARS-CoV-2` share
+epitopes, and the abstract is what settles which the paper studied.
 
----
+## Step 5 - epitope substrings
 
-## Step 5 — Epitope Substring Warning
+Report any epitope in the chunk that is an exact substring of a longer epitope, in the chunk or in the
+corpus: `EPLPQGQLTAY` inside `GPEPLPQGQLTAY`. Skip anything under 4 residues.
 
-Check whether any epitope in the chunk is an **exact substring** of a longer epitope in the same chunk, or in the global VDJdb database. This detects truncation artefacts (e.g., `EPLPQGQLTAY` being a substring of `GPEPLPQGQLTAY`).
+This is a warning and never a fix. A shorter peptide can be the genuine minimal epitope, or it can be
+an export that lost its flanks. The paper decides. State both candidates and ask.
 
-```python
-def check_epitope_substrings(rows: list[dict], global_epitopes: set[str] = None) -> list[str]:
-    """
-    Warn when epitope A is an exact substring of longer epitope B.
-    Checks within the chunk and against global_epitopes if provided.
-    """
-    warnings = []
-    chunk_epitopes = {r.get('antigen.epitope', '').strip() for r in rows if r.get('antigen.epitope')}
-    all_epitopes = chunk_epitopes | (global_epitopes or set())
+## Step 6 - report
 
-    for ep in sorted(chunk_epitopes):
-        if len(ep) < 4: continue
-        for longer in all_epitopes:
-            if longer != ep and ep in longer:
-                src = 'chunk' if longer in chunk_epitopes else 'global VDJdb'
-                warnings.append(
-                    f'SUBSTRING WARNING: {ep!r} is contained in longer epitope {longer!r} ({src}) — '
-                    f'possible truncation artefact; verify correct epitope boundaries'
-                )
-    return warnings
-```
+State: rows processed; every changed cell as `ROW <chunk.id>: <field> <old> -> <new>` with the source
+that decided it; consistency findings the dict does not cover; substring warnings; and **the table
+rows added**, by file. Then re-run `vdjdb qc` on the result.
 
-To load global VDJdb epitopes for the cross-chunk check:
-
-```python
-import glob
-
-def load_global_epitopes() -> set[str]:
-    eps = set()
-    for f in glob.glob('chunks/*.txt'):
-        with open(f) as fh:
-            for row in csv.DictReader(fh, delimiter='\t'):
-                ep = row.get('antigen.epitope', '').strip()
-                if ep: eps.add(ep)
-    return eps
-```
-
----
-
-## Step 6 — Apply and Report
-
-Run the full harmonization on the chunk, report all changes and warnings:
-
-```python
-def harmonize_chunk(path: str, check_global: bool = True) -> None:
-    with open(path) as f:
-        rows = list(csv.DictReader(f, delimiter='\t'))
-    fieldnames = list(rows[0].keys()) if rows else []
-
-    changes = []
-    for i, row in enumerate(rows):
-        orig_gene = row.get('antigen.gene', '')
-        orig_species = row.get('antigen.species', '')
-        row = harmonize_row(row)
-        if row['antigen.gene'] != orig_gene:
-            changes.append(f'  ROW {row["chunk.id"]}: antigen.gene {orig_gene!r} → {row["antigen.gene"]!r}')
-        if row['antigen.species'] != orig_species:
-            changes.append(f'  ROW {row["chunk.id"]}: antigen.species {orig_species!r} → {row["antigen.species"]!r}')
-        rows[i] = row
-
-    # Consistency check
-    consistency_warnings = check_consistency(rows)
-
-    # Substring check
-    global_eps = load_global_epitopes() if check_global else None
-    substring_warnings = check_epitope_substrings(rows, global_eps)
-
-    # Write back
-    with open(path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter='\t')
-        writer.writeheader()
-        writer.writerows(rows)
-
-    # Report
-    print(f'=== HARMONIZATION REPORT: {path} ===')
-    print(f'Rows processed: {len(rows)}')
-    print(f'Fields changed: {len(changes)}')
-    for c in changes: print(c)
-    if consistency_warnings:
-        print(f'\nConsistency warnings ({len(consistency_warnings)}):')
-        for w in consistency_warnings: print(f'  {w}')
-    if substring_warnings:
-        print(f'\nSubstring warnings ({len(substring_warnings)}):')
-        for w in substring_warnings: print(f'  {w}')
-    if not changes and not consistency_warnings and not substring_warnings:
-        print('No issues found.')
-```
-
----
-
-## Integration with /proofread
-
-When `/proofread` is running **Step 6** (MHC Consistency) or scanning `antigen.gene`/`antigen.species` fields, it should invoke harmonization automatically if any of these are detected:
-
-- `is_spurious_gene(row['antigen.gene'])` returns True for ≥1 row
-- `is_spurious_species(row['antigen.species'])` returns True for ≥1 row
-- `check_consistency(rows)` returns any warnings
-
-**From /proofread Step 6, add:**
-
-> **Step 6a — Antigen Harmonization Trigger**
->
-> After running ChunkQC, scan all `antigen.gene` and `antigen.species` values using the spurious-value detectors from `/harmonize`. If any are flagged:
-> 1. Report the count and examples to the user.
-> 2. Ask: "Run `/harmonize` to fix these automatically? [y/n]"
-> 3. If yes: run the full harmonization pipeline, then re-run ChunkQC to verify no regressions.
-
----
-
-## Patch File Maintenance
-
-When harmonization fails for a value (no alias match, no epitope dict entry), **add the mapping** to the appropriate patch file rather than leaving it unfixed:
-
-- New **epitope → species/gene** mapping → append to `patches/antigen_epitope_species_gene.dict`
-- New **gene alias** (free-text → canonical) → append to `proofreading/gene_aliases.tsv`
-- New **species fragment** (substring → canonical) → append to `proofreading/species_aliases.tsv` (put more-specific fragments before less-specific ones)
-
----
-
-## Reference Files
-
-| File | Role |
-|---|---|
-| `patches/antigen_epitope_species_gene.dict` | Epitope-keyed authority: epitope → (species, gene) |
-| `proofreading/gene_aliases.tsv` | Free-text gene alias table → VDJdb gene name |
-| `proofreading/species_aliases.tsv` | Species fragment → VDJdb canonical (order-sensitive) |
-| `py_src/ChunkQC.py` | Run after harmonization to verify no regressions |
+If the chunk is already in `chunks/`, changing it is a chunk edit: its own branch, its own issue, and
+a message naming the files, the row counts and the authority. See invariant 1.

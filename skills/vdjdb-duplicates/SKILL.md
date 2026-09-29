@@ -1,18 +1,13 @@
 ---
 name: vdjdb-duplicates
-description: Identify and classify duplicate TCR records across all VDJdb chunks at three resolution levels (beta-only, paired, and same-epitope multi-MHC), categorise by publication source, author overlap, and flag spurious high-frequency records.
+description: Audit repeated TCR records across the whole VDJdb corpus - which clonotypes and pMHC pairs recur, whether a recurrence is a same-lab follow-up publication or independent replication (by PubMed author overlap), which within-chunk multiplicities are sequencing read depth rather than distinct clones, and which epitopes are recorded against inconsistent or genuinely multiple MHC restrictions. Use for a corpus-wide consistency audit or before landing a large chunk that may already be in the database.
 ---
 
-# /vdjdb-duplicates — VDJdb Duplicate & Consistency Audit Skill
+# vdjdb-duplicates
 
-## Purpose
+Measure how records repeat across the corpus, and separate the three reasons they do.
 
-Scan all `chunks/` files to:
-1. Find duplicate TCRs at two CDR3 resolution levels.
-2. Classify duplicates as within-publication, cross-publication same-lab, or genuinely independent.
-3. Check author overlap between publications sharing many TCR sequences.
-4. Flag extremely frequent records that suggest read-count inflation rather than unique T cell clones.
-5. Report epitopes presented by multiple distinct MHC molecules or with inconsistent allele resolution.
+Read [`skills/AUTHORITIES.md`](../AUTHORITIES.md) first.
 
 ## Invocation
 
@@ -20,278 +15,159 @@ Scan all `chunks/` files to:
 /vdjdb-duplicates
 ```
 
-No arguments. Run from the repo root.
+No arguments. Needs a build: `uv run vdjdb build --out out/`.
 
----
+## What a repeat is, and is not
 
-## Step 1 — Load All Chunks
+**Two rows in two different chunks are independent reports, never duplicates**, even when every
+field matches. A chunk is one publication, so a matching row in a second publication is a second
+laboratory finding the same receptor against the same peptide. That is signal: it is what raises
+`vdjdb.score` and what the motif clustering is tuned against. Deduplication in this database is
+**within a chunk only**, on `schema.CHUNK_DEDUP_KEY`, and the build already does it - the count it
+removes is the gap between 203,308 raw rows and 192,753 released ones, reported as the advisory
+`duplicate` rule.
+
+So this audit is not looking for errors to delete. It is separating three things that look alike in a
+row count:
+
+| Reason a record repeats | What it means | Action |
+|---|---|---|
+| Same lab, follow-up publication | expected; the same cohort re-sequenced or re-analysed | keep both; note the relationship |
+| Independent replication | a public clonotype, the strongest evidence the database holds | keep both; this is the finding |
+| Within-chunk multiplicity from read depth | one clone counted once per cell or per read | keep; state it in the release notes so nobody reads the count as clonal abundance |
+
+## Step 1 - load the built tables
+
+The build assigns the ids this audit needs, so do not rebuild the keys by hand:
+
+- `clonotype_id` on `chains.tsv` keys `(species, gene, cdr3, v.segm, j.segm)`
+- `pmhc_id` on `records.tsv` keys `(antigen.epitope, mhc.a, mhc.b)`
+- `epitope_id` keys the epitope alone
 
 ```python
-import csv, glob, re
-from collections import defaultdict, Counter
-
-rows_all = []
-for path in sorted(glob.glob('chunks/*.txt')):
-    fname = path.split('/')[-1]
-    with open(path) as f:
-        for row in csv.DictReader(f, delimiter='\t'):
-            row['_file'] = fname
-            rows_all.append(row)
-
-def v(row, col): return (row.get(col) or '').strip()
+import polars as pl
+ch = pl.read_csv('out/tables/chains.tsv', separator='\t', infer_schema_length=0)
+rec = pl.read_csv('out/tables/records.tsv', separator='\t', infer_schema_length=0)
+d = ch.join(rec.select('record_id', 'pmhc_id', 'epitope_id', 'reference.id', 'chunk.file',
+                       'meta.subject.id', 'meta.clone.id'), on='record_id', how='left')
 ```
 
----
+A receptor against a peptide is `(clonotype_id, pmhc_id)`. Group on that pair, not on a
+hand-assembled tuple of `cdr3.beta` and `antigen.epitope` - the pair follows the harmonised call and
+the repaired sequence, which is what the database actually ships.
 
-## Step 2 — Beta-Only Duplicates
+## Step 2 - classify each recurring pair
 
-Key: `(cdr3.beta, v.beta, antigen.epitope)` — records sharing the same beta chain and epitope regardless of alpha chain or donor metadata.
+For every `(clonotype_id, pmhc_id)` with more than one record:
 
-```python
-key_beta = defaultdict(list)
-for row in rows_all:
-    cb = v(row,'cdr3.beta'); vb = v(row,'v.beta'); ep = v(row,'antigen.epitope')
-    if cb and ep:
-        key_beta[(cb, vb, ep)].append(row)
-
-dups_beta = {k: vs for k, vs in key_beta.items() if len(vs) > 1}
-```
-
-**Classify each duplicate group:**
-
-| Category | Criterion |
+| Class | Test |
 |---|---|
-| Within-file | All rows in one chunk file |
-| Cross-file, same reference | Multiple files, all share the same `reference.id` |
-| Cross-file, same lab | Multiple PMIDs but overlapping authors (check Step 4) |
-| Cross-file, independent | Multiple PMIDs with no shared authors |
+| within one chunk | one distinct `chunk.file` |
+| across chunks, one reference | several files, one `reference.id` |
+| across chunks, same lab | several PMIDs with overlapping author lists (step 3) |
+| across chunks, independent | several PMIDs with no shared authors |
 
-Count and report each category. List the top 30 groups by frequency.
+Report the counts per class and the largest groups. `vdjdb submission <chunk>` gives the same
+relationship for one chunk against the corpus, without a build of your own, and is the right tool when
+the question is about one submission rather than the whole database.
 
----
+## Step 3 - author overlap
 
-## Step 3 — Paired Duplicates
-
-Key: `(cdr3.alpha, v.alpha, j.alpha, cdr3.beta, v.beta, j.beta, antigen.epitope)` — exact paired chain duplicates. Only applied to rows where both CDR3 chains are non-empty.
-
-```python
-key_pair = defaultdict(list)
-for row in rows_all:
-    ca = v(row,'cdr3.alpha'); cb = v(row,'cdr3.beta'); ep = v(row,'antigen.epitope')
-    if ca and cb and ep:
-        k = (ca, v(row,'v.alpha'), v(row,'j.alpha'),
-             cb, v(row,'v.beta'),  v(row,'j.beta'), ep)
-        key_pair[k].append(row)
-
-dups_pair = {k: vs for k, vs in key_pair.items() if len(vs) > 1}
-```
-
-Report same categories as Step 2.
-
----
-
-## Step 4 — Author Overlap Check
-
-For each cross-file duplicate group involving ≥2 distinct PMIDs, retrieve author lists and compute overlap:
+For pairs of PMIDs that share more than about 20 recurring groups, fetch both author lists and
+intersect them:
 
 ```python
 import urllib.request, json, time
 
-def get_authors(pmid):
-    url = f'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id={pmid}&retmode=json'
+def authors(pmid):
+    url = ('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi'
+           f'?db=pubmed&id={pmid}&retmode=json')
     with urllib.request.urlopen(url, timeout=10) as r:
-        data = json.load(r)
-    return [a['name'] for a in data['result'][pmid].get('authors', [])]
-
-# Build PMID-pair → shared author count
-pmid_pairs = Counter()
-for k, vs in dups_beta.items():
-    refs = sorted({v(r,'reference.id') for r in vs if v(r,'reference.id').startswith('PMID:')})
-    for i in range(len(refs)):
-        for j in range(i+1, len(refs)):
-            pmid_pairs[(refs[i], refs[j])] += 1
-
-# For top pairs (> threshold shared duplicates), check authors
-OVERLAP_THRESHOLD = 20
-for (r1, r2), cnt in pmid_pairs.most_common():
-    if cnt < OVERLAP_THRESHOLD: break
-    p1, p2 = r1.replace('PMID:',''), r2.replace('PMID:','')
-    try:
-        a1 = get_authors(p1); time.sleep(0.4)
-        a2 = get_authors(p2); time.sleep(0.4)
-        shared = set(a1) & set(a2)
-        print(f"{r1} × {r2}: {cnt} shared groups, {len(shared)} common authors")
-        if shared:
-            print(f"  Authors: {', '.join(sorted(shared)[:6])}")
-    except Exception as e:
-        print(f"  ERROR: {e}")
+        return [a['name'] for a in json.load(r)['result'][pmid].get('authors', [])]
 ```
 
-**Classification rule:**
-- ≥3 shared authors → "same lab, follow-up publication" (expected overlap, not spurious)
-- 0–2 shared authors → "independent replication" (genuine public clonotype)
+Rate-limit to under three requests a second, or NCBI will throttle without saying so.
 
----
+Three or more shared authors reads as one group publishing twice. Zero to two reads as independent
+replication. State the count, not the verdict alone - the threshold is a convention, and a large
+consortium paper breaks it.
 
-## Step 5 — High-Frequency Record Detection
+`summary/reference_years.tsv` already holds every reference's year and is offline, so use it for
+chronology rather than a second round of requests. Publication order is what distinguishes a
+follow-up from a re-analysis.
 
-Within-file groups with frequency ≥50 from ≤3 distinct donors are suspicious. Distinguish two legitimate assay causes before flagging as data errors:
+## Step 4 - within-chunk multiplicity
 
-**Pattern A — Single TCR tested against many epitopes (combinatorial assay):**
-The same CDR3 appears with many different epitopes in one study. Each row is a genuine specificity claim. High n within one epitope group from few donors still indicates read-depth, not clonal abundance.
+A clonotype appearing many times inside one chunk, from one or two donors, is usually the assay's
+resolution rather than a repertoire measurement. Two patterns, and they need opposite readings:
 
-**Pattern B — Pool of TCRs tested against one epitope/pattern:**
-Many different CDR3s all assigned the same epitope from a single donor. Here n reflects different clones in the repertoire, not read inflation. This is biologically expected in large repertoire studies.
+**Read depth.** Few donors, and the *same* clonotype repeated - one clone observed once per cell in
+single-cell sequencing, or once per read. The count is instrument output, not clonal abundance.
 
-Distinguishing them: if few donors but many distinct CDR3s → Pattern B (normal). If few donors with the SAME CDR3 repeated n times → Pattern A / read inflation.
+**Deep repertoire.** Few donors, and *many distinct* clonotypes against one epitope. That is what a
+bulk repertoire study of an immunodominant epitope looks like, and it is the data doing its job.
 
-```python
-FREQ_THRESHOLD = 50
-DONOR_THRESHOLD = 3
+Distinguish on distinct `clonotype_id` per group, and on whether `meta.clone.id` varies. Neither is a
+defect and neither is removed. The first is stated in the release notes; the second is left alone.
 
-for k, vs in sorted(dups_beta.items(), key=lambda x: -len(x[1])):
-    files = {r['_file'] for r in vs}
-    if len(files) > 1: continue   # only single-file
-    donors = {v(r,'meta.subject.id') for r in vs}
-    clones = {v(r,'meta.clone.id') for r in vs if v(r,'meta.clone.id')}
-    if len(vs) >= FREQ_THRESHOLD and len(donors) <= DONOR_THRESHOLD:
-        cb, vb, ep = k
-        refs = {v(r,'reference.id') for r in vs}
-        pattern = 'READ-INFLATION' if len(clones) <= 1 else 'DEEP-REPERTOIRE'
-        print(f"{pattern} n={len(vs):4d} CDR3b={cb:22} ep={ep:15} donors={len(donors)} ref={list(refs)[0]}")
-```
+Where the chunk's own `method.frequency` or `meta.subset.frequency` already records abundance, say so:
+a row count standing in for a frequency that the chunk reports properly is a submission that could be
+collapsed, and that is a question for the submitter.
 
-**Known confirmed cases from vdjdb-db audit (2026-05-31):**
+## Step 5 - one epitope, several MHC restrictions
 
-| File | Epitope | CDR3b | n | Donors | Pattern | Cause |
-|---|---|---|---|---|---|---|
-| PMID_41315082 | VEALYLVCG | CASSEAGTGGYEQYF | 530 | 2 | A | scTCR-seq read depth; same clone seen many times across cells |
-| PMID_39746936 | VISNDVCAQV | multiple | 160–271 | 1 | A | Single donor deep-seq; each clone's frequency encoded as row count |
-| PMID_34811538 | RAKFKQLL/CLGGLLTMV | multiple | 107–241 | 2–3 | B | Bulk repertoire depth; many clones, legitimate |
-| 10xgenomics-2019-07-09 | IVTDFSVIK/RAKFKQLL | multiple | 100–133 | 2 | B | 10x Genomics multiplexed assay; cell barcodes give multiplicity |
+Group `records.tsv` by `epitope_id` and list the distinct `mhc.a`. Then split the result three ways,
+because they need three different responses:
 
-**Interpretation:** Pattern A records represent sequencing read depth not unique T cells — flag in release notes but do not remove. Pattern B records are biologically valid and expected.
+**Different HLA genes.** Genuine cross-restriction exists and is published - an epitope presented by
+both an A and a B allele. Report it; do not correct it. Where the corpus carries one such pairing on
+very few records against many on another, that minority is worth checking against its paper.
 
----
+**Different alleles of one gene.** Normal. Populations differ.
 
-## Step 6 — Multi-MHC Epitope Report
+**The same allele at two resolutions** - `HLA-A*02` beside `HLA-A*02:01`. That is a spelling problem,
+not biology: the two do not join, so a query on either misses the other. This is the case to fix, and
+it is fixed by finding the resolution the paper reports, per chunk.
 
-```python
-key_mhc = defaultdict(set)
-for row in rows_all:
-    ep = v(row,'antigen.epitope'); mhca = v(row,'mhc.a')
-    if ep and mhca: key_mhc[ep].add(mhca)
+For "which other alleles could present this epitope", do not derive it here. That is
+`uv run vdjdb promiscuity`, which answers it against `mhcmatch` predictions and writes
+`proofreading/epitope_promiscuity.tsv`, marking which pairings the database already records. It makes
+no claim about any record's `mhc.a`.
 
-# Flag epitopes with distinct HLA genes (not just allele sub-typing)
-for ep, alleles in sorted(key_mhc.items(), key=lambda x: -len(x[1])):
-    genes = set()
-    for a in alleles:
-        m = re.match(r'(HLA-[A-Z0-9]+|H2-\w+)', a)
-        if m: genes.add(m.group(1))
-    if len(genes) > 1:
-        print(f"{ep:20} {len(alleles)} alleles, {len(genes)} genes: {sorted(genes)}")
+## Step 6 - spellings that differ only in case or a separator
 
-# Flag allele resolution inconsistencies (same gene, coarse + fine)
-for ep, alleles in key_mhc.items():
-    coarse = {a for a in alleles if '*' in a and ':' not in a}
-    fine   = {a for a in alleles if ':' in a}
-    if coarse and fine:
-        coarse_g = {a.split('*')[0] for a in coarse}
-        fine_g   = {a.split('*')[0] for a in fine}
-        if coarse_g & fine_g:
-            print(f"RESOLUTION MIX {ep}: coarse={sorted(coarse)[:2]} fine={sorted(fine)[:2]}")
-```
+`out/reports/lookalikes.tsv`, written by the build, is this check over every value column. Sort on
+`same.species`: `true` means two spellings sit on one organism, so one is wrong. `false` can be
+correct - HGNC capitalises human gene symbols and MGI title-cases mouse ones.
 
----
-
-## Step 7 — Summary Report
+## Step 7 - report
 
 ```
-=== VDJDB DUPLICATE AUDIT SUMMARY ===
-Total rows: N
-Total chunks: N
+=== VDJDB RECURRENCE AUDIT ===
+records: N        chunks: N        distinct clonotypes: N        distinct pMHC: N
 
-BETA-ONLY DUPLICATES
-  Unique duplicate groups: N
-  Total redundant rows:    N
-  Within-file:             N groups
-  Cross-file:              N groups
-    Same-lab (≥3 shared authors): N
-    Independent replication:       N
+recurring (clonotype, pMHC) pairs: N
+  within one chunk:            N groups
+  across chunks, one reference: N groups
+  across chunks, same lab:      N groups   (>=3 shared authors)
+  across chunks, independent:   N groups
 
-TOP CROSS-PUBLICATION PAIRS (by shared CDR3b+Vb+epitope groups):
-  [N]  PMIDX × PMIDY — [shared authors count] common authors — [lab relationship]
-  ...
+largest cross-publication pairs:
+  N groups   PMID:X x PMID:Y   S shared authors   <relationship>
 
-HIGH-FREQUENCY SUSPECTS (≥50 copies, ≤3 donors, single file):
-  [N]  CDR3b / epitope — file — likely cause
+within-chunk multiplicity, >=50 records from <=3 donors:
+  N groups   <read depth | deep repertoire>   <chunk>   <epitope>
 
-MULTI-MHC EPITOPES (distinct HLA genes):
-  [N epitopes] — list top cases
+epitopes with more than one MHC gene:        N      (cross-restriction, keep)
+epitopes with one allele at two resolutions: N      (spelling, fix per chunk)
 
-MHC FORMAT ISSUES (allele resolution inconsistency):
-  [N epitopes] — coarse vs fine allele mix
+look-alike values with same.species=true:    N
 
 RECOMMENDATIONS:
-  - Flag high-frequency within-file duplicates in the DB release notes
-  - Resolve coarse/fine allele mix per paper (check original publication)
-  - Same-lab cross-publication duplicates: expected, keep all records
-  - Independent cross-publication public clonotypes: expected, keep all records
+  - <allele resolution to settle, per chunk and paper>
+  - <read-depth chunks to name in the release notes>
 ```
 
----
-
-## Known Findings from 2026-05-31 Audit
-
-### Cross-publication duplicate patterns
-
-| PMID pair | Shared groups | Shared authors | Relationship |
-|---|---|---|---|
-| PMID:37749325 × PMID:40694338 | 921 | 17 (Kedzierska K et al.) | Same lab, follow-up study |
-| PMID:28423320 × PMID:37749325 | 171 | 0 | Public clonotypes (GIL, CMV) |
-| PMID:23267020 × PMID:24512815 | 126 | 3 (Koning D, van Baarle D) | Same lab, method comparison |
-| PMID:35589842 × PMID:40713946 | 95 | 0 | Neoantigen public clonotypes |
-| PMID:28250417 × PMID:28629751 | 38 | 4 (Selin LK et al.) | Same lab, influenza repertoire |
-| PMID:18802118 × PMID:21562156 | 35 | 7 (Kalams SA et al.) | Same lab, HIV studies |
-| PMID:19017975 × PMID:21135165 | 31 | 7 (Price DA, Douek DC) | Same lab, longitudinal HIV/CMV |
-
-**Interpretation:** The dominant source of cross-publication duplicates is same-lab follow-up publications. True independent replication (0 shared authors) reflects genuinely public clonotypes for immunodominant epitopes (GIL, GLCTLVAML, NLVPMVATV).
-
-### Most replicated epitopes (cross-publication)
-
-| Epitope | Cross-pub duplicate rows | Notes |
-|---|---|---|
-| GILGFVFTL | 7,436 | Influenza GIL — the most public CD8 epitope in humans |
-| GLCTLVAML | 1,032 | EBV BMLF1 — highly public, 10+ studies |
-| FLRGRAYGL | 546 | EBV EBNA3A — restricted by HLA-B*08 AND HLA-A*02:01 (genuine bi-restriction) |
-| NLVPMVATV | 377 | CMV pp65 — dominant CMV epitope |
-| YLQPRTFLL | 298 | SARS-CoV-2 Spike — multiple COVID-19 cohort studies |
-
-### Spurious high-frequency records
-
-Extremely frequent within-file records (≥100 copies, ≤3 donors) reflect sequencing read depth, not individual T cell clones. Known cases:
-
-- **PMID_41315082**: CASSEAGTGGYEQYF/VEALYLVCG n=530, 2 donors — high-throughput scTCR-seq
-- **PMID_39746936**: 5 CDR3b/VISNDVCAQV combinations n=160–271, 1 donor
-- **PMID_34811538**: Multiple CDR3b n=107–241, 2–3 donors — EBV/beta-cell antigen study
-- **10xgenomics-2019-07-09**: n=100–133, 2 donors — multiplexed 10x Genomics data
-
-These are **not data errors** but should be noted in release documentation.
-
-### Genuine multi-MHC restriction
-
-| Epitope | MHC genes | Notes |
-|---|---|---|
-| FLRGRAYGL | HLA-A + HLA-B | Published cross-restriction A*02 and B*08:01 |
-| RAKFKQLL (EBV BZLF1) | HLA-A + HLA-B | Atypical; primary restriction is B*08; A*02 entries warrant review |
-| RPPIFIRRL | HLA-A + HLA-B | Cross-restriction A*02 and B*07 — published |
-
-### MHC notation fixes applied (2026-05-31)
-
-- `H-2Db`/`H-2Kb`/`H-2Kd`/`H-2Ld`/`H-2Dd` → `H2-Db`/`H2-Kb`/`H2-Kd`/`H2-Ld`/`H2-Dd` (3,001 rows: strip hyphen between H and 2)
-- `H-2KB` → `H2-Kb` (capitalization fix)
-- `H2 class I` + SIINFEKL → `H2-Kb` (OVA/C57BL6 context)
-- `H2-b class I` + SIINFEKL → `H2-Kb`
-- `H2-b class II` + SIINFEKL → **removed** (MHC-I epitope mislabeled as class II)
-- `H2 class II` + Ins2/SHLVEALYLVCGERG → `H2-IAg7` (NOD mouse T1D context)
-- `H2-d class II` + SFERFEIFPKE → `H2-IEd` (BALB/c HA restriction)
+Findings that are corpus-wide and mechanical belong on the tracker, not in this file: a numbered issue
+that a chunk branch can close, with the row count it fires on today. Findings that need a paper read
+belong on that paper's PMID issue.
