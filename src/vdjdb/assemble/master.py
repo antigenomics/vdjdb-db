@@ -152,9 +152,27 @@ def _sha256(s: str) -> str:
     return hashlib.sha256(s.encode("utf-8")).hexdigest()
 
 
+#: Columns of ``out/reports/harmonisation.tsv``. The four passes report different extras -- a
+#: species, an issue number, the CDR3 signature that decided an allele -- so the union keeps what
+#: they share and names the pass in ``stage``.
+HARMONISATION_REPORT: tuple[str, ...] = ("stage", "issue", "column", "species", "from", "to", "rows")
+
+
+def _harmonisation_row(stage: str, report: pl.DataFrame, issue: str = "",
+                       column: str = "") -> pl.DataFrame:
+    """One pass's report, widened to :data:`HARMONISATION_REPORT`."""
+    missing = {"issue": issue, "column": column, "species": ""}
+    return (report.with_columns(pl.lit(stage).alias("stage"),
+                                *(pl.lit(v).alias(c) for c, v in missing.items()
+                                  if c not in report.columns))
+                  .with_columns(pl.col("rows").cast(pl.Int64))
+                  .select(HARMONISATION_REPORT))
+
+
 def build_master(paths: Iterable[Path] | None = None,
                  registry: Path | None = None, *,
-                 write_registry: Path | None = None, release: str = "dev") -> pl.DataFrame:
+                 write_registry: Path | None = None, write_report: Path | None = None,
+                 release: str = "dev") -> pl.DataFrame:
     """The master table: one row per curated record, fixed, scored, hashed and identified.
 
     Wide (paired alpha/beta columns) because that is the shape the chunks are written in. It is an
@@ -172,13 +190,19 @@ def build_master(paths: Iterable[Path] | None = None,
     df = apply_antigen_patch(df)
     # IMGT spelling before identity: a record is the same record whether the curator wrote
     # `TRAV14` or `TRAV14/DV4`, so harmonising afterwards would mint a new id for a rename.
-    df, _ = harmonise_segments(df)
+    df, segments = harmonise_segments(df)
     # Where two alleles differ inside the junction, the sequence is evidence and the submitted call
     # is not (#327). Runs after the spelling pass so it sees IMGT names.
-    df, _ = disambiguate_alleles(df)
+    df, alleles = disambiguate_alleles(df)
     # MHC spelling, the allele that does not exist (#467), and the class-II chain order.
-    df, _ = harmonise_mhc(df)
-    df, _ = harmonise_references(df)
+    df, mhc = harmonise_mhc(df)
+    df, references = harmonise_references(df)
+    # What the four passes rewrote. `nomenclature.tsv` is the complement - `unresolved_calls` names
+    # what could *not* be resolved - and until #700 the rewrites were reported nowhere a build
+    # produces. `vdjdb rules --report` writes three of them, but it is a separate command that
+    # re-reads every chunk to recompute what this call already has in hand.
+    if write_report is not None:
+        _write_harmonisation(write_report, segments, alleles, mhc, references)
     # Identity is assigned on what the publications reported, before any repair. Afterwards, CDR3
     # fixing would have merged 215 pairs of records the publications reported separately -- two
     # trimmed sequences repaired to the same full one are still two observations.
@@ -186,6 +210,22 @@ def build_master(paths: Iterable[Path] | None = None,
     df = fix_cdr3(df)
     df = add_score(df)
     return add_tcr_hash(df)
+
+
+def _write_harmonisation(path: Path, segments: pl.DataFrame, alleles: pl.DataFrame,
+                         mhc: pl.DataFrame, references: pl.DataFrame) -> pl.DataFrame:
+    """Union the four harmonisation reports and write them. Returns the frame. #700."""
+    report = pl.concat([
+        _harmonisation_row("segments", segments, issue="#389"),
+        _harmonisation_row("alleles", alleles),
+        _harmonisation_row("mhc", mhc, column="mhc.a,mhc.b"),
+        _harmonisation_row("references", references, issue="#347", column="reference.id"),
+    ], how="vertical").sort("stage", "column", "species", "from", "to")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    # `quote_style="never"`: a pass that reports no species writes an empty cell, and the default
+    # renders that as a literal `""`. Hard rule 6 -- empty string is the only missing marker.
+    report.write_csv(path, separator="\t", quote_style="never")
+    return report
 
 
 #: Where the committed record registry is expected. Absent today, which is why
