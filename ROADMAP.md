@@ -176,7 +176,7 @@ an output of it, and a stale vendored copy would change a call set with no error
 | 13 | merged | `feature/docs` | Sphinx site, generated schema tables, dashboard tab, Pages | - | zero-warning build, deploys |
 | 14 | merged | `feature/release-tooling` | manifest, three zips, checksums, `latest-version.txt`, tag scheme, changelog; retires the legacy CI | #432 | full release dry-run with no unattributed differences |
 | 15 | part | `feature/aldan3-runner` | self-hosted runner + `build.yml` retargeting | - | identical canonical digests on both runners. `build.yml` carries the `fromJSON(inputs.runner)` retargeting; **no self-hosted runner is registered** (`actions/runners` returns 0), so the second half of the criterion is unmet |
-| 16 | part | `feature/identity` | the four derived id levels, the lifecycle record, `vdjdb identity`, promiscuity columns, one study count | - | every invariant of §10.5 passes; a permuted chunk order changes no id; the dashboard reports 638 of 638 references |
+| 16 | part | `feature/identity` | the four derived id levels, the lifecycle record, `vdjdb identity`, promiscuity columns, one study count | - | every invariant of §10.5 passes; a permuted chunk order changes no id; the dashboard reports every reference on the row. All three hold, and `record_id` is stable across rebuilds since the registry became a committed input (#674). **Only step 9, the promiscuity columns, is outstanding**, and it waits on phase 9e rather than on this branch: 9e introduces the `mhcmatch` call and adding it twice would put two model versions in one build |
 | 17 | merged | `feature/corpus` | the reference corpus: documents, vocabulary, postings, `score` and `lift` | - | the three files reproducible by digest; `score` reproduces the `refsearch` ranking; `lift` answers a specificity question with an n |
 
 Phases 0 to 14 are merged to `master` as of 2026-09-27, and phase 15 is half landed: the comparison
@@ -1289,12 +1289,24 @@ all five legacy members, so nothing shipped moved. Removing one epitope from a c
 retires exactly its `pmhc_id` and `epitope_id` with `last_release` frozen, and leaves the other
 274,681 ids untouched.
 
-Two carried items. **Step 9, the promiscuity columns, waits on phase 9e**, which is the branch that
+One carried item. **Step 9, the promiscuity columns, waits on phase 9e**, which is the branch that
 introduces the `mhcmatch` call; adding the call twice would put two model versions in one build.
-**`record_id` is still not stable across releases**: the record registry is written at release time by
-step 8 and nothing has shipped one yet, so until the first release under this scheme a rebuild
-reconciles against an empty registry and allocates from 1. The four derived levels do not have that
-dependency and are stable from this commit.
+
+**`record_id` became stable on 2026-09-29, and did not need a release to do it** (#638, #672, #674).
+This note used to say it could not: the registry was written at release time, nothing had shipped one,
+so every rebuild reconciled against an empty registry and allocated from 1. That was the wrong
+conclusion from the right observation - what was missing was not a release but a *committed* registry.
+`registry/records.tsv` is now an input, 192,763 rows and 76.7 MB in the tree against 14.8 MB in the
+pack and kilobytes per amendment, written only by `vdjdb identity update` on a branch that changes the
+corpus and read by `vdjdb build`. `tests/release/test_registry_is_current.py` fails the run on any
+amendment, retirement or allocation the committed file does not already hold, so a clean clone
+reproduces every id. Before it, landing one 40-record chunk moved `record_id` on 168,723 of 192,753
+records.
+
+Two defects surfaced from that gate rather than from a release: the registry had been 592 amendments
+stale since `52cb4e2` because a harmonisation change moves the natural key exactly as a chunk edit
+does (#672), and the amendment pass could not amend a change to `reference.id` at all, retiring the
+record silently, because that was the field it bucketed candidates on (#685).
 
 ### Phase 17 - `feature/corpus`
 
