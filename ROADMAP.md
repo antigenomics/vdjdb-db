@@ -1446,9 +1446,9 @@ without a second table.**
 
 Each family is in the vocabulary because a question needs it and no other token can stand in.
 
-`k:` **and** `kv:` because "is this CDR3 motif carrying the association, or the V gene that templates
-it?" is a comparison between the lift of `k:CAS` on an epitope's documents and its lift on those of them
-that already carry that V gene. One token cannot express that and neither can a single search ranking.
+`k:` **and** `kv:` because "is the `CAS` motif specific to HIV-1, or to its TRBV?" is a comparison
+between the lift of `k:CAS` on an epitope's documents and its lift on those of
+them that already carry that V gene. One token cannot express that and neither can a single search ranking.
 
 ⚠ A species condition answers a provenance question and not a specificity one. `a:HIV-1` is a real axis -
 "which papers and receptors are about this species" is where most questions start - but the group is a
