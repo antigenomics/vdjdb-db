@@ -64,7 +64,11 @@ IMGT_SPECIES: dict[str, str] = {
 #: The wide chunk columns holding a segment call.
 SEGMENT_COLUMNS: tuple[str, ...] = ("v.alpha", "j.alpha", "v.beta", "d.beta", "j.beta")
 
-#: A curator recording two possible segments writes either a comma or the word "or".
+#: A curator recording two possible segments writes a comma, a semicolon, a plus or the word "or".
+#: The three punctuation marks are interchangeable here because no IMGT TR name contains any of them,
+#: and a call is rewritten only when *every* part resolves to a real name, so widening the set cannot
+#: produce a substitution - it either resolves the whole call or leaves it alone. Measured: 590
+#: chain-calls, the largest being mouse ``TRBV12-2+TRBV13-2`` (535) and ``TRBV3-1;TRBV3-2`` (30).
 _SPLIT = re.compile(r"\s*(?:,|\bor\b)\s*")
 
 
@@ -239,6 +243,62 @@ def harmonise_segments(df: pl.DataFrame,
                                          "from": pl.String, "to": pl.String, "rows": pl.UInt32})
               .sort("column", "species", "from"))
     return df, report
+
+
+#: Columns :func:`unresolved` returns, in order.
+UNRESOLVED_COLUMNS: tuple[str, ...] = ("species", "column", "call", "part", "chains",
+                                       "family.members", "candidates")
+
+
+def unresolved(df: pl.DataFrame, root: Path | None = None) -> pl.DataFrame:
+    """Every segment call IMGT has at neither allele nor gene level, after harmonisation.
+
+    This is the report the retired build wrote as ``vdjdb_full_gene_broken.txt`` and
+    ``vdjdb_full_allele_broken.txt``: ``runBuidDatabase.py`` applied ``gene_match_check`` and
+    ``alleles_match_check`` to the repaired master table and filed the rows that failed. Nothing
+    replaced it. :func:`harmonise_segments` reports what it *rewrote*, and ``build_master`` discards
+    even that, so every row naming a gene no authority carries reached every shipped table with no
+    report anywhere. Measured 2026-09-29 over the built corpus: 97 rows over 78 distinct names
+    and 4,048 chain-calls, against the 2,638 human chain-calls the retired check saw.
+
+    Three improvements on the check it replaces, each of which was a legacy defect:
+
+    * **All four species, not only human.** The legacy table was human immunoglobulin-focused, so the
+      driver ORed both masks with ``species != 'HomoSapiens'`` and no macaque or mouse call was ever
+      checked. 1,385 of the 4,048 chain-calls here are not human.
+    * **Membership, not a range.** ``alleles_match_check`` compared ``int(allele)`` against a per-gene
+      allele count, which passes ``*07`` and fails ``*08`` whether or not IMGT lists either. Its one
+      finding on the corpus, ``TRBV28*02``, is an allele IMGT does have.
+    * **Per part.** A curator recording two candidates writes ``TRBD1,TRBD2``, which is not an allele
+      name and which the legacy check therefore rejected whole. Each part is resolved separately here.
+
+    ``family.members`` and ``candidates`` are what separate the two reasons a call lands here.
+    A positive count means the name is a *family* whose members IMGT lists individually
+    (``TRBV6`` -> nine of them), so the record is under-specified and only a curator can choose. Zero
+    means no IMGT name is near it at all, which is a spelling defect or a gene that species does not
+    have. Advisory either way: #389 is the issue that works through them.
+    """
+    root = root or Paths.discover().root
+    tables = _imgt(root)
+    rows: list[dict[str, object]] = []
+    for column in SEGMENT_COLUMNS:
+        if column not in df.columns:
+            continue
+        for species, call, n in df.group_by("species", column).len().sort("species", column).rows():
+            if not call or species not in tables:
+                continue
+            alleles, genes = tables[species]
+            for part in (x for x in _SPLIT.split(call.strip()) if x):
+                if part in alleles or part.split("*")[0] in genes:
+                    continue
+                family = sorted(g for g in genes if g.startswith(part.split("*")[0] + "-"))
+                rows.append({"species": species, "column": column, "call": call, "part": part,
+                             "chains": n, "family.members": len(family),
+                             "candidates": ",".join(family[:4])})
+    return (pl.DataFrame(rows, schema={"species": pl.String, "column": pl.String, "call": pl.String,
+                                       "part": pl.String, "chains": pl.UInt32,
+                                       "family.members": pl.UInt32, "candidates": pl.String})
+            .sort("chains", "species", "column", "part", descending=[True, False, False, False]))
 
 
 #: Which legacy columns a wide chunk column becomes. A gene name rewritten in ``v.alpha`` shows up in

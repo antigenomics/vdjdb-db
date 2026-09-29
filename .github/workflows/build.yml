@@ -112,13 +112,16 @@ jobs:
       # so its counts are partial and comparing them against a whole-corpus baseline would fail on
       # every ordinary submission.
       - name: QC
-        run: uv run vdjdb qc --strict --report out/reports/qc.tsv
+        run: |
+          . .github/stage-timing.sh
+          stage proofread uv run vdjdb qc --strict --report out/reports/qc.tsv
 
       - name: Assemble
         run: |
-          uv run vdjdb build --out out/
-          uv run vdjdb make legacy --tables out/tables --out out/legacy
-          uv run vdjdb convert airr --tables out/tables --out out/airr
+          . .github/stage-timing.sh
+          stage assemble uv run vdjdb build --out out/
+          stage emit-legacy uv run vdjdb make legacy --tables out/tables --out out/legacy
+          stage emit-airr uv run vdjdb convert airr --tables out/tables --out out/airr
 
       # Six of the seven identity invariants (ROADMAP.md section 10.5). The seventh, that a
       # permuted chunk order changes no id, is a property of two builds and runs as a unit test on a
@@ -133,11 +136,14 @@ jobs:
         run: uv run vdjdb corpus build --tables out/tables --out out/corpus
 
       - name: Motifs
-        run: uv run vdjdb motifs --tables out/tables --out out/motifs
+        run: |
+          . .github/stage-timing.sh
+          stage motifs uv run vdjdb motifs --tables out/tables --out out/motifs
 
       - name: Dashboard
         run: |
-          uv run vdjdb summary --legacy out/legacy
+          . .github/stage-timing.sh
+          stage summary uv run vdjdb summary --legacy out/legacy
           mkdir -p out/summary
           cp summary/vdjdb_summary_embed.html out/summary/
 
@@ -157,7 +163,8 @@ jobs:
       # costs a second and needs no tag.
       - name: Release layout
         run: |
-          uv run python -c "
+          . .github/stage-timing.sh
+          stage release-layout uv run python -c "
           from pathlib import Path
           from vdjdb.release import bundle, manifest
           bundle.stage(Path('out'))
@@ -208,12 +215,13 @@ jobs:
       # eight changed lines, and rules/expected_diffs.toml declares the rest.
       - name: Compare against the last release
         run: |
-          uv run python -c "
+          . .github/stage-timing.sh
+          stage release-zip uv run python -c "
           from pathlib import Path
           from vdjdb.release import manifest
           print(manifest.write_zip(manifest.LEGACY, Path('out'), Path('out'), 'candidate'))
           "
-          uv run vdjdb diff reference.zip out/vdjdb-legacy-candidate.zip \
+          stage release-compare uv run vdjdb diff reference.zip out/vdjdb-legacy-candidate.zip \
             --report out/reports/release-diff.md \
             --json out/reports/release-diff.json
 
@@ -243,10 +251,28 @@ jobs:
             cat out/reports/qc-summary.tsv 2>/dev/null || echo '(not produced)'; \
             echo '```'; } >> "$GITHUB_STEP_SUMMARY"
 
+      # The two reports that replaced `vdjdb_full_gene_broken.txt` and `vdjdb_full_cdr3aa_broken.txt`.
+      # `tests/release/test_legacy_proofreading_parity.py` gates them; this is where a reviewer sees
+      # the counts without downloading the artifact.
+      - name: Proofreading counts
+        if: always()
+        run: |
+          { echo '### Proofreading findings'; echo; echo '```'; \
+            echo "segment calls IMGT does not carry (chain-calls):"; \
+            awk -F'\t' 'NR>1{n+=$5} END{print "  "n+0}' out/reports/nomenclature.tsv 2>/dev/null \
+              || echo '  (not produced)'; \
+            echo "non-canonical junctions (chains):"; \
+            awk 'NR>1{n++} END{print "  "n+0}' out/reports/anchors.tsv 2>/dev/null \
+              || echo '  (not produced)'; \
+            echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Build timings report
         if: always()
         run: |
-          { echo '### Build timings'; echo; echo '```'; \
+          { echo '### Stage wall times'; echo; echo '```'; \
+            cat out/reports/ci-stage-timings.tsv 2>/dev/null || echo '(not produced)'; \
+            echo '```'; echo; \
+            echo '### Build timings'; echo; echo '```'; \
             cat out/reports/build-timings.tsv 2>/dev/null || echo '(not produced)'; echo; \
             cat out/reports/motif-timings.tsv 2>/dev/null || echo '(not produced)'; \
             echo '```'; } >> "$GITHUB_STEP_SUMMARY"
@@ -258,24 +284,39 @@ jobs:
             cat out/reports/motif-metrics.md 2>/dev/null || echo '(not produced)'; } \
             >> "$GITHUB_STEP_SUMMARY"
 
+      # Everything the build measured, in one place. It was named `motif-metrics` and carried the
+      # build timings, the QC summary and the release comparison as well, and it carried none of the
+      # per-row reports - so a curator wanting to know *which* rows a finding covers had to rebuild
+      # locally. `nomenclature.tsv` and `anchors.tsv` are the two that replaced the retired build's
+      # `*_broken.txt` side files, which were the only proofreading output a curator ever had.
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: motif-metrics
+          name: build-reports
           path: |
             out/reports/motif-metrics.tsv
             out/reports/motif-metrics.md
             out/reports/build-timings.tsv
-            out/reports/qc-summary.tsv
-            out/reports/release-diff.json
+            out/reports/ci-stage-timings.tsv
             out/reports/motif-timings.tsv
             out/reports/motifs_per_epitope.tsv
+            out/reports/release-diff.json
+            out/reports/release-diff.md
+            out/reports/qc.tsv
+            out/reports/qc-summary.tsv
+            out/reports/nomenclature.tsv
+            out/reports/anchors.tsv
+            out/reports/functionality.tsv
+            out/reports/functionality-summary.tsv
+            out/reports/lookalikes.tsv
           retention-days: 90
 
       - name: Tests
         env:
           VDJDB_REFERENCE_ZIP: reference.zip
-        run: uv run pytest -q
+        run: |
+          . .github/stage-timing.sh
+          stage tests uv run pytest -q
 
       - name: Release assets
         if: inputs.tag != ''
