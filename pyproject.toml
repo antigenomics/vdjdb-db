@@ -17,10 +17,11 @@ dependencies = [
     "typer>=0.12",
     # arda is imported directly for cdr3fix / germline anchors / D inference. vdjtools pulls it
     # transitively, but a direct import deserves a direct dependency.
-    "arda-mapper>=2.30.1",
+    "arda-mapper>=2.31",
     # vdjtools supplies the AIRR schema/IO, the recombination model (junction-nt inference, Pgen)
-    # and TCRNET. Its own core deps are arda-mapper, seqtree and vdjmatch.
-    "vdjtools>=4.5",
+    # and TCRNET. Its own core deps are arda-mapper, seqtree and vdjmatch, and its germline
+    # reference resolves through arda by allele name, so the two speak one coordinate frame.
+    "vdjtools>=4.7",
     # mhcmatch answers "does this allele present this peptide", which is the only authority this
     # repo has for `mhc.a` beyond the publication that reported it. Used by `vdjdb restriction`,
     # which writes the committed `proofreading/epitope_restriction.tsv`; no build imports it.

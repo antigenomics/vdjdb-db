@@ -271,12 +271,11 @@ FIELDS: dict[str, Field] = dict([
        comment="J call proposed by the recombination model, filled only where the curator named "
                "none. Recovers the curated J on 97.5 % of human TRB and 95.8 % of TRA."),
     _f("v.end.inferred", searchable=0, autocomplete=0, data_type="int", title="V end inferred",
-       comment="V/J boundary from the recombination scenario that produced cdr3nt, in v.end's "
-               "space. A fallback, never an override: filled only where the markup engine declined "
-               "and -1 everywhere else, so coalescing it with v.end cannot overwrite an alignment "
-               "answer. The model is 11 points worse than the alignment where both speak, which is "
-               "why it does not replace it; on the records where arda declines it is exact on "
-               "61.8 % and within one residue on 85.5 %, against -1 carrying nothing."),
+       comment="V/J boundary from a germline alignment over the junction, in v.end's space. A "
+               "fallback, never an override: filled only where the markup engine declined and -1 "
+               "everywhere else, so coalescing it with v.end cannot overwrite an alignment answer. "
+               "Against observed nucleotide boundaries it is exact on 92.9 % of junctions where "
+               "v.end is 71.8 %, so where v.end is -1 this carries a better answer than nothing."),
     _f("j.start.inferred", searchable=0, autocomplete=0, data_type="int",
        title="J start inferred",
        comment="As v.end.inferred, for j.start."),
@@ -310,8 +309,9 @@ FIELDS: dict[str, Field] = dict([
     _f("fix.good", searchable=0, autocomplete=0, data_type="bool", title="Fix good",
        comment="Whether the CDR3 could be placed on both germline segments."),
     _f("v.fix.type", searchable=0, title="V fix type",
-       comment="How the V side was repaired: NoFixNeeded, FixAdd, FixTrim, FixReplace, or a "
-               "Failed* reason."),
+       comment="How the V side was repaired: NoFixNeeded, FixAdd, FixTrim, FixReplace, "
+               "TruncatedGermline (the boundary is real but a lower bound, because IMGT ships that "
+               "allele's germline record stopping inside the anchor region), or a Failed* reason."),
     _f("j.fix.type", searchable=0, title="J fix type", comment="How the J side was repaired."),
     _f("v.canonical", searchable=0, autocomplete=0, data_type="bool", title="V anchor canonical",
        comment="Whether the CDR3 begins with Cys104, which a TCR junction does by definition. "

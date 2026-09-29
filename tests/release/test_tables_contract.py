@@ -174,17 +174,26 @@ def test_every_inferred_cdr3nt_back_translates_to_its_own_junction(tables):
 # The model V/J boundary is a fallback, never an override (#631)
 # ---------------------------------------------------------------------------------------------
 
-#: Chains the fallback fills, measured 2026-09-29. The markup engine declines `v.end` on 5,307 and
-#: `j.start` on 1,164; the recombination scenario answers on these. #631 stated 4,060 and 347.
+#: Chains the fallback fills, measured 2026-09-29 after the arda 2.31 / vdjtools 4.7 bump. The markup
+#: engine declines `v.end` on 4,163 and `j.start` on 1,164; a germline alignment answers on these.
+#: #631 stated 4,060 and 347, and the run before the bump was 3,484 and 346.
 #:
-#: `v.end.inferred` was 4,060 and is 3,484, and the 576 it lost are a **gain**, which is the case the
-#: slack below exists for: reading `;` and `+` as candidate separators gave 591 chain-calls a real IMGT
-#: name, so arda can now align against a germline where it previously declined. Measured on the same
-#: pair of builds, `v.end` answers on 280,093 chains before and 280,682 after, so 589 cells moved from
-#: a model guess to an alignment fact and 576 of them left this population. A cell the alignment
-#: answers is strictly better than one the model guesses, which is why the fallback shrinking is the
-#: outcome to want rather than one to gate against.
-FALLBACK_FILLED = {"v.end.inferred": 3_484, "j.start.inferred": 346}
+#: **Both moves are gains, which is the case the slack below exists for.** A cell the alignment answers
+#: is strictly better than one a fallback proposes, so the fallback shrinking is the outcome to want.
+#:
+#: `v.end.inferred` 3,484 -> 2,442. Decomposed on the same pair of builds, one row per
+#: `(record_id, gene)`: 1,127 cells left because arda 2.31 now places the boundary itself on alleles
+#: whose IMGT germline record is truncated (`antigenomics/arda#135`), so the fallback correctly stands
+#: down; **0** left because the new source declined; 85 arrived. Of the 2,357 cells both sources
+#: filled, they agree on 2,116.
+#:
+#: `j.start.inferred` 346 -> 488, all 142 of them arrivals, none lost.
+#:
+#: The source also changed, which is why the second move is up: the boundary now comes from
+#: `vdjtools.model.germline_boundary` rather than from the argmax recombination history
+#: (`antigenomics/vdjtools#182`). Against nucleotide truth the history is 89.08 % exact on `v.end` and
+#: the germline alignment 92.89 %; 92.02 % against 97.96 % on `j.start`.
+FALLBACK_FILLED = {"v.end.inferred": 2_442, "j.start.inferred": 488}
 
 #: How far below the recorded count a run may sit before it reads as a regression rather than a
 #: corpus change. Loose on purpose: a curator naming a V that arda can then align is a *gain*, and it

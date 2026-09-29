@@ -171,19 +171,28 @@ human TRB and 50.1 % of TRA, because the junction contains little V sequence; th
 (ROADMAP §21).
 
 **`v.end.inferred` and `j.start.inferred` are the two sources of a V/J boundary, kept apart on
-purpose (#631).** `v.end` and `j.start` are the germline *alignment*'s answer, from
-`arda.cdr3fix`, and `-1` where it declined - 5,896 chains for `v.end` and 1,166 for `j.start`. The
-`.inferred` pair is the same boundary read off the recombination scenario that produced `cdr3nt`, and
-it is filled **only where the alignment declined**: 4,060 and 349 chains. Everywhere else it is `-1`,
-so the two are distinguishable by column and coalescing them cannot overwrite an alignment answer.
+purpose (#631).** `v.end` and `j.start` are `arda.cdr3fix`'s answer, read off its protein alignment
+against the germline of the segment the record names, and `-1` where it declined - 4,163 chains for
+`v.end` and 1,164 for `j.start`. The `.inferred` pair is the boundary a second germline alignment
+supports, from `vdjtools.model.germline_boundary`, which decides how far into the boundary codon the
+germline reaches rather than rounding to a residue. It is filled **only where the first declined**:
+2,442 and 488 chains. Everywhere else it is `-1`, so the two are distinguishable by column and
+coalescing them cannot overwrite the shipped answer.
 
-The separation is not fastidiousness. Against the external nucleotide truth in
-`tests/release/test_cdr3fix_accuracy.py`, where both engines answer, the model is **11 points worse**
-on exact `v.end` - 60.8 % against the alignment's 71.3 % - and walks two or more residues past the
-boundary on 136 cases against the alignments' 8 and 9. So it must not replace the alignment. On the
-rows where arda declines it is never more than one residue out of every row the truth set can check,
-and against `-1`, which carries nothing, that is a strict gain. The legacy tables and the `cdr3fix`
-JSON `vdjdb-web` parses keep the alignment's `-1` untouched.
+Two boundaries rather than one filled column, because they are answers to the same question with
+different precision and the shipped column is what `vdjdb-web` reads. Against the external nucleotide
+truth in `tests/release/test_cdr3fix_accuracy.py` the codon decision is exact on **92.9 %** of `v.end`
+and **98.0 %** of `j.start`, where a protein alignment rounding to whole residues - VDJdb's k-mer
+scanner and `arda.cdr3fix` alike - is 71.8 % and 97.1 %. It is not promoted into `v.end` anyway: that
+is a change to what the database says about every record, which belongs to a curation decision and to
+its own declared rules, not to a build improvement. What it does do is replace `-1`, which carries
+nothing at all.
+
+The `.inferred` pair used to come from the argmax recombination history behind `cdr3nt` instead. That
+was 11 points worse on `v.end`, because maximising P(sequence) explains N-region nucleotides as
+templated whenever it can; `antigenomics/vdjtools#182` was opened from this measurement and fixed it.
+The legacy tables and the `cdr3fix` JSON `vdjdb-web` parses keep the alignment's `-1` untouched
+throughout.
 
 `d.posterior` is the probability of the gene `d.inferred` names, and `d.entropy` how decidable the D
 was at all. A third of beta chains have a posterior below 0.6 and an entropy above 0.9, because TRBD1
