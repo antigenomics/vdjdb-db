@@ -87,6 +87,23 @@ def test_two_field_change_is_a_new_record_not_an_amendment():
     assert len(rep.added) == 1 and len(rep.retired) == 1 and not rep.amended
 
 
+def test_a_reference_id_correction_amends_rather_than_retiring_the_record():
+    """#685. The pass bucketed candidates on `(chunk_file, reference.id)`, building the bucket from
+    the previous build's reference and reading it with the new one, so a change to `reference.id`
+    itself found an empty bucket and was retired instead of amended -- silently. Closing the space
+    in `PMID: 34433824` cost 22 published ids that way."""
+    out1, reg, _ = reconcile(frame({"reference.id": "PMID: 34433824"}), IdentityRegistry(),
+                             release="v1")
+    original = out1["record_id"][0]
+    out2, reg, rep = reconcile(frame({"reference.id": "PMID:34433824"}), reg, release="v2")
+
+    assert out2["record_id"][0] == original, "a reference respelling must not mint a new id"
+    assert not rep.added and not rep.retired
+    assert len(rep.amended) == 1
+    _rid, field, old, new = rep.amended[0]
+    assert (field, old, new) == ("reference.id", "PMID: 34433824", "PMID:34433824")
+
+
 def test_ambiguous_amendment_is_refused():
     """Two equally good candidates must not be guessed between -- a wrong link beats no link."""
     df = frame({"cdr3.beta": "CASSAAAAAF"}, {"cdr3.beta": "CASSBBBBBF"})
