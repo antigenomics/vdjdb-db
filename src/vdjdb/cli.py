@@ -110,6 +110,7 @@ def build(
     from .curate.anchors import noncanonical
     from .curate.functionality import report as functionality_report
     from .curate.functionality import summarise as functionality_summary
+    from .curate.nomenclature import unresolved as unresolved_calls
     from .curate.submission import lookalikes
     from .emit.airr import from_tables as airr_frames
     from .emit.airr import write_all as write_airr
@@ -157,6 +158,21 @@ def build(
         typer.echo(f"non-canonical junctions: {anchors.height:,} chain(s) over "
                    f"{anchors['chunk.file'].n_unique()} chunk(s), {fixable:,} with a "
                    f"germline-supported repair -> {out / 'reports' / 'anchors.tsv'}")
+
+    # The segment calls no authority carries, after harmonisation (#389). The retired build wrote
+    # these as `vdjdb_full_gene_broken.txt` and `vdjdb_full_allele_broken.txt` and nothing replaced
+    # it: `harmonise_segments` reports what it rewrote, `build_master` discards even that, and a call
+    # naming a gene IMGT does not have reached every shipped table with no report anywhere.
+    # Advisory, and for two different reasons the report separates: a family name is
+    # under-specified and only a curator can pick a member, and a name with no IMGT candidate at all
+    # is a spelling defect or a gene that species does not have.
+    calls = unresolved_calls(master)
+    calls.write_csv(out / "reports" / "nomenclature.tsv", separator="\t")
+    if not calls.is_empty():
+        family = calls.filter(pl.col("family.members") > 0)["chains"].sum()
+        typer.echo(f"segment calls IMGT does not carry: {calls['chains'].sum():,} chain-call(s) over "
+                   f"{calls['part'].n_unique()} name(s), {family:,} of them an under-specified "
+                   f"family -> {out / 'reports' / 'nomenclature.tsv'}")
 
     # IMGT's own F / ORF / P verdict on the segment each chain names (#634). `imgt_alleles.tsv.gz`
     # has carried `functionality` since phase 9 and nothing read it: `vdjdb qc` asks whether a call
