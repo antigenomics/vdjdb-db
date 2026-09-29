@@ -322,6 +322,7 @@ jobs:
             out/reports/nomenclature.tsv
             out/reports/harmonisation.tsv
             out/reports/anchors.tsv
+            out/reports/j-calls.tsv
             out/reports/functionality.tsv
             out/reports/functionality-summary.tsv
             out/reports/presentation.tsv
