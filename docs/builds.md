@@ -25,6 +25,50 @@ Output goes to `out/`, not `build/`: `build/` is gitignored as a Python packagin
 Optional dependency groups: `motifs` for the motif stage, `docs` for this site, `test` for the
 suite, `tuning` for the clustering bake-off under `docs/tuning/`.
 
+## The junction-nucleotide stage
+
+`annotate.junction.add_junction_nt` was 87.2 % of the assembly stage - 407.64 s of 467.72 s on a
+4-vCPU runner over 192,793 records - because `vdjtools.model.infer_nt` wraps a native DP in per-row
+Python and the wrapper, not the DP, was the cost. That profile is what
+[`antigenomics/vdjtools#181`](https://github.com/antigenomics/vdjtools/issues/181) was opened on, and
+`vdjtools` 4.5 answers it with `infer_nt_batch`.
+
+So the stage is **one batched call per (species, locus)** over the distinct
+`(species, gene, cdr3, v, j)` keys - 187,055 of them rather than every row, which is rule 4's
+deduplication - and nothing wraps it. `infer_nt_batch` releases the GIL and partitions the batch
+across its own kernel threads; a pool of our own would oversubscribe the machine and read as
+"batching did not help", which is hard rule 3 and section 0e of `CLAUDE.md` both.
+
+Measured on 3,000 distinct human TRB keys from the corpus, 16 cores: **1.115 ms/key serial against
+0.106 ms batched, 10.5x, and all 3,000 nucleotide sequences identical.** End to end on the 4-vCPU
+runner the stage goes **407.64 s to 108.54 s** and the assembly step 467.72 s to 166.54 s, so it is
+65.2 % of that step rather than 87.2 %; on a 16-core laptop it is 12.44 s and `vdjdb build` is 45.9 s
+wall. The runner wins less because `infer_nt_batch` defaults to `hardware_concurrency - 2` threads,
+which is two there.
+`tests/unit/test_junction.py` asserts both halves of that, because each catches a different failure -
+identity catches a batch call that is not the same computation, and the ratio catches a regression to
+the loop or a batch call that loops internally, neither of which changes an answer.
+
+**Every inferred sequence encodes the junction it came from, and that is by construction rather than
+by luck.** The DP enumerates `(V, delV) x (J, delJ) x (D, delD, position)` and picks the best codon
+assignment *within* each scenario, so a scenario that cannot spell the given residues has probability
+zero and is never a candidate; anything the model cannot encode comes back null rather than wrong.
+Probed on human TRB: a stop codon, an `X`, a `Z`, a one- or two-residue junction, an empty string and
+a true CDR3 with its anchors stripped are all declined. The one input that survives with a difference
+is a lower-case junction, where the nucleotides are right and the comparison is case-sensitive - and
+`vdjdb qc` rejects a residue outside the 20 upper-case letters, with zero such chains in the corpus.
+Measured on the built corpus: **263,437 of 285,989 chains carry an inferred `cdr3nt`, 0 mismatches, 0
+whose length is not exactly three nucleotides per residue**, gated by
+`tests/release/test_tables_contract.py`. That check translates the whole column in one threaded native
+call, `vdjtools._core.translate_junctions` - 0.023 s against 0.284 s for `vdjtools.model.translate` in
+a Python loop, 12.3x, identical on every row.
+
+It previously ran as four worker processes over contiguous parquet slices of the key set, each an
+ordinary invocation of a subcommand that existed only to be that worker. The subcommand,
+`src/vdjdb/__main__.py`, the slice arithmetic and the worker-count argument are all gone: one batched
+call has no worker count, so rule 7's "never let worker count change the answer" holds by
+construction rather than by a tiling test.
+
 ## Comparing against a release
 
 `vdjdb diff` compares a candidate build against a released bundle in three passes: the file set,
@@ -41,6 +85,29 @@ new chunk moves all of them**, because its records are rows the reference cannot
 means re-measuring the three declarations and extending each note with the chunk and its record count -
 the entry for `PMID_18025130` is the worked example. `vdjdb diff --report` prints declared against
 measured per file and flags which one moved.
+
+### What the comparison is, and is not, the instrument for
+
+It runs on the **assembled legacy zip**, so the thing compared is the file a consumer downloads.
+Three of that bundle's twelve members cannot be judged by keying their rows against the reference,
+and `[measured_elsewhere]` in `rules/expected_diffs.toml` names each one with the instrument that
+gates it instead. They are still read, digested, row-counted and printed; what they are exempt from
+is the requirement that every changed cell match a rule.
+
+| Member | Why keying it says nothing | What gates it |
+|---|---|---|
+| `cluster_members.txt` | `cid` is `<species>.<chain>.<epitope>.<n>` and `n` is a position in a sorted list, so one renumbered cluster relabels every cluster after it | `vdjdb motif-metrics`, 18 axes per chain, including `partition_neighbours_preserved` - of every clonotype the release clustered, the fraction of its cluster-mates this build still gives it. Column count and order by `tests/release/test_reference_contract.py` |
+| `motif_pwms.txt` | a row is one PWM cell of one cluster, so it has no identity that survives a re-clustering | the same two |
+| `vdjdb_summary_embed.html` | a fresh render every build | `summary/check_summary.py`: the ordered headings and tables, PNG dimensions decoded from the IHDR, ColorBrewer anchors, and SSIM against the last release |
+| `LICENSE` | not a table | shipped verbatim from the repository root |
+
+Measured before those declarations existed: comparing every member of the legacy zip reported **101,877
+unattributed cells**, and every one was in a motif file or in `latest-version.txt` while the five
+legacy tables were fully attributed. The workflow's answer had been `--only` naming those five, which
+is the same exemption with no reason recorded and no digest taken of the other seven.
+
+A member the reference does not contain is declared in `[members]`. Today that is
+`cluster_members_tcremp.txt` and `motif_pwms_tcremp.txt`; an undeclared one still fails.
 
 Canonical equality is the gate; raw equality is informational. The legacy pipeline iterated
 `os.listdir("../chunks")`, which is readdir order and therefore filesystem- and host-dependent, so

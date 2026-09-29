@@ -470,6 +470,41 @@ On TRA the four-axis rule already admits the do-nothing partition. Legacy TRA pu
 below the 0.9204 that doing nothing scores, so `trivial` clears all four axes today, and what
 excludes it is stage 2: its lift is exactly 1.000 by construction and its F1 sits at the floor.
 
+### 8.0 It also beats the shipped clustering at reproducing the shipped clustering
+
+The tables a release ships were never compared against the previous release's, because `vdjdb diff`
+keys `cluster_members.txt` on `cid` and a cid is `<species>.<chain>.<epitope>.<n>` with `n` a
+position in a sorted list, so one renumbered cluster reads as the entire file replaced. Since
+2026-09-29 `vdjdb motif-metrics` measures the partition instead
+(`vdjdb.compare.clustering.agreement`): of every clonotype the 2026-06-03 release clustered, what
+fraction of its cluster-mates does a source still give it?
+
+| gene | source | clonotypes the release clustered | also placed here | cluster-mates kept | co-clustered pairs kept | ARI |
+|---|---|---:|---:|---:|---:|---:|
+| TRA | TCRNET (shipped) | 15,016 | 12,011 | 0.7024 | 0.7194 | 0.9945 |
+| TRA | TCREMP | 15,016 | 8,530 | 0.3430 | 0.4039 | 0.8161 |
+| TRA | the do-nothing partition | 15,016 | 13,108 | **0.7490** | 0.7345 | 0.1872 |
+| TRB | TCRNET (shipped) | 36,906 | 35,095 | 0.9224 | 0.9952 | 0.9999 |
+| TRB | TCREMP | 36,906 | 32,047 | 0.7921 | 0.9966 | 0.9977 |
+| TRB | the do-nothing partition | 36,906 | 35,649 | **0.9394** | 0.9991 | 0.9939 |
+
+So doing nothing reproduces the released clustering's neighbourhoods better than either shipped
+method does, on both chains. That is a statement about the released clustering, not about ours: it
+puts **19,971 of its 36,906 TRB clonotypes in one cluster**, `H.B.SLLMWITQV.1`, which is 54 % of the
+chain's clonotypes and **199,410,435 of the file's 210,634,576 co-clustered pairs, 94.7 %**. A
+partition that groups every clonotype of an epitope reproduces that blob exactly.
+
+Two consequences, the same shape as the three above.
+
+**Agreement with the last release is not an admissibility axis.** It is gated against its own
+committed baseline, not against `latest` and not against `trivial`, for the reason every other row of
+§8 gives: the do-nothing partition clears it.
+
+**A pair-weighted agreement is a measurement of one cluster.** `partition_pairs_preserved` and the
+adjusted Rand index read 0.9991 and 0.9939 for doing nothing on TRB, while the per-clonotype figure
+separates it from TCRNET by 1.7 points. Both are recorded, because the blob is worth watching, and
+only the per-clonotype one is gated.
+
 ### 8.1 The purity floor - 0.94 on both chains
 
 On TRB the legacy purity bar of 0.9790 is the one axis the do-nothing partition fails, and relaxing

@@ -32,20 +32,41 @@ def blank_row(**over):
     return "\t".join(cells[c] for c in ALL_COLUMNS)
 
 
+#: A row that passes every rule. Each of the three tests below used to pass a header with no data
+#: rows, which `no-data-rows` now reports: `ChunkQC.check_exist` raised `ValueError("Empty file")` on
+#: exactly that shape, and a chunk contributing no records was reaching every gate green.
+CLEAN = {"cdr3.beta": "CASSIRSSYEQYF", "v.beta": "TRBV10-3*01", "j.beta": "TRBJ2-7*01",
+         "species": "HomoSapiens", "mhc.a": "HLA-A*02:01", "mhc.b": "B2M", "mhc.class": "MHCI",
+         "antigen.epitope": "GILGFVFTL", "antigen.gene": "M", "antigen.species": "InfluenzaA",
+         "reference.id": "PMID:1"}
+
+
+def clean_row(**over):
+    return blank_row(**(CLEAN | over))
+
+
 def test_a_clean_chunk_passes(tmp_path):
-    assert run_qc([chunk(tmp_path)], strict=True) == 0
+    assert run_qc([chunk(tmp_path, rows=[clean_row()])], strict=True) == 0
+
+
+def test_a_chunk_with_no_records_is_fatal(tmp_path):
+    """`check_exist` raised on this and nothing here reported it: `empty` needs a file with no lines
+    at all, and the reader returns a 0-row frame without complaint."""
+    assert "no-data-rows" not in ADVISORY
+    assert run_qc([chunk(tmp_path)], strict=True) == 1
 
 
 def test_crlf_is_reported_but_never_fatal(tmp_path):
-    """Advisory by design: 99 of 230 chunks are CRLF until the .tsv migration lands."""
+    """Advisory by design: a hard gate would have blocked every unrelated submission until the
+    line-ending normalisation landed."""
     p = tmp_path / "PMID_2.txt"
-    p.write_bytes((HEADER + "\r\n").encode())
+    p.write_bytes((HEADER + "\r\n" + clean_row() + "\r\n").encode())
     assert "crlf" in ADVISORY
     assert run_qc([p], strict=True) == 0
 
 
 def test_an_unknown_column_is_advisory(tmp_path):
-    p = chunk(tmp_path, extra_header="\tnot.a.column")
+    p = chunk(tmp_path, rows=[clean_row() + "\tsomething"], extra_header="\tnot.a.column")
     assert "unknown-column" in ADVISORY
     assert run_qc([p], strict=True) == 0
 

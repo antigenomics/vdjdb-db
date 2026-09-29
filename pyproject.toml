@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Build, proofread and release the VDJdb T-cell receptor specificity database"
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "AGPL-3.0-only" }
+license = { text = "CC-BY-NC-ND-4.0" }
 authors = [{ name = "Mikhail Shugay", email = "mikhail.shugay@gmail.com" }]
 keywords = ["immunology", "tcr", "vdjdb", "airr", "epitope", "bioinformatics"]
 
@@ -20,7 +20,7 @@ dependencies = [
     "arda-mapper>=2.30.1",
     # vdjtools supplies the AIRR schema/IO, the recombination model (junction-nt inference, Pgen)
     # and TCRNET. Its own core deps are arda-mapper, seqtree and vdjmatch.
-    "vdjtools>=3.13",
+    "vdjtools>=4.5",
     # mhcmatch answers "does this allele present this peptide", which is the only authority this
     # repo has for `mhc.a` beyond the publication that reported it. Used by `vdjdb restriction`,
     # which writes the committed `proofreading/epitope_restriction.tsv`; no build imports it.
@@ -48,7 +48,10 @@ test = ["pytest>=8", "hypothesis>=6", "airr>=1.5"]
 # The dashboard checker. Pillow and scipy arrive transitively through mirpy-lib[bench] today, which
 # means an upstream dependency change would silently disable the style and perceptual layers rather
 # than fail -- a check that quietly downgrades itself is worse than no check. Declared so it cannot.
-summary = ["pillow>=10", "numpy>=1.26", "scipy>=1.11", "matplotlib>=3.8"]
+summary = ["pillow>=10", "numpy>=1.26", "scipy>=1.11", "matplotlib>=3.8",
+           # The interactive dashboard. `plotly.js` itself is loaded from a CDN, so
+           # this is the figure builder only and adds no bundled JavaScript.
+           "plotly>=5.20"]
 # The clustering bake-off under docs/tuning/ only. Lumbermark is measured, not shipped
 # (docs/clustering.md section 9), so it must not reach the build container -- `uv sync --extra
 # tuning` when re-running the sweeps, never the default install.

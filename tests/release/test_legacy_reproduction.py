@@ -113,7 +113,16 @@ def test_no_declaration_outlives_the_data_it_describes(report: DiffReport) -> No
 
 
 def test_every_row_gained_or_lost_is_declared(report: DiffReport) -> None:
+    """Per member, except the ones `[measured_elsewhere]` names an instrument for.
+
+    The motif tables are the reason: `cid` carries a position in a sorted list, so one renumbered
+    cluster relabels every cluster after it and 32,703 of 55,636 reference rows key to nothing. A
+    declared count there would be a number that moves on every corpus change and says nothing, which
+    is why `vdjdb motif-metrics` gates them instead.
+    """
     for f in report.files:
+        if f.name in report.elsewhere:
+            continue
         d = report.row_deltas.get(f.name)
         want = (d.removed, d.added) if d else (0, 0)
         assert (f.only_in_reference, f.only_in_candidate) == want, (
@@ -142,8 +151,13 @@ def test_every_member_was_compared_row_by_row(report: DiffReport) -> None:
     in `note`. A pass built on five digest comparisons would mean nothing.
     """
     for f in report.files:
+        if f.name in report.elsewhere:
+            continue
         assert f.compared_rows, f"{f.name}: {f.note or 'no row comparison ran'}"
-    assert {f.name for f in report.files} == set(LEGACY_MEMBERS)
+    # A superset, not equality: since 2026-09-29 the comparison runs on the assembled legacy zip, so
+    # the report carries all twelve of its members and not just the five tables this module asserts
+    # about. What has to hold is that none of those five went missing.
+    assert set(LEGACY_MEMBERS) <= {f.name for f in report.files}
 
 
 @pytest.mark.parametrize("name", DATA_TABLES)

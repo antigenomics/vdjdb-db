@@ -270,6 +270,16 @@ FIELDS: dict[str, Field] = dict([
     _f("j.inferred", searchable=0, title="J inferred",
        comment="J call proposed by the recombination model, filled only where the curator named "
                "none. Recovers the curated J on 97.5 % of human TRB and 95.8 % of TRA."),
+    _f("v.end.inferred", searchable=0, autocomplete=0, data_type="int", title="V end inferred",
+       comment="V/J boundary from the recombination scenario that produced cdr3nt, in v.end's "
+               "space. A fallback, never an override: filled only where the markup engine declined "
+               "and -1 everywhere else, so coalescing it with v.end cannot overwrite an alignment "
+               "answer. The model is 11 points worse than the alignment where both speak, which is "
+               "why it does not replace it; on the records where arda declines it is exact on "
+               "61.8 % and within one residue on 85.5 %, against -1 carrying nothing."),
+    _f("j.start.inferred", searchable=0, autocomplete=0, data_type="int",
+       title="J start inferred",
+       comment="As v.end.inferred, for j.start."),
     _f("d.posterior", searchable=0, autocomplete=0, data_type="float", title="D posterior",
        comment="Posterior probability of the gene d.inferred names, from arda.dpost. Median 0.791 "
                "and below 0.6 on 21.8 % of beta chains -- filter on it."),
@@ -441,6 +451,7 @@ CHAIN_COLUMNS: tuple[str, ...] = (
     "cdr3nt", "cdr3nt.pgen", "cdr3nt.margin",
     "v.inferred", "j.inferred",
     "d.inferred", "d.start", "d.end", "d.posterior", "d.entropy",
+    "v.end.inferred", "j.start.inferred",
     "cdr3.original", "fix.needed", "fix.good",
     "v.fix.type", "j.fix.type", "v.canonical", "j.canonical",
     # The submitted call, and the call the markup engine would have made, beside the shipped one.

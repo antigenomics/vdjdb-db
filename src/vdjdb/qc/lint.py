@@ -65,6 +65,13 @@ def lint_file(path: Path) -> list[Finding]:
         elif len(col) > _MAX_NAME_LEN:
             out.append(Finding(name, "prose-column-name", f"column {i}: {col[:60]!r}..."))
 
+    # `ChunkQC.check_exist` raised `ValueError("Empty file")` on a frame with no rows, which a
+    # header-only submission produces. Nothing here reported it: `empty` needs a file with no lines at
+    # all, and the reader returns a 0-row frame without complaint, so a chunk that contributes nothing
+    # passed every gate.
+    if len(lines) == 1:
+        out.append(Finding(name, "no-data-rows", "header only, no records"))
+
     seen: set[str] = set()
     for col in header:
         if col in seen:

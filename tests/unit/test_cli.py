@@ -120,7 +120,10 @@ def test_qc_accepts_a_clean_chunk(tmp_path):
         "method.identification\tmethod.frequency\tmethod.singlecell\tmethod.sequencing\t"
         "method.verification\tmeta.study.id\tmeta.cell.subset\tmeta.subject.cohort\t"
         "meta.subject.id\tmeta.replica.id\tmeta.clone.id\tmeta.epitope.id\tmeta.tissue\t"
-        "meta.donor.MHC\tmeta.donor.MHC.method\tmeta.structure.id\n")
+        "meta.donor.MHC\tmeta.donor.MHC.method\tmeta.structure.id\n"
+        # One record, because a chunk contributing none is what `no-data-rows` reports.
+        "\t\t\tCASSIRSSYEQYF\tTRBV10-3*01\t\tTRBJ2-7*01\tHomoSapiens\tHLA-A*02:01\tB2M\t"
+        "MHCI\tGILGFVFTL\tM\tInfluenzaA\tPMID:1\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n")
     result = runner.invoke(app, ["qc", str(chunk)])
     assert result.exit_code == 0, result.output
 

@@ -1,5 +1,9 @@
 level	rule	findings	chunks	advisory	tolerance
 row	duplicate	10555	59	true	2000
+row	non-functional j.alpha	996	65	true	300
+row	non-functional j.beta	338	18	true	150
+row	non-functional v.alpha	38	5	true	50
+row	non-functional v.beta	1022	74	true	300
 row	segment call with no cdr3	209	12	true	50
 text	empty-column-name	1	-1	true	0
 text	prose-column-name	1	-1	true	0
