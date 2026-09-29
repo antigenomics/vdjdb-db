@@ -39,7 +39,8 @@ from pathlib import Path
 import polars as pl
 
 from ..config import Paths
-from ..schema import EPITOPE_COLUMNS, RESTRICTION_COLUMNS
+from ..curate.promiscuity import annotate as promiscuity_annotate
+from ..schema import EPITOPE_COLUMNS
 
 KEY: tuple[str, ...] = ("antigen.epitope", "antigen.species")
 
@@ -202,8 +203,11 @@ def build_epitopes(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
         per_record.group_by(KEY)
         .agg(
             # One epitope under one species may still be labelled with two gene symbols; the
-            # catalogue reports the dominant one and `epitopes.conflicts` in the report lists the
-            # rest, so the choice is visible.
+            # catalogue reports the dominant one and `curate.submission.epitope_sources` counts the
+            # rest into `out/reports/epitope-sources.tsv`, so the choice is visible. That comment
+            # used to name an `epitopes.conflicts` that was never written, which meant the discarded
+            # labels were reported nowhere -- including the 187 `Eef2`..`Eef188` labels on one
+            # peptide, an index written into `antigen.gene` (#633).
             pl.col("antigen.gene").mode().sort().first().alias("antigen.gene"),
             pl.col("mhc.class").mode().sort().first().alias("mhc.class"),
             pl.len().alias("records"),
@@ -219,13 +223,18 @@ def build_epitopes(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
 
 
 def build_restriction(records: pl.DataFrame, root: Path | None = None) -> pl.DataFrame:
-    """One row per ``(antigen, presenting MHC)``, every call resolved or the build stops."""
+    """One row per ``(antigen, presenting MHC)``, every call resolved or the build stops.
+
+    The six promiscuity columns are joined on last, from the committed
+    ``proofreading/epitope_promiscuity.tsv``. Nothing is predicted here: a prediction is a moving
+    target, and putting one in a build would make the output depend on a model download (hard rule
+    9) - `vdjdb promiscuity` refreshes that table through its own pull request.
+    """
     assert_mhc_resolves(records, root)
-    return (
+    built = (
         records.group_by(*KEY, "mhc.a", "mhc.b", "mhc.class")
         .agg(pl.len().alias("records"),
              pl.col("reference.id").n_unique().alias("references"))
         .with_columns(mhc_status("mhc.a", root), mhc_status("mhc.b", root))
-        .select(RESTRICTION_COLUMNS)
-        .sort(*KEY, "mhc.a", "mhc.b")
     )
+    return promiscuity_annotate(built, root).sort(*KEY, "mhc.a", "mhc.b")

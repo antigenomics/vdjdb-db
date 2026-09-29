@@ -108,8 +108,11 @@ def build(
     from .curate.anchors import noncanonical
     from .curate.functionality import report as functionality_report
     from .curate.functionality import summarise as functionality_summary
+    from .curate.jcalls import report as jcall_report
     from .curate.nomenclature import unresolved as unresolved_calls
-    from .curate.submission import lookalikes
+    from .curate.presentation import report as presentation_report
+    from .curate.presentation import summarise as presentation_summary
+    from .curate.submission import epitope_sources, lookalikes
     from .emit.airr import from_tables as airr_frames
     from .emit.airr import write_all as write_airr
     from .emit.legacy import write_all as write_legacy
@@ -123,7 +126,7 @@ def build(
     timing_reset()
     paths = chunk_files(chunks) if chunks else None
     with stage("assemble.master.build_master"):
-        master = build_master(paths)
+        master = build_master(paths, write_report=out / "reports" / "harmonisation.tsv")
     built = build_tables(master, release=release)
     out.mkdir(parents=True, exist_ok=True)
 
@@ -143,6 +146,19 @@ def build(
         typer.echo(f"look-alike values: {look['folded'].n_unique()} group(s) over "
                    f"{look['column'].n_unique()} column(s), {within} within one species "
                    f"-> {out / 'reports' / 'lookalikes.tsv'}")
+
+    # Advisory too, and for the same reason: `epitopes` is keyed on (epitope, species, gene), so a
+    # peptide with two sources is two rows by design. A conserved peptide, a vocabulary gap and a
+    # mis-curation all look like this, and only the third is a defect (#633).
+    sources = epitope_sources(master)
+    sources.write_csv(out / "reports" / "epitope-sources.tsv", separator="\t")
+    if not sources.is_empty():
+        two_species = sources.filter(pl.col("sources") > 1)["antigen.epitope"].n_unique()
+        two_genes = sources.filter(pl.col("genes") > 1).height
+        conserved = sources.filter(pl.col("conserved"))["antigen.epitope"].n_unique()
+        typer.echo(f"epitopes with an ambiguous source: {two_species} under more than one species "
+                   f"({conserved} a known conserved peptide), {two_genes} with more than one gene "
+                   f"label -> {out / 'reports' / 'epitope-sources.tsv'}")
 
     # Also advisory. A junction whose first or last residue is not the anchor the segment it names
     # encodes is a submission in the wrong coordinate space, or a mis-read anchor, and no QC rule
@@ -164,6 +180,16 @@ def build(
     # Advisory, and for two different reasons the report separates: a family name is
     # under-specified and only a curator can pick a member, and a name with no IMGT candidate at all
     # is a spelling defect or a gene that species does not have.
+    # What the four harmonisation passes rewrote, written by `build_master` itself because that is
+    # where the reports are produced (#700). The complement of `nomenclature.tsv` below: this names
+    # the values the build changed, that one the calls it could not resolve.
+    harmonised = pl.read_csv(out / "reports" / "harmonisation.tsv", separator="\t",
+                             infer_schema=False)
+    if not harmonised.is_empty():
+        typer.echo(f"values harmonised: {harmonised['rows'].cast(pl.Int64).sum():,} record(s) over "
+                   f"{harmonised.height} rewrite(s) in {harmonised['stage'].n_unique()} pass(es) "
+                   f"-> {out / 'reports' / 'harmonisation.tsv'}")
+
     calls = unresolved_calls(master)
     calls.write_csv(out / "reports" / "nomenclature.tsv", separator="\t")
     if not calls.is_empty():
@@ -185,6 +211,32 @@ def build(
         typer.echo(f"segments IMGT does not call functional: {nonfunctional.height:,} chain(s) over "
                    f"{nonfunctional['call'].n_unique()} call(s) "
                    f"-> {out / 'reports' / 'functionality.tsv'}")
+
+    # Whether the recorded MHC could present the recorded epitope at all (ROADMAP phase 9e). IPD-IMGT
+    # /HLA answers whether a name exists; this asks whether it reaches a binding groove, which is what
+    # every presentation model reasons over. Offline and deterministic - `mhcmatch` bundles the
+    # pseudosequences - so it belongs in the build, unlike `vdjdb promiscuity`, which fetches a model.
+    # Advisory, for the reason the module states: a model is evidence about a pair, never authority
+    # over a publication.
+    # J calls the junction itself contradicts (#681). Not the question `anchors.tsv` asks - that one
+    # reads the anchor residue of the segment a record names, this one asks whether some other gene
+    # explains the whole 3' end better, and the two overlap on 19 of 718 chains. Advisory: #681 says
+    # re-calling a J from its junction is a curator's decision, and what was missing is the list.
+    contradicted = jcall_report(built["chains"], built["records"])
+    contradicted.write_csv(out / "reports" / "j-calls.tsv", separator="\t")
+    if not contradicted.is_empty():
+        typer.echo(f"J calls contradicted by their own junction: {contradicted.height:,} chain(s) "
+                   f"over {contradicted['chunk.file'].n_unique()} chunk(s) "
+                   f"-> {out / 'reports' / 'j-calls.tsv'}")
+
+    presented = presentation_report(built["restriction"])
+    presented.write_csv(out / "reports" / "presentation.tsv", separator="\t")
+    presentation_summary(presented).write_csv(out / "reports" / "presentation-summary.tsv",
+                                              separator="\t")
+    if not presented.is_empty():
+        typer.echo(f"MHC calls with no groove or a class that disagrees: {presented.height:,} "
+                   f"(epitope, MHC) pair(s), {presented['records'].sum():,} record(s) "
+                   f"-> {out / 'reports' / 'presentation.tsv'}")
 
     if tables:
         for name, frame in built.items():
@@ -551,7 +603,7 @@ def promiscuity_cmd(
         w.writerow(prom.COLUMNS)
         for r in rows:
             w.writerow([r.epitope, r.mhc_a, f"{r.percent_rank:.3f}", f"{r.p_present:.4f}",
-                        r.band, r.recorded])
+                        r.band, r.recorded, r.mhcmatch_version])
     epitopes = len({r.epitope for r in rows})
     kept = sum(r.recorded for r in rows)
     typer.echo(f"wrote {out} ({len(rows):,} rows over {epitopes:,} epitopes; "

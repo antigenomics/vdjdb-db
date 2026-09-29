@@ -365,6 +365,29 @@ FIELDS: dict[str, Field] = dict([
     _f("mhc.b.status", searchable=0, title="MHC B status",
        comment="As mhc.a.status, for the second chain."),
 
+    _f("alleles.reported", searchable=0, autocomplete=0, data_type="uint",
+       title="Alleles reported",
+       comment="Distinct mhc.a values VDJdb records for this epitope. Curation, not prediction: "
+               "two or more means different publications restricted the same peptide differently."),
+    _f("mhc.a.top", searchable=0, title="Top-scoring allele",
+       comment="The allele of mhcmatch's class I panel that presents this epitope best. Blank for "
+               "class II and for an epitope outside the 8-11mer class I binding range."),
+    _f("mhc.a.rank", searchable=0, autocomplete=0, data_type="uint", title="Curated allele rank",
+       comment="Where the curated mhc.a sits in that ranking, 1 being the top. Blank when the "
+               "curated allele is not in the panel."),
+    _f("mhc.a.percentile", searchable=0, autocomplete=0, data_type="float",
+       title="Curated allele percentile",
+       comment="The curated allele's %Rank_EL against the human proteome background. Lower binds "
+               "better; mhcmatch calls <=0.5 strong and <=2.0 weak."),
+    _f("promiscuity", searchable=0, autocomplete=0, data_type="uint", title="Promiscuity",
+       comment="Panel alleles scoring in mhcmatch's strong band for this epitope. 1 is a "
+               "single-allele peptide; a high value is a promiscuous one, which is why the curated "
+               "allele being outranked is not by itself a defect."),
+    _f("mhcmatch.version", searchable=0, autocomplete=0, title="mhcmatch version",
+       comment="The model that produced the five columns above, recorded per row so a reader can "
+               "tell which one a number came from. Blank on a row scored before the column "
+               "existed."),
+
     _f("evidence_id", searchable=0, autocomplete=0, title="Evidence id",
        comment="Identifies one piece of evidence within a record: a hash of its type, chain, "
                "source and value, so the same evidence keeps the same id across releases."),
@@ -496,11 +519,22 @@ EPITOPE_COLUMNS: tuple[str, ...] = (
     "mhc.class", "records", "chains", "references", "clonotypes",
 )
 
+#: The six promiscuity columns of ``restriction`` (ROADMAP §10.6). Joined from the committed
+#: ``proofreading/epitope_promiscuity.tsv``, never computed by a build: a prediction is a moving
+#: target, so it is a reviewed input refreshed by its own pull request. Deliberately **not** part of
+#: any key - if a predicted allele were in ``pmhc_id`` then a model upgrade would renumber pMHC ids
+#: and break every external reference while the build passed.
+PROMISCUITY_COLUMNS: tuple[str, ...] = (
+    "alleles.reported", "mhc.a.top", "mhc.a.rank", "mhc.a.percentile", "promiscuity",
+    "mhcmatch.version",
+)
+
 #: ``restriction`` -- one row per (antigen, presenting MHC), each allele checked against
 #: IPD-IMGT/HLA (<https://www.ebi.ac.uk/ipd/imgt/hla/>).
 RESTRICTION_COLUMNS: tuple[str, ...] = (
     "antigen.epitope", "antigen.species", "mhc.a", "mhc.b", "mhc.class",
     "mhc.a.status", "mhc.b.status", "records", "references",
+    *PROMISCUITY_COLUMNS,
 )
 
 #: ``evidence`` -- one row per piece of evidence, PK ``(record_id, evidence_id)``. Long rather than
