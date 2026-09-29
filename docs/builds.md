@@ -25,40 +25,35 @@ Output goes to `out/`, not `build/`: `build/` is gitignored as a Python packagin
 Optional dependency groups: `motifs` for the motif stage, `docs` for this site, `test` for the
 suite, `tuning` for the clustering bake-off under `docs/tuning/`.
 
-## The slow stage, and running it yourself
+## The junction-nucleotide stage
 
-`annotate.junction.add_junction_nt` is 87.2 % of the assembly stage - 407.64 s of 467.72 s on a
-4-vCPU runner over 192,793 records - because `vdjtools.model.infer_nt` has no batched entry point in
-the pinned 3.13.0 and costs about 2.5 ms per distinct key. It runs on the 187,055 distinct
-`(species, gene, cdr3, v, j)` keys rather than on every row, which is rule 4's deduplication, and
-then splits those keys into as many contiguous slices as there are workers.
+`annotate.junction.add_junction_nt` was 87.2 % of the assembly stage - 407.64 s of 467.72 s on a
+4-vCPU runner over 192,793 records - because `vdjtools.model.infer_nt` wraps a native DP in per-row
+Python and the wrapper, not the DP, was the cost. That profile is what
+[`antigenomics/vdjtools#181`](https://github.com/antigenomics/vdjtools/issues/181) was opened on, and
+`vdjtools` 4.5 answers it with `infer_nt_batch`.
 
-**Each worker is a separate `vdjdb infer-nt` process.** Threads do not scale here, because `infer_nt`
-holds the GIL for part of its work: measured on 4,000 distinct human TRB keys, 2.695 ms/key serial
-against 1.070 ms on four threads (2.52x) and 0.681 ms on four processes (3.96x). So the stage shells
-out, and the same command is the one to run by hand when you want the work spread over a machine this
-build is not using:
+So the stage is **one batched call per (species, locus)** over the distinct
+`(species, gene, cdr3, v, j)` keys - 187,055 of them rather than every row, which is rule 4's
+deduplication - and nothing wraps it. `infer_nt_batch` releases the GIL and partitions the batch
+across its own kernel threads; a pool of our own would oversubscribe the machine and read as
+"batching did not help", which is hard rule 3 and section 0e of `CLAUDE.md` both.
 
-```bash
-uv run vdjdb infer-nt --keys keys.parquet --species HomoSapiens --gene TRB \
-    --slice 0/4 --out part.0.parquet
-```
+Measured on 3,000 distinct human TRB keys from the corpus, 16 cores: **1.115 ms/key serial against
+0.106 ms batched, 10.5x, and all 3,000 nucleotide sequences identical.** End to end on the 4-vCPU
+runner the stage goes **407.64 s to 108.54 s** and the assembly step 467.72 s to 166.54 s, so it is
+65.2 % of that step rather than 87.2 %; on a 16-core laptop it is 12.44 s and `vdjdb build` is 45.9 s
+wall. The runner wins less because `infer_nt_batch` defaults to `hardware_concurrency - 2` threads,
+which is two there.
+`tests/unit/test_junction.py` asserts both halves of that, because each catches a different failure -
+identity catches a batch call that is not the same computation, and the ratio catches a regression to
+the loop or a batch call that loops internally, neither of which changes an answer.
 
-Slices are half-open and contiguous and the results are concatenated in slice order, so the worker
-count cannot change the answer - asserted at 1, 2, 3, 4, 7 and 16 workers in
-`tests/unit/test_junction.py`. That also means `parallel` or `srun` can drive it directly:
-
-```bash
-seq 0 3 | parallel uv run vdjdb infer-nt --keys keys.parquet --species HomoSapiens \
-    --gene TRB --slice {}/4 --out part.{}.parquet
-```
-
-Verified: concatenating those four parts gives a frame identical to the single-process run.
-
-Parquet between the parent and its workers rather than TSV, because `d.start` and `d.end` are
-nullable `Int64` and a text round trip would have to invent a spelling for null on the way out and
-guess it back on the way in. Rule 6 makes empty string the missing marker in the *pipeline*, not in
-every intermediate.
+It previously ran as four worker processes over contiguous parquet slices of the key set, each an
+ordinary invocation of a subcommand that existed only to be that worker. The subcommand,
+`src/vdjdb/__main__.py`, the slice arithmetic and the worker-count argument are all gone: one batched
+call has no worker count, so rule 7's "never let worker count change the answer" holds by
+construction rather than by a tiling test.
 
 ## Comparing against a release
 
