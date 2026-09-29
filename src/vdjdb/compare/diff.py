@@ -68,9 +68,8 @@ WIDTHS: dict[str, int] = {
     "motif_pwms.txt": 27,
 }
 
-#: Compared line-by-line, by position. One line, no identity of its own.
-LINEWISE = ("latest-version.txt",)
-
+#: Files compared as lines keyed on field 1, not by line position.
+#:
 #: The metadata files: one row per column of the table they describe, so the row identity is the
 #: column name in field 1 and not the line number. Comparing them by position reported the single
 #: inserted ``TCR_hash`` row as eight changed lines, because every row after it shifted down one.
@@ -79,7 +78,15 @@ LINEWISE = ("latest-version.txt",)
 #: asserts the name column is the data file's header, and :func:`_compare_table` fails a candidate
 #: whose header is reordered. It is also why these are read as lines rather than parsed as a table:
 #: the shipped ``web.method`` row has a space where a tab belongs, so the reference is ragged.
-KEYED_LINES = ("vdjdb.meta.txt", "vdjdb.slim.meta.txt")
+#:
+#: ``latest-version.txt`` is here for the same reason and was compared by position until 2026-09-29.
+#: It is a history with the newest release **prepended**, so every one of its 40 lines shifted down
+#: and the comparison reported 40 changed lines and one added for a file that had gained exactly one
+#: entry. It carries no tab, so field 1 is the entry itself, which is the key. The one
+#: thing this cannot see - that line 1 is the *newest* release - is checked by `release.yml`'s
+#: "Assert line 1 resolves" step and by `verify-latest.yml`, which compare it against the published
+#: tag.
+KEYED_LINES = ("vdjdb.meta.txt", "vdjdb.slim.meta.txt", "latest-version.txt")
 
 #: Identity fields that live inside a JSON column rather than in a column of their own. They are
 #: the seven ``meta.*`` members of :data:`CHUNK_DEDUP_KEY`: without them a study reporting one TCR
@@ -143,6 +150,11 @@ class DiffReport:
     rule_expected: dict[str, int] = field(default_factory=dict)
     row_deltas: dict[str, RowDelta] = field(default_factory=dict)
     rename_declared: list[str] = field(default_factory=list)
+    #: ``file -> the instrument that gates it instead``. A member whose row-level comparison is not
+    #: the instrument: it is still read, digested and counted, and the report says what does gate it,
+    #: but its cells are not required to match a rule and its row buckets are not required to match a
+    #: declaration. See :func:`load_elsewhere`.
+    elsewhere: dict[str, str] = field(default_factory=dict)
     #: True when this report was loaded from a summary rather than computed, in which case every
     #: ``FileReport.cells`` is empty because the cells were not serialised. Anything that needs the
     #: per-cell detail must assert this is False rather than read an empty tuple as "no changes".
@@ -178,7 +190,8 @@ class DiffReport:
         the declared numbers were never printed. A new chunk is the common cause: its rows are rows
         the reference cannot contain, so all three totals move at once.
         """
-        return sorted(f.name for f in self.files if self._delta_of(f) != self._measured_of(f))
+        return sorted(f.name for f in self.files
+                      if f.name not in self.elsewhere and self._delta_of(f) != self._measured_of(f))
 
     def _delta_of(self, f: FileReport) -> tuple[int, int]:
         d = self.row_deltas.get(f.name)
@@ -196,7 +209,9 @@ class DiffReport:
         compared by digest - but a digest that also differs leaves nothing said about the file, which
         is the one case where the comparison has no answer rather than a bad one.
         """
-        return sorted(f.name for f in self.files if not f.compared_rows and not f.canonical_equal)
+        return sorted(f.name for f in self.files
+                      if f.name not in self.elsewhere and not f.compared_rows
+                      and not f.canonical_equal)
 
     @property
     def ok(self) -> bool:
@@ -411,18 +426,6 @@ def _compare_table(name: str, ref: bytes, cand: bytes,
     return FileReport(name, raw_r == raw_c, can_r == can_c, a.height, b.height,
                       only_ref, only_cand, changed, tuple(cells), compared_rows=True,
                       renames=rename_counts)
-
-
-def _compare_lines(name: str, ref: bytes, cand: bytes) -> FileReport:
-    raw_r, can_r = _digests(ref)
-    raw_c, can_c = _digests(cand)
-    a = ref.decode().splitlines()
-    b = cand.decode().splitlines()
-    cells = tuple(CellDiff(name, "line", old, new, str(i))
-                  for i, (old, new) in enumerate(zip(a, b, strict=False)) if old != new)
-    return FileReport(name, raw_r == raw_c, can_r == can_c, len(a), len(b),
-                      max(len(a) - len(b), 0), max(len(b) - len(a), 0), len(cells), cells,
-                      compared_rows=True)
 
 
 def _compare_keyed_lines(name: str, ref: bytes, cand: bytes) -> FileReport:
@@ -648,6 +651,42 @@ def load_row_deltas(path: Path) -> dict[str, RowDelta]:
     return out
 
 
+def load_members(path: Path) -> tuple[frozenset[str], frozenset[str]]:
+    """``(declared added, declared removed)`` bundle members, from ``[members]``.
+
+    A release that ships a file the reference does not contain is a declared change of shape, not an
+    unexplained one - the TCREMP motif tables are the first of them - and until this existed the
+    file-set pass had no way to say so: any new member failed the comparison outright, so the only
+    way to run it was to name the reference's members with ``--only`` and never compare the rest.
+    An **undeclared** new or missing member still fails, which is the half that matters.
+    """
+    if not path.exists():
+        return frozenset(), frozenset()
+    m = tomllib.loads(path.read_text()).get("members", {})
+    return frozenset(m.get("added", ())), frozenset(m.get("removed", ()))
+
+
+def load_elsewhere(path: Path) -> dict[str, str]:
+    """``[measured_elsewhere]``: member -> the instrument that gates it instead of this comparison.
+
+    Three members of the legacy bundle cannot be judged by keying their rows against the reference,
+    and saying so is better than the alternative that was in place, which was to name the five
+    comparable members with ``--only`` in a workflow file and never compare the other seven at all.
+    Measured on the assembled 2026-09-29 legacy zip: that left **101,877 unattributed cells**, every
+    one of them in a motif file or in ``latest-version.txt``, and nothing in the repository said
+    whether that was expected.
+
+    A file named here is still read, digested, row-counted and printed. What it is exempt from is the
+    requirement that every changed cell match a rule and every row bucket match a declaration - and
+    the value says which instrument takes that job, so the exemption names its replacement rather
+    than removing a check.
+    """
+    if not path.exists():
+        return {}
+    raw = tomllib.loads(path.read_text()).get("measured_elsewhere", {})
+    return {str(k): str(v) for k, v in raw.items()}
+
+
 def load_rules(path: Path) -> list[Rule]:
     if not path.exists():
         return []
@@ -713,28 +752,33 @@ def diff(reference: Path, candidate: Path, rules_path: Path | None = None,
     cand_names = [n for n in cand.names if wanted is None or n in wanted]
     rules = load_rules(rules_path) if rules_path else []
     renames = load_renames(rules_path) if rules_path else []
+    declared_added, declared_removed = load_members(rules_path) if rules_path else (frozenset(),
+                                                                                    frozenset())
     report = DiffReport(
-        missing=[n for n in ref_names if n not in cand_names],
-        added=[n for n in cand_names if n not in ref_names],
+        missing=[n for n in ref_names if n not in cand_names and n not in declared_removed],
+        added=[n for n in cand_names if n not in ref_names and n not in declared_added],
         rule_expected={r.id: r.rows for r in rules},
         row_deltas=load_row_deltas(rules_path) if rules_path else {},
         rename_declared=sorted({r.id for r in renames}),
+        elsewhere=load_elsewhere(rules_path) if rules_path else {},
     )
 
     for name in ref_names:
-        if name in report.missing:
+        # `cand_names`, not `report.missing`: a member declared under `[members] removed` is absent
+        # from the candidate and absent from the missing list, and reading it raised a KeyError.
+        if name not in cand_names:
             continue
         a, b = ref.read_bytes(name), cand.read_bytes(name)
         if name in KEYS or name in WIDTHS:
             report.files.append(_compare_table(name, a, b, renames))
         elif name in KEYED_LINES:
             report.files.append(_compare_keyed_lines(name, a, b))
-        elif name in LINEWISE:
-            report.files.append(_compare_lines(name, a, b))
         else:
             report.files.append(_compare_opaque(name, a, b))
 
     for f in report.files:
+        if f.name in report.elsewhere:
+            continue
         for cell in f.cells:
             for rule in rules:
                 if rule.matches(cell):
@@ -762,6 +806,16 @@ def render(report: DiffReport) -> str:
                    f"{f.only_in_candidate} | {f.changed_rows} |")
         if f.note:
             out.append(f"| | | | | | | | _{f.note}_ |")
+
+    if report.elsewhere:
+        out += ['', '## Gated by another instrument', '',
+                'These members are read, digested and counted above, and their cells are **not**',
+                'required to match a rule here. Keying their rows against the reference answers no',
+                'question a reader has: a `cid` carries a position in a sorted list, so one',
+                'renumbered cluster reads as the entire file replaced.', '',
+                '| Member | What gates it |', '|---|---|']
+        for name, how in sorted(report.elsewhere.items()):
+            out.append(f'| `{name}` | {how} |')
 
     if report.rename_declared:
         out += ['', '## Declared renames', '',
@@ -792,9 +846,14 @@ def render(report: DiffReport) -> str:
             want_ref, want_cand = report._delta_of(f)
             if not (report.row_deltas.get(f.name) or f.only_in_reference or f.only_in_candidate):
                 continue
-            flag = lambda w, g: f"{g}" if w == g else f"**{g}**"   # noqa: E731
-            out.append(f"| `{f.name}` | {want_ref} | {flag(want_ref, f.only_in_reference)} | "
-                       f"{want_cand} | {flag(want_cand, f.only_in_candidate)} |")
+            # A member gated by another instrument is counted here and not flagged: bolding a bucket
+            # this comparison is not judging reads as a failure it then does not fail on.
+            gated = f.name not in report.elsewhere
+            def flag(want: int, got: int, gated: bool = gated) -> str:
+                return f"{got}" if not gated or want == got else f"**{got}**"
+            want = (f"{want_ref}", f"{want_cand}") if gated else ("-", "-")
+            out.append(f"| `{f.name}` | {want[0]} | {flag(want_ref, f.only_in_reference)} | "
+                       f"{want[1]} | {flag(want_cand, f.only_in_candidate)} |")
         if report.mismatched_row_deltas:
             out += ["", "**MISMATCH** in bold above: "
                     + ", ".join(f"`{n}`" for n in report.mismatched_row_deltas)
