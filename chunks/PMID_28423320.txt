@@ -9744,7 +9744,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 9743				CASSDSDNNEQFF	TRBV6-4		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28423320	antigen-loaded-targets,dextramer-sort	0.0007%		amplicon-seq			CD8+						20354	PBMC			
 9744				CASSDSEGDTDTQYF	TRBV6-4		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28423320	antigen-loaded-targets,dextramer-sort	0.0007%		amplicon-seq			CD8+						20354	PBMC			
 9745				CASSDSGAREGTGELFF	TRBV6-4		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28423320	antigen-loaded-targets,dextramer-sort	0.0007%		amplicon-seq			CD8+						20354	PBMC			
-9746				CASRERSYNGEQF	TRBV6-5		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28423320	antigen-loaded-targets,dextramer-sort	0.0007%		amplicon-seq			CD8+						20354	PBMC			
+9746				CASRERSYNGEQFF	TRBV6-5		TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28423320	antigen-loaded-targets,dextramer-sort	0.0007%		amplicon-seq			CD8+						20354	PBMC			
 9747				CASSTGGEVETQYF	TRBV6-5		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28423320	antigen-loaded-targets,dextramer-sort	0.0007%		amplicon-seq			CD8+						20354	PBMC			
 9748				CASRSGNYGEQYF	TRBV7-2		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28423320	antigen-loaded-targets,dextramer-sort	0.0007%		amplicon-seq			CD8+						20354	PBMC			
 9749				CASSFQRAGELFF	TRBV7-2		TRBJ2-2	HomoSapiens	HLA-A*02	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28423320	antigen-loaded-targets,dextramer-sort	0.0007%		amplicon-seq			CD8+						20354	PBMC			
