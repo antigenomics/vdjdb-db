@@ -26,7 +26,14 @@ pytestmark = pytest.mark.release
 #: own chunk, and `CHUNK_DEDUP_KEY` carries the CDR3, so deduplication collapses them. 192,793 ->
 #: 192,763. The retired identifiers keep their amendment trail in `registry/records.tsv` and the
 #: surviving record carries the same observation.
-EXPECTED_RECORDS = 192_763
+#:
+#: 192,763 -> 192,641 for a second repair of the same shape, and a larger one. The B16 chunk (#397)
+#: recorded a clonotype's count by repeating its row, and a spreadsheet autofill had incremented the
+#: gene `Eef2` down the column into `Eef2`..`Eef188` - one label per row, all of them in
+#: `CHUNK_DEDUP_KEY` - so 187 rows that are 65 clonotypes never deduplicated. Undoing the autofill
+#: removes **122 records that were never real**. The count is now `count/sample total` in
+#: `method.frequency`, which is the convention 3,548 values in the corpus already use (#696).
+EXPECTED_RECORDS = 192_641
 
 
 @pytest.fixture(scope="module")
