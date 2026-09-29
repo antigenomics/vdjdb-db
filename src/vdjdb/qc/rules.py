@@ -30,7 +30,11 @@ AA = "ARNDCQEGHILKMFPSTWYV"
 _AA_SEQ = rf"^[{AA}]{{4,}}$"
 #: ``HLA-<gene><digit?>*NN(:NN){0,3}``. Anything not starting with ``HLA`` is accepted -- see above.
 _HLA = r"^HLA-[A-Z]+[0-9]?\*\d{2}(:\d{2,3}){0,3}$"
-_REFERENCE = r"(?i)^(PMID:|doi:|https?://)|unpublished"
+#: The legacy prefixes, case-sensitive as legacy matched them, and ``unpublished`` anywhere in
+#: the value, case-insensitive as legacy matched *that*. The blanket ``(?i)`` this carried
+#: accepted ``pmid:1`` where the retired build rejected it, which is a row it caught and this
+#: one waved through. Measured: zero rows in the corpus depend on the leniency.
+_REFERENCE = r"^(PMID:|doi:|https?://)|(?i:unpublished)"
 
 
 def _blank(col: str) -> pl.Expr:

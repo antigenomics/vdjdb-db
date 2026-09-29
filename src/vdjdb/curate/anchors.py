@@ -170,7 +170,15 @@ def classify(cdr3: str, species: str, v: str, j: str) -> tuple[str, str | None, 
     for end, call, segment in (("V", v, "V"), ("J", j, "J")):
         germline = templated(species, segment, call)
         if not germline:
-            seen.append(f"no {end} germline")
+            # No germline to read: the call is absent, or it is a name the reference does not have.
+            # The universal anchor is all that is left, and it is exactly what the retired build's
+            # `is_qq_seq_biologically_valid` used for every row. Without this the check declines
+            # silently, and 118 chains whose junction ends in neither the anchor nor anything a
+            # germline could justify were reported by the old build and by nothing in this one.
+            # No repair is proposed: there is no germline to propose from.
+            tail = out[:1] if end == "V" else out[-1:]
+            seen.append(f"{end} unanchored" if tail not in UNIVERSAL[end]
+                        else f"no {end} germline")
             continue
         anchor = germline[0] if end == "V" else germline[-1]
         tail = out[:1] if end == "V" else out[-1:]
