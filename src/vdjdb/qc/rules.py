@@ -50,6 +50,21 @@ def _prefix_ok(col: str, prefix: str) -> pl.Expr:
     return _blank(col) | pl.col(col).str.starts_with(prefix)
 
 
+def _one_cysteine(col: str) -> pl.Expr:
+    """Empty is allowed; a present junction carries no Cys after the Cys104 it opens with.
+
+    A TCR junction has exactly one cysteine and it is the first residue. A second one is not
+    impossible - the Jurkat receptor has one, and a disulphide-bonded CDR3 loop is a real thing to
+    report - but it is rare enough that in ordinary submission data it reads as a transcription or
+    base-calling error first. Measured over `chunks/`: 1,521 `cdr3.alpha` rows in 69 chunks and 2,804
+    `cdr3.beta` rows in 94 chunks, 1.41 % of chains.
+
+    So this is advisory: the record is kept and flagged, like the two anchor flags, and the submitter
+    hears about it while the source is still to hand.
+    """
+    return _blank(col) | ~pl.col(col).str.slice(1).str.contains("C", literal=True)
+
+
 #: ``rule id -> expression that is True when the row is GOOD``. Expressed positively so a rule
 #: reads as the invariant it protects rather than as the failure it catches.
 #: The chunk columns the functionality rule reads. `d.beta` is absent on purpose: IMGT lists two
@@ -97,6 +112,12 @@ RULES: dict[str, pl.Expr] = {
     "bad mhc.class": pl.col("mhc.class").is_in(["MHCI", "MHCII"]),
     "bad antigen.gene": ~_blank("antigen.gene"),
     "bad reference.id": _blank("reference.id") | pl.col("reference.id").str.contains(_REFERENCE),
+    # An internal cysteine. The two anchor flags `v.canonical`/`j.canonical` already mark a junction
+    # that does not open with Cys104 or close with Phe/Trp118; neither notices a Cys in the middle,
+    # and no shipped column did until this rule. Advisory, and reported at the import stage, which is
+    # where the submitter can still check it against their own source.
+    "internal cysteine in cdr3.alpha": _one_cysteine("cdr3.alpha"),
+    "internal cysteine in cdr3.beta": _one_cysteine("cdr3.beta"),
     "no.cdr3": ~(_blank("cdr3.alpha") & _blank("cdr3.beta")),
     "no.antigen.seq": ~_blank("antigen.epitope"),
     "no.mhc": ~(_blank("mhc.a") | _blank("mhc.b")),

@@ -1,225 +1,188 @@
 ---
 name: vdjdb-format
-description: Standardise a raw or partially-formatted VDJdb TSV chunk — normalising species names, IMGT V/D/J gene IDs, IMGT-HLA MHC alleles, and method vocabulary — and produce a properly-named chunk file ready for proofreading.
+description: Normalise the controlled-vocabulary fields of a raw VDJdb chunk TSV to the form the database records - IMGT V/D/J gene and allele names including Adaptive ImmunoSEQ and Arden conversions, IPD-IMGT/HLA and murine H2 MHC allele names, species CamelCase, method vocabulary, reference id prefixes - and write a format log naming the authority behind every change. Use after vdjdb-extract and before vdjdb-proofread, or on any TSV whose gene or allele spellings need bringing to IMGT.
 ---
 
-# /format — VDJdb Chunk Formatting Skill
+# vdjdb-format
 
-## Purpose
+Standardise every controlled-vocabulary field in a chunk to the spelling VDJdb records. Second of
+three stages: [extract](../vdjdb-extract/SKILL.md) → **format** →
+[proofread](../vdjdb-proofread/SKILL.md).
 
-Take the output of `/extract` (or any TSV resembling a chunk file) and standardise all controlled-vocabulary fields to the VDJdb / IMGT specification. Cross-check naming conventions against existing `chunks/` files to ensure internal consistency. This is the second stage: extract → **format** → proofread.
+Read [`skills/AUTHORITIES.md`](../AUTHORITIES.md) first. This skill applies the authorities in that
+table; it does not restate what they say.
 
 ## Invocation
 
 ```
-/format [path-to-tsv]
+/vdjdb-format [path-to-tsv]
 ```
 
-The TSV must have a VDJdb-compatible header (see canonical column order in `/extract`). If the file has structural problems (missing columns, wrong separator), halt and report — this is a job for `/proofread` Step 1, not format.
+If the file has structural damage - missing columns, wrong separator, a column shift - stop and report
+it. Repairing structure is `/vdjdb-proofread` step 1, not this skill.
 
----
+## The rule this skill runs on
 
-## Standardisation Rules
+**Normalise toward what the database already records, and prove it with a query.** Every change is
+either a row in an authority file or a lookup that returned a hit. A change made from memory of "the
+usual spelling" is how two spellings of one molecule entered the corpus in the first place: the
+murine `H-2` / `H2-` split cost 768 records their motif badge on the deployed site.
 
-### 1. Species Names
+Where the authority has no entry for a value, add the entry and say so in the log. Never repair the
+cell alone.
 
-Normalise to the exact VDJdb-accepted values (case-sensitive):
+## 1. Species
 
-| Normalise FROM | Normalise TO |
-|---|---|
-| `Homo sapiens`, `human`, `H. sapiens`, `hs`, `Human` | `HomoSapiens` |
-| `Mus musculus`, `mouse`, `M. musculus`, `mm`, `Mouse` | `MusMusculus` |
-| `Rattus norvegicus`, `rat`, `Rattus` | `RattusNorvegicus` |
-| `Macaca mulatta`, `rhesus`, `macaque`, `NHP` | `MacacaMulatta` |
+`species` is one of `HomoSapiens`, `MusMusculus`, `RattusNorvegicus`, `MacacaMulatta` - CamelCase, no
+spaces, case-sensitive. Normalise any binomial, common name or abbreviation onto one of the four.
 
-If a species is not in the above list:
-1. Log it as a candidate for extending `speciesList` in `py_src/ChunkQC.py`
-2. Ask the user whether to include or exclude those rows
+A fifth species is not a formatting problem. `vdjdb qc` fails it as `bad species` because no part of
+the build has a germline reference for it, and the chunk belongs in `pending/` with an issue saying
+which reference would unblock it. `pending/PMID_22058411.txt` is the worked case: 53 bovine records,
+header identical to a shipping chunk, every row failing that one rule.
 
----
+## 2. V, D and J gene calls
 
-### 2. IMGT V/D/J Gene IDs
+Authority: `proofreading/imgt_alleles.tsv.gz`. Rules and queries: `proofreading/imgt.md` -
+§3 naming structure, §8 how to query, §9 older nomenclatures, §10 common errors.
 
-**Primary authority:** `proofreading/imgt_alleles.tsv.gz` (column `imgt_gene_id`)
-**Conversion table:** `patches/nomenclature.conversions`
-**Secondary fallback:** `patches/IGM_nomenclature_table.tsv`
+Apply in order:
 
-**Rules (apply in order):**
+1. **Strip internal whitespace.** `TRBV 7` → `TRBV7`.
+2. **Convert Adaptive ImmunoSEQ names** per `proofreading/imgt.md` §9.2, which has the three
+   differences, the five patterns seen in this corpus and the conversion algorithm. Log each as
+   `ADAPTIVE <from> -> <to>`.
+3. **Convert older nomenclatures.** Arden names (`BV20S1`, `TRBV1S1`) via `proofreading/arden.tsv`;
+   everything else via `patches/nomenclature.conversions`. §9.1 and §9.3 cover the patterns.
+4. **Look the result up** in `imgt_alleles.tsv.gz` at gene level, then at allele level if an allele is
+   named. `proofreading/imgt.md` §8 has both queries.
+5. **A name that resolves at neither level is not a formatting problem** - it is nomenclature debt.
+   Report it; do not invent a nearest match. The build lists all of them in
+   `out/reports/nomenclature.tsv`, separating a family name a curator must choose within (`TRBV6` is
+   nine genes) from a name no authority carries at all (`TRBV28-0`).
+6. **Ambiguous multi-calls** stay as a comma-separated list with no spaces (`TRBV7-2,TRBV7-3`), each
+   part checked separately. The build reads `,`, `;`, `+` and `or` as separators.
 
-1. **Strip whitespace**: remove all spaces within the gene name (`TRBV 7` → `TRBV7`, `TRAV 12-2` → `TRAV12-2`)
+**Bound the allele number.** An allele far above any real count is a spreadsheet artefact, not a
+call: someone drag-fills a column and gets `*01`, `*02`, `*03` ... `*112`. Two cheap checks catch it,
+and both fire on **zero** corpus rows today, so neither costs anything to enforce:
 
-2. **Detect and convert Adaptive Biotech ImmunoSEQ names** (see `proofreading/imgt.md` §9.2 for full details):
-   - **Full Adaptive prefix** (`TCRB`, `TCRA`, `TCRG`, `TCRD`): replace with `TRB`, `TRA`, `TRG`, `TRD`
-     - `TCRBV06-05*01` → strip `TCR` prefix → `TRBV06-05*01`
-   - **Zero-padded subgroup**: strip leading zeros from subgroup number
-     - `TRBV06-5` → `TRBV6-5`
-   - **Zero-padded cluster**: strip leading zeros from cluster number
-     - `TRBV7-06` → `TRBV7-6`, `TRBV4-01` → `TRBV4-1`
-   - **Verify result in `imgt_alleles.tsv.gz`**: if `gene-cluster` is not found, try the bare gene name (Adaptive always appends `-01` to single-cluster genes that IMGT names without a cluster)
-     - `TRBV19-01` → `TRBV19-1` not found → `TRBV19` found ✓
-     - `TRBV11-02` → `TRBV11-2` found ✓
-   - When source is Adaptive, note in format log: `ADAPTIVE_NAME → IMGT_NAME (Adaptive ImmunoSEQ normalisation)`
+- **Per value.** The highest allele number any TCR gene has in `imgt_alleles.tsv.gz` is 10, and the
+  highest in the whole corpus is `*08`. Anything past the named gene's own allele count is suspect;
+  anything past about 12 is not a call at all.
+- **Across rows.** The drag-fill signature is a *run*: the same gene with allele numbers stepping by
+  one down consecutive rows. Measured over `chunks/`, there is no such run of 5 or more anywhere, so
+  one appearing is the artefact and nothing else.
 
-3. **Look up in `imgt_alleles.tsv.gz`** (strip allele suffix `*NN` before lookup):
-   - If found → keep (or correct capitalisation to match)
-   - If not found → check `patches/nomenclature.conversions` for a mapping
-   - If found in conversions → apply the conversion and log `old_name → new_name`
-   - If not found in either → flag as unresolvable; ask user
+Then adjudicate a flagged value against `imgt_alleles.tsv.gz` rather than deleting it on the bound
+alone - the bound is the detector, membership is the verdict. That order matters, because the bound
+has false positives on genes with many alleles: `TRAV8-4*07`, `TRBV20-1*07`, `TRBV7-9*07` and mouse
+`TRAV14D-3/DV8*08` are 19 corpus calls that IMGT does list. The retired build flagged one of them and
+had no membership test to resolve it with; now there is one.
 
-3. **Validate allele** (if present, e.g., `TRBV12-3*02`):
-   - Look up the full allele name in `imgt_allele_id` column: `gzip -dc proofreading/imgt_alleles.tsv.gz | awk -F'\t' '$3=="TRBV12-3*02"'`
-   - If not found as a complete allele: flag as invalid; check whether the gene itself exists (gene-level lookup)
+A gene whose IMGT functionality is `ORF` or `P` is reported, not rejected. `vdjdb qc` calls it
+`non-functional <column>` and treats it as advisory: a pseudogene can rearrange, and IMGT
+reclassifies genes between releases.
 
-4. **Check functionality**: if `functionality` is `P` (pseudogene) in `imgt_alleles.tsv.gz`: flag as biologically suspicious
+## 3. MHC alleles
 
-5. **Consistency check against existing chunks**:
-   ```bash
-   grep -h "" chunks/*.txt | cut -f3 | sort -u | grep "^TRAV"  # check v.alpha values
-   ```
-   If the same gene appears with different notation in existing chunks (e.g., `TRAV13-1` vs `TRAV13`), standardise to the IMGT-canonical form.
+Authorities: `proofreading/mhc_alleles.tsv.gz` for human, `proofreading/mhc_nonhuman.tsv` for
+everything else, `patches/mhc.dict` for declared corrections. Rules: `proofreading/mhc.md` - §2
+allele structure, §4 class conventions, §7 non-human, §9 historical forms, §10 how to query, §11 the
+MHC-II gene-name digit errors this corpus has had.
 
-6. **Multiple gene possibilities** (comma-separated ambiguous assignments): check each against `imgt_alleles.tsv.gz`, keep all valid candidates comma-separated without spaces (e.g., `TRBV7-2,TRBV7-3`)
+**Human.** Target `HLA-<GENE>*<field1>:<field2>`. Prefix, `*` and `:` present; low resolution kept as
+low resolution with a note; expression suffixes (`N`, `L`, `Q`) kept. `mhc.b` on class I is the
+literal `B2M`.
 
----
+**Murine.** One prefix, `H2-`, for every murine name. `H2-` is the MGI gene symbol prefix; `H-2` is
+the classical immunology spelling and is not a symbol. VDJdb records the MGI form and so does the
+site - `vdjdb-web`'s `Motifs.scala` maps `h-2` to `h2-` before joining a record to its motif cluster.
 
-### 3. MHC Alleles
-
-**Primary authority:** `proofreading/mhc_alleles.tsv.gz` (column `allele_name`)
-**Reference:** `proofreading/mhc.md`
-
-#### Human MHC (HLA)
-
-Target format: `HLA-<GENE>*<FIELD1>:<FIELD2>` (e.g., `HLA-A*02:01`)
-
-| Problem | Fix |
-|---|---|
-| `A02`, `A0201` (old serological) | → `HLA-A*02:01` if unambiguous; flag if ambiguous |
-| `A*0201` (old format, no colon) | → `HLA-A*02:01` (add prefix + insert colon) |
-| `HLA-A*02` (low resolution, 1-field) | Keep as-is; note in log that higher resolution preferred |
-| `HLA-A*02:01:01` or `*02:01:01:01` (high-res) | Keep full string as-is |
-| `HLA-A 02:01` (space) | → `HLA-A*02:01` |
-| `HLA-A*02:01N`, `*02:01L` (expression suffix) | Keep suffix; note in log |
-| Confirmed status from `mhc_alleles.tsv.gz` | `gzip -dc proofreading/mhc_alleles.tsv.gz \| awk -F'\t' '$2=="HLA-A*02:01"{print $3}'` |
-
-**MHC-I second chain**: always normalise to literal `B2M` — never `beta-2-microglobulin`, `β2m`, `b2m`, `B2M*01`, etc.
-
-**mhc.class cross-check:**
-| If `mhc.a` starts with... | `mhc.class` must be | `mhc.b` must be |
+| Normalise from | To | Why |
 |---|---|---|
-| `HLA-A`, `HLA-B`, `HLA-C`, `HLA-E`, `HLA-F`, `HLA-G` | `MHCI` | `B2M` |
-| `HLA-DR`, `HLA-DQ`, `HLA-DP`, `HLA-DO` | `MHCII` | HLA β-chain allele |
+| `H-2Db`, `H-2Kb`, `H-2Aa`, `H-2Eb1` | `H2-Db`, `H2-Kb`, `H2-Aa`, `H2-Eb1` | prefix |
+| `I-Ab`, `IAb` | `H2-IAb` | prefix; the one murine string of fifteen that lacked it |
+| `H2-Ag7`, `H2-Ed` | `H2-IAg7`, `H2-IEd` | the dropped `I` |
+| `H-2D^b` | `H2-Db` | superscript flattened, then prefix |
 
-#### Mouse MHC (H-2)
+Every one of those is a declared row in `patches/mhc.dict` with its own reasoning. **Do not convert
+in the other direction.** An earlier revision of this skill said to write `H-2Db`, which would undo
+3,001 rows of corpus curation and re-open the motif-badge split.
 
-| Normalise FROM | Normalise TO |
-|---|---|
-| `H2-Db`, `H2Db` | `H-2Db` |
-| `IAb`, `I-Ab`, `IA-b` | `I-Ab` |
-| `H-2D^b` | `H-2Db` |
+`proofreading/mhc_nonhuman.tsv` is the membership test for murine, macaque and rat names, and it
+distinguishes two naming levels that are not two spellings: a **molecule** name carries a haplotype
+(`H2-IAb`), a **chain** name is an MGI symbol that does not (`H2-Ab1`), so a chain name cannot be
+mapped to a molecule without the paired column. Leave chain names as chain names.
 
-For mouse class I: `mhc.b = B2M`
-For mouse class II: `mhc.b` = the β-chain name (e.g., `I-Ab`)
+**Class correspondence** follows from the `mhc.a` gene, deterministically, with no lookup -
+`proofreading/mhc.md` §6. Correct `mhc.class` to match the gene rather than the reverse.
 
----
+## 4. Method vocabulary
 
-### 4. Method Vocabulary
+Vocabulary: [`docs/standards/chunk-format.md`](../../docs/standards/chunk-format.md) method columns.
+Effect on the score: [`docs/standards/confidence-score.md`](../../docs/standards/confidence-score.md).
 
-Normalise `method.identification` and `method.verification` to VDJdb-recognised terms.
+**Record what the source says.** Hyphenate and lowercase to the recognised term, and change nothing
+else. "tetramer sort" → `tetramer-sort`. "multimer", or "sorted" with no reagent named → `multimer-sort`,
+even though tetramers are commoner in VDJdb - the reagent type is not inferable from prevalence.
 
-**The governing rule: use what the source says.** Do not upgrade or downgrade based on prevalence in VDJdb.
+Fix the mechanical mistakes:
 
-| Author writes | Normalise to | Reasoning |
+| Wrong | Right | Reason |
 |---|---|---|
-| `tetramer`, `pMHC tetramer`, `tetramer sort` | `tetramer-sort` | Source specifies tetramers |
-| `dextramer`, `dextramer sort` | `dextramer-sort` | Source specifies dextramers |
-| `pentamer`, `pentamer sort` | `pentamer-sort` | Source specifies pentamers |
-| `multimer`, `pMHC multimer`, `multimer sort` | `multimer-sort` | Source gives no more specific reagent type |
-| Reagent type not stated (only "sort" or "FACS") | `multimer-sort` | Cannot assume tetramer; use generic |
-| `ELISpot` | Do NOT map automatically | Log and ask user |
-| `51Cr release assay` | Do NOT map automatically | Log and ask user |
+| a sequencer name in `method.sequencing` (`illumina`, `miseq`) | `amplicon-seq` | those are platforms |
+| `RNA-seq`, `Single cell` | `rna-seq`, and set `method.singlecell=yes` | casing, and a separate field |
+| a sort term in `method.verification` | the stain form (`tetramer-sort` → `tetramer-stain`) | identification is how cells were found, verification is how the cloned TCR was re-tested |
+| software in `method.verification` (`mixcr`, `cellranger`) | blank | not a verification method |
+| `antigen-coated-targets` | `antigen-loaded-targets` | recognised term |
+| a percentage in `method.frequency` | see below | the field is a count over a total |
 
-> **Example:** A readme that says only "tetramer-sort" → `tetramer-sort`. A readme that says only "multimer-sort" with no other information → `multimer-sort`, even if tetramers are the most common reagent in VDJdb. Never infer the reagent type from context or database prevalence.
+A percentage in `method.frequency` needs a decision, not a conversion. If the same value repeats
+across every clone for one epitope it is a group-level figure - move it to `meta.subset.frequency` and
+blank `method.frequency`. If it varies per clone it may be a repertoire fraction - convert to `N/M`
+only when the paper gives the denominator, otherwise leave it blank and log it. Never invent a
+denominator; `method.frequency` feeds the score.
 
-**Rule:** If an identification or verification method has no close equivalent in the current VDJdb vocabulary, do NOT force it. Instead:
-1. Leave a descriptive string in the field (for reference)
-2. Document it under "Vocabulary gaps" in the format log
-3. Suggest adding it as a new term via a note to the database maintainers
+A method with no close term is left as the author's wording, logged under vocabulary gaps, and
+proposed as a new term. Do not force it into an existing one.
 
----
+## 5. Reference ids
 
-### 5. Reference IDs
+`https://doi.org/…` and `http://dx.doi.org/…` → `doi:…`. `doi: 10.…` → `doi:10.…`. `pubmed:` or
+`PubMed:` → `PMID:`. A bare number is only a PMID once the user confirms it. Case matters: `vdjdb qc`
+accepts `PMID:`, `doi:`, `http://`, `https://` and any casing of `unpublished`, and nothing else.
 
-Enforce correct format:
+## 6. Antigen fields
 
-| Problem | Fix |
-|---|---|
-| `https://doi.org/10.1016/...` | → `doi:10.1016/...` (remove URL prefix) |
-| `http://dx.doi.org/10.1016/...` | → `doi:10.1016/...` |
-| `doi: 10.1016/...` (space after colon) | → `doi:10.1016/...` |
-| `pubmed:12345678` or `PubMed:12345678` | → `PMID:12345678` |
-| Bare number `12345678` | Ask if it is a PMID; if confirmed → `PMID:12345678` |
+`antigen.gene` and `antigen.species` are `/vdjdb-harmonize`'s subject. Run it rather than duplicating
+it here. If the epitope is in `patches/antigen_epitope_species_gene.dict`, that entry wins.
 
----
+## 7. Renumber and check
 
-### 6. Antigen Fields
+Renumber `chunk.id` from 1. Then run the two commands and read them, rather than re-deriving what
+they report:
 
-Cross-reference `patches/antigen_epitope_species_gene.dict`:
-- If `antigen.epitope` exists in the dict → use the dict's `antigen.gene` and `antigen.species` (this ensures consistency with the full database)
-- If the epitope is new → keep author-provided gene/species values, note in log
+```bash
+uv run vdjdb qc <file> --report out/reports/qc.tsv
+uv run vdjdb submission <file>
+```
 
----
+`vdjdb submission`'s "values new to VDJdb" table is the consistency check this skill used to do with
+`cut` and `sort -u`, computed against the whole corpus instead of a grep: a spelling this file
+invented shows up there as a new value, and for an established epitope that is the signal to look
+again. A genuinely new epitope also shows up there, which is why it is a list and not a gate.
 
-### 7. Chunk ID
+## Output
 
-After all formatting changes, renumber `chunk.id` sequentially from 1 (integer, no leading zeros).
+Write the chunk as `PMID_<pubmed_id>.txt` where there is a PMID; check the name is not already in
+`chunks/`. It goes to `chunks/` only after `/vdjdb-proofread` passes.
 
----
+`<basename>_format_log.txt` records, per change: the field, the old value, the new value, and **which
+authority row or query decided it**. Plus unresolvable values; vocabulary gaps; alleles that exist
+only at low resolution; alleles marked `Unconfirmed` in `mhc_alleles.tsv.gz`; and `ORF`/`P`
+functionality calls.
 
-## Output Filename
+## Next step
 
-Prefer `PMID_<pubmed_id>.txt` (e.g., `PMID_28975614.txt`).
-
-If no PMID is available:
-1. Ask the user for the preferred name
-2. Alternatives: `doi_<mangled_doi>.txt`, submitter-date format
-3. Check that the chosen name does not duplicate an existing file in `chunks/`
-
-Suggested placement: `chunks_unformatted/` if uncertain about QC status; `chunks/` only after `/proofread` passes.
-
----
-
-## Format Log
-
-Write `<output_basename>_format_log.txt` containing:
-
-1. **Changes made**: for each change — field name, old value, new value, source of normalisation (imgt_alleles.tsv.gz / mhc_alleles.tsv.gz / nomenclature.conversions / manual)
-2. **Unresolvable fields**: fields that could not be normalised and why
-3. **Vocabulary gaps**: novel method/verification terms encountered
-4. **Allele resolution notes**: alleles that exist in `mhc_alleles.tsv.gz` at low resolution only
-5. **Consistency discrepancies**: naming differences found vs existing `chunks/` files
-6. **Pseudogene warnings**: gene names whose `functionality = P` in `imgt_alleles.tsv.gz`
-7. **Unconfirmed HLA alleles**: alleles present in `mhc_alleles.tsv.gz` with `confirmed = Unconfirmed`
-
----
-
-## Reference Files
-
-| File | Role |
-|---|---|
-| `proofreading/imgt_alleles.tsv.gz` | **Primary** IMGT V/D/J gene authority |
-| `proofreading/imgt.md` | IMGT nomenclature rules |
-| `proofreading/mhc_alleles.tsv.gz` | **Primary** HLA allele authority |
-| `proofreading/mhc.md` | MHC/HLA naming rules, class I vs II, non-human |
-| `patches/nomenclature.conversions` | Old → current IMGT gene name mappings |
-| `patches/IGM_nomenclature_table.tsv` | Secondary IMGT fallback (existing repo file) |
-| `patches/antigen_epitope_species_gene.dict` | Known epitope → gene/species mappings |
-| `py_src/ScoreFactory.py` | Method vocabulary and scoring logic |
-| `py_src/ChunkQC.py` | ALL_COLS definition (canonical column list) |
-| `chunks/*.txt` | Reference for consistency checks |
-| `README.md` | Full VDJdb specification |
-
----
-
-## Next Step
-
-After formatting, run `/proofread [path-to-formatted-tsv]` to validate against `py_src/ChunkQC.py` and all other QC checks.
+`/vdjdb-proofread [file]`.

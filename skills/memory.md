@@ -1,15 +1,63 @@
 # VDJdb Skills — Session Memory
 
-This file is the **full running log** for all Claude Code sessions working on the VDJdb curation pipeline using the `/extract`, `/format`, and `/proofread` skills.
+This file is the **full running log** for sessions working on the VDJdb curation pipeline with the
+curation skills. They are invoked as `/vdjdb-extract`, `/vdjdb-format`, `/vdjdb-harmonize`,
+`/vdjdb-proofread`, `/vdjdb-publish` and `/vdjdb-duplicates` - the earlier short forms (`/extract`,
+`/format`, `/proofread`) no longer resolve.
 
 **Rules:**
 - Append entries; never delete
 - Compress into `memory_compressed.md` when this file exceeds ~300 lines
 - Always update the "Chunks in progress" table in `memory_compressed.md` at the end of each session
+- A decision that changes `chunks/` also goes in that chunk's commit message and on its PMID issue,
+  per the chunk-change rule in `CLAUDE.md`. This log is the working record, not the reviewable one.
 
 ---
 
 ## Session Log
+
+### [2026-09-29] Reconcile all six skills against the rewritten build; restore the submission safeguards
+
+**Skills used:** all six, as the subject rather than the tool
+**Source:** `skills/*/SKILL.md`, audited against `src/vdjdb/`, `proofreading/`, `docs/`
+**Output files:** all six `SKILL.md`, new `skills/AUTHORITIES.md`, new `tests/unit/test_skills.py`,
+`proofreading/mhc.md` §4.1, `proofreading/cdr3_repair.md`, `docs/submission.md`,
+`src/vdjdb/qc/rules.py`, `src/vdjdb/qc/runner.py`, `src/vdjdb/schema/fields.py`,
+`src/vdjdb/assemble/tables.py`, `src/vdjdb/curate/anchors.py`, `rules/qc_advisories.tsv`
+**Summary:** The skills were written against `py_src/`, deleted in phase 4, and two carried
+instructions that would have damaged the corpus. Rewritten to drive the CLI and read the authority
+tables; 1,973 lines out. Gated by 64 tests so the claims cannot go stale again.
+
+**Key decisions:**
+- **Murine MHC direction corrected.** `vdjdb-format` and `vdjdb-proofread` said to normalise toward
+  `H-2Db` and `I-Ab`. Backwards: `H2-` is the MGI symbol prefix, `patches/mhc.dict` declares the other
+  direction, the corpus has 26 `H-2` cells against 2,453 `H2-Db`. Following it would have undone the
+  3,001-row repair and re-opened the split that cost 768 records their motif badge.
+- **The junction definition reinstated, after I had wrongly removed it.** A TCR junction starts with
+  Cys104, ends with Phe118 or Trp118, and carries one cysteine. I had deleted it on the reading that
+  germline agreement could make a non-canonical junction correct. Measured: of 864 chains failing the
+  J anchor, 212 agree only with an *ORF* allele's lost anchor (the #327 shape, a mis-called allele) and
+  ~200 disagree with a germline that does carry the Phe. Germline agreement with a pseudogene is the
+  same finding one level up, not a validation. The curator's call.
+- **Records failing the definition are kept and flagged, not dropped.** `chains` now ships six
+  booleans: `v.canonical`/`j.canonical` post-fix (161 / 864), `v.canonical.submitted` /
+  `j.canonical.submitted` pre-fix (413 / 4,701, so 4,089 repairs were invisible), and
+  `cdr3.one.cysteine` (4,026). Pre- and post-fix answer different questions:
+  shipped-false is what a consumer filters on, submitted-false is the chunk cell to fix.
+- **New advisory rules `internal cysteine in cdr3.alpha` / `.beta`**, reported at import. 1,521 and
+  2,804 rows over 69 and 94 chunks. Advisory because the Jurkat receptor carries one, so rare is not
+  impossible and only the source settles a given row. Declared in `rules/qc_advisories.tsv`.
+- **The allele-number bound restored**, as the Excel drag-fill safeguard it was: someone drag-fills and
+  gets `*01 *02 ... *112`. Highest corpus allele is `*08`, highest TCR allele count in IMGT is 10, zero
+  monotonic runs of 5+, so it fires on nothing today and costs nothing to enforce. `imgt_alleles.tsv.gz`
+  adjudicates a flag, because the bound alone has 19 false positives (`TRAV8-4*07`, `TRBV20-1*07`,
+  `TRBV7-9*07`, mouse `TRAV14D-3/DV8*08`).
+- **The chunk-derived consensus anchor map restored** in `proofreading/cdr3_repair.md`. Requiring 10
+  records and 50 % agreement per gene makes it a second independent source, not circular.
+- Two wrong code comments corrected: the schema said `v.canonical` was germline-derived (it is the
+  literal definition, carried from the legacy fixer's `vCanonical`), and `anchors.noncanonical`'s
+  docstring called the definitional pair over-reporting.
+
 
 <!-- Format:
 ### [YYYY-MM-DD] <Session title>

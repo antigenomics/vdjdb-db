@@ -1,230 +1,191 @@
 ---
 name: vdjdb-extract
-description: Extract TCR:pMHC specificity data from raw source files (papers, supplementary tables, XLS, PDF, 10X output, AIRR-format) and produce a VDJdb-formatted TSV chunk ready for /format and /proofread.
+description: Extract TCR:pMHC specificity records from raw submission sources - supplementary XLS/CSV tables, PDF manuscripts, 10x Genomics contig and clonotype files, AIRR Rearrangement TSVs, Adaptive ImmunoSEQ exports - into a VDJdb chunk TSV, verifying every extracted sequence, gene, allele and reference id back against the source. Use when a paper, dataset or submitter folder has to become a chunk file, before vdjdb-format and vdjdb-proofread.
 ---
 
-# /extract — VDJdb Data Extraction Skill
+# vdjdb-extract
 
-## Purpose
+Turn raw source files into one VDJdb chunk TSV plus an extraction log. First of three stages:
+**extract** → [format](../vdjdb-format/SKILL.md) → [proofread](../vdjdb-proofread/SKILL.md).
 
-Extract T-cell receptor antigen-specificity records from arbitrary source files and write a single TSV in VDJdb chunk format. Every value written to the output **must be verified back against the original source** to prevent hallucinations. This skill feeds directly into `/format` and `/proofread`.
+Read [`skills/AUTHORITIES.md`](../AUTHORITIES.md) first. Invariant 5 there governs this skill: no
+value reaches the output that was not found in the source.
 
 ## Invocation
 
 ```
-/extract [path-to-folder-or-file]
+/vdjdb-extract [path-to-folder-or-file]
 ```
 
-The input may be a folder or individual file(s) containing any mix of:
-- Supplementary Excel/CSV/TSV tables
-- PDF manuscripts or supplementary PDFs
-- Plain-text files (FASTA, exported tables)
-- 10X Genomics `filtered_contig_annotations.csv` / clonotype files
-- AIRR-format TSV files (`productive`, `v_call`, `j_call`, `cdr3_aa` columns)
-- **Adaptive Biotech ImmunoSEQ** exports (TSV; gene columns use `TCRB`/`TCRA` prefix with zero-padded numbers like `TCRBV06-05*01` — flag all gene names for conversion in `/format`)
-- Jupyter notebooks or scripts used by the authors
+Respect any scope the user sets ("beta chains only", "skip the MHC typing") and record the limit in
+the log.
 
-If the user limits scope (e.g., "only beta chains", "skip MHC data"), respect that limit and note it in the extraction log.
+## Step 1 - inventory the source
 
-### Excel-specific pitfalls (apply when source is .xlsx/.xls)
+List every file, name its type, and say what each is likely to hold: TCR sequences, epitope and MHC
+data, methods, references. Show the inventory to the user before extracting if there are more than
+three files or the structure is unclear.
 
-1. **Embedded sub-header rows**: Submitters often repeat column headers mid-table to mark new donors or groups. These appear as rows where gene columns contain `TCRα`, `TCRβ`, `TRAV`, `TRBV`, `CDR3α`, `CDR3β`, `CDR3` (literal text). **Filter by checking both CDR3 and gene columns** — some sub-header rows have blank CDR3 cells and `TCRα`/`TCRβ` only in gene columns; the simpler "check CDR3 column for header text" filter will miss them.
+## Step 2 - build the join graph explicitly
 
-2. **Allele suffix with functionality code**: Some cells contain the gene name formatted as `TRAV16*01 F` (allele + space + IMGT functionality code). Standard regex `\*\d+\s*$` fails because `F` follows the space. Use `re.sub(r'\*.*$', '', v).strip()` to strip everything from `*` onwards.
+Submission data is almost always spread over several files. Identify every id column in each file
+(barcode, clonotype id, clone id, well, sample, donor), determine which ids appear in more than one
+file, perform the join, and log the keys and the cardinality.
 
-3. **Excel formula artifacts**: Cell merging or formula errors can produce values like `TRAJ3+D107:D1082` (gene name + cell reference). Strip everything after `+` to recover the gene: `val.split('+')[0].strip()`.
+Log every ambiguity **as you find it**: one-to-many links, a missing join key, two files disagreeing
+on the same cell. Never pick one option silently.
 
-4. **TRBJ/TRBD column swap**: Submitters sometimes place TRBJ before TRBD in their table despite the column header saying the opposite. **Always verify by gene name prefix** (e.g., `TRBJ2-7*01` starting with `TRBJ` → it is a J gene regardless of which column it's in). Apply swap correction when prefix contradicts column header.
+## Step 3 - extract the complex fields
 
-5. **Non-standard characters in CDR3**: Excel auto-correct, copy-paste artefacts, or annotation notations can introduce characters like `#`, `X`, `*` in CDR3 fields. Exclude rows containing non-20-AA characters; log the exclusion.
+One row per record, reporting **both chains of one clone in that row** - `cdr3.alpha` and `cdr3.beta`
+are columns of the same row, not two rows. At least one of the two must be non-blank.
 
-6. **Frequency as Excel formula**: Cells like `=I4/26*100` appear as literal strings if the workbook is loaded without `data_only=True`. Always use `data_only=True` in openpyxl to get cached computed values.
+`cdr3.alpha` `v.alpha` `j.alpha` `cdr3.beta` `v.beta` `d.beta` `j.beta` `species` `mhc.a` `mhc.b`
+`mhc.class` `antigen.epitope` `antigen.gene` `antigen.species` `reference.id`
 
----
+For every sequence, gene name, allele, species and reference id: search the original file for the
+exact string, and log found / not found / found as a variant. A value that cannot be confirmed is
+`[UNVERIFIED]` and is withheld pending user approval.
 
-## ⚠️ Absolute Requirements (Non-Negotiable)
+Leave a field blank when the source does not report it. Never a placeholder (invariant 2).
 
-### CDR3 sequences
-- Must contain **only standard amino acids**: `ARNDCQEGHILKMFPSTWYV`
-- Canonical form: starts with `C`, ends with `F` or `W`
-- Minimum length: **4 residues**
+Cross-reference each epitope against `patches/antigen_epitope_species_gene.dict`; where the epitope
+is already known, take the dict's gene and species so the chunk agrees with the rest of the database.
 
-**Handling non-standard CDR3s:**
+### Sequence admission
+
+A TCR junction **starts with `C`, ends with `F` or `W`, and carries no other cysteine**. That is the
+definition of the region, not a statistical tendency. Import is the cheapest place to catch a breach of
+it - before the file has a name, an issue or a commit - and it is where the submitter still has their
+own source open.
+
+**Nothing is dropped for failing the definition.** The record is kept, flagged, and warned about. A
+non-canonical junction can be the best record of what a publication reported, and people filter on the
+flag: the build ships `v.canonical`, `j.canonical` and `cdr3.one.cysteine` on `chains`, plus the same
+three asked of the sequence as submitted, and `vdjdb qc` reports `internal cysteine in cdr3.alpha` /
+`.beta` on the raw chunk.
+
 | Case | Action |
 |---|---|
-| Contains non-20-AA character (`X`, `B`, `#`, `*`, etc.) | **Exclude the row** — log it; likely a data artefact |
-| Does not start with `C` | **Keep in `chunks/`** — flag in extraction log; VDJdb build marks it non-canonical automatically |
-| Ends with residue other than `F`/`W` | **Keep in `chunks/`** — flag in extraction log |
-| Contains genuine modified/non-natural residues | **Move to `chunks_with_unconventional_aa/`** after confirming with user |
+| Any character outside the 20 canonical amino acids (`X`, `B`, `*`, `#`) | drop the row, log it - this is an invalid alphabet, not a non-canonical junction |
+| Fewer than 4 residues | drop the row, log it |
+| Does not start with `C`, or does not end with `F` or `W` | **keep it, and work out which of the four causes below it is.** Fix it at the source where you can, flag it where you cannot, and log either way |
+| Carries a cysteine after the first residue | **keep it and warn.** Rare rather than impossible - the Jurkat receptor has one, and a disulphide-bonded loop is a real thing to report - so check it against the source and say so in the log |
+| Genuinely modified or non-natural residues | ask the user, then `chunks_with_unconventional_aa/` |
 
-> `chunks_with_unconventional_aa/` is **only** for non-standard amino acids (beyond the 20 canonical). Non-canonical start/end residues stay in `chunks/`.
+Four causes of a missing anchor, in the order they are worth checking:
 
-### Epitope sequences
-- Must be **standard amino acids only**
-- If authors describe a chemical modification, a non-peptide antigen, or a long peptide pool: **flag prominently** in the log and ask before including
+1. **The source is in IMGT CDR3 space.** Both anchors are absent because that coordinate system
+   excludes them. The column is `cdr3_aa`, not `junction_aa` - invariant 3. The whole file is affected,
+   not one row, so check one sequence and you have checked all of them. This is the one to fix rather
+   than flag: re-read the right column.
+2. **Framework was left in.** `YLCSSQEGGYGYTFGSG` carries residues in front of the Cys and behind the
+   Phe. Trim to the anchors.
+3. **The anchor was mis-read.** `GASSDTMNTKIL` for `CASSDTMNTKIL`. One residue, and the V germline says
+   which it should be.
+4. **The V or J call is wrong, and the sequence is right.** Mouse `TRAJ47` resolves to an ORF `*01`
+   whose anchor is genuinely lost, and every corpus chain on it reads the functional `*02` signature.
+   Repair the call, not the sequence - `proofreading/cdr3_repair.md`.
 
-### References — strict enforcement
-Only these formats are acceptable in `reference.id`:
-| Format | Example | Notes |
-|---|---|---|
-| `PMID:XXXXXXX` | `PMID:28975614` | Strongly preferred; numeric only after colon |
-| `doi:10.XXXX/...` | `doi:10.1016/j.immuni.2023.01.001` | Lowercase `doi:`, no URL prefix |
-| Preprint URL | `https://www.biorxiv.org/content/10.1101/2024.01.01.123456` | Full URL |
-| Unpublished | `unpublished: Submitter Name YYYY-MM-DD` | For submissions without a publication |
+Cause 1 is a whole-file mistake and worth stopping for. Causes 2 to 4 are per-row: fix what the source
+supports and flag the rest. Log the count per cause.
 
-**NEVER invent or guess a PMID.** If uncertain, leave blank and ask the user. DOI and preprint URLs must be quoted exactly from the source.
+Epitopes are canonical amino acids only. A chemical modification, a non-peptide antigen or a peptide
+pool is flagged and asked about before it is included.
 
-### Hallucination prevention (mandatory for every extracted value)
-After extracting any amino acid sequence, gene name, species name, MHC allele, or reference ID:
-1. Run a grep or direct text search in the **original source file** to confirm the exact string is present
-2. Log the verification result (found / not found / found with minor variant)
-3. If the value **cannot be confirmed** in the source: mark as `[UNVERIFIED]` and do **not** include it without explicit user approval
+### `reference.id`
 
----
-
-## Step-by-Step Workflow
-
-### Step 1 — Survey the source folder
-
-1. List all files and identify types (PDF, XLS, TSV, CSV, FASTQ, etc.)
-2. Note which files are likely to contain: TCR sequences, antigen/epitope data, MHC/HLA data, methods, references
-3. Share the inventory with the user before proceeding if the folder contains more than 3 files or has an unclear structure
-
-### Step 2 — Build a cross-reference graph
-
-Source data is often spread across multiple files. Build an explicit graph:
-1. Identify all **ID columns** in each file: barcode, clone ID, sample ID, donor ID, clonotype ID, barcode, well ID, etc.
-2. Determine which IDs appear in multiple files and can be used to join records
-3. Perform the join; log the join keys used
-
-**Ambiguities** (one-to-many links, missing join keys, contradictory values between files) must be logged **immediately**. Do not silently pick one option.
-
-### Step 3 — Extract TCR complex fields
-
-For each record, extract the following. Leave blank if absent — **never use a placeholder string** (`NA`, `N/A`, `null`, `nan`, `-`, `.`).
-
-| VDJdb field | What to look for | Verification |
-|---|---|---|
-| `cdr3.alpha` | Alpha chain CDR3 amino acid sequence | grep in source |
-| `v.alpha` | TRAV gene (IMGT style preferred; note if not IMGT) | grep in source |
-| `j.alpha` | TRAJ gene | grep in source |
-| `cdr3.beta` | Beta chain CDR3 amino acid sequence | grep in source |
-| `v.beta` | TRBV gene | grep in source |
-| `d.beta` | TRBD gene (often missing; leave blank) | grep if present |
-| `j.beta` | TRBJ gene | grep in source |
-| `species` | Organism (`HomoSapiens`, `MusMusculus`, `RattusNorvegicus`, `MacacaMulatta`) | confirm from text |
-| `mhc.a` | First MHC chain (e.g., `HLA-A*02:01`, `H-2Db`) | grep in source |
-| `mhc.b` | Second MHC chain (`B2M` for MHC-I; β-chain allele for MHC-II) | grep in source |
-| `mhc.class` | `MHCI` or `MHCII` | confirm from context |
-| `antigen.epitope` | Epitope amino acid sequence | grep in source |
-| `antigen.gene` | Antigen gene name (e.g., `pp65`, `NP`, `MART-1`) | grep in source |
-| `antigen.species` | Antigen origin (e.g., `CMV`, `InfluenzaA`, `HomoSapiens`) | confirm from text |
-| `reference.id` | PMID, DOI, or preprint URL | strict format check + grep |
-
-**At least one of `cdr3.alpha` or `cdr3.beta` must be non-blank per row.**
-**Both `mhc.a` and `mhc.b` must be filled if MHC data exists.**
-
-Cross-reference epitopes against `patches/antigen_epitope_species_gene.dict` — if the epitope is already known, use the dict's gene and species values.
-
-### Step 4 — Extract method fields
-
-These fields directly affect the VDJdb confidence score (0–3) computed by `py_src/ScoreFactory.py`. Extract them carefully from the methods section.
-
-| Field | Recognised values | Notes |
-|---|---|---|
-| `method.identification` | `tetramer-sort`, `dextramer-sort`, `pelimer-sort`, `pentamer-sort`, `antigen-loaded-targets`, `antigen-expressing-targets`, `beads`, `cultured-T-cells`, `limiting-dilution-cloning`, `tetramer-umi`, `cd8null-tetramer` | Multiple values comma-separated, no spaces |
-| `method.frequency` | `X/X` (e.g., `7/30`), `X%`, or decimal fraction | Fraction format preferred |
-| `method.singlecell` | `yes` if single-cell sequencing was used; blank otherwise | |
-| `method.sequencing` | `sanger`, `rna-seq`, `amplicon-seq` | |
-| `method.verification` | `tetramer-stain`, `dextramer-stain`, `direct`, `restimulation`, `co-culture`, `antigen-loaded-targets`, `antigen-expressing-targets`, `beads` | |
-
-If the paper uses a method not in the above lists, **do not force it into an existing category**. Log it as a "Novel method" candidate for extending the VDJdb specification.
-
-> **Score shortcut:** If a PDB structure ID is available, record it in `meta.structure.id` — this grants score 3 automatically, bypassing all other scoring logic.
-
-### Step 5 — Extract metadata fields
-
-Fill as many of the 12 meta columns as the source supports. Leave others blank.
-
-| Field | Description |
+| Form | Example |
 |---|---|
-| `meta.study.id` | Internal study identifier used in the paper |
-| `meta.cell.subset` | T cell subset (`CD8+`, `CD4+CD25+`, etc.) |
-| `meta.subset.frequency` | Clone frequency within the cell subset |
-| `meta.subject.cohort` | Donor cohort (`healthy`, `HIV+`, `CMV-seroneg`, etc.) |
-| `meta.subject.id` | Donor/patient identifier |
-| `meta.replica.id` | Replicate or timepoint identifier |
-| `meta.clone.id` | T cell clone identifier or barcode |
-| `meta.epitope.id` | Short epitope label from the paper (e.g., `FL10`) |
-| `meta.tissue` | `PBMC`, `spleen`, `TIL`, `TCL`, etc. |
-| `meta.donor.MHC` | Donor HLA typing if reported |
-| `meta.donor.MHC.method` | HLA typing method if reported |
-| `meta.structure.id` | PDB ID if a structure was solved for this complex |
-| `comment` | Any important note not captured elsewhere (max 140 characters) |
+| `PMID:<digits>` - preferred | `PMID:28975614` |
+| `doi:<doi>` - lowercase prefix, no URL | `doi:10.1016/j.immuni.2023.01.001` |
+| preprint URL | `https://www.biorxiv.org/content/10.1101/2024.01.01.123456` |
+| PDB entry with no publication | `https://www.rcsb.org/structure/1AO7` |
+| no publication at all | `unpublished: <Submitter Name> <YYYY-MM-DD>` |
 
-### Step 6 — Assemble the output TSV
+Never infer a PMID. If it is not in the source, leave the field blank and ask.
 
-**Canonical column order** (must match exactly):
-```
-chunk.id
-cdr3.alpha  v.alpha  j.alpha  cdr3.beta  v.beta  d.beta  j.beta
-species  mhc.a  mhc.b  mhc.class  antigen.epitope  antigen.gene  antigen.species
-reference.id
-method.identification  method.frequency  method.singlecell  method.sequencing  method.verification
-meta.study.id  meta.cell.subset  meta.subset.frequency  meta.subject.cohort  meta.subject.id
-meta.replica.id  meta.clone.id  meta.epitope.id  meta.tissue
-meta.donor.MHC  meta.donor.MHC.method  meta.structure.id
-comment
+## Step 4 - extract the method fields
+
+`method.identification` `method.frequency` `method.singlecell` `method.sequencing`
+`method.verification`
+
+These determine `vdjdb.score`. Take the vocabulary from
+[`docs/standards/chunk-format.md`](../../docs/standards/chunk-format.md) and the score rules from
+[`docs/standards/confidence-score.md`](../../docs/standards/confidence-score.md). Two rules:
+
+- **Record what the source says.** If the authors write only "multimer" or only "sorted", the term is
+  `multimer-sort`. Do not promote it to `tetramer-sort` because tetramers are commoner in VDJdb.
+- **If no term fits, do not force one.** Leave the author's wording in the field, log it under
+  "vocabulary gaps", and propose the new term to the maintainers.
+
+`method.frequency` is a count over a total (`7/30`) or a fraction. A percentage is not that form - see
+[format](../vdjdb-format/SKILL.md) for where a group-level percentage belongs instead.
+
+## Step 5 - extract the meta fields
+
+`meta.study.id` `meta.cell.subset` `meta.subset.frequency` `meta.subject.cohort` `meta.subject.id`
+`meta.replica.id` `meta.clone.id` `meta.epitope.id` `meta.tissue` `meta.donor.MHC`
+`meta.donor.MHC.method` `meta.structure.id`
+
+Fill as many as the source supports; leave the rest blank. `meta.*` and `method.*` describe the
+record, not the act of curating it. Only `submitter`, `comment` and `chunk.id` are curation
+properties. `comment` is under 140 characters.
+
+A `meta.structure.id` is a four-character PDB entry id. Anything else there - a figure or table
+reference - is a curation decision, not a fill: `vdjdb qc` reports it as
+`structure id is not a PDB id` and does not fail.
+
+## Step 6 - write the TSV
+
+**Take the header from a shipping chunk rather than any list, including the ones above:**
+
+```bash
+head -1 chunks/PMID_28423320.txt
 ```
 
-**Formatting rules:**
-- Tab-separated, UTF-8, Unix line endings (LF)
-- `chunk.id`: sequential integers starting from 1
-- Blank fields: truly empty (no quotes, no `NA`, no `-`)
-- No trailing whitespace; no quoted fields (TSV, not CSV)
-- `comment` is optional — include column only if at least one row has a comment
+That is the 33-column canonical header, `chunk.id` first. 173 of 230 chunks carry exactly it.
 
-### Step 7 — Write the extraction log
+- tab-separated, UTF-8, LF line endings, no quoting, no trailing whitespace
+- `chunk.id`: integers from 1
+- blank means empty, per invariant 2
+- add `comment` as a 34th column only if at least one row has one
 
-Write `<output_basename>_extraction_log.txt` containing:
+## Step 7 - write the extraction log
 
-1. **Source inventory**: all files found, their types, and assigned roles
-2. **Cross-reference graph**: which ID columns were used to link which files, and join cardinality
-3. **Ambiguities**: every unclear/ambiguous case and the decision made (or flagged for user)
-4. **Verification results**: for each field, confirm or report failure to verify in source
-5. **Unverified values**: any value included at user direction despite not being directly verifiable
-6. **Novel methods**: identification/verification methods not in the current VDJdb vocabulary
-7. **Excluded records**: rows dropped and the reason (failed canonical check, missing required fields, etc.)
-8. **Scope restrictions**: any user-imposed limits on what was extracted
+`<basename>_extraction_log.txt`, with: the source inventory and the role assigned to each file; the
+join graph, keys and cardinality; every ambiguity and what was decided or escalated; the verification
+result per field; any `[UNVERIFIED]` value the user approved; vocabulary gaps; dropped rows and why;
+and the scope limits the user set.
 
----
+## Output and next step
 
-## Validation Reference Files
+`<PMID_xxxxxxx>_unformatted.txt` and `<PMID_xxxxxxx>_extraction_log.txt`, named from the PMID where
+there is one. Gene names are not yet normalised - that is the next stage.
 
-| File | Purpose |
-|---|---|
-| `proofreading/imgt_alleles.tsv.gz` | **Primary** V/D/J gene ID authority — check all extracted gene names here first |
-| `proofreading/imgt.md` | IMGT nomenclature rules and gene structure explanation |
-| `proofreading/mhc_alleles.tsv.gz` | **Primary** HLA allele authority — check all extracted human MHC alleles here |
-| `proofreading/mhc.md` | MHC/HLA naming rules, class I vs II, non-human conventions |
-| `patches/IGM_nomenclature_table.tsv` | Secondary V/D/J fallback (existing repo file) |
-| `patches/nomenclature.conversions` | Old-style → IMGT gene name conversions |
-| `patches/antigen_epitope_species_gene.dict` | Known epitope → antigen.gene/antigen.species mappings |
-| `py_src/ScoreFactory.py` | Confidence score logic and method vocabulary |
-| `README.md` | VDJdb column specification |
+Then run `/vdjdb-format` on the output.
 
----
+## Source-specific traps
 
-## Output
+**Excel** (always load with `data_only=True`, or formula cells arrive as their formula text):
 
-- **Primary output**: `<PMID_xxxxxxx>_unformatted.txt` — raw VDJdb TSV (gene names not yet IMGT-normalised)
-- **Log**: `<PMID_xxxxxxx>_extraction_log.txt` — full provenance and ambiguity record
+1. **Repeated header rows mid-table** marking a new donor or group. They show as rows with `TCRα`,
+   `TCRβ`, `TRAV`, `TRBV`, `CDR3α`, `CDR3β` as literal cell values. Filter on the gene columns as
+   well as the CDR3 columns - some have a blank CDR3 and the marker only in a gene column.
+2. **Allele plus functionality code** in one cell: `TRAV16*01 F`. `\*\d+\s*$` misses it because `F`
+   follows the space. Strip from the `*`: `re.sub(r'\*.*$', '', v).strip()`.
+3. **Formula artefacts**: `TRAJ3+D107:D1082` is a gene name plus a cell reference. Take
+   `val.split('+')[0].strip()`.
+4. **J and D columns swapped** relative to their own headers. Decide by the gene prefix, never by the
+   column: `TRBJ2-7*01` is a J call wherever it sits.
+5. **Copy-paste characters** in CDR3 cells (`#`, `X`, `*`). Drop those rows and log them.
 
-Suggest the output filename based on PMID if available (e.g., `PMID_40713946_unformatted.txt`), otherwise use the folder name or ask the user.
+**Adaptive Biotech ImmunoSEQ**: gene columns use a `TCRB`/`TCRA` prefix and zero-padded numbers
+(`TCRBV06-05*01`). Do not convert them here - flag them all for `/vdjdb-format`, which applies the
+rules in `proofreading/imgt.md` §9.2.
 
----
+**AIRR Rearrangement TSV**: `junction_aa` is VDJdb's `cdr3`; `cdr3_aa` is **two residues shorter** and
+is not (invariant 3). Confirm which column you are reading before writing a single row.
 
-## Next Steps
-
-1. Run `/format` on the output to normalise gene names, species, and MHC alleles to IMGT standard
-2. Run `/proofread` to validate against QC scripts in `py_src/`
+**10x Genomics**: `filtered_contig_annotations.csv` pairs chains by `barcode`; the clonotype file
+aggregates them. One clone becomes one row with both chains, not two rows.

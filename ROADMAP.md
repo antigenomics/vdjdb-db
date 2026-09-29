@@ -165,7 +165,7 @@ an output of it, and a stale vendored copy would change a call set with no error
 | 2 | merged | `feature/golden-harness` | `vdjdb diff` + `expected_diffs.toml` | - | zero diffs against the current pandas build; nothing downstream starts without this |
 | 3 | part | `feature/io-qc` | polars reader, vectorised QC, `--strict` exit-1, chunk header normalisation | - | QC report matches the pandas report row-for-row; harness still zero. ⚠ **The `.tsv` rename did not happen and #497 is open**: `chunks/` is 231 files, all `.txt`. Everything the rename was wanted for did land - one canonical 33-column header, the 19 distinct header rows collapsed to one, the 99 CRLF files converted with `*.txt text eol=lf` in `.gitattributes` so it cannot return (#581), and a reader that fails on an unrecognised header. What is left is the extension, which nothing reads to decide the format, against 231 `git mv`s that break every `git log --follow` boundary and every `PMID_<id>.txt` reference in docs, skills, tests and the tracker. Held deliberately: renaming every file in `chunks/` the week curators start opening chunk pull requests is when it costs most. It wants its own branch under the mechanical-repair rule and a quiet period |
 | 4 | merged | `feature/pipeline-core` | the definitive tables (`records`, `chains`) + harmonize + score + pairing; the legacy export as a projection of them; deletes `py_src/` | #424, #399 | every difference against the release is a declared rule firing its measured count; peak RSS < 8 GB |
-| 5 | part | `feature/arda-cdr3fix` | `arda.cdr3fix` replaces `Cdr3Fixer.py` | - | new `expected_diffs.toml` rule, row count measured then frozen. ⚠ **`res/segments*.txt` is not retired** and this row claimed it was: three call sites still read it, one of them on every build (`_legacy_guess.guess_segments` fills a blank V/J before arda runs, because arda repairs against a *named* germline and never proposes one). Its V half has never worked - 0 of 1,189 TRB and 1 of 1,111 TRA - and `vdjtools` 4.5's batched marginalised pass covers it. Retiring it changes which germline arda repairs against, so it is a data change with its own declared rules: #658 |
+| 5 | done | `feature/arda-cdr3fix`, `feature/retire-res` | `arda.cdr3fix` replaces `Cdr3Fixer.py`; `res/` retired | #658 | new `expected_diffs.toml` rule, row count measured then frozen. `res/segments*.txt` outlived the first branch by three call sites, one of them on every build: `arda.cdr3fix` repairs a junction against a *named* germline and never proposes one, so a blank V or J needed filling first. `feature/retire-res` replaced that with the recombination model falling back to arda's own germline anchor table, deleted `res/` and `annotate/_legacy_fixer/`, and dropped `--engine legacy`. The J proposal gains 347 calls and 469 rows of `vdjdb.txt`; the V proposal is reported as `v.inferred` and does not ship, because a V recovered from a junction alone is right 23.8-50.1 % of the time against a J's 93.6-97.5 % |
 | 6 | merged | `feature/new-format` | ships the definitive tables as parquet + TSV, adds `evidence`, `vdjdb.schema.json` | - | `make legacy` from the shipped tables still passes the harness |
 | 7 | merged | `feature/airr` | `emit/airr.py` (Rearrangement + Reactivity), `convert/coords.py`, `vdjdb convert` | - | `airr.validate_rearrangement` passes on the full table; the legacy path produces nothing the tables path does not |
 | 8 | merged | `feature/junction-nt`, `feature/segment-guess`, `feature/dgene` | one branch each | #461, #462, #463 | generated `cdr3nt` back-translates to `cdr3`. The stage was 87.2 % of assembly on `vdjtools` 3.13 and ran as four worker processes over contiguous slices; 4.5 published `infer_nt_batch` (`antigenomics/vdjtools#181`) and it is now one batched call per (species, locus), **114.93 s → 12.44 s**, #656 |
@@ -176,23 +176,39 @@ an output of it, and a stale vendored copy would change a call set with no error
 | 13 | merged | `feature/docs` | Sphinx site, generated schema tables, dashboard tab, Pages | - | zero-warning build, deploys |
 | 14 | merged | `feature/release-tooling` | manifest, three zips, checksums, `latest-version.txt`, tag scheme, changelog; retires the legacy CI | #432 | full release dry-run with no unattributed differences |
 | 15 | part | `feature/aldan3-runner` | self-hosted runner + `build.yml` retargeting | - | identical canonical digests on both runners. `build.yml` carries the `fromJSON(inputs.runner)` retargeting; **no self-hosted runner is registered** (`actions/runners` returns 0), so the second half of the criterion is unmet |
-| 16 | part | `feature/identity` | the four derived id levels, the lifecycle record, `vdjdb identity`, promiscuity columns, one study count | - | every invariant of §10.5 passes; a permuted chunk order changes no id; the dashboard reports 638 of 638 references |
+| 16 | part | `feature/identity` | the four derived id levels, the lifecycle record, `vdjdb identity`, promiscuity columns, one study count | - | every invariant of §10.5 passes; a permuted chunk order changes no id; the dashboard reports every reference on the row. All three hold, and `record_id` is stable across rebuilds since the registry became a committed input (#674). **Only step 9, the promiscuity columns, is outstanding**, and it waits on phase 9e rather than on this branch: 9e introduces the `mhcmatch` call and adding it twice would put two model versions in one build |
 | 17 | merged | `feature/corpus` | the reference corpus: documents, vocabulary, postings, `score` and `lift` | - | the three files reproducible by digest; `score` reproduces the `refsearch` ranking; `lift` answers a specificity question with an n |
 
 Phases 0 to 14 are merged to `master` as of 2026-09-27, and phase 15 is half landed: the comparison
 against the last release reads PASS with every difference declared and measured, and the release dry
 run produces three reproducible bundles. `ROADMAP_local.md` carries the per-phase record.
 
-**`dev` ahead of `master`, 2026-09-29.** What is on `dev` and not promoted: the interactive dashboard,
-the junction-anchor check, the junction-nt batch call, the profile fix, and the comparison of the
-shipped bundle rather than of `out/legacy`. The comparison now runs on the assembled legacy zip over
-all twelve of its members - it named five with `--only` until then - and reads PASS. Two declarations
-make that possible and are part of the release contract: `[members]` for a change of bundle shape
-(today the two TCREMP motif tables) and `[measured_elsewhere]` for a member another instrument gates,
-with the instrument named. §5 has both.
+**`dev` ahead of `master`, 30 commits as of 2026-09-29.** Earlier: the interactive dashboard, the
+junction-anchor check, the junction-nt batch call, the profile fix, and the comparison of the shipped
+bundle rather than of `out/legacy`. That comparison now runs on the assembled legacy zip over all
+twelve of its members - it named five with `--only` until then - and reads PASS. Two declarations make
+that possible and are part of the release contract: `[members]` for a change of bundle shape (today
+the two TCREMP motif tables) and `[measured_elsewhere]` for a member another instrument gates, with
+the instrument named. §5 has both.
 
-**Dependency state.** `arda-mapper >= 2.30.1`, `vdjtools >= 4.5`. The 4.5 bump is what closed the
-junction-nt bottleneck; nothing else in the build reads a 4.x-only API.
+Since, and closing on the promotion - #658, #672, #675, #647, #671, #648:
+
+| | What | Measured |
+|---|---|--:|
+| #658 | `res/` retired; arda's IMGT reference replaces a 2023 import's by-product | J proposal +347 calls |
+| #672 | `registry/records.tsv` committed, refreshed and gated | 592 amendments were stale |
+| #675 | ten input files given a final newline, two rows padded to 33 fields | 12 files |
+| #646 | junctions repaired against their own germline anchor, four commits | **4,838** chains, `anchors.tsv` 5,959 -> 1,132 |
+| #647 | the mouse TRAJ47 allele read off the junction | 95 chains, `J allele mismatch` 95 -> **0** |
+| #671 | a `[[rename]]` scoped to its organism | 79 mouse rows un-mis-keyed |
+| #648 | the spectratype grouped on 500 buckets, not 164,131 CDR3s | dashboard 152 s -> **22.8 s** |
+
+#646 is not closed by them: 261 chains still carry a germline-supported repair the build proposes and
+does not apply, and the reasons are per-case. #685 is open and blocks #637's `reference.id` half.
+
+**Dependency state.** `arda-mapper >= 2.31`, `vdjtools >= 4.7`. The 4.5 bump closed the junction-nt
+bottleneck; 4.7 and arda 2.31 carry the two germline-boundary defects this build raised upstream
+(`arda#135` `TruncatedGermline`, and `germline_boundary`), and nothing else here reads a 4.x-only API.
 
 Phase 2 came first: the harness had to show zero diffs against the then-current build before any
 behaviour changed, so that later differences could be attributed.
@@ -217,7 +233,7 @@ Grouped by label, one category per issue and intake winning a tie:
 The intake row is unchanged in substance - two landed - and the other two rows moved because the
 build work both closed issues and filed new ones from its own measurements: the four days added #650
 (the profile double-count), #652 (the shipped zips were never compared), #656 (the junction-nt
-bottleneck) and #658 (`res/` is not retired), and closed #638 among others. That the composition is
+bottleneck) and #658 (`res/` is not retired, since closed), and closed #638 among others. That the composition is
 *stable* is the point of this section: four open issues out of five are a submission queue whatever
 the build does.
 
@@ -939,7 +955,11 @@ plus the meta-file fixes, each as a declared rule with its measured count.
 2. `Cdr3Markup.to_cdr3fix()` emits VDJdb's JSON key-for-key; `v_end` / `j_start` are junction-space,
    which is what the `cdr3` column contains.
 3. Delete `src/vdjdb/annotate/_legacy_fixer/`, the verbatim copy phase 4 bridged through,
-   together with `res/segments.txt` and `res/segments.aaparts.txt`.
+   together with `res/segments.txt` and `res/segments.aaparts.txt`. This took a second branch
+   (`feature/retire-res`, #658): the scanner was still naming the V and J a record leaves blank,
+   because `arda.cdr3fix` repairs against a named germline and never proposes one. What replaced it
+   is `vdjdb.annotate.segments.propose` - the recombination model, falling back to arda's germline
+   anchor table where the model declines and for species no model covers.
 4. Measure the difference against the release, then freeze it as declared rule counts. Expected
    shape from §7: `cdr3` ~2.2 % of rows, `jStart` ~9 %, all of it in the direction arda maps more
    and earlier.
@@ -1269,12 +1289,24 @@ all five legacy members, so nothing shipped moved. Removing one epitope from a c
 retires exactly its `pmhc_id` and `epitope_id` with `last_release` frozen, and leaves the other
 274,681 ids untouched.
 
-Two carried items. **Step 9, the promiscuity columns, waits on phase 9e**, which is the branch that
+One carried item. **Step 9, the promiscuity columns, waits on phase 9e**, which is the branch that
 introduces the `mhcmatch` call; adding the call twice would put two model versions in one build.
-**`record_id` is still not stable across releases**: the record registry is written at release time by
-step 8 and nothing has shipped one yet, so until the first release under this scheme a rebuild
-reconciles against an empty registry and allocates from 1. The four derived levels do not have that
-dependency and are stable from this commit.
+
+**`record_id` became stable on 2026-09-29, and did not need a release to do it** (#638, #672, #674).
+This note used to say it could not: the registry was written at release time, nothing had shipped one,
+so every rebuild reconciled against an empty registry and allocated from 1. That was the wrong
+conclusion from the right observation - what was missing was not a release but a *committed* registry.
+`registry/records.tsv` is now an input, 192,763 rows and 76.7 MB in the tree against 14.8 MB in the
+pack and kilobytes per amendment, written only by `vdjdb identity update` on a branch that changes the
+corpus and read by `vdjdb build`. `tests/release/test_registry_is_current.py` fails the run on any
+amendment, retirement or allocation the committed file does not already hold, so a clean clone
+reproduces every id. Before it, landing one 40-record chunk moved `record_id` on 168,723 of 192,753
+records.
+
+Two defects surfaced from that gate rather than from a release: the registry had been 592 amendments
+stale since `52cb4e2` because a harmonisation change moves the natural key exactly as a chunk edit
+does (#672), and the amendment pass could not amend a change to `reference.id` at all, retiring the
+record silently, because that was the field it bucketed candidates on (#685).
 
 ### Phase 17 - `feature/corpus`
 

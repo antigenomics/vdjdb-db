@@ -29,10 +29,12 @@ MOTIF = "RS"
 MIN_OCCURRENCES = 50
 
 #: Measured 2026-09-27 on the 2026-09 build, `documents` re-measured 2026-09-28 when `PMID_18025130`
-#: landed (#161). Frozen so a change in the weighting shows up here rather than in a conclusion
+#: landed (#161) and again 2026-09-29 when `PMID: 34433824` lost its space (#637): the two spellings
+#: were two documents for one paper, sharing the epitope `GQVELGGGNAVEVCK`, so the count falls by one
+#: rather than rising. Frozen so a change in the weighting shows up here rather than in a conclusion
 #: someone draws later.
 EXPECTED = {
-    "documents": 662,
+    "documents": 661,
     "kmers_scored": 2342,
     "top_kmer": "k:IRS",
     "top_lift": 2.663,
@@ -41,7 +43,7 @@ EXPECTED = {
     "motif_above_median": 25,
 }
 
-#: ``k:CAS`` is the germline-encoded start of nearly every beta CDR3: present in 615 of 662 documents.
+#: ``k:CAS`` is the germline-encoded start of nearly every beta CDR3: present in 614 of 661 documents.
 #: It must not read as antigen-specific, and a weighting that made it look so would be wrong in the
 #: way that matters most, because it is the first thing anyone will query.
 GERMLINE_KMER = "k:CAS"

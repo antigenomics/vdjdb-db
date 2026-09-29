@@ -177,6 +177,23 @@ mhc.b   = HLA-DRB1*03:01       ← the polymorphic β-chain
 mhc.class = MHCII
 ```
 
+### 4.1 A blank class II partner chain
+
+Papers routinely report one chain of a class II heterodimer and leave the other implicit. `vdjdb qc`
+fails the row as `no.mhc`, and the fill is a curation decision that needs a stated reason. These are
+the precedents this corpus has set; each was applied to the row counts named and is the default for
+the same situation again.
+
+| `mhc.a` | Fill `mhc.b` with | Reason, and what it rests on |
+|---|---|---|
+| `HLA-DRB[1-5]*xx:xx` | `HLA-DRA*01:01` | DRA is monomorphic - one functional protein in ~97 % of the population, so the α chain is not information the paper withheld. 153 rows |
+| `HLA-DPB1*04:01`, in a COVID vaccination or convalescence study | `HLA-DPA1*01:03` | the canonical DP haplotype pairing in that literature, 1,034+ instances already in VDJdb. 467 rows over PubMed-checked pairings |
+| `HLA-DQB1*06:02`, in a narcolepsy study | `HLA-DQA1*05:01`, and keep `mhc.b` as the DQB1 | DQ0602 is one haplotype and carries 98 % of type 1 narcolepsy. 428 rows |
+| `HLA-DPA1*` or `HLA-DQA1*` alone, no context above | **do not fill** | the β chain is the polymorphic one and cannot be inferred from the α. Ask the authors, or leave for manual curation |
+| `H2-IA*` / `H2-IE*` (`MusMusculus`) | the same string as `mhc.a` | the VDJdb convention for murine class II is the molecule name in both fields. 150 rows |
+
+A fill outside this table needs the paper's own HLA typing, or it is a guess about a donor's genotype.
+
 ---
 
 ## 5. B2M (Beta-2 Microglobulin)
