@@ -38,20 +38,20 @@ def test_a_species_or_segment_the_reference_does_not_have_is_unchecked_not_broke
 
 
 def test_a_canonical_junction_is_not_flagged():
-    defect, repair = anchors.classify("CASSNEKLFF", "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
+    defect, repair, _ = anchors.classify("CASSNEKLFF", "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
     assert (defect, repair) == ("ok", None)
 
 
 def test_a_missing_j_anchor_is_named_and_the_germline_residue_is_proposed():
     """The reported case: `TRBJ1-4` is `TNEKLFF`, so a junction ending `NEKLF` is one Phe short."""
-    defect, repair = anchors.classify("CASSNEKLF", "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
+    defect, repair, _ = anchors.classify("CASSNEKLF", "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
     assert defect == "J absent anchor"
     assert repair == "CASSNEKLFF"
 
 
 def test_both_anchors_missing_are_repaired_together():
     """`ASSNEKLF` is short a Cys in front and a Phe behind, and the two repairs must compose."""
-    defect, repair = anchors.classify("ASSNEKLF", "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
+    defect, repair, _ = anchors.classify("ASSNEKLF", "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
     assert defect == "V absent anchor, J absent anchor"
     assert repair == "CASSNEKLFF"
 
@@ -60,7 +60,7 @@ def test_a_mis_read_cys104_is_substituted_rather_than_prepended():
     """No TCR folds without Cys104, so a first residue that is not Cys where the body aligns is a
     read error, not a variant - and prepending would leave the wrong residue in place."""
     for wrong in ("GASSNEKLFF", "WASSNEKLFF", "FASSNEKLFF"):
-        defect, repair = anchors.classify(wrong, "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
+        defect, repair, _ = anchors.classify(wrong, "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
         assert defect == "V corrupt anchor", wrong
         assert repair == "CASSNEKLFF", wrong
 
@@ -70,7 +70,7 @@ def test_a_short_germline_contribution_does_not_stop_the_trim_being_recognised()
     is `CAG` - so an under-trim cannot be recognised by deep germline agreement. `YLCSSQEGGYGYTFGSG`
     on `TRBV29-1*01` (`CSVE`) aligns 0 residues as given and 2 from its Cys, and 2 > 0 is the whole
     signal."""
-    defect, repair = anchors.classify("YLCSSQEGGYGYTFGSG", "HomoSapiens",
+    defect, repair, _ = anchors.classify("YLCSSQEGGYGYTFGSG", "HomoSapiens",
                                       "TRBV29-1*01", "TRBJ1-2*01")
     assert defect == "V under-trimmed, J under-trimmed"
     assert repair == "CSSQEGGYGYTF"
@@ -81,30 +81,46 @@ def test_framework_carried_past_an_anchor_is_trimmed_at_both_ends():
 
     `arda.cdr3fix` trims one end and leaves the other, which is why these reach the report at all.
     """
-    defect, repair = anchors.classify("YFCASSNEKLFFGSG", "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
+    defect, repair, _ = anchors.classify("YFCASSNEKLFFGSG", "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
     assert defect == "V under-trimmed, J under-trimmed"
     assert repair == "CASSNEKLFF"
 
 
 def test_a_junction_ending_in_the_unusual_germline_residue_is_correct():
     """`TRAJ35*01` encodes Cys at 118, so `...GFGNVLHC` is the canonical junction, not a defect."""
-    defect, repair = anchors.classify("CAASLGFGNVLHC", "HomoSapiens", "TRAV13-1*01", "TRAJ35*01")
+    defect, repair, _ = anchors.classify("CAASLGFGNVLHC", "HomoSapiens", "TRAV13-1*01", "TRAJ35*01")
     assert defect == "ok"
     assert repair is None
 
 
-def test_a_universal_anchor_against_a_disagreeing_table_blames_the_table():
-    """Mouse `TRAJ47*01` is `HYANKMIC` and every record reads `DYANKMIF`; `YANKMI` is identical, so
-    the frame is right and both terminal residues are not. 95 rows, and the evidence points at the
-    reference this repository does not own - so it is reported apart and never repaired."""
-    defect, repair = anchors.classify("CPDYANKMIF", "MusMusculus", "TRAV8D-1*01", "TRAJ47*01")
-    assert defect == "J anchor table suspect"
+def test_a_junction_matching_a_functional_sibling_allele_blames_the_call_not_the_sequence():
+    """Mouse `TRAJ47*01` is an ORF allele (`HYANKMIC`); `TRAJ47*02` is functional and is `DYANKMIF`.
+
+    95 chains read `DYANKMIF` and none in the corpus reads the `*01` signature, so the sequence is
+    right and the allele resolution is not. Rewriting the sequence would destroy the evidence for the
+    real defect, which is the same reasoning `MAX_REPLACE = 0` applies in `annotate.cdr3fix`.
+    """
+    defect, repair, call = anchors.classify("CPDYANKMIF", "MusMusculus",
+                                            "TRAV8D-1*01", "TRAJ47*01")
+    assert defect == "J allele mismatch"
     assert repair is None
+    assert call == "TRAJ47*02"
+
+
+def test_an_orf_allele_with_no_functional_sibling_gets_no_allele_proposal():
+    """Mouse `TRAJ7*01` (`DYSNNRLTL`) is the only allele of that gene in the reference, so there is
+    nothing to propose and the junction falls through to the sequence classification."""
+    assert anchors.functional_sibling("MusMusculus", "J", "TRAJ7*01", "F") is None
+
+
+def test_two_candidate_siblings_are_not_an_answer():
+    """Taking the first would make the proposal depend on dictionary order."""
+    assert anchors.functional_sibling("HomoSapiens", "J", "TRBJ2-7*01", "Q") is None
 
 
 def test_a_defect_the_germline_does_not_explain_gets_no_repair():
     """Saying "broken, and here is a guess" would be worse than saying "broken"."""
-    defect, repair = anchors.classify("CASSPLPGT", "HomoSapiens", "TRBV11-2*01", "TRBJ2-1*01")
+    defect, repair, _ = anchors.classify("CASSPLPGT", "HomoSapiens", "TRBV11-2*01", "TRBJ2-1*01")
     assert defect == "J unexplained"
     assert repair is None
 
@@ -142,10 +158,12 @@ def test_the_report_names_the_defect_and_says_it_blocks_nothing():
         {"cdr3.beta": "CASSNEKLF", "v.beta": "TRBV6-1*01", "j.beta": "TRBJ1-4*01"},
         {"cdr3.alpha": "CPDYANKMIF", "v.alpha": "TRAV8D-1*01", "j.alpha": "TRAJ47*01",
          "species": "MusMusculus"}]))
+    assert set(got["defect"]) == {"J absent anchor", "J allele mismatch"}
     text = anchors.report(got)
     assert "blocks nothing" in text
     assert "J absent anchor" in text
-    assert "anchor table suspect" in text
+    assert "J allele mismatch" in text
+    assert "TRAJ47*02" in text, "the report must name the allele it proposes"
     assert "CASSNEKLFF" in text
 
 
