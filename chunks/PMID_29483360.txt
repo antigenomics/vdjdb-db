@@ -313,7 +313,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 312				CASSDRGWNEAFF	TRBV2		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.60%		amplicon-seq						Donor0439	Optimised_Sort2							
 313				CASSLGDPRVMSTEAFF	TRBV7-6		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.57%		amplicon-seq						Donor0439	Optimised_Sort2							
 314				CSVRAYSEETQYF	TRBV29-1		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.55%		amplicon-seq						Donor0439	Optimised_Sort2							
-315				RASSTPSRGIQPQHF	TRBV7-3		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.52%		amplicon-seq						Donor0439	Optimised_Sort2							
+315				CASSTPSRGIQPQHF	TRBV7-3		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.52%		amplicon-seq						Donor0439	Optimised_Sort2							
 316				CARDGKMNTEAFF	TRBV2		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.52%		amplicon-seq						Donor0439	Optimised_Sort2							
 317				CASSSPGQGGSETQYF	TRBV6-5		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.51%		amplicon-seq						Donor0439	Optimised_Sort2							
 318				CAISKTDRGNTEAFF	TRBV10-3		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:29483360	tetramer-sort	0.48%		amplicon-seq						Donor0439	Optimised_Sort2							

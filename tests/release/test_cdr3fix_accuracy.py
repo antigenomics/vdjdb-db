@@ -1,9 +1,15 @@
 """CDR3 markup against external nucleotide truth, on VDJdb's own records.
 
-`assemble.master.fix_cdr3` documents its two engines on **coverage** - how often each declines - and
+`assemble.master.fix_cdr3` documented its two engines on **coverage** - how often each declines - and
 coverage cannot tell "answers more" from "answers better". The phase 5 swap decision (ROADMAP
 section 28) rests on that measurement alone. These tests supply the missing half, and they do it on
 VDJdb records rather than on synthetic sequences.
+
+There is one engine now. The k-mer scanner was deleted with `res/` (#658), so its arm here is the
+`vEnd` and `jStart` the **2026-06-03 release shipped** rather than a re-run of vendored code. The two
+agree to within a fraction of a point (see
+`test_the_shipped_scanner_answers_on_almost_every_truth_row`), and a release cannot drift from what
+shipped while a vendored copy can.
 
 The reference is `isalgo/airr_control`'s `human.trb.ntvj`: real repertoire clonotypes carrying the
 observed `cdr3nt` together with `VEnd` and `JStart` in nucleotide space. Those coordinates were
@@ -36,10 +42,12 @@ case is the same shape - the J germline's leading residue matching the junction 
 paying for the next mismatch - and the fix takes it to 1.
 
 The `declines` column of that table was measured on gene-level V/J calls. This fixture passes the
-shipped `v.segm` and `j.segm`, which carry an allele on 99.2 % of cells, and the allele changes the
-answer: arda declines `v.end` for any allele whose `cdr3_anchors.tsv` status is `truncated`, where
-the same gene without a suffix resolves to `*01` and maps. That is antigenomics/arda#135, and it is
-why the `v.end` decline assertion below is a strict xfail while the `j.start` one is not.
+shipped `v.segm` and `j.segm`, which carry an allele on 99.2 % of cells, and the allele used to change
+the answer: arda declined `v.end` for any allele whose `cdr3_anchors.tsv` status is `truncated`, where
+the same gene without a suffix resolved to `*01` and mapped. That was antigenomics/arda#135, opened
+from this fixture and fixed in arda 2.31.0, which places the boundary a truncated germline supports
+and marks it `TruncatedGermline`. Both decline assertions below are now plain assertions, and on this
+overlap arda declines nothing.
 
 These assertions are written to hold both before and after that arda release, so the pin can move
 without a test rewrite. What they refuse is a *regression*: an engine that declines more than it
@@ -53,12 +61,19 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from vdjdb.assemble.master import _markup_arda, _markup_legacy
+from vdjdb.assemble.master import _markup_arda
 from vdjdb.convert.coords import nt_to_aa_boundary_expr
 
 pytestmark = pytest.mark.release
 
 CONTROL = Path.home() / "hf/airr_control/human.trb.ntvj.vdjtools.tsv.gz"
+
+#: The released zip, read for the **scanner's own answer**. The k-mer scanner was deleted with
+#: `res/` (#658), so the comparison arm is no longer a re-run of vendored code: it is the `vEnd` and
+#: `jStart` the 2026-06-03 release actually shipped, which is what that code produced and is frozen.
+#: Better than re-running it, because a vendored copy can drift from what shipped and a release
+#: cannot.
+REFERENCE = Path(os.environ.get("VDJDB_REFERENCE_ZIP", "reference.zip"))
 
 #: Rows of the control to read. It is frequency-sorted, so this is the expanded end of the
 #: repertoire; enough of it to clear the 100-record bar below by an order of magnitude.
@@ -119,18 +134,63 @@ def truth() -> pl.DataFrame:
     if out.height < MIN_RECORDS:
         pytest.skip(f"only {out.height} overlapping records; need {MIN_RECORDS}")
     only = out.select(KEY)
-    for name, run in (("legacy", _markup_legacy), ("arda", _markup_arda)):
-        got = run(only, "beta").select(
-            *KEY, pl.col("__vend").alias(f"{name}.v_end"),
-            pl.col("__jstart").alias(f"{name}.j_start"))
-        out = out.join(got, on=KEY, how="left", maintain_order="left")
-    return out
+    got = _markup_arda(only, "beta").select(
+        *KEY, pl.col("__vend").alias("arda.v_end"), pl.col("__jstart").alias("arda.j_start"))
+    out = out.join(got, on=KEY, how="left", maintain_order="left")
+    return out.join(_shipped_scanner(), left_on=["cdr3", "vg", "jg"],
+                    right_on=["cdr3", "vg", "jg"], how="left", maintain_order="left")
+
+
+def _shipped_scanner() -> pl.DataFrame:
+    """The scanner's `vEnd` / `jStart` as the 2026-06-03 release shipped them, per gene-level key.
+
+    Keyed the same way the control is - `(cdr3, V gene, J gene)` - because the reference's allele
+    suffix is the one the scanner resolved and the nomenclature phase has since corrected 10,605 of
+    them, so an allele-level key would lose exactly the rows this comparison is about. 123,165
+    distinct beta keys, of which 45 carry two `vEnd` values and 386 two `jStart`; those are dropped
+    rather than averaged, on the same rule the control's own boundary uses.
+    """
+    if not REFERENCE.exists():
+        pytest.skip(f"{REFERENCE} is not present; set VDJDB_REFERENCE_ZIP")
+    from vdjdb.compare.diff import Bundle, _read_table
+
+    ref = _read_table(Bundle(REFERENCE).read_bytes("vdjdb.txt"))
+    return (ref.filter(pl.col("gene") == "TRB")
+            .select("cdr3",
+                    pl.col("v.segm").str.split("*").list.first().alias("vg"),
+                    pl.col("j.segm").str.split("*").list.first().alias("jg"),
+                    pl.col("cdr3fix").str.json_path_match("$.vEnd").cast(pl.Int64).alias("v_end"),
+                    pl.col("cdr3fix").str.json_path_match("$.jStart").cast(pl.Int64)
+                      .alias("j_start"))
+            .group_by("cdr3", "vg", "jg")
+            .agg(pl.col("v_end").n_unique().alias("nv"), pl.col("j_start").n_unique().alias("nj"),
+                 pl.col("v_end").first().alias("legacy.v_end"),
+                 pl.col("j_start").first().alias("legacy.j_start"))
+            .filter((pl.col("nv") == 1) & (pl.col("nj") == 1))
+            .drop("nv", "nj"))
 
 
 def test_the_overlap_is_large_enough_to_draw_a_conclusion_from(truth) -> None:
     """Stated as a test so a shrinking reference is a failure, not a quietly weaker number."""
     assert truth.height >= MIN_RECORDS
     assert truth["cdr3"].n_unique() >= MIN_RECORDS // 2
+
+
+def test_the_shipped_scanner_answers_on_almost_every_truth_row(truth) -> None:
+    """The comparison arm is the release's own cells now, so a **null** means the release has no row
+    for that key - not that the scanner declined. Every head-to-head below filters on `>= 0`, which
+    drops a null silently, so the null count is what has to be gated: a join that quietly stopped
+    matching would read as "the scanner agrees with everything".
+
+    34 of 1,632 on the 2026-06-03 release. Measured against a re-run of the vendored scanner before it
+    was deleted, the two arms agree closely - `v.end` exact 72.90 % here against 72.86 % re-run,
+    `j.start` 95.81 % against 97.06 % - which is what makes reading the release faithful.
+    """
+    missing = truth.filter(pl.col("legacy.v_end").is_null()).height
+    assert missing <= truth.height // 10, (
+        f"the release has no boundary for {missing} of {truth.height} truth rows; the gene-level "
+        f"join has stopped matching, so every head-to-head below is measuring a smaller set than it "
+        f"reports")
 
 
 @pytest.mark.parametrize("coord", ["v_end", "j_start"])
@@ -149,30 +209,24 @@ def test_both_engines_land_within_one_residue_of_the_nucleotide_boundary(truth, 
             f"{engine} {coord}: only {near} of {truth.height} within one residue")
 
 
-@pytest.mark.xfail(strict=True, reason="antigenomics/arda#135: arda declines v_end on alleles "
-                                       "whose cdr3_anchors.tsv status is truncated")
 def test_arda_declines_far_less_often_than_the_shipped_scanner(truth) -> None:
-    """Why the swap was proposed - and the one place it does not hold, which is a V-side allele gap.
+    """Why the swap was proposed, now holding on both coordinates.
 
     On `j.start` arda declines strictly less often, which is the half that was never in doubt and is
     the larger half: the swap took `j.start` coverage from 277,939 to 284,880 of 286,047 chains.
 
-    On `v.end` it declines *more*, and the cause is not the alignment. `cdr3_anchors.tsv` marks 63
-    human V alleles `status = truncated`, because IMGT ships those allele records as partial
-    sequences that stop inside the anchor region, and `cdr3fix` answers `FailedBadSegment` for all
-    of them - including the 38 whose `templated_aa` is still 3 residues or longer and would place a
-    boundary perfectly well. Measured 2026-09-28 over the 114,117 distinct human TRB
-    `(cdr3, v.segm, j.segm)` keys in the built corpus: the scanner declines `v.end` on 1,791, arda
-    on 2,672, and 2,566 keys are declined by arda while the scanner maps them. 1,702 of those carry
-    no allele at all and mostly name a family rather than a gene (`TRBV6`, `TRBV12`), where
-    declining is the correct answer; 851 carry an allele, 837 of them `*02`, and `TRBV11-2*02` alone
-    is 802.
+    On `v.end` it used to decline *more*, and the cause was never the alignment. `cdr3_anchors.tsv`
+    marks 63 human V alleles `status = truncated`, because IMGT ships those allele records as partial
+    sequences that stop inside the anchor region, and `cdr3fix` answered `FailedBadSegment` for all
+    of them - including the 38 whose `templated_aa` is still 3 residues or longer and places a
+    boundary perfectly well. That was `antigenomics/arda#135`, opened from this fixture's own
+    measurement and fixed in arda 2.31.0, which places the boundary those germlines support and marks
+    it `TruncatedGermline` so the caller can see it is a lower bound.
 
-    Kept as a strict xfail rather than relaxed, because the 7 cases this fixture can check against
-    external nucleotides say the boundary is genuinely there: truth places `v.end` at 4 or 5, the
-    scanner matches it exactly on 5 of 7 and within one residue on 7 of 7, and arda answers -1 on
-    all 7. So there is nothing to concede here - the assertion is right and arda#135 is the bug.
-    Delete the marker when that ships; strict makes the pass itself the notification.
+    Measured on the current corpus, 285,989 chains: `v.end` unmapped falls from 5,307 to 4,163, and
+    1,144 chains move `FailedBadSegment` -> `TruncatedGermline` with `fix.good` false -> true on
+    1,139 of them. `TRBV11-2*02` is 850 of the 1,144. No chain loses a boundary and no `cdr3` changes.
+    On this fixture's overlap arda now declines `v.end` on 0 rows, against 0 for the scanner.
     """
     counts = {e: truth.filter(pl.col(f"{e}.v_end") < 0).height for e in ("legacy", "arda")}
     assert counts["arda"] <= counts["legacy"], counts
@@ -234,12 +288,26 @@ def test_the_model_boundary_is_never_more_than_one_residue_out_where_arda_declin
             f"{used.filter(off > 1).select('cdr3', 'v', 'j', fallback, f't.{coord}').head(5)}")
 
 
-def test_the_comparable_set_for_the_fallback_has_not_vanished(truth) -> None:
-    """Stated as a test so a shrinking overlap is a failure rather than a silently weaker number.
+def test_the_fallback_is_unexercised_here_because_arda_declines_on_nothing(truth) -> None:
+    """Why the bound above now checks no rows, asserted rather than left to be discovered.
 
-    The bound above is vacuous on an empty set, and `continue` is exactly how it would go quiet.
+    The bound is vacuous on an empty set and `continue` is exactly how it would go quiet, so the
+    emptiness needs a stated cause. It has one: arda 2.31.0 places a boundary on every row of this
+    overlap, both coordinates, so there is nothing left for a fallback to fill here. Before it, 7
+    rows exercised the `v.end` fallback (4 exact, 7 within one residue).
+
+    This is the notification if that reverses. arda declining again makes the count non-zero, this
+    test fails, and the bound above starts checking rows on the same run.
+
+    The fallback is still filled in the build - 2,442 chains for `v.end.inferred` and 488 for
+    `j.start.inferred` - on chains this control does not observe. `tests/release/test_tables_contract.py`
+    gates those counts; only the comparison against external nucleotides is what has run out of rows.
     """
-    v_used = truth.filter((pl.col("arda.v_end") < 0) & (pl.col("v.end.inferred") >= 0))
-    assert v_used.height >= 5, (
-        f"only {v_used.height} truth rows exercise the v.end fallback; it was 7 on 2026-09-29, so "
-        f"either the overlap shrank or arda stopped declining")
+    for coord, fallback in (("v_end", "v.end.inferred"), ("j_start", "j.start.inferred")):
+        declined = truth.filter(pl.col(f"arda.{coord}") < 0)
+        assert declined.height == 0, (
+            f"arda declines {coord} on {declined.height} truth rows, so the fallback bound above is "
+            f"checking them again - read its result rather than this test's")
+        assert truth.filter(pl.col(fallback) >= 0).height == 0, (
+            f"{fallback} is filled on a truth row where arda answered; the fallback is supposed to "
+            f"be masked to -1 wherever the markup engine mapped the boundary")

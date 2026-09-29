@@ -87,6 +87,23 @@ def test_two_field_change_is_a_new_record_not_an_amendment():
     assert len(rep.added) == 1 and len(rep.retired) == 1 and not rep.amended
 
 
+def test_a_reference_id_correction_amends_rather_than_retiring_the_record():
+    """#685. The pass bucketed candidates on `(chunk_file, reference.id)`, building the bucket from
+    the previous build's reference and reading it with the new one, so a change to `reference.id`
+    itself found an empty bucket and was retired instead of amended -- silently. Closing the space
+    in `PMID: 34433824` cost 22 published ids that way."""
+    out1, reg, _ = reconcile(frame({"reference.id": "PMID: 34433824"}), IdentityRegistry(),
+                             release="v1")
+    original = out1["record_id"][0]
+    out2, reg, rep = reconcile(frame({"reference.id": "PMID:34433824"}), reg, release="v2")
+
+    assert out2["record_id"][0] == original, "a reference respelling must not mint a new id"
+    assert not rep.added and not rep.retired
+    assert len(rep.amended) == 1
+    _rid, field, old, new = rep.amended[0]
+    assert (field, old, new) == ("reference.id", "PMID: 34433824", "PMID:34433824")
+
+
 def test_ambiguous_amendment_is_refused():
     """Two equally good candidates must not be guessed between -- a wrong link beats no link."""
     df = frame({"cdr3.beta": "CASSAAAAAF"}, {"cdr3.beta": "CASSBBBBBF"})
@@ -108,6 +125,72 @@ def test_unambiguous_amendment_is_taken_even_with_other_records_present():
         reg, release="v2")
     assert len(rep.amended) == 1 and rep.amended[0][1] == "cdr3.beta"
     assert not rep.added and not rep.retired
+
+
+def test_two_records_one_field_apart_amend_by_row_when_no_line_moved():
+    """The bijection that makes `chunk.row` exact rather than a guess.
+
+    Both rows are one field from both registry entries, so the field's value cannot say which is
+    which - and `test_ambiguous_amendment_is_refused` is right that a row number alone cannot either,
+    because deleting a line shifts every number after it. What settles it is that the two unmatched
+    rows and the two candidates occupy the *same* pair of row numbers: nothing moved, so the pairing
+    is forced.
+
+    The case: `menon_etal_2024.txt` rows 26 and 27 carry `TRBV5-3;TRBV5-5;TRBV5-8` and
+    `TRBV5-3;TRBV5-8`, and normalising `;` to `,` moved both keys by that one field. Without this,
+    `VDJDB0000187889` and `...890` retire and two fresh ids are minted - two published identifiers
+    lost to a separator.
+    """
+    before = frame({"v.beta": "TRBV5-3;TRBV5-5;TRBV5-8", "chunk.row": 26},
+                   {"v.beta": "TRBV5-3;TRBV5-8", "chunk.row": 27})
+    out, reg, _ = reconcile(before, IdentityRegistry(), release="v1")
+    was = dict(zip(before["chunk.row"].to_list(), out["record_id"].to_list(), strict=True))
+
+    after = frame({"v.beta": "TRBV5-3,TRBV5-5,TRBV5-8", "chunk.row": 26},
+                  {"v.beta": "TRBV5-3,TRBV5-8", "chunk.row": 27})
+    out, reg, rep = reconcile(after, reg, release="v2")
+    assert not rep.added and not rep.retired, rep
+    assert len(rep.amended) == 2 and {a[1] for a in rep.amended} == {"v.beta"}
+    assert dict(zip(after["chunk.row"].to_list(), out["record_id"].to_list(), strict=True)) == was
+
+
+def test_a_bulk_repair_amends_every_row_it_touches():
+    """The case the first version of the row tie-break got wrong, and the reason it cannot be narrower.
+
+    Repairing the 4,324 junctions of vdjdb-db#646 moves that many keys at once, so one chunk's bucket
+    holds hundreds of unmatched rows while each row has only its own two or three candidates. A test
+    that asked for a bijection between the bucket's rows and *one row's* candidates never held, and
+    every one of them fell through to a fresh id: 2,066 published identifiers retired and re-minted.
+
+    What makes the row number an identity is that the file still has a row at every number the
+    candidates sit on, which an edit in place always does.
+    """
+    rows = [{"cdr3.beta": f"CASS{a}{b}F", "chunk.row": i}
+            for i, (a, b) in enumerate([("A", "A"), ("A", "B"), ("B", "A"), ("B", "B")])]
+    before = frame(*rows)
+    out, reg, _ = reconcile(before, IdentityRegistry(), release="v1")
+    was = dict(zip(before["chunk.row"].to_list(), out["record_id"].to_list(), strict=True))
+
+    # Every row gains the trailing anchor its germline encodes - one field, every row, in place.
+    after = frame(*[{**r, "cdr3.beta": r["cdr3.beta"] + "F"} for r in rows])
+    out, _, rep = reconcile(after, reg, release="v2")
+    assert not rep.added and not rep.retired, rep
+    assert len(rep.amended) == 4 and {a[1] for a in rep.amended} == {"cdr3.beta"}
+    assert dict(zip(after["chunk.row"].to_list(), out["record_id"].to_list(), strict=True)) == was
+
+
+def test_the_row_tiebreak_is_refused_when_a_line_moved():
+    """The other half: three rows become two, so the row numbers no longer pair up and the ambiguity
+    stands. A shifted line must not be read as an amendment of whatever now sits on its number.
+    """
+    before = frame({"v.beta": "TRBV5-3;TRBV5-5", "chunk.row": 0},
+                   {"v.beta": "TRBV5-3;TRBV5-8", "chunk.row": 1},
+                   {"v.beta": "TRBV5-3;TRBV5-9", "chunk.row": 2})
+    _, reg, _ = reconcile(before, IdentityRegistry(), release="v1")
+    after = frame({"v.beta": "TRBV5-3,TRBV5-5", "chunk.row": 0},
+                  {"v.beta": "TRBV5-3,TRBV5-8", "chunk.row": 1})
+    _, _, rep = reconcile(after, reg, release="v2")
+    assert len(rep.amended) < 2, rep.amended
 
 
 def test_removed_record_is_retired_not_deleted():

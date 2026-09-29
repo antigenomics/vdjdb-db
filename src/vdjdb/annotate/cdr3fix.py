@@ -114,11 +114,27 @@ def markup(keys: pl.DataFrame, gene: str | None = None) -> pl.DataFrame:
     """
     from arda.cdr3fix import VDJDB_SPECIES, markup_records
 
+    from .segments import propose
+
     ensure_reference()
-    # The guessed segments go in their own columns: `v` and `j` are the join key back to the
-    # table, so overwriting them would make the lookup miss -- measured, it fanned vdjdb_full.txt
-    # out by 3,266 rows.
-    filled = guess_missing_segments(keys, gene)
+    # The proposal goes in its own columns: `v` and `j` are the join key back to the table, so
+    # overwriting them would make the lookup miss -- measured, it fanned vdjdb_full.txt out by 3,266
+    # rows. `__mj` is what the repair runs against and `__gj` is what the table reports; they differ
+    # only in being blank where the record named its own segment.
+    filled = propose(keys, gene).with_columns(
+        # **Only the J proposal reaches the repair, and through it the shipped call.** The two sides
+        # are not equally knowable from a junction and the measurement says so: a J is recovered at
+        # 93.6-97.5 % gene-level accuracy, because its germline templates a distinctive 3' motif,
+        # while a V is recovered at 23.8-50.1 %, because TRBV contributes only a few residues and
+        # most of them template the same `CAS`. Feeding the V proposal in was tried: all 706 chains
+        # it reached came back `NoFixNeeded` with no repair proposed, so arda confirmed that *a*
+        # germline fits without discriminating between the many that fit equally, and `v.segm` would
+        # then carry one of them as if the publication had reported it.
+        #
+        # So the V proposal is reported as `v.inferred` and nothing else, `v.segm` stays blank where
+        # the curator left it blank and arda resolved nothing - which is what every release has
+        # shipped - and the V boundary question is answered by `v.end.inferred`.
+        pl.col("v").alias("__mv"), pl.col("__gj").alias("__mj"))
     out: list[pl.DataFrame] = []
     for (species,) in filled.select("species").unique().sort("species").iter_rows():
         organism = VDJDB_SPECIES.get(species.lower())
@@ -132,7 +148,7 @@ def markup(keys: pl.DataFrame, gene: str | None = None) -> pl.DataFrame:
                 pl.col("v").alias("__v"), pl.col("j").alias("__j"),
             ))
             continue
-        records = markup_records(part, v="__gv", j="__gj", organism=organism,
+        records = markup_records(part, v="__mv", j="__mj", organism=organism,
                                  max_replace=MAX_REPLACE)
         fixes = [r.to_cdr3fix() for r in records]
         out.append(part.with_columns(
@@ -157,34 +173,20 @@ def markup(keys: pl.DataFrame, gene: str | None = None) -> pl.DataFrame:
             # Where the engine cannot resolve the call the guesser's stands: dropping it would fail
             # the legacy "a CDR3 needs a V and a J" filter and cost 11,619 rows of `vdjdb.txt`. The
             # coordinates then stay -1, recording that nothing was located.
+            # `__mv` / `__mj`, not `__gv` / `__gj`: the fallback is the call the repair was given,
+            # which on the V side is the record's own and on the J side includes the proposal.
             pl.when(pl.col("__varda") != "").then(pl.col("__varda"))
-              .otherwise(pl.col("__gv")).alias("__v"),
+              .otherwise(pl.col("__mv")).alias("__v"),
             pl.when(pl.col("__jarda") != "").then(pl.col("__jarda"))
-              .otherwise(pl.col("__gj")).alias("__j"),
+              .otherwise(pl.col("__mj")).alias("__j"),
         ))
-    return pl.concat(out, how="vertical").drop("__gv", "__gj").sort(KEY)
-
-
-def guess_missing_segments(keys: pl.DataFrame, gene: str | None = None) -> pl.DataFrame:
-    """Name a V or J for rows that have none, using the legacy k-mer guesser.
-
-    arda repairs a CDR3; it does not guess a segment. Given a blank ``v``, ``markup_records``
-    reports ``FailedBadSegment`` rather than proposing one, and the record then fails the legacy
-    build's "a CDR3 needs a V and a J" filter. Measured: swapping both halves at once dropped
-    13,844 of 284,546 rows from ``vdjdb.txt`` -- a coverage regression, which the phase 5
-    acceptance criterion forbids.
-
-    So the guesser stays on the legacy k-mer scan for now. Replacing it is its own deviation, with
-    its own measurement: issue #462 and ROADMAP phase 8, where candidate segments are scored by
-    OLGA Pgen instead of longest-hit.
-    """
-    blank = (pl.col("v") == "") | (pl.col("j") == "")
-    if not keys.filter(blank).height:
-        return keys.with_columns(pl.col("v").alias("__gv"), pl.col("j").alias("__gj"))
-
-    from .._legacy_guess import guess_segments
-
-    return guess_segments(keys, gene)
+    return (pl.concat(out, how="vertical")
+            .with_columns(
+                # Reported as `v.inferred` / `j.inferred`: the proposal alone, blank wherever the
+                # record named the segment itself, so a proposal never sits beside a curated call.
+                *(pl.when(pl.col(call) == "").then(pl.col(tmp)).otherwise(pl.lit("")).alias(tmp)
+                  for call, tmp in (("v", "__gv"), ("j", "__gj"))))
+            .drop("__mv", "__mj").sort(KEY))
 
 
 def _unmapped(part: pl.DataFrame) -> list[pl.Expr]:

@@ -1,55 +1,72 @@
-# CDR3 Canonical Repair Reference
+# Junction anchors and their repair
 
-> **Used by:** `skills/vdjdb-proofread/SKILL.md` Step 5a
-> **Patch source:** VDJdb `chunks/` germline anchor statistics
+> **Authority:** `src/vdjdb/curate/anchors.py`, reading arda's germline reference.
+> **Read it with:** `vdjdb submission <chunk>`, or `out/reports/anchors.tsv` after a build.
+> **Prose:** [`docs/submission.md`](../docs/submission.md), "Junctions that contradict their own
+> germline".
 
----
+## The rule
 
-## 1. Canonicality Rules
+VDJdb's `cdr3` is **junction space**: Cys104 through Phe/Trp118, **both anchors included**. A junction
+is consistent when its first and last residues are the residues the germline of the V and J the record
+names actually encodes.
 
-A CDR3 is canonical if:
+**The anchor is read from that germline. It is never assumed to be Phe or Trp.** Human `TRAJ35*01`
+templates `IGFGNVLHC` and mouse `TRAJ7*01` templates `DYSNNRLTL`, so a correct junction on either ends
+in Cys or Leu. Measured over the corpus, a fixed "starts with C, ends with F or W" test calls **481
+correct chains broken** and separately **misses 125 that are not** consistent. Earlier revisions of this
+file stated that fixed rule and derived its anchors from `chunks/` itself, which is the data validating
+itself; both are gone.
 
-1. It starts with `C`.
-2. It ends with `F` or `W`.
+`vdjdb qc` does not check this. Its sequence rules check the residue alphabet and a minimum length,
+which is why a submission exported in IMGT CDR3 space - short one residue at each end - passes them.
 
-**Exception — double-terminal J genes:** for certain J genes the germline encodes two consecutive terminal residues (`FF`). A CDR3 assigned to one of these J genes must end with `FF` to be canonical.
+## The defects, as reported
 
----
+One per end, named for the end and the reason:
 
-## 2. Double-Terminal J Genes
+| Defect | What the sequence has | Repair proposed |
+|---|---|---|
+| `V absent anchor` / `J absent anchor` | the anchor residue is missing | the germline residue, added |
+| `V corrupt anchor` / `J corrupt anchor` | an anchor is present but is not the germline's | the germline residue, substituted |
+| `V under-trimmed` / `J under-trimmed` | framework retained past the anchor | trimmed to the anchor |
+| `V allele mismatch` / `J allele mismatch` | the sequence matches a **functional sibling allele** of the named gene | the **call**, not the sequence |
+| `V unanchored` / `J unanchored` | no germline to compare against - no call, or a call the reference lacks | none; the universal anchor is all that is left |
+| `V unexplained` / `J unexplained` | disagrees with the germline and no rule accounts for it | none |
 
-| Chain | J genes with `FF` terminal |
-|---|---|
-| Beta | `TRBJ1-1`, `TRBJ1-4`, `TRBJ2-1`, `TRBJ2-2` |
-| Alpha | `TRAJ36` |
+Three germline residues must agree before a sequence repair is proposed, so a repair is an alignment
+result rather than a guess at one letter.
 
-This set was derived from the distribution of CDR3 terminal residues across VDJdb `chunks/` records. To verify any gene, count CDR3s assigned to it and inspect the terminal residue distribution:
+## An allele mismatch is evidence about the call
 
-```bash
-# Example: confirm TRBJ1-1 ends with FF
-grep -h "TRBJ1-1" chunks/*.txt | awk -F'\t' '{print substr($5, length($5)-1)}' | sort | uniq -c | sort -rn | head
-```
+An ORF or pseudogene allele has a non-canonical anchor by definition, and arda records that faithfully:
+of 383 J entries over four organisms only 14 have a `templated_aa` not ending in Phe or Trp, and 13 of
+those are marked `ORF` or `P`. So a junction disagreeing with a non-functional allele is evidence that
+the **call** is wrong, not the sequence.
 
----
+95 mouse chains name `TRAJ47`, which resolves to the ORF `*01` (`HYANKMIC`), and every one reads
+`DYANKMIF` - exactly `TRAJ47*02`, the functional allele. No corpus record reads the `*01` signature.
+This is the same defect as [#327](https://github.com/antigenomics/vdjdb-db/issues/327), where 66 % of
+explicit `TRAJ24*01` calls carry the `*02` motif, and rewriting the sequence there would destroy the
+evidence for it.
 
-## 3. Repair Algorithm
+A missing Cys104 deserves a second look even where the rest of the record is clean: no TCR folds
+without it, so a first residue that is not Cys while the body still aligns to the V is a sequencing or
+transcription error rather than a variant.
 
-When a CDR3 fails the canonical check, attempt repair before flagging the row as non-canonical. Repair uses 2-character germline anchor sequences derived from existing VDJdb records for the same V or J gene.
+## Two independent sources for the anchor
 
-### 3.1 Gene name normalisation (before anchor lookup)
+The germline of the named segment is one. The corpus is the other, and they disagree in useful places -
+a germline that is an ORF allele has lost its anchor, while 285,989 curated chains have not.
 
-Strip allele suffix and normalise common prefix variants:
+**A consensus over already-stable records is not the data validating itself.** The map below requires
+**10 records and 50 % agreement** per gene before it will answer, so a single bad record cannot move a
+gene's anchor and a gene with thin coverage is left alone. Where the two sources agree, a repair is
+well founded. Where they disagree, the disagreement is the finding: mouse `TRAJ47` germline ends in Cys
+because `*01` is an ORF, and every one of the 95 corpus chains on it reads the functional `*02`
+signature. The corpus is right and the call is wrong.
 
-```python
-import re
-
-def _normalize_gene(g: str) -> str:
-    g = g.strip().upper()
-    g = re.sub(r"\*\d+$", "", g)   # strip allele
-    g = re.sub(r"^TCRA", "TRA", g)  # Adaptive prefix
-    g = re.sub(r"^TCRB", "TRB", g)  # Adaptive prefix
-    return g
-```
+Use the germline to name the defect and the corpus consensus to sanity-check the residue it proposes.
 
 ### 3.2 Build anchor maps from existing chunks
 
@@ -122,89 +139,17 @@ def build_anchor_maps(chunks_glob="chunks/*.txt"):
 
 Require at least 10 records and 50% consensus for a gene to appear in the anchor maps. Genes with insufficient data are not repaired.
 
-### 3.3 Apply repair to a single CDR3
+## Why the proposal is against the submitted sequence
 
-```python
-def try_fix_cdr3(cdr3: str, v_gene: str, j_gene: str,
-                 v_map: dict[str, str],
-                 j_map: dict[str, tuple[str, str]]) -> tuple[str, bool]:
-    """
-    Attempt a one-letter CDR3 boundary fix using V/J germline anchor.
-    Returns (fixed_cdr3, was_fixed). At most one repair per call.
-    """
-    if not cdr3:
-        return cdr3, False
+`arda.cdr3fix` repairs most of these on the way through the build, so the shipped `cdr3` is usually
+right and **the chunk keeps the wrong sequence** - the next export of that data is wrong again. The
+repair is therefore computed against the value the chunk holds, not the value that ships:
+`YLCSSQEGGYGYTFGSG` ships as `YLCSSQEGGYGYTF`, framework trimmed behind the anchor and kept in front
+of it.
 
-    fixed = cdr3
-    jn = _normalize_gene(j_gene) if j_gene else ''
-    vn = _normalize_gene(v_gene) if v_gene else ''
-    is_ff = jn in FF_J_GENES
+## Applying one
 
-    # Missing leading C
-    if not fixed.startswith('C') and vn in v_map:
-        if fixed[:2] == v_map[vn]:
-            fixed = 'C' + fixed
-
-    # Missing terminal residue(s)
-    j_ctx = j_map.get(jn)
-    if j_ctx:
-        ctx2, terminal = j_ctx
-        if is_ff:
-            if not fixed.endswith('FF'):
-                if fixed.endswith('F') and len(fixed) >= 3 and fixed[-3:-1] == ctx2:
-                    fixed = fixed + 'F'                        # single F → FF
-                elif not fixed.endswith(('F', 'W')) and len(fixed) >= 2 and fixed[-2:] == ctx2:
-                    fixed = fixed + 'FF'                       # none → FF
-        else:
-            if not fixed.endswith(('F', 'W')) and len(fixed) >= 2 and fixed[-2:] == ctx2:
-                fixed = fixed + terminal                        # none → F (or W)
-
-    return fixed, fixed != cdr3
-```
-
----
-
-## 4. Repair Decision Rules
-
-| Condition | Repair | Log entry |
-|---|---|---|
-| CDR3 missing leading `C`; first 2 AAs match V anchor | Prepend `C` | `REPAIR leading-C: <old> → <new>` |
-| CDR3 missing terminal `F`/`W`; last 2 AAs match J anchor | Append `F` or `W` | `REPAIR terminal-FW: <old> → <new>` |
-| J gene is double-terminal; CDR3 ends with single `F`; penultimate 2 AAs match J anchor | Append second `F` | `REPAIR double-F: <old> → <new>` |
-| Anchor match fails (< 50% consensus or < 10 records) | Do NOT repair | Flag as non-canonical, keep as-is |
-| Repaired CDR3 still fails another QC check | Reject repair | Flag row |
-
-Always log every repair. Report repair counts by type in the proofreading summary.
-
----
-
-## 5. Batch Repair Script
-
-For chunks with many non-canonical CDR3s:
-
-```python
-def repair_chunk(rows: list[dict], j_map, v_map) -> tuple[list[dict], list[str]]:
-    """
-    Apply try_fix_cdr3 to every row in-place.
-    Returns (repaired_rows, repair_log).
-    """
-    log = []
-    for row in rows:
-        for cdr3_col, v_col, j_col in [
-            ('cdr3.beta',  'v.beta',  'j.beta'),
-            ('cdr3.alpha', 'v.alpha', 'j.alpha'),
-        ]:
-            cdr3 = (row.get(cdr3_col) or '').strip()
-            if not cdr3:
-                continue
-            fixed, was_fixed = try_fix_cdr3(
-                cdr3,
-                row.get(v_col, ''),
-                row.get(j_col, ''),
-                v_map, j_map,
-            )
-            if was_fixed:
-                log.append(f"ROW {row.get('chunk.id', '?')} {cdr3_col}: {cdr3!r} → {fixed!r}")
-                row[cdr3_col] = fixed
-    return rows, log
-```
+A repair is a chunk edit: its own branch, its own issue, and a message naming the files, the rows and
+the reason. Nothing applies one automatically, and neither should you in bulk -
+[`/vdjdb-proofread`](../skills/vdjdb-proofread/SKILL.md) step 3 and
+[`/vdjdb-publish`](../skills/vdjdb-publish/SKILL.md) have the procedure.

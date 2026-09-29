@@ -183,3 +183,42 @@ def test_the_metadata_describes_the_table_that_shipped_beside_it(meta: str,
     header = b.read_bytes(table).split(b"\n", 1)[0].decode().split("\t")
     assert names == header
     assert names == list(declared)
+
+
+def test_no_declared_rename_reaches_a_species_it_does_not_name(reference: Path) -> None:
+    """#671. A rename rewrites the reference so a nomenclature correction does not read as a lost
+    row and a found one. Unscoped, it rewrites every row holding the old value, whatever organism
+    the row is - which is right while the old value is a spelling nobody uses correctly, and wrong
+    the moment it is a real gene somewhere else.
+
+    Measured on the 2026-06-03 release, one of the 353 declared renames was in the second case:
+    ``TRAV14-1*01 -> TRAV14/DV4*01`` is declared for **1 human record** and ``TRAV14-1*01`` is the
+    correct IMGT name of **79 mouse records** in the same file, so it keyed 79 mouse rows against a
+    gene that is not theirs. Three more of the shape are waiting in ``harmonise_segments``'
+    proposals and reach the block on the next regeneration (``TRBV13-1*01``, ``TRAV5-1*01``,
+    ``TRBV2-1*01``).
+
+    Reading 353 entries is not a check. This is: a rename either names one species, or the rows it
+    would rewrite are all of one species anyway.
+    """
+    import polars as pl
+
+    from vdjdb.compare.diff import load_renames
+
+    b = Bundle(reference)
+    ref = pl.read_csv(b.read_bytes("vdjdb_full.txt"), separator="\t", quote_char=None,
+                      infer_schema_length=0)
+    unscoped = []
+    for r in load_renames(RULES):
+        cols = [c for c in r.columns if c in ref.columns]
+        if r.species or not cols:
+            continue
+        mask = pl.any_horizontal(*[pl.col(c) == r.from_ for c in cols])
+        if r.conditional:
+            mask = mask & r.predicate({c: c for c in ref.columns})
+        hit = ref.filter(mask)["species"].unique().to_list()
+        if len(hit) > 1:
+            unscoped.append(f"  {r.id}: declared for {r.species or 'every species'}, "
+                            f"rewrites {sorted(hit)}")
+    assert not unscoped, ("renames rewriting more than one organism without naming one:\n"
+                          + "\n".join(unscoped))

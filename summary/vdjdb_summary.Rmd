@@ -427,14 +427,16 @@ ggplot(df.spe %>% mutate(
   theme(axis.line = element_line(linewidth = 0.3),
         strip.background = element_blank())
 
+# The fill is a Spectral gradient over CDR3-length rank, and the strata are what make the vertical
+# gradient inside each bar. Grouping on the CDR3 itself runs stat_bin once per distinct CDR3 --
+# 164,131 of them on the human subset -- and stacks that many rectangles per facet, which was 137.82 s
+# of a 152 s render. The rank is bucketed into 500 instead: same order, same gradient, and 500 strata
+# are already more than a 96-dpi bar can resolve. #648
 ggplot(df.spe %>% mutate(
-  cdr3_len = nchar(cdr3),
-  cdr3 = as.factor(cdr3)), 
+  cdr3_rank = as.factor(cdr3) %>% fct_reorder(nchar(cdr3)) %>% as.integer(),
+  cdr3_band = ceiling(cdr3_rank * 500 / max(cdr3_rank))), 
   aes(x=nchar(antigen.epitope))) + 
-  geom_histogram(aes(fill = cdr3 %>% 
-                       fct_reorder(cdr3_len) %>% as.integer(),
-                     group = cdr3 %>% 
-                       fct_reorder(cdr3_len)), 
+  geom_histogram(aes(fill = cdr3_band, group = cdr3_band), 
                  size = 0,
                  binwidth = 1, alpha = 0.9, color = NA) + 
   scale_x_continuous(breaks = 7:25) + 

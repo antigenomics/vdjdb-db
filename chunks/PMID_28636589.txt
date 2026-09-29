@@ -1017,8 +1017,8 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1016				CASSPTSSTTSYEQYF	TRBV7-8		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	0.03		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
 1017				CASSPWGGGTEAFF	TRBV9		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	2e-04		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
 1018				CASSQDFRGGYEQYF	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	0.05		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
-1019				CASSQDFRGGYEQYL	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	1e-04		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
-1020				CASSQDFRGGYEQYS	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	6e-05		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
+1019				CASSQDFRGGYEQYF	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	1e-04		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
+1020				CASSQDFRGGYEQYF	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	6e-05		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
 1021				CASSQDSGNNEQFF	TRBV4-2		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	0.002		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
 1022				CASSQEGPPGRNYEQYF	TRBV4-2		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	0.003		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
 1023				CASSQGHGPFNQPQHF	TRBV4-1		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	4e-04		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
@@ -1026,7 +1026,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1025				CASSQIGGSDYGYTF	TRBV14		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	8e-05		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
 1026				CASSQLAQGRGAYNEQFF	TRBV4-1		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	2e-04		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
 1027				CASSQLIPGLLYGYTF	TRBV4-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	0.02		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
-1028				CASSQLIPGLLYGYTL	TRBV4-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	5e-05		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
+1028				CASSQLIPGLLYGYTF	TRBV4-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	5e-05		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
 1029				CASSQPPGGTQYF	TRBV14		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	5e-05		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
 1030				CASSQQLRVINTEAFF	TRBV4-1		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	5e-04		amplicon-seq		davis-bulk				subject-1mc4				PBMC			
 1031				CASSQSPDGTQYF	TRBV14		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:28636589	tetramer-sort	2e-04		amplicon-seq		davis-bulk				subject-1mc4				PBMC			

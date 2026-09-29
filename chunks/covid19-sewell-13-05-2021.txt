@@ -209,7 +209,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 208				CASSPLPGT	TRBV11-2	TRBD1	TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	RLQSLQTYV	Spike	SARS-CoV-2	https://github.com/antigenomics/vdjdb-db/issues/323	tetramer-sort	0.000919167		amplicon-seq						M001a_RLQ							
 209				CASSIDERAQPQHF	TRBV19	TRBD2	TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	RLQSLQTYV	Spike	SARS-CoV-2	https://github.com/antigenomics/vdjdb-db/issues/323	tetramer-sort	1.0		amplicon-seq						F013a_RLQ							
 210				CASSGENTEAFF	TRBV19	TRBD1	TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	RLQSLQTYV	Spike	SARS-CoV-2	https://github.com/antigenomics/vdjdb-db/issues/323	tetramer-sort	0.719291635		amplicon-seq						F014a_RLQ							
-211				CASSEAKSDAYEQYV	TRBV2		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	RLQSLQTYV	Spike	SARS-CoV-2	https://github.com/antigenomics/vdjdb-db/issues/323	tetramer-sort	0.125094197		amplicon-seq						F014a_RLQ							
+211				CASSEAKSDAYEQYF	TRBV2		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	RLQSLQTYV	Spike	SARS-CoV-2	https://github.com/antigenomics/vdjdb-db/issues/323	tetramer-sort	0.125094197		amplicon-seq						F014a_RLQ							
 212				CASSPPGPSLNEQFF	TRBV27	TRBD1	TRBJ2-1	HomoSapiens	HLA-A*02	B2M	MHCI	RLQSLQTYV	Spike	SARS-CoV-2	https://github.com/antigenomics/vdjdb-db/issues/323	tetramer-sort	0.064807837		amplicon-seq						F014a_RLQ							
 213				CASSPSGDIQYF	TRBV14	TRBD1	TRBJ2-4	HomoSapiens	HLA-A*02	B2M	MHCI	RLQSLQTYV	Spike	SARS-CoV-2	https://github.com/antigenomics/vdjdb-db/issues/323	tetramer-sort	0.034664657		amplicon-seq						F014a_RLQ							
 214				CASSFPGKHGYTF	TRBV28	TRBD1	TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	RLQSLQTYV	Spike	SARS-CoV-2	https://github.com/antigenomics/vdjdb-db/issues/323	tetramer-sort	0.034287867		amplicon-seq						F014a_RLQ							

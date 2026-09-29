@@ -47,7 +47,6 @@ import polars as pl
 
 from ..annotate.dgene import D_COLUMNS
 from ..annotate.junction import NT_COLUMNS
-from ..annotate.segments import INFERRED_COLUMNS
 from ..identity.levels import CLONOTYPE, EPITOPE, PMHC, clone_ids, derive
 from ..schema import CHAIN_COLUMNS, RECORD_COLUMNS
 
@@ -68,6 +67,24 @@ def build_records(master: pl.DataFrame) -> pl.DataFrame:
     """
     out = derive(derive(master, PMHC), EPITOPE)
     return out.select(list(RECORD_COLUMNS)).sort("record_id")
+
+
+def _one_cysteine(seq: pl.Expr) -> pl.Expr:
+    """No cysteine after the one a junction opens with. Blank reads as nothing to say, so `true`."""
+    return (seq == "") | ~seq.str.slice(1).str.contains("C", literal=True)
+
+
+def _submitted_anchor(gene: str, residues: str, *, start: bool) -> pl.Expr:
+    """The anchor test on the sequence as submitted.
+
+    `cdr3.original` is written only where the fixer changed the sequence, so where it is empty the
+    shipped sequence *is* the submitted one.
+    """
+    submitted = (pl.when(pl.col(f"__cdr3old.{gene}").fill_null("") != "")
+                 .then(pl.col(f"__cdr3old.{gene}"))
+                 .otherwise(pl.col(f"cdr3.{gene}")))
+    end = submitted.str.slice(0, 1) if start else submitted.str.slice(-1)
+    return (submitted == "") | end.is_in(list(residues))
 
 
 def build_chains(master: pl.DataFrame) -> pl.DataFrame:
@@ -103,6 +120,12 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
                 pl.col(f"__jfix.{gene}").alias("j.fix.type"),
                 pl.col(f"__vcanon.{gene}").alias("v.canonical"),
                 pl.col(f"__jcanon.{gene}").alias("j.canonical"),
+                # Asked of the submitted sequence, which is `cdr3.original` where a repair happened
+                # and the shipped one where none did - the fixer only writes `cdr3.original` when it
+                # changed something, so an empty cell means "as submitted" rather than "unknown".
+                _submitted_anchor(gene, "C", start=True).alias("v.canonical.submitted"),
+                _submitted_anchor(gene, "FW", start=False).alias("j.canonical.submitted"),
+                _one_cysteine(pl.col(f"cdr3.{gene}")).alias("cdr3.one.cysteine"),
                 # The three stages of a segment call, side by side: what the publication reported,
                 # what ships after IMGT harmonisation and allele disambiguation, and what the markup
                 # engine would have called from the sequence alone. `v.segm` above is the shipped
@@ -112,13 +135,20 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
                 (pl.col(f"__sub.{d}") if d else pl.lit("")).alias("d.segm.submitted"),
                 pl.col(f"__varda.{gene}").alias("v.segm.arda"),
                 pl.col(f"__jarda.{gene}").alias("j.segm.arda"),
+                # The call proposed from the junction where the publication named none, carried out
+                # of the markup rather than recomputed, so the germline the repair ran against and
+                # the call reported here cannot disagree. `j.inferred` is also what `j.segm` carries
+                # on those chains; `v.inferred` ships nowhere else, and
+                # :mod:`vdjdb.annotate.segments` states how far to trust each.
+                pl.col(f"__gv.{gene}").alias("v.inferred"),
+                pl.col(f"__gj.{gene}").alias("j.inferred"),
                 pl.col("TCR_hash"),
             )
         )
     # The junction-nucleotide columns are added afterwards, by `vdjdb.annotate.junction`: they need
     # the species, which is on `records`, and a model load per (species, locus).
     produced = [c for c in CHAIN_COLUMNS
-                if c not in (*NT_COLUMNS, *D_COLUMNS, *INFERRED_COLUMNS, "clone_id")]
+                if c not in (*NT_COLUMNS, *D_COLUMNS, "clone_id")]
     # Sorted by the key, so the table has one order and it is the key's.
     chains = (pl.concat(parts, how="vertical")
             # 34 rows are a D call with no CDR3, so the fixer was never handed anything and left no
@@ -130,6 +160,8 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
                 pl.col("v.end", "j.start").fill_null(-1),
                 pl.col("cdr3.original", "v.fix.type", "j.fix.type").fill_null(""),
                 pl.col("fix.needed", "fix.good", "v.canonical", "j.canonical").fill_null(False),
+                pl.col("v.canonical.submitted", "j.canonical.submitted",
+                       "cdr3.one.cysteine").fill_null(True),
             )
             .pipe(derive, CLONOTYPE)
             .select(produced)
@@ -147,7 +179,6 @@ def build_tables(master: pl.DataFrame, *, release: str = "dev") -> dict[str, pl.
     """The definitive tables, keyed by name."""
     from ..annotate.dgene import add_d_posterior
     from ..annotate.junction import add_junction_nt
-    from ..annotate.segments import add_inferred_segments
     from ..timing import stage
     from .epitopes import build_epitopes, build_restriction
     from .evidence import build_evidence
@@ -163,8 +194,7 @@ def build_tables(master: pl.DataFrame, *, release: str = "dev") -> dict[str, pl.
         chains = add_junction_nt(chains, records)
     with stage("annotate.dgene.add_d_posterior"):
         chains = add_d_posterior(chains, records)
-    with stage("annotate.segments.add_inferred_segments"):
-        chains = add_inferred_segments(chains, records).select(CHAIN_COLUMNS)
+    chains = chains.select(CHAIN_COLUMNS)
     with stage("build_evidence"):
         evidence = build_evidence(records, chains, release=release)
     with stage("build_epitopes"):

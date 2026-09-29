@@ -39,10 +39,6 @@ class Paths:
     def patches(self) -> Path:
         return self.root / "patches"
 
-    @property
-    def res(self) -> Path:
-        return self.root / "res"
-
     @classmethod
     def discover(cls) -> Paths:
         return cls(repo_root())

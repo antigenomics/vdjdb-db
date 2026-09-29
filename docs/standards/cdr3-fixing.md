@@ -66,4 +66,6 @@ field | description
 
 > **Note:**
 
-> The V and J fix types are ``NoFixNeeded``, ``FixAdd``, ``FixReplace``, ``FixTrim``, ``FailedReplace`` (too many mismatches), ``FailedBadSegment`` (bad segment entry) and ``FailedNoAlignment`` (no alignment at all).
+> The V and J fix types are ``NoFixNeeded``, ``FixAdd``, ``FixReplace``, ``FixTrim``, ``TruncatedGermline``, ``FailedReplace`` (too many mismatches), ``FailedBadSegment`` (bad segment entry) and ``FailedNoAlignment`` (no alignment at all).
+
+> ``TruncatedGermline`` is the one that needs reading twice, because it reports a success and a caveat together. IMGT ships some allele records as partial sequences that stop inside the anchor region, so the germline is correct as far as it goes but does not reach the anchor. The boundary placed from one is therefore a **lower bound**: residues past it are unattributed rather than known non-templated. The repair itself ran normally and the record counts as ``good``. It is on 1,144 chains of the current corpus, 1,132 beta and 12 alpha, and ``TRBV11-2*02`` alone is 850 of them; before it existed all 1,144 reported ``FailedBadSegment`` with ``vEnd`` at -1, which is how a placeable boundary came to be thrown away (``antigenomics/arda#135``).
