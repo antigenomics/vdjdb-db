@@ -44,8 +44,8 @@ EXPECTED = {
 }
 
 #: ``k:CAS`` is the germline-encoded start of nearly every beta CDR3: present in 614 of 661 documents.
-#: It must not read as antigen-specific, and a weighting that made it look so would be wrong in the
-#: way that matters most, because it is the first thing anyone will query.
+#: It must not read as enriched under any condition, and a weighting that made it look so would be
+#: wrong in the way that matters most, because it is the first thing anyone will query.
 GERMLINE_KMER = "k:CAS"
 GERMLINE_TOLERANCE = 0.10
 
@@ -119,8 +119,14 @@ def test_the_motif_family_sits_above_the_middle_of_the_distribution(scored) -> N
     assert above / len(motif) > 0.8, "a motif family scattered around the median is not a signal"
 
 
-def test_a_germline_kmer_does_not_read_as_antigen_specific(corpus) -> None:
-    """`k:CAS` starts nearly every beta CDR3, so any antigen it appears specific to is an artefact."""
+def test_a_germline_kmer_reads_flat_under_every_kind_of_condition(corpus) -> None:
+    """`k:CAS` starts nearly every beta CDR3, so any condition it appears enriched under is an artefact.
+
+    Both kinds of condition are asserted, and they are not the same question. `e:GILGFVFTL` names an
+    epitope the receptors were actually shown; `a:HIV-1` is provenance, a union over every epitope of
+    that species and every restriction, which is a legitimate axis but not a specificity one. A
+    germline k-mer has to read flat under both, which is a stronger claim than either alone.
+    """
     for condition in ("a:HIV-1", f"e:{EPITOPE}"):
         got = query.lift(corpus, GERMLINE_KMER, [condition], over="occurrences")
         assert got.lift is not None

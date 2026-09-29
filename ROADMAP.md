@@ -1446,9 +1446,15 @@ without a second table.**
 
 Each family is in the vocabulary because a question needs it and no other token can stand in.
 
-`k:` **and** `kv:` because "is the CAS motif specific to HIV, or to its TRBV?" is a comparison between
-the lift of `k:CAS` on HIV documents and its lift on HIV documents that already carry that V gene. One
-token cannot express that and neither can a single search ranking.
+`k:` **and** `kv:` because "is this CDR3 motif carrying the association, or the V gene that templates
+it?" is a comparison between the lift of `k:CAS` on an epitope's documents and its lift on those of them
+that already carry that V gene. One token cannot express that and neither can a single search ranking.
+
+⚠ A species condition answers a provenance question and not a specificity one. `a:HIV-1` is a real axis -
+"which papers and receptors are about this species" is where most questions start - but the group is a
+union over pMHCs, so a lift over it describes the group rather than being a motif for the pathogen, whose
+members were shown different antigens. Condition on `e:<epitope>` plus a restriction when the claim is
+about recognition. `docs/standards/terminology.md` has the distinction.
 
 `ek:` because two epitopes sharing a core, or one epitope reported under two source species, are
 linked by their k-mers and by nothing else. `e:` alone cannot ask "does this motif go with epitopes
@@ -1570,7 +1576,7 @@ the highest-lifting of the 2,342 CDR3 3-mers with 50 or more occurrences, at **2
 median of 1.170x, and 25 of the 29 RS-bearing 3-mers sit above that median. The RS motif of
 influenza-M1-specific beta CDR3s is documented immunology and nothing in the build encodes it. The
 control holds too: `k:CAS`, the germline start of nearly every beta CDR3, lifts **0.969** on HIV-1
-documents and 1.006 with TRBV9 held, so it reads as germline rather than antigen-specific.
+documents and 1.006 with TRBV9 held, so it reads as germline rather than epitope-associated.
 `tests/release/test_corpus_reproduction.py` pins all of it.
 
 **A document-level lift cannot answer a common token**, so `lift` has two modes. `k:CAS` is in 614 of

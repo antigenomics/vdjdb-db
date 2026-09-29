@@ -7,7 +7,7 @@ At this stage the build checks each CDR3 sequence against the reported V and J s
 * When an excessive germline part is reported (e.g. ``FGXG`` instead of just ``F`` at the CDR3 3' part), the excess residues are removed.
 * Mismatches in the V/J germline regions are corrected when a reliable non-contiguous V/J match is found.
 
-Repertoire sequencing (RepSeq) data processing software reports *canonical* clonotype sequences, while a high number of antigen-specific TCR sequences in the literature are reported inconsistently. Fixing brings both into the same form, so that RepSeq data can be annotated with database records.
+Repertoire sequencing (RepSeq) data processing software reports *canonical* clonotype sequences, while a high number of epitope-specific TCR sequences in the literature are reported inconsistently. Fixing brings both into the same form, so that RepSeq data can be annotated with database records.
 
 When the V/J germline match is good and the CDR3 sequence contains errors, the database carries the fixed sequence in place of the original. The fixer's report is stored in the ``cdr3fix.alpha`` and ``cdr3fix.beta`` columns, e.g.
 
