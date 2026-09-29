@@ -17,9 +17,16 @@ from vdjdb.schema import CHAIN_COLUMNS, EVIDENCE_TABLE_COLUMNS, RECORD_COLUMNS
 
 pytestmark = pytest.mark.release
 
-#: One chunk row is one record, so this is the row count the build reads. 192,753 until
-#: `PMID_18025130` landed its 40 (#161).
-EXPECTED_RECORDS = 192_793
+#: One chunk row is one record after within-chunk deduplication, so this is the row count the build
+#: reads. 192,753 until `PMID_18025130` landed its 40 (#161), then 192,793 until the #646 anchor
+#: substitutions.
+#:
+#: **A repair can lower it, and lowering it is the repair working.** A base-call error at a conserved
+#: anchor makes one clone look like two: correcting it makes 33 rows duplicate a sibling inside their
+#: own chunk, and `CHUNK_DEDUP_KEY` carries the CDR3, so deduplication collapses them. 192,793 ->
+#: 192,763. The retired identifiers keep their amendment trail in `registry/records.tsv` and the
+#: surviving record carries the same observation.
+EXPECTED_RECORDS = 192_763
 
 
 @pytest.fixture(scope="module")

@@ -29,7 +29,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 28	CALSEADSWGKLQF	TRAV19		CASRMQGRDNEQFF	TRBV12-4			HomoSapiens	HLA-B*07:02	B2M	MHCI	RPRGEVRFL	UL49	HSV-2	PMID:20139278	tetramer-sort			sanger	antigen-loaded-targets		CD8+	HSV-2+	9		43		PBMC			
 29	CAFGRGAQKLVF	TRAV38-2		CATRIGWGTDTQYF	TRBV5-1			HomoSapiens	HLA-B*07:02	B2M	MHCI	RPRGEVRFL	UL49	HSV-2	PMID:20139278	tetramer-sort			sanger	antigen-loaded-targets		CD8+	HSV-2+	9		45		PBMC			
 30	CAFGRGAQKLVF	TRAV38-2		CATRIGWGTDTQYF	TRBV5-5			HomoSapiens	HLA-B*07:02	B2M	MHCI	RPRGEVRFL	UL49	HSV-2	PMID:20139278	tetramer-sort			sanger	antigen-loaded-targets		CD8+	HSV-2+	9		47		PBMC			
-31	FLVGPQGSSASKIIF	TRAV4		CATRIGWGTDTQYF	TRBV5-7			HomoSapiens	HLA-B*07:02	B2M	MHCI	RPRGEVRFL	UL49	HSV-2	PMID:20139278	tetramer-sort			sanger	antigen-loaded-targets		CD8+	HSV-2+	9		48		PBMC			
+31	CLVGPQGSSASKIIF	TRAV4		CATRIGWGTDTQYF	TRBV5-7			HomoSapiens	HLA-B*07:02	B2M	MHCI	RPRGEVRFL	UL49	HSV-2	PMID:20139278	tetramer-sort			sanger	antigen-loaded-targets		CD8+	HSV-2+	9		48		PBMC			
 32	CAVKTTDSWGKLQF	TRAV1-2		CAISDPGDTQYF	TRBV10-3			HomoSapiens	HLA-B*07:02	B2M	MHCI	RPRGEVRFL	UL49	HSV-2	PMID:20139278	tetramer-sort			sanger	antigen-loaded-targets		CD8+	HSV-2+	9		51		PBMC			
 33	CAVRDTNTNAGKSTF	TRAV1-1		CATRIGWGTDTQYF	TRBV5-1			HomoSapiens	HLA-B*07:02	B2M	MHCI	RPRGEVRFL	UL49	HSV-2	PMID:20139278	tetramer-sort			sanger	antigen-loaded-targets		CD8+	HSV-2+	9		62		PBMC			
 34	CALSEADSWGKLQF	TRAV19		CATRIGWGTDTQYF	TRBV5-1			HomoSapiens	HLA-B*07:02	B2M	MHCI	RPRGEVRFL	UL49	HSV-2	PMID:20139278	tetramer-sort			sanger	antigen-loaded-targets		CD8+	HSV-2+	9		62		PBMC			
