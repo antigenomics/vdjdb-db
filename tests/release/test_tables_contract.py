@@ -117,3 +117,54 @@ def test_a_numeric_column_is_null_only_where_the_quantity_does_not_exist(tables)
     absent = chains.filter(pl.col("cdr3nt") == "")
     assert absent["cdr3nt.pgen"].null_count() == absent.height
     assert chains.filter(pl.col("cdr3nt") != "")["cdr3nt.pgen"].null_count() == 0
+
+
+# ---------------------------------------------------------------------------------------------
+# The inferred junction nucleotides encode the junction they were inferred from
+# ---------------------------------------------------------------------------------------------
+
+def test_every_inferred_cdr3nt_back_translates_to_its_own_junction(tables):
+    """#461's acceptance criterion, on the corpus rather than on four fixture rows.
+
+    It **is** guaranteed by construction, and this is what holds it to that. `infer_nt_batch`
+    enumerates `(V, delV) x (J, delJ) x (D, delD, position)` and picks the best codon assignment
+    *within* each scenario, so a scenario that cannot spell the given residues has probability zero
+    and is never a candidate. Anything the model cannot encode comes back null rather than wrong:
+    probed on human TRB, a stop codon, an `X`, a `Z`, a one- or two-residue junction, an empty string
+    and a true CDR3 with its anchors stripped are all declined.
+
+    The one input that would read as a mismatch is a **lower-case** junction, where the nucleotides
+    are right and the comparison is case-sensitive. `vdjdb qc` rejects a residue outside the 20
+    upper-case letters and zero chains in the built corpus carry one, so that is closed upstream
+    rather than tolerated here.
+
+    `vdjtools._core.translate_junctions` is the entry point for exactly this column - it is
+    `to_unified_cdr3aa(translate(nt))`, the treatment a *junction* gets, not a generic translate. That
+    is why it is the right instrument here and not merely the fast one: an out-of-frame junction is
+    translated inward from both ends with the untranslatable middle collapsed to `_`, so it reads as a
+    loud mismatch below, where a plain translate would silently drop a trailing partial codon.
+
+    It also does the whole column in one threaded native call: measured on 263,437 sequences, **0.023 s
+    against 0.284 s** for `vdjtools.model.translate` in a Python loop, 12.3x, and identical on every
+    row. Rule 4 and the reach order both - one batched call into existing C++, never a per-row call and
+    never a codon table written here.
+
+    Measured 2026-09-29: 263,437 of 285,989 chains carry an inferred `cdr3nt`, **0 mismatches and 0
+    whose length is not exactly three times the junction's**. The unit test covers four rows, which
+    cannot see a residue class the corpus has and a fixture does not.
+    """
+    from vdjtools._core import translate_junctions
+
+    got = tables["chains"].filter(pl.col("cdr3nt") != "").select("cdr3", "cdr3nt")
+    assert got.height > 250_000, \
+        f"only {got.height:,} chains carry an inferred cdr3nt; the stage produced almost nothing"
+
+    ragged = got.filter(pl.col("cdr3nt").str.len_chars() != 3 * pl.col("cdr3").str.len_chars())
+    assert ragged.height == 0, \
+        f"{ragged.height} inferred sequences are not three nucleotides per residue:\n{ragged.head(5)}"
+
+    wrong = (got.with_columns(pl.Series("back", translate_junctions(got["cdr3nt"].to_list())))
+             .filter(pl.col("back") != pl.col("cdr3")))
+    assert wrong.height == 0, (
+        f"{wrong.height} inferred sequences do not encode their own junction:\n"
+        f"{wrong.head(5)}")
