@@ -616,7 +616,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 615				CASGGTGDYAEQFF		TRBD1	TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 616				CASGKTGGARDTQYF		TRBD2	TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 617				CASGLEYQDTQYF			TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-618				CASGLGFYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+618				CASGLGFYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 619				CASGLGYNSPLYF			TRBJ1-6	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 620				CASGLNTLYF			TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 621				CASGNRGASYEQYF	TRBV13-2		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -633,15 +633,15 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 632				CASHSGTGVYF	TRBV12-1	TRBD1	TRBJ1-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 633				CASIDNNYAEQFF	TRBV19		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 634				CASIGGVYAEQFF	TRBV13-3		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-635				CASILRGTGNTLYF	TRBV10		TRBJ1-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-636				CASIQGTNTEVFF	TRBV10		TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+635				CASILRGTGNTLYF	TRBV4		TRBJ1-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+636				CASIQGTNTEVFF	TRBV4		TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 637				CASKDNYAEQFF	TRBV13-3		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 638				CASKGGDYEQYF	TRBV13-3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 639				CASKGSSYEQYF	TRBV13-3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 640				CASKTDSYEQYF	TRBV13-3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 641				CASNRDSAETLYF	TRBV13-3		TRBJ2-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 642				CASNSGQGARNSPLYF	TRBV19	TRBD1	TRBJ1-6	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-643				CASNWGGGQDTQYF	TRBV10	TRBD2	TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+643				CASNWGGGQDTQYF	TRBV4	TRBD2	TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 644				CASGDLGDAEQFF			TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 645				CASGDLTGGYEQYF			TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 646				CASGDNQAPLF			TRBJ1-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -698,7 +698,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 697				CASGGLDTQYF			TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 698				CASGGQGRNSPLYF	TRBV13-2		TRBJ1-6	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 699				CAAGDYYAEQFF	TRBV19		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-700				CAAWTQNTLYF	TRBV10		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+700				CAAWTQNTLYF	TRBV4		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 701				CANTEVFF	TRBV13-3		TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 702				CASAGSSYEQYF	TRBV13-1		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 703				CASAGTGEDTQYF	TRBV13-2	TRBD1	TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -795,7 +795,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 794				CASSEDNKDTQYF	TRBV13-1		TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 795				CASSEDPANSDYTF	TRBV13-1		TRBJ1-2	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 796				CASSEDPSAETLYF	TRBV13-3		TRBJ2-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-797				CASSEDWSYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+797				CASSEDWSYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 798				CASSEEANQAPLF	TRBV13-1		TRBJ1-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 799				CASSEGGGAYAEQFF	TRBV13-3	TRBD2	TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 800				CASSEGGSSYEQYF	TRBV13-3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -814,10 +814,10 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 813				CASSEWGDTEVFF	TRBV13-1		TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 814				CASSEYWGNYEQYF	TRBV13-1		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 815				CASSFAVNQDTQYF	TRBV14		TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-816				CASSFDSSYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-817				CASSFDWALDEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+816				CASSFDSSYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+817				CASSFDWALDEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 818				CASSFDWGWEQYF	TRBV15		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-819				CASSFDWSYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+819				CASSFDWSYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 820				CASSFGAASAETLYF	TRBV14		TRBJ2-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 821				CASSFGGQAGNTLYF	TRBV14		TRBJ1-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 822				CASSFGSEVFF	TRBV16		TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -832,7 +832,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 831				CASSFNQDTQYF	TRBV29		TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 832				CASSFQGERLFF	TRBV14		TRBJ1-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 833				CASSFQGNSPLYF	TRBV13-3		TRBJ1-6	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-834				CASSFRDWGGARAEQFF	TRBV10	TRBD2	TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+834				CASSFRDWGGARAEQFF	TRBV4	TRBD2	TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 835				CASSFRGHQDTQYF	TRBV14	TRBD1	TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 836				CASSFSLGSQDTQYF	TRBV19		TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 837				CASSFSQNTLYF	TRBV14		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -865,8 +865,8 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 864				CASRGPSYEQYF	TRBV13-1		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 865				CASRGQEDTQYF	TRBV5	TRBD1	TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 866				CASRGQSNSDYTF	TRBV29		TRBJ1-2	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-867				CASRGRIYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-868				CASRGRLGGRWEQYF	TRBV10	TRBD2	TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+867				CASRGRIYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+868				CASRGRLGGRWEQYF	TRBV4	TRBD2	TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 869				CASRGTGGEVFF	TRBV14	TRBD1	TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 870				CASRLRDNNQAPLF	TRBV19		TRBJ1-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 871				CASRLREGGNTLYF	TRBV19		TRBJ1-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -882,17 +882,17 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 881				CASRRQGTNERLFF	TRBV13-3	TRBD1	TRBJ1-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 882				CASRRTDSYNSPLYF	TRBV13-3		TRBJ1-6	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 883				CASRTGGEQYF	TRBV29	TRBD1	TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-884				CASRTGGGTEVFF	TRBV10	TRBD1	TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+884				CASRTGGGTEVFF	TRBV4	TRBD1	TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 885				CASRTGGNSPLYF	TRBV13-2	TRBD1	TRBJ1-6	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 886				CASRTGTGETLYF	TRBV13-3	TRBD1	TRBJ2-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 887				CASSADRVGQNTLYF	TRBV3		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 888				CASSADRVYEQYF	TRBV3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 889				CASSADWAYEQYF	TRBV3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 890				CASSAGGITLYF	TRBV13-3		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-891				CASSAGQSSYEQYF	TRBV10	TRBD1	TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+891				CASSAGQSSYEQYF	TRBV4	TRBD1	TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 892				CASSAGTANTEVFF	TRBV13-3		TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 893				CASSAGTGAANERLFF	TRBV3	TRBD1	TRBJ1-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-894				CASSAGTGRAEQFF	TRBV10		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+894				CASSAGTGRAEQFF	TRBV4		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 895				CASSAPSYEQYF	TRBV13-3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 896				CASSAQGANERLFF	TRBV13-3	TRBD1	TRBJ1-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 897				CASSARLGGYAEQFF	TRBV3		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -918,7 +918,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 917				CASSDDNYEQYF	TRBV13-1		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 918				CASSDDRGYTLYF	TRBV13-3		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 919				CASSDDRNTLYF	TRBV13-3		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-920				CASSDDTAYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+920				CASSDDTAYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 921				CASSDDTYEQYF	TRBV13-3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 922				CASSDEAYEQYF	TRBV13-3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 923				CASSDEDSAETLYF	TRBV13-1		TRBJ2-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -949,7 +949,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 948				CASSPGTGEEQYF	TRBV12-1		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 949				CASSPGTGGADAEQFF	TRBV3	TRBD2	TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 950				CASSPGTGGQWAEQFF	TRBV14		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-951				CASSPGTGNYAEQFF	TRBV10		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+951				CASSPGTGNYAEQFF	TRBV4		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 952				CASSPGTGQDTQYF	TRBV13-3		TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 953				CASSPGTGVAEQFF	TRBV14		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 954				CASSPGTGYAEQFF	TRBV16		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -958,7 +958,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 957				CASSPGTTEVFF	TRBV12-1		TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 958				CASSPGVEQYF	TRBV14		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 959				CASSPLGLGGRGAEQFF	TRBV16	TRBD2	TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-960				CASSPPSYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+960				CASSPPSYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 961				CASSPRGARQDTQYF	TRBV17		TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 962				CASSPRLGQDTQYF	TRBV12-1		TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 963				CASSPRTERLFF	TRBV3		TRBJ1-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -1012,9 +1012,9 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1011				CASSLDSYAEQFF	TRBV3		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1012				CASSLDTQYF	TRBV29		TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1013				CASSLDWGAQNTLYF	TRBV15		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1014				CASSLDWGSYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1014				CASSLDWGSYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1015				CASSLDWGYAEQFF	TRBV16		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1016				CASSLDWSYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1016				CASSLDWSYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1017				CASSLEAGGPEQYF	TRBV12-1	TRBD2	TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1018				CASSLEGAPNERLFF	TRBV16		TRBJ1-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1019				CASSLEGGVAYEQYF	TRBV16		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -1041,7 +1041,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1040				CASSLGGGSPSDYTF	TRBV16		TRBJ1-2	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1041				CASSLGGGTEVFF	TRBV19		TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1042				CASSLGGGTNTEVFF	TRBV16		TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1043				CASSLGLGAEQFF	TRBV10	TRBD1	TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1043				CASSLGLGAEQFF	TRBV4	TRBD1	TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1044				CASSLGLGVQNTLYF	TRBV12-1		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1045				CASSLGLGVYAEQFF	TRBV12-2		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1046				CASSLGPQDTQYF	TRBV14		TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -1101,7 +1101,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1100				CASSMRGAHGNTLYF	TRBV13-1		TRBJ1-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1101				CASSMRGPNERLFF	TRBV19		TRBJ1-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1102				CASSNKNSDYTF	TRBV13-3		TRBJ1-2	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1103				CASSNRDNYNSPLYF	TRBV10		TRBJ1-6	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1103				CASSNRDNYNSPLYF	TRBV4		TRBJ1-6	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1104				CASSNRDRDPDYTF	TRBV16	TRBD1	TRBJ1-2	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1105				CASSPAGYEQYF	TRBV16		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1106				CASSPDDYAEQFF	TRBV14		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -1118,7 +1118,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1117				CASSPFGGRYAEQFF	TRBV5		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1118				CASSPGGAEQFF	TRBV12-1		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1119				CASSPGGMGEQYF	TRBV13-3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1120				CASSPGHKDTQYF	TRBV10		TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1120				CASSPGHKDTQYF	TRBV4		TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1121				CASSPGHNYAEQFF	TRBV12-1		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1122				CASSPGHSYEQYF	TRBV3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1123				CASSPGHTYEQYF	TRBV3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -1130,7 +1130,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1129				CASSSDWGGAGSQNTLYF	TRBV3	TRBD2	TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1130				CASSSDWGSYEQYF	TRBV14		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1131				CASSSDWGYEQYF	TRBV3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1132				CASSSDWQYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1132				CASSSDWQYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1133				CASSSDYEQYF	TRBV29		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1134				CASSSGAKYEQYF	TRBV3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1135				CASSSGDSDYTF	TRBV13-3		TRBJ1-2	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -1155,7 +1155,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1154				CASSSPGQGDAETLYF	TRBV14	TRBD1	TRBJ2-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1155				CASSSQGYEQYF	TRBV17		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1156				CASSSRDKNYAEQFF	TRBV2		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1157				CASSSRDNSYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1157				CASSSRDNSYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1158				CASSSRDWGSAETLYF	TRBV16		TRBJ2-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1159				CASSSRGDTQYF	TRBV17		TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1160				CGAREGGAETLYF	TRBV20		TRBJ2-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -1195,7 +1195,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1194				CASSSTSSAETLYF	TRBV16		TRBJ2-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1195				CASSSTVEQYF	TRBV29		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1196				CASSSWGETLYF	TRBV17		TRBJ2-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1197				CASSSWGYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1197				CASSSWGYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1198				CASSSYSQNTLYF	TRBV3		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1199				CASSSYWGNYAEQFF	TRBV16		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1200				CASSTGDTQYF	TRBV14		TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -1209,11 +1209,11 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1208				CASSVTNSYEQYF	TRBV13-3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1209				CASSVWGSSQNTLYF	TRBV13-1		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1210				CASSWDNYEQYF	TRBV19		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1211				CASSWDSHYAEQFF	TRBV10		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1212				CASSWDWELAETLYF	TRBV10	TRBD1	TRBJ2-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1213				CASSWDWEYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1214				CASSWDWSYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1215				CASSWGGAETLYF	TRBV10		TRBJ2-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1211				CASSWDSHYAEQFF	TRBV4		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1212				CASSWDWELAETLYF	TRBV4	TRBD1	TRBJ2-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1213				CASSWDWEYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1214				CASSWDWSYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1215				CASSWGGAETLYF	TRBV4		TRBJ2-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1216				CASSWGGANTEVFF	TRBV15		TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1217				CASSWGGYAEQFF	TRBV16	TRBD2	TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1218				CASSWGYQNTLYF	TRBV13-3		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -1221,10 +1221,10 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1220				CASSWTGANSDYTF	TRBV13-3	TRBD1	TRBJ1-2	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1221				CASSWTGGRQNTLYF	TRBV3		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1222				CASSWTGLYAEQFF	TRBV13-3	TRBD1	TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1223				CASSYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1224				CASSYGGTGGQNTLYF	TRBV10	TRBD1	TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1223				CASSYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1224				CASSYGGTGGQNTLYF	TRBV4	TRBD1	TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1225				CASSYGQNTLYF	TRBV14		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1226				CASSYPDYAEQFF	TRBV10		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1226				CASSYPDYAEQFF	TRBV4		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1227				CASSYWGGYEQYF	TRBV16	TRBD2	TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1228				CASSYWTSAETLYF	TRBV3		TRBJ2-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1229				CASSYYNNQAPLF	TRBV13-1		TRBJ1-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -1235,7 +1235,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1234				CASTGGAHTLYF	TRBV19	TRBD2	TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1235				CASTGGDYAEQFF	TRBV13-3	TRBD2	TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1236				CASTGGYTLYF		TRBD1	TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1237				CASTLDRGWYAEQFF	TRBV10	TRBD1	TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1237				CASTLDRGWYAEQFF	TRBV4	TRBD1	TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1238				CASTLGGLQNTLYF	TRBV19		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1239				CASTNYAEQFF	TRBV13-3		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1240				CASTPDWEWGQNTLYF	TRBV19		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -1268,7 +1268,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1267				CGARDRGHSGNTLYF	TRBV20		TRBJ1-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1268				CGARDRGSQNTLYF	TRBV20	TRBD1	TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1269				CGARDRQGNTEVFF	TRBV20		TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1270				CASSPSSYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1270				CASSPSSYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1271				CASSPSTGGALDTQYF	TRBV29	TRBD2	TRBJ2-5	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1272				CASSPTDWANTEVFF	TRBV14		TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1273				CASSPTGDERLFF	TRBV13-3		TRBJ1-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -1277,7 +1277,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1276				CASSPTGVEQYF	TRBV19		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1277				CASSPWDNYAEQFF	TRBV3		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1278				CASSPWDRTEVFF	TRBV16		TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1279				CASSPWTGGSQNTLYF	TRBV10		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1279				CASSPWTGGSQNTLYF	TRBV4		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1280				CASSPYWDNYAEQFF	TRBV14		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1281				CASSQAGGQNTLYF	TRBV5		TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1282				CASSQDLGGLSYEQYF	TRBV5		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -1323,7 +1323,7 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1322				CASSRDRGHTEVFF	TRBV17	TRBD1	TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1323				CASSRDRGNYNSPLYF	TRBV13-3	TRBD1	TRBJ1-6	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1324				CASSRDRGREQYF	TRBV14	TRBD1	TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1325				CASSRDSSYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1325				CASSRDSSYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1326				CASSRDSYAEQFF	TRBV3		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1327				CASSRDTGPGSDYTF	TRBV12-1	TRBD1	TRBJ1-2	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1328				CASSRDVGPYAEQFF	TRBV17		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
@@ -1339,18 +1339,18 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1338				CASSRGQGTLYF	TRBV17	TRBD1	TRBJ2-4	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1339				CASSRGTGGADAEQFF	TRBV5	TRBD1	TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1340				CASSRKGITYAEQFF	TRBV17		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1341				CASSRLGDSYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1341				CASSRLGDSYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1342				CASSRLGGGYAEQFF	TRBV13-3		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1343				CASSRLGVSYEQYF	TRBV17		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1344				CASSRLIAYEQYF	TRBV19		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1345				CASSRNWGAAEQFF	TRBV12-1		TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1346				CASSRQDKNTEVFF	TRBV17		TRBJ1-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1347				CASSRRWGGYAEQFF	TRBV10	TRBD2	TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1347				CASSRRWGGYAEQFF	TRBV4	TRBD2	TRBJ2-1	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1348				CASSRTGGNSYEQYF	TRBV12-2		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1349				CASSRTGHSAETLYF	TRBV29		TRBJ2-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1350				CASSRTPNNSPLYF	TRBV12-1		TRBJ1-6	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1351				CASSRVSGNTLYF	TRBV16		TRBJ1-3	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
-1352				CASSSDISYEQYF	TRBV10		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
+1352				CASSSDISYEQYF	TRBV4		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1353				CASSSDKYEQYF	TRBV13-3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1354				CASSSDNSYEQYF	TRBV3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
 1355				CASSSDRYEQYF	TRBV13-3		TRBJ2-7	MusMusculus	H2-Kd	B2M	MHCI	KYNKANVFL	G6pc2	MusMusculus	PMID:35667687	tetramer-sort																
