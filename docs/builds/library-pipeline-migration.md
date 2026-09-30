@@ -104,17 +104,24 @@ alone unless you are reproducing a published number against one named fit.
 ⚠ **And the chain's last rung is not a bundled fit at all** — it is a germline scaffold, which is
 what makes the non-human records answer. A fitted model exists for human and mouse and for nothing
 else, so **every rhesus record in VDJdb used to come back empty**: 1,457 keys answered zero times,
-invisible inside a single corpus-wide total. Per species, nucleotide junctions over the 192,726
-curation keys:
+invisible inside a single corpus-wide total. Coverage over the 192,726 curation keys, per species,
+measured on arda 2.36.0 — the floor this page declares:
 
-| species | locus | keys | before | after |
-|---|---|---:|---:|---:|
-| HomoSapiens | TRB | 115,654 | 115,605 | **115,644** |
-| HomoSapiens | TRA | 58,163 | 58,072 | **58,085** |
-| MusMusculus | TRB | 8,872 | 8,417 | **8,662** |
-| MusMusculus | TRA | 8,119 | 8,105 | **8,119** |
-| MacacaMulatta | TRB | 1,383 | 0 | **1,379** |
-| MacacaMulatta | TRA | 74 | 0 | **73** |
+| species | locus | keys | nucleotide junction | D gene | D coordinates |
+|---|---|---:|---:|---:|---:|
+| HomoSapiens | TRB | 115,829 | **115,819** | 115,819 | 113,232 |
+| HomoSapiens | TRA | 58,281 | **58,203** | — | — |
+| MusMusculus | TRB | 9,015 | **8,805** | 8,805 | 8,694 |
+| MusMusculus | TRA | 8,140 | **8,140** | — | — |
+| MacacaMulatta | TRB | 1,383 | **1,379** | 1,379 | 787 |
+| MacacaMulatta | TRA | 74 | **73** | — | — |
+| HomoSapiens | TRD | 4 | **4** | 4 | 4 |
+
+**192,423 of 192,726 (99.84 %)**, and no species or locus at zero. TRA and TRD are VJ loci — there
+is no D to find. ⛔ **Break any coverage check in the build down BY SPECIES**: one percentage over
+this corpus hid an entire organism answering nothing. ⚠ The `keys` column is as of arda 2.36.0 —
+the 461 keys naming neither V nor J had no locus before and now count under the one they resolve
+to, so a per-locus denominator is not comparable to an older run's.
 
 ⚠ **Every accuracy percentage on this page is human TRB.** The truth set behind them
 (`isalgo/airr_control`) carries TRA and TRB and no immunoglobulin, so none of them may be quoted for
