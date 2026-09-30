@@ -309,25 +309,32 @@ the files it creates, the facts it needs (already measured, in §7/§8), and the
 
 ## 4a. Issue tracker composition
 
-Re-measured 2026-09-29, second pass, with `gh`: 466 issues, **116 open**, against 458 / 123 earlier
-the same day and 440 / 130 on 2026-09-25. Grouped by label, one category per issue, intake winning a
-tie and maintenance winning over proofreading:
+Re-measured 2026-09-30, after the migration landed: 471 issues, **113 open**, against 466 / 116 and
+458 / 123 on 2026-09-29 and 440 / 130 on 2026-09-25. Grouped by label, one category per issue, intake
+winning a tie and maintenance winning over proofreading:
 
-| Category | Open, 2026-09-25 | Open, 2026-09-29 | Open, second pass | What they are |
+| Category | Open, 2026-09-25 | Open, 2026-09-29 | Open, 2026-09-30 | What they are |
 |---|---:|---:|---:|---|
-| data intake | 103 (79 %) | 101 (82 %) | **101 (87 %)** | pending papers, preprints, paper-pending, meta-papers, 10x/Immudex sets, associations, other databases, correspondence |
-| curation quality | 22 | 8 | 7 | formatting & proofreading, typos, structural, validation |
-| build infrastructure | 13 | 14 | 8 | the build, the summary, maintenance |
+| data intake | 103 (79 %) | 101 (82 %) | **101 (89 %)** | pending papers, preprints, paper-pending, meta-papers, 10x/Immudex sets, associations, other databases, correspondence |
+| curation quality | 22 | 8 | 6 | formatting & proofreading, typos, structural, validation |
+| build infrastructure | 13 | 14 | 6 | the build, the summary, maintenance |
 
-The intake row has not moved in eight days. The other two fell because the build work closed what it
-had filed: #685, #637's measurable half, #633's epitope-source report, #647, #671, #672, #675, #658.
+The intake row has not moved in nine days - **101 on every one of the four measurements.** The other
+two fell because the build work closed what it had filed: #685, #637's measurable half, #633's
+epitope-source report, #647, #671, #672, #675, #658, then #713 when the migration landed and #303
+and #214 when they turned out to name a dataset that was never curated and three asks that now have
+their own issues.
+
+The twelve that remain are nameable, which is the difference between a tracker and a backlog:
+**curation quality** is #390, #434, #591, #597, #681, #714; **build infrastructure** is #560, #625,
+#632, #633, #637, #696.
 
 The build work also files issues from its own measurements - #650 (the profile double-count), #652
 (the shipped zips were never compared), #656 (the junction-nt bottleneck), #693, #696 - so the bottom
 two rows move in both directions while the intake row stays where it is. The composition is stable
 under everything the build does, and that is what this section records.
 
-Six open issues out of seven are a submission queue, not a defect list. This migration closes
+Nearly nine open issues in ten are a submission queue, not a defect list. This migration closes
 issues from the bottom two rows only, and nothing it does shortens the first
 row. Three decisions follow from that:
 
