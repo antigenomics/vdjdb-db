@@ -1,4 +1,4 @@
-# Migrating the build onto arda 2.34.0 + vdjtools 4.8.0
+# Migrating the build onto arda 2.36.0 + vdjtools 4.8.0
 
 2026-09-30. **Everything the build does to annotate a junction is now one call in a library.** This
 note says which call, what it returns, and which of this repository's modules it replaces. The
@@ -15,7 +15,7 @@ annotation part of all five. What stays here is *curation*: which records to fla
 does about a contradicted call.
 
 `annotate/segments.py` exists because "`arda.cdr3fix` repairs a junction against a *named* germline and
-never proposes one". **arda 2.34.0 proposes one**, which is why the floor below is 2.34.0 and not
+never proposes one". **arda 2.36.0 proposes one**, which is why the floor below is 2.36.0 and not
 2.33.0.
 
 ## The one call
@@ -95,11 +95,30 @@ to take.
 
 **4. The model set is chosen per row, not configured.** `model_source="auto"` runs OLGA's bundled
 fit first and arda's on whatever it left unexplained. Neither alone is best: OLGA's is better
-calibrated and cheaper but declines rows outright and has no mouse, arda's answers everything and is
-thinner. On 4,000 real human rearrangements the chain wins every column — TRB nucleotide-exact
+calibrated and cheaper but declines rows outright, arda's answers everything and is thinner. On
+4,000 real human rearrangements the chain wins every column — TRB nucleotide-exact
 14.40 / 17.32 / **17.32 %** and D gene 72.58 / 74.08 / **74.35 %** for arda / OLGA / the chain, and
 TRA keeps **4,000 of 4,000** nucleotide junctions where OLGA alone loses 143. Leave the default
 alone unless you are reproducing a published number against one named fit.
+
+⚠ **And the chain's last rung is not a bundled fit at all** — it is a germline scaffold, which is
+what makes the non-human records answer. A fitted model exists for human and mouse and for nothing
+else, so **every rhesus record in VDJdb used to come back empty**: 1,457 keys answered zero times,
+invisible inside a single corpus-wide total. Per species, nucleotide junctions over the 192,726
+curation keys:
+
+| species | locus | keys | before | after |
+|---|---|---:|---:|---:|
+| HomoSapiens | TRB | 115,654 | 115,605 | **115,644** |
+| HomoSapiens | TRA | 58,163 | 58,072 | **58,085** |
+| MusMusculus | TRB | 8,872 | 8,417 | **8,662** |
+| MusMusculus | TRA | 8,119 | 8,105 | **8,119** |
+| MacacaMulatta | TRB | 1,383 | 0 | **1,379** |
+| MacacaMulatta | TRA | 74 | 0 | **73** |
+
+⚠ **Every accuracy percentage on this page is human TRB.** The truth set behind them
+(`isalgo/airr_control`) carries TRA and TRB and no immunoglobulin, so none of them may be quoted for
+IGH — and the per-species table above is coverage, not accuracy.
 
 **5. The nucleotides are the authority and the amino-acid bounds are recomputed from them.**
 `v_end_nt`, `j_start_nt`, `d_start_nt` and `d_end_nt` are all read off the inferred nucleotide
@@ -126,7 +145,7 @@ libraries and re-load the models per worker.
 ## Version floors
 
 ```toml
-"arda-mapper>=2.34.0",   # cdr3fix repair policy, v_alts/j_alts, blank-call proposal, map_d_junction(v_end=, j_start=)
+"arda-mapper>=2.36.0",   # cdr3fix repair policy, v_alts/j_alts, blank-call AND blank-locus proposal, map_d_junction(v_end=, j_start=)
 "vdjtools>=4.8.0",       # annotate_junctions
 ```
 
@@ -144,10 +163,13 @@ surprise, and the fix is to read `d_call` / `d_posterior` rather than to re-poin
    numbers mean.
 3. Replace `annotate/cdr3fix.py` with the stage-1 columns. Keep whatever maps them onto VDJdb's
    `cdr3fix` JSON key names — `Cdr3Markup.to_cdr3fix()` in arda still emits that object key-for-key.
-4. Delete `annotate/segments.py` and read `proposed` instead. arda 2.34.0 resolves **2,532 of the
-   3,130 blank-call keys** (2,504 of them `good`, with both boundaries placed); the 598 that stay
-   refused name neither side, so no locus exists to propose within and the module could not have
-   answered them either. An *unresolvable* call — `TRBVnope*01` — is still refused rather than
+4. Delete `annotate/segments.py` and read `proposed` instead. Of the **3,130 blank-call keys**,
+   2,669 name one side and 461 name neither. arda 2.34.0 resolved the one-sided ones (2,504 `good`,
+   with both boundaries placed) and refused the rest for want of a locus; **2.36.0 proposes the
+   locus too**, so all 461 get one and 459 come back `good`. The proposed locus agrees with the
+   `cdr3.alpha` / `cdr3.beta` column the record was filed under on **457 of 461 (99.13 %)**; all four
+   disagreements are `CACD…DKLIF`, TRDV2's own anchor and TRDJ1's own ending, in a schema with no
+   δ column. An *unresolvable* call — `TRBVnope*01` — is still refused rather than
    proposed for, deliberately: a submission that names something wrong is a defect for a curator, not
    a gap for the junction to fill.
 5. **Then** #711: `curate/anchors.py` keeps its classification (which is curation) and drops its
