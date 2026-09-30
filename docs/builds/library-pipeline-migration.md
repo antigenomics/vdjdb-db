@@ -1,4 +1,4 @@
-# Migrating the build onto arda 2.33.0 + vdjtools 4.8.0
+# Migrating the build onto arda 2.34.0 + vdjtools 4.8.0
 
 2026-09-30. **Everything the build does to annotate a junction is now one call in a library.** This
 note says which call, what it returns, and which of this repository's modules it replaces. The
@@ -6,12 +6,17 @@ libraries' own design note is `docs/junction_pipeline.md` in `antigenomics/vdjto
 
 ## Why
 
-Four of this build's modules re-implement, coordinate, or second-guess work the libraries do:
-`annotate/cdr3fix.py` (199 lines), `annotate/junction.py` (203), `annotate/dgene.py` (62) and
-`curate/anchors.py` (388) — 852 lines that call arda and vdjtools stage by stage, hold the coordinate
-conversions between them, and in `curate/anchors.py` compute a junction repair that is then
-**reported and never applied** (#711). One library call replaces the annotation part of all four. What
-stays here is *curation*: which records to flag, and what a curator does about a contradicted call.
+Five of this build's modules re-implement, coordinate, or second-guess work the libraries do:
+`annotate/cdr3fix.py` (199 lines), `annotate/junction.py` (203), `annotate/segments.py` (185),
+`annotate/dgene.py` (62) and `curate/anchors.py` (388) — **1,037 lines** that call arda and vdjtools
+stage by stage, hold the coordinate conversions between them, and in `curate/anchors.py` compute a
+junction repair that is then **reported and never applied** (#711). One library call replaces the
+annotation part of all five. What stays here is *curation*: which records to flag, and what a curator
+does about a contradicted call.
+
+`annotate/segments.py` exists because "`arda.cdr3fix` repairs a junction against a *named* germline and
+never proposes one". **arda 2.34.0 proposes one**, which is why the floor below is 2.34.0 and not
+2.33.0.
 
 ## The one call
 
@@ -37,6 +42,7 @@ explain is present with nulls — never dropped, never an exception. Deduplicate
 | `cdr3_repaired` | `annotate/cdr3fix.py` | the repaired junction; `cdr3_aa` is the submission |
 | `v_call`, `j_call` | `annotate/cdr3fix.py` | **confirmed or re-called**; feeds `cdr3fix.vId`/`jId` |
 | `v_alts`, `j_alts` | — | every allele the junction cannot separate, chosen one first |
+| `proposed` | `annotate/segments.py` | which side the submission left blank and the junction named |
 | `v_end`, `j_start` | `annotate/cdr3fix.py` | residues; VDJdb's `vEnd` / `jStart` |
 | `v_end_nt`, `j_start_nt` | `annotate/junction.py` | nucleotides — no `ceil(nt/3)` conversion here any more |
 | `v_flags`, `j_flags`, `good` | `curate/anchors.py` | `mismatch` is the curator's list; `impossible` is a malformed junction |
@@ -87,7 +93,7 @@ call in a pool: stage 2 already threads across the batch.
 ## Version floors
 
 ```toml
-"arda-mapper>=2.33.0",   # cdr3fix repair policy, v_alts/j_alts, map_d_junction(v_end=, j_start=)
+"arda-mapper>=2.34.0",   # cdr3fix repair policy, v_alts/j_alts, blank-call proposal, map_d_junction(v_end=, j_start=)
 "vdjtools>=4.8.0",       # annotate_junctions, posterior_d_batch
 ```
 
@@ -104,7 +110,13 @@ breaks on upgrade — that is the intended failure, not a surprise. `arda markup
    numbers mean.
 3. Replace `annotate/cdr3fix.py` with the stage-1 columns. Keep whatever maps them onto VDJdb's
    `cdr3fix` JSON key names — `Cdr3Markup.to_cdr3fix()` in arda still emits that object key-for-key.
-4. **Then** #711: `curate/anchors.py` keeps its classification (which is curation) and drops its
+4. Delete `annotate/segments.py` and read `proposed` instead. arda 2.34.0 resolves **2,532 of the
+   3,130 blank-call keys** (2,504 of them `good`, with both boundaries placed); the 598 that stay
+   refused name neither side, so no locus exists to propose within and the module could not have
+   answered them either. An *unresolvable* call — `TRBVnope*01` — is still refused rather than
+   proposed for, deliberately: a submission that names something wrong is a defect for a curator, not
+   a gap for the junction to fill.
+5. **Then** #711: `curate/anchors.py` keeps its classification (which is curation) and drops its
    repair computation (which is annotation), and the build ships `cdr3_repaired`.
-5. Re-run `vdjdb diff` against `reference.zip` and read the junction-column changes against the table
+6. Re-run `vdjdb diff` against `reference.zip` and read the junction-column changes against the table
    in §"Three things that change" above.
