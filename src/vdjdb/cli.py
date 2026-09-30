@@ -165,10 +165,19 @@ def build(
         anchors = noncanonical(master)
     anchors.write_csv(out / "reports" / "anchors.tsv", separator="\t")
     if not anchors.is_empty():
-        fixable = anchors.filter(pl.col("repair").is_not_null()).height
-        typer.echo(f"non-canonical junctions: {anchors.height:,} chain(s) over "
-                   f"{anchors['chunk.file'].n_unique()} chunk(s), {fixable:,} with a "
-                   f"germline-supported repair -> {out / 'reports' / 'anchors.tsv'}")
+        # The count of *submissions* that disagree with their own germline. `arda.cdr3fix` repairs
+        # what it can on the way through, so this is not the count that still ships wrong - that is
+        # smaller, and it is the number the release notes want (#711).
+        # `sibling.call` is 0 on the corpus today, and that is the finding being acted on rather
+        # than the check going quiet: the 95 mouse TRAJ47 chains that carried it were corrected in
+        # #647. So it is mentioned only when it fires.
+        miscalled = anchors.filter(pl.col("sibling.call").is_not_null()).height
+        top = anchors.group_by("defect").len().sort("len", descending=True).row(0)
+        typer.echo(f"non-canonical junctions: {anchors.height:,} submitted chain(s) over "
+                   f"{anchors['chunk.file'].n_unique()} chunk(s), largest class {top[0]!r} "
+                   f"({top[1]:,})"
+                   + (f", {miscalled:,} matching a functional sibling allele" if miscalled else "")
+                   + f" -> {out / 'reports' / 'anchors.tsv'}")
 
     # The segment calls no authority carries, after harmonisation (#389). The retired build wrote
     # these as `vdjdb_full_gene_broken.txt` and `vdjdb_full_allele_broken.txt` and nothing replaced
