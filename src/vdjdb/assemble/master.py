@@ -19,6 +19,7 @@ import polars as pl
 from ..config import Paths
 from ..curate.nomenclature import (
     disambiguate_alleles,
+    harmonise_method_tokens,
     harmonise_mhc,
     harmonise_references,
     harmonise_segments,
@@ -175,7 +176,7 @@ def harmonise_all(df: pl.DataFrame) -> tuple[pl.DataFrame, tuple[pl.DataFrame, .
 
     Returns the frame and one report per pass, ready for :func:`_write_harmonisation`.
 
-    This is a function rather than five calls inside :func:`build_master` because a second caller
+    This is a function rather than six calls inside :func:`build_master` because a second caller
     needs the same sequence and re-implementing it goes stale: `tests/release/test_registry_is_current.py`
     listed the passes by hand, and adding :func:`~vdjdb.curate.nomenclature.harmonise_vocabulary` as a
     fifth made that test reconcile the committed registry against a frame the build does not produce,
@@ -197,7 +198,10 @@ def harmonise_all(df: pl.DataFrame) -> tuple[pl.DataFrame, tuple[pl.DataFrame, .
     df, references = harmonise_references(df)
     # Case and separator variants that never join the spelling they are a variant of (#637, #633).
     df, vocabulary = harmonise_vocabulary(df)
-    return df, (segments, alleles, mhc, references, vocabulary)
+    # The same defect one level down: `method.identification` is a comma-separated set, so a variant
+    # inside a multi-token cell is unreachable from a whole-cell rewrite (#637).
+    df, method_tokens = harmonise_method_tokens(df)
+    return df, (segments, alleles, mhc, references, vocabulary, method_tokens)
 
 
 def build_master(paths: Iterable[Path] | None = None,
@@ -236,14 +240,17 @@ def build_master(paths: Iterable[Path] | None = None,
 
 def _write_harmonisation(path: Path, segments: pl.DataFrame, alleles: pl.DataFrame,
                          mhc: pl.DataFrame, references: pl.DataFrame,
-                         vocabulary: pl.DataFrame) -> pl.DataFrame:
-    """Union the five harmonisation reports and write them. Returns the frame. #700."""
+                         vocabulary: pl.DataFrame,
+                         method_tokens: pl.DataFrame) -> pl.DataFrame:
+    """Union the six harmonisation reports and write them. Returns the frame. #700."""
     report = pl.concat([
         _harmonisation_row("segments", segments, issue="#389"),
         _harmonisation_row("alleles", alleles),
         _harmonisation_row("mhc", mhc, column="mhc.a,mhc.b"),
         _harmonisation_row("references", references, issue="#347", column="reference.id"),
         _harmonisation_row("vocabulary", vocabulary, issue="#637"),
+        _harmonisation_row("method-tokens", method_tokens, issue="#637",
+                           column="method.identification"),
     ], how="vertical").sort("stage", "column", "species", "from", "to")
     path.parent.mkdir(parents=True, exist_ok=True)
     # `quote_style="never"`: a pass that reports no species writes an empty cell, and the default

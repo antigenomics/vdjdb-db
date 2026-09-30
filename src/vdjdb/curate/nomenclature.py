@@ -714,6 +714,82 @@ def harmonise_vocabulary(df: pl.DataFrame,
     return df, report.filter(pl.col("rows") > 0).sort("column", "from")
 
 
+@lru_cache(maxsize=8)
+def method_vocabulary(root: Path | None = None) -> tuple[tuple[str, str, str], ...]:
+    """``proofreading/method_vocabulary.tsv`` as ``(token, status, canonical)`` rows (#637).
+
+    Read once per process. Both consumers need the whole table rather than a projection of it:
+    :func:`harmonise_method_tokens` applies the ``alias`` rows and ``vdjdb.qc.rules`` reports a
+    token that is neither ``declared`` nor ``alias``.
+    """
+    path = (root or Paths.discover().root) / "proofreading" / "method_vocabulary.tsv"
+    if not path.exists():
+        return ()
+    table = pl.read_csv(path, separator="\t", infer_schema=False,
+                        comment_prefix="#").fill_null("")
+    return tuple((r["token"], r["status"], r["canonical"])
+                 for r in table.iter_rows(named=True))
+
+
+def harmonise_method_tokens(df: pl.DataFrame,
+                            root: Path | None = None) -> tuple[pl.DataFrame, pl.DataFrame]:
+    """Apply ``proofreading/method_vocabulary.tsv`` to ``method.identification`` (#637).
+
+    The specification page declares this vocabulary in prose and says "Separate phrases with a
+    comma", so a cell is a **set of tokens** and the unit of correction is the token, not the cell.
+    Measured over ``chunks/``: 56 distinct cells but 46 distinct tokens, 9 of them the declared
+    ones. :func:`harmonise_vocabulary` corrects whole cells and could only ever reach a variant that
+    happened to be a cell on its own.
+
+    Only ``status = alias`` rows rewrite anything. ``declared`` and ``pending`` are statements for
+    the report and the QC advisory, so admitting a new method to the vocabulary changes no data.
+
+    **The rejoin preserves the submitted delimiters.** A cell is split on its separators, keeping
+    them, and only the token parts are substituted, so a cell with no alias in it is returned
+    unchanged rather than re-serialised under a separator this function chose.
+
+    Runs on the **distinct cell values**, of which there are 56, and joins back - the same
+    dedupe-before-an-expensive-pass rule the junction annotation uses (``CLAUDE.md`` rule 4), not a
+    loop over 192,641 rows.
+    """
+    # `from`/`to`/`rows` is the shape every harmonisation report has, so this one widens into
+    # `out/reports/harmonisation.tsv` like the others rather than needing its own writer.
+    empty = pl.DataFrame(schema={"from": pl.String, "to": pl.String, "rows": pl.Int64})
+    column = "method.identification"
+    path = (root or Paths.discover().root) / "proofreading" / "method_vocabulary.tsv"
+    if not path.exists() or column not in df.columns:
+        return df, empty
+    aliases = {tok: canonical for tok, status, canonical in method_vocabulary(root)
+               if status == "alias"}
+    if not aliases:
+        return df, empty
+
+    counts: dict[str, int] = {}
+    mapping: dict[str, str] = {}
+    for cell, n in zip(*_value_counts(df, column), strict=True):
+        parts = re.split(r"(\s*,\s*)", cell)
+        fired = {p: aliases[p] for p in parts[::2] if p in aliases}
+        if not fired:
+            continue
+        parts[::2] = [aliases.get(p, p) for p in parts[::2]]
+        mapping[cell] = "".join(parts)
+        for token in fired:
+            counts[token] = counts.get(token, 0) + n
+
+    if mapping:
+        df = df.with_columns(pl.col(column).replace(mapping))
+    rows = [{"from": k, "to": aliases[k], "rows": v} for k, v in counts.items()]
+    report = pl.DataFrame(rows, schema=empty.schema) if rows else empty
+    return df, report.sort("rows", descending=True)
+
+
+def _value_counts(df: pl.DataFrame, column: str) -> tuple[list[str], list[int]]:
+    """The distinct non-blank values of ``column`` and how many records carry each."""
+    vc = (df.filter(pl.col(column) != "").group_by(column)
+            .len().sort(column))
+    return vc[column].to_list(), vc["len"].to_list()
+
+
 def harmonise_references(df: pl.DataFrame,
                          root: Path | None = None) -> tuple[pl.DataFrame, pl.DataFrame]:
     """Replace a non-PMID ``reference.id`` with its PubMed id where one exists (#347).
