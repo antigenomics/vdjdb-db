@@ -45,7 +45,6 @@ from __future__ import annotations
 
 import polars as pl
 
-from ..annotate.dgene import D_COLUMNS
 from ..annotate.junction import NT_COLUMNS
 from ..identity.levels import CLONOTYPE, EPITOPE, PMHC, clone_ids, derive
 from ..schema import CHAIN_COLUMNS, RECORD_COLUMNS
@@ -139,7 +138,7 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
                 # of the markup rather than recomputed, so the germline the repair ran against and
                 # the call reported here cannot disagree. `j.inferred` is also what `j.segm` carries
                 # on those chains; `v.inferred` ships nowhere else, and
-                # :mod:`vdjdb.annotate.segments` states how far to trust each.
+                # :func:`vdjdb.annotate.cdr3fix.markup` states how far to trust each.
                 pl.col(f"__gv.{gene}").alias("v.inferred"),
                 pl.col(f"__gj.{gene}").alias("j.inferred"),
                 pl.col("TCR_hash"),
@@ -148,7 +147,7 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
     # The junction-nucleotide columns are added afterwards, by `vdjdb.annotate.junction`: they need
     # the species, which is on `records`, and a model load per (species, locus).
     produced = [c for c in CHAIN_COLUMNS
-                if c not in (*NT_COLUMNS, *D_COLUMNS, "clone_id")]
+                if c not in (*NT_COLUMNS, "clone_id")]
     # Sorted by the key, so the table has one order and it is the key's.
     chains = (pl.concat(parts, how="vertical")
             # 34 rows are a D call with no CDR3, so the fixer was never handed anything and left no
@@ -177,7 +176,6 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
 
 def build_tables(master: pl.DataFrame, *, release: str = "dev") -> dict[str, pl.DataFrame]:
     """The definitive tables, keyed by name."""
-    from ..annotate.dgene import add_d_posterior
     from ..annotate.junction import add_junction_nt
     from ..timing import stage
     from .epitopes import build_epitopes, build_restriction
@@ -190,10 +188,11 @@ def build_tables(master: pl.DataFrame, *, release: str = "dev") -> dict[str, pl.
         records = build_records(master)
     with stage("build_chains"):
         chains = build_chains(master)
+    # One batched `annotate_junctions` call: the nucleotide junction, its Pgen, the D gene, its
+    # posterior and where it sits. It replaced `annotate.dgene.add_d_posterior`, a per-key Python
+    # loop into the now-retired `arda.dpost` that was 35.8 % of the build on its own.
     with stage("annotate.junction.add_junction_nt"):
         chains = add_junction_nt(chains, records)
-    with stage("annotate.dgene.add_d_posterior"):
-        chains = add_d_posterior(chains, records)
     chains = chains.select(CHAIN_COLUMNS)
     with stage("build_evidence"):
         evidence = build_evidence(records, chains, release=release)

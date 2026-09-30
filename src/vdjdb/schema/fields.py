@@ -280,11 +280,10 @@ FIELDS: dict[str, Field] = dict([
        title="J start inferred",
        comment="As v.end.inferred, for j.start."),
     _f("d.posterior", searchable=0, autocomplete=0, data_type="float", title="D posterior",
-       comment="Posterior probability of the gene d.inferred names, from arda.dpost. Median 0.791 "
-               "and below 0.6 on 21.8 % of beta chains -- filter on it."),
-    _f("d.entropy", searchable=0, autocomplete=0, data_type="float", title="D entropy",
-       comment="Entropy of the posterior over D genes. Above 0.9 on 28.9 % of beta chains, where "
-               "TRBD1 and TRBD2 are essentially undecidable from the junction."),
+       comment="Posterior probability of the gene d.inferred names, from the same recombination "
+               "scenario weights that named it -- so the number is the probability of that call. "
+               "Naming the D is 74.35 % correct at gene level on human TRB against nucleotide "
+               "truth; filter on this rather than reading d.inferred alone."),
     _f("cdr3nt.margin", searchable=0, autocomplete=0, data_type="float", title="CDR3nt margin",
        comment="How far the inferred junction beat the runner-up: its Pgen divided by the next "
                "candidate's. Near 1 means the choice among synonymous histories was near-arbitrary."),
@@ -498,7 +497,7 @@ CHAIN_COLUMNS: tuple[str, ...] = (
     "v.end", "j.start",
     "cdr3nt", "cdr3nt.pgen", "cdr3nt.margin",
     "v.inferred", "j.inferred",
-    "d.inferred", "d.start", "d.end", "d.posterior", "d.entropy",
+    "d.inferred", "d.start", "d.end", "d.posterior",
     "v.end.inferred", "j.start.inferred",
     "cdr3.original", "fix.needed", "fix.good",
     "v.fix.type", "j.fix.type", "v.canonical", "j.canonical",
