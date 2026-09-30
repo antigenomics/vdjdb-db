@@ -378,6 +378,29 @@ FIELDS: dict[str, Field] = dict([
     _f("chunk.row", searchable=0, autocomplete=0, data_type="uint", title="Chunk row",
        comment="0-based row within the chunk; with chunk.file it points at the curated line."),
     # -- the epitope catalogue (ROADMAP phase 9d) -----------------------------------------------
+    # #632. Nothing in the catalogue could say that two rows are two forms of one peptide, so it
+    # said nothing, and `SLLMWITQV` (29,729 records) and its proteome form `SLLMWITQC` (13) are
+    # unrelated rows. Read from `proofreading/epitope_proteome.tsv`, never computed by a build:
+    # `mhcmatch` fetches the proteome from HuggingFace, so resolving it here would put a network
+    # call in the critical path and make the answer depend on the day (hard rule 9).
+    #
+    # **This is not a defect report.** The epitope sequence is the ground truth: it is the peptide
+    # the experiment used, and in essentially every case it differs from the proteome because
+    # somebody meant it to - an anchor-optimised vaccine peptide, a designed altered-peptide ligand,
+    # a structure solved with a modified peptide, a heteroclitic variant. The pair is a fact about
+    # the reagent, and the column exists so a query for one form can reach the other.
+    #
+    # Named for what was measured and not for why, which is `curate.antigens`' rule: the sequence
+    # tells those causes apart from none of the others.
+    _f("proteome.peptide", searchable=0, autocomplete=0, title="Proteome peptide",
+       comment="The host-proteome peptide this epitope is one substitution from, where the epitope "
+               "is not itself in the proteome. Not a defect flag: the epitope is the peptide the "
+               "experiment used and the difference is almost always deliberate. Empty on most "
+               "rows, and on a viral or bacterial epitope always, because only the two self "
+               "proteomes are read."),
+    _f("proteome.substitution", searchable=0, autocomplete=0, title="Substitution",
+       comment="Where the two differ, as position-proteome-to-epitope: `9C>V` is the difference "
+               "between NY-ESO-1's SLLMWITQC and the SLLMWITQV that 29,729 records report."),
     _f("epitope.length", searchable=0, autocomplete=0, data_type="uint", title="Epitope length",
        comment="Residues in the epitope. MHC-I presents 8-11, MHC-II 12-25, so it cross-checks "
                "mhc.class independently of the allele."),
@@ -548,6 +571,7 @@ CHAIN_COLUMNS: tuple[str, ...] = (
 EPITOPE_COLUMNS: tuple[str, ...] = (
     "antigen.epitope", "antigen.species", "antigen.gene", "epitope.length",
     "mhc.class", "records", "chains", "references", "clonotypes",
+    "proteome.peptide", "proteome.substitution",
 )
 
 #: The six promiscuity columns of ``restriction`` (ROADMAP §10.6). Joined from the committed
