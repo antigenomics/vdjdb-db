@@ -22,9 +22,29 @@ The ``BuildDatabase`` routine runs in CI on every submission and before every re
 
 Papers not yet processed are listed under the [`paper` label](https://github.com/antigenomics/vdjdb-db/labels/paper).
 
-An [XLS template](https://raw.githubusercontent.com/antigenomics/vdjdb-db/master/template.xls) is available for preparing a chunk.
+Two templates are available for preparing a chunk, generated from the same declaration by
+`vdjdb schema --table chunk --format template`, so neither can describe a column set the build does
+not read:
 
-> **CAUTION** Check that nothing is corrupted on import from the XLS template: ``x/X`` frequencies turned into dates, bad encoding, and similar. The format of every field is pre-set to *text* to prevent this.
+- **[template.xlsx](https://raw.githubusercontent.com/antigenomics/vdjdb-db/master/template.xlsx)** -
+  open this one in Excel, LibreOffice or Numbers. The header is coloured by column group (grey
+  `chunk.id`, peach for the required complex columns, pale yellow for `method.*`, pale green for
+  `meta.*`), each header carries its description as a hover note, and a second **columns** sheet
+  lists every column with its group and a link to this specification.
+- **[template.tsv](https://raw.githubusercontent.com/antigenomics/vdjdb-db/master/template.tsv)** -
+  the same 33 columns and the same examples as plain text, for a script or an editor.
+
+Both carry four example records, one per shape a submission takes: a paired class I record with a
+structure, a paired class II record, a beta-only record naming its D segment, and an alpha-only
+mouse record. In the `.xlsx` each example's `chunk.id` cell carries a note saying what it
+demonstrates.
+
+> **CAUTION** ``x/X`` frequencies turning into dates, and allele names being mangled, is the
+> classic way a submission arrives corrupted. **`template.xlsx` formats every cell as *text* to
+> prevent it**, including 100 empty rows past the examples, so typing into a fresh row keeps the
+> protection. If you build a chunk any other way - from `template.tsv`, or by exporting from
+> another tool - set every column to text before you paste, then check `method.frequency` and the
+> V/J calls afterwards.
 
 ## Every change to `chunks/` happens on a branch that names its reason
 

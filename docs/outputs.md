@@ -91,6 +91,18 @@ not a convention.
 A normalised star schema rather than one denormalised table. Three fact tables plus the joined view.
 Parquet, with a TSV projection of each for users without a parquet reader.
 
+**Column names here are `underscore_case`**, not the dotted names the legacy tables use: `mhc_a`,
+`antigen_epitope`, `v_segm`, `cdr3nt_pgen`. A dot is a table qualifier in SQL and blocks attribute
+access in most dataframe libraries, and these tables already mixed the two conventions -
+`record_id` and `pmhc_id` beside `mhc.a`. The rule is a plain dot substitution with case left alone,
+so `TCR_hash` and `meta.donor.MHC` ship as `TCR_hash` and `meta_donor_MHC`. The legacy tables do not
+move: they are a positional contract `vdjdb-web` parses.
+
+`vdjdb.schema.json` states both names per column - `name` is what the legacy tables ship and what
+the registry indexes, `ships_as` is what these tables ship - and
+[Columns](standards/columns.md) is the generated table for each, so neither can drift from the
+build. The chunk format is unaffected: a submitted chunk still uses the dotted names.
+
 ### 3.1 `records.parquet` - one row per submitted record
 
 Primary key `record_id`, unique. One chunk row is one record: a chunk is one paper, a row is that
@@ -106,15 +118,15 @@ The receptor is not here: a chain is an observation, so it is a row of `chains`,
 | Group | Columns |
 |---|---|
 | identity | `record_id`, `pmhc_id`, `epitope_id` |
-| antigen | `species`, `mhc.a`, `mhc.b`, `mhc.class`, `antigen.epitope`, `antigen.gene`, `antigen.species` |
-| provenance | `reference.id` |
-| sample | `meta.study.id`, `.cell.subset`, `.subject.cohort`, `.subject.id`, `.replica.id`, `.clone.id`, `.tissue` - the id fields that are part of identity |
-| annotation | `meta.epitope.id`, `.donor.MHC`, `.donor.MHC.method`, `.structure.id`, `.subset.frequency` |
-| method | `method.identification`, `.frequency`, `.singlecell`, `.sequencing`, `.verification`, `.pairing` |
-| score | `vdjdb.score` |
-| curation | `chunk.file`, `chunk.row`, `chunk.id`, `submitter`, `comment` |
+| antigen | `species`, `mhc_a`, `mhc_b`, `mhc_class`, `antigen_epitope`, `antigen_gene`, `antigen_species` |
+| provenance | `reference_id` |
+| sample | `meta_study_id`, `meta_cell_subset`, `meta_subject_cohort`, `meta_subject_id`, `meta_replica_id`, `meta_clone_id`, `meta_tissue` - the id fields that are part of identity |
+| annotation | `meta_epitope_id`, `meta_donor_MHC`, `meta_donor_MHC_method`, `meta_structure_id`, `meta_subset_frequency` |
+| method | `method_identification`, `method_frequency`, `method_singlecell`, `method_sequencing`, `method_verification`, `method_pairing` |
+| score | `vdjdb_score` |
+| curation | `chunk_file`, `chunk_row`, `chunk_id`, `submitter`, `comment` |
 
-`submitter`, `comment`, `chunk.id`, `meta.subset.frequency` and `method.pairing` are kept here; the
+`submitter`, `comment`, `chunk_id`, `meta_subset_frequency` and `method_pairing` are kept here; the
 legacy build discards all five.
 
 `content_hash`, the record state and the release/commit provenance are in the registry (§6), not
@@ -126,12 +138,12 @@ Primary key `(record_id, gene)`. This is the level `vdjdb.txt` is written at. Ch
 table so that record fields are not duplicated per chain, as in `vdjdb.txt`, and not folded into
 paired alpha/beta columns, as in `vdjdb_full.txt`.
 
-35 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `clone_id`, `cdr3`, `v.segm`,
-`d.segm`, `j.segm`,
-`v.end`, `j.start`, `cdr3nt`, `cdr3nt.pgen`, `cdr3nt.margin`, `v.inferred`, `j.inferred`,
-`d.inferred`, `d.start`, `d.end`, `d.posterior`, `v.end.inferred`, `j.start.inferred`,
-`cdr3.original`, `fix.needed`, `fix.good`, `v.fix.type`, `j.fix.type`, `v.canonical`, `j.canonical`,
-`v.segm.submitted`, `j.segm.submitted`, `d.segm.submitted`, `v.segm.arda`, `j.segm.arda`,
+35 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `clone_id`, `cdr3`, `v_segm`,
+`d_segm`, `j_segm`,
+`v_end`, `j_start`, `cdr3nt`, `cdr3nt_pgen`, `cdr3nt_margin`, `v_inferred`, `j_inferred`,
+`d_inferred`, `d_start`, `d_end`, `d_posterior`, `v_end_inferred`, `j_start_inferred`,
+`cdr3_original`, `fix_needed`, `fix_good`, `v_fix_type`, `j_fix_type`, `v_canonical`, `j_canonical`,
+`v_segm_submitted`, `j_segm_submitted`, `d_segm_submitted`, `v_segm_arda`, `j_segm_arda`,
 `TCR_hash`.
 
 `cdr3nt` is inferred, not observed (#461): it is the most plausible nucleotide junction behind the

@@ -8,6 +8,25 @@ Two rows in two different chunks are independent reports, never duplicates, even
 every field matches. The motif stage is tuned against that replication
 ({doc}`../denoising`).
 
+## The declared column order
+
+The 33 columns below, in this order, are what
+[`template.tsv`](https://raw.githubusercontent.com/antigenomics/vdjdb-db/master/template.tsv)
+carries, and both are generated from the field registry so neither can describe a column set the
+build does not read. Chunk columns keep their **dotted** names: the tidy tables ship
+`underscore_case`, but a chunk header is the submission contract.
+
+This is an order, not a gate. A submitted chunk may order its columns however it likes and may omit
+the optional ones - what is checked is that every column it *does* name is one of these, plus the
+three curation columns a chunk may carry and the template does not: `submitter`, `comment` and
+`method.pairing`.
+
+```{vdjdb-schema} chunk
+:columns: name, title
+```
+
+The rest of this page is how to fill each one, which is the part no generated table can carry.
+
 ## Complex information columns (required)
 
 These columns describe the TCR:peptide:MHC complex and are mandatory in any submission.

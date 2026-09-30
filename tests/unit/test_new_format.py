@@ -115,3 +115,40 @@ def test_the_generated_schema_describes_every_column_of_every_table(tmp_path, ta
     # A string, not a uint: the id is `CT` plus 16 hex digits of a sha256 we own, because polars
     # does not specify `Expr.hash` across versions and this id ships (ROADMAP.md section 10.3).
     assert described["clonotype_id"]["dtype"] == "String"
+
+
+def test_the_tidy_tables_ship_underscore_names_and_the_legacy_ones_do_not(tmp_path, tables):
+    """The convention, asserted on the files rather than on the mapping.
+
+    A dot is a table qualifier in SQL and blocks attribute access in most dataframe libraries. The
+    legacy tables cannot follow: their column order is a positional contract `vdjdb-web` parses, and
+    `vdjdb.meta.txt` must match `vdjdb.txt` column for column.
+    """
+    written = vdjdb3.write_all(tables, tmp_path / "new")
+    for name in written:
+        if not name.endswith(".tsv"):
+            continue
+        header = (tmp_path / "new" / name).read_text().split("\n", 1)[0].split("\t")
+        assert not [c for c in header if "." in c], (name, [c for c in header if "." in c])
+
+    legacy_files = legacy.write_all(tables, tmp_path / "legacy")
+    head = legacy_files["vdjdb.txt"].read_text().split("\n", 1)[0].split("\t")
+    assert "antigen.epitope" in head and "antigen_epitope" not in head
+
+
+def test_reading_a_tidy_table_back_restores_every_internal_name(tmp_path, tables):
+    """The rename has to be exactly invertible or a round trip drops a column silently.
+
+    `write_all` is the only place the tidy names are applied and `read_table` the only place they
+    are undone, so this is the property that lets everything inside `assemble/` keep the dotted
+    names.
+    """
+    vdjdb3.write_all(tables, tmp_path)
+    for name, frame in tables.items():
+        back = vdjdb3.read_table(tmp_path, name)
+        assert back.columns == frame.select(back.columns).columns
+        assert set(back.columns) == set(frame.columns), name
+
+    # and a projection asks in internal names, not shipped ones
+    got = vdjdb3.read_table(tmp_path, "records", ["record_id", "antigen.epitope"])
+    assert got.columns == ["record_id", "antigen.epitope"]
