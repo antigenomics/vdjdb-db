@@ -156,7 +156,8 @@ def infer(keys: pl.DataFrame) -> pl.DataFrame:
     # with arda's default `max_replace=1` where `annotate/cdr3fix.py` deliberately uses 0 (#327:
     # substituting destroys the evidence that fixes an allele call). `cdr3_repaired` does **not**
     # report it: it equals the input on all but 117 of these rows, so a proxy check misses them.
-    # Filed as `antigenomics/vdjtools#187`.
+    # `antigenomics/vdjtools#186` is the upstream report: the germline flank overwrites a
+    # residue past the amino-acid boundary.
     #
     # So the gate is the direct check, the same one `tests/release/test_tables_contract.py` makes:
     # everything read off the nucleotide sequence is dropped where the sequence does not translate
