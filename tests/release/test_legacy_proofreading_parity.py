@@ -164,9 +164,11 @@ def test_a_junction_with_no_germline_to_check_is_still_reported(reports) -> None
     assert unanchored.height > 0, (
         "no chain is reported as `unanchored`. Either the corpus has none, which would be new, or the "
         "fallback in `anchors.classify` has stopped firing and 118 chains went silent.")
-    # No germline means no repair can be proposed, and proposing one would be inventing a residue.
-    assert unanchored.filter(pl.col("repair") != "").height == 0, (
-        "a repair was proposed for a junction with no germline behind it")
+    # No germline means nothing to compare against, so no sibling allele can be named either -
+    # naming one would be inventing a call. (The *sequence* repair is `arda.cdr3fix`'s and this
+    # module no longer computes one at all, #711.)
+    assert unanchored.filter(pl.col("sibling.call") != "").height == 0, (
+        "a sibling allele was named for a junction with no germline behind it")
 
 
 # --------------------------------------------------------------------------------------------
