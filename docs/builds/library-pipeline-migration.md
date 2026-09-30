@@ -101,11 +101,14 @@ this repository.
 
 ## Cost
 
-**~280 µs per distinct key**, so under a minute for a 190,000-key corpus in one process. The
-nucleotide inference dominates; naming the D costs ~30 µs and placing it ~1.4 µs. Compare what it
-replaces: `posterior_d` alone was 15.96 s over 119,034 keys via a Python row loop (35.8 % of the
-build), the nucleotide stage ran as four `vdjdb infer-nt` processes over contiguous slices, and
-`fix_cdr3` was 7.71 s.
+Measured on **this repository's own chunk files**: 192,726 distinct keys in **35.1 s, one process,
+182 µs per key**. 190,093 get a nucleotide junction, **123,916 of the 124,489 TRB keys get a D gene**
+and 121,232 of those get coordinates; the 65,107 TRA keys have no D to find. The nucleotide inference
+dominates; naming the D costs ~30 µs and placing it ~1.4 µs.
+
+Compare what it replaces: `posterior_d` alone was 15.96 s over 119,034 keys via a Python row loop
+(35.8 % of the build), the nucleotide stage ran as four `vdjdb infer-nt` processes over contiguous
+slices, and `fix_cdr3` was 7.71 s. One call, one process, is now faster than any of them.
 
 ⛔ Do **not** wrap the call in a pool. Every stage is already batched: one `markup_batch`, then one
 native threaded `infer_nt_batch` and one `best_aa_scenarios_batch` per `(organism, locus)` on a model
