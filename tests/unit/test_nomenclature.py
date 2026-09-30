@@ -443,12 +443,16 @@ def test_the_harmonisation_reports_union_into_one_frame(tmp_path):
     vocabulary = pl.DataFrame({"column": ["antigen.gene"], "species": [""], "from": ["IE-1"],
                                "to": ["IE1"], "rows": [31]})
 
+    method_tokens = pl.DataFrame({"from": ["Cultured-T-cells"], "to": ["cultured-T-cells"],
+                                  "rows": [2112]})
+
     path = tmp_path / "reports" / "harmonisation.tsv"
-    report = _write_harmonisation(path, segments, alleles, mhc, references, vocabulary)
+    report = _write_harmonisation(path, segments, alleles, mhc, references, vocabulary,
+                                  method_tokens)
 
     assert report.columns == list(HARMONISATION_REPORT)
-    assert report.height == 5, "one row per rewrite, and `signature` must not become a column"
-    assert report["rows"].sum() == 3 + 974 + 149 + 17 + 31
+    assert report.height == 6, "one row per rewrite, and `signature` must not become a column"
+    assert report["rows"].sum() == 3 + 974 + 149 + 17 + 31 + 2112
     # The pass that reports no species writes an empty cell, not a quoted one: hard rule 6.
     assert "\"\"" not in path.read_text()
     assert report.filter(pl.col("stage") == "references")["issue"].item() == "#347"

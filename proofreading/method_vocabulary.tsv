@@ -1,0 +1,73 @@
+# The `method.identification` token vocabulary (#637).
+#
+# `docs/standards/chunk-format.md` declares this vocabulary in prose and says "Separate phrases with
+# a comma", so a cell is a **set of tokens** and enforcement belongs on the token. Measured over
+# `chunks/`: 56 distinct cells but **46 distinct tokens**, 9 of them the declared ones.
+#
+# One row per token. `status` is one of:
+#
+#   declared  - a vocabulary member. The 9 from the specification page, plus the methods the corpus
+#               carries that the page never named; those are admitted under the spelling they
+#               already have rather than renamed to something no submitter wrote.
+#   alias     - a case, separator or spelling variant of a declared token. `canonical` names it.
+#   pending   - present in the corpus and not decided. A curator's call, listed with the question.
+#
+# **Not a gate.** `vdjdb qc` reports an unknown or `pending` token as an advisory finding and never
+# fails, the same treatment every other table in `proofreading/` gets. A submission naming a method
+# nobody has seen is a method nobody has seen, not a defect.
+#
+# Four aliases move a confidence score, because `score/confidence.py` matches **substrings** of the
+# lowercased cell and a typo misses the substring it was meant to hit:
+# `cultivated-t-cells` (62 records) does not contain `culture`; `antigen-loaded-target`,
+# `antigen-loaded-targed` and `antigen-expressing cells` (61) do not contain `targets`. Correcting
+# the spelling gives those 123 records the score their method earns. Every other alias here already
+# matched, so it cannot move a score.
+token	status	canonical	reason
+tetramer-sort	declared		specification page; 94,716 records, the commonest value
+dextramer-sort	declared		specification page
+pelimer-sort	declared		specification page
+pentamer-sort	declared		specification page
+antigen-loaded-targets	declared		specification page; T cells assayed against cells incubated with peptide
+antigen-expressing-targets	declared		specification page; T cells assayed against transformed cells
+beads	declared		specification page; magnetic cell separation
+cultured-T-cells	declared		specification page; method.frequency has a different meaning with it
+limiting-dilution-cloning	declared		specification page; method.frequency has a different meaning with it
+tetramer.sort	alias	tetramer-sort	separator variant; 2,752 token occurrences. Already corrected as a whole cell by vocabulary.tsv, declared here so the token table is the one place the answer lives
+Tetramer-sort	alias	tetramer-sort	case variant; 135
+tetramer sort	alias	tetramer-sort	separator variant; 5
+Cultured-T-cells	alias	cultured-T-cells	case variant; 2,910. Already scores as culture-based - `cultured` contains `culture`
+cultivated-t-cells	alias	cultured-T-cells	spelling variant; 62. MOVES THE SCORE: does not contain `culture`
+antigen loaded targets	alias	antigen-loaded-targets	separator variant; 3
+antigen-loaded-target	alias	antigen-loaded-targets	singular; 31. MOVES THE SCORE: does not contain `targets`
+antigen-loaded-targed	alias	antigen-loaded-targets	typo; 23. MOVES THE SCORE: does not contain `targets`
+antigen-expressing cells	alias	antigen-expressing-targets	separator and noun variant; 7. MOVES THE SCORE: does not contain `targets`
+limiting-diffusion-cloning	alias	limiting-dilution-cloning	diffusion for dilution; 30
+limited-dilution-cloning	alias	limiting-dilution-cloning	tense variant; 21
+cloning-by-limiting-dilution	alias	limiting-dilution-cloning	word order; 12
+phage display	declared		36,795. A display library rather than a T cell assay, and the specification page has no term for it
+multimer-sort	declared		1,071. The multimer valency was not reported; the four *-sort terms all name one
+peptide-stimulation	declared		2,910
+antigen-stimulation	declared		485
+peptide-restimulation	declared		27
+enrichment	declared		485
+CD137 expression	declared		462. An activation-marker readout
+structural	declared		341. The specificity comes from a solved complex, not an assay
+streptamer-sort	declared		82
+monomer-sort	declared		32
+cd8null-tetramer-sort	declared		31. The specification page asks for cd8null-tetramer here rather than a mutated mhc.a
+tetramer-magnetic-selection	declared		21
+T-Scan	declared		30. A pooled antigen-discovery screen
+YAMTAD system	declared		24
+NFAT-luc2 luminescence	declared		14. A reporter readout
+NFAT luminescence	declared		7. The same readout without the construct; kept separate because the two cells report different detail
+IFNg capture assay	declared		46
+TNF Secretion	declared		10
+ELISA	declared		9
+CTL culture	declared		9
+CTL clone	declared		1
+# Pending: present in the corpus, not decided. Each is a curator's call and each is named so the
+# question is on the record rather than in someone's head.
+magnetic beads	pending		36,795. The specification page says to use `beads` for magnetic cell separation, so this is probably an alias - but it is 36,795 records beside `phage display`, one study, and collapsing it asserts the separation was the identification. No score moves either way: `magnetic beads` already contains `beads`
+MHC-peptide-beads	pending		62. More specific than the declared `beads` - the beads carry pMHC, so this is a multimer-like sort rather than a bulk separation. Alias to `beads` or admit as its own term
+tetramer-stain	pending		8. The specification page lists `tetramer-stain` under **method.verification**, not identification, so these 8 cells may be in the wrong column. Needs the papers
+cla	pending		2. Two characters, no expansion anywhere in the corpus or the specification. Needs the chunk read
