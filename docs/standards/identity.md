@@ -3,6 +3,13 @@
 A VDJdb record is a receptor against a presented peptide. Both halves recur across records, and
 consumers reference both halves, so each level carries an identifier of its own.
 
+**The antigen is the peptide-MHC complex** ([terminology](terminology.md)), which is why the levels
+below stop at the peptide and its presentation: `pmhc_id` is the finest statement of what a receptor
+was shown, and there is deliberately no identifier for a gene, a protein or a species.
+`antigen.gene` and `antigen.species` are the peptide's provenance - a real query axis, and not an
+identity - so they are absent from every id here and from the row key `vdjdb diff` uses. A correction
+to either is a changed cell on the same record, never a record retired and another allocated.
+
 | Level | Identifies | Id | Where it appears |
 |---|---|---|---|
 | clonotype | one receptor chain | `CT` + 16 hex digits | `chains.clonotype_id` |

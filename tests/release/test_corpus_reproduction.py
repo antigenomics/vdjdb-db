@@ -33,6 +33,12 @@ MIN_OCCURRENCES = 50
 #: were two documents for one paper, sharing the epitope `GQVELGGGNAVEVCK`, so the count falls by one
 #: rather than rising. Frozen so a change in the weighting shows up here rather than in a conclusion
 #: someone draws later.
+#:
+#: `motif_above_median` re-measured 2026-09-30 on `annotate_junctions`: **25 -> 26**. The corpus's
+#: `v:` and `j:` token families are the shipped segment calls, and arda 2.36 re-calls a segment whose
+#: germline the junction contradicts, so the document-frequency weighting moves. The direction is the
+#: one to want - one more of the 29 `RS` k-mers sits above the median, so the family's claim is
+#: stronger rather than weaker - and `top_kmer`, `top_lift` and `median_lift` did not move at all.
 EXPECTED = {
     "documents": 661,
     "kmers_scored": 2342,
@@ -40,12 +46,12 @@ EXPECTED = {
     "top_lift": 2.663,
     "median_lift": 1.170,
     "motif_kmers": 29,
-    "motif_above_median": 25,
+    "motif_above_median": 26,
 }
 
 #: ``k:CAS`` is the germline-encoded start of nearly every beta CDR3: present in 614 of 661 documents.
-#: It must not read as antigen-specific, and a weighting that made it look so would be wrong in the
-#: way that matters most, because it is the first thing anyone will query.
+#: It must not read as enriched under any condition, and a weighting that made it look so would be
+#: wrong in the way that matters most, because it is the first thing anyone will query.
 GERMLINE_KMER = "k:CAS"
 GERMLINE_TOLERANCE = 0.10
 
@@ -119,8 +125,14 @@ def test_the_motif_family_sits_above_the_middle_of_the_distribution(scored) -> N
     assert above / len(motif) > 0.8, "a motif family scattered around the median is not a signal"
 
 
-def test_a_germline_kmer_does_not_read_as_antigen_specific(corpus) -> None:
-    """`k:CAS` starts nearly every beta CDR3, so any antigen it appears specific to is an artefact."""
+def test_a_germline_kmer_reads_flat_under_every_kind_of_condition(corpus) -> None:
+    """`k:CAS` starts nearly every beta CDR3, so any condition it appears enriched under is an artefact.
+
+    Both kinds of condition are asserted, and they are not the same question. `e:GILGFVFTL` names an
+    epitope the receptors were actually shown; `a:HIV-1` is provenance, a union over every epitope of
+    that species and every restriction, which is a legitimate axis but not a specificity one. A
+    germline k-mer has to read flat under both, which is a stronger claim than either alone.
+    """
     for condition in ("a:HIV-1", f"e:{EPITOPE}"):
         got = query.lift(corpus, GERMLINE_KMER, [condition], over="occurrences")
         assert got.lift is not None

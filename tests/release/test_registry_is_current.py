@@ -31,25 +31,17 @@ pytestmark = pytest.mark.release
 @pytest.fixture(scope="module")
 def reconciled():
     """The corpus reconciled against the committed registry, without writing anything."""
-    from vdjdb.curate.nomenclature import (
-        disambiguate_alleles,
-        harmonise_mhc,
-        harmonise_references,
-        harmonise_segments,
-    )
-    from vdjdb.curate.patch import apply_antigen_patch
+    from vdjdb.assemble.master import harmonise_all
     from vdjdb.io.chunks import read_chunks
 
     path = Paths.discover().root / REGISTRY
     if not path.exists():
         pytest.skip(f"no committed registry at {path}")
-    # The same stages `build_master` runs before `add_record_ids`, and no more: identity is assigned on
-    # what the publications reported, before any CDR3 repair.
-    df = apply_antigen_patch(read_chunks(None))
-    df, _ = harmonise_segments(df)
-    df, _ = disambiguate_alleles(df)
-    df, _ = harmonise_mhc(df)
-    df, _ = harmonise_references(df)
+    # **`harmonise_all`, not a hand-written list of the passes.** This fixture used to name the four
+    # it knew about, and adding `harmonise_vocabulary` as a fifth (#637) made it reconcile the
+    # committed registry against a frame the build does not produce - 170 amendments reported in the
+    # wrong direction, on a registry that was correct. One sequence, two callers.
+    df, _ = harmonise_all(read_chunks(None))
     _, _, report = reconcile(df, IdentityRegistry.load(path), release="test")
     return report
 

@@ -661,6 +661,59 @@ def harmonise_mhc(df: pl.DataFrame, root: Path | None = None) -> tuple[pl.DataFr
 # References
 # ---------------------------------------------------------------------------------------------
 
+def harmonise_vocabulary(df: pl.DataFrame,
+                         root: Path | None = None) -> tuple[pl.DataFrame, pl.DataFrame]:
+    """Apply ``proofreading/vocabulary.tsv``: declared value corrections for the free-text and
+    controlled-vocabulary columns (#637, #633).
+
+    `out/reports/lookalikes.tsv` reports values differing from another value only in case or in a
+    `-`, `_`, `.` or space, so they never join it - 19 groups over 2 columns when this pass landed.
+    That report is the instrument and the table is the fix list; **neither is a gate and neither
+    should become one**, because a look-alike pair can be two strains, two serotypes, or one gene
+    under two species' symbol conventions. `MBP`/`Mbp` and `G6PC2`/`G6pc2` are both correct: HGNC
+    capitalises and MGI title-cases.
+
+    A rewrite is **species-scoped** where a value is right under one convention and wrong under
+    another. `POL` is a case variant of `Pol` inside HIV-1 and a separate question inside HCV, so the
+    HIV-1 rows are corrected and the 36 HCV rows are not; the table records every such refusal with
+    its reason, because a refusal nobody wrote down reads as an omission.
+
+    Runs after :func:`harmonise_references` and before identity is assigned, for the same reason the
+    segment passes do: a record is the same record whether the curator wrote `IE1` or `IE-1`, so
+    correcting the spelling afterwards would mint a new id for a rename.
+    """
+    path = (root or Paths.discover().root) / "proofreading" / "vocabulary.tsv"
+    empty = pl.DataFrame(schema={"column": pl.String, "species": pl.String, "from": pl.String,
+                                 "to": pl.String, "rows": pl.Int64})
+    if not path.exists():
+        return df, empty
+    table = pl.read_csv(path, separator="\t", infer_schema=False, comment_prefix="#").fill_null("")
+    rows, exprs = [], {}
+    for r in table.sort("column", "species", "from").iter_rows(named=True):
+        column = r["column"]
+        if column not in df.columns:
+            continue
+        hit = pl.col(column) == r["from"]
+        if r["species"]:
+            # `antigen.species` scopes itself; every other column scopes on it.
+            scope = column if column == "antigen.species" else "antigen.species"
+            if scope not in df.columns:
+                continue
+            hit = hit & (pl.col(scope) == r["species"])
+        n = df.select(hit.sum()).item()
+        rows.append({"column": column, "species": r["species"], "from": r["from"], "to": r["to"],
+                     "rows": int(n or 0)})
+        # Chained into one expression per column, then applied once: two corrections to the same
+        # column must both see the *original* value, or `A -> B` followed by `B -> C` would move a
+        # cell that was already `B`. Same reasoning as `compare.diff._apply_renames`.
+        exprs[column] = pl.when(hit).then(pl.lit(r["to"])).otherwise(
+            exprs.get(column, pl.col(column)))
+    if exprs:
+        df = df.with_columns(*[e.alias(c) for c, e in sorted(exprs.items())])
+    report = pl.DataFrame(rows, schema=empty.schema) if rows else empty
+    return df, report.filter(pl.col("rows") > 0).sort("column", "from")
+
+
 def harmonise_references(df: pl.DataFrame,
                          root: Path | None = None) -> tuple[pl.DataFrame, pl.DataFrame]:
     """Replace a non-PMID ``reference.id`` with its PubMed id where one exists (#347).

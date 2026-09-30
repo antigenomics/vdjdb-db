@@ -153,6 +153,71 @@ Backgrounds are streamed at build time and only derived statistics (`count.bg`, 
 never the background itself, never a subsampled copy. A background is an input to the build, not
 an output of it, and a stale vendored copy would change a call set with no error.
 
+### 3.4 Cross-repo gate: `arda` CDR3 repair release - **closed 2026-09-30**
+
+`arda.cdr3fix` declined a class of repair the `Cdr3Fixer` it replaced applied, so a malformed junction
+shipped. **arda 2.36.0 and vdjtools 4.8.0 close it**, and the bound here moved with them: the
+annotation is one `vdjtools.model.annotate_junctions` call, `annotate/dgene.py` and
+`annotate/segments.py` are deleted, and #711 is closed.
+
+What the gate was about, and what it cost: `Anchor.templated_aa` runs Cys104 through [FW]118 inclusive
+and stops, so framework past an anchor had nothing to align to. arda's bundled IMGT build already
+carried both flanks as named columns in `markup.aa.tsv` - `fwr3` ends at Cys104 on 767 of 775 distinct
+human `v_call`, `fwr4` starts at the 118 anchor on 124 distinct `j_call` - and the repair path read
+`cdr3_anchors.tsv`, which does not. **No reference data was lost when `res/` was retired.**
+
+Measured on the shipped corpus, 285,794 chains, every junction classified against the germline of the
+segment it names:
+
+| | before | after |
+|---|--:|--:|
+| shipped junctions not canonical against their own germline | 515 | **451** |
+| of those, framework kept past an anchor (`under-trimmed`) | 77 | **33** |
+| `CASSQSPGGVAFFGQG` shipped | 2 chains | **0** |
+
+The 451 that remain are a proofreading queue in `out/reports/anchors.tsv`, not a repair failure: the
+junction disagrees with the germline of the segment the record names, and only a curator can say which
+of the two is wrong.
+
+**Two `arda` bottlenecks this build measured are also settled.** `antigenomics/arda#143`
+(`markup_records`' `_align` is a pure-Python dynamic program, 35.4 µs/key, 23,556,016 `max()` calls
+over 190,624 records) is open and does not gate anything. `antigenomics/arda#142` asked arda for a
+batched `posterior_d`; it **dissolved** - see §3.5.
+
+### 3.5 Cross-repo gate: `d.posterior` moves from `arda` to `vdjtools` - **closed 2026-09-30**
+
+The D call and the number beside it used to come from two different models: `d.inferred`, `d.start` and
+`d.end` from `vdjtools.model.infer_nt_batch`, and `d.posterior` from `arda.dpost.posterior_d`, which
+named a different D gene from the one it annotated on 21.5 % of chains. It was also a
+recombination-model computation shipped as a fitted `d_prior.tsv` inside arda's *germline reference*
+tree, covering four `(organism, locus)` pairs against a reference covering five organisms.
+
+**`arda.dpost` is gone in arda 2.33.0 and does not reappear in vdjtools.** `d.posterior` now comes from
+the same recombination scenario weights that named the call, so the number beside a call is the
+probability of that call. `annotate/dgene.py` is deleted rather than re-pointed, and `d.entropy` is
+retired: it was the entropy of the second estimator's distribution, and there is no second distribution
+any more.
+
+There is no "arda model" that could have kept it instead. arda is the **aligner** and the germline
+namespace; every bundled recombination model is `vdjtools`' own fit - `source="olga"` the OLGA
+bootstrap, `source="arda"` an EM fit over real non-functional reads in arda's IMGT allele namespace,
+which is the only bundled set covering mouse. So the model side is wholly `vdjtools`'.
+
+| | before | after |
+|---|--:|--:|
+| `add_d_posterior` + `add_junction_nt` | 27.04 s, two stages | **21.43 s, one** |
+| `vdjdb build` | 41.50 s | **33.30 s** |
+| D gene correct, human TRB against nucleotide truth | 69.67 % | **74.35 %** |
+| rows carrying D coordinates | 55.75 % | **99.80 %** |
+
+⚠ Per-row positional precision is the one thing that got worse: `d.start` is exact on 64.71 % of
+correctly-called rows against 66.67 % under the retired E-value gate. It is exact on **1,922 rows
+rather than 1,278**, because it answers 3,992 rather than 2,230.
+
+`antigenomics/vdjtools#183` and `antigenomics/arda#144` carry the relocation reasoning and
+`antigenomics/arda#142` dissolved into it, as predicted: the batched path `#142` asked arda to build
+already existed here.
+
 ## 4. Phases
 
 `master` → `dev` → `feature/*` → `dev` → `master`. Every phase is independently mergeable and
@@ -165,7 +230,7 @@ an output of it, and a stale vendored copy would change a call set with no error
 | 2 | merged | `feature/golden-harness` | `vdjdb diff` + `expected_diffs.toml` | - | zero diffs against the current pandas build; nothing downstream starts without this |
 | 3 | part | `feature/io-qc` | polars reader, vectorised QC, `--strict` exit-1, chunk header normalisation | - | QC report matches the pandas report row-for-row; harness still zero. ⚠ **The `.tsv` rename did not happen and #497 is open**: `chunks/` is 231 files, all `.txt`. Everything the rename was wanted for did land - one canonical 33-column header, the 19 distinct header rows collapsed to one, the 99 CRLF files converted with `*.txt text eol=lf` in `.gitattributes` so it cannot return (#581), and a reader that fails on an unrecognised header. What is left is the extension, which nothing reads to decide the format, against 231 `git mv`s that break every `git log --follow` boundary and every `PMID_<id>.txt` reference in docs, skills, tests and the tracker. Held deliberately: renaming every file in `chunks/` the week curators start opening chunk pull requests is when it costs most. It wants its own branch under the mechanical-repair rule and a quiet period |
 | 4 | merged | `feature/pipeline-core` | the definitive tables (`records`, `chains`) + harmonize + score + pairing; the legacy export as a projection of them; deletes `py_src/` | #424, #399 | every difference against the release is a declared rule firing its measured count; peak RSS < 8 GB |
-| 5 | done | `feature/arda-cdr3fix`, `feature/retire-res` | `arda.cdr3fix` replaces `Cdr3Fixer.py`; `res/` retired | #658 | new `expected_diffs.toml` rule, row count measured then frozen. `res/segments*.txt` outlived the first branch by three call sites, one of them on every build: `arda.cdr3fix` repairs a junction against a *named* germline and never proposes one, so a blank V or J needed filling first. `feature/retire-res` replaced that with the recombination model falling back to arda's own germline anchor table, deleted `res/` and `annotate/_legacy_fixer/`, and dropped `--engine legacy`. The J proposal gains 347 calls and 469 rows of `vdjdb.txt`; the V proposal is reported as `v.inferred` and does not ship, because a V recovered from a junction alone is right 23.8-50.1 % of the time against a J's 93.6-97.5 % |
+| 5 | done | `feature/arda-cdr3fix`, `feature/retire-res` | `arda.cdr3fix` replaces `Cdr3Fixer.py`; `res/` retired | #658 | new `expected_diffs.toml` rule, row count measured then frozen. `res/segments*.txt` outlived the first branch by three call sites, one of them on every build: `arda.cdr3fix` repairs a junction against a *named* germline and never proposes one, so a blank V or J needed filling first. `feature/retire-res` replaced that with the recombination model falling back to arda's own germline anchor table, deleted `res/` and `annotate/_legacy_fixer/`, and dropped `--engine legacy`. The J proposal gains 347 calls and 469 rows of `vdjdb.txt`; the V proposal is reported as `v.inferred` and does not ship, because a V recovered from a junction alone is right 23.8-50.1 % of the time against a J's 93.6-97.5 %. ⚠ **A junction carrying framework past an anchor is no longer repaired, and that is a live regression** (#711, `antigenomics/arda#141`): `arda.cdr3fix` reads `cdr3_anchors.tsv`, whose `Anchor.templated_aa` runs Cys104 through [FW]118 inclusive and stops, so framework past an anchor has nothing to align it to and the defect is reported without the repair being applied. **No reference data was lost with `res/`** - arda's bundled IMGT build carries both flanks as named columns in `markup.aa.tsv` (`fwr3` ends at Cys104, `fwr4` starts at 118), which is the table arda's own repair path does not read (§3.4). Measured over 190,902 distinct keys: **382** ship a junction that does not run Cys104 to its own segment's anchor, and **2,165** are returned `NoFixNeeded` on a single residue of germline agreement where the retired fixer required a 2-mer hit at offset zero in both sequences. The fix is arda's - it already ships `alleles.fasta` and `anchor_nt` - and reaches this build as a release, per §3.4 |
 | 6 | merged | `feature/new-format` | ships the definitive tables as parquet + TSV, adds `evidence`, `vdjdb.schema.json` | - | `make legacy` from the shipped tables still passes the harness |
 | 7 | merged | `feature/airr` | `emit/airr.py` (Rearrangement + Reactivity), `convert/coords.py`, `vdjdb convert` | - | `airr.validate_rearrangement` passes on the full table; the legacy path produces nothing the tables path does not |
 | 8 | merged | `feature/junction-nt`, `feature/segment-guess`, `feature/dgene` | one branch each | #461, #462, #463 | generated `cdr3nt` back-translates to `cdr3`. The stage was 87.2 % of assembly on `vdjtools` 3.13 and ran as four worker processes over contiguous slices; 4.5 published `infer_nt_batch` (`antigenomics/vdjtools#181`) and it is now one batched call per (species, locus), **114.93 s → 12.44 s**, #656 |
@@ -1446,9 +1511,15 @@ without a second table.**
 
 Each family is in the vocabulary because a question needs it and no other token can stand in.
 
-`k:` **and** `kv:` because "is the CAS motif specific to HIV, or to its TRBV?" is a comparison between
-the lift of `k:CAS` on HIV documents and its lift on HIV documents that already carry that V gene. One
-token cannot express that and neither can a single search ranking.
+`k:` **and** `kv:` because "is the `CAS` motif specific to HIV-1, or to its TRBV?" is a comparison
+between the lift of `k:CAS` on an epitope's documents and its lift on those of
+them that already carry that V gene. One token cannot express that and neither can a single search ranking.
+
+⚠ A species condition answers a provenance question and not a specificity one. `a:HIV-1` is a real axis -
+"which papers and receptors are about this species" is where most questions start - but the group is a
+union over pMHCs, so a lift over it describes the group rather than being a motif for the pathogen, whose
+members were shown different antigens. Condition on `e:<epitope>` plus a restriction when the claim is
+about recognition. `docs/standards/terminology.md` has the distinction.
 
 `ek:` because two epitopes sharing a core, or one epitope reported under two source species, are
 linked by their k-mers and by nothing else. `e:` alone cannot ask "does this motif go with epitopes
@@ -1570,7 +1641,7 @@ the highest-lifting of the 2,342 CDR3 3-mers with 50 or more occurrences, at **2
 median of 1.170x, and 25 of the 29 RS-bearing 3-mers sit above that median. The RS motif of
 influenza-M1-specific beta CDR3s is documented immunology and nothing in the build encodes it. The
 control holds too: `k:CAS`, the germline start of nearly every beta CDR3, lifts **0.969** on HIV-1
-documents and 1.006 with TRBV9 held, so it reads as germline rather than antigen-specific.
+documents and 1.006 with TRBV9 held, so it reads as germline rather than epitope-associated.
 `tests/release/test_corpus_reproduction.py` pins all of it.
 
 **A document-level lift cannot answer a common token**, so `lift` has two modes. `k:CAS` is in 614 of

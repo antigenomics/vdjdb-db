@@ -45,6 +45,7 @@ def test_an_unknown_or_empty_call_marginalises():
 # -- against the real models -------------------------------------------------------------------
 
 KEYS = pl.DataFrame({
+    "species": ["HomoSapiens"] * 4,
     "cdr3": ["CASSIRSSYEQYF", "CASSLAPGATNEKLFF", "CASSPGQGAYEQYF", "CASSQDRGNTGELFF"],
     "v.segm": ["TRBV10-3*01", "TRBV7-9*01", "TRBV5-1*01", "TRBV4-1*01"],
     "j.segm": ["TRBJ2-7*01", "TRBJ1-4*01", "TRBJ2-7*01", "TRBJ2-2*01"],
@@ -55,22 +56,39 @@ def test_the_inferred_nucleotides_back_translate_to_the_junction_they_came_from(
     """#461's acceptance criterion. 0 mismatches over the whole corpus."""
     from vdjtools.model import translate
 
-    got = junction.infer(KEYS, "HomoSapiens", "TRB")
+    got = junction.infer(KEYS)
     resolved = got.filter(pl.col("cdr3nt") != "")
     assert resolved.height == KEYS.height
     for aa, nt in zip(resolved["cdr3"], resolved["cdr3nt"], strict=True):
         assert translate(nt) == aa
 
 
-def test_a_species_with_no_model_gets_empty_columns_rather_than_an_error():
-    """The corpus holds 1,402 MacacaMulatta chains and no macaque model exists."""
-    got = junction.infer(KEYS, "MacacaMulatta", "TRB")
-    assert got["cdr3nt"].to_list() == [""] * KEYS.height
-    assert got["cdr3nt.pgen"].null_count() == KEYS.height
+def test_a_species_with_no_fitted_model_still_gets_nucleotides():
+    """**The corpus's 1,457 MacacaMulatta keys used to answer zero times.**
+
+    A fitted recombination model exists for human and mouse and for nothing else, so every macaque
+    record came back empty - invisible inside a single corpus-wide coverage total.
+    ``annotate_junctions``' last rung is a germline scaffold rather than a fitted model, so a species
+    with no published fit still resolves a junction. Measured over the 192,726 curation keys:
+    1,383 macaque TRB keys answer 1,379 nucleotide junctions and 74 TRA keys answer 73.
+
+    ⛔ This is why a coverage check must be broken down **by species**.
+    """
+    got = junction.infer(KEYS.with_columns(pl.lit("MacacaMulatta").alias("species")))
+    assert (got["cdr3nt"] != "").sum() > 0, "a species with no fitted model answered nothing"
 
 
 @pytest.mark.parametrize("missing", ["cdr3", "v.segm", "j.segm"])
-def test_a_chain_missing_a_call_keeps_its_row_and_gets_no_nucleotides(missing):
+def test_a_chain_missing_a_call_keeps_its_row_and_a_missing_cdr3_gets_no_nucleotides(missing):
+    """**A missing V or J is now inferrable; a missing CDR3 is not, and never will be.**
+
+    This used to assert that any of the three being blank produced no nucleotides. `arda.cdr3fix`
+    proposes a call for a side the submission left blank (2.34) and the locus too (2.36), so a chain
+    with no V or no J is exactly what the inference is for - and excluding those rows cost
+    `v.end.inferred` 2,418 of the 2,442 cells it was measured on. The junction itself is the input,
+    so a blank `cdr3` still yields nothing, and the row survives either way: a chain is never
+    dropped for being un-inferrable.
+    """
     chains = pl.DataFrame({
         "record_id": ["r1", "r2"], "gene": ["TRB", "TRB"],
         "cdr3": ["CASSIRSSYEQYF", "CASSPGQGAYEQYF"],
@@ -84,7 +102,11 @@ def test_a_chain_missing_a_call_keeps_its_row_and_gets_no_nucleotides(missing):
                             "species": ["HomoSapiens", "HomoSapiens"]})
     got = junction.add_junction_nt(chains, records)
     assert got.height == 2, "a chain is never dropped for being un-inferrable"
-    assert got.filter(pl.col("record_id") == "r2")["cdr3nt"][0] == ""
+    r2 = got.filter(pl.col("record_id") == "r2")["cdr3nt"][0]
+    if missing == "cdr3":
+        assert r2 == "", "there is no junction to infer nucleotides for"
+    else:
+        assert r2 != "", "a blank V or J is what the proposal is for, not a reason to decline"
     assert got.filter(pl.col("record_id") == "r1")["cdr3nt"][0] != ""
 
 
@@ -199,11 +221,17 @@ def test_the_model_boundary_survives_where_the_alignment_declined():
             assert row[col] == junction.UNMAPPED or 0 <= row[col] <= n, f"{col} {row[col]} of {n}"
 
 
-def test_a_species_with_no_model_gets_an_unmapped_boundary_not_a_null():
-    """-1 is what this coordinate space already reads as "not mapped" (rule 6's spirit)."""
-    got = junction.add_junction_nt(*_two_chains([junction.UNMAPPED] * 2, [junction.UNMAPPED] * 2))
+def test_a_boundary_is_never_null_whatever_the_species():
+    """-1 is what this coordinate space reads as "not mapped"; a null is not (rule 6's spirit).
+
+    This used to assert that a macaque row came back UNMAPPED, because no fitted recombination model
+    covers the species and the stage declined outright. It answers now - the last rung of
+    ``annotate_junctions``' model chain is a germline scaffold - so what is left to protect is the
+    dtype contract: an int either way, never a null, on a species the corpus has 1,457 keys of.
+    """
     chains, records = _two_chains([junction.UNMAPPED] * 2, [junction.UNMAPPED] * 2)
     records = records.with_columns(pl.lit("MacacaMulatta").alias("species"))
     got = junction.add_junction_nt(chains, records)
-    assert got["v.end.inferred"].to_list() == [junction.UNMAPPED] * 2
-    assert got["v.end.inferred"].null_count() == 0
+    for col in ("v.end.inferred", "j.start.inferred"):
+        assert got[col].null_count() == 0, f"{col} must be UNMAPPED, never null"
+        assert got[col].dtype == pl.Int64

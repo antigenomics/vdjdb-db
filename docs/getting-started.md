@@ -4,6 +4,14 @@ VDJdb is a curated database of T-cell receptor sequences of known antigen specif
 <https://vdjdb.com>. `chunks/` is the data, one file per publication; everything else in the
 repository validates it, assembles it and publishes it as a release.
 
+```{note}
+The antigen a receptor engages is the **peptide-MHC complex**; the epitope is the part of it that is
+specifically recognised. A receptor does not recognise a pathogen, a gene or a protein - those are the
+peptide's provenance, which `antigen.gene` and `antigen.species` record. Read
+[Terminology](standards/terminology.md) before writing anything that describes what a record means: the
+distinction is the most common imprecision in the field and the column names predate it.
+```
+
 ## Getting the data
 
 Download the latest release zip from

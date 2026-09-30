@@ -7,6 +7,7 @@ row	non-functional j.alpha	996	65	true	300
 row	non-functional j.beta	338	18	true	150
 row	segment call with no cdr3	209	12	true	50
 row	non-functional v.alpha	38	5	true	50
+row	counter in mhc.a	38	1	true	20
 text	unknown-column	2	-1	true	0
 text	empty-column-name	1	-1	true	0
 text	prose-column-name	1	-1	true	0

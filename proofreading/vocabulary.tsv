@@ -1,0 +1,45 @@
+# Declared value corrections for the free-text and controlled-vocabulary columns (#637, #633).
+#
+# One row per rewrite. `species` scopes it: a value that is correct under one species' symbol
+# convention and wrong under another must not be rewritten globally. Empty `species` means every row
+# carrying `from` in that column.
+#
+# The instrument is `out/reports/lookalikes.tsv`, which reports values differing from another value
+# only in case or in a `-`, `_`, `.` or space. This file is the fix list; the report is what finds the
+# next one. Nothing here is a gate, and it must not become one: a look-alike pair can be two strains,
+# two serotypes, or one gene under two species' conventions.
+#
+# NOT corrected, deliberately, and each for a reason the report cannot know:
+#   antigen.gene MBP (HomoSapiens) / Mbp (MusMusculus)     - HGNC capitalises, MGI title-cases. Both right.
+#   antigen.gene G6PC2 (HomoSapiens) / G6pc2 (MusMusculus) - same convention, same reason.
+#   antigen.gene NEF (InfluenzaA), 8 records                - influenza has no Nef; needs the paper, not a rule.
+#   antigen.gene POL (HCV), 36 records                      - HCV's polyprotein is a separate question.
+#   antigen.gene synthetic / Synthetic, 56 records          - not a gene at all (#633); a curation decision.
+#   antigen.species AdV / HAdV5, 25 records                 - #633 proposes AdV -> HAdV5 and this file
+#       does NOT do it, because the two spellings are not the same claim. Both carry `TDLGQNLLY`, the
+#       conserved HLA-A*01 hexon epitope, which is used precisely because it is conserved across human
+#       adenovirus species - so calling PMID:35401538's 12 records HAdV5 would assert a serotype its
+#       source did not determine. And collapsing the other way would destroy a real one:
+#       PMID:10671225's `SGPSNTPPEI` is E1A, which is Ad5-specific. One gene, two source labels; the
+#       gene case is normalised below and the species split stays in `out/reports/epitope-sources.tsv`,
+#       which is #633's own treatment for a conserved peptide.
+#   method.identification comma-space vs comma              - the declared vocabulary is not enforced,
+#       and #637 says enforcing it comes before repairing the spellings. 30+ values would need a
+#       decision each; these rows are only the case-and-separator variants with no judgement in them.
+column	species	from	to	reason
+antigen.gene		IE-1	IE1	case-and-separator variant of a 14,183-record spelling; 31 records
+antigen.gene		VPR	Vpr	case variant of a 97-record spelling; 14 records
+antigen.gene		gp160	GP160	case variant of an 89-record spelling; 30 records
+antigen.gene		MAGEA1	MAGE-A1	HGNC hyphenates the MAGE-A family; the hyphenated form is the minority here
+antigen.gene		MAGEA3	MAGE-A3	HGNC hyphenates the MAGE-A family
+antigen.gene		MAGEA4	MAGE-A4	HGNC hyphenates the MAGE-A family
+antigen.gene		INSDRIP	INS-DRiP	INS-DRiP is the published name of the defective-ribosomal-product peptide
+antigen.gene	E.Coli	YEIH	yeiH	bacterial gene symbols are lowercase with a capital final letter
+antigen.gene	HIV-1	gag	Gag	case variant of a 2,744-record spelling within one species
+antigen.gene	HIV-1	GAG	Gag	case variant of a 2,744-record spelling within one species
+antigen.gene	HIV-1	POL	Pol	case variant of a 277-record spelling within one species
+antigen.gene	HAdV5	Hexon	HEXON	case variant of the 15-record AdV spelling of the same gene
+method.identification		tetramer.sort	tetramer-sort	separator variant of a 94,700-record vocabulary value; 2,203 records
+method.identification		Tetramer-sort	tetramer-sort	case variant of a 94,700-record vocabulary value; 135 records
+method.identification		tetramer sort	tetramer-sort	separator variant of a 94,700-record vocabulary value; 5 records
+method.identification		antigen loaded targets, IFNg capture assay	antigen-loaded-targets, IFNg capture assay	separator variant of a 43-record spelling; 3 records
