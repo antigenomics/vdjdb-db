@@ -82,7 +82,13 @@ ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form", "duplicate"
                       # already carries `T-Scan`, `YAMTAD system` and `phage display`, none of which
                       # the specification page ever named. What the finding buys is that the next one
                       # is seen when it arrives.
-                      "undeclared method.identification token"})
+                      "undeclared method.identification token",
+                      # #696: a submitted `method.frequency` that its own count and total
+                      # contradict. Which of the three the paper supports is a curation question and
+                      # the repair is a chunk edit, so this reports. Zero findings today - the
+                      # columns are new, so no submission has used them yet - which makes it a gate
+                      # on the next one rather than a report on the corpus.
+                      "frequency disagrees with its count and total"})
 
 
 class _NothingToRead(Exception):
