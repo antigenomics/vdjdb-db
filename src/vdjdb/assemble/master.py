@@ -21,6 +21,7 @@ from ..curate.nomenclature import (
     disambiguate_alleles,
     harmonise_mhc,
     harmonise_references,
+    harmonise_vocabulary,
     harmonise_segments,
 )
 from ..curate.patch import apply_antigen_patch
@@ -197,12 +198,16 @@ def build_master(paths: Iterable[Path] | None = None,
     # MHC spelling, the allele that does not exist (#467), and the class-II chain order.
     df, mhc = harmonise_mhc(df)
     df, references = harmonise_references(df)
+    # Declared value corrections for the free-text and controlled-vocabulary columns (#637, #633):
+    # case and separator variants that never join the spelling they are a variant of. Before identity,
+    # like every pass above: a record is the same record whether the curator wrote `IE1` or `IE-1`.
+    df, vocabulary = harmonise_vocabulary(df)
     # What the four passes rewrote. `nomenclature.tsv` is the complement - `unresolved_calls` names
     # what could *not* be resolved - and until #700 the rewrites were reported nowhere a build
     # produces. `vdjdb rules --report` writes three of them, but it is a separate command that
     # re-reads every chunk to recompute what this call already has in hand.
     if write_report is not None:
-        _write_harmonisation(write_report, segments, alleles, mhc, references)
+        _write_harmonisation(write_report, segments, alleles, mhc, references, vocabulary)
     # Identity is assigned on what the publications reported, before any repair. Afterwards, CDR3
     # fixing would have merged 215 pairs of records the publications reported separately -- two
     # trimmed sequences repaired to the same full one are still two observations.
@@ -213,13 +218,15 @@ def build_master(paths: Iterable[Path] | None = None,
 
 
 def _write_harmonisation(path: Path, segments: pl.DataFrame, alleles: pl.DataFrame,
-                         mhc: pl.DataFrame, references: pl.DataFrame) -> pl.DataFrame:
-    """Union the four harmonisation reports and write them. Returns the frame. #700."""
+                         mhc: pl.DataFrame, references: pl.DataFrame,
+                         vocabulary: pl.DataFrame) -> pl.DataFrame:
+    """Union the five harmonisation reports and write them. Returns the frame. #700."""
     report = pl.concat([
         _harmonisation_row("segments", segments, issue="#389"),
         _harmonisation_row("alleles", alleles),
         _harmonisation_row("mhc", mhc, column="mhc.a,mhc.b"),
         _harmonisation_row("references", references, issue="#347", column="reference.id"),
+        _harmonisation_row("vocabulary", vocabulary, issue="#637"),
     ], how="vertical").sort("stage", "column", "species", "from", "to")
     path.parent.mkdir(parents=True, exist_ok=True)
     # `quote_style="never"`: a pass that reports no species writes an empty cell, and the default
