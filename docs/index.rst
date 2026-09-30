@@ -84,4 +84,5 @@ VDJdb
    :caption: Builds
 
    builds
+   builds/library-pipeline-migration
    dashboard
