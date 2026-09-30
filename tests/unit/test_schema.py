@@ -186,3 +186,98 @@ def test_no_metadata_value_contains_a_tab_or_newline() -> None:
 def test_unknown_table_names_its_alternatives() -> None:
     with pytest.raises(KeyError, match="unknown table"):
         fields("nope")
+
+
+def test_the_submission_template_is_a_projection_of_the_registry():
+    """`template.tsv` replaced a 2016 `.xls` that nobody could regenerate.
+
+    That spreadsheet was one of the nine places this module's docstring lists as having already
+    drifted, and it had: its example rows wrote `antigen.species = HIV` where the vocabulary and
+    that paper's own chunk now say `HIV-1`. Generated from `TABLES["chunk"]`, it cannot describe a
+    column set the build does not read.
+    """
+    from vdjdb.schema import TABLES, header
+
+    lines = (repo_root() / "template.tsv").read_text().rstrip("\n").split("\n")
+    assert lines[0] == header("chunk"), (
+        "template.tsv is stale; regenerate with `vdjdb schema --table chunk --format header`")
+    assert len(lines) > 1, "a template with no example row teaches nothing"
+    for i, line in enumerate(lines[1:], start=1):
+        assert len(line.split("\t")) == len(TABLES["chunk"]), f"example row {i} is ragged"
+
+
+def test_the_submission_template_passes_the_checks_a_submission_must_pass():
+    """A template that would fail QC is worse than none: a submitter copies its shape."""
+    from vdjdb.qc.lint import lint_file
+
+    assert lint_file(repo_root() / "template.tsv") == []
+
+
+def test_the_excel_template_formats_every_cell_as_text():
+    """Not decoration, and the reason there is an `.xlsx` at all.
+
+    `method.frequency` holds `50/67` and a V call holds `TRAV12-2*01`. Excel turns the first into a
+    date the moment the column is typed as General, and the retired `template.xls` protected them
+    exactly this way - all 165 of its data cells carried number format `@`. The protection has to
+    reach past the examples too, or the first row a submitter types into loses it.
+    """
+    openpyxl = pytest.importorskip("openpyxl")
+    from vdjdb.schema.template import BLANK_ROWS, EXAMPLES
+
+    sheet = openpyxl.load_workbook(repo_root() / "template.xlsx")["chunk"]
+    assert sheet.max_row == len(EXAMPLES) + 1 + BLANK_ROWS
+    formats = {sheet.cell(r, c).number_format
+               for r in range(1, sheet.max_row + 1) for c in range(1, sheet.max_column + 1)}
+    assert formats == {"@"}, f"a cell is not text-formatted: {formats}"
+
+
+def test_the_excel_template_colours_the_header_by_group():
+    """The four colours are read off the retired `template.xls`, so the file looks like the one
+    submitters have used since 2016: `chunk.id` grey, the required complex columns peach,
+    `method.*` pale yellow, `meta.*` pale green."""
+    openpyxl = pytest.importorskip("openpyxl")
+    from vdjdb.schema.template import GROUP_FILLS, REQUIRED_FILL, header_line
+
+    sheet = openpyxl.load_workbook(repo_root() / "template.xlsx")["chunk"]
+    header = [c.value for c in sheet[1]]
+    assert header == header_line().split("\t"), "the Excel header is not the declared order"
+    seen = {}
+    for cell in sheet[1]:
+        seen.setdefault(cell.fill.start_color.rgb[-6:], []).append(cell.value)
+    assert set(seen) == {REQUIRED_FILL} | {c for _, c in GROUP_FILLS}
+    assert len(seen[REQUIRED_FILL]) == 15, "the required complex columns"
+    assert seen["C0C0C0"] == ["chunk.id"]
+    assert all(c.startswith("method.") for c in seen["FFFFCC"])
+    assert all(c.startswith("meta.") for c in seen["CCFFCC"])
+
+
+def test_the_two_template_files_agree():
+    """One declaration, two files. A submitter who fills the `.xlsx` and one who fills the `.tsv`
+    must produce the same 33 columns in the same order."""
+    openpyxl = pytest.importorskip("openpyxl")
+    from vdjdb.schema.template import EXAMPLES, header_line
+
+    sheet = openpyxl.load_workbook(repo_root() / "template.xlsx")["chunk"]
+    tsv = (repo_root() / "template.tsv").read_text().rstrip("\n").split("\n")
+    assert [c.value for c in sheet[1]] == tsv[0].split("\t") == header_line().split("\t")
+    assert len(tsv) - 1 == len(EXAMPLES)
+    for r, row in enumerate(EXAMPLES, start=2):
+        # openpyxl reads an empty cell back as None; a blank chunk field is the empty string
+        # (hard rule 6), and in a spreadsheet those are the same thing.
+        excel = [sheet.cell(r, i).value or "" for i in range(1, sheet.max_column + 1)]
+        assert excel == tsv[r - 1].split("\t"), f"example {r - 1} differs between the two files"
+        assert excel == [row.get(c, "") for c in header_line().split("\t")]
+
+
+def test_chunk_columns_are_an_order_and_not_a_gate():
+    """`qc/lint.py` checks column *membership*, and must keep doing so.
+
+    A submitted chunk may order its columns however it likes and may omit the optional ones, so
+    declaring an order for the template must not turn that order into a requirement.
+    """
+    from vdjdb.schema import ALL_COLUMNS, CHUNK_COLUMNS, KEPT_CURATION_COLUMNS
+
+    assert set(CHUNK_COLUMNS) <= set(ALL_COLUMNS) | set(KEPT_CURATION_COLUMNS)
+    # the three curation columns a chunk may carry and the template does not name
+    assert set(KEPT_CURATION_COLUMNS) - set(CHUNK_COLUMNS) == {
+        "submitter", "comment", "method.pairing"}

@@ -52,6 +52,22 @@ class Field:
     #: offset in sequence space, so declaring them equal would be wrong (see `convert.coords`).
     airr: str = ""
 
+    @property
+    def ships_as(self) -> str:
+        """The name this column ships under in the tidy tables and the new format.
+
+        A dot is a table qualifier in SQL and blocks attribute access in most dataframe libraries,
+        and the tidy tables already mixed the two conventions -- ``record_id`` and ``pmhc_id``
+        beside ``mhc.a`` and ``antigen.epitope``. The legacy tables keep :attr:`name`: they are a
+        positional contract ``vdjdb-web`` parses, and ``vdjdb.meta.txt`` must match ``vdjdb.txt``
+        column for column.
+
+        Derived rather than declared, because every column wants the same answer and a hand-written
+        second name is a second source. Case is left alone, so ``TCR_hash`` and ``meta.donor.MHC``
+        ship as ``TCR_hash`` and ``meta_donor_MHC`` and the substitution is exactly invertible.
+        """
+        return self.name.replace(".", "_")
+
     def meta_row(self) -> str:
         return "\t".join((self.name, self.type, str(self.visible), str(self.searchable),
                           str(self.autocomplete), self.data_type, self.title, self.comment))
@@ -583,7 +599,27 @@ SPECIES: frozenset[str] = frozenset({
 
 _META_HEADER = "name\ttype\tvisible\tsearchable\tautocomplete\tdata.type\ttitle\tcomment"
 
+#: The submission template's column order: ``chunk.id``, the 31 columns a chunk must be able to
+#: carry, and ``meta.subset.frequency``. Declared so ``template.tsv`` is a projection of the
+#: registry rather than a 2016 spreadsheet nobody can regenerate - it was one of the nine places
+#: this module's docstring lists as having already drifted.
+#:
+#: Chunk columns keep their **dotted** names. The tidy tables ship ``underscore_case``
+#: (:attr:`Field.ships_as`), but a chunk is what a submitter writes and its header is the
+#: submission contract.
+#:
+#: This is an order, not a gate: ``qc/lint.py`` checks column *membership* against
+#: ``ALL_COLUMNS | KEPT_CURATION_COLUMNS`` and must keep doing so, because a submitted chunk may
+#: order its columns however it likes and may omit the optional ones.
+CHUNK_COLUMNS: tuple[str, ...] = (
+    "chunk.id",
+    *ALL_COLUMNS[:ALL_COLUMNS.index("meta.cell.subset") + 1],
+    "meta.subset.frequency",
+    *ALL_COLUMNS[ALL_COLUMNS.index("meta.cell.subset") + 1:],
+)
+
 TABLES: dict[str, tuple[str, ...]] = {
+    "chunk": CHUNK_COLUMNS,
     "vdjdb": VDJDB_COLUMNS,
     "vdjdb-web": VDJDB_WEB_COLUMNS,
     "slim": SLIM_COLUMNS,
@@ -599,6 +635,17 @@ TABLES: dict[str, tuple[str, ...]] = {
 
 
 AIRR_MAP.update({f.name: f.airr for f in FIELDS.values() if f.airr})
+
+
+#: Internal column name -> :attr:`Field.ships_as`, for the rename at the file boundary.
+TIDY_NAMES: dict[str, str] = {name: f.ships_as for name, f in FIELDS.items()}
+
+# The map has to be invertible: a build directory is read back under the internal names, and a
+# collision would drop a column silently. Checked at import rather than discovered later.
+if len(set(TIDY_NAMES.values())) != len(TIDY_NAMES):   # pragma: no cover - a declaration error
+    _seen: set[str] = set()
+    raise AssertionError("tidy names collide: " + ", ".join(
+        sorted(v for v in TIDY_NAMES.values() if v in _seen or _seen.add(v))))  # type: ignore[func-returns-value]
 
 
 def fields(table: str) -> tuple[Field, ...]:
@@ -637,7 +684,12 @@ def schema_json(dtypes: dict[str, dict[str, str]] | None = None, *, indent: int 
     can answer "what is this column, and which other tables have it" without scraping the docs.
 
     ``dtypes`` maps table name -> column name -> the physical dtype the build wrote, so the declared
-    schema and the shipped files cannot disagree: it is read off the frames, not asserted.
+    schema and the shipped files cannot disagree: it is read off the frames, not asserted. It is
+    keyed on the **internal** dotted names, which is what ``TABLES`` carries.
+
+    Each field states both names: ``name`` is what the legacy tables ship and what ``TABLES``
+    indexes, ``ships_as`` is what the tidy tables (``records``, ``chains``, ``evidence``,
+    ``epitopes``, ``restriction`` and the joined view) ship.
     """
     import json
 
@@ -650,6 +702,9 @@ def schema_json(dtypes: dict[str, dict[str, str]] | None = None, *, indent: int 
             "name": f.name, "type": f.type, "visible": f.visible, "searchable": f.searchable,
             "autocomplete": f.autocomplete, "data_type": f.data_type, "title": f.title,
             "comment": f.comment, "airr": f.airr, "position": where,
+            # The tidy tables ship `underscore_case` and the legacy tables ship `name` unchanged,
+            # so both are stated here rather than a consumer guessing which file it opened.
+            "ships_as": f.ships_as,
         }
         seen = {dtypes[t][name] for t in where if name in dtypes.get(t, {})}
         if seen:
