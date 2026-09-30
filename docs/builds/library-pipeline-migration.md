@@ -109,9 +109,9 @@ this repository.
 
 ## Cost
 
-Measured on **this repository's own chunk files**: 192,726 distinct keys in **35.1 s, one process,
-182 µs per key**. 190,093 get a nucleotide junction, **123,916 of the 124,489 TRB keys get a D gene**
-and 121,232 of those get coordinates; the 65,107 TRA keys have no D to find. The nucleotide inference
+Measured on **this repository's own chunk files**: 192,726 distinct keys in **22.3 s, one process,
+116 µs per key**. 190,199 get a nucleotide junction, **124,022 of the 124,489 TRB keys get a D gene**
+and 121,336 of those get coordinates; the 65,107 TRA keys have no D to find. The nucleotide inference
 dominates; naming the D costs ~30 µs and placing it ~1.4 µs.
 
 Compare what it replaces: `posterior_d` alone was 15.96 s over 119,034 keys via a Python row loop
