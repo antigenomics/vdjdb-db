@@ -28,6 +28,8 @@ from .fields import CHUNK_COLUMNS, FIELDS
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from collections.abc import Sequence
 
+    from openpyxl.comments import Comment
+
 #: Header fill per column group, read off the retired ``template.xls`` so the regenerated file looks
 #: like the one submitters know. `chunk.id` grey, the required complex columns peach, `method.*`
 #: pale yellow, `meta.*` pale green.
@@ -241,7 +243,7 @@ def write_xlsx(path: Path, examples: Sequence[dict[str, str]] = ()) -> Path:
     return path
 
 
-def _note(text: str):
+def _note(text: str) -> Comment:
     from openpyxl.comments import Comment
 
     note = Comment(text, "vdjdb")

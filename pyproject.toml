@@ -104,6 +104,14 @@ python_version = "3.12"
 files = ["src/vdjdb/schema", "src/vdjdb/convert", "src/vdjdb/identity"]
 strict = true
 
+# `openpyxl` ships no type information and `types-openpyxl` is a third-party stub set that would
+# have to be version-pinned alongside it. The only code that imports it writes the submission
+# template, which is not a build path, and the four tests that read the file back check the shape
+# it produces - so the type checker gains nothing here that the tests do not already assert.
+[[tool.mypy.overrides]]
+module = ["openpyxl.*"]
+ignore_missing_imports = true
+
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
