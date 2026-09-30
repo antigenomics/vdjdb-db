@@ -12,6 +12,7 @@ from pathlib import Path
 import polars as pl
 import pytest
 
+from vdjdb.emit.vdjdb3 import read_table
 from vdjdb.summary import references as R
 
 
@@ -56,7 +57,7 @@ def test_unresolved_reports_records_not_references():
                     reason="needs a build; run `uv run vdjdb build --out out/`")
 def test_committed_table_still_covers_every_reference_in_the_database():
     """The table is only useful if it has not gone stale -- which is exactly how it failed before."""
-    records = pl.read_parquet("out/tables/records.parquet")
+    records = read_table(Path("out/tables"), "records")
     missing = R.unresolved(records, R.load())
     assert missing.is_empty(), (
         f"{missing.height} references have no year, covering "

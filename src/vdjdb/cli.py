@@ -429,11 +429,12 @@ def motif_metrics(
     import polars as pl
 
     from .compare.diff import Bundle
+    from .emit.vdjdb3 import read_table
     from .validate import motif_bench as mb
     from .validate import motif_metrics as mmv
 
-    chains = pl.read_parquet(tables / "chains.parquet")
-    records = pl.read_parquet(tables / "records.parquet")
+    chains = read_table(tables, "chains")
+    records = read_table(tables, "records")
 
     def released(path: Path) -> pl.DataFrame:
         b = Bundle(path)
@@ -546,8 +547,8 @@ def refs(
     `chunk.file`, so the build states which chunks it saw and the comparison is exact rather than a
     guess from modification times, which a branch switch alone would invalidate.
     """
-    import polars as pl
 
+    from .emit.vdjdb3 import read_table
     from .io.chunks import chunk_files
     from .summary import references as refs_mod
 
@@ -556,7 +557,7 @@ def refs(
         typer.secho(f"no records table at {built}; run `vdjdb build` first",
                     fg=typer.colors.RED, err=True)
         raise typer.Exit(2)
-    records = pl.read_parquet(built)
+    records = read_table(built.parent, built.stem)
     seen = set(records["chunk.file"].unique().to_list())
     if unseen := sorted({p.name for p in chunk_files()} - seen):
         typer.secho(f"{built} was built without {len(unseen)} chunk(s) that exist now: "
@@ -598,6 +599,7 @@ def antigens_cmd(
     import polars as pl
 
     from .curate import antigens as ag
+    from .emit.vdjdb3 import read_table
 
     built, records = tables / "epitopes.parquet", tables / "records.parquet"
     for path in (built, records):
@@ -605,9 +607,9 @@ def antigens_cmd(
             typer.secho(f"no {path.name} at {path}; run `vdjdb build` first",
                         fg=typer.colors.RED, err=True)
             raise typer.Exit(2)
-    found = ag.table(ag.sources(pl.read_parquet(built),
-                                pl.read_parquet(records, columns=["antigen.epitope",
-                                                                  "reference.id"])))
+    found = ag.table(ag.sources(read_table(built.parent, built.stem),
+                                read_table(records.parent, records.stem,
+                                           ["antigen.epitope", "reference.id"])))
     out.parent.mkdir(parents=True, exist_ok=True)
     found.write_csv(out, separator="\t", quote_style="never")
     typer.echo(f"wrote {out} ({found.height:,} rows)")
@@ -949,12 +951,13 @@ def corpus_build(
 
     from .corpus import build as cb
     from .corpus import pubmed as cp
+    from .emit.vdjdb3 import read_table
 
     need = {n: tables / f"{n}.parquet" for n in ("records", "chains", "restriction")}
     if missing := [str(p) for p in need.values() if not p.exists()]:
         typer.secho(f"missing: {', '.join(missing)}", fg=typer.colors.RED, err=True)
         raise typer.Exit(2)
-    frames = {n: pl.read_parquet(p) for n, p in need.items()}
+    frames = {n: read_table(tables, n) for n in need}
     terms = cp.load_terms(text)
     if terms.is_empty():
         typer.secho("no text_terms.tsv: building without the word family "
@@ -979,15 +982,15 @@ def corpus_refs(
     Hits the network, like `vdjdb refs`, and writes two reviewed inputs that a pull request carries.
     A build never runs this (hard rule 9): the tables it writes are inputs, not results.
     """
-    import polars as pl
 
     from .corpus import pubmed as cp
+    from .emit.vdjdb3 import read_table
 
     path = tables / "records.parquet"
     if not path.exists():
         typer.secho(f"no records table at {path}", fg=typer.colors.RED, err=True)
         raise typer.Exit(2)
-    refs = sorted(set(pl.read_parquet(path, columns=["reference.id"])["reference.id"].to_list()))
+    refs = sorted(set(read_table(tables, "records", ["reference.id"])["reference.id"].to_list()))
     records, terms, missing = cp.build_tables(refs)
     for p in cp.write(records, terms):
         typer.echo(f"{p}  {p.stat().st_size:,} bytes")

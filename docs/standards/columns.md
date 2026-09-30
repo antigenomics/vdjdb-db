@@ -38,31 +38,31 @@ from them.
 ### `records`
 
 ```{vdjdb-schema} records
-:columns: name, title, comment
+:columns: ships_as, title, comment
 ```
 
 ### `chains`
 
 ```{vdjdb-schema} chains
-:columns: name, title, comment
+:columns: ships_as, title, comment
 ```
 
 ### `epitopes`
 
 ```{vdjdb-schema} epitopes
-:columns: name, title
+:columns: ships_as, title
 ```
 
 ### `restriction`
 
 ```{vdjdb-schema} restriction
-:columns: name, title
+:columns: ships_as, title
 ```
 
 ### `evidence`
 
 ```{vdjdb-schema} evidence
-:columns: name, title
+:columns: ships_as, title
 ```
 
 ## The motif files
