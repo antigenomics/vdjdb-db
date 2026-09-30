@@ -13,6 +13,7 @@ import polars as pl
 import pytest
 
 from vdjdb.assemble.tables import CLONOTYPE_KEY
+from vdjdb.emit.vdjdb3 import read_table
 from vdjdb.schema import CHAIN_COLUMNS, EVIDENCE_TABLE_COLUMNS, RECORD_COLUMNS
 
 pytestmark = pytest.mark.release
@@ -41,7 +42,7 @@ def tables() -> dict[str, pl.DataFrame]:
     d = Path(os.environ.get("VDJDB_TABLES", "out/tables"))
     if not (d / "records.parquet").exists():
         pytest.skip(f"no built tables at {d}; run `vdjdb build --out out/`")
-    return {n: pl.read_parquet(d / f"{n}.parquet") for n in ("records", "chains", "evidence")}
+    return {n: read_table(d, n) for n in ("records", "chains", "evidence")}
 
 
 def test_column_orders_are_the_declared_ones(tables):

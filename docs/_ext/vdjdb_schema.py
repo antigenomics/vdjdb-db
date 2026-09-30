@@ -28,6 +28,7 @@ from sphinx.util.docutils import SphinxDirective
 #: The :class:`~vdjdb.schema.Field` attributes a page may ask for, and their column headings.
 ATTRS = {
     "name": "Column",
+    "ships_as": "Column",
     "title": "Title",
     "comment": "Description",
     "type": "Type",

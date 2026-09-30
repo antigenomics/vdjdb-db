@@ -17,6 +17,7 @@ import polars as pl
 import pytest
 
 from vdjdb.corpus import build, mhc, query, tokens
+from vdjdb.emit.vdjdb3 import read_table
 
 pytestmark = pytest.mark.release
 
@@ -62,7 +63,7 @@ def tables() -> dict[str, pl.DataFrame]:
     needed = {n: directory / f"{n}.parquet" for n in ("records", "chains", "restriction")}
     if missing := [str(p) for p in needed.values() if not p.exists()]:
         pytest.skip(f"no built tables: {', '.join(missing)}")
-    return {n: pl.read_parquet(p) for n, p in needed.items()}
+    return {n: read_table(directory, n) for n in needed}
 
 
 @pytest.fixture(scope="module")

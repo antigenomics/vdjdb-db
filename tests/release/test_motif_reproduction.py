@@ -28,6 +28,7 @@ import polars as pl
 import pytest
 
 from vdjdb.compare.diff import Bundle
+from vdjdb.emit.vdjdb3 import read_table
 from vdjdb.validate import motif_bench as mb
 from vdjdb.validate import motif_metrics as mmv
 
@@ -76,7 +77,7 @@ def tables() -> tuple[pl.DataFrame, pl.DataFrame]:
     d = Path(os.environ.get("VDJDB_TABLES", "out/tables"))
     if not (d / "chains.parquet").exists():
         pytest.skip(f"no built tables at {d}; run `vdjdb build --out out/`")
-    return pl.read_parquet(d / "chains.parquet"), pl.read_parquet(d / "records.parquet")
+    return read_table(d, "chains"), read_table(d, "records")
 
 
 @pytest.fixture(scope="module")

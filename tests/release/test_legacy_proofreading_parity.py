@@ -44,6 +44,7 @@ import pytest
 import legacy_qc as L
 from vdjdb.curate.anchors import templated
 from vdjdb.curate.nomenclature import _SPLIT, _imgt
+from vdjdb.emit.vdjdb3 import to_internal
 
 pytestmark = pytest.mark.release
 
@@ -72,8 +73,10 @@ def chains() -> pl.DataFrame:
     missing = [n for n in ("chains.tsv", "records.tsv") if not (tables / n).exists()]
     if missing:
         pytest.skip(f"no built tables: {', '.join(missing)}")
-    ch = pl.read_csv(tables / "chains.tsv", separator="\t", infer_schema_length=0)
-    rec = pl.read_csv(tables / "records.tsv", separator="\t", infer_schema_length=0)
+    # The TSV, not the parquet: these checks assert on what shipped as text. `to_internal` puts the
+    # shipped `underscore_case` header back under the names the rest of this file uses.
+    ch = to_internal(pl.read_csv(tables / "chains.tsv", separator="\t", infer_schema_length=0))
+    rec = to_internal(pl.read_csv(tables / "records.tsv", separator="\t", infer_schema_length=0))
     return ch.join(rec.select("record_id", "species"), on="record_id", how="left")
 
 
