@@ -6,9 +6,10 @@ asks the recombination model for the single most likely nucleotide junction behi
 one, so what this produces is inferred, not observed, and the table says so: ``cdr3nt.pgen`` is its
 generation probability and ``cdr3nt.margin`` how far it beat the runner-up.
 
-Measured: on 600 distinct human TRB keys the OLGA and arda models agree on 7.2 % of the nucleotide
-sequences they both return (293 both-resolved). The models disagree about which of many synonymous
-nucleotide histories is most likely, not about the protein. Treat ``cdr3nt`` as a plausible
+Measured: on 600 distinct human TRB keys the two bundled human models agree on 7.2 % of the nucleotide
+sequences they both return (293 both-resolved). Both are ``vdjtools`` models - one bootstrapped from
+OLGA, one its own EM fit over arda's IMGT allele namespace - and they disagree about which of many
+synonymous nucleotide histories is most likely, not about the protein. Treat ``cdr3nt`` as a plausible
 representative, never as evidence.
 
 **One batched call per (species, locus), and nothing around it.** ``infer_nt_batch`` releases the GIL
@@ -27,10 +28,13 @@ from __future__ import annotations
 
 import polars as pl
 
-#: VDJdb species -> (``vdjtools`` model source, organism). OLGA is human-only and is the community
-#: reference for human; arda is the only source with mouse. Species absent here get no ``cdr3nt``:
-#: there is no model, and a guess from the wrong organism's marginals would be worse than an empty
-#: cell. The corpus also has 1,402 MacacaMulatta chains, which is why this is a lookup and not an
+#: VDJdb species -> (``vdjtools`` model source, organism). Both sources are ``vdjtools``' own
+#: recombination models and differ in how they were fit: ``olga`` is the OLGA bootstrap, human-only and
+#: the community reference for human, and ``arda`` is an EM fit over real non-functional reads in arda's
+#: IMGT allele namespace - **there is no "arda model"; arda is the aligner and the germline the fit was
+#: done against** - and it is the only bundled set covering mouse. Species absent here get no
+#: ``cdr3nt``: there is no model, and a guess from the wrong organism's marginals would be worse than an
+#: empty cell. The corpus also has 1,402 MacacaMulatta chains, which is why this is a lookup and not an
 #: assertion.
 MODELS: dict[str, tuple[str, str]] = {
     "HomoSapiens": ("olga", "human"),

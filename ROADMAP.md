@@ -214,6 +214,12 @@ generative model's insertion-length and D-trimming distributions" by its own des
 a fitted `d_prior.tsv` with a per-locus `beta` inside arda's *germline reference* tree, and covers the
 model's four `(organism, locus)` pairs rather than the reference's five organisms.
 
+There is no "arda model" to point at instead. arda is the **aligner** and the germline namespace; every
+bundled recombination model is `vdjtools`' own fit - `source="olga"` the OLGA bootstrap, `source="arda"`
+an EM fit over real non-functional reads in arda's IMGT allele namespace, which is the only bundled set
+covering mouse. So the model side is already wholly `vdjtools`', and `d_prior.tsv` is the one piece of it
+sitting in arda.
+
 `vdjtools` already has everything the posterior needs. `best_aa_scenarios_batch` returns a weight and a
 `d_call` per scenario per row, so `P(D | junction)` is one group-by, and it is the batched, GIL-released,
 natively threaded path arda has no equivalent of:
