@@ -141,8 +141,8 @@ and 121,336 of those get coordinates; the 65,107 TRA keys have no D to find. The
 dominates; naming the D costs ~30 µs and placing it ~1.4 µs.
 
 Compare what it replaces: `posterior_d` alone was 15.96 s over 119,034 keys via a Python row loop
-(35.8 % of the build), the nucleotide stage ran as four `vdjdb infer-nt` processes over contiguous
-slices, and `fix_cdr3` was 7.71 s. One call, one process, is now faster than any of them.
+(35.8 % of the build), the nucleotide stage ran as four processes of a since-retired
+`infer-nt` subcommand over contiguous slices, and `fix_cdr3` was 7.71 s. One call, one process, is now faster than any of them.
 
 ⛔ Do **not** wrap the call in a pool. Every stage is already batched: one `markup_batch`, then one
 native threaded `infer_nt_batch` and one `best_aa_scenarios_batch` per `(organism, locus)` on a model
