@@ -191,7 +191,49 @@ def assert_mhc_resolves(records: pl.DataFrame, root: Path | None = None) -> None
           "proofreading/mhc_nonhuman.tsv if it is a species the HLA database does not cover.")
 
 
-def build_epitopes(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
+#: What `proofreading/epitope_proteome.tsv` calls a peptide one residue from a proteome peptide.
+#: Spelled as what was measured, not as what it might mean - see `curate.antigens`.
+ONE_SUB = "one_substitution"
+
+
+@lru_cache(maxsize=8)
+def _analogues(root: Path) -> pl.DataFrame:
+    """``antigen.epitope -> (proteome.peptide, proteome.substitution)`` from the authority.
+
+    211 of the 791 epitopes the table covers are one substitution from a peptide in their host's
+    proteome, and **67 of those have the proteome form curated in VDJdb as well** - 35,346 records,
+    18.3 % of the database, sitting on rows a user cannot currently tell are related. `SLLMWITQV`
+    is 29,729 records and `SLLMWITQC` is 13, so a query for NY-ESO-1 responses returns the
+    anchor-optimised peptide and never learns the other row exists (#632).
+
+    **Neither row is wrong.** The epitope sequence is the ground truth - it is the peptide the
+    experiment used - and the difference from the proteome is almost always deliberate: an
+    anchor-optimised vaccine peptide, a designed altered-peptide ligand, a heteroclitic variant, or
+    a structure solved with a modified peptide. Of the 36,496 records on these 211 epitopes, 58
+    carry a `meta.structure.id` and 54 come from `PDB_Database.txt`, so the crystallography case is
+    real and small. This column is a **link**, not a finding.
+
+    Deduplicated on the epitope: one peptide may have a row per proteome, and `VEALYLVSG` does -
+    human `INS` and mouse `Ins2` both answer `VEALYLVCG` at `8C>S`, which is the same statement
+    twice rather than two.
+    """
+    path = root / "proofreading" / "epitope_proteome.tsv"
+    schema = {"antigen.epitope": pl.String, "proteome.peptide": pl.String,
+              "proteome.substitution": pl.String}
+    if not path.exists():
+        return pl.DataFrame(schema=schema)
+    table = pl.read_csv(path, separator="\t", infer_schema=False,
+                        comment_prefix="#").fill_null("")
+    return (table.filter(pl.col("verdict") == ONE_SUB)
+                 .select("antigen.epitope",
+                         pl.col("source.peptide").alias("proteome.peptide"),
+                         pl.col("source.subs").alias("proteome.substitution"))
+                 .unique(subset=["antigen.epitope"], keep="first", maintain_order=True)
+                 .sort("antigen.epitope"))
+
+
+def build_epitopes(records: pl.DataFrame, chains: pl.DataFrame,
+                   root: Path | None = None) -> pl.DataFrame:
     """One row per ``(antigen.epitope, antigen.species)``, with what supports it."""
     per_record = records.select(*KEY, "antigen.gene", "mhc.class", "record_id", "reference.id")
     clono = (chains.select("record_id", "clonotype_id")
@@ -217,6 +259,9 @@ def build_epitopes(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
         .with_columns(pl.col("antigen.epitope").str.len_chars().cast(pl.Int64)
                       .alias("epitope.length"),
                       pl.col("chains").fill_null(0), pl.col("clonotypes").fill_null(0))
+        .join(_analogues(root or Paths.discover().root), on="antigen.epitope", how="left")
+        .with_columns(pl.col("proteome.peptide").fill_null(""),
+                      pl.col("proteome.substitution").fill_null(""))
         .select(EPITOPE_COLUMNS)
         .sort(KEY)
     )

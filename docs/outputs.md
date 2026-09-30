@@ -285,6 +285,37 @@ VDJdb's own list of epitopes and the MHCs that present them.
 `epitopes` has `antigen.gene`, `epitope.length`, `mhc.class`, and the support counts `records`,
 `chains`, `clonotypes` and `references`. 379 epitopes are reported by two or more publications.
 
+**`proteome_peptide` and `proteome_substitution`** link an epitope to the host-proteome peptide it is
+one substitution from, where the epitope is not itself in the proteome (#632). 211 of the 2,131
+epitopes carry the link, and **67 of those have the proteome form curated in VDJdb as a separate
+row** - 35,346 records, 18.3% of the database, on rows nothing else says are two forms of one
+peptide:
+
+| epitope | records | `proteome_peptide` | records | `proteome_substitution` | `antigen_gene` |
+|---|--:|---|--:|---|---|
+| `SLLMWITQV` | 29,729 | `SLLMWITQC` | 13 | `9C>V` | NY-ESO-1 |
+| `ELAGIGILTV` | 2,401 | `EAAGIGILTV` | 140 | `2A>L` | MLANA |
+| `VEALYLVSG` | 2,495 | `VEALYLVCG` | 5,048 | `8C>S` | INS |
+| `IMDQVPFSV` | 100 | `ITDQVPFSV` | 19 | `2T>M` | PMEL |
+
+A query for NY-ESO-1 responses returns the 29,729 and never learns the 13 exist. That is what the
+columns are for.
+
+**Neither row is wrong, and this is not a defect report.** The epitope sequence is the ground truth -
+it is the peptide the experiment used - and the difference from the proteome is almost always
+deliberate: an anchor-optimised vaccine peptide, a designed altered-peptide ligand, a heteroclitic
+variant, or a structure solved with a modified peptide. Of the 36,496 records on these 211 epitopes,
+58 carry a `meta_structure_id` and 54 come from `PDB_Database.txt`, so the crystallography case is
+real and small. The columns are named for what was measured and not for why, because the sequence
+tells those causes apart from none of the others.
+
+Empty on the other 1,920 rows, and on every viral or bacterial epitope, because only the human and
+mouse proteomes are read - a pathogen epitope's source is the pathogen's proteome, which is a
+per-pathogen fetch and a different question. Both columns are read from
+`proofreading/epitope_proteome.tsv`, a committed reviewed input refreshed by `vdjdb antigens` in its
+own pull request, never resolved during a build: `mhcmatch` fetches the proteome from HuggingFace,
+so doing it here would put a network call in the critical path (hard rule 9).
+
 **The key is the epitope and the species, not the peptide.** A reader who assumes one row per peptide
 - which the table's name invites - joins the records of 12 peptides twice.
 `patches/antigen_epitope_species_gene.dict` is keyed on the peptide alone and cannot express them, so

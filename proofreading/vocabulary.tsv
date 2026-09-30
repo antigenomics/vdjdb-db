@@ -14,7 +14,18 @@
 #   antigen.gene G6PC2 (HomoSapiens) / G6pc2 (MusMusculus) - same convention, same reason.
 #   antigen.gene NEF (InfluenzaA), 8 records                - influenza has no Nef; needs the paper, not a rule.
 #   antigen.gene POL (HCV), 36 records                      - HCV's polyprotein is a separate question.
-#   antigen.gene synthetic / Synthetic, 56 records          - not a gene at all (#633); a curation decision.
+#   antigen.gene synthetic / Synthetic, 56 records          - not a gene at all (#633), and NOT a
+#       defect. Checked against `proofreading/epitope_proteome.tsv` and the peptides themselves: of
+#       the 48 epitopes curated `antigen.species = Synthetic` (62 records), the names say what they
+#       are - `M1-G4E` and `M1-F5L` are single-substitution variants of influenza `GILGFVFTL`,
+#       `PCPA12`/`PCPB7`/`PCPB9`/`PCPC5`/`PCPE3` are combinatorial peptide library members, `Velcro`
+#       is an engineered linker, and the `*MGVTYEM` family are altered peptide ligands. `Synthetic`
+#       is the correct provenance for a designed peptide, so mapping it away would lose a true fact.
+#       The authority resolves exactly one of the 48 to a natural source: `QLSPFPFDL` is exactly
+#       present in mouse `Ogdh`, and another chunk curates that same peptide as
+#       `MusMusculus`/`OGDH` - so that one peptide has two provenance labels and is the only thing
+#       here a curator has to settle. The case-fold `synthetic` -> `Synthetic` is left alone too:
+#       both spellings sit in `antigen.gene`, where neither is a gene.
 #   antigen.species AdV / HAdV5, 25 records                 - #633 proposes AdV -> HAdV5 and this file
 #       does NOT do it, because the two spellings are not the same claim. Both carry `TDLGQNLLY`, the
 #       conserved HLA-A*01 hexon epitope, which is used precisely because it is conserved across human
