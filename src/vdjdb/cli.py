@@ -130,16 +130,11 @@ def build(
     built = build_tables(master, release=release)
     out.mkdir(parents=True, exist_ok=True)
 
-    # Written every run, next to the other reports: a wall time nobody records is a wall time nobody
-    # can regress against, which is how the 156 s in `add_junction_nt` went unmeasured until someone
-    # profiled it by hand (ROADMAP_local section 49).
-    timings = timing_write(out / "reports" / "build-timings.tsv", rows=built["records"].height)
-    typer.echo(timing_report(timings))
-
     # Advisory, and deliberately not a gate: a value one character from another may be a typo or may
     # be two stains, two serotypes, or one gene under two species' symbol conventions, and only a
     # curator knows which. Written every run so the count is a number that can regress.
-    look = lookalikes(master)
+    with stage("curate.submission.lookalikes"):
+        look = lookalikes(master)
     look.write_csv(out / "reports" / "lookalikes.tsv", separator="\t")
     if not look.is_empty():
         within = look.filter(pl.col("same.species"))["folded"].n_unique()
@@ -150,7 +145,8 @@ def build(
     # Advisory too, and for the same reason: `epitopes` is keyed on (epitope, species, gene), so a
     # peptide with two sources is two rows by design. A conserved peptide, a vocabulary gap and a
     # mis-curation all look like this, and only the third is a defect (#633).
-    sources = epitope_sources(master)
+    with stage("curate.submission.epitope_sources"):
+        sources = epitope_sources(master)
     sources.write_csv(out / "reports" / "epitope-sources.tsv", separator="\t")
     if not sources.is_empty():
         two_species = sources.filter(pl.col("sources") > 1)["antigen.epitope"].n_unique()
@@ -165,7 +161,8 @@ def build(
     # tests for it - they check the residue alphabet and a minimum length. `arda.cdr3fix` repairs most
     # of them on the way through, which is exactly why this needs reporting: the chunk keeps the wrong
     # sequence and nobody learns.
-    anchors = noncanonical(master)
+    with stage("curate.anchors.noncanonical"):
+        anchors = noncanonical(master)
     anchors.write_csv(out / "reports" / "anchors.tsv", separator="\t")
     if not anchors.is_empty():
         fixable = anchors.filter(pl.col("repair").is_not_null()).height
@@ -190,7 +187,8 @@ def build(
                    f"{harmonised.height} rewrite(s) in {harmonised['stage'].n_unique()} pass(es) "
                    f"-> {out / 'reports' / 'harmonisation.tsv'}")
 
-    calls = unresolved_calls(master)
+    with stage("curate.nomenclature.unresolved"):
+        calls = unresolved_calls(master)
     calls.write_csv(out / "reports" / "nomenclature.tsv", separator="\t")
     if not calls.is_empty():
         family = calls.filter(pl.col("family.members") > 0)["chains"].sum()
@@ -203,7 +201,8 @@ def build(
     # looks like a TRBV name and `curate.nomenclature` asks whether IMGT has it, and neither asks
     # whether IMGT thinks the gene is functional. Advisory, like `anchors.tsv` above -- a P gene can
     # rearrange, and IMGT reclassifies genes between releases.
-    nonfunctional = functionality_report(built["chains"], built["records"])
+    with stage("curate.functionality.report"):
+        nonfunctional = functionality_report(built["chains"], built["records"])
     nonfunctional.write_csv(out / "reports" / "functionality.tsv", separator="\t")
     summary_rows = functionality_summary(nonfunctional)
     summary_rows.write_csv(out / "reports" / "functionality-summary.tsv", separator="\t")
@@ -222,14 +221,16 @@ def build(
     # reads the anchor residue of the segment a record names, this one asks whether some other gene
     # explains the whole 3' end better, and the two overlap on 19 of 718 chains. Advisory: #681 says
     # re-calling a J from its junction is a curator's decision, and what was missing is the list.
-    contradicted = jcall_report(built["chains"], built["records"])
+    with stage("curate.jcalls.report"):
+        contradicted = jcall_report(built["chains"], built["records"])
     contradicted.write_csv(out / "reports" / "j-calls.tsv", separator="\t")
     if not contradicted.is_empty():
         typer.echo(f"J calls contradicted by their own junction: {contradicted.height:,} chain(s) "
                    f"over {contradicted['chunk.file'].n_unique()} chunk(s) "
                    f"-> {out / 'reports' / 'j-calls.tsv'}")
 
-    presented = presentation_report(built["restriction"])
+    with stage("curate.presentation.report"):
+        presented = presentation_report(built["restriction"])
     presented.write_csv(out / "reports" / "presentation.tsv", separator="\t")
     presentation_summary(presented).write_csv(out / "reports" / "presentation-summary.tsv",
                                               separator="\t")
@@ -237,6 +238,15 @@ def build(
         typer.echo(f"MHC calls with no groove or a class that disagrees: {presented.height:,} "
                    f"(epitope, MHC) pair(s), {presented['records'].sum():,} record(s) "
                    f"-> {out / 'reports' / 'presentation.tsv'}")
+
+    # **Written last, after every timed stage has closed.** A wall time nobody records is a wall
+    # time nobody can regress against, which is how the 156 s in `add_junction_nt` went unmeasured
+    # until someone profiled it by hand (ROADMAP_local section 49). It used to be written directly
+    # after `build_tables`, which left the seven report stages below out of the table entirely -
+    # 1.97 s of a 40 s build, and a report claiming its rows "sum to the wall clock exactly once"
+    # while nine calls ran after it (ROADMAP_local 83d).
+    timings = timing_write(out / "reports" / "build-timings.tsv", rows=built["records"].height)
+    typer.echo(timing_report(timings))
 
     if tables:
         for name, frame in built.items():

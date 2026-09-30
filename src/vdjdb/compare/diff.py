@@ -25,7 +25,6 @@ import zipfile
 from collections import Counter, defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass, field
-from functools import lru_cache
 from pathlib import Path
 
 import polars as pl
@@ -465,13 +464,23 @@ class Rule:
     #: attributed to that rule.
     json_field: str | None = None
 
-    def matches(self, c: CellDiff) -> bool:
+    def matches(self, c: CellDiff, json_fields: frozenset[str] | None = None) -> bool:
+        """Does this rule cover ``c``?
+
+        ``json_fields`` is :func:`_json_diff_fields` for ``c``, computed by the caller once per cell
+        because every rule asks the same question of the same cell. Computing it here instead
+        parsed the two JSON cells once per *rule*: 11,390,336 calls for 201,481 cells, which an
+        `lru_cache(maxsize=4096)` on the parse was covering for rather than fixing.
+        """
         if not ((self.file is None or self.file == c.file)
                 and (self.column is None or self.column == c.column)
                 and (self.from_ is None or self.from_ == c.old)
                 and (self.to is None or self.to == c.new)):
             return False
-        return self.json_field is None or self.json_field in _json_diff_fields(c)
+        if self.json_field is None:
+            return True
+        return self.json_field in (json_fields if json_fields is not None
+                                   else _json_diff_fields(c))
 
 
 @dataclass(frozen=True, slots=True)
@@ -569,6 +578,7 @@ def _apply_renames(name: str, df: pl.DataFrame,
     counts: dict[str, int] = {}
     per_column: dict[str, dict[str, str]] = {}
     conditional: list[Rename] = []
+    masks: list[tuple[str, pl.Expr]] = []
     for r in renames:
         if not r.applies_to(name):
             continue
@@ -587,7 +597,16 @@ def _apply_renames(name: str, df: pl.DataFrame,
         else:
             for c in cols:
                 per_column.setdefault(c, {})[r.from_] = r.to
-        counts[r.id] = counts.get(r.id, 0) + int(df.select(mask.sum()).item())
+        masks.append((r.id, mask))
+
+    # **One `select` for every declared count, not one per rename.** `df.select(mask.sum()).item()`
+    # inside the loop above was 353 independent query plans over the full table, and with the
+    # per-column `with_columns` below it made this function 875 `collect()` calls for 32.4 s of a
+    # 40.1 s `vdjdb diff`. Batched: 8.96 s, and `summary_json` is byte-identical.
+    if masks:
+        totals = df.select(*[m.sum().alias(f"__n{i}") for i, (_, m) in enumerate(masks)]).row(0)
+        for (rid, _), n in zip(masks, totals, strict=True):
+            counts[rid] = counts.get(rid, 0) + int(n or 0)
 
     if per_column:
         df = df.with_columns(*[pl.col(c).replace(m) for c, m in sorted(per_column.items())])
@@ -601,19 +620,22 @@ def _apply_renames(name: str, df: pl.DataFrame,
                    for c in (*r.columns, *r.when_columns, "species") if c in df.columns}
         snap = {c: f"__snap\x1f{c}" for c in sorted(touched)}
         df = df.with_columns(*[pl.col(c).alias(s) for c, s in snap.items()])
-        for c in sorted(c for r in conditional for c in r.columns if c in snap):
+        # The column set is a **set**: a column named by several conditional renames was rewritten
+        # once per rename, to the same value each time, paying a full materialisation for each. And
+        # the expressions are applied in one `with_columns`, not one per column.
+        rewritten = []
+        for c in sorted({c for r in conditional for c in r.columns if c in snap}):
             expr = pl.col(c)
             for r in conditional:
                 if c not in r.columns:
                     continue
                 expr = pl.when((pl.col(snap[c]) == r.from_) & r.predicate(snap)
                                ).then(pl.lit(r.to)).otherwise(expr)
-            df = df.with_columns(expr.alias(c))
-        df = df.drop(list(snap.values()))
+            rewritten.append(expr.alias(c))
+        df = df.with_columns(*rewritten).drop(list(snap.values()))
     return df, counts
 
 
-@lru_cache(maxsize=4096)
 def _json_members(text: str) -> tuple[tuple[str, str], ...]:
     try:
         return tuple((k, repr(v)) for k, v in json.loads(text).items())
@@ -802,9 +824,14 @@ def diff(reference: Path, candidate: Path, rules_path: Path | None = None,
     for f in report.files:
         if f.name in report.elsewhere:
             continue
+        # Any rule carrying a `json_field` asks which members of this cell differ, and every rule
+        # asks it of the same cell, so it is computed once here. Only cells a JSON rule could match
+        # pay for it at all.
+        json_columns = {r.column for r in rules if r.json_field is not None}
         for cell in f.cells:
+            fields = _json_diff_fields(cell) if cell.column in json_columns else None
             for rule in rules:
-                if rule.matches(cell):
+                if rule.matches(cell, fields):
                     report.rule_counts[rule.id] = report.rule_counts.get(rule.id, 0) + 1
                     break
             else:
