@@ -21,8 +21,8 @@ from ..curate.nomenclature import (
     disambiguate_alleles,
     harmonise_mhc,
     harmonise_references,
-    harmonise_vocabulary,
     harmonise_segments,
+    harmonise_vocabulary,
 )
 from ..curate.patch import apply_antigen_patch
 from ..io.chunks import read_chunks

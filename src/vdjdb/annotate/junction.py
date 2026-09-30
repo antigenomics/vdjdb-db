@@ -165,7 +165,11 @@ def infer(keys: pl.DataFrame) -> pl.DataFrame:
     encodes = pl.Series("__ok", [nt is not None and nt != "" and translate(nt) == aa
                                  for nt, aa in zip(got["cdr3_nt"], keys["cdr3"], strict=True)],
                         dtype=pl.Boolean)
-    keep = lambda col: pl.when(encodes).then(col).otherwise(None)
+
+    def keep(col: pl.Expr | pl.Series) -> pl.Expr:
+        """``col`` where the nucleotides encode their own junction, null where they do not."""
+        return pl.when(encodes).then(col).otherwise(None)
+
     return keys.with_columns(
         keep(got["cdr3_nt"]).fill_null("").alias("cdr3nt"),                 # rule 6
         keep(got["pgen"]).alias("cdr3nt.pgen"),
