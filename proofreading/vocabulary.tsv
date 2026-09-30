@@ -23,9 +23,13 @@
 #       PMID:10671225's `SGPSNTPPEI` is E1A, which is Ad5-specific. One gene, two source labels; the
 #       gene case is normalised below and the species split stays in `out/reports/epitope-sources.tsv`,
 #       which is #633's own treatment for a conserved peptide.
-#   method.identification comma-space vs comma              - the declared vocabulary is not enforced,
-#       and #637 says enforcing it comes before repairing the spellings. 30+ values would need a
-#       decision each; these rows are only the case-and-separator variants with no judgement in them.
+# MOVED OUT of this file, to `proofreading/method_vocabulary.tsv`:
+#   Every `method.identification` correction. That column is a comma-separated **set of tokens**, so
+#   the unit of correction is the token and a whole-cell rewrite can only ever reach a variant that
+#   happens to be a cell on its own. The four rows this file used to carry - `tetramer.sort`,
+#   `Tetramer-sort`, `tetramer sort` and `antigen loaded targets, IFNg capture assay` - are all
+#   declared there now, as token aliases, and produce the same cells. Two tables answering for one
+#   column is the drift this file exists to prevent.
 column	species	from	to	reason
 antigen.gene		IE-1	IE1	case-and-separator variant of a 14,183-record spelling; 31 records
 antigen.gene		VPR	Vpr	case variant of a 97-record spelling; 14 records
@@ -39,7 +43,3 @@ antigen.gene	HIV-1	gag	Gag	case variant of a 2,744-record spelling within one sp
 antigen.gene	HIV-1	GAG	Gag	case variant of a 2,744-record spelling within one species
 antigen.gene	HIV-1	POL	Pol	case variant of a 277-record spelling within one species
 antigen.gene	HAdV5	Hexon	HEXON	case variant of the 15-record AdV spelling of the same gene
-method.identification		tetramer.sort	tetramer-sort	separator variant of a 94,700-record vocabulary value; 2,203 records
-method.identification		Tetramer-sort	tetramer-sort	case variant of a 94,700-record vocabulary value; 135 records
-method.identification		tetramer sort	tetramer-sort	separator variant of a 94,700-record vocabulary value; 5 records
-method.identification		antigen loaded targets, IFNg capture assay	antigen-loaded-targets, IFNg capture assay	separator variant of a 43-record spelling; 3 records

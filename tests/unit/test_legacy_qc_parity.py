@@ -216,6 +216,14 @@ CHUNK_CASES: tuple[Case, ...] = (
           note="#402. `score.confidence` awards 3 outright for a non-empty value, above every "
                "sequencing and specificity term, so a figure reference buys the top score for "
                "evidence that does not exist."),
+    _case("method-identification-names-an-unsettled-token",
+          {"method.identification": "tetramer-sort,magnetic beads"},
+          [], ["undeclared method.identification token"], verdict=STRICTER,
+          note="#637. The cell is a comma-separated set, so the finding is per token: "
+               "`tetramer-sort` is declared and `magnetic beads` is `pending` in "
+               "`proofreading/method_vocabulary.tsv`, which is what makes this row fail while a "
+               "cell of only declared tokens does not. The retired build read this column as free "
+               "text and said nothing about any value in it."),
     _case("v-beta-is-a-pseudogene", {"v.beta": "TRBV1*01"},
           [], ["non-functional v.beta"], verdict=STRICTER,
           note="#634. IMGT calls human TRBV1 P. Advisory rather than fatal: a P gene can rearrange, "
