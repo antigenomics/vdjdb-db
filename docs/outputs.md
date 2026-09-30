@@ -122,12 +122,29 @@ The receptor is not here: a chain is an observation, so it is a row of `chains`,
 | provenance | `reference_id` |
 | sample | `meta_study_id`, `meta_cell_subset`, `meta_subject_cohort`, `meta_subject_id`, `meta_replica_id`, `meta_clone_id`, `meta_tissue` - the id fields that are part of identity |
 | annotation | `meta_epitope_id`, `meta_donor_MHC`, `meta_donor_MHC_method`, `meta_structure_id`, `meta_subset_frequency` |
-| method | `method_identification`, `method_frequency`, `method_singlecell`, `method_sequencing`, `method_verification`, `method_pairing` |
+| method | `method_identification`, `method_frequency`, `method_frequency_count`, `method_frequency_total`, `method_singlecell`, `method_sequencing`, `method_verification`, `method_pairing` |
 | score | `vdjdb_score` |
 | curation | `chunk_file`, `chunk_row`, `chunk_id`, `submitter`, `comment` |
 
 `submitter`, `comment`, `chunk_id`, `meta_subset_frequency` and `method_pairing` are kept here; the
 legacy build discards all five.
+
+**`method_frequency`, `method_frequency_count` and `method_frequency_total` are three independent
+columns, and none is derived from another** (#696). A study that reports only a float has no count
+behind it, so deriving the float would blank it exactly where it is the only measurement; deriving
+the pair from a float is impossible. Measured: 43,231 records carry a count and total, 17,700 a
+percentage, 2,601 a float, 129,109 nothing. The count and total are chunk columns, so a submitter
+with a read count writes it as a number; where they do, the submitted value wins and nothing is
+parsed. Where all three are present they must agree, which `vdjdb qc` reports and does not repair.
+
+**`meta_subset_frequency` is not filled from `method_frequency`.** It is populated on 2,412 records
+and left as submitted, because the records that do carry it are using it for a different quantity -
+`method_frequency = 17/52` beside `meta_subset_frequency = 0.70%` is a clonotype's count within a
+sorted subset beside that subset's share of the sample, and both are real. A consumer that wants
+"the frequency of this clonotype in its subset" should coalesce the two:
+`pl.coalesce("meta_subset_frequency", "method_frequency")`. Filling it in the build would have
+written 61,253 cells across 117 chunks, every one a copy of the column beside it, and mixed the two
+readings with nothing to tell them apart.
 
 `content_hash`, the record state and the release/commit provenance are in the registry (§6), not
 here: they describe the record's history rather than the record.
