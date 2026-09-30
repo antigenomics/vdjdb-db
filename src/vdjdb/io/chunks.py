@@ -112,6 +112,94 @@ def dedup(df: pl.DataFrame) -> pl.DataFrame:
     return df.unique(subset=["chunk.file", *CHUNK_DEDUP_KEY], keep="first", maintain_order=True)
 
 
+#: Columns that describe the **curation** rather than the record, so a difference in one is not a
+#: difference between two reports. `chunk.id` is a per-chunk row serial, so two chunks curating one
+#: clone always disagree on it; before it was excluded, all 19 of #390's groups read as conflicting
+#: for that reason alone.
+CURATION_ONLY: frozenset[str] = frozenset({"chunk.file", "chunk.row", "chunk.id",
+                                           "submitter", "comment"})
+
+#: Chunks that are not one publication's own report. A structure chunk and an aggregate both carry
+#: rows whose paper has its own chunk, so where a merge has to pick a base row, it prefers the
+#: paper's. Matched by name; anything else is a submitted chunk.
+DERIVED_CHUNKS: tuple[str, ...] = ("PDB_Database.txt", "small_datasets_")
+
+
+def _base_first(files: list[str]) -> list[str]:
+    """``files`` with the submitted paper chunk first - trust the submission first.
+
+    Deterministic where neither is derived, which the two `goncharov-*` pairs are: sorted by name
+    after the derived ones are pushed back, never by row order (hard rule 7).
+    """
+    return sorted(files, key=lambda f: (f.startswith(DERIVED_CHUNKS), f))
+
+
+def merge_repeated_references(df: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFrame]:
+    """Collapse rows that are one publication reporting one clone twice, in two chunk files (#390).
+
+    ``CHUNK_DEDUP_KEY`` contains ``reference.id``, so a group of it spanning two chunk files is one
+    paper curated twice - and two rows of one paper are not two independent reports, which is the
+    whole basis for deduplicating within a chunk in the first place. **The chunk was a proxy for the
+    publication**; where the two come apart, the publication is what counts.
+
+    Measured on the corpus: **19 groups over 38 rows**, every one a pair. 18 agree on every column
+    that describes the record and are merged, filling the base row's blanks from the other -
+    ``method.verification`` in 10 of the 18 and ``meta.epitope.id`` in 3. **1 is left alone**:
+    `PDB_Database.txt` and `PMID_34433824.txt` give one clone `structural` and `tetramer-sort`, which
+    is one paper reporting a solved complex *and* the sort that found it - two observations, not a
+    duplicate.
+
+    A group is merged only when every column both rows carry non-blank agrees, ``CURATION_ONLY``
+    excluded. Nothing is overwritten: the base row keeps every value it has.
+    """
+    report_schema = {"reference.id": pl.String, "chunk.files": pl.String, "verdict": pl.String,
+                     "detail": pl.String, "rows": pl.Int64}
+    spanning = (df.group_by(CHUNK_DEDUP_KEY)
+                  .agg(pl.col("chunk.file").n_unique().alias("__files"))
+                  .filter(pl.col("__files") > 1)
+                  .drop("__files"))
+    if spanning.is_empty():
+        return df, pl.DataFrame(schema=report_schema)
+
+    compared = [c for c in df.columns if c not in CHUNK_DEDUP_KEY and c not in CURATION_ONLY]
+    groups = df.join(spanning, on=CHUNK_DEDUP_KEY, how="inner")
+    rows, drop, patch = [], [], []
+    for key, sub in groups.group_by(CHUNK_DEDUP_KEY, maintain_order=True):
+        files = _base_first(sub["chunk.file"].to_list())
+        disagree, fill = {}, {}
+        for column in compared:
+            values = {v for v in sub[column].to_list() if v not in (None, "")}
+            if len(values) > 1:
+                disagree[column] = " | ".join(sorted(values))
+            elif values:
+                fill[column] = next(iter(values))
+        reference = key[CHUNK_DEDUP_KEY.index("reference.id")]
+        if disagree:
+            rows.append({"reference.id": reference, "chunk.files": ",".join(files),
+                         "verdict": "kept", "rows": sub.height,
+                         "detail": "; ".join(f"{c}: {v}" for c, v in sorted(disagree.items()))})
+            continue
+        base = sub.filter(pl.col("chunk.file") == files[0]).row(0, named=True)
+        rows.append({"reference.id": reference, "chunk.files": ",".join(files),
+                     "verdict": "merged", "rows": sub.height,
+                     "detail": ("filled " + ", ".join(sorted(c for c in fill if not base[c]))
+                                if any(not base[c] for c in fill) else "identical")})
+        drop += [(f, r) for f, r in zip(sub["chunk.file"], sub["chunk.row"], strict=True)
+                 if not (f == base["chunk.file"] and r == base["chunk.row"])]
+        patch.append({**base, **{c: v for c, v in fill.items() if not base[c]}})
+
+    if drop:
+        dropped = pl.DataFrame(drop, schema={"chunk.file": pl.String, "chunk.row": df["chunk.row"].dtype},
+                               orient="row")
+        kept = df.join(dropped, on=["chunk.file", "chunk.row"], how="anti")
+        patched = pl.DataFrame(patch, schema=df.schema)
+        df = (pl.concat([kept.join(patched.select("chunk.file", "chunk.row"),
+                                   on=["chunk.file", "chunk.row"], how="anti"), patched])
+                .sort("chunk.file", "chunk.row"))
+    report = pl.DataFrame(rows, schema=report_schema)
+    return df, report.sort("verdict", "reference.id", "chunk.files")
+
+
 def read_chunks(paths: Iterable[Path] | None = None, *, deduplicate: bool = True) -> pl.DataFrame:
     """Every chunk, concatenated in sorted filename order.
 

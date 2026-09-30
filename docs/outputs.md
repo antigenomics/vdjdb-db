@@ -106,9 +106,18 @@ build. The chunk format is unaffected: a submitted chunk still uses the dotted n
 ### 3.1 `records.parquet` - one row per submitted record
 
 Primary key `record_id`, unique. One chunk row is one record: a chunk is one paper, a row is that
-paper's report on one clone, and the row reports both chains. The table therefore has exactly as many
-rows as the build reads, 192,753. `method.*` and `meta.*` sit here because they describe what the
-publication reports about the record.
+paper's report on one clone, and the row reports both chains. `method.*` and `meta.*` sit here
+because they describe what the publication reports about the record.
+
+The table has one row per curated line, **192,623**, which is the 202,277 data lines in `chunks/`
+less 9,636 declared within-chunk duplicates and less 18 rows where one publication was curated in two
+chunk files (#390). `CHUNK_DEDUP_KEY` contains `reference.id`, so a group of it spanning two chunks
+is one paper reporting one clone twice - the chunk is normally the publication, and where the two
+come apart the publication is what deduplication is about. 19 such groups exist over 38 rows; 18
+merge, filling the base row's blanks from the other, and the 19th is left alone because
+`PDB_Database.txt` and `PMID_34433824.txt` give one clone `structural` and `tetramer-sort`, which is
+a solved complex and the sort that found it. `out/reports/repeated-references.tsv` lists all 19 with
+the verdict and the reason.
 
 The receptor is not here: a chain is an observation, so it is a row of `chains`, while
 `vdjdb_full.txt` folds both chains into paired columns and leaves half of them blank.
