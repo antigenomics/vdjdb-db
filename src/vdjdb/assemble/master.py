@@ -27,7 +27,7 @@ from ..curate.nomenclature import (
     harmonise_vocabulary,
 )
 from ..curate.patch import apply_antigen_patch
-from ..io.chunks import read_chunks
+from ..io.chunks import merge_repeated_references, read_chunks
 from ..schema import ALL_COLUMNS, FULL_COLUMNS
 from ..score.confidence import add_score
 
@@ -216,6 +216,14 @@ def build_master(paths: Iterable[Path] | None = None,
     reads.
     """
     df = read_chunks(paths)
+    # One publication curated in two chunk files is one paper reporting one clone twice, and two
+    # rows of one paper are not two independent reports - which is the whole basis for
+    # deduplicating within a chunk (#390). Runs before identity, so a collapsed row is retired by
+    # the registry rather than silently re-keyed. `vdjdb qc` deliberately does *not* see this: a
+    # curator should know the paper was curated twice.
+    df, repeated = merge_repeated_references(df)
+    if write_report is not None:
+        _write_repeated(write_report.parent / "repeated-references.tsv", repeated)
     # As submitted, before any harmonisation touches it. `chains` reports these as
     # `v.segm.submitted` / `j.segm.submitted` / `d.segm.submitted`: a reader comparing them with the
     # shipped call sees exactly what the build decided, which is the difference between a curation
@@ -262,6 +270,13 @@ def _write_harmonisation(path: Path, segments: pl.DataFrame, alleles: pl.DataFra
     path.parent.mkdir(parents=True, exist_ok=True)
     # `quote_style="never"`: a pass that reports no species writes an empty cell, and the default
     # renders that as a literal `""`. Hard rule 6 -- empty string is the only missing marker.
+    report.write_csv(path, separator="\t", quote_style="never")
+    return report
+
+
+def _write_repeated(path: Path, report: pl.DataFrame) -> pl.DataFrame:
+    """Which publications are curated in more than one chunk file, and what was done (#390)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
     report.write_csv(path, separator="\t", quote_style="never")
     return report
 
