@@ -191,12 +191,54 @@ that a bottleneck becomes an issue in the repo that owns the slow code:
 
 | issue | what | measured here |
 |---|---|---|
-| `antigenomics/arda#142` | `arda.dpost` has no batch entry point, so `annotate/dgene.py` must call `posterior_d` per key | 134.1 µs/key, 119,034 distinct keys, **15.96 s**, 35.8 % of the build |
+| `antigenomics/arda#142` | `arda.dpost` has no batch entry point, so `annotate/dgene.py` must call `posterior_d` per key | 134.1 µs/key, 119,034 distinct keys, **15.96 s**, 35.8 % of the build. **Dissolves into §3.5** - the batched path already exists in `vdjtools` |
 | `antigenomics/arda#143` | `markup_records`' `_align` is a pure-Python dynamic program | 35.4 µs/key, 23,556,016 `max()` calls over 190,624 records, **~7.2 s** |
 
 Together they are 23 s of a 39 s build, against 3.6 s for every line of Python in this repository that
 runs per record. Neither changes an output, so neither gates a release; both move when the `arda-mapper`
 bound does.
+
+### 3.5 Cross-repo gate: `d.posterior` moves from `arda` to `vdjtools`
+
+**The D call and the number beside it come from two different models.** `d.inferred`, `d.start` and
+`d.end` come from `vdjtools.model.infer_nt_batch` - the argmax of a recombination model.
+`d.posterior` and `d.entropy` come from `arda.dpost.posterior_d`. `annotate/dgene.py` records that the
+two name the same D gene on 78.5 % of chains, and works around the split by reporting arda's posterior
+for *vdjtools'* winner rather than for arda's own, because a number beside a call must be the
+probability of that call. That is the right handling of the wrong situation.
+
+It is a library-organisation defect before it is a correctness one. arda owns the germline reference and
+the markup against it; `vdjtools` owns the recombination model and everything probabilistic about it
+(`pgen`, `infer_nt`, `best_aa_scenarios`, `marginals_frame`, `viterbi`). `arda.dpost` marginalises "the
+generative model's insertion-length and D-trimming distributions" by its own description, ships them as
+a fitted `d_prior.tsv` with a per-locus `beta` inside arda's *germline reference* tree, and covers the
+model's four `(organism, locus)` pairs rather than the reference's five organisms.
+
+`vdjtools` already has everything the posterior needs. `best_aa_scenarios_batch` returns a weight and a
+`d_call` per scenario per row, so `P(D | junction)` is one group-by, and it is the batched, GIL-released,
+natively threaded path arda has no equivalent of:
+
+| | µs/key | 119,034 distinct keys |
+|---|--:|--:|
+| `best_aa_scenarios_batch`, k=8 | **40.4** | **4.81 s** |
+| `best_aa_scenarios_batch`, k=32 | 46.6 | 5.54 s |
+| `arda.dpost.posterior_d`, serial - it has no batch form | 113.7 | 13.54 s |
+
+Measured on 3,000 real human TRB junctions, `k=32`: median winning posterior 0.850, median entropy
+0.423 over the 2,799 that resolve a D.
+
+Ordering, the same shape as §3.1 and §3.4:
+
+1. `vdjtools` grows `posterior_d` / `posterior_d_batch` - `antigenomics/vdjtools#183` carries the
+   proposed signature, the group-by and the measurements;
+2. `arda.dpost` is retired into it - `antigenomics/arda#144`, which also dissolves `arda#142`;
+3. both releases land, the bounds here move, and `annotate/dgene.py` becomes one batched call against
+   the model that already produced the call it annotates - removing the largest stage of the build
+   (13.88 s of 38.73 s) and the two-model split in the same change.
+
+**Nothing changes here in the meantime.** `d.posterior` keeps reporting arda's number for vdjtools'
+winner, which is documented in `annotate/dgene.py` and is the best available answer while the split
+exists.
 
 ## 4. Phases
 
