@@ -52,7 +52,7 @@ explain is present with nulls — never dropped, never an exception. Deduplicate
 | `d_start_aa`, `d_end_aa` | — | the residues whose codons the D touches, recomputed from the nt bounds |
 | `np1`, `np2` | `annotate/junction.py` | the N regions either side of the D, sliced from the same bounds |
 
-## Four things that change in the output, and why
+## Five things that change in the output, and why
 
 **1. The junction repair is applied, not reported (#711).** `curate/anchors.py` computes a repair and
 writes it to `out/reports/anchors.tsv`; 261 of 1,037 flagged chains carry a germline-supported repair
@@ -79,7 +79,7 @@ whose D and `DStart`/`DEnd` come from the nucleotide sequence:
 | E-value-gated alignment chooses and places | 47.93 % | 55.75 % |
 | gated alignment, model posterior where it declines | 71.40 % | 55.75 % |
 | today's `d.inferred` (the length-and-prior posterior) | 69.67 % | — |
-| **model names, greedy alignment places** | **74.30 %** | **99.70 %** |
+| **model names, greedy alignment places** | **74.35 %** | **99.80 %** |
 
 ⛔ **`arda.dpost` does not come back, in either library.** The posterior this build reads today is
 dominated by a group-by over a call the pipeline already makes — 69.67 % against 74.33 %, 56.3 µs per
@@ -88,12 +88,20 @@ replacement does not. `annotate/dgene.py` is replaced by two columns, not re-poi
 So `fields.py`'s comment about `d.posterior` needs rewriting rather than renaming: the number now
 comes from the model's own scenario weights, normalised over D genes.
 
-⚠ The one thing that gets *worse* is per-row positional precision: `d_start_nt` is exact on 60.88 %
-of correctly-called rows against 66.67 % under the gate. It is exact on **1,807 rows rather than
-1,278**, because it answers 3,988 rather than 2,230. For a view drawing V/N/D/N/J that is the trade
+⚠ The one thing that gets *worse* is per-row positional precision: `d_start_nt` is exact on 64.71 %
+of correctly-called rows against 66.67 % under the gate. It is exact on **1,922 rows rather than
+1,278**, because it answers 3,992 rather than 2,230. For a view drawing V/N/D/N/J that is the trade
 to take.
 
-**4. The nucleotides are the authority and the amino-acid bounds are recomputed from them.**
+**4. The model set is chosen per row, not configured.** `model_source="auto"` runs OLGA's bundled
+fit first and arda's on whatever it left unexplained. Neither alone is best: OLGA's is better
+calibrated and cheaper but declines rows outright and has no mouse, arda's answers everything and is
+thinner. On 4,000 real human rearrangements the chain wins every column — TRB nucleotide-exact
+14.40 / 17.32 / **17.32 %** and D gene 72.58 / 74.08 / **74.35 %** for arda / OLGA / the chain, and
+TRA keeps **4,000 of 4,000** nucleotide junctions where OLGA alone loses 143. Leave the default
+alone unless you are reproducing a published number against one named fit.
+
+**5. The nucleotides are the authority and the amino-acid bounds are recomputed from them.**
 `v_end_nt`, `j_start_nt`, `d_start_nt` and `d_end_nt` are all read off the inferred nucleotide
 junction; `v_end`, `j_start`, `d_start_aa` and `d_end_aa` follow from those. A view showing both
 alphabets therefore cannot draw them disagreeing, and there is no `ceil(nt/3)` conversion left in
@@ -145,4 +153,4 @@ surprise, and the fix is to read `d_call` / `d_posterior` rather than to re-poin
 5. **Then** #711: `curate/anchors.py` keeps its classification (which is curation) and drops its
    repair computation (which is annotation), and the build ships `cdr3_repaired`.
 6. Re-run `vdjdb diff` against `reference.zip` and read the junction-column changes against the table
-   in §"Four things that change" above.
+   in §"Five things that change" above.
