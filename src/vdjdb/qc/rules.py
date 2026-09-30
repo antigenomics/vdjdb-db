@@ -95,6 +95,30 @@ def _functional_ok(col: str) -> pl.Expr:
             | (~key.is_in(listed) & ~gene.is_in(bad)))
 
 
+def _method_tokens_declared() -> pl.Expr:
+    """True unless ``method.identification`` names a token the vocabulary has not settled (#637).
+
+    The specification page declares this vocabulary in prose and says "Separate phrases with a
+    comma", so the unit is the **token**: 56 distinct cells over the corpus but 46 distinct tokens.
+    ``proofreading/method_vocabulary.tsv`` is the list, and a token is settled when its ``status``
+    is ``declared`` or ``alias``.
+
+    **Advisory, and it must stay advisory.** A submission naming a method nobody has seen is a
+    method nobody has seen, not a defect - the corpus already carries `T-Scan`, `YAMTAD system` and
+    `phage display`, none of which the page ever named. What this finding buys is that the next one
+    is seen when it arrives rather than counted years later, which is what #637 asked for.
+    """
+    from ..curate.nomenclature import method_vocabulary
+
+    settled = [tok for tok, status, _ in method_vocabulary()
+               if status in ("declared", "alias")]
+    col = "method.identification"
+    return (_blank(col)
+            | pl.col(col).str.split(",")
+                .list.eval(pl.element().str.strip_chars().is_in(settled))
+                .list.all())
+
+
 #: Columns that describe the **antigen or its MHC**, so a per-row counter in one of them is a
 #: spreadsheet artefact rather than the column's purpose. Deliberately excludes `meta.clone.id`,
 #: `meta.subject.id` and `meta.study.id`: a counter there *is* the content, and the corpus is full of
@@ -234,6 +258,8 @@ RULES: dict[str, pl.Expr] = {
     # A spreadsheet counter in a column that describes the antigen (#694, #625). See `_no_counter`
     # for the three confirmed instances and why the `meta.*` identifier columns are excluded.
     **{f"counter in {col}": _no_counter(col) for col in COUNTER_COLUMNS},
+    # A `method.identification` token the vocabulary has not settled (#637). Advisory, deliberately.
+    "undeclared method.identification token": _method_tokens_declared(),
 }
 
 
