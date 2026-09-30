@@ -174,7 +174,23 @@ FIELDS: dict[str, Field] = dict([
 
     # -- assay description ----------------------------------------------------------------------
     _f("method.identification", title="Identification method"),
-    _f("method.frequency", title="Frequency"),
+    _f("method.frequency", title="Frequency",
+       comment="Frequency of this clonotype in the isolated epitope-reactive population, as the "
+               "submitter wrote it: `x/X`, `X%` or a bare float. Free text on purpose - it is what "
+               "every release has shipped, and some studies report only the ratio."),
+    # #696. Three independent columns, not one and two derived from it. A study that reports only a
+    # float has no count behind it, so deriving the float would blank it exactly where it is the
+    # only measurement; a study that reports `3/33921` has a count the float cannot carry, because
+    # at that depth `1/33921` and `3/33921` round to the same number. Where all three are present
+    # they must agree, which `vdjdb qc` reports and does not enforce.
+    _f("method.frequency.count", searchable=0, autocomplete=0, data_type="uint",
+       title="Frequency count",
+       comment="Reads, UMIs or cells supporting this clonotype, parsed from an unambiguous `x/X` "
+               "`method.frequency`. Null where the submitted value is a float or a percentage: the "
+               "count is absent, not zero."),
+    _f("method.frequency.total", searchable=0, autocomplete=0, data_type="uint",
+       title="Frequency total",
+       comment="The sample total `method.frequency.count` is out of, from the same `x/X`."),
     _f("method.singlecell", title="Single cell"),
     _f("method.sequencing", title="Sequencing"),
     _f("method.verification", title="Verification"),
@@ -500,7 +516,7 @@ RECORD_COLUMNS: tuple[str, ...] = (
     "record_id", "pmhc_id", "epitope_id", *RECORD_ANTIGEN, "reference.id", *RECORD_SAMPLE,
     "meta.epitope.id", "meta.donor.MHC", "meta.donor.MHC.method", "meta.structure.id",
     "meta.subset.frequency",
-    *METHOD_COLUMNS, "method.pairing",
+    *METHOD_COLUMNS, "method.frequency.count", "method.frequency.total", "method.pairing",
     "vdjdb.score",
     *RECORD_CURATION,
 )
@@ -577,9 +593,13 @@ MOTIF_PWMS_COLUMNS: tuple[str, ...] = (
     "antigen.gene", "antigen.species", "mhc.a", "mhc.b", "mhc.class",
 )
 
-#: Present in submitted chunks and discarded by the legacy build with no error. Kept from phase 6.
+#: Readable from a submitted chunk and absent from every legacy output. The first five are columns
+#: the legacy build discarded with no error (phase 6); the last two are #696's, so a submitter with
+#: a read or cell count can write it as a number instead of encoding it in a string. All seven are
+#: optional: :data:`vdjdb.io.chunks.READABLE` fills a missing one with ``""``.
 KEPT_CURATION_COLUMNS: tuple[str, ...] = (
     "chunk.id", "submitter", "comment", "meta.subset.frequency", "method.pairing",
+    "method.frequency.count", "method.frequency.total",
 )
 
 #: Per-chunk deduplication key. Not the score signature, which is a different 11-column key
@@ -611,12 +631,20 @@ _META_HEADER = "name\ttype\tvisible\tsearchable\tautocomplete\tdata.type\ttitle\
 #: This is an order, not a gate: ``qc/lint.py`` checks column *membership* against
 #: ``ALL_COLUMNS | KEPT_CURATION_COLUMNS`` and must keep doing so, because a submitted chunk may
 #: order its columns however it likes and may omit the optional ones.
-CHUNK_COLUMNS: tuple[str, ...] = (
-    "chunk.id",
-    *ALL_COLUMNS[:ALL_COLUMNS.index("meta.cell.subset") + 1],
-    "meta.subset.frequency",
-    *ALL_COLUMNS[ALL_COLUMNS.index("meta.cell.subset") + 1:],
-)
+def _chunk_order() -> tuple[str, ...]:
+    """The template's order: the 2016 spreadsheet's, with #696's two columns beside the string
+    they are a typed form of."""
+    out: list[str] = ["chunk.id"]
+    for column in ALL_COLUMNS:
+        out.append(column)
+        if column == "method.frequency":
+            out += ["method.frequency.count", "method.frequency.total"]
+        if column == "meta.cell.subset":
+            out.append("meta.subset.frequency")
+    return tuple(out)
+
+
+CHUNK_COLUMNS: tuple[str, ...] = _chunk_order()
 
 TABLES: dict[str, tuple[str, ...]] = {
     "chunk": CHUNK_COLUMNS,

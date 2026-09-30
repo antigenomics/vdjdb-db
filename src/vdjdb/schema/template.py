@@ -112,6 +112,12 @@ EXAMPLES: tuple[dict[str, str], ...] = (
         'reference.id': 'PMID:41424382',
         'method.identification': 'antigen-loaded-targets',
         'method.frequency': '2/95',
+        # #696, and the only cell in this file that is not verbatim from its chunk: the two
+        # columns are new, so no curated row can carry them yet. One example fills them and
+        # two leave them blank, which is what a submitter needs to see - either form is
+        # accepted, and where both are given they have to agree.
+        'method.frequency.count': '2',
+        'method.frequency.total': '95',
         'method.singlecell': 'yes',
         'method.sequencing': 'sanger',
         'method.verification': 'antigen-loaded-targets,direct',

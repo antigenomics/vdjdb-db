@@ -17,6 +17,7 @@ from pathlib import Path
 import polars as pl
 
 from ..config import Paths
+from ..curate.frequency import split_frequency
 from ..curate.nomenclature import (
     disambiguate_alleles,
     harmonise_method_tokens,
@@ -234,6 +235,12 @@ def build_master(paths: Iterable[Path] | None = None,
     # trimmed sequences repaired to the same full one are still two observations.
     df = add_record_ids(df, registry, write=write_registry, release=release)
     df = fix_cdr3(df)
+    # After identity, deliberately: the count and total are *parsed out of* a column identity already
+    # keys on, so they add no information a record could be re-keyed by, and running before would
+    # make two records of one whose submitted strings differ only in whitespace.
+    df, frequency = split_frequency(df)
+    if write_report is not None:
+        _write_frequency(write_report.parent / "frequency.tsv", frequency)
     df = add_score(df)
     return add_tcr_hash(df)
 
@@ -255,6 +262,13 @@ def _write_harmonisation(path: Path, segments: pl.DataFrame, alleles: pl.DataFra
     path.parent.mkdir(parents=True, exist_ok=True)
     # `quote_style="never"`: a pass that reports no species writes an empty cell, and the default
     # renders that as a literal `""`. Hard rule 6 -- empty string is the only missing marker.
+    report.write_csv(path, separator="\t", quote_style="never")
+    return report
+
+
+def _write_frequency(path: Path, report: pl.DataFrame) -> pl.DataFrame:
+    """What shape each `method.frequency` cell was submitted in, and how many carry a count (#696)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
     report.write_csv(path, separator="\t", quote_style="never")
     return report
 

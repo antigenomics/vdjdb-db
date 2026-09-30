@@ -95,6 +95,18 @@ def _functional_ok(col: str) -> pl.Expr:
             | (~key.is_in(listed) & ~gene.is_in(bad)))
 
 
+def _frequency_concordant() -> pl.Expr:
+    """True unless a submitted ``method.frequency`` disagrees with the count and total beside it.
+
+    `method.frequency.count` and `.total` are chunk columns as of #696, so a submitter can report
+    all three - and where they do, `count / total` has to be the frequency they wrote. Advisory:
+    which of the three the paper supports is a curation question, and the repair is a chunk edit.
+    """
+    from ..curate.frequency import discordant
+
+    return ~discordant()
+
+
 def _method_tokens_declared() -> pl.Expr:
     """True unless ``method.identification`` names a token the vocabulary has not settled (#637).
 
@@ -260,6 +272,8 @@ RULES: dict[str, pl.Expr] = {
     **{f"counter in {col}": _no_counter(col) for col in COUNTER_COLUMNS},
     # A `method.identification` token the vocabulary has not settled (#637). Advisory, deliberately.
     "undeclared method.identification token": _method_tokens_declared(),
+    # #696. A submitted frequency that its own count and total contradict.
+    "frequency disagrees with its count and total": _frequency_concordant(),
 }
 
 
