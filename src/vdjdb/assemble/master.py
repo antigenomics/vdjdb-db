@@ -170,6 +170,36 @@ def _harmonisation_row(stage: str, report: pl.DataFrame, issue: str = "",
                   .select(HARMONISATION_REPORT))
 
 
+def harmonise_all(df: pl.DataFrame) -> tuple[pl.DataFrame, tuple[pl.DataFrame, ...]]:
+    """Every value correction that must happen **before** identity is assigned, in order.
+
+    Returns the frame and one report per pass, ready for :func:`_write_harmonisation`.
+
+    This is a function rather than five calls inside :func:`build_master` because a second caller
+    needs the same sequence and re-implementing it goes stale: `tests/release/test_registry_is_current.py`
+    listed the passes by hand, and adding :func:`~vdjdb.curate.nomenclature.harmonise_vocabulary` as a
+    fifth made that test reconcile the committed registry against a frame the build does not produce,
+    reporting 170 amendments in the wrong direction. One sequence, two callers, and the next pass
+    added is picked up by both.
+
+    Order matters and is not arbitrary. Identity is assigned on what the publications reported, so
+    every rewrite here has to precede it: a record is the same record whether the curator wrote
+    `TRAV14` or `TRAV14/DV4`, and harmonising afterwards would mint a new id for a rename. Within
+    that, the allele disambiguation runs after the spelling pass so it sees IMGT names.
+    """
+    df = apply_antigen_patch(df)
+    df, segments = harmonise_segments(df)
+    # Where two alleles differ inside the junction, the sequence is evidence and the submitted call
+    # is not (#327).
+    df, alleles = disambiguate_alleles(df)
+    # MHC spelling, the allele that does not exist (#467), and the class-II chain order.
+    df, mhc = harmonise_mhc(df)
+    df, references = harmonise_references(df)
+    # Case and separator variants that never join the spelling they are a variant of (#637, #633).
+    df, vocabulary = harmonise_vocabulary(df)
+    return df, (segments, alleles, mhc, references, vocabulary)
+
+
 def build_master(paths: Iterable[Path] | None = None,
                  registry: Path | None = None, *,
                  write_registry: Path | None = None, write_report: Path | None = None,
@@ -188,26 +218,13 @@ def build_master(paths: Iterable[Path] | None = None,
     df = df.with_columns(
         *(pl.col(c).alias(f"__sub.{c}") for c in
           ("v.alpha", "j.alpha", "v.beta", "j.beta", "d.beta") if c in df.columns))
-    df = apply_antigen_patch(df)
-    # IMGT spelling before identity: a record is the same record whether the curator wrote
-    # `TRAV14` or `TRAV14/DV4`, so harmonising afterwards would mint a new id for a rename.
-    df, segments = harmonise_segments(df)
-    # Where two alleles differ inside the junction, the sequence is evidence and the submitted call
-    # is not (#327). Runs after the spelling pass so it sees IMGT names.
-    df, alleles = disambiguate_alleles(df)
-    # MHC spelling, the allele that does not exist (#467), and the class-II chain order.
-    df, mhc = harmonise_mhc(df)
-    df, references = harmonise_references(df)
-    # Declared value corrections for the free-text and controlled-vocabulary columns (#637, #633):
-    # case and separator variants that never join the spelling they are a variant of. Before identity,
-    # like every pass above: a record is the same record whether the curator wrote `IE1` or `IE-1`.
-    df, vocabulary = harmonise_vocabulary(df)
-    # What the four passes rewrote. `nomenclature.tsv` is the complement - `unresolved_calls` names
+    df, reports = harmonise_all(df)
+    # What the five passes rewrote. `nomenclature.tsv` is the complement - `unresolved_calls` names
     # what could *not* be resolved - and until #700 the rewrites were reported nowhere a build
     # produces. `vdjdb rules --report` writes three of them, but it is a separate command that
     # re-reads every chunk to recompute what this call already has in hand.
     if write_report is not None:
-        _write_harmonisation(write_report, segments, alleles, mhc, references, vocabulary)
+        _write_harmonisation(write_report, *reports)
     # Identity is assigned on what the publications reported, before any repair. Afterwards, CDR3
     # fixing would have merged 215 pairs of records the publications reported separately -- two
     # trimmed sequences repaired to the same full one are still two observations.
