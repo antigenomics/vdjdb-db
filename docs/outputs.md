@@ -129,7 +129,7 @@ paired alpha/beta columns, as in `vdjdb_full.txt`.
 35 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `clone_id`, `cdr3`, `v.segm`,
 `d.segm`, `j.segm`,
 `v.end`, `j.start`, `cdr3nt`, `cdr3nt.pgen`, `cdr3nt.margin`, `v.inferred`, `j.inferred`,
-`d.inferred`, `d.start`, `d.end`, `d.posterior`, `d.entropy`, `v.end.inferred`, `j.start.inferred`,
+`d.inferred`, `d.start`, `d.end`, `d.posterior`, `v.end.inferred`, `j.start.inferred`,
 `cdr3.original`, `fix.needed`, `fix.good`, `v.fix.type`, `j.fix.type`, `v.canonical`, `j.canonical`,
 `v.segm.submitted`, `j.segm.submitted`, `d.segm.submitted`, `v.segm.arda`, `j.segm.arda`,
 `TCR_hash`.
@@ -206,10 +206,17 @@ templated whenever it can; `antigenomics/vdjtools#182` was opened from this meas
 The legacy tables and the `cdr3fix` JSON `vdjdb-web` parses keep the alignment's `-1` untouched
 throughout.
 
-`d.posterior` is the probability of the gene `d.inferred` names, and `d.entropy` how decidable the D
-was at all. A third of beta chains have a posterior below 0.6 and an entropy above 0.9, because TRBD1
-and TRBD2 are short, heavily trimmed and similar, so the junction often cannot choose between them.
-Filter on `d.posterior`; do not read `d.inferred` alone (ROADMAP §20).
+`d.posterior` is the probability of the gene `d.inferred` names, **from the same recombination
+scenario weights that named it** - so the number beside the call is the probability of that call.
+Naming the D and placing it are separate questions and one estimator answers each: the model names
+the gene, the aligner places it. Measured on 4,000 real human TRB rearrangements whose D and
+coordinates come from the nucleotide sequence, the gene is right on 74.35 % of all rows and 99.80 %
+carry coordinates. TRBD1 and TRBD2 are short, heavily trimmed and similar, so the junction often
+cannot choose between them: filter on `d.posterior`; do not read `d.inferred` alone (ROADMAP §20).
+
+There is no `d.entropy`. It came from a separate estimator (`arda.dpost`) that named a different D
+gene from the one it annotated on 21.5 % of chains, and that estimator is retired: the posterior now
+comes from the scenario weights and there is no second distribution to take an entropy over.
 
 ### 3.3 `evidence.parquet` - long format, one row per piece of evidence
 

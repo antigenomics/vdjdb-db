@@ -153,98 +153,70 @@ Backgrounds are streamed at build time and only derived statistics (`count.bg`, 
 never the background itself, never a subsampled copy. A background is an input to the build, not
 an output of it, and a stale vendored copy would change a call set with no error.
 
-### 3.4 Cross-repo gate: `arda` CDR3 repair release
+### 3.4 Cross-repo gate: `arda` CDR3 repair release - **closed 2026-09-30**
 
-`arda.cdr3fix` is the build's only CDR3 repair engine since phase 5. It declines a class of repair the
-`Cdr3Fixer` it replaced applied, so a malformed junction ships: **382** of 190,902 distinct
-`(species, cdr3, v, j)` keys end with a junction that does not run Cys104 to the anchor its own segment
-encodes, and **2,165** are returned `NoFixNeeded` on one residue of germline agreement.
+`arda.cdr3fix` declined a class of repair the `Cdr3Fixer` it replaced applied, so a malformed junction
+shipped. **arda 2.36.0 and vdjtools 4.8.0 close it**, and the bound here moved with them: the
+annotation is one `vdjtools.model.annotate_junctions` call, `annotate/dgene.py` and
+`annotate/segments.py` are deleted, and #711 is closed.
 
-The cause is which table the repair path reads, not a gap in the reference. arda bundles a complete
-IMGT build - 15,414 human sequences over five organisms, 15,069 markup scaffolds - and it already carries
-**both flanks as named columns**: `markup.aa.tsv::fwr3` ends at Cys104 (767 of 775 distinct `v_call`;
-mouse 881 of 897) and `markup.aa.tsv::fwr4` starts at the 118 anchor (124 distinct `j_call`, F on 104 and
-W on 15). What `arda.cdr3fix` reads is `cdr3_anchors.tsv`, whose `templated_aa` stops *at* 118, so
-framework past an anchor has nothing to align to.
+What the gate was about, and what it cost: `Anchor.templated_aa` runs Cys104 through [FW]118 inclusive
+and stops, so framework past an anchor had nothing to align to. arda's bundled IMGT build already
+carried both flanks as named columns in `markup.aa.tsv` - `fwr3` ends at Cys104 on 767 of 775 distinct
+human `v_call`, `fwr4` starts at the 118 anchor on 124 distinct `j_call` - and the repair path read
+`cdr3_anchors.tsv`, which does not. **No reference data was lost when `res/` was retired.**
 
-The retired fixer's two slices are therefore a concatenation over values arda has already computed:
-`translate(sequence[reference_point - 3:])` is `fwr3[-2:] + templated_aa[1:]` (`TRBV9*01` → `FCASSV`) and
-`translate(sequence[:reference_point + 4], is_j=True)` is `templated_aa + fwr4[1:4]`
-(`TRBJ2-7*01` → `SYEQYFGPG`, `TRAJ24*02` → `TTDSWGKLQFGAG`). With the flanks present the repair is
-positional and needs no alignment scoring: `CASSQSPGGVAFFGQG` hits `...AFFGQG` at a non-zero segment
-offset and zero junction offset, which is the `FixTrim` branch, and `CASSQSPGGVAFF` falls out.
+Measured on the shipped corpus, 285,794 chains, every junction classified against the germline of the
+segment it names:
 
-Ordering, and it is the same shape as §3.1:
-
-1. arda fixes it - `antigenomics/arda#141` carries the writeup, the two record tables, the recovered
-   legacy source and a partial port on `feature/kmer-cdr3fix`;
-2. arda cuts a release;
-3. the `arda-mapper` bound here moves, and #711 closes.
-
-**Nothing is repaired in this repository in the meantime.** A second repair pass here was built,
-measured and reverted (`606d446`): it reproduced a worse subset of arda's own job and put junction
-classification in two places. `curate/anchors.py` continues to **report** non-canonical junctions, which
-is the curation signal, and applies nothing.
-
-**Two measured `arda` bottlenecks ride the same release**, filed from this build's profile per the rule
-that a bottleneck becomes an issue in the repo that owns the slow code:
-
-| issue | what | measured here |
-|---|---|---|
-| `antigenomics/arda#142` | `arda.dpost` has no batch entry point, so `annotate/dgene.py` must call `posterior_d` per key | 134.1 µs/key, 119,034 distinct keys, **15.96 s**, 35.8 % of the build. **Dissolves into §3.5** - the batched path already exists in `vdjtools` |
-| `antigenomics/arda#143` | `markup_records`' `_align` is a pure-Python dynamic program | 35.4 µs/key, 23,556,016 `max()` calls over 190,624 records, **~7.2 s** |
-
-Together they are 23 s of a 39 s build, against 3.6 s for every line of Python in this repository that
-runs per record. Neither changes an output, so neither gates a release; both move when the `arda-mapper`
-bound does.
-
-### 3.5 Cross-repo gate: `d.posterior` moves from `arda` to `vdjtools`
-
-**The D call and the number beside it come from two different models.** `d.inferred`, `d.start` and
-`d.end` come from `vdjtools.model.infer_nt_batch` - the argmax of a recombination model.
-`d.posterior` and `d.entropy` come from `arda.dpost.posterior_d`. `annotate/dgene.py` records that the
-two name the same D gene on 78.5 % of chains, and works around the split by reporting arda's posterior
-for *vdjtools'* winner rather than for arda's own, because a number beside a call must be the
-probability of that call. That is the right handling of the wrong situation.
-
-It is a library-organisation defect before it is a correctness one. arda owns the germline reference and
-the markup against it; `vdjtools` owns the recombination model and everything probabilistic about it
-(`pgen`, `infer_nt`, `best_aa_scenarios`, `marginals_frame`, `viterbi`). `arda.dpost` marginalises "the
-generative model's insertion-length and D-trimming distributions" by its own description, ships them as
-a fitted `d_prior.tsv` with a per-locus `beta` inside arda's *germline reference* tree, and covers the
-model's four `(organism, locus)` pairs rather than the reference's five organisms.
-
-There is no "arda model" to point at instead. arda is the **aligner** and the germline namespace; every
-bundled recombination model is `vdjtools`' own fit - `source="olga"` the OLGA bootstrap, `source="arda"`
-an EM fit over real non-functional reads in arda's IMGT allele namespace, which is the only bundled set
-covering mouse. So the model side is already wholly `vdjtools`', and `d_prior.tsv` is the one piece of it
-sitting in arda.
-
-`vdjtools` already has everything the posterior needs. `best_aa_scenarios_batch` returns a weight and a
-`d_call` per scenario per row, so `P(D | junction)` is one group-by, and it is the batched, GIL-released,
-natively threaded path arda has no equivalent of:
-
-| | µs/key | 119,034 distinct keys |
+| | before | after |
 |---|--:|--:|
-| `best_aa_scenarios_batch`, k=8 | **40.4** | **4.81 s** |
-| `best_aa_scenarios_batch`, k=32 | 46.6 | 5.54 s |
-| `arda.dpost.posterior_d`, serial - it has no batch form | 113.7 | 13.54 s |
+| shipped junctions not canonical against their own germline | 515 | **451** |
+| of those, framework kept past an anchor (`under-trimmed`) | 77 | **33** |
+| `CASSQSPGGVAFFGQG` shipped | 2 chains | **0** |
 
-Measured on 3,000 real human TRB junctions, `k=32`: median winning posterior 0.850, median entropy
-0.423 over the 2,799 that resolve a D.
+The 451 that remain are a proofreading queue in `out/reports/anchors.tsv`, not a repair failure: the
+junction disagrees with the germline of the segment the record names, and only a curator can say which
+of the two is wrong.
 
-Ordering, the same shape as §3.1 and §3.4:
+**Two `arda` bottlenecks this build measured are also settled.** `antigenomics/arda#143`
+(`markup_records`' `_align` is a pure-Python dynamic program, 35.4 µs/key, 23,556,016 `max()` calls
+over 190,624 records) is open and does not gate anything. `antigenomics/arda#142` asked arda for a
+batched `posterior_d`; it **dissolved** - see §3.5.
 
-1. `vdjtools` grows `posterior_d` / `posterior_d_batch` - `antigenomics/vdjtools#183` carries the
-   proposed signature, the group-by and the measurements;
-2. `arda.dpost` is retired into it - `antigenomics/arda#144`, which also dissolves `arda#142`;
-3. both releases land, the bounds here move, and `annotate/dgene.py` becomes one batched call against
-   the model that already produced the call it annotates - removing the largest stage of the build
-   (13.88 s of 38.73 s) and the two-model split in the same change.
+### 3.5 Cross-repo gate: `d.posterior` moves from `arda` to `vdjtools` - **closed 2026-09-30**
 
-**Nothing changes here in the meantime.** `d.posterior` keeps reporting arda's number for vdjtools'
-winner, which is documented in `annotate/dgene.py` and is the best available answer while the split
-exists.
+The D call and the number beside it used to come from two different models: `d.inferred`, `d.start` and
+`d.end` from `vdjtools.model.infer_nt_batch`, and `d.posterior` from `arda.dpost.posterior_d`, which
+named a different D gene from the one it annotated on 21.5 % of chains. It was also a
+recombination-model computation shipped as a fitted `d_prior.tsv` inside arda's *germline reference*
+tree, covering four `(organism, locus)` pairs against a reference covering five organisms.
+
+**`arda.dpost` is gone in arda 2.33.0 and does not reappear in vdjtools.** `d.posterior` now comes from
+the same recombination scenario weights that named the call, so the number beside a call is the
+probability of that call. `annotate/dgene.py` is deleted rather than re-pointed, and `d.entropy` is
+retired: it was the entropy of the second estimator's distribution, and there is no second distribution
+any more.
+
+There is no "arda model" that could have kept it instead. arda is the **aligner** and the germline
+namespace; every bundled recombination model is `vdjtools`' own fit - `source="olga"` the OLGA
+bootstrap, `source="arda"` an EM fit over real non-functional reads in arda's IMGT allele namespace,
+which is the only bundled set covering mouse. So the model side is wholly `vdjtools`'.
+
+| | before | after |
+|---|--:|--:|
+| `add_d_posterior` + `add_junction_nt` | 27.04 s, two stages | **21.43 s, one** |
+| `vdjdb build` | 41.50 s | **33.30 s** |
+| D gene correct, human TRB against nucleotide truth | 69.67 % | **74.35 %** |
+| rows carrying D coordinates | 55.75 % | **99.80 %** |
+
+⚠ Per-row positional precision is the one thing that got worse: `d.start` is exact on 64.71 % of
+correctly-called rows against 66.67 % under the retired E-value gate. It is exact on **1,922 rows
+rather than 1,278**, because it answers 3,992 rather than 2,230.
+
+`antigenomics/vdjtools#183` and `antigenomics/arda#144` carry the relocation reasoning and
+`antigenomics/arda#142` dissolved into it, as predicted: the batched path `#142` asked arda to build
+already existed here.
 
 ## 4. Phases
 
