@@ -151,7 +151,7 @@ libraries and re-load the models per worker.
 
 ## Version floors
 
-```toml
+```text
 "arda-mapper>=2.36.0",   # cdr3fix repair policy, v_alts/j_alts, blank-call AND blank-locus proposal, map_d_junction(v_end=, j_start=)
 "vdjtools>=4.8.0",       # annotate_junctions
 ```

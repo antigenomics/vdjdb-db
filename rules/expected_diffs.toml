@@ -54,20 +54,20 @@ id = "structure-id-repaired-default"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "structure.id"
-rows = 4347
+rows = 4212
 
 [[rule]]
 id = "structure-id-blanked-full"
 file = "vdjdb_full.txt"
 column = "meta.structure.id"
 to = ""
-rows = 2223
+rows = 2128
 
 [[rule]]
 id = "structure-id-respelled-full"
 file = "vdjdb_full.txt"
 column = "meta.structure.id"
-rows = 344
+rows = 306
 
 [[rule]]
 id = "structure-id-score-default-to-0"
@@ -75,7 +75,7 @@ file = "vdjdb.txt"
 column = "vdjdb.score"
 from = "3"
 to = "0"
-rows = 6403
+rows = 6189
 
 [[rule]]
 id = "structure-id-score-default-to-1"
@@ -83,7 +83,7 @@ file = "vdjdb.txt"
 column = "vdjdb.score"
 from = "3"
 to = "1"
-rows = 1694
+rows = 1696
 
 [[rule]]
 id = "structure-id-score-default-to-2"
@@ -99,7 +99,7 @@ file = "vdjdb_full.txt"
 column = "vdjdb.score"
 from = "3"
 to = "0"
-rows = 3834
+rows = 3628
 
 [[rule]]
 id = "structure-id-score-full-to-1"
@@ -107,7 +107,7 @@ file = "vdjdb_full.txt"
 column = "vdjdb.score"
 from = "3"
 to = "1"
-rows = 995
+rows = 993
 
 [[rule]]
 id = "structure-id-score-full-to-2"
@@ -123,7 +123,7 @@ file = "vdjdb.slim.txt"
 column = "vdjdb.score"
 from = "3"
 to = "0"
-rows = 1987
+rows = 1930
 
 [[rule]]
 id = "structure-id-score-slim-to-1"
@@ -131,7 +131,7 @@ file = "vdjdb.slim.txt"
 column = "vdjdb.score"
 from = "3"
 to = "1"
-rows = 403
+rows = 395
 
 [[rule]]
 id = "structure-id-score-slim-to-2"
@@ -139,7 +139,7 @@ file = "vdjdb.slim.txt"
 column = "vdjdb.score"
 from = "3"
 to = "2"
-rows = 15
+rows = 10
 
 # --- phase 2, feature/golden-harness: the legacy format's own ambiguity -----------------------
 # vdjdb.txt writes one row per chain, so a paired record's TRA row carries nothing about its beta.
@@ -167,13 +167,13 @@ rows = 0
 id = "legacy-melt-ambiguity-complex-id"
 file = "vdjdb.txt"
 column = "complex.id"
-rows = 179044
+rows = 175898
 
 [[rule]]
 id = "legacy-melt-ambiguity-cdr3fix"
 file = "vdjdb.txt"
 column = "cdr3fix"
-rows = 18375
+rows = 12019
 
 # --- phase 4, feature/pipeline-core -----------------------------------------------------------
 # jStart == -1 is truthy in Python, where the Groovy tested jStart > -1, so unmapped records are
@@ -189,7 +189,7 @@ file = "vdjdb.txt"
 column = "web.cdr3fix.unmp"
 from = "no"
 to = "yes"
-rows = 143
+rows = 622
 
 # --- issue #397 / #694: the B16 chunk recorded a count by repeating the row -------------------
 # `Mice_TCRs_specific_to_B16_melanoma_neoantigens_(Shagina_et_al_2024).txt` carried 1,556 rows for 485
@@ -206,7 +206,7 @@ id = "b16-frequency-recorded-full"
 file = "vdjdb_full.txt"
 column = "method.frequency"
 from = ""
-rows = 485
+rows = 486
 
 [[rule]]
 id = "b16-autofilled-gene-full"
@@ -244,7 +244,7 @@ rows = 49
 id = "pandas-float-epitope-id"
 file = "vdjdb_full.txt"
 column = "meta.epitope.id"
-rows = 10576
+rows = 10246
 
 [[rule]]
 id = "pandas-float-clone-id"
@@ -256,13 +256,13 @@ rows = 23
 id = "pandas-int-subject-id"
 file = "vdjdb_full.txt"
 column = "meta.subject.id"
-rows = 56
+rows = 45
 
 [[rule]]
 id = "pandas-float-frequency-full"
 file = "vdjdb_full.txt"
 column = "method.frequency"
-rows = 196
+rows = 180
 
 # The same truncation, seen through the method JSON of vdjdb.txt -- and two causes share this rule,
 # which the id does not say and this comment has to. `from`/`to` compare the whole JSON blob, and
@@ -277,7 +277,7 @@ rows = 196
 id = "pandas-float-frequency-json"
 file = "vdjdb.txt"
 column = "method"
-rows = 1671
+rows = 1645
 
 # --- issue #633: RGPGRAFVTI was attributed to the human proteome -------------------------------
 # One row of `PDB_Database.txt` curated the HIV-1 V3-loop peptide as `HomoSapiens` / `P18-I10`,
@@ -318,7 +318,7 @@ rows = 2
 id = "pandas-na-gene-symbol"
 file = "vdjdb_full.txt"
 column = "antigen.gene"
-rows = 10323
+rows = 10026
 
 # The same pandas coercions seen through the meta JSON of vdjdb.txt -- and there they are worse,
 # because the damage reaches the JSON *type*. pandas inferred these identifier columns as numbers,
@@ -331,34 +331,34 @@ id = "json-id-type-subject"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "subject.id"
-rows = 41951
+rows = 41130
 
 [[rule]]
 id = "json-id-type-epitope"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "epitope.id"
-rows = 10931
+rows = 10586
 
 [[rule]]
 id = "json-id-type-replica"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "replica.id"
-rows = 2810
+rows = 2758
 
 [[rule]]
 id = "json-id-type-clone"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "clone.id"
-rows = 64
+rows = 60
 
 [[rule]]
 id = "pandas-na-gene-symbol-melted"
 file = "vdjdb.txt"
 column = "antigen.gene"
-rows = 14953
+rows = 14641
 
 # --- declared row deltas -----------------------------------------------------------------------
 # vdjdb.slim.txt groups on antigen.gene, so restoring the influenza neuraminidase symbol `NA` --
@@ -366,18 +366,18 @@ rows = 14953
 # is no cell to attribute: one row leaves and another arrives.
 [[row_delta]]
 file = "vdjdb.slim.txt"
-added = 9805
-removed = 9645
-note = "pandas-na-gene-symbol seen through the slim grouping key (750/809) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161): 40 records arrive, 33 of them as new slim groups and 7 joining groups that already existed, which rekeys those 7 + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 12 slim groups + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 82 slim groups - 2, the murine `I-Ab -> H2-IAb` rename keying 2 slim groups the previous spelling left unmatched + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names: mouse `TRBV12-2+TRBV13-2` (535), `TRBV3-1;TRBV3-2` (30), `TRBV12-3;TRBV12-4` (20), five one-record spellings, and one `TRBJ2` J call written with an en dash. 42 of them rekey a slim group + retiring `res/` (#658): see the res-retirement block below + the mouse TRAJ47 allele correction (#647): 95 chains read `...DYANKMIF`, the `*02` germline exactly, and none reads `*01`'s `HYANKMIC`, so all 95 are `*02` - 81 were written with no allele and 14 name `*01`. 84 of the 90 distinct record keys were already unmatched, because retiring `res/` resolved the bare calls and the #646 repairs moved the junction; the remaining 6 leave the matched set + closing the space in `PMID: 34433824` (#637): 22 records over `chunks/PMID_34433824.txt` (20) and `chunks/PDB_Database.txt` (2). The two spellings were two references for one paper, sharing the epitope `GQVELGGGNAVEVCK`, and `reference.id` is part of the identity key, so all 22 rekey + #633's `RGPGRAFVTI` patch: `antigen.gene` and `antigen.species` are both part of the slim grouping key, so re-attributing one record from `HomoSapiens`/`P18-I10` to `HIV-1`/`GP160` moves 2 slim groups + the B16 chunk collapsing to one row per clonotype (#397): 1,556 rows for 485 clonotypes become 485, and a spreadsheet autofill that had turned the gene `Eef2` into `Eef2`..`Eef188` kept 187 rows apart that are 65 clonotypes. 122 records that were never real disappear; `antigen.gene` is part of the slim grouping key, so the gene repair moves slim groups on both sides"
+added = 15280
+removed = 15013
+note = "pandas-na-gene-symbol seen through the slim grouping key (750/809) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161): 40 records arrive, 33 of them as new slim groups and 7 joining groups that already existed, which rekeys those 7 + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 12 slim groups + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 82 slim groups - 2, the murine `I-Ab -> H2-IAb` rename keying 2 slim groups the previous spelling left unmatched + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names: mouse `TRBV12-2+TRBV13-2` (535), `TRBV3-1;TRBV3-2` (30), `TRBV12-3;TRBV12-4` (20), five one-record spellings, and one `TRBJ2` J call written with an en dash. 42 of them rekey a slim group + retiring `res/` (#658): see the res-retirement block below + the mouse TRAJ47 allele correction (#647): 95 chains read `...DYANKMIF`, the `*02` germline exactly, and none reads `*01`'s `HYANKMIC`, so all 95 are `*02` - 81 were written with no allele and 14 name `*01`. 84 of the 90 distinct record keys were already unmatched, because retiring `res/` resolved the bare calls and the #646 repairs moved the junction; the remaining 6 leave the matched set + closing the space in `PMID: 34433824` (#637): 22 records over `chunks/PMID_34433824.txt` (20) and `chunks/PDB_Database.txt` (2). The two spellings were two references for one paper, sharing the epitope `GQVELGGGNAVEVCK`, and `reference.id` is part of the identity key, so all 22 rekey + #633's `RGPGRAFVTI` patch: `antigen.gene` and `antigen.species` are both part of the slim grouping key, so re-attributing one record from `HomoSapiens`/`P18-I10` to `HIV-1`/`GP160` moves 2 slim groups + the B16 chunk collapsing to one row per clonotype (#397): 1,556 rows for 485 clonotypes become 485, and a spreadsheet autofill that had turned the gene `Eef2` into `Eef2`..`Eef188` kept 187 rows apart that are 65 clonotypes. 122 records that were never real disappear; `antigen.gene` is part of the slim grouping key, so the gene repair moves slim groups on both sides + `annotate_junctions` (arda 2.36.0 + vdjtools 4.8.0): the markup, the blank-call and blank-locus proposal, the nucleotide junction, the D gene and its posterior became one library call, and `annotate/dgene.py` and `annotate/segments.py` were deleted. arda 2.36 re-calls a segment whose germline the junction contradicts instead of only resolving its allele, so 12,176 keys carry a different call and ~6,700 more rows change identity; every cell on them leaves the keyed comparison for the row buckets, which is why 35 of the 42 re-measured rule counts FELL. Validated: J gene against `isalgo/airr_control`'s nucleotide-established calls 98.69 % -> 99.27 % over 4,372 human TRB keys, J calls their own junction contradicts 715 -> 273, `v.end` coverage 284,112 -> 284,871 cells and `j.start` 285,499 -> 285,633, unmapped junctions 16,000 -> 4,443, and zero unattributed cells"
 
 # The melt ambiguity of ROADMAP section 14, seen as rows rather than cells: where two
 # indistinguishable records swap, best-match pairing sometimes leaves one on each side. 780 of
 # these; the rest are the markup engine, see the block at the end of this file.
 [[row_delta]]
 file = "vdjdb.txt"
-added = 12451
-removed = 12201
-note = "legacy melt ambiguity (780) + the arda markup engine naming the segment the curator reported (10,605; see the arda-cdr3fix block below) + PMID_18025130 landing (#161), 40 records + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 15 records + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 82 records - 1, the `TRBVIS1 -> TRBV9*01` rename keying the one PMID_16237109 row the previous block did not declare + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names (mouse `TRBV12-2+TRBV13-2` 535, `TRBV3-1;TRBV3-2` 30, `TRBV12-3;TRBV12-4` 20, five at one record each, and one `TRBJ2` J call written with an en dash), 48 of which rekey a record + retiring `res/` (#658): see the res-retirement block below + the mouse TRAJ47 allele correction (#647): 95 chains read `...DYANKMIF`, the `*02` germline exactly, and none reads `*01`'s `HYANKMIC`, so all 95 are `*02` - 81 were written with no allele and 14 name `*01`. 84 of the 90 distinct record keys were already unmatched, because retiring `res/` resolved the bare calls and the #646 repairs moved the junction; the remaining 6 leave the matched set + closing the space in `PMID: 34433824` (#637): 22 records over `chunks/PMID_34433824.txt` (20) and `chunks/PDB_Database.txt` (2). The two spellings were two references for one paper, sharing the epitope `GQVELGGGNAVEVCK`, and `reference.id` is part of the identity key, so all 22 rekey + the B16 chunk collapsing to one row per clonotype (#397): 1,556 rows for 485 clonotypes become 485, and a spreadsheet autofill that had turned the gene `Eef2` into `Eef2`..`Eef188` kept 187 rows apart that are 65 clonotypes. 122 records that were never real disappear; `antigen.gene` is part of the slim grouping key, so the gene repair moves slim groups on both sides"
+added = 19204
+removed = 18892
+note = "legacy melt ambiguity (780) + the arda markup engine naming the segment the curator reported (10,605; see the arda-cdr3fix block below) + PMID_18025130 landing (#161), 40 records + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 15 records + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 82 records - 1, the `TRBVIS1 -> TRBV9*01` rename keying the one PMID_16237109 row the previous block did not declare + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names (mouse `TRBV12-2+TRBV13-2` 535, `TRBV3-1;TRBV3-2` 30, `TRBV12-3;TRBV12-4` 20, five at one record each, and one `TRBJ2` J call written with an en dash), 48 of which rekey a record + retiring `res/` (#658): see the res-retirement block below + the mouse TRAJ47 allele correction (#647): 95 chains read `...DYANKMIF`, the `*02` germline exactly, and none reads `*01`'s `HYANKMIC`, so all 95 are `*02` - 81 were written with no allele and 14 name `*01`. 84 of the 90 distinct record keys were already unmatched, because retiring `res/` resolved the bare calls and the #646 repairs moved the junction; the remaining 6 leave the matched set + closing the space in `PMID: 34433824` (#637): 22 records over `chunks/PMID_34433824.txt` (20) and `chunks/PDB_Database.txt` (2). The two spellings were two references for one paper, sharing the epitope `GQVELGGGNAVEVCK`, and `reference.id` is part of the identity key, so all 22 rekey + the B16 chunk collapsing to one row per clonotype (#397): 1,556 rows for 485 clonotypes become 485, and a spreadsheet autofill that had turned the gene `Eef2` into `Eef2`..`Eef188` kept 187 rows apart that are 65 clonotypes. 122 records that were never real disappear; `antigen.gene` is part of the slim grouping key, so the gene repair moves slim groups on both sides + `annotate_junctions` (arda 2.36.0 + vdjtools 4.8.0): the markup, the blank-call and blank-locus proposal, the nucleotide junction, the D gene and its posterior became one library call, and `annotate/dgene.py` and `annotate/segments.py` were deleted. arda 2.36 re-calls a segment whose germline the junction contradicts instead of only resolving its allele, so 12,176 keys carry a different call and ~6,700 more rows change identity; every cell on them leaves the keyed comparison for the row buckets, which is why 35 of the 42 re-measured rule counts FELL. Validated: J gene against `isalgo/airr_control`'s nucleotide-established calls 98.69 % -> 99.27 % over 4,372 human TRB keys, J calls their own junction contradicts 715 -> 273, `v.end` coverage 284,112 -> 284,871 cells and `j.start` 285,499 -> 285,633, unmapped junctions 16,000 -> 4,443, and zero unattributed cells"
 
 
 # --- ROADMAP phase 9: IMGT segment nomenclature (#389) ------------------------------------------
@@ -395,19 +395,19 @@ note = "legacy melt ambiguity (780) + the arda markup engine naming the segment 
 id = "nomenclature-slim-complex-id-renumber"
 file = "vdjdb.slim.txt"
 column = "complex.id"
-rows = 115184
+rows = 113719
 
 [[rule]]
 id = "nomenclature-vend-full-alpha"
 file = "vdjdb_full.txt"
 column = "cdr3fix.alpha"
-rows = 10559
+rows = 6248
 
 [[rule]]
 id = "nomenclature-vend-full-beta"
 file = "vdjdb_full.txt"
 column = "cdr3fix.beta"
-rows = 7643
+rows = 6107
 
 # 5,404 before the arda 2.31 bump. Two slim rows now agree with the reference: arda places a `v.end`
 # on alleles whose IMGT germline record is truncated instead of answering -1 (`antigenomics/arda#135`),
@@ -418,13 +418,13 @@ rows = 7643
 id = "nomenclature-vend-slim"
 file = "vdjdb.slim.txt"
 column = "v.end"
-rows = 5397
+rows = 4370
 
 [[rule]]
 id = "nomenclature-jstart-slim"
 file = "vdjdb.slim.txt"
 column = "j.start"
-rows = 11158
+rows = 6104
 
 [[rule]]
 id = "nomenclature-now-mapped"
@@ -432,38 +432,38 @@ file = "vdjdb.txt"
 column = "web.cdr3fix.unmp"
 from = "yes"
 to = "no"
-rows = 5284
+rows = 4456
 
 [[rule]]
 id = "nomenclature-tcr-hash-default"
 file = "vdjdb.txt"
 column = "TCR_hash"
-rows = 6912
+rows = 9482
 
 [[rule]]
 id = "nomenclature-tcr-hash-slim"
 file = "vdjdb.slim.txt"
 column = "TCR_hash"
-rows = 5429
+rows = 7322
 
 [[rule]]
 id = "nomenclature-tcr-hash-full"
 file = "vdjdb_full.txt"
 column = "TCR_hash"
-rows = 975
+rows = 936
 
 [[rule]]
 id = "nomenclature-samples-found"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "samples.found"
-rows = 1809
+rows = 2850
 
 [[rule]]
 id = "nomenclature-d-multicall-order"
 file = "vdjdb_full.txt"
 column = "d.beta"
-rows = 55
+rows = 47
 
 # The confidence score is the maximum over a signature that includes `v.alpha`, so correcting a V
 # name regroups records: 2 gain a score from a neighbour they now share a signature with, and 3 lose
@@ -473,13 +473,13 @@ rows = 55
 id = "nomenclature-score-regrouped-default"
 file = "vdjdb.txt"
 column = "vdjdb.score"
-rows = 48
+rows = 56
 
 [[rule]]
 id = "nomenclature-score-regrouped-full"
 file = "vdjdb_full.txt"
 column = "vdjdb.score"
-rows = 25
+rows = 28
 
 
 # --- ROADMAP phase 9: input hygiene ------------------------------------------------------------
@@ -492,25 +492,25 @@ id = "whitespace-meta-donor-mhc-json"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "donor.MHC"
-rows = 332
+rows = 318
 
 [[rule]]
 id = "whitespace-meta-donor-mhc"
 file = "vdjdb_full.txt"
 column = "meta.donor.MHC"
-rows = 332
+rows = 318
 
 [[rule]]
 id = "whitespace-meta-subject-cohort"
 file = "vdjdb_full.txt"
 column = "meta.subject.cohort"
-rows = 551
+rows = 550
 
 [[rule]]
 id = "whitespace-method-identification"
 file = "vdjdb_full.txt"
 column = "method.identification"
-rows = 102
+rows = 101
 
 # The confidence score is a maximum over a signature that does not contain `antigen.gene`, but the
 # slim table groups on it -- so merging two spellings of one gene merges two slim rows, and the
@@ -3239,9 +3239,9 @@ files = "vdjdb.slim.txt"
 # END generated renames
 [[row_delta]]
 file = "vdjdb_full.txt"
-added = 11405
-removed = 11517
-note = "declared corrections whose reference value is not injective (613) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161), 40 records + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 15 records + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 83 records + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names, 49 of which rekey a record. The retired build rejected all 591 as `gene not in IMGT`, and this is the repair that answers it + retiring `res/` (#658): see the res-retirement block below + the mouse TRAJ47 allele correction (#647): 95 chains read `...DYANKMIF`, the `*02` germline exactly, and none reads `*01`'s `HYANKMIC`, so all 95 are `*02` - 81 were written with no allele and 14 name `*01`. 84 of the 90 distinct record keys were already unmatched, because retiring `res/` resolved the bare calls and the #646 repairs moved the junction; the remaining 6 leave the matched set + closing the space in `PMID: 34433824` (#637): 22 records over `chunks/PMID_34433824.txt` (20) and `chunks/PDB_Database.txt` (2). The two spellings were two references for one paper, sharing the epitope `GQVELGGGNAVEVCK`, and `reference.id` is part of the identity key, so all 22 rekey + the B16 chunk collapsing to one row per clonotype (#397): 1,556 rows for 485 clonotypes become 485, and a spreadsheet autofill that had turned the gene `Eef2` into `Eef2`..`Eef188` kept 187 rows apart that are 65 clonotypes. 122 records that were never real disappear; `antigen.gene` is part of the slim grouping key, so the gene repair moves slim groups on both sides"
+added = 18044
+removed = 18156
+note = "declared corrections whose reference value is not injective (613) + the arda markup engine (see the arda-cdr3fix block below) + PMID_18025130 landing (#161), 40 records + PMID_15753288 Arden conversion (#302), 35 V calls rekeying 15 records + #597 (PMID:29895573 `FLRGRAYGL`, PMID:36121440 `RPPIFIRRL`), 94 `mhc.a` corrections rekeying 83 records + reading `;` and `+` as candidate separators and an en dash as a hyphen, 591 records over 9 spellings whose V or J call now resolves to IMGT names, 49 of which rekey a record. The retired build rejected all 591 as `gene not in IMGT`, and this is the repair that answers it + retiring `res/` (#658): see the res-retirement block below + the mouse TRAJ47 allele correction (#647): 95 chains read `...DYANKMIF`, the `*02` germline exactly, and none reads `*01`'s `HYANKMIC`, so all 95 are `*02` - 81 were written with no allele and 14 name `*01`. 84 of the 90 distinct record keys were already unmatched, because retiring `res/` resolved the bare calls and the #646 repairs moved the junction; the remaining 6 leave the matched set + closing the space in `PMID: 34433824` (#637): 22 records over `chunks/PMID_34433824.txt` (20) and `chunks/PDB_Database.txt` (2). The two spellings were two references for one paper, sharing the epitope `GQVELGGGNAVEVCK`, and `reference.id` is part of the identity key, so all 22 rekey + the B16 chunk collapsing to one row per clonotype (#397): 1,556 rows for 485 clonotypes become 485, and a spreadsheet autofill that had turned the gene `Eef2` into `Eef2`..`Eef188` kept 187 rows apart that are 65 clonotypes. 122 records that were never real disappear; `antigen.gene` is part of the slim grouping key, so the gene repair moves slim groups on both sides + `annotate_junctions` (arda 2.36.0 + vdjtools 4.8.0): the markup, the blank-call and blank-locus proposal, the nucleotide junction, the D gene and its posterior became one library call, and `annotate/dgene.py` and `annotate/segments.py` were deleted. arda 2.36 re-calls a segment whose germline the junction contradicts instead of only resolving its allele, so 12,176 keys carry a different call and ~6,700 more rows change identity; every cell on them leaves the keyed comparison for the row buckets, which is why 35 of the 42 re-measured rule counts FELL. Validated: J gene against `isalgo/airr_control`'s nucleotide-established calls 98.69 % -> 99.27 % over 4,372 human TRB keys, J calls their own junction contradicts 715 -> 273, `v.end` coverage 284,112 -> 284,871 cells and `j.start` 285,499 -> 285,633, unmapped junctions 16,000 -> 4,443, and zero unattributed cells"
 
 
 # --- the generated metadata ---------------------------------------------------------------------
@@ -3262,13 +3262,13 @@ note = "declared corrections whose reference value is not injective (613) + the 
 file = "vdjdb.meta.txt"
 added = 1
 removed = 0
-note = "the TCR_hash row, missing from the shipped metadata"
+note = "the TCR_hash row, missing from the shipped metadata + `annotate_junctions` (arda 2.36.0 + vdjtools 4.8.0): the markup, the blank-call and blank-locus proposal, the nucleotide junction, the D gene and its posterior became one library call, and `annotate/dgene.py` and `annotate/segments.py` were deleted. arda 2.36 re-calls a segment whose germline the junction contradicts instead of only resolving its allele, so 12,176 keys carry a different call and ~6,700 more rows change identity; every cell on them leaves the keyed comparison for the row buckets, which is why 35 of the 42 re-measured rule counts FELL. Validated: J gene against `isalgo/airr_control`'s nucleotide-established calls 98.69 % -> 99.27 % over 4,372 human TRB keys, J calls their own junction contradicts 715 -> 273, `v.end` coverage 284,112 -> 284,871 cells and `j.start` 285,499 -> 285,633, unmapped junctions 16,000 -> 4,443, and zero unattributed cells"
 
 [[row_delta]]
 file = "vdjdb.slim.meta.txt"
 added = 1
 removed = 0
-note = "the TCR_hash row, missing from the shipped metadata"
+note = "the TCR_hash row, missing from the shipped metadata + `annotate_junctions` (arda 2.36.0 + vdjtools 4.8.0): the markup, the blank-call and blank-locus proposal, the nucleotide junction, the D gene and its posterior became one library call, and `annotate/dgene.py` and `annotate/segments.py` were deleted. arda 2.36 re-calls a segment whose germline the junction contradicts instead of only resolving its allele, so 12,176 keys carry a different call and ~6,700 more rows change identity; every cell on them leaves the keyed comparison for the row buckets, which is why 35 of the 42 re-measured rule counts FELL. Validated: J gene against `isalgo/airr_control`'s nucleotide-established calls 98.69 % -> 99.27 % over 4,372 human TRB keys, J calls their own junction contradicts 715 -> 273, `v.end` coverage 284,112 -> 284,871 cells and `j.start` 285,499 -> 285,633, unmapped junctions 16,000 -> 4,443, and zero unattributed cells"
 
 # Production serves `Info`, not `Score`. Read from the deployed metadata in
 # `vdjdb-web/test/resources/database/vdjdb.meta.txt`, whose 27 rows are the schema the site runs;
@@ -3369,7 +3369,7 @@ rows = 15
 id = "melt-ambiguity-full-replica-id"
 file = "vdjdb_full.txt"
 column = "meta.replica.id"
-rows = 6
+rows = 3
 
 [[rule]]
 id = "melt-ambiguity-full-verification"

@@ -63,7 +63,7 @@ _FIX_DTYPES = {str: pl.Utf8, bool: pl.Boolean, int: pl.Int64}
 #: reported, harmonised to IMGT. Keeping both is the only way a reader can tell a curation decision
 #: from a markup one, and it is what `chains` reports as `v.segm.arda` / `j.segm.arda`.
 #:
-#: `__gv` / `__gj` are the proposal :func:`vdjdb.annotate.segments.propose` made where the record
+#: `__gv` / `__gj` are the call `arda.cdr3fix` proposed where the record
 #: named no segment, carried out of the markup so `chains` can report it as `v.inferred` /
 #: `j.inferred` rather than a second stage recomputing it. One computation, two readers: the germline
 #: the repair ran against and the call the table reports cannot disagree.

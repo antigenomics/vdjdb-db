@@ -33,6 +33,12 @@ MIN_OCCURRENCES = 50
 #: were two documents for one paper, sharing the epitope `GQVELGGGNAVEVCK`, so the count falls by one
 #: rather than rising. Frozen so a change in the weighting shows up here rather than in a conclusion
 #: someone draws later.
+#:
+#: `motif_above_median` re-measured 2026-09-30 on `annotate_junctions`: **25 -> 26**. The corpus's
+#: `v:` and `j:` token families are the shipped segment calls, and arda 2.36 re-calls a segment whose
+#: germline the junction contradicts, so the document-frequency weighting moves. The direction is the
+#: one to want - one more of the 29 `RS` k-mers sits above the median, so the family's claim is
+#: stronger rather than weaker - and `top_kmer`, `top_lift` and `median_lift` did not move at all.
 EXPECTED = {
     "documents": 661,
     "kmers_scored": 2342,
@@ -40,7 +46,7 @@ EXPECTED = {
     "top_lift": 2.663,
     "median_lift": 1.170,
     "motif_kmers": 29,
-    "motif_above_median": 25,
+    "motif_above_median": 26,
 }
 
 #: ``k:CAS`` is the germline-encoded start of nearly every beta CDR3: present in 614 of 661 documents.
