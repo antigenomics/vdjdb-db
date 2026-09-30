@@ -64,7 +64,9 @@ def schema(
     table: str = typer.Option("vdjdb", help="Any declared table: vdjdb, vdjdb-web, slim, full, "
                                             "records, chains, evidence, cluster_members, "
                                             "motif_pwms."),
-    format: str = typer.Option("meta", help="meta, header or json."),
+    format: str = typer.Option("meta", help="meta, header, json or template."),
+    out: Path = typer.Option(Path("."), help="For --format template: where to write "
+                                             "template.tsv and template.xlsx."),
 ) -> None:
     """Render a table's metadata, header or JSON schema from the field registry."""
     import json as _json
@@ -75,6 +77,21 @@ def schema(
         typer.secho(f"unknown table {table!r}; known: {', '.join(sorted(TABLES))}",
                     fg=typer.colors.RED, err=True)
         raise typer.Exit(2)
+    if format == "template":
+        # The submission template, both forms. `.xlsx` is the one most submitters open and it is
+        # not decoration: every cell is formatted as Text, without which Excel turns
+        # `method.frequency = 50/67` into a date.
+        from .schema import template as tmpl
+        from .schema.template import EXAMPLES
+
+        if table != "chunk":
+            typer.secho("--format template is only defined for --table chunk",
+                        fg=typer.colors.RED, err=True)
+            raise typer.Exit(2)
+        for path in (tmpl.write_tsv(out / "template.tsv", EXAMPLES),
+                     tmpl.write_xlsx(out / "template.xlsx", EXAMPLES)):
+            typer.echo(f"{path}  {path.stat().st_size:,} bytes")
+        return
     if format == "header":
         typer.echo(header(table))
     elif format == "meta":
@@ -86,7 +103,7 @@ def schema(
                                 {k: getattr(f, k) for k in f.__slots__}
                                 for f in fields(table)], indent=2))
     else:
-        typer.secho(f"unknown format {format!r}; known: meta, header, json",
+        typer.secho(f"unknown format {format!r}; known: meta, header, json, template",
                     fg=typer.colors.RED, err=True)
         raise typer.Exit(2)
 
