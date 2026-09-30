@@ -1,4 +1,8 @@
-"""The junction-anchor check: what it flags, what it proposes, and what it refuses to call a defect."""
+"""The junction-anchor check: what it flags, and what it refuses to call a defect.
+
+It proposes no repair. That is `arda.cdr3fix`'s job and it does it (#711); this classifies the
+**submitted** sequence, which is what a chunk edit would change.
+"""
 from __future__ import annotations
 
 import polars as pl
@@ -38,31 +42,27 @@ def test_a_species_or_segment_the_reference_does_not_have_is_unchecked_not_broke
 
 
 def test_a_canonical_junction_is_not_flagged():
-    defect, repair, _ = anchors.classify("CASSNEKLFF", "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
-    assert (defect, repair) == ("ok", None)
+    assert anchors.classify("CASSNEKLFF", "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01") == ("ok", None)
 
 
-def test_a_missing_j_anchor_is_named_and_the_germline_residue_is_proposed():
+def test_a_missing_j_anchor_is_named():
     """The reported case: `TRBJ1-4` is `TNEKLFF`, so a junction ending `NEKLF` is one Phe short."""
-    defect, repair, _ = anchors.classify("CASSNEKLF", "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
+    defect, _ = anchors.classify("CASSNEKLF", "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
     assert defect == "J absent anchor"
-    assert repair == "CASSNEKLFF"
 
 
-def test_both_anchors_missing_are_repaired_together():
+def test_both_anchors_missing_are_named_together():
     """`ASSNEKLF` is short a Cys in front and a Phe behind, and the two repairs must compose."""
-    defect, repair, _ = anchors.classify("ASSNEKLF", "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
-    assert defect == "V absent anchor, J absent anchor"
-    assert repair == "CASSNEKLFF"
+    defect, _ = anchors.classify("ASSNEKLF", "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
+    assert defect == "V absent anchor, J absent anchor", "both ends must be named, not just the first"
 
 
-def test_a_mis_read_cys104_is_substituted_rather_than_prepended():
+def test_a_mis_read_cys104_reads_as_corrupt_not_absent():
     """No TCR folds without Cys104, so a first residue that is not Cys where the body aligns is a
     read error, not a variant - and prepending would leave the wrong residue in place."""
     for wrong in ("GASSNEKLFF", "WASSNEKLFF", "FASSNEKLFF"):
-        defect, repair, _ = anchors.classify(wrong, "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
+        defect, _ = anchors.classify(wrong, "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
         assert defect == "V corrupt anchor", wrong
-        assert repair == "CASSNEKLFF", wrong
 
 
 def test_a_short_germline_contribution_does_not_stop_the_trim_being_recognised():
@@ -70,27 +70,23 @@ def test_a_short_germline_contribution_does_not_stop_the_trim_being_recognised()
     is `CAG` - so an under-trim cannot be recognised by deep germline agreement. `YLCSSQEGGYGYTFGSG`
     on `TRBV29-1*01` (`CSVE`) aligns 0 residues as given and 2 from its Cys, and 2 > 0 is the whole
     signal."""
-    defect, repair, _ = anchors.classify("YLCSSQEGGYGYTFGSG", "HomoSapiens",
-                                      "TRBV29-1*01", "TRBJ1-2*01")
+    defect, _ = anchors.classify("YLCSSQEGGYGYTFGSG", "HomoSapiens",
+                                 "TRBV29-1*01", "TRBJ1-2*01")
     assert defect == "V under-trimmed, J under-trimmed"
-    assert repair == "CSSQEGGYGYTF"
 
 
-def test_framework_carried_past_an_anchor_is_trimmed_at_both_ends():
+def test_framework_carried_past_an_anchor_is_named_at_both_ends():
     """`YFC...` in front and `...FGXG` behind: the junction plus the V and J framework around it.
 
     `arda.cdr3fix` trims one end and leaves the other, which is why these reach the report at all.
     """
-    defect, repair, _ = anchors.classify("YFCASSNEKLFFGSG", "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
+    defect, _ = anchors.classify("YFCASSNEKLFFGSG", "HomoSapiens", "TRBV6-1*01", "TRBJ1-4*01")
     assert defect == "V under-trimmed, J under-trimmed"
-    assert repair == "CASSNEKLFF"
 
 
 def test_a_junction_ending_in_the_unusual_germline_residue_is_correct():
     """`TRAJ35*01` encodes Cys at 118, so `...GFGNVLHC` is the canonical junction, not a defect."""
-    defect, repair, _ = anchors.classify("CAASLGFGNVLHC", "HomoSapiens", "TRAV13-1*01", "TRAJ35*01")
-    assert defect == "ok"
-    assert repair is None
+    assert anchors.classify("CAASLGFGNVLHC", "HomoSapiens", "TRAV13-1*01", "TRAJ35*01")[0] == "ok"
 
 
 def test_a_junction_matching_a_functional_sibling_allele_blames_the_call_not_the_sequence():
@@ -100,11 +96,10 @@ def test_a_junction_matching_a_functional_sibling_allele_blames_the_call_not_the
     right and the allele resolution is not. Rewriting the sequence would destroy the evidence for the
     real defect, which is the same reasoning `MAX_REPLACE = 0` applies in `annotate.cdr3fix`.
     """
-    defect, repair, call = anchors.classify("CPDYANKMIF", "MusMusculus",
+    defect, call = anchors.classify("CPDYANKMIF", "MusMusculus",
                                             "TRAV8D-1*01", "TRAJ47*01")
     assert defect == "J allele mismatch"
-    assert repair is None
-    assert call == "TRAJ47*02"
+    assert call == "TRAJ47*02", "the call is the finding; the sequence is not touched"
 
 
 def test_an_orf_allele_with_no_functional_sibling_gets_no_allele_proposal():
@@ -118,21 +113,21 @@ def test_two_candidate_siblings_are_not_an_answer():
     assert anchors.functional_sibling("HomoSapiens", "J", "TRBJ2-7*01", "Q") is None
 
 
-def test_a_defect_the_germline_does_not_explain_gets_no_repair():
+def test_a_defect_the_germline_does_not_explain_names_no_sibling():
     """Saying "broken, and here is a guess" would be worse than saying "broken"."""
-    defect, repair, _ = anchors.classify("CASSPLPGT", "HomoSapiens", "TRBV11-2*01", "TRBJ2-1*01")
+    defect, call = anchors.classify("CASSPLPGT", "HomoSapiens", "TRBV11-2*01", "TRBJ2-1*01")
     assert defect == "J unexplained"
-    assert repair is None
+    assert call is None, "an unexplained end names no sibling either"
 
 
-def test_the_repair_is_proposed_against_the_submitted_sequence_not_the_shipped_one():
+def test_the_submitted_sequence_is_classified_not_the_shipped_one():
     """An edit changes the chunk, and arda may already have repaired one end of the shipped value."""
     got = anchors.noncanonical(_master([{
         "cdr3.beta": "YLCSSQEGGYGYTF", "__cdr3old.beta": "YLCSSQEGGYGYTFGSG",
         "v.beta": "TRBV29-1*01", "j.beta": "TRBJ1-2*01", "__vcanon.beta": False}]))
     assert got.height == 1
     assert got["cdr3.original"][0] == "YLCSSQEGGYGYTFGSG"
-    assert got["repair"][0] == "CSSQEGGYGYTF"
+    assert "repair" not in got.columns, "the repair is arda's; this module classifies (#711)"
 
 
 def test_a_chain_with_no_submitted_value_falls_back_to_the_shipped_one():
@@ -142,7 +137,7 @@ def test_a_chain_with_no_submitted_value_falls_back_to_the_shipped_one():
         "v.beta": "TRBV6-1*01", "j.beta": "TRBJ1-4*01"}]))
     assert got.height == 1
     assert got["cdr3.original"][0] == "CASSNEKLF"
-    assert got["repair"][0] == "CASSNEKLFF"
+    assert got["defect"][0] == "J absent anchor"
 
 
 def test_nothing_flagged_gives_an_empty_frame_and_an_empty_report():
@@ -163,8 +158,9 @@ def test_the_report_names_the_defect_and_says_it_blocks_nothing():
     assert "blocks nothing" in text
     assert "J absent anchor" in text
     assert "J allele mismatch" in text
-    assert "TRAJ47*02" in text, "the report must name the allele it proposes"
-    assert "CASSNEKLFF" in text
+    assert "TRAJ47*02" in text, "the report must name the sibling allele the junction matches"
+    assert "no repair is proposed" in text, "the repair is arda's, not this module's (#711)"
+    assert "CASSNEKLFF" not in text, "a proposed sequence is exactly what this no longer computes"
 
 
 def test_an_empty_corpus_does_not_raise():

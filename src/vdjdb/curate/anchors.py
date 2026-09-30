@@ -82,7 +82,7 @@ UNIVERSAL: dict[str, str] = {"V": "C", "J": "FW"}
 COLUMNS: tuple[str, ...] = (
     "chunk.file", "chunk.row", "record_id", "gene", "species", "cdr3", "cdr3.original",
     "v.segm", "j.segm", "v.canonical", "j.canonical", "v.anchor", "j.anchor",
-    "defect", "repair", "repair.call",
+    "defect", "sibling.call",
 )
 
 
@@ -156,21 +156,36 @@ def functional_sibling(species: str, segment: str, call: str, tail: str) -> str 
     return matching[0] if len(matching) == 1 else None
 
 
-def classify(cdr3: str, species: str, v: str, j: str) -> tuple[str, str | None, str | None]:
-    """``(defect, proposed junction, proposed call)``, or ``("ok", None, None)``.
+def classify(cdr3: str, species: str, v: str, j: str) -> tuple[str, str | None]:
+    """``(defect, the functional sibling the junction matches)``, or ``("ok", None)``.
 
-    Both ends are considered, and a sequence can be wrong at both: ``YFCASSYWVGDTDTQYFGPG`` carries
-    framework in front and behind. The V end is repaired first and the J end is then read off the
-    result, so the two repairs compose instead of fighting over indices.
+    **Classification only. The repair is `arda.cdr3fix`'s and this module does not compute one.**
+    It used to return a proposed junction beside the defect, and that proposal was reported and
+    never applied (#711) - a second opinion on a question the markup engine answers, in a module
+    whose job is curation. arda 2.36 applies it: shipped junctions that are not canonical against
+    their own germline fell from 515 to 451 and the framework-past-an-anchor class from 77 to 33, so
+    what is left here is the finding a curator works, not a fix nobody ran.
 
-    A proposed *call* takes precedence over a proposed sequence: where the junction matches a
-    functional sibling allele of the gene the record names, the sequence is right and the allele
-    resolution is not, so rewriting the sequence would destroy the evidence for the real defect - the
-    reasoning ``MAX_REPLACE = 0`` already applies in :mod:`vdjdb.annotate.cdr3fix`.
+    What stays is the part arda does not say. Its `v_flags`/`j_flags` name the *action* it took -
+    `ok`, `trim`, `add`, `sub`, `allele`, `mismatch`, `shallow`, `impossible` - and these name the
+    **shape of the defect** per end: `under-trimmed` (framework kept past the anchor),
+    `absent anchor`, `corrupt anchor`, `unexplained`, `unanchored` (no germline to check against).
+    On the 451 that still ship non-canonical that reads `J unexplained` 249, `V unexplained` 93,
+    `J unanchored` 75, `J under-trimmed` 29, `V under-trimmed` 4 - which tells a curator what to
+    look at. `mismatch` does not.
+
+    Both ends are considered and a sequence can be wrong at both: ``YFCASSYWVGDTDTQYFGPG`` carries
+    framework in front and behind.
+
+    A matching functional **sibling allele** is reported instead of a defect, and that is a
+    diagnosis rather than a repair: where the junction agrees with a functional allele of the gene
+    the record names and disagrees with the ORF or pseudogene the call resolved to, the sequence is
+    right and the allele resolution is not. Naming which is wrong is exactly what the curator needs
+    and is not something the annotation decides - the same reasoning ``MAX_REPLACE = 0`` applies in
+    :mod:`vdjdb.annotate.cdr3fix`.
     """
     seen: list[str] = []
-    out = cdr3
-    call_fix: str | None = None
+    sibling_call: str | None = None
     for end, call, segment in (("V", v, "V"), ("J", j, "J")):
         germline = templated(species, segment, call)
         if not germline:
@@ -179,20 +194,19 @@ def classify(cdr3: str, species: str, v: str, j: str) -> tuple[str, str | None, 
             # `is_qq_seq_biologically_valid` used for every row. Without this the check declines
             # silently, and 118 chains whose junction ends in neither the anchor nor anything a
             # germline could justify were reported by the old build and by nothing in this one.
-            # No repair is proposed: there is no germline to propose from.
-            tail = out[:1] if end == "V" else out[-1:]
+            tail = cdr3[:1] if end == "V" else cdr3[-1:]
             seen.append(f"{end} unanchored" if tail not in UNIVERSAL[end]
                         else f"no {end} germline")
             continue
         anchor = germline[0] if end == "V" else germline[-1]
-        tail = out[:1] if end == "V" else out[-1:]
+        tail = cdr3[:1] if end == "V" else cdr3[-1:]
         if tail != anchor and tail in UNIVERSAL[end] and anchor not in UNIVERSAL[end]:
             sibling = functional_sibling(species, segment, call, tail)
             if sibling is not None:
                 seen.append(f"{end} allele mismatch")
-                call_fix = sibling
+                sibling_call = sibling
                 continue
-        defect, out = (_v_end(out, germline) if end == "V" else _j_end(out, germline))
+        defect = _v_end(cdr3, germline) if end == "V" else _j_end(cdr3, germline)
         seen.append(f"{end} {defect}" if defect != "ok" else "")
     # An end whose segment is not in the reference is *unchecked*, not defective, and saying
     # otherwise buries the finding: 3,730 chains name a V the reference does not have - a missing or
@@ -201,8 +215,8 @@ def classify(cdr3: str, species: str, v: str, j: str) -> tuple[str, str | None, 
     # coverage is still in the report.
     named = [s for s in seen if s and not s.startswith("no ")]
     if not named:
-        return "ok", None, None
-    return ", ".join(named), (out if out != cdr3 else None), call_fix
+        return "ok", None
+    return ", ".join(named), sibling_call
 
 
 def _overlap(a: str, b: str, *, suffix: bool) -> int:
@@ -215,7 +229,7 @@ def _overlap(a: str, b: str, *, suffix: bool) -> int:
     return n
 
 
-def _v_end(cdr3: str, germline: str) -> tuple[str, str]:
+def _v_end(cdr3: str, germline: str) -> str:
     """Classify the Cys104 end against the V's germline-templated residues.
 
     ``germline[0]`` is Cys104 itself, so the question is which germline position the junction starts
@@ -225,22 +239,22 @@ def _v_end(cdr3: str, germline: str) -> tuple[str, str]:
     at_anchor = _overlap(cdr3, germline, suffix=False)
     one_past = _overlap(cdr3, germline[1:], suffix=False)
     if cdr3[:1] == anchor and at_anchor >= one_past:
-        return "ok", cdr3
+        return "ok"
     # Framework in front of the anchor. The test is that trimming aligns *strictly better* than not
     # trimming, rather than that it aligns deeply: a V contributes three to five residues to the
     # junction before the N region takes over - `TRAV27*01` is `CAG` - so "deeply" is not available.
     # `YLCSSQEGGYGYTFGSG` on `TRBV29-1*01` (`CSVE`) aligns 0 residues as given and 2 from the Cys.
     for i in range(1, min(6, len(cdr3))):
         if cdr3[i] == anchor and _overlap(cdr3[i:], germline, suffix=False) > at_anchor:
-            return "under-trimmed", cdr3[i:]
+            return "under-trimmed"
     if one_past > at_anchor and one_past >= MATCH:
-        return "absent anchor", anchor + cdr3
+        return "absent anchor"
     if _overlap(cdr3[1:], germline[1:], suffix=False) >= MATCH:
-        return "corrupt anchor", anchor + cdr3[1:]
-    return "unexplained", cdr3
+        return "corrupt anchor"
+    return "unexplained"
 
 
-def _j_end(cdr3: str, germline: str) -> tuple[str, str]:
+def _j_end(cdr3: str, germline: str) -> str:
     """Classify the Phe/Trp118 end against the J's germline-templated residues.
 
     The terminal residue on its own decides nothing here, which is the trap the V end does not have:
@@ -255,16 +269,16 @@ def _j_end(cdr3: str, germline: str) -> tuple[str, str]:
     at_anchor = _overlap(cdr3, germline, suffix=True)
     one_short = _overlap(cdr3, germline[:-1], suffix=True)
     if at_anchor >= one_short and cdr3[-1:] == anchor:
-        return "ok", cdr3
+        return "ok"
     for i in range(1, min(6, len(cdr3))):                    # framework behind the anchor
         head = cdr3[:len(cdr3) - i]
         if cdr3[-1 - i] == anchor and _overlap(head, germline, suffix=True) > at_anchor:
-            return "under-trimmed", head
+            return "under-trimmed"
     if one_short > at_anchor and one_short >= MATCH:
-        return "absent anchor", cdr3 + anchor
+        return "absent anchor"
     if _overlap(cdr3[:-1], germline[:-1], suffix=True) >= MATCH:
-        return "corrupt anchor", cdr3[:-1] + anchor
-    return "unexplained", cdr3
+        return "corrupt anchor"
+    return "unexplained"
 
 
 #: ``(chunk column suffix, locus)``, as :mod:`vdjdb.assemble.tables` spells it.
@@ -311,12 +325,13 @@ def noncanonical(master: pl.DataFrame) -> pl.DataFrame:
     125 rows respectively, measured). Both columns are carried through so the disagreement is on the
     face of the report.
 
-    The repair is proposed against the submitted sequence rather than the shipped one, because that is
-    what an edit to the chunk would change and ``arda.cdr3fix`` may have repaired one end already -
+    **The submitted sequence is classified, not the shipped one**, because that is what an edit to
+    the chunk would change and ``arda.cdr3fix`` may have repaired one end already -
     ``YLCSSQEGGYGYTFGSG`` ships as ``YLCSSQEGGYGYTF``, the framework trimmed behind the anchor and
-    kept in front of it.
+    kept in front of it. So this report names what the publication reported and the shipped table
+    names what the engine made of it.
 
-    1.4 s over 285,989 chains: pure string comparison against a table read once per organism.
+    1.1 s over 285,794 chains: pure string comparison against a table read once per organism.
     """
     chains = chains_of(master)
     if chains.is_empty():
@@ -326,9 +341,8 @@ def noncanonical(master: pl.DataFrame) -> pl.DataFrame:
                         r["v.segm"] or "", r["j.segm"] or "") for r in rows]
     return (chains
             .with_columns(
-                pl.Series("defect", [d for d, _, _ in verdict]),
-                pl.Series("repair", [p for _, p, _ in verdict], dtype=pl.Utf8),
-                pl.Series("repair.call", [c for _, _, c in verdict], dtype=pl.Utf8),
+                pl.Series("defect", [d for d, _ in verdict]),
+                pl.Series("sibling.call", [c for _, c in verdict], dtype=pl.Utf8),
                 pl.col("cdr3.original").fill_null(pl.col("cdr3")),
                 pl.Series("v.anchor", [(templated(r["species"] or "", "V", r["v.segm"] or "")
                                         or "")[:1] for r in rows]),
@@ -336,7 +350,7 @@ def noncanonical(master: pl.DataFrame) -> pl.DataFrame:
                                         or "")[-1:] for r in rows]))
             .filter(pl.col("defect") != "ok")
             .select([c for c in COLUMNS if c in set(chains.columns)
-                     | {"defect", "repair", "repair.call", "v.anchor", "j.anchor"}])
+                     | {"defect", "sibling.call", "v.anchor", "j.anchor"}])
             .sort("defect", "cdr3.original", "record_id", "gene"))
 
 
@@ -344,44 +358,37 @@ def report(flagged: pl.DataFrame) -> str:
     """The markdown alert. Empty string when nothing is flagged, so a caller can skip the section."""
     if flagged.is_empty():
         return ""
-    repairable = flagged.filter(pl.col("repair").is_not_null())
-    recall = flagged.filter(pl.col("repair.call").is_not_null())
+    sibling = flagged.filter(pl.col("sibling.call").is_not_null())
     out = ["#### Alert: junctions that contradict their own V or J germline", "",
-           f"**This blocks nothing.** {flagged.height:,} chain(s) carry a `cdr3` whose first or last "
-           "residue is not the anchor the named segment encodes. VDJdb's `cdr3` is junction space - "
-           "Cys104 through Phe/Trp118, both included - so a sequence in IMGT CDR3 space, one carrying "
-           "framework past an anchor, or one with a mis-read anchor is not one.", "",
+           f"**This blocks nothing, and no repair is proposed here.** {flagged.height:,} chain(s) "
+           "carry a submitted `cdr3` whose first or last residue is not the anchor the named segment "
+           "encodes. VDJdb's `cdr3` is junction space - Cys104 through Phe/Trp118, both included - so "
+           "a sequence in IMGT CDR3 space, one carrying framework past an anchor, or one with a "
+           "mis-read anchor is not one.", "",
+           "`arda.cdr3fix` repairs what it can on the way through, so the shipped table is not this "
+           "list: 451 of these still ship non-canonical against their own germline and the rest were "
+           "repaired. What this names is the **submitted** sequence, which is what an edit to the "
+           "chunk would change.", "",
            "The anchor is read from the germline of the segment the record names, not assumed to be "
            "F or W: mouse `TRAJ47*01` is `HYANKMIC`, so a junction on it ends in Cys.", "",
-           "| Defect | Chains | Repair proposed |", "|---|---:|---:|"]
-    for row in (flagged.group_by("defect").agg(pl.len().alias("n"),
-                                               pl.col("repair").is_not_null().sum().alias("fixable"))
+           "| Defect | Chains |", "|---|---:|"]
+    for row in (flagged.group_by("defect").agg(pl.len().alias("n"))
                 .sort("n", descending=True).iter_rows(named=True)):
-        out.append(f"| {row['defect']} | {row['n']:,} | {row['fixable']:,} |")
-    out += ["", f"{repairable.height:,} of {flagged.height:,} have a repair the germline supports. "
-            "Each is a proposal for the chunk cell, against the submitted sequence rather than the "
-            "repaired one, because `arda.cdr3fix` may have already fixed one end.", ""]
-    if not recall.is_empty():
-        out += [f"For {recall.height:,} of them the **call** is what is wrong, not the sequence: the "
+        out.append(f"| {row['defect']} | {row['n']:,} |")
+    out.append("")
+    if not sibling.is_empty():
+        out += [f"For {sibling.height:,} of them the **call** is what is wrong, not the sequence: the "
                 "junction matches a functional sibling allele of the gene the record names, where the "
                 "allele it resolved to is an ORF or a pseudogene. Repairing the sequence there would "
-                "destroy the evidence for the real defect.", "",
-                "| Junction | Called | Should be | Records |", "|---|---|---|---:|"]
-        grouped = (recall.group_by("v.segm", "j.segm", "repair.call")
+                "destroy the evidence for the real defect, which is why the engine does not.", "",
+                "| Junction | Called | Matches | Records |", "|---|---|---|---:|"]
+        grouped = (sibling.group_by("v.segm", "j.segm", "sibling.call")
                    .agg(pl.len().alias("n"), pl.col("cdr3").first().alias("example"))
                    .sort("n", descending=True).head(8))
         for row in grouped.iter_rows(named=True):
-            gene = row["repair.call"].split("*")[0]
+            gene = row["sibling.call"].split("*")[0]
             called = row["j.segm"] if row["j.segm"].startswith(gene) else row["v.segm"]
-            out.append(f"| `{row['example']}` | `{called}` | `{row['repair.call']}` | "
+            out.append(f"| `{row['example']}` | `{called}` | `{row['sibling.call']}` | "
                        f"{row['n']:,} |")
-        out.append("")
-    if not repairable.is_empty():
-        out += ["| Submitted | Proposed | V | J | Defect |", "|---|---|---|---|---|"]
-        for row in repairable.head(20).iter_rows(named=True):
-            out.append(f"| `{row['cdr3.original']}` | `{row['repair']}` | `{row['v.segm']}` | "
-                       f"`{row['j.segm']}` | {row['defect']} |")
-        if repairable.height > 20:
-            out.append(f"\n...and {repairable.height - 20:,} more, in `out/reports/anchors.tsv`.")
         out.append("")
     return "\n".join(out)
