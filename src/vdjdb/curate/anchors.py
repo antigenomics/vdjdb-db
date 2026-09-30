@@ -133,7 +133,6 @@ def templated(species: str, segment: str, call: str) -> str | None:
     return None
 
 
-@lru_cache(maxsize=4096)
 def functional_sibling(species: str, segment: str, call: str, tail: str) -> str | None:
     """A functional allele of the same gene whose anchor is ``tail``, or ``None``.
 

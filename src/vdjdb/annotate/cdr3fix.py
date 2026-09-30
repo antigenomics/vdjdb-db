@@ -106,87 +106,119 @@ KEY: tuple[str, ...] = ("species", "cdr3", "v", "j")
 MAX_REPLACE = 0
 
 
+#: VDJdb's chain word -> the locus a proposal must resolve to before it may ship. arda 2.36 resolves
+#: the locus itself from the junction, which is what lets a record naming neither V nor J get a call
+#: at all - but this schema has an alpha column and a beta column and nothing else, so a proposal
+#: that lands on a third locus is evidence about the record rather than a call for it. Measured: of
+#: 461 keys naming neither side, arda's locus agrees with the column the record was filed under on
+#: **457 (99.13 %)**, and all four disagreements are `CACD...DKLIF` - TRDV2's own anchor and TRDJ1's
+#: own ending, filed as alpha because there is nowhere else to put it.
+LOCI: dict[str, str] = {"alpha": "TRA", "beta": "TRB"}
+
+
 def markup(keys: pl.DataFrame, gene: str | None = None) -> pl.DataFrame:
     """Mark up a frame of distinct ``(species, cdr3, v, j)`` keys.
 
-    One :func:`arda.cdr3fix.markup_records` call per organism -- anchors are loaded and cached once
-    per organism, so grouping the call that way is the difference between one load and 100,000.
-    """
-    from arda.cdr3fix import VDJDB_SPECIES, markup_records
+    One :func:`arda.cdr3fix.markup_records` call for the whole frame: it reads ``species`` per row
+    and loads each organism's anchors once, so there is nothing to group by here.
 
-    from .segments import propose
+    **arda proposes a call for a side the submission left blank, and this used to be our job.**
+    ``annotate/segments.py`` held a k-mer candidate lookup with a Pgen tiebreak for exactly that,
+    and arda 2.34 took over the one-sided cases while 2.36 added the locus, so all 3,130 blank-call
+    keys are now answered by the engine that repairs the junction rather than by a second one
+    beside it. That module is deleted: the germline a repair ran against and the call reported next
+    to it could disagree while they were two computations, and now they cannot.
+    """
+    from arda.cdr3fix import markup_records
 
     ensure_reference()
-    # The proposal goes in its own columns: `v` and `j` are the join key back to the table, so
-    # overwriting them would make the lookup miss -- measured, it fanned vdjdb_full.txt out by 3,266
-    # rows. `__mj` is what the repair runs against and `__gj` is what the table reports; they differ
-    # only in being blank where the record named its own segment.
-    filled = propose(keys, gene).with_columns(
-        # **Only the J proposal reaches the repair, and through it the shipped call.** The two sides
-        # are not equally knowable from a junction and the measurement says so: a J is recovered at
-        # 93.6-97.5 % gene-level accuracy, because its germline templates a distinctive 3' motif,
-        # while a V is recovered at 23.8-50.1 %, because TRBV contributes only a few residues and
-        # most of them template the same `CAS`. Feeding the V proposal in was tried: all 706 chains
-        # it reached came back `NoFixNeeded` with no repair proposed, so arda confirmed that *a*
-        # germline fits without discriminating between the many that fit equally, and `v.segm` would
-        # then carry one of them as if the publication had reported it.
+    records = markup_records(keys, max_replace=MAX_REPLACE)
+    fixes = [r.to_cdr3fix() for r in records]
+    locus = LOCI.get(gene or "")
+    # A proposal is accepted only for the locus this column can hold; see LOCI.
+    usable = [locus is None or r.locus == locus for r in records]
+    out = keys.with_columns(
+        *(pl.Series(tmp, [f[key] for f in fixes], dtype=_FIX_DTYPES[ty])
+          for key, tmp, ty in FIX_FIELDS),
+        pl.Series("__pv", [("V" in r.proposed) and u for r, u in zip(records, usable, strict=True)],
+                  dtype=pl.Boolean),
+        pl.Series("__pj", [("J" in r.proposed) and u for r, u in zip(records, usable, strict=True)],
+                  dtype=pl.Boolean),
+        pl.Series("__locus", [r.locus or "" for r in records], dtype=pl.Utf8),
+    ).with_columns(
+        # arda's own call is kept as evidence, under its own name, and is what `chains` reports as
+        # `v.segm.arda` / `j.segm.arda`. It is not what ships: see the two rules below.
+        pl.col("__v").str.replace_all(";", ",").alias("__varda"),
+        pl.col("__j").str.replace_all(";", ",").alias("__jarda"),
+    ).with_columns(
+        # **Only the J proposal reaches the shipped call.** The two sides are not equally knowable
+        # from a junction and the measurement says so: a J is recovered at 93.6-97.5 % gene-level
+        # accuracy, because its germline templates a distinctive 3' motif, while a V is recovered at
+        # 23.8-50.1 %, because TRBV contributes only a few residues and most of them template the
+        # same `CAS`. So a proposed V is reported as `v.inferred` and nowhere else, `v.segm` stays
+        # blank where the curator left it blank - which is what every release has shipped - and the
+        # V boundary question is answered by `v.end.inferred`.
         #
-        # So the V proposal is reported as `v.inferred` and nothing else, `v.segm` stays blank where
-        # the curator left it blank and arda resolved nothing - which is what every release has
-        # shipped - and the V boundary question is answered by `v.end.inferred`.
-        pl.col("v").alias("__mv"), pl.col("__gj").alias("__mj"))
-    out: list[pl.DataFrame] = []
-    for (species,) in filled.select("species").unique().sort("species").iter_rows():
-        organism = VDJDB_SPECIES.get(species.lower())
-        part = filled.filter(pl.col("species") == species)
-        if organism is None:
-            # An unknown species is not a reason to drop records: mark them unmapped and let the
-            # QC rules complain about the species, which is the actual defect.
-            out.append(part.with_columns(_unmapped(part)).with_columns(
-                # Same schema as the mapped branch: arda named nothing, so it proposes nothing.
-                pl.lit("").alias("__varda"), pl.lit("").alias("__jarda"),
-                pl.col("v").alias("__v"), pl.col("j").alias("__j"),
-            ))
-            continue
-        records = markup_records(part, v="__mv", j="__mj", organism=organism,
-                                 max_replace=MAX_REPLACE)
-        fixes = [r.to_cdr3fix() for r in records]
-        out.append(part.with_columns(
-            *(pl.Series(tmp, [f[key] for f in fixes], dtype=_FIX_DTYPES[ty])
-              for key, tmp, ty in FIX_FIELDS)
-        ).with_columns(
-            # arda's own call is kept as evidence, under its own name, and is what `chains` reports
-            # as `v.segm.arda` / `j.segm.arda`. It is not what ships: see the two rules below.
-            pl.col("__v").str.replace_all(";", ",").alias("__varda"),
-            pl.col("__j").str.replace_all(";", ",").alias("__jarda"),
-        ).with_columns(
-            # **The engine's allele-resolved call ships, and that is not new.** The markup engine
-            # names the allele it aligned against, so a bare `TRBV12-3` comes back `TRBV12-3*01`.
-            # Measured before assuming it: the 2026-06-03 release carries an allele suffix on
-            # **282,277 of 284,546** `v.segm` cells (99.2 %) and 282,763 `j.segm` (99.4 %), while
-            # only **37.0 %** of submitted `v.beta` and 40.2 % of `j.beta` carry one. So every
-            # release VDJdb has shipped already published the fixer's resolved allele rather than
-            # the curator's bare call, and keeping the bare call instead was tried and moved
-            # 183,345 of 284,546 rows -- a far bigger change than the swap it was meant to avoid.
-            # `chains` records what was submitted next to it, so neither is lost.
-            #
-            # Where the engine cannot resolve the call the guesser's stands: dropping it would fail
-            # the legacy "a CDR3 needs a V and a J" filter and cost 11,619 rows of `vdjdb.txt`. The
-            # coordinates then stay -1, recording that nothing was located.
-            # `__mv` / `__mj`, not `__gv` / `__gj`: the fallback is the call the repair was given,
-            # which on the V side is the record's own and on the J side includes the proposal.
-            pl.when(pl.col("__varda") != "").then(pl.col("__varda"))
-              .otherwise(pl.col("__mv")).alias("__v"),
-            pl.when(pl.col("__jarda") != "").then(pl.col("__jarda"))
-              .otherwise(pl.col("__mj")).alias("__j"),
-        ))
-    return (pl.concat(out, how="vertical")
-            .with_columns(
-                # Reported as `v.inferred` / `j.inferred`: the proposal alone, blank wherever the
-                # record named the segment itself, so a proposal never sits beside a curated call.
-                *(pl.when(pl.col(call) == "").then(pl.col(tmp)).otherwise(pl.lit("")).alias(tmp)
-                  for call, tmp in (("v", "__gv"), ("j", "__gj"))))
-            .drop("__mv", "__mj").sort(KEY))
+        # **The engine's allele-resolved call ships where the record named the segment, and that is
+        # not new.** The markup engine names the allele it aligned against, so a bare `TRBV12-3`
+        # comes back `TRBV12-3*01`. Measured before assuming it: the 2026-06-03 release carries an
+        # allele suffix on **282,277 of 284,546** `v.segm` cells (99.2 %) and 282,763 `j.segm`
+        # (99.4 %), while only **37.0 %** of submitted `v.beta` and 40.2 % of `j.beta` carry one. So
+        # every release VDJdb has shipped already published the fixer's resolved allele rather than
+        # the curator's bare call. `chains` records what was submitted next to it, so neither is
+        # lost. Where the engine resolves nothing the submitted call stands: dropping it would fail
+        # the legacy "a CDR3 needs a V and a J" filter and cost 11,619 rows of `vdjdb.txt`, and the
+        # coordinates then stay -1, recording that nothing was located.
+        _shipped_call("v", "__varda", proposed="__pv").alias("__v"),
+        _shipped_call("j", "__jarda", proposed="__pj").alias("__j"),
+        # Reported as `v.inferred` / `j.inferred`: the proposal alone, blank wherever the record
+        # named the segment itself, so a proposal never sits beside a curated call.
+        pl.when(pl.col("__pv")).then(pl.col("__varda")).otherwise(pl.lit("")).alias("__gv"),
+        pl.when(pl.col("__pj")).then(pl.col("__jarda")).otherwise(pl.lit("")).alias("__gj"),
+    )
+    return out.drop("__pv", "__pj", "__locus").sort(KEY)
+
+
+def _shipped_call(submitted: str, engine: str, *, proposed: str) -> pl.Expr:
+    """Which of the submitted and the engine's call ships, per row.
+
+    **The engine's call ships wherever it has one, and that is not new.** It names the allele it
+    aligned against, so a bare `TRBV12-3` comes back `TRBV12-3*01` and a family name `TRBV20` comes
+    back `TRBV20-1*01`; every release VDJdb has shipped has published those. The 2026-06-03 release
+    carries an allele suffix on **282,277 of 284,546** `v.segm` cells (99.2 %) and 282,763 `j.segm`
+    (99.4 %), against **37.0 %** of submitted `v.beta` and 40.2 % of `j.beta`. Where the engine
+    resolves nothing the submitted call stands: dropping it would fail the legacy "a CDR3 needs a V
+    and a J" filter and cost 11,619 rows of `vdjdb.txt`, and the coordinates then stay -1.
+
+    arda 2.36 also **re-calls the gene** where the junction contradicts the submission - `TRBV10-3`
+    on a `CASS...` junction comes back `TRBV19*01`, because `TRBV10-3` templates `CAIS` and the
+    sequence is the evidence. Restricting the engine to allele-and-family *resolution* was built and
+    measured, and it is worse on every axis, so it is not what ships:
+
+    =======================================  ==============  ============  =============  ==========
+    shipped call                             J gene correct  no allele     `j-calls.tsv`  row delta
+    =======================================  ==============  ============  =============  ==========
+    the engine's, wherever it has one        **99.27 %**     **67**        **273**        symmetric
+    only where it resolves the submission    98.67 %         129           688            2,601 lost
+    =======================================  ==============  ============  =============  ==========
+
+    J gene against `isalgo/airr_control`'s nucleotide-established calls over 4,372 human TRB keys;
+    "no allele" is shipped cells with no `*` suffix; `j-calls.tsv` is the count of J calls their own
+    junction contradicts. Gating it left *more* under-specified calls shipping and a bigger
+    curation queue, and made the row buckets asymmetric - rows lost rather than moved. What the
+    curator reported is kept beside it as `v.segm.submitted` / `j.segm.submitted`, and arda's own as
+    `v.segm.arda` / `j.segm.arda`, so a reader can tell a markup decision from a curation one.
+
+    **A proposed V never ships**, and that is the one gate. The two sides are not equally knowable
+    from a junction: a J is recovered at 93.6-97.5 % gene-level accuracy, because its germline
+    templates a distinctive 3' motif, while a V is recovered at 23.8-50.1 %, because TRBV
+    contributes only a few residues and most of them template the same `CAS`. So a proposed V is
+    reported as `v.inferred` and nowhere else, and `v.segm` stays blank where the curator left it
+    blank - which is what every release has shipped.
+    """
+    sub, eng = pl.col(submitted), pl.col(engine)
+    return (pl.when(pl.col(proposed) & (submitted == "v")).then(pl.lit(""))
+              .when(eng != "").then(eng).otherwise(sub))
 
 
 def _unmapped(part: pl.DataFrame) -> list[pl.Expr]:

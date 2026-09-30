@@ -30,12 +30,21 @@ def marked() -> pl.DataFrame:
 
 
 def test_the_engines_own_call_is_reported_beside_the_shipped_one(marked):
+    """The engine's call ships, the submitted one is kept beside it, and they can disagree.
+
+    `TRBV10-3` templates `CAIS` and this junction is `CASS...`, so arda 2.36 does not align against
+    the submitted gene at all: it re-calls `TRBV19*01`, which templates `CASS`. That is the engine
+    reading the sequence rather than the label, and the sequence is the evidence. Restricting it to
+    allele-and-family resolution was built and measured and is worse on every axis - see
+    :func:`vdjdb.annotate.cdr3fix._shipped_call`.
+
+    What the publication reported is not lost: `chains` carries it as `v.segm.submitted`, and this
+    row's own `v` column is still the harmonised submission.
+    """
     row = marked.filter(pl.col("cdr3") == "CASSIRSSYEQYF").row(0, named=True)
-    # The submitted call names no allele; the engine names the one it aligned against, and that is
-    # what ships -- every release to date does the same, on 99.2 % of `v.segm` cells.
-    assert row["v"] == "TRBV10-3"
-    assert row["__varda"] == "TRBV10-3*01"
-    assert row["__v"] == "TRBV10-3*01"
+    assert row["v"] == "TRBV10-3", "the submitted call must survive in the key column"
+    assert row["__varda"] == "TRBV19*01"
+    assert row["__v"] == "TRBV19*01"
 
 
 def test_a_multi_call_uses_the_comma_the_legacy_format_expects(marked):

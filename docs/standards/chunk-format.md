@@ -25,7 +25,7 @@ mhc.a | First MHC chain allele, to the best resolution available, ``HLA-X*XX:XX`
 mhc.b | Second MHC chain allele (``B2M`` for MHCI)
 mhc.class | ``MHCI`` or ``MHCII``
 antigen.epitope | Amino acid sequence of the epitope
-antigen.gene | Parent gene of the epitope sequence (e.g. ``pp24``)
+antigen.gene | Parent gene of the epitope sequence (e.g. ``pp24``). A property of the peptide, so within one chunk and one ``antigen.epitope`` it should be constant. QC reports a dense run of ``prefix``+integer under ``counter in antigen.gene``: dragging a cell down a spreadsheet column increments it, and that turned one epitope's ``Eef2`` into ``Eef2``..``Eef188``, holding 65 clonotypes apart because the column is part of the deduplication key. The same rule covers ``antigen.species``, ``mhc.a`` and ``mhc.b``, and deliberately not ``meta.clone.id`` or ``meta.subject.id``, where a counter is the content
 antigen.species | Parent species of the antigen, to the best clade resolution available (e.g. ``HIV-1``, ``HIV-1*HXB2``)
 reference.id | Pubmed id, doi, etc
 submitter | Name of submitting person/organization
@@ -45,7 +45,7 @@ These columns are optional to fill, but should be present in the table header. T
 column name     | description
 ----------------|-------------
 method.identification | ``tetramer-sort``, ``dextramer-sort``, ``pelimer-sort``, ``pentamer-sort``, etc. for sorting-based identification. For molecular assays use ``antigen-loaded-targets`` (T cell specificity analysed against cells incubated with antigenic peptide) or ``antigen-expressing-targets`` (T cell specificity analysed against cells transformed with an antigenic organism, protein or peptide, e.g. BCL transformed with EBV). For magnetic cell separation use ``beads``. Add ``cultured-T-cells`` or ``limiting-dilution-cloning`` if T cells were cultured before sequencing, since ``method.frequency`` then has a different meaning. For UMI-tagged multimers use ``tetramer-umi``, etc. Separate phrases with a comma.
-method.frequency | Frequency in the isolated antigen-specific population, reported as ``X/X`` where possible, e.g. ``7/30`` if a given V/D/J/CDR3 is encountered in 7 out of 30 tetramer+ clones. The formats ``X%``, ``X.X%`` and ``X.X`` are also supported.
+method.frequency | Frequency in the isolated epitope-reactive population, reported as ``X/X`` where possible, e.g. ``7/30`` if a given V/D/J/CDR3 is encountered in 7 out of 30 tetramer+ clones. The population is defined by the pMHC the sort used, not by the antigen it came from - a tetramer is one epitope on one allele. The formats ``X%``, ``X.X%`` and ``X.X`` are also supported.
 method.singlecell | ``yes`` if single cell sequencing was performed, blank otherwise
 method.sequencing | Sequencing method: ``sanger``, ``rna-seq`` or ``amplicon-seq``
 method.verification | ``tetramer-stain``, ``dextramer-stain``, ``pelimer-stain``, ``pentamer-stain``, etc. for methods that include TCR cloning and re-staining with multimers. For magnetic cell separation use ``beads``. ``restimulation``, ``co-culture``, ``antigen-loaded-targets``, ``antigen-expressing-targets`` for molecular assays that validate the specificity of cloned T-cell receptors. ``direct`` if the affinity of the TCR of a specific T cell to the pMHC is quantified directly. Several comma-separated verification methods may be given.

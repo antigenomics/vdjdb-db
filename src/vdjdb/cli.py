@@ -130,16 +130,11 @@ def build(
     built = build_tables(master, release=release)
     out.mkdir(parents=True, exist_ok=True)
 
-    # Written every run, next to the other reports: a wall time nobody records is a wall time nobody
-    # can regress against, which is how the 156 s in `add_junction_nt` went unmeasured until someone
-    # profiled it by hand (ROADMAP_local section 49).
-    timings = timing_write(out / "reports" / "build-timings.tsv", rows=built["records"].height)
-    typer.echo(timing_report(timings))
-
     # Advisory, and deliberately not a gate: a value one character from another may be a typo or may
     # be two stains, two serotypes, or one gene under two species' symbol conventions, and only a
     # curator knows which. Written every run so the count is a number that can regress.
-    look = lookalikes(master)
+    with stage("curate.submission.lookalikes"):
+        look = lookalikes(master)
     look.write_csv(out / "reports" / "lookalikes.tsv", separator="\t")
     if not look.is_empty():
         within = look.filter(pl.col("same.species"))["folded"].n_unique()
@@ -150,7 +145,8 @@ def build(
     # Advisory too, and for the same reason: `epitopes` is keyed on (epitope, species, gene), so a
     # peptide with two sources is two rows by design. A conserved peptide, a vocabulary gap and a
     # mis-curation all look like this, and only the third is a defect (#633).
-    sources = epitope_sources(master)
+    with stage("curate.submission.epitope_sources"):
+        sources = epitope_sources(master)
     sources.write_csv(out / "reports" / "epitope-sources.tsv", separator="\t")
     if not sources.is_empty():
         two_species = sources.filter(pl.col("sources") > 1)["antigen.epitope"].n_unique()
@@ -165,7 +161,8 @@ def build(
     # tests for it - they check the residue alphabet and a minimum length. `arda.cdr3fix` repairs most
     # of them on the way through, which is exactly why this needs reporting: the chunk keeps the wrong
     # sequence and nobody learns.
-    anchors = noncanonical(master)
+    with stage("curate.anchors.noncanonical"):
+        anchors = noncanonical(master)
     anchors.write_csv(out / "reports" / "anchors.tsv", separator="\t")
     if not anchors.is_empty():
         fixable = anchors.filter(pl.col("repair").is_not_null()).height
@@ -190,7 +187,8 @@ def build(
                    f"{harmonised.height} rewrite(s) in {harmonised['stage'].n_unique()} pass(es) "
                    f"-> {out / 'reports' / 'harmonisation.tsv'}")
 
-    calls = unresolved_calls(master)
+    with stage("curate.nomenclature.unresolved"):
+        calls = unresolved_calls(master)
     calls.write_csv(out / "reports" / "nomenclature.tsv", separator="\t")
     if not calls.is_empty():
         family = calls.filter(pl.col("family.members") > 0)["chains"].sum()
@@ -203,7 +201,8 @@ def build(
     # looks like a TRBV name and `curate.nomenclature` asks whether IMGT has it, and neither asks
     # whether IMGT thinks the gene is functional. Advisory, like `anchors.tsv` above -- a P gene can
     # rearrange, and IMGT reclassifies genes between releases.
-    nonfunctional = functionality_report(built["chains"], built["records"])
+    with stage("curate.functionality.report"):
+        nonfunctional = functionality_report(built["chains"], built["records"])
     nonfunctional.write_csv(out / "reports" / "functionality.tsv", separator="\t")
     summary_rows = functionality_summary(nonfunctional)
     summary_rows.write_csv(out / "reports" / "functionality-summary.tsv", separator="\t")
@@ -222,14 +221,16 @@ def build(
     # reads the anchor residue of the segment a record names, this one asks whether some other gene
     # explains the whole 3' end better, and the two overlap on 19 of 718 chains. Advisory: #681 says
     # re-calling a J from its junction is a curator's decision, and what was missing is the list.
-    contradicted = jcall_report(built["chains"], built["records"])
+    with stage("curate.jcalls.report"):
+        contradicted = jcall_report(built["chains"], built["records"])
     contradicted.write_csv(out / "reports" / "j-calls.tsv", separator="\t")
     if not contradicted.is_empty():
         typer.echo(f"J calls contradicted by their own junction: {contradicted.height:,} chain(s) "
                    f"over {contradicted['chunk.file'].n_unique()} chunk(s) "
                    f"-> {out / 'reports' / 'j-calls.tsv'}")
 
-    presented = presentation_report(built["restriction"])
+    with stage("curate.presentation.report"):
+        presented = presentation_report(built["restriction"])
     presented.write_csv(out / "reports" / "presentation.tsv", separator="\t")
     presentation_summary(presented).write_csv(out / "reports" / "presentation-summary.tsv",
                                               separator="\t")
@@ -237,6 +238,15 @@ def build(
         typer.echo(f"MHC calls with no groove or a class that disagrees: {presented.height:,} "
                    f"(epitope, MHC) pair(s), {presented['records'].sum():,} record(s) "
                    f"-> {out / 'reports' / 'presentation.tsv'}")
+
+    # **Written last, after every timed stage has closed.** A wall time nobody records is a wall
+    # time nobody can regress against, which is how the 156 s in `add_junction_nt` went unmeasured
+    # until someone profiled it by hand (ROADMAP_local section 49). It used to be written directly
+    # after `build_tables`, which left the seven report stages below out of the table entirely -
+    # 1.97 s of a 40 s build, and a report claiming its rows "sum to the wall clock exactly once"
+    # while nine calls ran after it (ROADMAP_local 83d).
+    timings = timing_write(out / "reports" / "build-timings.tsv", rows=built["records"].height)
+    typer.echo(timing_report(timings))
 
     if tables:
         for name, frame in built.items():
@@ -557,6 +567,65 @@ def refs(
             typer.echo(f"    {ref}  ({n:,} records)", err=True)
 
 
+@app.command(name="antigens")
+def antigens_cmd(
+    tables: Path = typer.Option(Path("out/tables"), help="A built new-format directory."),
+    out: Path = typer.Option(Path("proofreading/epitope_proteome.tsv"),
+                             help="Where to write the table; the committed path by default."),
+) -> None:
+    """Where each self epitope sits in its own species' proteome, and how exactly. Issue #632.
+
+    Network-bound and **not part of a build**: `mhcmatch` fetches the reference proteome from
+    HuggingFace, so the table is a committed, reviewed input refreshed by its own pull request, the
+    same treatment `summary/reference_years.tsv` and `proofreading/epitope_promiscuity.tsv` get
+    (hard rule 9).
+
+    Three verdicts, spelled as what was measured: `exact`, the peptide is in the proteome and the
+    proteome's `GN=` names the gene; `one_substitution`, one residue differs from a peptide that is;
+    `not_found`, neither within one substitution. Only the first is ever a finding, and then only
+    where the gene symbol disagrees - the other two are questions a reference answers and a sequence
+    cannot, so every row carries its `reference.id` list.
+    """
+    import polars as pl
+
+    from .curate import antigens as ag
+
+    built, records = tables / "epitopes.parquet", tables / "records.parquet"
+    for path in (built, records):
+        if not path.exists():
+            typer.secho(f"no {path.name} at {path}; run `vdjdb build` first",
+                        fg=typer.colors.RED, err=True)
+            raise typer.Exit(2)
+    found = ag.table(ag.sources(pl.read_parquet(built),
+                                pl.read_parquet(records, columns=["antigen.epitope",
+                                                                  "reference.id"])))
+    out.parent.mkdir(parents=True, exist_ok=True)
+    found.write_csv(out, separator="\t", quote_style="never")
+    typer.echo(f"wrote {out} ({found.height:,} rows)")
+    for row in ag.summarise(found).iter_rows(named=True):
+        typer.echo(f"  {row['antigen.species']:14} {row['verdict']:17} "
+                   f"{row['epitopes']:5,} epitope(s)  {row['records']:7,} record(s)")
+    # Epitopes, never records: one peptide is 81.5 % of the `one_substitution` record total, so that
+    # total measures one reagent choice in one antigen. A cohort carries many mutations in one
+    # antigen, and this is the view that says so.
+    genes = ag.by_gene(found)
+    if not genes.is_empty():
+        multi = genes.filter(pl.col("peptides") > 1)
+        typer.echo(f"genes carrying more than one peptide a residue from reference: {multi.height} "
+                   f"- a mutation panel or an antigen screen across a cohort, not a defect")
+        for row in multi.head(6).iter_rows(named=True):
+            typer.echo(f"  {row['antigen.gene']:14} {row['peptides']:3} peptide(s)  "
+                       f"{row['records']:6,} record(s)")
+    clash = ag.gene_disagreements(found)
+    if not clash.is_empty():
+        typer.echo(f"curated gene not the proteome's symbol: {clash.height} epitope(s), "
+                   f"{clash['records'].sum():,} record(s) - a protein name, a legacy alias or a "
+                   f"mislabel, and only a curator can say which")
+        for row in clash.head(5).iter_rows(named=True):
+            typer.echo(f"  {row['antigen.epitope']:18} {row['antigen.gene']:18} -> "
+                       f"{row['source.gene']:10} {row['records']:6,} record(s)")
+
+
 @app.command(name="promiscuity")
 def promiscuity_cmd(
     out: Path = typer.Option(Path("proofreading/epitope_promiscuity.tsv"),
@@ -623,6 +692,8 @@ def release_cmd(
     previous_lifecycle: Path | None = typer.Option(None, help="Previous release's lifecycle TSV, so "
                                                              "retirements carry the release that "
                                                              "last held them."),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Leave the tracked latest-version.txt "
+                                                         "alone. For checking the bundle shape."),
 ) -> None:
     """Assemble the release: three zips, `manifest.json`, `SHA256SUMS`, `latest-version.txt`.
 
@@ -636,9 +707,16 @@ def release_cmd(
     from .release import changelog as cl
 
     version = b.version_of(tag)
-    b.prepare_latest(tag)
-    typer.echo(f"latest-version.txt line 1 -> {b.legacy_url(tag)}")
+    # `latest-version.txt` is tracked, so a dry run with a tag no release carries would leave the
+    # repository naming a download that 404s (#707).
+    latest = b.prepare_latest(tag, write=not dry_run)
+    where = "computed, tree left alone" if dry_run else "line 1"
+    typer.echo(f"latest-version.txt {where} -> {b.legacy_url(tag)}")
     b.stage(build_dir)
+    # `stage` copies the tracked file, which a dry run did not update, so the bundle would otherwise
+    # carry the *previous* release's line 1 while every other member named this tag.
+    if dry_run:
+        (build_dir / "latest-version.txt").write_text(latest)
     # The lifecycle is written here and not by a build: a curation branch that adds a clonotype and
     # removes it again has retired nothing, so only a release moves these rows (`ROADMAP.md` 10.4).
     lifecycle_path = out / "identity-lifecycle.tsv"

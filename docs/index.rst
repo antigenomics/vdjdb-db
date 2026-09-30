@@ -62,6 +62,7 @@ VDJdb
    :hidden:
    :caption: Data standards
 
+   standards/terminology
    standards/chunk-format
    standards/columns
    standards/confidence-score
@@ -83,4 +84,5 @@ VDJdb
    :caption: Builds
 
    builds
+   builds/library-pipeline-migration
    dashboard

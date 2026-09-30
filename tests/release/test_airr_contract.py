@@ -18,16 +18,26 @@ from vdjdb.emit.vdjdb3 import read_tables
 
 pytestmark = pytest.mark.release
 
-#: Chains the legacy build drops: the 998 chains of 845 records whose chain carried a CDR3 with no V
-#: or J (it drops the record whole, both chains), plus 34 D-only chains with no CDR3 at all.
+#: Chains the legacy build drops: the ones whose chain carried a CDR3 with no V or J (it drops the
+#: record whole, both chains), plus 34 D-only chains with no CDR3 at all.
 #:
-#: 1,501 and 1,141 before `res/` was retired (#658). Retiring it moved the J proposal from a k-mer scan
-#: over `res/segments.txt` to the recombination model and arda's germline table, which names 347 more
-#: J calls, so 469 chains of 296 records stop failing the legacy "a CDR3 needs a V and a J" filter and
-#: the gap between the two paths closes by that much. Both numbers falling is the outcome to want: the
-#: tables path always carried these records, and what changed is that legacy now carries them too.
-LEGACY_DROPS_CHAINS = 1_032
-LEGACY_DROPS_RECORDS = 845
+#: **Both numbers falling is the outcome to want**, and they have fallen twice. The tables path always
+#: carried these records; what changes is that legacy carries them too.
+#:
+#: ====================================  ======  =======
+#: after                                 chains  records
+#: ====================================  ======  =======
+#: `res/` retired (#658)                 1,501    1,141
+#: the k-mer J proposal replaced         1,032      845
+#: `annotate_junctions` (arda 2.36)        970      755
+#: ====================================  ======  =======
+#:
+#: The last step moved the blank-call proposal from this repository's own `annotate/segments.py` into
+#: `arda.cdr3fix`, which proposes the **locus** as well as the call (2.36) and so answers the 461 keys
+#: that named neither side and had no locus to look one up under. 62 more chains of 90 more records
+#: stop failing the legacy "a CDR3 needs a V and a J" filter.
+LEGACY_DROPS_CHAINS = 970
+LEGACY_DROPS_RECORDS = 755
 
 
 @pytest.fixture(scope="module")

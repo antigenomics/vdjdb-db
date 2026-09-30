@@ -207,3 +207,25 @@ def test_changelog_splits_comma_joined_references(tmp_path):
     d = cl.diff(before, after)
     assert d["references_after"] == 2
     assert d["added"]["reference.id"].to_list() == ["PMID:2"]
+
+
+def test_a_dry_run_leaves_the_tracked_latest_version_alone(tmp_path) -> None:
+    """#707. `latest-version.txt` is tracked, so a made-up tag must not reach the repository.
+
+    That is the defect `ROADMAP.md` §3.2 records as having already shipped once, from the other
+    direction: for several releases line 1 named the *previous* release. A dry run leaving the tree
+    naming a release that does not exist is one `git commit -a` away from the same outcome.
+    """
+    from vdjdb.release.bundle import legacy_url, prepare_latest
+
+    path = tmp_path / "latest-version.txt"
+    before = "https://example.invalid/old.zip\n"
+    path.write_text(before)
+
+    content = prepare_latest("v2026.09.9", path, write=False)
+    assert path.read_text() == before, "a dry run must not touch the file"
+    assert content.splitlines()[0] == legacy_url("v2026.09.9"), (
+        "and must still return the line the bundle ships, so the two have one source")
+
+    prepare_latest("v2026.09.9", path)
+    assert path.read_text() == content, "a real run writes exactly what the dry run computed"

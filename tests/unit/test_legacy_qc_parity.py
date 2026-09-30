@@ -476,13 +476,36 @@ def test_every_legacy_master_check_has_a_case() -> None:
     assert not missing, f"legacy master-table checks no case exercises: {missing}"
 
 
+#: Rules this harness structurally cannot exercise, each with where it is tested instead.
+#:
+#: Every case here is **one row with one field spoiled**, which is what makes a legacy verdict
+#: readable beside it - the retired build also judged a row at a time. A rule that reads a *group* of
+#: rows has no single-row form and no legacy counterpart to be at parity with, so a case here would be
+#: a row that cannot fail it.
+GROUP_RULES: dict[str, str] = {
+    f"counter in {column}": "tests/unit/test_qc_advisories.py"
+    for column in ("antigen.gene", "antigen.species", "mhc.a", "mhc.b")
+}
+
+
 def test_every_new_row_rule_has_a_case() -> None:
     """The gate that makes a new rule arrive with its own broken record, or not arrive."""
-    declared = {f for c in ALL_CASES for f in c.new} | {"duplicate"}
+    declared = {f for c in ALL_CASES for f in c.new} | {"duplicate"} | set(GROUP_RULES)
     missing = sorted(set(RULES) - declared)
     assert not missing, (
         f"rules in vdjdb.qc.rules no case exercises: {missing}. Add a record that fails each one, "
-        "with the legacy verdict beside it.")
+        "with the legacy verdict beside it - or, for a rule that judges a group of rows rather than "
+        f"one row, a line in GROUP_RULES naming where it is tested.")
+
+
+def test_every_exempt_group_rule_exists_and_is_tested_where_it_says() -> None:
+    """An exemption that names a rule nobody has, or a file nobody wrote, is a hole in the gate."""
+    for rule, where in GROUP_RULES.items():
+        assert rule in RULES, f"{rule} is exempt from the case gate and is not a rule"
+        home = Path(where)
+        assert home.exists(), f"{rule} says it is tested in {where}, which does not exist"
+        column = rule.rsplit(" ", 1)[-1]
+        assert column in home.read_text(), f"{where} does not mention {column}"
 
 
 # --------------------------------------------------------------------------------------------

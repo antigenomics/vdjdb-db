@@ -422,12 +422,13 @@ def test_an_unscoped_rename_still_rewrites_every_organism():
     assert out["mhc.a"].to_list() == ["H2-IAb"] * 2
 
 
-def test_the_four_harmonisation_reports_union_into_one_frame(tmp_path):
+def test_the_harmonisation_reports_union_into_one_frame(tmp_path):
     """#700. The passes rewrite values and their reports were discarded by `build_master`.
 
     Each returns a different set of extra columns, so the union has to widen rather than concat: a
-    `pl.concat` over the four raises on the schemas alone. What it must not do is lose a rewrite or
-    invent a column, which is what the two assertions on the counts check.
+    `pl.concat` over them raises on the schemas alone. What it must not do is lose a rewrite or
+    invent a column, which is what the two assertions on the counts check. Five passes since
+    `harmonise_vocabulary` landed (#637).
     """
     from vdjdb.assemble.master import HARMONISATION_REPORT, _write_harmonisation
 
@@ -439,13 +440,15 @@ def test_the_four_harmonisation_reports_union_into_one_frame(tmp_path):
     mhc = pl.DataFrame({"issue": ["mhc-chain-order"], "column": ["mhc.a,mhc.b"],
                         "from": ["beta,alpha"], "to": ["alpha,beta"], "rows": [149]})
     references = pl.DataFrame({"from": ["doi:10/x"], "to": ["PMID:1"], "rows": [17]})
+    vocabulary = pl.DataFrame({"column": ["antigen.gene"], "species": [""], "from": ["IE-1"],
+                               "to": ["IE1"], "rows": [31]})
 
     path = tmp_path / "reports" / "harmonisation.tsv"
-    report = _write_harmonisation(path, segments, alleles, mhc, references)
+    report = _write_harmonisation(path, segments, alleles, mhc, references, vocabulary)
 
     assert report.columns == list(HARMONISATION_REPORT)
-    assert report.height == 4, "one row per rewrite, and `signature` must not become a fifth"
-    assert report["rows"].sum() == 3 + 974 + 149 + 17
+    assert report.height == 5, "one row per rewrite, and `signature` must not become a column"
+    assert report["rows"].sum() == 3 + 974 + 149 + 17 + 31
     # The pass that reports no species writes an empty cell, not a quoted one: hard rule 6.
     assert "\"\"" not in path.read_text()
     assert report.filter(pl.col("stage") == "references")["issue"].item() == "#347"

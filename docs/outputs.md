@@ -129,7 +129,7 @@ paired alpha/beta columns, as in `vdjdb_full.txt`.
 35 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `clone_id`, `cdr3`, `v.segm`,
 `d.segm`, `j.segm`,
 `v.end`, `j.start`, `cdr3nt`, `cdr3nt.pgen`, `cdr3nt.margin`, `v.inferred`, `j.inferred`,
-`d.inferred`, `d.start`, `d.end`, `d.posterior`, `d.entropy`, `v.end.inferred`, `j.start.inferred`,
+`d.inferred`, `d.start`, `d.end`, `d.posterior`, `v.end.inferred`, `j.start.inferred`,
 `cdr3.original`, `fix.needed`, `fix.good`, `v.fix.type`, `j.fix.type`, `v.canonical`, `j.canonical`,
 `v.segm.submitted`, `j.segm.submitted`, `d.segm.submitted`, `v.segm.arda`, `j.segm.arda`,
 `TCR_hash`.
@@ -206,10 +206,17 @@ templated whenever it can; `antigenomics/vdjtools#182` was opened from this meas
 The legacy tables and the `cdr3fix` JSON `vdjdb-web` parses keep the alignment's `-1` untouched
 throughout.
 
-`d.posterior` is the probability of the gene `d.inferred` names, and `d.entropy` how decidable the D
-was at all. A third of beta chains have a posterior below 0.6 and an entropy above 0.9, because TRBD1
-and TRBD2 are short, heavily trimmed and similar, so the junction often cannot choose between them.
-Filter on `d.posterior`; do not read `d.inferred` alone (ROADMAP §20).
+`d.posterior` is the probability of the gene `d.inferred` names, **from the same recombination
+scenario weights that named it** - so the number beside the call is the probability of that call.
+Naming the D and placing it are separate questions and one estimator answers each: the model names
+the gene, the aligner places it. Measured on 4,000 real human TRB rearrangements whose D and
+coordinates come from the nucleotide sequence, the gene is right on 74.35 % of all rows and 99.80 %
+carry coordinates. TRBD1 and TRBD2 are short, heavily trimmed and similar, so the junction often
+cannot choose between them: filter on `d.posterior`; do not read `d.inferred` alone (ROADMAP §20).
+
+There is no `d.entropy`. It came from a separate estimator (`arda.dpost`) that named a different D
+gene from the one it annotated on 21.5 % of chains, and that estimator is retired: the posterior now
+comes from the scenario weights and there is no second distribution to take an entropy over.
 
 ### 3.3 `evidence.parquet` - long format, one row per piece of evidence
 
@@ -521,6 +528,7 @@ the lifecycle a consumer follows:
 | `summary/reference_years.tsv` | publication years, so the dashboard render is offline and deterministic. A committed, reviewed input refreshed by its own pull request, never written by a build |
 | `summary/annotations.tsv` | dashboard event callouts, with no hardcoded coordinates |
 | `rules/expected_diffs.toml` | the differences `vdjdb diff` accepts, each declared with a measured row count |
+| `proofreading/epitope_proteome.tsv` | where each **self** epitope sits in its own species' reference proteome, and how exactly (#632). Written by `vdjdb antigens`, never by a build: `mhcmatch` fetches the proteome from HuggingFace, so this is a committed, reviewed input refreshed by its own pull request. Three verdicts, spelled as what was measured. **`exact`** - the peptide is in the proteome at a named protein and position, and its `GN=` field gives the gene symbol, which is the authority `antigen.gene` has never had (315 human epitopes, 15 mouse). Where that symbol disagrees with the curated value, 99 epitopes over 2,195 records, that is worth a curator's time. **`one_substitution`** - one residue differs from a peptide that is in the proteome, named as `9C>V` (195 human epitopes, 16 mouse). **Not a defect and not a count to read as one.** A reference proteome is one genome and a patient cohort is not, so at least five unrelated things produce this shape and all are correct data: a tumour neoantigen, a germline or allelic variant, a cross-species homolog, a modified or hybrid peptide, and an anchor-optimised screening reagent. Read the epitope count and never the record total - one peptide, `SLLMWITQV`, is 81.5 % of that total, and the median epitope carries two records. Read `by_gene` too: `PMEL` carries 21 peptides, `INS` 13, `KRAS` 12 over 50 records, which is what a mutation panel or an antigen screen across a cohort looks like. The row's use is the **cross-reference** - `SLLMWITQV` and native `SLLMWITQC` are unrelated rows, so nothing can currently ask whether a response was found with the native peptide or a modified one - plus the `reference.id` list, because only the paper tells the five causes apart and `corpus/pubmed.tsv` has the title for 610 references. **`not_found`** - neither within one substitution; a splice junction, a fusion, a longer modification and a transcription error all look like this (236 human, 13 mouse). Nothing is ever rewritten. Not to be confused with `out/reports/epitope-sources.tsv` (#633), which asks whether the *corpus* agrees with itself about a peptide's source and needs no authority at all |
 
 The pinned motif parameters are not a data file. They are the `TUNED` constants in
 `vdjdb.motifs.tcrnet` and `vdjdb.motifs.tcremp`, each stated with the scorecard it was chosen from

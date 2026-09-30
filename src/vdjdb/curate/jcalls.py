@@ -11,7 +11,7 @@ explains the whole 3' end better. Measured on the 2026-09-29 build, the two over
 chains, so 699 are found here and by nothing else.
 
 **Advisory, and re-calling a J is a curator's decision, not this module's.** #681 says so directly:
-`annotate.segments.propose` already names a J for a record that carries none, and overwriting a
+`arda.cdr3fix` already names a J for a record that carries none, and overwriting a
 submitted call with an inferred one is a judgement about a publication. What is missing is the list,
 which is what this writes.
 
