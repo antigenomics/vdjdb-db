@@ -599,7 +599,27 @@ SPECIES: frozenset[str] = frozenset({
 
 _META_HEADER = "name\ttype\tvisible\tsearchable\tautocomplete\tdata.type\ttitle\tcomment"
 
+#: The submission template's column order: ``chunk.id``, the 31 columns a chunk must be able to
+#: carry, and ``meta.subset.frequency``. Declared so ``template.tsv`` is a projection of the
+#: registry rather than a 2016 spreadsheet nobody can regenerate - it was one of the nine places
+#: this module's docstring lists as having already drifted.
+#:
+#: Chunk columns keep their **dotted** names. The tidy tables ship ``underscore_case``
+#: (:attr:`Field.ships_as`), but a chunk is what a submitter writes and its header is the
+#: submission contract.
+#:
+#: This is an order, not a gate: ``qc/lint.py`` checks column *membership* against
+#: ``ALL_COLUMNS | KEPT_CURATION_COLUMNS`` and must keep doing so, because a submitted chunk may
+#: order its columns however it likes and may omit the optional ones.
+CHUNK_COLUMNS: tuple[str, ...] = (
+    "chunk.id",
+    *ALL_COLUMNS[:ALL_COLUMNS.index("meta.cell.subset") + 1],
+    "meta.subset.frequency",
+    *ALL_COLUMNS[ALL_COLUMNS.index("meta.cell.subset") + 1:],
+)
+
 TABLES: dict[str, tuple[str, ...]] = {
+    "chunk": CHUNK_COLUMNS,
     "vdjdb": VDJDB_COLUMNS,
     "vdjdb-web": VDJDB_WEB_COLUMNS,
     "slim": SLIM_COLUMNS,

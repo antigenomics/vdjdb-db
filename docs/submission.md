@@ -22,9 +22,18 @@ The ``BuildDatabase`` routine runs in CI on every submission and before every re
 
 Papers not yet processed are listed under the [`paper` label](https://github.com/antigenomics/vdjdb-db/labels/paper).
 
-An [XLS template](https://raw.githubusercontent.com/antigenomics/vdjdb-db/master/template.xls) is available for preparing a chunk.
+A [template](https://raw.githubusercontent.com/antigenomics/vdjdb-db/master/template.tsv) is
+available for preparing a chunk: the 33 declared columns in order, with four example records - a
+paired class I record with a structure, a paired class II record, a beta-only record naming its D
+segment, and an alpha-only mouse record. It is generated from the field registry
+(`vdjdb schema --table chunk --format header`), so it cannot describe a column set the build does
+not read.
 
-> **CAUTION** Check that nothing is corrupted on import from the XLS template: ``x/X`` frequencies turned into dates, bad encoding, and similar. The format of every field is pre-set to *text* to prevent this.
+> **CAUTION** A spreadsheet will corrupt this file on import unless every column is set to *text*
+> first: ``x/X`` frequencies become dates, and allele names with an asterisk can be mangled. Open
+> the `.tsv` in an editor, or import it with the field type forced to text and check
+> `method.frequency` afterwards. The previous template was an `.xls` whose cell types carried that
+> protection; a `.tsv` cannot, so the check is yours.
 
 ## Every change to `chunks/` happens on a branch that names its reason
 

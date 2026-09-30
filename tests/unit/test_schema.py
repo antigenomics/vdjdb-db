@@ -186,3 +186,42 @@ def test_no_metadata_value_contains_a_tab_or_newline() -> None:
 def test_unknown_table_names_its_alternatives() -> None:
     with pytest.raises(KeyError, match="unknown table"):
         fields("nope")
+
+
+def test_the_submission_template_is_a_projection_of_the_registry():
+    """`template.tsv` replaced a 2016 `.xls` that nobody could regenerate.
+
+    That spreadsheet was one of the nine places this module's docstring lists as having already
+    drifted, and it had: its example rows wrote `antigen.species = HIV` where the vocabulary and
+    that paper's own chunk now say `HIV-1`. Generated from `TABLES["chunk"]`, it cannot describe a
+    column set the build does not read.
+    """
+    from vdjdb.schema import TABLES, header
+
+    lines = (repo_root() / "template.tsv").read_text().rstrip("\n").split("\n")
+    assert lines[0] == header("chunk"), (
+        "template.tsv is stale; regenerate with `vdjdb schema --table chunk --format header`")
+    assert len(lines) > 1, "a template with no example row teaches nothing"
+    for i, line in enumerate(lines[1:], start=1):
+        assert len(line.split("\t")) == len(TABLES["chunk"]), f"example row {i} is ragged"
+
+
+def test_the_submission_template_passes_the_checks_a_submission_must_pass():
+    """A template that would fail QC is worse than none: a submitter copies its shape."""
+    from vdjdb.qc.lint import lint_file
+
+    assert lint_file(repo_root() / "template.tsv") == []
+
+
+def test_chunk_columns_are_an_order_and_not_a_gate():
+    """`qc/lint.py` checks column *membership*, and must keep doing so.
+
+    A submitted chunk may order its columns however it likes and may omit the optional ones, so
+    declaring an order for the template must not turn that order into a requirement.
+    """
+    from vdjdb.schema import ALL_COLUMNS, CHUNK_COLUMNS, KEPT_CURATION_COLUMNS
+
+    assert set(CHUNK_COLUMNS) <= set(ALL_COLUMNS) | set(KEPT_CURATION_COLUMNS)
+    # the three curation columns a chunk may carry and the template does not name
+    assert set(KEPT_CURATION_COLUMNS) - set(CHUNK_COLUMNS) == {
+        "submitter", "comment", "method.pairing"}
