@@ -108,16 +108,37 @@ def test_amplicon_depth_decides_sequencing_confidence():
     assert add_score(low)["vdjdb.score"][0] == 0
 
 
-@pytest.mark.parametrize("cell, expected", [
-    ("2/100", 3),     # 0.02 of the reads and 2 reads
-    ("1/100", 1),     # frequency clears 0.01, one read does not
-    ("0.02", 1),      # a bare ratio carries no read count
-    ("2/1000", 1),    # 2 reads, frequency 0.002 is under 0.01
+@pytest.mark.parametrize("cell, count, expected", [
+    ("2/100", 2, 3),       # 0.02 of the reads, 2 reads
+    ("1/100", 1, 1),       # frequency clears 0.01, one read does not
+    ("2/1000", 2, 1),      # 2 reads, frequency 0.002 is under 0.01
+    ("0.02", None, 3),     # a float carries no count: the frequency decides alone
+    ("2%", None, 3),       # so does a percentage
+    ("0.002", None, 1),    # and a float under the threshold still fails it
+    ("0.02", 1, 1),        # a submitted count is used when there is one, whatever the float says
+    ("0.02", 5, 3),
 ])
-def test_amplicon_needs_two_reads_as_well_as_depth(cell, expected):
-    df = row(**{"method.sequencing": "amplicon-seq", "method.frequency": cell})
-    got = df.select(sequencing_score(frequency(), cell_count()))[0, 0]
-    assert got == expected, cell
+def test_amplicon_needs_two_reads_only_when_the_count_is_known(cell, count, expected):
+    df = row(**{"method.sequencing": "amplicon-seq", "method.frequency": cell}).with_columns(
+        pl.lit(count, dtype=pl.Int64).alias("method.frequency.count"))
+    got = df.select(sequencing_score(frequency(), cell_count(), pl.col("method.frequency.count")))
+    assert got.item() == expected, (cell, count)
+
+
+def test_the_count_column_reaches_the_score():
+    """The branch is reached through `add_score`, not only through the helper."""
+    base = {"method.sequencing": "amplicon-seq", "method.identification": "cell culture",
+            "method.verification": "", "method.frequency": "0.9", "method.singlecell": ""}
+    one = row(**base).with_columns(pl.lit(1, dtype=pl.Int64).alias("method.frequency.count"))
+    many = row(**base).with_columns(pl.lit(9, dtype=pl.Int64).alias("method.frequency.count"))
+    none = row(**base).with_columns(pl.lit(None, dtype=pl.Int64).alias("method.frequency.count"))
+    assert [add_score(f)["vdjdb.score"][0] for f in (one, many, none)] == [1, 1, 1]
+    # sequencing 3 against specificity 1 gives 1 either way, so look at the term itself
+    got = [f.with_columns(frequency().alias("__freq"), cell_count().alias("__count"),
+                          pl.col("method.frequency.count").alias("__reads"))
+            .select(sequencing_score(pl.col("__freq"), pl.col("__count"), pl.col("__reads"))).item()
+           for f in (one, many, none)]
+    assert got == [1, 3, 3]
 
 
 def test_sanger_needs_two_cells_for_full_confidence():
