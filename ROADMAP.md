@@ -330,7 +330,7 @@ over proofreading:
 | curation quality | 22 | 8 | 6 | 3 | formatting & proofreading, typos, structural, validation |
 | build infrastructure | 13 | 14 | 6 | 7 | the build, the summary, maintenance |
 
-Merging #725 closes #497, #625 and #681 and leaves 108 open.
+Merging #725 closes #497, #597, #625, #681 and #696 and leaves 106 open.
 
 The intake row has not moved in nine days - **101 on every one of the four measurements.** The other
 two fell because the build work closed what it had filed: #685, #637's measurable half, #633's
@@ -339,10 +339,9 @@ and #214 when they turned out to name a dataset that was never curated and three
 their own issues.
 
 The ten that remain outside the queue are nameable, which is the difference between a tracker and a
-backlog. **Curation quality**: #434 (MATCHMAKERs), #597 (repaired on #725, whether to add the within-chunk
-QC guard it proposes is open) and #681 (repaired on #725). **Build infrastructure**: #497, #625 (both on #725),
-#560 (engineered CDR2 residues, waits on a schema field), #632, #633, #637, #696. #431 (13,974 records of the
-10x import) is counted as intake and is held for the author's proposal on that import as a whole.
+backlog. **Curation quality**: #434 (MATCHMAKERs), #597 and #681, both closed by #725. **Build infrastructure**: #497, #625
+and #696 (all closed by #725), #560 (engineered CDR2 residues, waits on a schema field), #632, #633, #637. #431 (13,974
+records of the 10x import) is counted as intake and is held for the author's proposal on that import as a whole.
 
 The build work also files issues from its own measurements - #650 (the profile double-count), #652
 (the shipped zips were never compared), #656 (the junction-nt bottleneck), #693, #696 - so the bottom
