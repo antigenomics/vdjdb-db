@@ -108,14 +108,22 @@ def cell_count() -> pl.Expr:
     )
 
 
-def sequencing_score(freq: pl.Expr, count: pl.Expr) -> pl.Expr:
-    """How much the sequence can be trusted: single cell > Sanger > amplicon depth."""
+def sequencing_score(freq: pl.Expr, count: pl.Expr, reads: pl.Expr | None = None) -> pl.Expr:
+    """How much the sequence can be trusted: single cell > Sanger > amplicon depth.
+
+    ``count`` is the cell count of an ``n/m`` frequency, 0 where there is none. ``reads`` is
+    ``method.frequency.count``, null where nobody measured one (a float or a percentage never
+    carries a count). Amplicon depth asks for 2 or more reads **when the count is known**; where it
+    is null the branch is not considered and the frequency threshold decides alone (#696).
+    """
     single = _lower("method.singlecell")
     seq = _lower("method.sequencing")
+    reads = pl.lit(None, dtype=pl.Int64) if reads is None else reads
     return (
         pl.when((single != "") & (single != "no")).then(3)
         .when(seq == "sanger").then(pl.when(count >= 2).then(3).otherwise(2))
-        .when(seq == "amplicon-seq").then(pl.when((freq >= 0.01) & (count >= 2)).then(3).otherwise(1))
+        .when(seq == "amplicon-seq").then(pl.when((freq >= 0.01) & (reads.is_null() | (reads >= 2)))
+                                          .then(3).otherwise(1))
         .otherwise(1)
     )
 
@@ -144,7 +152,7 @@ def _high_specificity() -> pl.Expr:
 def row_score() -> pl.Expr:
     """The per-row score, before the per-signature maximum."""
     freq, count = pl.col("__freq"), pl.col("__count")
-    seq = sequencing_score(freq, count)
+    seq = sequencing_score(freq, count, pl.col("__reads"))
     spec2 = _high_specificity()
     # A verified TCR was cloned, so its sequence is trusted regardless of how it was read.
     seq = pl.when(spec2 > 0).then(3).otherwise(seq)
@@ -157,14 +165,19 @@ def row_score() -> pl.Expr:
 
 def add_score(df: pl.DataFrame) -> pl.DataFrame:
     """Add ``vdjdb.score``: the per-row score, maximised over :data:`SCORE_SIGNATURE`."""
+    # The count a curator submitted, or the numerator of the ratio `split_frequency` parsed, is
+    # `method.frequency.count`; a frame that never went through it has none, which reads as unknown.
+    reads = (pl.col("method.frequency.count").cast(pl.Int64, strict=False)
+             if "method.frequency.count" in df.columns else pl.lit(None, dtype=pl.Int64))
     return (
         df.with_columns(
             frequency().alias("__freq"),
-            cell_count().alias("__count"),
+            pl.coalesce(reads, cell_count()).alias("__count"),
+            reads.alias("__reads"),
             _lower("method.identification").alias("__ident"),
             _lower("method.verification").alias("__verif"),
         )
         .with_columns(row_score().alias("__row_score"))
         .with_columns(pl.col("__row_score").max().over(SCORE_SIGNATURE).alias("vdjdb.score"))
-        .drop("__freq", "__count", "__ident", "__verif", "__row_score")
+        .drop("__freq", "__count", "__reads", "__ident", "__verif", "__row_score")
     )
