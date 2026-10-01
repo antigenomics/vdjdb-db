@@ -115,7 +115,7 @@ def sequencing_score(freq: pl.Expr, count: pl.Expr) -> pl.Expr:
     return (
         pl.when((single != "") & (single != "no")).then(3)
         .when(seq == "sanger").then(pl.when(count >= 2).then(3).otherwise(2))
-        .when(seq == "amplicon-seq").then(pl.when(freq >= 0.01).then(3).otherwise(1))
+        .when(seq == "amplicon-seq").then(pl.when((freq >= 0.01) & (count >= 2)).then(3).otherwise(1))
         .otherwise(1)
     )
 
