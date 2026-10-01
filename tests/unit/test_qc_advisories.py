@@ -137,18 +137,15 @@ def test_one_epitope_does_not_borrow_another_epitope_s_values():
     assert _counters(frame) == set(), "constant within each epitope, so nothing is a counter"
 
 
-def test_the_corpus_carries_exactly_the_one_declared_counter():
-    """`PMID_39286976.tsv`, 38 rows, and `patches/mhc.dict` already repairs it at build time.
+def test_the_corpus_carries_no_counter():
+    """The one counter the corpus had, `PMID_39286976.tsv` (38 rows, #625), is repaired at source.
 
-    The rule starts as a regression guard on a clean corpus, which is the state #597 argues a new
-    rule should start from: a finding here means a counter that arrived since, not one of a list a
+    The rule is a regression guard on a clean corpus, which is the state #597 argues a new rule
+    should start from: a finding here means a counter that arrived since, not one of a list a
     reader has to remember to ignore.
     """
     import polars as pl
 
     baseline = pl.read_csv("rules/qc_advisories.tsv", separator="\t")
     counters = baseline.filter(pl.col("rule").str.starts_with("counter in"))
-    assert counters.height == 1
-    assert counters["rule"].item() == "counter in mhc.a"
-    assert counters["findings"].item() == 38
-    assert counters["chunks"].item() == 1
+    assert counters.height == 0
