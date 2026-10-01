@@ -181,6 +181,33 @@ def _no_counter(col: str) -> pl.Expr:
     )
 
 
+def _one_hla_gene() -> pl.Expr:
+    """True unless one epitope sits under two HLA genes (A, B, C ...) inside one chunk (#597).
+
+    A chunk is one paper, and a peptide is presented by one locus: an epitope reported under
+    `HLA-A*02` and `HLA-B*08` by the same study is either donor typing written into `mhc.a`, which
+    is what `goncharov-various-2023-05-06` did for `RAKFKQLL` (23 rows over A and B, where the
+    paper's own sister study gives B*08:01), or a paper that genuinely reports two restrictions.
+    Eight class I epitopes were found this way by hand, five of them split inside a single chunk,
+    and no authority table is needed to see the split.
+
+    The group is `(chunk.file, antigen.epitope, antigen.species)`, over class I rows with an
+    `HLA-<letters>*` allele. Allele-group values (`HLA-A*02`) count by their gene like any other.
+
+    **Advisory, and it has to stay advisory.** The rule cannot tell the two causes apart: `PMID_34793243`
+    reports `SIIAYTMSL`, `SLIYSTAAL` and `RLFARTRSM` under both `A*02:01` and `B*07:02` because the
+    paper characterises the response "across four major HLA class I alleles", and flagging that as a
+    defect would be wrong. Those 26 rows, and the 2 of `VQIISCQY` in `goncharov-taa-2020-10-12`, are
+    the declared baseline; a finding beyond them is a split that arrived since.
+    """
+    gene = pl.col("mhc.a").str.extract(r"^HLA-([A-Za-z]+)\*", 1)
+    seen = pl.when(pl.col("mhc.class").eq("MHCI")).then(gene).otherwise(None)
+    group = ["chunk.file", "antigen.epitope", "antigen.species"]
+    # n_unique counts a null as a value, so take it off when the group has one.
+    genes = seen.n_unique().over(group) - seen.is_null().any().over(group).cast(pl.Int64)
+    return genes <= 1
+
+
 RULES: dict[str, pl.Expr] = {
     "bad cdr3.alpha": _seq_ok("cdr3.alpha"),
     "bad cdr3.beta": _seq_ok("cdr3.beta"),
@@ -270,6 +297,8 @@ RULES: dict[str, pl.Expr] = {
     # A spreadsheet counter in a column that describes the antigen (#694, #625). See `_no_counter`
     # for the three confirmed instances and why the `meta.*` identifier columns are excluded.
     **{f"counter in {col}": _no_counter(col) for col in COUNTER_COLUMNS},
+    # #597. One epitope under two HLA genes inside one chunk. See `_one_hla_gene`.
+    "one epitope under two HLA genes in one chunk": _one_hla_gene(),
     # A `method.identification` token the vocabulary has not settled (#637). Advisory, deliberately.
     "undeclared method.identification token": _method_tokens_declared(),
     # #696. A submitted frequency that its own count and total contradict.
