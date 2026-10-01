@@ -37,8 +37,8 @@ from .rules import check, summarise
 #: file has changed, a curation edit and a line-ending change are indistinguishable in `git log`.
 #:
 #: `prose-column-name` and `empty-column-name` are here for that reason, verified rather than
-#: assumed. `PMID_24512815.txt` carries two sentences of documentation as column names and
-#: `PMID_40694338.txt` opens with an unnamed column holding a row serial; columns are selected by
+#: assumed. `PMID_24512815.tsv` carries two sentences of documentation as column names and
+#: `PMID_40694338.tsv` opens with an unnamed column holding a row serial; columns are selected by
 #: name, so both are ignored, and both files read with every field in the right column
 #: (`cdr3.beta`, `v.beta`, `species`, `antigen.epitope` and `reference.id` all check out). A header
 #: the reader cannot map is a different matter and still fails.

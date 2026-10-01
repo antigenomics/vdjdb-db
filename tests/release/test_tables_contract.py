@@ -39,7 +39,7 @@ pytestmark = pytest.mark.release
 #: `reference.id`, so a group of it spanning two chunk files is one publication reporting one clone
 #: twice, and two rows of one paper are not two independent reports. 19 such groups exist over 38
 #: rows; **18 merge** - the paper's own chunk is the base and the other fills its blanks - and 1 is
-#: left alone, because `PDB_Database.txt` and `PMID_34433824.txt` give one clone `structural` and
+#: left alone, because `PDB_Database.tsv` and `PMID_34433824.tsv` give one clone `structural` and
 #: `tetramer-sort`, which is a solved complex and the sort that found it. The chunk was a proxy for
 #: the publication; where the two come apart, the publication is what deduplication is about.
 EXPECTED_RECORDS = 192_623

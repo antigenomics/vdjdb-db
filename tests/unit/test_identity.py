@@ -136,7 +136,7 @@ def test_two_records_one_field_apart_amend_by_row_when_no_line_moved():
     rows and the two candidates occupy the *same* pair of row numbers: nothing moved, so the pairing
     is forced.
 
-    The case: `menon_etal_2024.txt` rows 26 and 27 carry `TRBV5-3;TRBV5-5;TRBV5-8` and
+    The case: `menon_etal_2024.tsv` rows 26 and 27 carry `TRBV5-3;TRBV5-5;TRBV5-8` and
     `TRBV5-3;TRBV5-8`, and normalising `;` to `,` moved both keys by that one field. Without this,
     `VDJDB0000187889` and `...890` retire and two fresh ids are minted - two published identifiers
     lost to a separator.

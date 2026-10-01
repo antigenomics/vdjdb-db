@@ -138,7 +138,7 @@ def test_one_epitope_does_not_borrow_another_epitope_s_values():
 
 
 def test_the_corpus_carries_exactly_the_one_declared_counter():
-    """`PMID_39286976.txt`, 38 rows, and `patches/mhc.dict` already repairs it at build time.
+    """`PMID_39286976.tsv`, 38 rows, and `patches/mhc.dict` already repairs it at build time.
 
     The rule starts as a regression guard on a clean corpus, which is the state #597 argues a new
     rule should start from: a finding here means a counter that arrived since, not one of a list a

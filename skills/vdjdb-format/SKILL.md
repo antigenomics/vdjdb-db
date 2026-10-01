@@ -175,7 +175,7 @@ again. A genuinely new epitope also shows up there, which is why it is a list an
 
 ## Output
 
-Write the chunk as `PMID_<pubmed_id>.txt` where there is a PMID; check the name is not already in
+Write the chunk as `PMID_<pubmed_id>.tsv` where there is a PMID; check the name is not already in
 `chunks/`. It goes to `chunks/` only after `/vdjdb-proofread` passes.
 
 `<basename>_format_log.txt` records, per change: the field, the old value, the new value, and **which

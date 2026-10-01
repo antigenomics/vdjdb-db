@@ -45,7 +45,7 @@ def chunk_files(directory: Path | None = None) -> list[Path]:
 def _normalise_header(name: str) -> str:
     """Strip the BOM and surrounding whitespace, and lower-case the one capitalised column.
 
-    ``vandesandt-etal-2019-11-04.txt`` writes ``Comment``. Nineteen distinct header rows exist
+    ``vandesandt-etal-2019-11-04.tsv`` writes ``Comment``. Nineteen distinct header rows exist
     across 230 files; the rest of the normalisation is a one-shot migration (#497, phase 3), not a
     read-time transform, because accepting a malformed header without an error is how they
     accumulated.
@@ -122,7 +122,7 @@ CURATION_ONLY: frozenset[str] = frozenset({"chunk.file", "chunk.row", "chunk.id"
 #: Chunks that are not one publication's own report. A structure chunk and an aggregate both carry
 #: rows whose paper has its own chunk, so where a merge has to pick a base row, it prefers the
 #: paper's. Matched by name; anything else is a submitted chunk.
-DERIVED_CHUNKS: tuple[str, ...] = ("PDB_Database.txt", "small_datasets_")
+DERIVED_CHUNKS: tuple[str, ...] = ("PDB_Database.tsv", "small_datasets_")
 
 
 def _base_first(files: list[str]) -> list[str]:
@@ -145,7 +145,7 @@ def merge_repeated_references(df: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFr
     Measured on the corpus: **19 groups over 38 rows**, every one a pair. 18 agree on every column
     that describes the record and are merged, filling the base row's blanks from the other -
     ``method.verification`` in 10 of the 18 and ``meta.epitope.id`` in 3. **1 is left alone**:
-    `PDB_Database.txt` and `PMID_34433824.txt` give one clone `structural` and `tetramer-sort`, which
+    `PDB_Database.tsv` and `PMID_34433824.tsv` give one clone `structural` and `tetramer-sort`, which
     is one paper reporting a solved complex *and* the sort that found it - two observations, not a
     duplicate.
 

@@ -1,6 +1,6 @@
 # The chunk format
 
-A chunk is one publication, stored as `chunks/PMID_<id>.txt` with one record per row. A
+A chunk is one publication, stored as `chunks/PMID_<id>.tsv` with one record per row. A
 record reports paired chains: the alpha and the beta of one clone are columns of the same
 row. `chains` is derived from that, never the other way round.
 
