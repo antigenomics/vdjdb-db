@@ -50,7 +50,30 @@ autodoc_default_options = {"members": True, "undoc-members": True, "show-inherit
 autodoc_mock_imports = ["typer", "arda", "vdjtools", "mir", "sklearn", "igraph", "pandas",
                         "seqtree", "numpy", "clustereval"]
 
-intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
+# Links into the Python docs are a convenience, and the build runs with `-W`, so an unreachable
+# docs.python.org (a 503 on 2026-10-01 failed two docs runs and skipped the Pages deploy) must not
+# fail it. Probe once with a short timeout; where it answers the mapping is used as before, and where
+# it does not the mapping is dropped and the build says so, which loses only the links to Python's
+# own documentation. Nothing in the specification is read from the inventory.
+_PYTHON_INV = "https://docs.python.org/3/objects.inv"
+
+
+def _reachable(url: str, timeout: float = 10.0) -> bool:
+    import urllib.request
+
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as response:
+            return response.status == 200
+    except OSError:
+        return False
+
+
+if _reachable(_PYTHON_INV):
+    intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
+else:
+    intersphinx_mapping = {}
+    print(f"docs/conf.py: {_PYTHON_INV} is unreachable, building without links to the Python "
+          "documentation")
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "tuning"]
