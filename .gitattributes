@@ -1,3 +1,4 @@
 README.md linguist-documentation
 # Chunks are LF everywhere: a Windows submission must not reintroduce CRLF (#581).
 *.txt text eol=lf
+chunks/*.tsv text eol=lf

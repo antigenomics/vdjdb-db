@@ -1,6 +1,6 @@
 # The chunk format
 
-A chunk is one publication, stored as `chunks/PMID_<id>.txt` with one record per row. A
+A chunk is one publication, stored as `chunks/PMID_<id>.tsv` with one record per row. A
 record reports paired chains: the alpha and the beta of one clone are columns of the same
 row. `chains` is derived from that, never the other way round.
 
@@ -40,7 +40,7 @@ cdr3.beta | TCR beta CDR3 amino acid sequence
 v.beta | TCR beta V segment id
 j.beta | TCR beta J segment id
 species | TCR parent species (``HomoSapiens``, ``MusMusculus``,...)
-mhc.a | First MHC chain allele, to the best resolution available, ``HLA-X*XX:XX``, e.g. ``HLA-A*02:01``
+mhc.a | First MHC chain allele, to the best resolution available, ``HLA-X*XX:XX``, e.g. ``HLA-A*02:01``. A peptide is presented by one locus, so within one chunk and one ``antigen.epitope`` the HLA gene (A, B, C) should be constant. QC reports a split under ``one epitope under two HLA genes in one chunk``: it is either donor typing written into this column, which is what turned ``RAKFKQLL`` into ``HLA-A*02``, ``HLA-B*08`` and ``HLA-B*07`` in one study (#597), or a paper that reports two restrictions. Only the paper says which
 mhc.b | Second MHC chain allele (``B2M`` for MHCI)
 mhc.class | ``MHCI`` or ``MHCII``
 antigen.epitope | Amino acid sequence of the epitope

@@ -218,6 +218,16 @@ rather than 1,278**, because it answers 3,992 rather than 2,230.
 `antigenomics/arda#142` dissolved into it, as predicted: the batched path `#142` asked arda to build
 already existed here.
 
+### 3.6 Cross-repo gate: `vdjtools` returns nucleotides that encode the junction - **closed 2026-10-01**
+
+`annotate_junctions` returned a `cdr3_nt` that translated to a substituted sequence on 2,214 keys
+(`antigenomics/vdjtools#186`, #187), and the build dropped everything read off those nucleotides. **vdjtools 4.8.1
+returns `translate(cdr3_nt) == cdr3_repaired` on every row**; the bound here is `vdjtools>=4.8.1` and the lock is on
+4.8.2 (a logo change only). Measured on the shipped corpus: chains carrying `cdr3nt` 283,296 -> **285,509** (of 285,770),
+chains carrying a D start 157,935 -> **159,267**, `translate(cdr3nt) != cdr3` on 0 chains before and after, because
+the gate in `annotate/junction.py` stays as the direct check. `add_junction_nt` 23.03 s -> 23.5 to 24.2 s over three
+builds on 16 cores, `vdjdb build` 35.2 s -> 35.8 to 36.2 s.
+
 ## 4. Phases
 
 `master` → `dev` → `feature/*` → `dev` → `master`. Every phase is independently mergeable and
@@ -228,7 +238,7 @@ already existed here.
 | 0 | merged | `feature/dev-baseline` | `ROADMAP.md`, `pyproject.toml` + `uv.lock`, package skeleton, `chunk-check.yml`, `branch-policy.yml` | #476 | CI green; `release.sh` still works untouched |
 | 1 | merged | `feature/schema` | the field registry; `render_meta` | - | reproduces the Groovy `METADATA_LINES` / `SLIM_METADATA_LINES` byte-for-byte; `header == meta names` for all three tables |
 | 2 | merged | `feature/golden-harness` | `vdjdb diff` + `expected_diffs.toml` | - | zero diffs against the current pandas build; nothing downstream starts without this |
-| 3 | part | `feature/io-qc` | polars reader, vectorised QC, `--strict` exit-1, chunk header normalisation | - | QC report matches the pandas report row-for-row; harness still zero. ⚠ **The `.tsv` rename did not happen and #497 is open**: `chunks/` is 231 files, all `.txt`. Everything the rename was wanted for did land - one canonical 33-column header, the 19 distinct header rows collapsed to one, the 99 CRLF files converted with `*.txt text eol=lf` in `.gitattributes` so it cannot return (#581), and a reader that fails on an unrecognised header. What is left is the extension, which nothing reads to decide the format, against 231 `git mv`s that break every `git log --follow` boundary and every `PMID_<id>.txt` reference in docs, skills, tests and the tracker. Held deliberately: renaming every file in `chunks/` the week curators start opening chunk pull requests is when it costs most. It wants its own branch under the mechanical-repair rule and a quiet period |
+| 3 | merged | `feature/io-qc` | polars reader, vectorised QC, `--strict` exit-1, chunk header normalisation | - | QC report matches the pandas report row-for-row; harness still zero. `chunks/` is 231 files, all `.tsv` since #497 (`proofread/497-chunk-extension`, 231 pure renames, content byte-identical). One canonical 33-column header, the 19 distinct header rows collapsed to one, the 99 CRLF files converted with `chunks/*.tsv text eol=lf` in `.gitattributes` so it cannot return (#581), and a reader that fails on an unrecognised header. `chunk.file` is part of the record natural key, so the registry was re-keyed in the same branch: all 192,883 `record_id`s, states and amendment counts unchanged. `pending/`, `withheld/` and the excluded directories keep `.txt` |
 | 4 | merged | `feature/pipeline-core` | the definitive tables (`records`, `chains`) + harmonize + score + pairing; the legacy export as a projection of them; deletes `py_src/` | #424, #399 | every difference against the release is a declared rule firing its measured count; peak RSS < 8 GB |
 | 5 | done | `feature/arda-cdr3fix`, `feature/retire-res` | `arda.cdr3fix` replaces `Cdr3Fixer.py`; `res/` retired | #658 | new `expected_diffs.toml` rule, row count measured then frozen. `res/segments*.txt` outlived the first branch by three call sites, one of them on every build: `arda.cdr3fix` repairs a junction against a *named* germline and never proposes one, so a blank V or J needed filling first. `feature/retire-res` replaced that with the recombination model falling back to arda's own germline anchor table, deleted `res/` and `annotate/_legacy_fixer/`, and dropped `--engine legacy`. The J proposal gains 347 calls and 469 rows of `vdjdb.txt`; the V proposal is reported as `v.inferred` and does not ship, because a V recovered from a junction alone is right 23.8-50.1 % of the time against a J's 93.6-97.5 %. ⚠ **A junction carrying framework past an anchor is no longer repaired, and that is a live regression** (#711, `antigenomics/arda#141`): `arda.cdr3fix` reads `cdr3_anchors.tsv`, whose `Anchor.templated_aa` runs Cys104 through [FW]118 inclusive and stops, so framework past an anchor has nothing to align it to and the defect is reported without the repair being applied. **No reference data was lost with `res/`** - arda's bundled IMGT build carries both flanks as named columns in `markup.aa.tsv` (`fwr3` ends at Cys104, `fwr4` starts at 118), which is the table arda's own repair path does not read (§3.4). Measured over 190,902 distinct keys: **382** ship a junction that does not run Cys104 to its own segment's anchor, and **2,165** are returned `NoFixNeeded` on a single residue of germline agreement where the retired fixer required a 2-mer hit at offset zero in both sequences. The fix is arda's - it already ships `alleles.fasta` and `anchor_nt` - and reaches this build as a release, per §3.4 |
 | 6 | merged | `feature/new-format` | ships the definitive tables as parquet + TSV, adds `evidence`, `vdjdb.schema.json` | - | `make legacy` from the shipped tables still passes the harness |
@@ -309,15 +319,18 @@ the files it creates, the facts it needs (already measured, in §7/§8), and the
 
 ## 4a. Issue tracker composition
 
-Re-measured 2026-09-30, after the migration landed: 471 issues, **113 open**, against 466 / 116 and
-458 / 123 on 2026-09-29 and 440 / 130 on 2026-09-25. Grouped by label, one category per issue, intake
-winning a tie and maintenance winning over proofreading:
+Re-measured 2026-10-01, after the proofreading and maintenance pass: 471 issues, **111 open**, against
+113 on 2026-09-30, 116 on 2026-09-29 and 130 on 2026-09-25 (#390, #714, #591 closed, #303 and #214
+before them). Grouped by label, one category per issue, intake winning a tie and maintenance winning
+over proofreading:
 
-| Category | Open, 2026-09-25 | Open, 2026-09-29 | Open, 2026-09-30 | What they are |
-|---|---:|---:|---:|---|
-| data intake | 103 (79 %) | 101 (82 %) | **101 (89 %)** | pending papers, preprints, paper-pending, meta-papers, 10x/Immudex sets, associations, other databases, correspondence |
-| curation quality | 22 | 8 | 6 | formatting & proofreading, typos, structural, validation |
-| build infrastructure | 13 | 14 | 6 | the build, the summary, maintenance |
+| Category | Open, 2026-09-25 | Open, 2026-09-29 | Open, 2026-09-30 | Open, 2026-10-01 | What they are |
+|---|---:|---:|---:|---:|---|
+| data intake | 103 (79 %) | 101 (82 %) | 101 (89 %) | **101 (91 %)** | pending papers, preprints, paper-pending, meta-papers, 10x/Immudex sets, associations, other databases, correspondence |
+| curation quality | 22 | 8 | 6 | 3 | formatting & proofreading, typos, structural, validation |
+| build infrastructure | 13 | 14 | 6 | 7 | the build, the summary, maintenance |
+
+Merging #725 closes #497, #597, #625, #681 and #696 and leaves 106 open.
 
 The intake row has not moved in nine days - **101 on every one of the four measurements.** The other
 two fell because the build work closed what it had filed: #685, #637's measurable half, #633's
@@ -325,9 +338,10 @@ epitope-source report, #647, #671, #672, #675, #658, then #713 when the migratio
 and #214 when they turned out to name a dataset that was never curated and three asks that now have
 their own issues.
 
-The twelve that remain are nameable, which is the difference between a tracker and a backlog:
-**curation quality** is #390, #434, #591, #597, #681, #714; **build infrastructure** is #560, #625,
-#632, #633, #637, #696.
+The ten that remain outside the queue are nameable, which is the difference between a tracker and a
+backlog. **Curation quality**: #434 (MATCHMAKERs), #597 and #681, both closed by #725. **Build infrastructure**: #497, #625
+and #696 (all closed by #725), #560 (engineered CDR2 residues, waits on a schema field), #632, #633, #637. #431 (13,974
+records of the 10x import) is counted as intake and is held for the author's proposal on that import as a whole.
 
 The build work also files issues from its own measurements - #650 (the profile double-count), #652
 (the shipped zips were never compared), #656 (the junction-nt bottleneck), #693, #696 - so the bottom
@@ -409,7 +423,7 @@ blob: the do-nothing partition reads 0.9991 on it (`docs/clustering.md` §8.0).
 
 `runBuidDatabase.py:49` iterates `os.listdir("../chunks")`, which is readdir order and
 host-dependent. The released `vdjdb_full.txt` opens with `PMID:28629751` while the
-alphabetically-first chunk is `10xgenomics-2019-07-09.txt`. The 2026-06-03 release therefore cannot
+alphabetically-first chunk is `10xgenomics-2019-07-09.tsv`. The 2026-06-03 release therefore cannot
 be reproduced byte-for-byte by anyone, including the current pipeline.
 
 Canonical equality is the gate; raw equality is informational. The new reader uses
@@ -435,7 +449,7 @@ not drafts; do not re-derive them.
 
 | Quantity | Value | How |
 |---|---|---|
-| Chunk rows, raw | 203,308 | 230 files, `chunks/*.txt` |
+| Chunk rows, raw | 203,308 | 230 files, `chunks/*.tsv` |
 | Chunk rows after per-chunk dedup on `SIGNATURE_COLS` | 192,753, exactly the released `vdjdb_full.txt` row count | polars |
 | Rows matching field-for-field across two chunks | 19 pairs, independent reports rather than duplicates: a chunk is one paper | deduplication is within a chunk; these 19 are evidence (§11.1), and global dedup would delete them |
 | polars read + dedup of all 230 chunks | 0.4 s | the pipeline it replaces is documented as needing 64 GB |
@@ -467,7 +481,7 @@ one of those two can be argued about. This is the accounting that says which. Re
 between tag `2026-06-03-ZENODO` and `dev`; it read *no curation change at all* on 2026-09-27, and
 that is no longer true.
 
-**230 chunk files before, 231 after. One added.** `chunks/PMID_18025130.txt`, the KK10 and KK10-L6M
+**230 chunk files before, 231 after. One added.** `chunks/PMID_18025130.tsv`, the KK10 and KK10-L6M
 repertoires, recovered from a 2016 branch: 40 records (#161).
 
 **98 files differ once line endings are normalised, and two of them changed row count:**
@@ -475,7 +489,7 @@ repertoires, recovered from a 2016 branch: 40 records (#161).
 | File | Rows before | Rows after | Why |
 |---|--:|--:|---|
 | `Mice_TCRs_..._(Shagina_et_al_2024).txt` | 1,556 | 485 | one row per observation collapsed to one per clonotype, with the count recorded in `method.frequency` (#397) |
-| `PMID_18025130.txt` | - | 40 | the file that was added |
+| `PMID_18025130.tsv` | - | 40 | the file that was added |
 
 The other 96 changed cells and not rows. Fourteen commits produced all 98, one per reason under the
 mechanical-repair rule, and the union of the files they touch is exactly 98 - so every file that
@@ -1066,7 +1080,7 @@ equality, with an empty rule file. Nothing downstream starts before this is gree
 1. `src/vdjdb/io/chunks.py` - `read_chunks(dir)` → polars, `sorted(glob(...))` for determinism,
    per-chunk dedup on `CHUNK_DEDUP_KEY`. Target: 192,753 rows (§7).
 2. Header normalisation as a one-shot migration commit: CRLF → LF on the 99 files, the prose column
-   name in `PMID_24512815.txt`, the bare leading tab in `PMID_40694338.txt`, `Comment` → `comment`,
+   name in `PMID_24512815.tsv`, the bare leading tab in `PMID_40694338.tsv`, `Comment` → `comment`,
    and `.txt` → `.tsv` on all 230 (#497). One commit for the rename, one for the content, so
    `git log --follow` still works.
 3. `vdjdb qc --strict` exits 1 on any error-level finding, restoring the Groovy behaviour that

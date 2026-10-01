@@ -96,7 +96,7 @@ def _arden(root: Path) -> dict[str, str]:
             if i and "," not in i}
 
 
-#: `TRBVIS1` in `PMID_16237109.txt` is `TRBV1S1` with a capital I for the 1 (#136). Roman numerals
+#: `TRBVIS1` in `PMID_16237109.tsv` is `TRBV1S1` with a capital I for the 1 (#136). Roman numerals
 #: only ever appear in the Arden `TRBV<n>S<m>` form, so the rewrite is scoped to that shape and
 #: cannot touch an IMGT name.
 _ROMAN = {"I": "1", "II": "2", "III": "3", "IV": "4", "V": "5",

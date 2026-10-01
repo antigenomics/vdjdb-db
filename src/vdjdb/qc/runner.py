@@ -37,8 +37,8 @@ from .rules import check, summarise
 #: file has changed, a curation edit and a line-ending change are indistinguishable in `git log`.
 #:
 #: `prose-column-name` and `empty-column-name` are here for that reason, verified rather than
-#: assumed. `PMID_24512815.txt` carries two sentences of documentation as column names and
-#: `PMID_40694338.txt` opens with an unnamed column holding a row serial; columns are selected by
+#: assumed. `PMID_24512815.tsv` carries two sentences of documentation as column names and
+#: `PMID_40694338.tsv` opens with an unnamed column holding a row serial; columns are selected by
 #: name, so both are ignored, and both files read with every field in the right column
 #: (`cdr3.beta`, `v.beta`, `species`, `antigen.epitope` and `reference.id` all check out). A header
 #: the reader cannot map is a different matter and still fails.
@@ -62,6 +62,10 @@ ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form", "duplicate"
                       # on live data.
                       *(f"counter in {c}" for c in
                         ("antigen.gene", "antigen.species", "mhc.a", "mhc.b")),
+                      # #597: one epitope under two HLA genes inside one chunk. Advisory because the
+                      # rule cannot tell donor typing written into `mhc.a` from a paper that reports
+                      # two restrictions (`PMID_34793243` does), and only the paper settles it.
+                      "one epitope under two HLA genes in one chunk",
                       # A named V or J whose chain has no CDR3. The call is information and the row
                       # is kept; the chain cannot reach an output, which is what this tells the
                       # submitter while they can still supply the sequence.

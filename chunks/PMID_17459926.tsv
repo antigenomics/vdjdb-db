@@ -1,0 +1,34 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
+1				CASSTGSAPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	1/11		sanger					CMV-seropositive	D2					HLA-B*35:01		
+2				CASSSGTGPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	1/10		sanger					CMV-seropositive	D4					HLA-B*35:01		
+3				CASSSGTGPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	1/11		sanger					CMV-seropositive	D2					HLA-B*35:01		
+4				CASSSGTAPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	1/11		sanger					CMV-seropositive	D5					HLA-B*35:01		
+5				CASTSGTGPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	3/10		sanger					CMV-seropositive	D4					HLA-B*35:01		
+6				CASSPGTGPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	1/11		sanger					CMV-seropositive	D5					HLA-B*35:01		
+7				CASTPGTGPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	8/9		sanger					CMV-seropositive	D3					HLA-B*35:01		
+8				CASSPPTAPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	3/19		sanger					CMV-seropositive	D1					HLA-B*35:01		
+9				CASSPGTAPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	4/10		sanger					CMV-seropositive	D4					HLA-B*35:01		
+10				CASSLPSGPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	1/11		sanger					CMV-seropositive	D2					HLA-B*35:01		
+11				CASSLASTPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	3/19		sanger					CMV-seropositive	D1					HLA-B*35:01		
+12				CASSPGTEPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	1/9		sanger					CMV-seropositive	D3					HLA-B*35:01		
+13				CASSPSSGPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	1/10		sanger					CMV-seropositive	D4					HLA-B*35:01		
+14				CASSPTTAPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	1/10		sanger					CMV-seropositive	D4					HLA-B*35:01		
+15				CASSLSTAPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	1/11		sanger					CMV-seropositive	D5					HLA-B*35:01		
+16				CASTPQTAPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	2/11		sanger					CMV-seropositive	D2					HLA-B*35:01		
+17				CASSPSREPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	7/11		sanger					CMV-seropositive	D5					HLA-B*35:01		
+18				CASSAETGPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	5/11		sanger					CMV-seropositive	D2					HLA-B*35:01		
+19				CASSASDSPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	1/11		sanger					CMV-seropositive	D5					HLA-B*35:01		
+20				CASSPPANPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	12/19		sanger					CMV-seropositive	D1					HLA-B*35:01		
+21				CATSTGETPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	1/19		sanger					CMV-seropositive	D1					HLA-B*35:01		
+22	CATETSNYQLIW	TRAV17	TRAJ33					HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	3/11		sanger					CMV-seropositive	D4					HLA-B*35:01		
+23	CATETSNYQLIW	TRAV17	TRAJ33					HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	9/12		sanger					CMV-seropositive	D2					HLA-B*35:01		
+24	CATEDSNYQLIW	TRAV17	TRAJ33					HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	7/11		sanger					CMV-seropositive	D4					HLA-B*35:01		
+25	CATEDSNYQLIW	TRAV17	TRAJ33					HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	5/9		sanger					CMV-seropositive	D1					HLA-B*35:01		
+26	CATEDSNYQLIW	TRAV17	TRAJ33					HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	5/6		sanger					CMV-seropositive	D3					HLA-B*35:01		
+27	CVTEDSNYQLIW	TRAV17	TRAJ33					HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	1/6		sanger					CMV-seropositive	D3					HLA-B*35:01		
+28	CAREDSNYQLIW	TRAV17	TRAJ33					HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	1/11		sanger					CMV-seropositive	D4					HLA-B*35:01		
+29	CAYEGSNYQLIW	TRAV17	TRAJ33					HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	6/10		sanger					CMV-seropositive	D5					HLA-B*35:01		
+30	CATEGSNYQLIW	TRAV17	TRAJ33					HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	3/12		sanger					CMV-seropositive	D2					HLA-B*35:01		
+31	CATEGSNYQLIW	TRAV17	TRAJ33					HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	3/10		sanger					CMV-seropositive	D5					HLA-B*35:01		
+32	CATEGSNYQLIW	TRAV17	TRAJ33					HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort	4/9		sanger					CMV-seropositive	D1					HLA-B*35:01		
+33	CATETSNYQLIW	TRAV17	TRAJ33	CASSPGTAPNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	IPSINVHHY	pp65	CMV	PMID:17459926	tetramer-sort,cultured-T-cells	4/4		sanger					CMV-seropositive						HLA-B*35:01		

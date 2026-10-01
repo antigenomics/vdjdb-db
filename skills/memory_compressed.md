@@ -35,9 +35,9 @@ Open curation debt the reworked skills now report rather than hide:
 
 | Chunk file | PMID | Completed date | Notes |
 |---|---|---|---|
-| `PMID_41842944.txt` | 41842944 | 2026-05-27 | NF9/HLA-A*24:02; 285 rows; vaccinated donors; tetramer-sort; Sanger |
-| `PMID_42125653.txt` | 42125653 | 2026-05-27 | QI9/HLA-A*24:02; 168 rows; mixed vaccinated/convalescent |
-| `PMID_40877317.txt` | 40877317 | 2026-05-27 | KF9/HLA-C*12:02; 166 rows (52 paired + 114 beta-only); convalescent |
+| `PMID_41842944.tsv` | 41842944 | 2026-05-27 | NF9/HLA-A*24:02; 285 rows; vaccinated donors; tetramer-sort; Sanger |
+| `PMID_42125653.tsv` | 42125653 | 2026-05-27 | QI9/HLA-A*24:02; 168 rows; mixed vaccinated/convalescent |
+| `PMID_40877317.tsv` | 40877317 | 2026-05-27 | KF9/HLA-C*12:02; 166 rows (52 paired + 114 beta-only); convalescent |
 
 ---
 
@@ -51,7 +51,7 @@ Open curation debt the reworked skills now report rather than hide:
 | `meta.subset.frequency` gap left open | 2026-05-26 | Missing from `ChunkQC.py` META_COLUMNS but present in all real chunks; Gap #8 |
 | `TRAV23S1→TRAV27` retained despite IMGT table discrepancy | 2026-05-27 | IMGT TRAV table says Arden 23S1→TRAV21; existing VDJdb conversion (→TRAV27) from issues #298/#299 takes precedence |
 | Adaptive ImmunoSEQ naming documented + fixed in 4 chunks | 2026-05-27 | Adaptive uses `TCRB`/`TCRA` prefix and zero-padded subgroup/cluster; 17 fixes across 4 files; see `proofreading/imgt.md` §9.2 |
-| `PDB_Database.txt` rows 258/259 left as-is despite QC duplicate flag | 2026-05-27 | Differ only in `meta.structure.id` (7sg1 vs 7sg2); root cause is Gap #3 (meta.structure.id not in SIGNATURE_COLS) |
+| `PDB_Database.tsv` rows 258/259 left as-is despite QC duplicate flag | 2026-05-27 | Differ only in `meta.structure.id` (7sg1 vs 7sg2); root cause is Gap #3 (meta.structure.id not in SIGNATURE_COLS) |
 
 ---
 

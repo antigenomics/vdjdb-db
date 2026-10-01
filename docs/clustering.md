@@ -25,6 +25,20 @@ make. The current values of every axis for the released files, the latest releas
 measured on every build and recorded in `rules/motif_metrics.tsv`, which is what a regression is gated
 against (`vdjdb motif-metrics`).
 
+**Percolation is recorded there and not gated, and it is not a score.** Per epitope it is the share
+of the epitope's clustered clonotypes that sit in its largest cluster, so it describes the shape of
+the repertoire before it describes the clustering. An epitope with one prominent motif (A\*02 GIL)
+should percolate: one cluster is the right answer, and a high value is correct. An epitope with two
+or three prominent motifs sits lower, and a featureless or bulged one with many disjoint motifs
+(A\*02 NLV) sits low because that is what its repertoire looks like. So neither a higher nor a lower
+median is better or worse by itself. What percolation can indicate is a spurious edge fusing two
+different motifs, and that is a question about the purity of the largest cluster, which `purity`,
+`precision` and `Q` measure and `vdjdb motif-metrics` gates. The median over epitopes also moves by
+a whole rank step whenever the set of covered epitopes changes, which it did on 2026-09-29 and
+2026-10-01 with every quality axis flat or up. Wherever this document says an epitope "percolates" it
+means the largest cluster holds most of it, which is a measurement of the epitope and, only when its
+purity falls, a defect.
+
 ---
 
 ## 0. Shared contract
@@ -63,8 +77,9 @@ nothing to tune and nothing to overfit; it is what the legacy Rmd did.
 | `p` | `tcrnet.TUNED` | `0.01` | enrichment threshold that decides which clonotypes enter the graph |
 | `min_cluster` | `cluster.MIN_CLUSTER` | `5` | smallest surviving cluster, post length-split |
 
-The failure mode is percolation: one spurious edge merges two motifs, and at scope 2 a chain of such
-edges can span an epitope. At scope `1,0,0,1` the largest component holds ≥ 90 % of a TRA epitope's
+The failure mode to watch is percolation: one spurious edge merges two motifs, and at scope 2 a chain
+of such edges can span an epitope. Whether a large largest cluster is that failure or the epitope's
+own single motif is read per epitope, from the cluster's purity (see the note on percolation at the top of this document). At scope `1,0,0,1` the largest component holds ≥ 90 % of a TRA epitope's
 clustered clonotypes in 22 of 118 epitopes; median percolation 0.3958.
 
 ---
@@ -354,8 +369,9 @@ GILGFVFTL, NLVPMVATV and YLQPRTFLL. On TRA the median epitope has 6.5 % clustere
 21 %, still skewed but far less bimodal. A single coverage number for TRB describes about sixty
 epitopes and implies 178.
 
-Percolation is the dominant structural defect on TRB, not shattering. The median TRB epitope has
-77 % of its clustered clonotypes in a single cluster, 42 of 178 are ≥ 90 % collapsed, and both
+On TRB the structural failure these scorecards measure is percolation, not shattering. The median
+TRB epitope has 77 % of its clustered clonotypes in a single cluster (many TRB epitopes do have one
+prominent motif, so the figure is read with purity, not on its own), 42 of 178 are ≥ 90 % collapsed, and both
 rewrites reduce it (TCRNET to 0.7059, TCREMP to 0.6667) without removing it. It is the target for a
 future motif change, and the reason §2 measured Leiden: subdividing percolated components addresses
 it, but the resolutions that subdivide enough also shatter the rest.

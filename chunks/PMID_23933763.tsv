@@ -1,0 +1,26 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
+1				CASSDPGDSLNGYTF	TRBV5		TRBJ1-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	231/330							CMV-seropositive	Case-1		N-1			HLA-A*24:02		
+2				CASSSTGGGGTEAFF	TRBV7		TRBJ1-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	66/330							CMV-seropositive	Case-1		N-2			HLA-A*24:02		
+3				CAISDPGHRFGEAFF	TRBV10		TRBJ1-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	6/330							CMV-seropositive	Case-1		N-9			HLA-A*24:02		
+4				CSARFSGQGTEAFF	TRBV20		TRBJ1-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	128/335							CMV-seropositive	Case-2		S-1			HLA-A*24:02		
+5				CASSSNQGATQYF	TRBV7		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	50/335							CMV-seropositive	Case-2		S-2			HLA-A*24:02		
+6				CASINRGTDPYEQYF	TRBV13		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	7/335							CMV-seropositive	Case-2		S-3			HLA-A*24:02		
+7				CASTPRDRSNYEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	42/335							CMV-seropositive	Case-2		S-4			HLA-A*24:02		
+8				CASSFTLSPETQYF	TRBV7		TRBJ2-5	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	9/335							CMV-seropositive	Case-2		S-7			HLA-A*24:02		
+9				CASSQGQGAQNQPQHF	TRBV4		TRBJ1-5	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	3/335							CMV-seropositive	Case-2		S-24			HLA-A*24:02		
+10				CAGTGIRSAGELFF	TRBV30		TRBJ2-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	18/335							CMV-seropositive	Case-2		S-32			HLA-A*24:02		
+11				CASKPRDSGDTQYF	TRBV28		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	4/335							CMV-seropositive	Case-2		S-56			HLA-A*24:02		
+12				CSARNPGLYEQYF	TRBV20		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	3/335							CMV-seropositive	Case-2		S-57			HLA-A*24:02		
+13				CASSSIQGAAGELFF	TRBV7		TRBJ2-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	18/268							CMV-seropositive	Case-3		I-1			HLA-A*24:02		
+14				CASSQVSTGETQYF	TRBV14		TRBJ2-5	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	24/268							CMV-seropositive	Case-3		I-2			HLA-A*24:02		
+15				CASRGQVSSQETQYF	TRBV2		TRBJ2-5	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	20/268							CMV-seropositive	Case-3		I-3			HLA-A*24:02		
+16				CAIKGTVSTQETQYF	TRBV2		TRBJ2-5	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	3/268							CMV-seropositive	Case-3		I-4			HLA-A*24:02		
+17				CASSSTGGGGAEAFF	TRBV7		TRBJ1-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	50/268							CMV-seropositive	Case-3		I-24			HLA-A*24:02		
+18				CASDRGGNTGELFF	TRBV6		TRBJ2-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	25/268							CMV-seropositive	Case-3		I-25			HLA-A*24:02		
+19				CASSLDTDTQYF	TRBV5		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	8/268							CMV-seropositive	Case-3		I-26			HLA-A*24:02		
+20				CASSPDRGRGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	10/268							CMV-seropositive	Case-3		I-27			HLA-A*24:02		
+21				CASSLSSTRTDTQYF	TRBV7		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	7/268							CMV-seropositive	Case-3		I-28			HLA-A*24:02		
+22				CASSLNSVGTEAFF	TRBV28		TRBJ1-1	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	7/268							CMV-seropositive	Case-3		I-29			HLA-A*24:02		
+23				CASSSDNAIGGGSYGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	3/268							CMV-seropositive	Case-3		I-30			HLA-A*24:02		
+24				CASSLGAGGPSDTQYF	TRBV5		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	8/268							CMV-seropositive	Case-3		I-32			HLA-A*24:02		
+25				CASSLGGLAPSTDTQYF	TRBV7		TRBJ2-3	HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:23933763	tetramer-sort	3/268							CMV-seropositive	Case-3		I-34			HLA-A*24:02		
