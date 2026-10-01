@@ -75,7 +75,20 @@ ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form", "duplicate"
                       # corpus hold a figure or table reference there, and the field awards the top
                       # confidence score, so this has to be visible - but blanking them moves 6,004
                       # scores, which is a curation decision and not a submission error.
-                      "structure id is not a PDB id"})
+                      "structure id is not a PDB id",
+                      # #637: a `method.identification` token `proofreading/method_vocabulary.tsv`
+                      # has not settled. Advisory, and it must stay advisory - a submission naming a
+                      # method nobody has seen is a method nobody has seen, not a defect. The corpus
+                      # already carries `T-Scan`, `YAMTAD system` and `phage display`, none of which
+                      # the specification page ever named. What the finding buys is that the next one
+                      # is seen when it arrives.
+                      "undeclared method.identification token",
+                      # #696: a submitted `method.frequency` that its own count and total
+                      # contradict. Which of the three the paper supports is a curation question and
+                      # the repair is a chunk edit, so this reports. Zero findings today - the
+                      # columns are new, so no submission has used them yet - which makes it a gate
+                      # on the next one rather than a report on the corpus.
+                      "frequency disagrees with its count and total"})
 
 
 class _NothingToRead(Exception):

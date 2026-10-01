@@ -15,9 +15,9 @@ happens to contain them, but a test that relies on that would stop testing the m
 from __future__ import annotations
 
 import pandas as pd
-import polars as pl
 import pytest
 
+from vdjdb.emit.vdjdb3 import read_table
 from vdjdb.validate import motif_bench as mb
 from vdjdb.validate.metrics_lib import binominal_test
 
@@ -68,8 +68,8 @@ def test_every_scored_axis_is_invariant_to_row_order_on_the_real_cohort() -> Non
     t = Path("out/tables")
     if not (t / "chains.parquet").exists():
         pytest.skip("no built tables; run `vdjdb build --out out/`")
-    chains = pl.read_parquet(t / "chains.parquet")
-    records = pl.read_parquet(t / "records.parquet")
+    chains = read_table(t, "chains")
+    records = read_table(t, "records")
     cohort = mb.cohort(chains, records, gene=gene)
     assigned = mb.assign(cohort, mb.trivial_members(cohort))
     base = mb.score(assigned)

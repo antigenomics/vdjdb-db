@@ -47,7 +47,7 @@ import pytest
 import legacy_qc as L
 from vdjdb.curate import anchors
 from vdjdb.curate.nomenclature import harmonise_segments, normalise_call, unresolved
-from vdjdb.io.chunks import read_chunk
+from vdjdb.io.chunks import READABLE, read_chunk
 from vdjdb.qc.lint import lint_file
 from vdjdb.qc.rules import RULES, check
 from vdjdb.schema import ALL_COLUMNS
@@ -216,6 +216,23 @@ CHUNK_CASES: tuple[Case, ...] = (
           note="#402. `score.confidence` awards 3 outright for a non-empty value, above every "
                "sequencing and specificity term, so a figure reference buys the top score for "
                "evidence that does not exist."),
+    _case("frequency-contradicts-its-own-count",
+          {"method.frequency": "0.5", "method.frequency.count": "1",
+           "method.frequency.total": "10"},
+          [], ["frequency disagrees with its count and total"], verdict=STRICTER,
+          note="#696. `method.frequency.count` and `.total` are chunk columns now, so a submitter "
+               "can report all three - and 0.5 is five times 1/10. Before #696 a cell of "
+               "`method.frequency` was one shape or the other and no record could contradict "
+               "itself, which is why the retired build had nothing to say here. Reports and does "
+               "not repair: which of the three the paper supports is a curation question."),
+    _case("method-identification-names-an-unsettled-token",
+          {"method.identification": "tetramer-sort,magnetic beads"},
+          [], ["undeclared method.identification token"], verdict=STRICTER,
+          note="#637. The cell is a comma-separated set, so the finding is per token: "
+               "`tetramer-sort` is declared and `magnetic beads` is `pending` in "
+               "`proofreading/method_vocabulary.tsv`, which is what makes this row fail while a "
+               "cell of only declared tokens does not. The retired build read this column as free "
+               "text and said nothing about any value in it."),
     _case("v-beta-is-a-pseudogene", {"v.beta": "TRBV1*01"},
           [], ["non-functional v.beta"], verdict=STRICTER,
           note="#634. IMGT calls human TRBV1 P. Advisory rather than fatal: a P gene can rearrange, "
@@ -313,8 +330,10 @@ MASTER_CASES: tuple[Case, ...] = (
 
 def _write(tmp: Path, rows: list[dict[str, str]], name: str = "PMID_1.txt") -> Path:
     p = tmp / name
-    lines = ["\t".join(ALL_COLUMNS)]
-    lines += ["\t".join(r.get(c, "") for c in ALL_COLUMNS) for r in rows]
+    # `READABLE`, not `ALL_COLUMNS`: a case may spoil an optional chunk column, which #696's
+    # `method.frequency.count` is, and a header without it cannot carry the value.
+    lines = ["\t".join(READABLE)]
+    lines += ["\t".join(r.get(c, "") for c in READABLE) for r in rows]
     p.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return p
 
@@ -331,7 +350,7 @@ def _both(tmp: Path, case: Case) -> tuple[set[str], set[str]]:
 def _master(case: Case) -> pl.DataFrame:
     """A one-row master-shaped frame for a master-tier case."""
     return pl.DataFrame([{"record_id": "VDJDB1", "chunk.file": "PMID_1.txt", "chunk.row": 1,
-                          **{c: "" for c in ALL_COLUMNS}, **(CLEAN | case.row)}])
+                          **{c: "" for c in READABLE}, **(CLEAN | case.row)}])
 
 
 def _both_master(case: Case) -> tuple[set[str], set[str]]:

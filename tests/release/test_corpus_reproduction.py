@@ -17,6 +17,7 @@ import polars as pl
 import pytest
 
 from vdjdb.corpus import build, mhc, query, tokens
+from vdjdb.emit.vdjdb3 import read_table
 
 pytestmark = pytest.mark.release
 
@@ -39,6 +40,15 @@ MIN_OCCURRENCES = 50
 #: germline the junction contradicts, so the document-frequency weighting moves. The direction is the
 #: one to want - one more of the 29 `RS` k-mers sits above the median, so the family's claim is
 #: stronger rather than weaker - and `top_kmer`, `top_lift` and `median_lift` did not move at all.
+#:
+#: Re-measured 2026-10-01 on #390: **26 -> 25**, a declared trade rather than a drift. Merging the
+#: 18 rows where one publication was curated in two chunk files changes the document frequency of
+#: the tokens those rows carried, and one of the 29 `RS` k-mers crosses back below the median. Every
+#: other measurement here is unchanged - `documents` 661, `kmers_scored` 2,342, `top_kmer` `k:IRS`,
+#: `top_lift` 2.663, `median_lift` 1.170 - and the claim the test exists for is the *family* sitting
+#: above the middle, which at 25 of 29 is 0.862 against the 0.8 floor the last assertion pins.
+#: A duplicate row is not evidence, so removing it is the right answer even where a derived
+#: statistic reads marginally weaker for it.
 EXPECTED = {
     "documents": 661,
     "kmers_scored": 2342,
@@ -46,7 +56,7 @@ EXPECTED = {
     "top_lift": 2.663,
     "median_lift": 1.170,
     "motif_kmers": 29,
-    "motif_above_median": 26,
+    "motif_above_median": 25,
 }
 
 #: ``k:CAS`` is the germline-encoded start of nearly every beta CDR3: present in 614 of 661 documents.
@@ -62,7 +72,7 @@ def tables() -> dict[str, pl.DataFrame]:
     needed = {n: directory / f"{n}.parquet" for n in ("records", "chains", "restriction")}
     if missing := [str(p) for p in needed.values() if not p.exists()]:
         pytest.skip(f"no built tables: {', '.join(missing)}")
-    return {n: pl.read_parquet(p) for n, p in needed.items()}
+    return {n: read_table(directory, n) for n in needed}
 
 
 @pytest.fixture(scope="module")

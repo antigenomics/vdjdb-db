@@ -207,10 +207,16 @@ def check(tables: dict[str, pl.DataFrame], *,
 
 
 def read_tables(directory: Path) -> dict[str, pl.DataFrame]:
-    """Whatever of the definitive tables the directory holds. Parquet, which is the shipped form."""
+    """Whatever of the definitive tables the directory holds. Parquet, which is the shipped form.
+
+    Unlike :func:`vdjdb.emit.vdjdb3.read_tables` this tolerates a partial directory, because the
+    identity checks are meant to run on whatever a build got as far as writing. The per-table read
+    is that module's, so the shipped ``underscore_case`` header is translated in one place.
+    """
+    from ..emit.vdjdb3 import read_table
+
     out = {}
     for name in ("records", "chains", "evidence", "epitopes", "restriction"):
-        path = Path(directory) / f"{name}.parquet"
-        if path.exists():
-            out[name] = pl.read_parquet(path)
+        if (Path(directory) / f"{name}.parquet").exists():
+            out[name] = read_table(Path(directory), name)
     return out

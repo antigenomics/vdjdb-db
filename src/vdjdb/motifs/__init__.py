@@ -167,10 +167,11 @@ def run(tables: Path, out: Path, reports: Path, *, p: float | None = None,
     laptop and not on the runner.
     """
     from .. import timing
+    from ..emit.vdjdb3 import read_table
 
     timing.reset()
-    chains = pl.read_parquet(tables / "chains.parquet")
-    records = pl.read_parquet(tables / "records.parquet")
+    chains = read_table(tables, "chains")
+    records = read_table(tables, "records")
 
     written: dict[str, int] = {}
     if "tcrnet" in methods:

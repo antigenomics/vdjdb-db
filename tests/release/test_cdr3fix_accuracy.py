@@ -63,6 +63,7 @@ import pytest
 
 from vdjdb.assemble.master import _markup_arda
 from vdjdb.convert.coords import nt_to_aa_boundary_expr
+from vdjdb.emit.vdjdb3 import read_table
 
 pytestmark = pytest.mark.release
 
@@ -106,7 +107,7 @@ def truth() -> pl.DataFrame:
         pytest.skip(f"no built tables: {', '.join(missing)}")
     if not CONTROL.exists():
         pytest.skip(f"{CONTROL} is not checked out; see CLAUDE.md developer setup")
-    records, chains = (pl.read_parquet(p) for p in needed)
+    records, chains = (read_table(directory, n) for n in ("records", "chains"))
     mine = (chains.join(records.select("record_id", "species"), on="record_id", how="inner")
             .filter((pl.col("species") == "HomoSapiens") & (pl.col("gene") == "TRB")
                     & (pl.col("cdr3") != "") & (pl.col("v.segm") != "") & (pl.col("j.segm") != ""))

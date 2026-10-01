@@ -52,6 +52,22 @@ class Field:
     #: offset in sequence space, so declaring them equal would be wrong (see `convert.coords`).
     airr: str = ""
 
+    @property
+    def ships_as(self) -> str:
+        """The name this column ships under in the tidy tables and the new format.
+
+        A dot is a table qualifier in SQL and blocks attribute access in most dataframe libraries,
+        and the tidy tables already mixed the two conventions -- ``record_id`` and ``pmhc_id``
+        beside ``mhc.a`` and ``antigen.epitope``. The legacy tables keep :attr:`name`: they are a
+        positional contract ``vdjdb-web`` parses, and ``vdjdb.meta.txt`` must match ``vdjdb.txt``
+        column for column.
+
+        Derived rather than declared, because every column wants the same answer and a hand-written
+        second name is a second source. Case is left alone, so ``TCR_hash`` and ``meta.donor.MHC``
+        ship as ``TCR_hash`` and ``meta_donor_MHC`` and the substitution is exactly invertible.
+        """
+        return self.name.replace(".", "_")
+
     def meta_row(self) -> str:
         return "\t".join((self.name, self.type, str(self.visible), str(self.searchable),
                           str(self.autocomplete), self.data_type, self.title, self.comment))
@@ -158,7 +174,23 @@ FIELDS: dict[str, Field] = dict([
 
     # -- assay description ----------------------------------------------------------------------
     _f("method.identification", title="Identification method"),
-    _f("method.frequency", title="Frequency"),
+    _f("method.frequency", title="Frequency",
+       comment="Frequency of this clonotype in the isolated epitope-reactive population, as the "
+               "submitter wrote it: `x/X`, `X%` or a bare float. Free text on purpose - it is what "
+               "every release has shipped, and some studies report only the ratio."),
+    # #696. Three independent columns, not one and two derived from it. A study that reports only a
+    # float has no count behind it, so deriving the float would blank it exactly where it is the
+    # only measurement; a study that reports `3/33921` has a count the float cannot carry, because
+    # at that depth `1/33921` and `3/33921` round to the same number. Where all three are present
+    # they must agree, which `vdjdb qc` reports and does not enforce.
+    _f("method.frequency.count", searchable=0, autocomplete=0, data_type="uint",
+       title="Frequency count",
+       comment="Reads, UMIs or cells supporting this clonotype, parsed from an unambiguous `x/X` "
+               "`method.frequency`. Null where the submitted value is a float or a percentage: the "
+               "count is absent, not zero."),
+    _f("method.frequency.total", searchable=0, autocomplete=0, data_type="uint",
+       title="Frequency total",
+       comment="The sample total `method.frequency.count` is out of, from the same `x/X`."),
     _f("method.singlecell", title="Single cell"),
     _f("method.sequencing", title="Sequencing"),
     _f("method.verification", title="Verification"),
@@ -346,6 +378,29 @@ FIELDS: dict[str, Field] = dict([
     _f("chunk.row", searchable=0, autocomplete=0, data_type="uint", title="Chunk row",
        comment="0-based row within the chunk; with chunk.file it points at the curated line."),
     # -- the epitope catalogue (ROADMAP phase 9d) -----------------------------------------------
+    # #632. Nothing in the catalogue could say that two rows are two forms of one peptide, so it
+    # said nothing, and `SLLMWITQV` (29,729 records) and its proteome form `SLLMWITQC` (13) are
+    # unrelated rows. Read from `proofreading/epitope_proteome.tsv`, never computed by a build:
+    # `mhcmatch` fetches the proteome from HuggingFace, so resolving it here would put a network
+    # call in the critical path and make the answer depend on the day (hard rule 9).
+    #
+    # **This is not a defect report.** The epitope sequence is the ground truth: it is the peptide
+    # the experiment used, and in essentially every case it differs from the proteome because
+    # somebody meant it to - an anchor-optimised vaccine peptide, a designed altered-peptide ligand,
+    # a structure solved with a modified peptide, a heteroclitic variant. The pair is a fact about
+    # the reagent, and the column exists so a query for one form can reach the other.
+    #
+    # Named for what was measured and not for why, which is `curate.antigens`' rule: the sequence
+    # tells those causes apart from none of the others.
+    _f("proteome.peptide", searchable=0, autocomplete=0, title="Proteome peptide",
+       comment="The host-proteome peptide this epitope is one substitution from, where the epitope "
+               "is not itself in the proteome. Not a defect flag: the epitope is the peptide the "
+               "experiment used and the difference is almost always deliberate. Empty on most "
+               "rows, and on a viral or bacterial epitope always, because only the two self "
+               "proteomes are read."),
+    _f("proteome.substitution", searchable=0, autocomplete=0, title="Substitution",
+       comment="Where the two differ, as position-proteome-to-epitope: `9C>V` is the difference "
+               "between NY-ESO-1's SLLMWITQC and the SLLMWITQV that 29,729 records report."),
     _f("epitope.length", searchable=0, autocomplete=0, data_type="uint", title="Epitope length",
        comment="Residues in the epitope. MHC-I presents 8-11, MHC-II 12-25, so it cross-checks "
                "mhc.class independently of the allele."),
@@ -484,7 +539,7 @@ RECORD_COLUMNS: tuple[str, ...] = (
     "record_id", "pmhc_id", "epitope_id", *RECORD_ANTIGEN, "reference.id", *RECORD_SAMPLE,
     "meta.epitope.id", "meta.donor.MHC", "meta.donor.MHC.method", "meta.structure.id",
     "meta.subset.frequency",
-    *METHOD_COLUMNS, "method.pairing",
+    *METHOD_COLUMNS, "method.frequency.count", "method.frequency.total", "method.pairing",
     "vdjdb.score",
     *RECORD_CURATION,
 )
@@ -516,6 +571,7 @@ CHAIN_COLUMNS: tuple[str, ...] = (
 EPITOPE_COLUMNS: tuple[str, ...] = (
     "antigen.epitope", "antigen.species", "antigen.gene", "epitope.length",
     "mhc.class", "records", "chains", "references", "clonotypes",
+    "proteome.peptide", "proteome.substitution",
 )
 
 #: The six promiscuity columns of ``restriction`` (ROADMAP §10.6). Joined from the committed
@@ -561,9 +617,13 @@ MOTIF_PWMS_COLUMNS: tuple[str, ...] = (
     "antigen.gene", "antigen.species", "mhc.a", "mhc.b", "mhc.class",
 )
 
-#: Present in submitted chunks and discarded by the legacy build with no error. Kept from phase 6.
+#: Readable from a submitted chunk and absent from every legacy output. The first five are columns
+#: the legacy build discarded with no error (phase 6); the last two are #696's, so a submitter with
+#: a read or cell count can write it as a number instead of encoding it in a string. All seven are
+#: optional: :data:`vdjdb.io.chunks.READABLE` fills a missing one with ``""``.
 KEPT_CURATION_COLUMNS: tuple[str, ...] = (
     "chunk.id", "submitter", "comment", "meta.subset.frequency", "method.pairing",
+    "method.frequency.count", "method.frequency.total",
 )
 
 #: Per-chunk deduplication key. Not the score signature, which is a different 11-column key
@@ -583,7 +643,35 @@ SPECIES: frozenset[str] = frozenset({
 
 _META_HEADER = "name\ttype\tvisible\tsearchable\tautocomplete\tdata.type\ttitle\tcomment"
 
+#: The submission template's column order: ``chunk.id``, the 31 columns a chunk must be able to
+#: carry, and ``meta.subset.frequency``. Declared so ``template.tsv`` is a projection of the
+#: registry rather than a 2016 spreadsheet nobody can regenerate - it was one of the nine places
+#: this module's docstring lists as having already drifted.
+#:
+#: Chunk columns keep their **dotted** names. The tidy tables ship ``underscore_case``
+#: (:attr:`Field.ships_as`), but a chunk is what a submitter writes and its header is the
+#: submission contract.
+#:
+#: This is an order, not a gate: ``qc/lint.py`` checks column *membership* against
+#: ``ALL_COLUMNS | KEPT_CURATION_COLUMNS`` and must keep doing so, because a submitted chunk may
+#: order its columns however it likes and may omit the optional ones.
+def _chunk_order() -> tuple[str, ...]:
+    """The template's order: the 2016 spreadsheet's, with #696's two columns beside the string
+    they are a typed form of."""
+    out: list[str] = ["chunk.id"]
+    for column in ALL_COLUMNS:
+        out.append(column)
+        if column == "method.frequency":
+            out += ["method.frequency.count", "method.frequency.total"]
+        if column == "meta.cell.subset":
+            out.append("meta.subset.frequency")
+    return tuple(out)
+
+
+CHUNK_COLUMNS: tuple[str, ...] = _chunk_order()
+
 TABLES: dict[str, tuple[str, ...]] = {
+    "chunk": CHUNK_COLUMNS,
     "vdjdb": VDJDB_COLUMNS,
     "vdjdb-web": VDJDB_WEB_COLUMNS,
     "slim": SLIM_COLUMNS,
@@ -599,6 +687,17 @@ TABLES: dict[str, tuple[str, ...]] = {
 
 
 AIRR_MAP.update({f.name: f.airr for f in FIELDS.values() if f.airr})
+
+
+#: Internal column name -> :attr:`Field.ships_as`, for the rename at the file boundary.
+TIDY_NAMES: dict[str, str] = {name: f.ships_as for name, f in FIELDS.items()}
+
+# The map has to be invertible: a build directory is read back under the internal names, and a
+# collision would drop a column silently. Checked at import rather than discovered later.
+if len(set(TIDY_NAMES.values())) != len(TIDY_NAMES):   # pragma: no cover - a declaration error
+    _seen: set[str] = set()
+    raise AssertionError("tidy names collide: " + ", ".join(
+        sorted(v for v in TIDY_NAMES.values() if v in _seen or _seen.add(v))))  # type: ignore[func-returns-value]
 
 
 def fields(table: str) -> tuple[Field, ...]:
@@ -637,7 +736,12 @@ def schema_json(dtypes: dict[str, dict[str, str]] | None = None, *, indent: int 
     can answer "what is this column, and which other tables have it" without scraping the docs.
 
     ``dtypes`` maps table name -> column name -> the physical dtype the build wrote, so the declared
-    schema and the shipped files cannot disagree: it is read off the frames, not asserted.
+    schema and the shipped files cannot disagree: it is read off the frames, not asserted. It is
+    keyed on the **internal** dotted names, which is what ``TABLES`` carries.
+
+    Each field states both names: ``name`` is what the legacy tables ship and what ``TABLES``
+    indexes, ``ships_as`` is what the tidy tables (``records``, ``chains``, ``evidence``,
+    ``epitopes``, ``restriction`` and the joined view) ship.
     """
     import json
 
@@ -650,6 +754,9 @@ def schema_json(dtypes: dict[str, dict[str, str]] | None = None, *, indent: int 
             "name": f.name, "type": f.type, "visible": f.visible, "searchable": f.searchable,
             "autocomplete": f.autocomplete, "data_type": f.data_type, "title": f.title,
             "comment": f.comment, "airr": f.airr, "position": where,
+            # The tidy tables ship `underscore_case` and the legacy tables ship `name` unchanged,
+            # so both are stated here rather than a consumer guessing which file it opened.
+            "ships_as": f.ships_as,
         }
         seen = {dtypes[t][name] for t in where if name in dtypes.get(t, {})}
         if seen:

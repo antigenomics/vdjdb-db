@@ -91,12 +91,33 @@ not a convention.
 A normalised star schema rather than one denormalised table. Three fact tables plus the joined view.
 Parquet, with a TSV projection of each for users without a parquet reader.
 
+**Column names here are `underscore_case`**, not the dotted names the legacy tables use: `mhc_a`,
+`antigen_epitope`, `v_segm`, `cdr3nt_pgen`. A dot is a table qualifier in SQL and blocks attribute
+access in most dataframe libraries, and these tables already mixed the two conventions -
+`record_id` and `pmhc_id` beside `mhc.a`. The rule is a plain dot substitution with case left alone,
+so `TCR_hash` and `meta.donor.MHC` ship as `TCR_hash` and `meta_donor_MHC`. The legacy tables do not
+move: they are a positional contract `vdjdb-web` parses.
+
+`vdjdb.schema.json` states both names per column - `name` is what the legacy tables ship and what
+the registry indexes, `ships_as` is what these tables ship - and
+[Columns](standards/columns.md) is the generated table for each, so neither can drift from the
+build. The chunk format is unaffected: a submitted chunk still uses the dotted names.
+
 ### 3.1 `records.parquet` - one row per submitted record
 
 Primary key `record_id`, unique. One chunk row is one record: a chunk is one paper, a row is that
-paper's report on one clone, and the row reports both chains. The table therefore has exactly as many
-rows as the build reads, 192,753. `method.*` and `meta.*` sit here because they describe what the
-publication reports about the record.
+paper's report on one clone, and the row reports both chains. `method.*` and `meta.*` sit here
+because they describe what the publication reports about the record.
+
+The table has one row per curated line, **192,623**, which is the 202,277 data lines in `chunks/`
+less 9,636 declared within-chunk duplicates and less 18 rows where one publication was curated in two
+chunk files (#390). `CHUNK_DEDUP_KEY` contains `reference.id`, so a group of it spanning two chunks
+is one paper reporting one clone twice - the chunk is normally the publication, and where the two
+come apart the publication is what deduplication is about. 19 such groups exist over 38 rows; 18
+merge, filling the base row's blanks from the other, and the 19th is left alone because
+`PDB_Database.txt` and `PMID_34433824.txt` give one clone `structural` and `tetramer-sort`, which is
+a solved complex and the sort that found it. `out/reports/repeated-references.tsv` lists all 19 with
+the verdict and the reason.
 
 The receptor is not here: a chain is an observation, so it is a row of `chains`, while
 `vdjdb_full.txt` folds both chains into paired columns and leaves half of them blank.
@@ -106,16 +127,33 @@ The receptor is not here: a chain is an observation, so it is a row of `chains`,
 | Group | Columns |
 |---|---|
 | identity | `record_id`, `pmhc_id`, `epitope_id` |
-| antigen | `species`, `mhc.a`, `mhc.b`, `mhc.class`, `antigen.epitope`, `antigen.gene`, `antigen.species` |
-| provenance | `reference.id` |
-| sample | `meta.study.id`, `.cell.subset`, `.subject.cohort`, `.subject.id`, `.replica.id`, `.clone.id`, `.tissue` - the id fields that are part of identity |
-| annotation | `meta.epitope.id`, `.donor.MHC`, `.donor.MHC.method`, `.structure.id`, `.subset.frequency` |
-| method | `method.identification`, `.frequency`, `.singlecell`, `.sequencing`, `.verification`, `.pairing` |
-| score | `vdjdb.score` |
-| curation | `chunk.file`, `chunk.row`, `chunk.id`, `submitter`, `comment` |
+| antigen | `species`, `mhc_a`, `mhc_b`, `mhc_class`, `antigen_epitope`, `antigen_gene`, `antigen_species` |
+| provenance | `reference_id` |
+| sample | `meta_study_id`, `meta_cell_subset`, `meta_subject_cohort`, `meta_subject_id`, `meta_replica_id`, `meta_clone_id`, `meta_tissue` - the id fields that are part of identity |
+| annotation | `meta_epitope_id`, `meta_donor_MHC`, `meta_donor_MHC_method`, `meta_structure_id`, `meta_subset_frequency` |
+| method | `method_identification`, `method_frequency`, `method_frequency_count`, `method_frequency_total`, `method_singlecell`, `method_sequencing`, `method_verification`, `method_pairing` |
+| score | `vdjdb_score` |
+| curation | `chunk_file`, `chunk_row`, `chunk_id`, `submitter`, `comment` |
 
-`submitter`, `comment`, `chunk.id`, `meta.subset.frequency` and `method.pairing` are kept here; the
+`submitter`, `comment`, `chunk_id`, `meta_subset_frequency` and `method_pairing` are kept here; the
 legacy build discards all five.
+
+**`method_frequency`, `method_frequency_count` and `method_frequency_total` are three independent
+columns, and none is derived from another** (#696). A study that reports only a float has no count
+behind it, so deriving the float would blank it exactly where it is the only measurement; deriving
+the pair from a float is impossible. Measured: 43,231 records carry a count and total, 17,700 a
+percentage, 2,601 a float, 129,109 nothing. The count and total are chunk columns, so a submitter
+with a read count writes it as a number; where they do, the submitted value wins and nothing is
+parsed. Where all three are present they must agree, which `vdjdb qc` reports and does not repair.
+
+**`meta_subset_frequency` is not filled from `method_frequency`.** It is populated on 2,412 records
+and left as submitted, because the records that do carry it are using it for a different quantity -
+`method_frequency = 17/52` beside `meta_subset_frequency = 0.70%` is a clonotype's count within a
+sorted subset beside that subset's share of the sample, and both are real. A consumer that wants
+"the frequency of this clonotype in its subset" should coalesce the two:
+`pl.coalesce("meta_subset_frequency", "method_frequency")`. Filling it in the build would have
+written 61,253 cells across 117 chunks, every one a copy of the column beside it, and mixed the two
+readings with nothing to tell them apart.
 
 `content_hash`, the record state and the release/commit provenance are in the registry (§6), not
 here: they describe the record's history rather than the record.
@@ -126,12 +164,12 @@ Primary key `(record_id, gene)`. This is the level `vdjdb.txt` is written at. Ch
 table so that record fields are not duplicated per chain, as in `vdjdb.txt`, and not folded into
 paired alpha/beta columns, as in `vdjdb_full.txt`.
 
-35 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `clone_id`, `cdr3`, `v.segm`,
-`d.segm`, `j.segm`,
-`v.end`, `j.start`, `cdr3nt`, `cdr3nt.pgen`, `cdr3nt.margin`, `v.inferred`, `j.inferred`,
-`d.inferred`, `d.start`, `d.end`, `d.posterior`, `v.end.inferred`, `j.start.inferred`,
-`cdr3.original`, `fix.needed`, `fix.good`, `v.fix.type`, `j.fix.type`, `v.canonical`, `j.canonical`,
-`v.segm.submitted`, `j.segm.submitted`, `d.segm.submitted`, `v.segm.arda`, `j.segm.arda`,
+35 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `clone_id`, `cdr3`, `v_segm`,
+`d_segm`, `j_segm`,
+`v_end`, `j_start`, `cdr3nt`, `cdr3nt_pgen`, `cdr3nt_margin`, `v_inferred`, `j_inferred`,
+`d_inferred`, `d_start`, `d_end`, `d_posterior`, `v_end_inferred`, `j_start_inferred`,
+`cdr3_original`, `fix_needed`, `fix_good`, `v_fix_type`, `j_fix_type`, `v_canonical`, `j_canonical`,
+`v_segm_submitted`, `j_segm_submitted`, `d_segm_submitted`, `v_segm_arda`, `j_segm_arda`,
 `TCR_hash`.
 
 `cdr3nt` is inferred, not observed (#461): it is the most plausible nucleotide junction behind the
@@ -255,6 +293,37 @@ VDJdb's own list of epitopes and the MHCs that present them.
 
 `epitopes` has `antigen.gene`, `epitope.length`, `mhc.class`, and the support counts `records`,
 `chains`, `clonotypes` and `references`. 379 epitopes are reported by two or more publications.
+
+**`proteome_peptide` and `proteome_substitution`** link an epitope to the host-proteome peptide it is
+one substitution from, where the epitope is not itself in the proteome (#632). 211 of the 2,131
+epitopes carry the link, and **67 of those have the proteome form curated in VDJdb as a separate
+row** - 35,346 records, 18.3% of the database, on rows nothing else says are two forms of one
+peptide:
+
+| epitope | records | `proteome_peptide` | records | `proteome_substitution` | `antigen_gene` |
+|---|--:|---|--:|---|---|
+| `SLLMWITQV` | 29,729 | `SLLMWITQC` | 13 | `9C>V` | NY-ESO-1 |
+| `ELAGIGILTV` | 2,401 | `EAAGIGILTV` | 140 | `2A>L` | MLANA |
+| `VEALYLVSG` | 2,495 | `VEALYLVCG` | 5,048 | `8C>S` | INS |
+| `IMDQVPFSV` | 100 | `ITDQVPFSV` | 19 | `2T>M` | PMEL |
+
+A query for NY-ESO-1 responses returns the 29,729 and never learns the 13 exist. That is what the
+columns are for.
+
+**Neither row is wrong, and this is not a defect report.** The epitope sequence is the ground truth -
+it is the peptide the experiment used - and the difference from the proteome is almost always
+deliberate: an anchor-optimised vaccine peptide, a designed altered-peptide ligand, a heteroclitic
+variant, or a structure solved with a modified peptide. Of the 36,496 records on these 211 epitopes,
+58 carry a `meta_structure_id` and 54 come from `PDB_Database.txt`, so the crystallography case is
+real and small. The columns are named for what was measured and not for why, because the sequence
+tells those causes apart from none of the others.
+
+Empty on the other 1,920 rows, and on every viral or bacterial epitope, because only the human and
+mouse proteomes are read - a pathogen epitope's source is the pathogen's proteome, which is a
+per-pathogen fetch and a different question. Both columns are read from
+`proofreading/epitope_proteome.tsv`, a committed reviewed input refreshed by `vdjdb antigens` in its
+own pull request, never resolved during a build: `mhcmatch` fetches the proteome from HuggingFace,
+so doing it here would put a network call in the critical path (hard rule 9).
 
 **The key is the epitope and the species, not the peptide.** A reader who assumes one row per peptide
 - which the table's name invites - joins the records of 12 peptides twice.

@@ -62,7 +62,10 @@ tuning = ["lumbermark>=0.9", "quitefastmst>=0.9"]
 # The documentation site. `myst-parser` because `docs/denoising.md` and `docs/clustering.md` are
 # normative Markdown carrying `$...$` maths -- they are converted in place, not rewritten as rst.
 docs = ["sphinx>=7", "pydata-sphinx-theme>=0.15", "myst-parser>=3"]
-dev = ["ruff>=0.6", "mypy>=1.11"]
+# `openpyxl` generates and reads `template.xlsx`, the submission template most submitters actually
+# open. It is not a build dependency: `vdjdb build` never touches the template, and the two tests
+# that check the template's header against the registry skip without it.
+dev = ["ruff>=0.6", "mypy>=1.11", "openpyxl>=3.1"]
 
 [project.scripts]
 vdjdb = "vdjdb.cli:app"
@@ -100,6 +103,14 @@ python_version = "3.12"
 # identifiers, which ship to consumers and cannot be renumbered once published.
 files = ["src/vdjdb/schema", "src/vdjdb/convert", "src/vdjdb/identity"]
 strict = true
+
+# `openpyxl` ships no type information and `types-openpyxl` is a third-party stub set that would
+# have to be version-pinned alongside it. The only code that imports it writes the submission
+# template, which is not a build path, and the four tests that read the file back check the shape
+# it produces - so the type checker gains nothing here that the tests do not already assert.
+[[tool.mypy.overrides]]
+module = ["openpyxl.*"]
+ignore_missing_imports = true
 
 
 [tool.pytest.ini_options]

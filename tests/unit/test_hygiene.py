@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import polars as pl
 
-from vdjdb.io.chunks import read_chunk
+from vdjdb.io.chunks import READABLE, read_chunk
 from vdjdb.schema import ALL_COLUMNS
 
 #: A real J-gene call in the corpus carried one of these. Named, because a literal is unreadable.
@@ -38,7 +38,10 @@ def test_the_identical_chain_rule_is_advisory_and_finds_the_copy(tmp_path):
     from vdjdb.qc.runner import ADVISORY
 
     assert "alpha and beta cdr3 identical" in ADVISORY
-    df = pl.DataFrame({c: ["" for _ in range(3)] for c in ALL_COLUMNS}).with_columns(
+    # `READABLE`, not `ALL_COLUMNS`: a rule may read an optional chunk column - #696's
+    # `method.frequency.count` does - and the reader fills a missing one with `""`, so that is the
+    # shape `check` is given by a build.
+    df = pl.DataFrame({c: ["" for _ in range(3)] for c in READABLE}).with_columns(
         pl.Series("cdr3.alpha", ["CASSIRSSYEQYF", "CAVSDLEPNSSASKIIF", ""]),
         pl.Series("cdr3.beta", ["CASSIRSSYEQYF", "CASSIRSSYEQYF", "CASSIRSSYEQYF"]),
         pl.Series("chunk.file", ["a", "a", "a"]),

@@ -13,6 +13,7 @@ import polars as pl
 import pytest
 
 from vdjdb.assemble.tables import CLONOTYPE_KEY
+from vdjdb.emit.vdjdb3 import read_table
 from vdjdb.schema import CHAIN_COLUMNS, EVIDENCE_TABLE_COLUMNS, RECORD_COLUMNS
 
 pytestmark = pytest.mark.release
@@ -33,7 +34,15 @@ pytestmark = pytest.mark.release
 #: `CHUNK_DEDUP_KEY` - so 187 rows that are 65 clonotypes never deduplicated. Undoing the autofill
 #: removes **122 records that were never real**. The count is now `count/sample total` in
 #: `method.frequency`, which is the convention 3,548 values in the corpus already use (#696).
-EXPECTED_RECORDS = 192_641
+#:
+#: 192,641 -> 192,623 for #390, and this one is not a repair of a chunk: `CHUNK_DEDUP_KEY` contains
+#: `reference.id`, so a group of it spanning two chunk files is one publication reporting one clone
+#: twice, and two rows of one paper are not two independent reports. 19 such groups exist over 38
+#: rows; **18 merge** - the paper's own chunk is the base and the other fills its blanks - and 1 is
+#: left alone, because `PDB_Database.txt` and `PMID_34433824.txt` give one clone `structural` and
+#: `tetramer-sort`, which is a solved complex and the sort that found it. The chunk was a proxy for
+#: the publication; where the two come apart, the publication is what deduplication is about.
+EXPECTED_RECORDS = 192_623
 
 
 @pytest.fixture(scope="module")
@@ -41,7 +50,7 @@ def tables() -> dict[str, pl.DataFrame]:
     d = Path(os.environ.get("VDJDB_TABLES", "out/tables"))
     if not (d / "records.parquet").exists():
         pytest.skip(f"no built tables at {d}; run `vdjdb build --out out/`")
-    return {n: pl.read_parquet(d / f"{n}.parquet") for n in ("records", "chains", "evidence")}
+    return {n: read_table(d, n) for n in ("records", "chains", "evidence")}
 
 
 def test_column_orders_are_the_declared_ones(tables):

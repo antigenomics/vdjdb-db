@@ -17,15 +17,17 @@ from pathlib import Path
 import polars as pl
 
 from ..config import Paths
+from ..curate.frequency import split_frequency
 from ..curate.nomenclature import (
     disambiguate_alleles,
+    harmonise_method_tokens,
     harmonise_mhc,
     harmonise_references,
     harmonise_segments,
     harmonise_vocabulary,
 )
 from ..curate.patch import apply_antigen_patch
-from ..io.chunks import read_chunks
+from ..io.chunks import merge_repeated_references, read_chunks
 from ..schema import ALL_COLUMNS, FULL_COLUMNS
 from ..score.confidence import add_score
 
@@ -175,7 +177,7 @@ def harmonise_all(df: pl.DataFrame) -> tuple[pl.DataFrame, tuple[pl.DataFrame, .
 
     Returns the frame and one report per pass, ready for :func:`_write_harmonisation`.
 
-    This is a function rather than five calls inside :func:`build_master` because a second caller
+    This is a function rather than six calls inside :func:`build_master` because a second caller
     needs the same sequence and re-implementing it goes stale: `tests/release/test_registry_is_current.py`
     listed the passes by hand, and adding :func:`~vdjdb.curate.nomenclature.harmonise_vocabulary` as a
     fifth made that test reconcile the committed registry against a frame the build does not produce,
@@ -197,7 +199,10 @@ def harmonise_all(df: pl.DataFrame) -> tuple[pl.DataFrame, tuple[pl.DataFrame, .
     df, references = harmonise_references(df)
     # Case and separator variants that never join the spelling they are a variant of (#637, #633).
     df, vocabulary = harmonise_vocabulary(df)
-    return df, (segments, alleles, mhc, references, vocabulary)
+    # The same defect one level down: `method.identification` is a comma-separated set, so a variant
+    # inside a multi-token cell is unreachable from a whole-cell rewrite (#637).
+    df, method_tokens = harmonise_method_tokens(df)
+    return df, (segments, alleles, mhc, references, vocabulary, method_tokens)
 
 
 def build_master(paths: Iterable[Path] | None = None,
@@ -211,6 +216,14 @@ def build_master(paths: Iterable[Path] | None = None,
     reads.
     """
     df = read_chunks(paths)
+    # One publication curated in two chunk files is one paper reporting one clone twice, and two
+    # rows of one paper are not two independent reports - which is the whole basis for
+    # deduplicating within a chunk (#390). Runs before identity, so a collapsed row is retired by
+    # the registry rather than silently re-keyed. `vdjdb qc` deliberately does *not* see this: a
+    # curator should know the paper was curated twice.
+    df, repeated = merge_repeated_references(df)
+    if write_report is not None:
+        _write_repeated(write_report.parent / "repeated-references.tsv", repeated)
     # As submitted, before any harmonisation touches it. `chains` reports these as
     # `v.segm.submitted` / `j.segm.submitted` / `d.segm.submitted`: a reader comparing them with the
     # shipped call sees exactly what the build decided, which is the difference between a curation
@@ -230,24 +243,47 @@ def build_master(paths: Iterable[Path] | None = None,
     # trimmed sequences repaired to the same full one are still two observations.
     df = add_record_ids(df, registry, write=write_registry, release=release)
     df = fix_cdr3(df)
+    # After identity, deliberately: the count and total are *parsed out of* a column identity already
+    # keys on, so they add no information a record could be re-keyed by, and running before would
+    # make two records of one whose submitted strings differ only in whitespace.
+    df, frequency = split_frequency(df)
+    if write_report is not None:
+        _write_frequency(write_report.parent / "frequency.tsv", frequency)
     df = add_score(df)
     return add_tcr_hash(df)
 
 
 def _write_harmonisation(path: Path, segments: pl.DataFrame, alleles: pl.DataFrame,
                          mhc: pl.DataFrame, references: pl.DataFrame,
-                         vocabulary: pl.DataFrame) -> pl.DataFrame:
-    """Union the five harmonisation reports and write them. Returns the frame. #700."""
+                         vocabulary: pl.DataFrame,
+                         method_tokens: pl.DataFrame) -> pl.DataFrame:
+    """Union the six harmonisation reports and write them. Returns the frame. #700."""
     report = pl.concat([
         _harmonisation_row("segments", segments, issue="#389"),
         _harmonisation_row("alleles", alleles),
         _harmonisation_row("mhc", mhc, column="mhc.a,mhc.b"),
         _harmonisation_row("references", references, issue="#347", column="reference.id"),
         _harmonisation_row("vocabulary", vocabulary, issue="#637"),
+        _harmonisation_row("method-tokens", method_tokens, issue="#637",
+                           column="method.identification"),
     ], how="vertical").sort("stage", "column", "species", "from", "to")
     path.parent.mkdir(parents=True, exist_ok=True)
     # `quote_style="never"`: a pass that reports no species writes an empty cell, and the default
     # renders that as a literal `""`. Hard rule 6 -- empty string is the only missing marker.
+    report.write_csv(path, separator="\t", quote_style="never")
+    return report
+
+
+def _write_repeated(path: Path, report: pl.DataFrame) -> pl.DataFrame:
+    """Which publications are curated in more than one chunk file, and what was done (#390)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    report.write_csv(path, separator="\t", quote_style="never")
+    return report
+
+
+def _write_frequency(path: Path, report: pl.DataFrame) -> pl.DataFrame:
+    """What shape each `method.frequency` cell was submitted in, and how many carry a count (#696)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
     report.write_csv(path, separator="\t", quote_style="never")
     return report
 
