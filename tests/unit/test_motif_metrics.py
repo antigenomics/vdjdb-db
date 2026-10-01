@@ -44,15 +44,18 @@ def test_a_fall_inside_tolerance_is_not_a_regression() -> None:
     assert mm.regressions_against_latest(m).height == 0
 
 
-def test_percolation_is_gated_the_other_way_round() -> None:
-    """Percolation is the one axis where lower is better, and a gate that assumed otherwise would
-    reward the failure mode TRB actually has (docs/clustering.md 6.2)."""
-    worse = frame(latest={"percolation_median": 0.6667},
-                  **{"current-tcrnet": {"percolation_median": 0.7500}})
-    better = frame(latest={"percolation_median": 0.6667},
-                   **{"current-tcrnet": {"percolation_median": 0.5000}})
-    assert mm.regressions_against_latest(worse).height == 1
-    assert mm.regressions_against_latest(better).height == 0
+def test_percolation_is_recorded_and_never_gated() -> None:
+    """Percolation is an epitope's largest-cluster share, and what is right depends on the epitope:
+    one prominent motif (A*02 GIL) should percolate, a featureless one (A*02 NLV) should not. So
+    neither a rise nor a fall is a regression; fusion of different motifs shows in purity."""
+    assert mm.AXES["percolation_median"][0] == "record"
+    assert mm.AXES["percolation_excess"][0] == "record"
+    higher = frame(latest={"percolation_median": 0.6667, "percolation_excess": 0.0},
+                   **{"current-tcrnet": {"percolation_median": 0.9000, "percolation_excess": 0.2333}})
+    lower = frame(latest={"percolation_median": 0.6667},
+                  **{"current-tcrnet": {"percolation_median": 0.1000}})
+    assert mm.regressions_against_latest(higher).height == 0
+    assert mm.regressions_against_latest(lower).height == 0
 
 
 def test_losing_one_covered_epitope_is_a_regression() -> None:
@@ -106,15 +109,13 @@ def test_the_committed_baseline_covers_every_source_and_gated_axis() -> None:
 
 
 def test_a_declared_trade_is_accepted_and_a_worse_one_is_not() -> None:
-    """Our TRA TCREMP percolates more than the release and buys retention, purity and two epitopes.
-    That is a trade and it is declared; the same axis drifting further is not, and must still fail.
+    """An axis that is worse on purpose is declared with its reason and capped at the declared value.
+    The same axis drifting further is not accepted, and must still fail.
     """
-    declared = frame(**{"current-tcremp": {"percolation_excess": 0.0622}}).with_columns(
-        pl.lit("buys retention 0.2071 -> 0.2513 and two epitopes").alias("reason"))
-    at = frame(latest={"percolation_excess": 0.0},
-               **{"current-tcremp": {"percolation_excess": 0.0622}})
-    worse = frame(latest={"percolation_excess": 0.0},
-                  **{"current-tcremp": {"percolation_excess": 0.0900}})
+    declared = frame(**{"current-tcremp": {"retention": 0.2000}}).with_columns(
+        pl.lit("buys a wider ball and two epitopes").alias("reason"))
+    at = frame(latest={"retention": 0.2500}, **{"current-tcremp": {"retention": 0.2000}})
+    worse = frame(latest={"retention": 0.2500}, **{"current-tcremp": {"retention": 0.1500}})
     assert mm.regressions_against_latest(at, declared).height == 0
     assert mm.regressions_against_latest(at).height == 1, "undeclared, it must be reported"
     assert mm.regressions_against_latest(worse, declared).height == 1

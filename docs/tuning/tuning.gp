@@ -75,7 +75,7 @@ plot for [i=1:words(ALGOS)] F using \
 
 set key outside center bottom horizontal maxrows 2 samplen 1 spacing 1.1 font ",11"
 set ylabel "median per-epitope percolation"
-set title "percolation: largest cluster's share, lower is better"
+set title "percolation: largest cluster's share (a property of the epitope, read with purity)"
 plot for [i=1:words(ALGOS)] F using \
   (strcol(1) eq chain && strcol(2) eq word(ALGOS,i) ? $4 : NaN):(column(11)) \
   ls i title word(NAMES,i)

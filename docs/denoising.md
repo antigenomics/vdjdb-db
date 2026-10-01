@@ -93,8 +93,11 @@ epitope.
 
 ## 5. Coverage and neighbourhood width
 
-Fragmentation and percolation are both failures, and fixing one by causing the other is not
-progress.
+Fragmentation is a failure. Percolation is a failure only where it fuses *different* motifs: an
+epitope with one prominent motif (A\*02 GIL) should have one dominant cluster, and a featureless one
+(A\*02 NLV) should have many, so the largest cluster's share is a property of the epitope and is
+recorded, not gated (the note on percolation at the top of `docs/clustering.md`). Fixing fragmentation by fusing motifs is not progress,
+and purity is what shows it.
 
 Widening the similarity ball raises the fraction of clustered records monotonically, by recruiting
 the bystanders and mis-assigned records of §1. Once those sit inside a named motif with a logo they
