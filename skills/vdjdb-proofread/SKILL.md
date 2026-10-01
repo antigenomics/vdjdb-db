@@ -49,7 +49,7 @@ with open(path) as f:
 
 If a shift is confirmed, say which direction and by how many columns, then either drop the spurious
 header columns or prepend the missing `chunk.id` to the data rows - whichever makes header and data
-agree with a shipping chunk (`head -1 chunks/PMID_28423320.txt`). Re-run step 1 after.
+agree with a shipping chunk (`head -1 chunks/PMID_28423320.tsv`). Re-run step 1 after.
 
 ## Step 2 - run the rules
 

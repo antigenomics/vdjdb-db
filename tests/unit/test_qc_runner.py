@@ -188,8 +188,8 @@ def test_a_structure_id_that_is_not_a_pdb_id_is_reported_and_is_advisory():
             "1AO7",                               # a PDB id
             "6uon",                               # lower case is still a PDB id
             "",                                   # blank is the normal case
-            "Fig 9, Supp Fig 5, Supp Table 5-8",  # the 400-row case in menon_etal_2024.txt
-            "56I",                                # three characters, the PMID_28423320.txt case
+            "Fig 9, Supp Fig 5, Supp Table 5-8",  # the 400-row case in menon_etal_2024.tsv
+            "56I",                                # three characters, the PMID_28423320.tsv case
             "ABCD",                               # four alphanumerics, but a PDB id starts with a digit
         ],
     })
