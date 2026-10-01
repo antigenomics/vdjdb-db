@@ -172,6 +172,15 @@ paired alpha/beta columns, as in `vdjdb_full.txt`.
 `v_segm_submitted`, `j_segm_submitted`, `d_segm_submitted`, `v_segm_arda`, `j_segm_arda`,
 `TCR_hash`.
 
+`j_segm` is the J that ships, and it is not always the J the paper reported. Three values sit side by
+side: `j_segm_submitted` is the call as submitted, `j_segm_arda` is the allele `arda.cdr3fix` aligned
+the junction against, and `j_segm` is what ships. A J is **not used when it misses the junction's last
+3 residues**, anchor excluded and one mismatch beside the anchor tolerated: it is replaced by the one
+other gene of the chain's locus that matches 3 or more, or by the one gene of its own family that
+matches 2 or more when nothing reaches 3. Ties are not broken, a call no other gene explains stands,
+and the junction itself is never altered. `j_start` and `j_canonical` are then about the gene that
+ships (#681; `vdjdb.curate.jcalls.recall`).
+
 `cdr3nt` is inferred, not observed (#461): it is the most plausible nucleotide junction behind the
 amino-acid one, from the recombination model. 261,097 of 286,047 chains have one and each
 back-translates to its junction, but two models agree on only 7.2 % of the sequences, so the column is
