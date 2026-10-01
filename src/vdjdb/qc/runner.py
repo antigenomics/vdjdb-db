@@ -62,6 +62,10 @@ ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form", "duplicate"
                       # on live data.
                       *(f"counter in {c}" for c in
                         ("antigen.gene", "antigen.species", "mhc.a", "mhc.b")),
+                      # #597: one epitope under two HLA genes inside one chunk. Advisory because the
+                      # rule cannot tell donor typing written into `mhc.a` from a paper that reports
+                      # two restrictions (`PMID_34793243` does), and only the paper settles it.
+                      "one epitope under two HLA genes in one chunk",
                       # A named V or J whose chain has no CDR3. The call is information and the row
                       # is kept; the chain cannot reach an output, which is what this tells the
                       # submitter while they can still supply the sequence.

@@ -11,3 +11,4 @@ row	non-functional v.alpha	38	5	true	50
 text	unknown-column	2	-1	true	0
 text	empty-column-name	1	-1	true	0
 text	prose-column-name	1	-1	true	0
+row	one epitope under two HLA genes in one chunk	28	2	true	10
