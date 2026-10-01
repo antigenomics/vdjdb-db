@@ -6,7 +6,7 @@ The score evaluates TCR sequence confidence, identification confidence and verif
 
 1. Ensuring TCR sequence is correctly identified according to ``method.sequencing`` and ``method.singlecell`` (1-3 points)
     * sanger - several cells sequenced (2+ cells sequenced according to ``method.frequency``) - 2 points, otherwise 1
-    * amplicon-seq - frequency is higher than ``0.01`` - 2 points, otherwise 0
+    * amplicon-seq - frequency is at least ``0.01`` **and** at least 2 reads (``method.frequency.count``) - 3 points, otherwise 1
     * single-cell - 3 points if performed
 2. Initial identification of TCR:pMHC is correct according to ``method.identification`` (0-1 point)
     * sort-based - frequency is higher than ``0.1`` according to ``method.frequency``)

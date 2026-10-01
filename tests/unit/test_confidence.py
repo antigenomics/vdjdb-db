@@ -9,7 +9,9 @@ from __future__ import annotations
 import polars as pl
 import pytest
 
-from vdjdb.score.confidence import SCORE_SIGNATURE, add_score, cell_count, frequency
+from vdjdb.score.confidence import (
+    SCORE_SIGNATURE, add_score, cell_count, frequency, sequencing_score,
+)
 
 #: Every column `add_score` touches, with values that score 0 unless a test overrides them.
 BLANK = {
@@ -100,6 +102,18 @@ def test_amplicon_depth_decides_sequencing_confidence():
                  "method.identification": "", "method.verification": ""})
     assert high == 3
     assert add_score(low)["vdjdb.score"][0] == 0
+
+
+@pytest.mark.parametrize("cell, expected", [
+    ("2/100", 3),     # 0.02 of the reads and 2 reads
+    ("1/100", 1),     # frequency clears 0.01, one read does not
+    ("0.02", 1),      # a bare ratio carries no read count
+    ("2/1000", 1),    # 2 reads, frequency 0.002 is under 0.01
+])
+def test_amplicon_needs_two_reads_as_well_as_depth(cell, expected):
+    df = row(**{"method.sequencing": "amplicon-seq", "method.frequency": cell})
+    got = df.select(sequencing_score(frequency(), cell_count()))[0, 0]
+    assert got == expected, cell
 
 
 def test_sanger_needs_two_cells_for_full_confidence():
