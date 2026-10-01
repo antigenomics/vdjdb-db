@@ -218,6 +218,16 @@ rather than 1,278**, because it answers 3,992 rather than 2,230.
 `antigenomics/arda#142` dissolved into it, as predicted: the batched path `#142` asked arda to build
 already existed here.
 
+### 3.6 Cross-repo gate: `vdjtools` returns nucleotides that encode the junction - **closed 2026-10-01**
+
+`annotate_junctions` returned a `cdr3_nt` that translated to a substituted sequence on 2,214 keys
+(`antigenomics/vdjtools#186`, #187), and the build dropped everything read off those nucleotides. **vdjtools 4.8.1
+returns `translate(cdr3_nt) == cdr3_repaired` on every row**; the bound here is `vdjtools>=4.8.1` and the lock is on
+4.8.2 (a logo change only). Measured on the shipped corpus: chains carrying `cdr3nt` 283,296 -> **285,509** (of 285,770),
+chains carrying a D start 157,935 -> **159,267**, `translate(cdr3nt) != cdr3` on 0 chains before and after, because
+the gate in `annotate/junction.py` stays as the direct check. `add_junction_nt` 23.03 s -> 23.5 to 24.2 s over three
+builds on 16 cores, `vdjdb build` 35.2 s -> 35.8 to 36.2 s.
+
 ## 4. Phases
 
 `master` → `dev` → `feature/*` → `dev` → `master`. Every phase is independently mergeable and
@@ -309,15 +319,18 @@ the files it creates, the facts it needs (already measured, in §7/§8), and the
 
 ## 4a. Issue tracker composition
 
-Re-measured 2026-09-30, after the migration landed: 471 issues, **113 open**, against 466 / 116 and
-458 / 123 on 2026-09-29 and 440 / 130 on 2026-09-25. Grouped by label, one category per issue, intake
-winning a tie and maintenance winning over proofreading:
+Re-measured 2026-10-01, after the proofreading and maintenance pass: 471 issues, **111 open**, against
+113 on 2026-09-30, 116 on 2026-09-29 and 130 on 2026-09-25 (#390, #714, #591 closed, #303 and #214
+before them). Grouped by label, one category per issue, intake winning a tie and maintenance winning
+over proofreading:
 
-| Category | Open, 2026-09-25 | Open, 2026-09-29 | Open, 2026-09-30 | What they are |
-|---|---:|---:|---:|---|
-| data intake | 103 (79 %) | 101 (82 %) | **101 (89 %)** | pending papers, preprints, paper-pending, meta-papers, 10x/Immudex sets, associations, other databases, correspondence |
-| curation quality | 22 | 8 | 6 | formatting & proofreading, typos, structural, validation |
-| build infrastructure | 13 | 14 | 6 | the build, the summary, maintenance |
+| Category | Open, 2026-09-25 | Open, 2026-09-29 | Open, 2026-09-30 | Open, 2026-10-01 | What they are |
+|---|---:|---:|---:|---:|---|
+| data intake | 103 (79 %) | 101 (82 %) | 101 (89 %) | **101 (91 %)** | pending papers, preprints, paper-pending, meta-papers, 10x/Immudex sets, associations, other databases, correspondence |
+| curation quality | 22 | 8 | 6 | 3 | formatting & proofreading, typos, structural, validation |
+| build infrastructure | 13 | 14 | 6 | 7 | the build, the summary, maintenance |
+
+Merging #725 closes #497, #625 and #681 and leaves 108 open.
 
 The intake row has not moved in nine days - **101 on every one of the four measurements.** The other
 two fell because the build work closed what it had filed: #685, #637's measurable half, #633's
@@ -325,9 +338,11 @@ epitope-source report, #647, #671, #672, #675, #658, then #713 when the migratio
 and #214 when they turned out to name a dataset that was never curated and three asks that now have
 their own issues.
 
-The twelve that remain are nameable, which is the difference between a tracker and a backlog:
-**curation quality** is #390, #434, #591, #597, #681, #714; **build infrastructure** is #560, #625,
-#632, #633, #637, #696.
+The ten that remain outside the queue are nameable, which is the difference between a tracker and a
+backlog. **Curation quality**: #434 (MATCHMAKERs), #597 (repaired on #725, whether to add the within-chunk
+QC guard it proposes is open) and #681 (repaired on #725). **Build infrastructure**: #497, #625 (both on #725),
+#560 (engineered CDR2 residues, waits on a schema field), #632, #633, #637, #696. #431 (13,974 records of the
+10x import) is counted as intake and is held for the author's proposal on that import as a whole.
 
 The build work also files issues from its own measurements - #650 (the profile double-count), #652
 (the shipped zips were never compared), #656 (the junction-nt bottleneck), #693, #696 - so the bottom
