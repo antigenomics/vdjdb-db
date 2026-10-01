@@ -309,8 +309,8 @@ def reconcile(
         #
         # The reference was not keeping the scan local either. A chunk is one paper, so 213 of the
         # 231 chunks carry exactly one `reference.id`; the 18 that carry more are small, the two
-        # largest being `small_datasets_2026-05-29.txt` (1,044 rows, 237 references) and
-        # `PDB_Database.txt` (370 / 209), against a 29,715-row single-reference chunk the second
+        # largest being `small_datasets_2026-05-29.tsv` (1,044 rows, 237 references) and
+        # `PDB_Database.tsv` (370 / 209), against a 29,715-row single-reference chunk the second
         # component did nothing for. The chunk does the localising.
         by_bucket: dict[str, list[_Entry]] = defaultdict(list)
         for e in leftovers:
@@ -357,7 +357,7 @@ def reconcile(
                 # holds hundreds of unmatched rows and each row has its own two or three candidates: a
                 # bijection between the bucket's rows and *one row's* candidates never holds, and the
                 # first version of this test therefore refused every one of them - 2,066 published ids
-                # retired and re-minted. The second is `menon_etal_2024.txt` rows 26 and 27, whose
+                # retired and re-minted. The second is `menon_etal_2024.tsv` rows 26 and 27, whose
                 # `TRBV5-3;TRBV5-5;TRBV5-8` and `TRBV5-3;TRBV5-8` both moved one field when `;` became
                 # `,` (`52cb4e2`), costing `VDJDB0000187889` and `...890` their ids.
                 present = rows_present.get(str(row.get("chunk.file") or ""), set())

@@ -116,7 +116,7 @@ MAX_REPLACE = 0
 LOCI: dict[str, str] = {"alpha": "TRA", "beta": "TRB"}
 
 
-def markup(keys: pl.DataFrame, gene: str | None = None) -> pl.DataFrame:
+def markup(keys: pl.DataFrame, gene: str | None = None, *, recall_j: bool = True) -> pl.DataFrame:
     """Mark up a frame of distinct ``(species, cdr3, v, j)`` keys.
 
     One :func:`arda.cdr3fix.markup_records` call for the whole frame: it reads ``species`` per row
@@ -132,7 +132,14 @@ def markup(keys: pl.DataFrame, gene: str | None = None) -> pl.DataFrame:
     from arda.cdr3fix import markup_records
 
     ensure_reference()
-    records = markup_records(keys, max_replace=MAX_REPLACE)
+    out = _frame(keys, markup_records(keys, max_replace=MAX_REPLACE), gene)
+    if recall_j:
+        out = _recall_j(out, gene)
+    return out.sort(KEY)
+
+
+def _frame(keys: pl.DataFrame, records: list, gene: str | None) -> pl.DataFrame:
+    """The shipped columns for ``keys``, from one ``Cdr3Markup`` per key and in the same order."""
     fixes = [r.to_cdr3fix() for r in records]
     locus = LOCI.get(gene or "")
     # A proposal is accepted only for the locus this column can hold; see LOCI.
@@ -176,7 +183,51 @@ def markup(keys: pl.DataFrame, gene: str | None = None) -> pl.DataFrame:
         pl.when(pl.col("__pv")).then(pl.col("__varda")).otherwise(pl.lit("")).alias("__gv"),
         pl.when(pl.col("__pj")).then(pl.col("__jarda")).otherwise(pl.lit("")).alias("__gj"),
     )
-    return out.drop("__pv", "__pj", "__locus").sort(KEY)
+    return out.drop("__pv", "__pj", "__locus")
+
+
+def _recall_j(out: pl.DataFrame, gene: str | None) -> pl.DataFrame:
+    """Replace a J call the junction does not support by the one gene that does (#681).
+
+    **The submitted call is untouched and the shipped one is fixed.** `j.segm.submitted` carries
+    what the paper reported and `j.segm.arda` what the engine called; this changes `j.segm` and the
+    metadata about it - `jId`, `jStart`, `jCanonical` - and nothing about the junction, which the rule
+    never alters. The rule is :func:`vdjdb.curate.jcalls.recall` and it runs on the call that would
+    ship, so the engine's own re-call stays wherever it already satisfies the rule.
+
+    `jFixType` stays what the engine reported and `good` stays as it was: the rule re-calls a gene,
+    it does not repair a residue.
+
+    The engine cannot be asked to mark the junction up again under the rule's gene. `markup_cdr3`
+    answers with the J its own gapped alignment prefers, which differs from the rule's gene on 443
+    shipped chains, and an anchor table restricted to one gene raises inside arda. So the placement
+    is :func:`vdjdb.curate.jcalls.place`, for the ~1,000 keys the rule changes.
+    """
+    from ..curate.jcalls import place, recall
+
+    locus = LOCI.get(gene or "")
+    if locus is None or out.is_empty():
+        return out
+    pairs = out.filter(pl.col("__j") != "").select("species", "__cdr3", "__j").unique()
+    rows = []
+    for sp, cdr3, j in pairs.iter_rows():
+        new = recall(sp, locus, cdr3, j)
+        if new is not None:
+            allele, start, canonical = place(sp, cdr3, new)
+            rows.append((sp, cdr3, j, allele, start, canonical))
+    if not rows:
+        return out
+    table = pl.DataFrame(rows, schema={"species": pl.Utf8, "__cdr3": pl.Utf8, "__j": pl.Utf8,
+                                       "__jn": pl.Utf8, "__jsn": pl.Int64, "__jcn": pl.Boolean},
+                         orient="row")
+    hit = pl.col("__jn").is_not_null()
+    return (out.join(table, on=["species", "__cdr3", "__j"], how="left")
+               .with_columns(pl.when(hit).then(pl.col("__jn")).otherwise(pl.col("__j")).alias("__j"),
+                             pl.when(hit).then(pl.col("__jsn")).otherwise(pl.col("__jstart"))
+                               .alias("__jstart"),
+                             pl.when(hit).then(pl.col("__jcn")).otherwise(pl.col("__jcanon"))
+                               .alias("__jcanon"))
+               .drop("__jn", "__jsn", "__jcn"))
 
 
 def _shipped_call(submitted: str, engine: str, *, proposed: str) -> pl.Expr:

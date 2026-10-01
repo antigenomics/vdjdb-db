@@ -1,0 +1,9 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
+1				CASSESTGTAYGYTF	TRBV13-1		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:11930311	tetramer-sort	60%								002							
+2				CASSLGNYEQYF	TRBV14		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	VLEETSVML	IE1	CMV	PMID:11930311	tetramer-sort	76%								014							
+3				CASSLSTGGALGTIYF	TRBV1		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	VLEETSVML	IE1	CMV	PMID:11930311	tetramer-sort	42%								015							
+4				CASSLTSGGPDTQYF	TRBV14		TRBJ2-3	HomoSapiens	HLA-A*02	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:11930311	tetramer-sort	75%								010							
+5				CASSWDSQSSGNSIYF	TRBV5-1		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	VLEETSVML	IE1	CMV	PMID:11930311	tetramer-sort	24%								014							
+6				CASSWDSQSSGNSIYF	TRBV5-1		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	VLEETSVML	IE1	CMV	PMID:11930311	tetramer-sort	93%								004							
+7				CSVSEGASEQYF	TRBV4		TRBJ2-7	HomoSapiens	HLA-A*02	B2M	MHCI	VLEETSVML	IE1	CMV	PMID:11930311	tetramer-sort	99%								002							
+8				CASSWDSQSSGNSIYF	TRBV5-1		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	VLEETSVML	IE1	CMV	PMID:11930311	tetramer-sort	7%								015							

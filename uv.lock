@@ -3100,7 +3100,7 @@ requires-dist = [
     { name = "scipy", marker = "extra == 'summary'", specifier = ">=1.11" },
     { name = "sphinx", marker = "extra == 'docs'", specifier = ">=7" },
     { name = "typer", specifier = ">=0.12" },
-    { name = "vdjtools", specifier = ">=4.8" },
+    { name = "vdjtools", specifier = ">=4.8.1" },
 ]
 provides-extras = ["motifs", "test", "summary", "tuning", "docs", "dev"]
 
@@ -3119,7 +3119,7 @@ wheels = [
 
 [[package]]
 name = "vdjtools"
-version = "4.8.0"
+version = "4.8.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "arda-mapper" },
@@ -3133,17 +3133,17 @@ dependencies = [
     { name = "typer" },
     { name = "vdjmatch" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/08/dd/6fb8f7a2cb7f4d4182770a8397d5a1a34b4d4c8153a61b128f07537baaeb/vdjtools-4.8.0.tar.gz", hash = "sha256:0eb495ede0d8f3b29e47edcbd01712d93a46806810db3120a798547feea40932", size = 1444507, upload-time = "2026-09-30T10:41:10.131Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3d/cf/3470490d463c43dc5297c8ba00a0ac093e53d43c750a7b203be2d4e9bf97/vdjtools-4.8.2.tar.gz", hash = "sha256:535e9dccf1f2f296a0a2e25cc07fa77170da34693d790e9c68262233f8e79464", size = 1444866, upload-time = "2026-10-01T02:52:22.464Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/25/90/2a5b50ef05d2d8a0104e16fc2457d908464013dfd5da03dba2240026d94c/vdjtools-4.8.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:1bc29f9e37797b57182bd07fcea9e2491c07c72af68f8966288357bdf6f9e0d0", size = 1855621, upload-time = "2026-09-30T10:40:55.394Z" },
-    { url = "https://files.pythonhosted.org/packages/43/16/c3494adf00368109ee65b146b693d3b7b3f7c276534fa50561fb4093d83f/vdjtools-4.8.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:3fea0e35bf93e2e7ec1eae634dad9b30c8649835ac34b5617d4fac9b697af8c4", size = 1922168, upload-time = "2026-09-30T10:40:57.016Z" },
-    { url = "https://files.pythonhosted.org/packages/77/70/15e53590f8c3b8b7ddc63d63b73c21f3f05fa2697fad6e5021eebe33df37/vdjtools-4.8.0-cp311-cp311-win_amd64.whl", hash = "sha256:5f04cabc6414df79f7dc3df7f98b36ab1f22575a8dbedd68ffe1f7be925510b2", size = 1850343, upload-time = "2026-09-30T10:40:58.538Z" },
-    { url = "https://files.pythonhosted.org/packages/65/79/e865fbe09f088d254cc07336fb3ffeaf7ac155f538aa88a566c0c584d1ab/vdjtools-4.8.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:fc39ad5a5e651322291e9cff5c83219ca6c3bae15b97d4824401ce4fa1bc6794", size = 1857649, upload-time = "2026-09-30T10:41:00.137Z" },
-    { url = "https://files.pythonhosted.org/packages/5a/d6/45562f6ca33118221023e0261cf46124a09224fcbf151630b32d1d618408/vdjtools-4.8.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:6efc36ecd12995fa533e09f5ddafef14f53be4aa028f7419d41b18aebeee6e69", size = 1922798, upload-time = "2026-09-30T10:41:01.858Z" },
-    { url = "https://files.pythonhosted.org/packages/32/64/9e937c04b35f5280e431d59adb84b381b4cecab6bf46f16dc31d170fed88/vdjtools-4.8.0-cp312-cp312-win_amd64.whl", hash = "sha256:79afff4840cf0fd0d6cee7f10dcc9df649410815438346e076ab1c6eefa4ad5f", size = 1852519, upload-time = "2026-09-30T10:41:03.477Z" },
-    { url = "https://files.pythonhosted.org/packages/ce/97/35334f3358671d43786090c8f6f84523a651d3c327611ff002c3db5430fd/vdjtools-4.8.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:c0e7d4b45ca5088337b9286882a8e5c678748d1c2cc67819de9e47dc34107b7f", size = 1858470, upload-time = "2026-09-30T10:41:05.05Z" },
-    { url = "https://files.pythonhosted.org/packages/ce/be/9fb62685080950d0c175b4c52f91addff7da88fa55126c403e543bc7e6ae/vdjtools-4.8.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:d741b9c69a898fe32a53205bd93e4521cefb684e84ca612cb4fed8cc33fbad54", size = 1922636, upload-time = "2026-09-30T10:41:06.644Z" },
-    { url = "https://files.pythonhosted.org/packages/62/c7/b5b43e311f7ac16667dc80f8503e1d186535abd0a40f0efc65ee4675f9ae/vdjtools-4.8.0-cp313-cp313-win_amd64.whl", hash = "sha256:a0f199fa225b5c2cc84f2d39ac34412934f7503c554fd0ba1e183b2d24da725e", size = 1852530, upload-time = "2026-09-30T10:41:08.514Z" },
+    { url = "https://files.pythonhosted.org/packages/09/aa/f8ef28164b3848c4f873a2c6803ddc07b1736b1a941ceb8aaaa58a82f3cb/vdjtools-4.8.2-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:b3dfbc96e9630253f1d2939fbf7e380ec6de11d4adae50ae0eec8173ba799864", size = 1855775, upload-time = "2026-10-01T02:52:09.09Z" },
+    { url = "https://files.pythonhosted.org/packages/1d/00/53fa46b87d81481f6355fe931cefa361e6539650e4159bf4d4cd6061d706/vdjtools-4.8.2-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:ce2f5f2eb343c036297e8b0965794dbcf135b98e63206524a340db47b09bb908", size = 1922321, upload-time = "2026-10-01T02:52:10.725Z" },
+    { url = "https://files.pythonhosted.org/packages/f9/08/c541128124d0127accb7768c7b5abd81b91ac89be5f47fd193e72f3ca146/vdjtools-4.8.2-cp311-cp311-win_amd64.whl", hash = "sha256:42f8d11e097611c7e847bcf24122dc76efaab4db1ef1e2a1356ec6444b292d4a", size = 1850492, upload-time = "2026-10-01T02:52:12.249Z" },
+    { url = "https://files.pythonhosted.org/packages/7b/de/801afde8e97501c9edb0f094358feebfdd4662b235f3fb53cffdf1892dee/vdjtools-4.8.2-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:d471c4a5831de979b75e0ce1639332c85d2de6f1fc49d0ffacbeb5487d467d6d", size = 1857801, upload-time = "2026-10-01T02:52:13.808Z" },
+    { url = "https://files.pythonhosted.org/packages/a2/a1/7b6836e011fb02700b2d00451cd31cf0f52856d0dc5acc12f734cabf76a8/vdjtools-4.8.2-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:4f3cbbbc51f10930e644ee0beb3c07f61ce558646dc5cfdb2d1f02e9c2a4cf49", size = 1922954, upload-time = "2026-10-01T02:52:15.351Z" },
+    { url = "https://files.pythonhosted.org/packages/ba/59/7cdbccd70708c6f7801e02124a110b12d64c106060f5a640e1d995075837/vdjtools-4.8.2-cp312-cp312-win_amd64.whl", hash = "sha256:22fade02ad22fa901a7a40b7cb987e1fe582482ec80d8adf7ef166f2760693e3", size = 1852672, upload-time = "2026-10-01T02:52:16.82Z" },
+    { url = "https://files.pythonhosted.org/packages/21/b8/875537a024ee7a4f982d556b0776c27a363b53511f6d428d22de4d0b8e07/vdjtools-4.8.2-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:7712cf32b7fdc36cc48d048984f3e0eb58882e523fad710501eb6a1a7b90a712", size = 1858629, upload-time = "2026-10-01T02:52:18.343Z" },
+    { url = "https://files.pythonhosted.org/packages/ef/34/5de34843fcb738eeea9a1df711edef8407b6305cb43394c9cca8d89c5410/vdjtools-4.8.2-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:818679f2a720b1c7510e1bfd8a2ec0604d80d6e899a8276f58b25026a4e91db1", size = 1922791, upload-time = "2026-10-01T02:52:19.711Z" },
+    { url = "https://files.pythonhosted.org/packages/6a/99/7f185c022f8a2e0ac77c19130b6fde821b1e95c8ca03dff3113abdf4886c/vdjtools-4.8.2-cp313-cp313-win_amd64.whl", hash = "sha256:0b27fee5584a5725828d59df364699ed3da895c2231ddc8858509b7302556e91", size = 1852680, upload-time = "2026-10-01T02:52:21.122Z" },
 ]
 
 [[package]]

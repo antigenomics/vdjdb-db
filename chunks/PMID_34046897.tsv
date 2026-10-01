@@ -1,0 +1,44 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
+1	CAASIGFGRLMF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+2	CAVRDPARGDYKLSF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+3	CAASTNDMRF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+4	CAVRDSRANAGNNRKLIW							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+5	CADGGKLIF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+6	CAVRFYKAAGNKLTF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+7	CAESSASKIIF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+8	CAVRGAGAGSYQLTF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+9	CAFIPPRYNTDKLIF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+10	CAVRGDSGGYQKVTF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+11	CAGAQDARLMF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+12	CAVRGYSGNTPLVF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+13	CAGFKAAGNKLTF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+14	CAVRSNRDDKIIF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+15	CAISTDSWGKFQF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+16	CAVSLSGGYQKVTF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+17	CAPGGSYIPTF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+18	CAVSNDYKLSFCASPSYGKLTF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+19	CFLTGNQFYF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+20	CATGANSKLTF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+21	CILNTGTASKLTF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+22	CAVKGNGGSQGNLIF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+23	CIVRLASGTYKYIF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+24	CAVLMDSNYQLIW							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+25	CVVSDYRPGSGSARQLTF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+26	CAVLPYGGATNKLIF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+27	CVVTSNARLMF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+28	CAVRAPDRGSTLGRLYF							HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+29				CASSLLVLDEQFF	TRBV7-9		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort											JA003-A1					
+30				CASSGSSGGEKLFF	TRBV7-9		TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort											JA003-B1					
+31				CASSLLAGSYNEQFF	TRBV7-9		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort											JA003-Z6					
+32				CASSLTGAGGPHEQYF	TRBV7-9		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort											CB004-16					
+33				CASSLLAGGYNEQFF	TRBV7-9		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort											CB004-19					
+34				CASSLVRVDTIYF	TRBV7-9		TRBJ1-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort											MG005-9					
+35				CASSLSSYNEQFF				HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+36				CASSLVAGQTEAFF				HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+37				CASSLVRLDTQYF				HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+38				CASSLVRNEKLFF				HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+39				CASSLWGAEQYF				HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+40				CASSPINEQFF				HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+41				CASSPTQAGFTAREQYF				HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+42				CASSPTTLSGYTF				HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																
+43				CASTLIHEKLFF				HomoSapiens	HLA-A*02:01	B2M	MHCI	VLHDDLLEA	HA-1	HomoSapiens	PMID:34046897	tetramer-sort																

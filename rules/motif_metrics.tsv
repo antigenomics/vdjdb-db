@@ -10,8 +10,8 @@ HomoSapiens	TRA	current-tcremp	partition_clonotypes_reference	record	0.0	15016.0
 HomoSapiens	TRA	current-tcremp	partition_clonotypes_shared	record	0.0	7829.0	
 HomoSapiens	TRA	current-tcremp	partition_neighbours_preserved	baseline	0.005	0.282017	
 HomoSapiens	TRA	current-tcremp	partition_pairs_preserved	record	0.0	0.292595	
-HomoSapiens	TRA	current-tcremp	percolation_excess	down	0.005	0.07355	declared 2026-09-29, ROADMAP_local.md 71: the corpus changed under a clustering that did not. Retiring `res/` (#658) names 269 more human TRA J calls, `clonotype_id` keys on `j.segm`, and the TRA cohort's distinct clonotypes fall 17,479 -> 17,393 because a named J merges what a blank one split. That moves the median by exactly one rank step: the 105 sorted per-epitope percolations read 0.4667, 0.4762, 0.5, 0.5, 0.5, 0.5, 0.5 around the median, so a single epitope entering or leaving the covered set moves it 0.4762 -> 0.5, which is the whole 0.0238. The excess follows because `latest` covers 104 epitopes on this cohort against 103 before, so the shared set grew 98 -> 99: restricted, ours reads 0.4667 against the release's 0.3846. **`latest`'s own median moved +0.0097 on the same cohort with its clustering byte-frozen**, which is what bounds how much of this is composition rather than clustering. Nothing else moved: purity -0.0002, precision -0.0001, recall -0.0002, f1 -0.0001, retention -0.0009, Q -0.0009, h +0.0002, and partition ARI against the release 0.8161 -> 0.8134. Still our TCREMP percolating more than the release at TRA's shipped radius, for the reason section 51.3 gave and 38.1 measured - TRA is bound by Q at coef 1.75 - and it still buys retention 0.2071 -> 0.2504, purity 0.8639 -> 0.9107, precision 0.8544 -> 0.8936, Q 0.1667 -> 0.1735 and coverage 104 -> 105. Worse than this value fails.
-HomoSapiens	TRA	current-tcremp	percolation_median	down	0.005	0.48685	declared 2026-09-29, ROADMAP_local.md 71: the corpus changed under a clustering that did not. Retiring `res/` (#658) names 269 more human TRA J calls, `clonotype_id` keys on `j.segm`, and the TRA cohort's distinct clonotypes fall 17,479 -> 17,393 because a named J merges what a blank one split. That moves the median by exactly one rank step: the 105 sorted per-epitope percolations read 0.4667, 0.4762, 0.5, 0.5, 0.5, 0.5, 0.5 around the median, so a single epitope entering or leaving the covered set moves it 0.4762 -> 0.5, which is the whole 0.0238. The excess follows because `latest` covers 104 epitopes on this cohort against 103 before, so the shared set grew 98 -> 99: restricted, ours reads 0.4667 against the release's 0.3846. **`latest`'s own median moved +0.0097 on the same cohort with its clustering byte-frozen**, which is what bounds how much of this is composition rather than clustering. Nothing else moved: purity -0.0002, precision -0.0001, recall -0.0002, f1 -0.0001, retention -0.0009, Q -0.0009, h +0.0002, and partition ARI against the release 0.8161 -> 0.8134. Still our TCREMP percolating more than the release at TRA's shipped radius, for the reason section 51.3 gave and 38.1 measured - TRA is bound by Q at coef 1.75 - and it still buys retention 0.2071 -> 0.2504, purity 0.8639 -> 0.9107, precision 0.8544 -> 0.8936, Q 0.1667 -> 0.1735 and coverage 104 -> 105. Worse than this value fails.
+HomoSapiens	TRA	current-tcremp	percolation_excess	record	0.0	0.0869	recorded, not gated (2026-10-01): percolation is the largest cluster's share of an epitope's clustered clonotypes, which depends on the epitope - one prominent motif (A*02 GIL) should percolate, a featureless one (A*02 NLV) should not. See validate/motif_metrics.py.
+HomoSapiens	TRA	current-tcremp	percolation_median	record	0.0	0.5	recorded, not gated (2026-10-01): percolation is the largest cluster's share of an epitope's clustered clonotypes, which depends on the epitope - one prominent motif (A*02 GIL) should percolate, a featureless one (A*02 NLV) should not. See validate/motif_metrics.py.
 HomoSapiens	TRA	current-tcremp	precision	up	0.005	0.8894	
 HomoSapiens	TRA	current-tcremp	purity	up	0.005	0.9068	
 HomoSapiens	TRA	current-tcremp	q	up	0.005	0.163927	
@@ -28,8 +28,8 @@ HomoSapiens	TRA	current-tcrnet	partition_clonotypes_reference	record	0.0	15016.0
 HomoSapiens	TRA	current-tcrnet	partition_clonotypes_shared	record	0.0	11143.0	
 HomoSapiens	TRA	current-tcrnet	partition_neighbours_preserved	baseline	0.005	0.610443	
 HomoSapiens	TRA	current-tcrnet	partition_pairs_preserved	record	0.0	0.591805	
-HomoSapiens	TRA	current-tcrnet	percolation_excess	down	0.005	-0.1012	
-HomoSapiens	TRA	current-tcrnet	percolation_median	down	0.005	0.37085	
+HomoSapiens	TRA	current-tcrnet	percolation_excess	record	0.0	-0.1012	
+HomoSapiens	TRA	current-tcrnet	percolation_median	record	0.0	0.37085	
 HomoSapiens	TRA	current-tcrnet	precision	up	0.005	0.8653	
 HomoSapiens	TRA	current-tcrnet	purity	up	0.005	0.8726	
 HomoSapiens	TRA	current-tcrnet	q	up	0.005	0.181209	
@@ -46,8 +46,8 @@ HomoSapiens	TRA	latest	partition_clonotypes_reference	record	0.0	15016.0
 HomoSapiens	TRA	latest	partition_clonotypes_shared	record	0.0	15016.0	
 HomoSapiens	TRA	latest	partition_neighbours_preserved	baseline	0.005	1.0	
 HomoSapiens	TRA	latest	partition_pairs_preserved	record	0.0	1.0	
-HomoSapiens	TRA	latest	percolation_excess	down	0.005	0.0	
-HomoSapiens	TRA	latest	percolation_median	down	0.005	0.4658	declared 2026-09-29, ROADMAP_local.md 71: the released clustering is byte-frozen, so this moved because the cohort did. Retiring `res/` (#658) names 269 more human TRA J calls and `clonotype_id` keys on `j.segm`, so the released clusters cover 104 TRA epitopes on this cohort against 103 before and the median steps one rank, 0.4583 -> 0.468. Every other axis of this source moves by 4e-4 or less, and `partition_ari` against itself stays 1.0. This row is the control: a clustering that cannot have regressed still moves this axis by +0.0097, which is how much of any `current-*` move on the same run is composition.
+HomoSapiens	TRA	latest	percolation_excess	record	0.0	0.0	
+HomoSapiens	TRA	latest	percolation_median	record	0.0	0.4658	recorded, not gated (2026-10-01): percolation is the largest cluster's share of an epitope's clustered clonotypes, which depends on the epitope - one prominent motif (A*02 GIL) should percolate, a featureless one (A*02 NLV) should not. See validate/motif_metrics.py.
 HomoSapiens	TRA	latest	precision	up	0.005	0.847	
 HomoSapiens	TRA	latest	purity	up	0.005	0.8562	
 HomoSapiens	TRA	latest	q	up	0.005	0.153096	
@@ -64,8 +64,8 @@ HomoSapiens	TRA	legacy	partition_clonotypes_reference	record	0.0	15016.0
 HomoSapiens	TRA	legacy	partition_clonotypes_shared	record	0.0	15016.0	
 HomoSapiens	TRA	legacy	partition_neighbours_preserved	baseline	0.005	1.0	
 HomoSapiens	TRA	legacy	partition_pairs_preserved	record	0.0	1.0	
-HomoSapiens	TRA	legacy	percolation_excess	down	0.005	0.0	
-HomoSapiens	TRA	legacy	percolation_median	down	0.005	0.4658	declared 2026-09-29, ROADMAP_local.md 71: the released clustering is byte-frozen, so this moved because the cohort did. Retiring `res/` (#658) names 269 more human TRA J calls and `clonotype_id` keys on `j.segm`, so the released clusters cover 104 TRA epitopes on this cohort against 103 before and the median steps one rank, 0.4583 -> 0.468. Every other axis of this source moves by 4e-4 or less, and `partition_ari` against itself stays 1.0. This row is the control: a clustering that cannot have regressed still moves this axis by +0.0097, which is how much of any `current-*` move on the same run is composition.
+HomoSapiens	TRA	legacy	percolation_excess	record	0.0	0.0	
+HomoSapiens	TRA	legacy	percolation_median	record	0.0	0.4658	recorded, not gated (2026-10-01): percolation is the largest cluster's share of an epitope's clustered clonotypes, which depends on the epitope - one prominent motif (A*02 GIL) should percolate, a featureless one (A*02 NLV) should not. See validate/motif_metrics.py.
 HomoSapiens	TRA	legacy	precision	up	0.005	0.847	
 HomoSapiens	TRA	legacy	purity	up	0.005	0.8562	
 HomoSapiens	TRA	legacy	q	up	0.005	0.153096	
@@ -82,8 +82,8 @@ HomoSapiens	TRA	trivial	partition_clonotypes_reference	record	0.0	15016.0
 HomoSapiens	TRA	trivial	partition_clonotypes_shared	record	0.0	12192.0	
 HomoSapiens	TRA	trivial	partition_neighbours_preserved	baseline	0.005	0.651804	
 HomoSapiens	TRA	trivial	partition_pairs_preserved	record	0.0	0.604814	
-HomoSapiens	TRA	trivial	percolation_excess	down	0.005	-0.22565	
-HomoSapiens	TRA	trivial	percolation_median	down	0.005	0.2532	
+HomoSapiens	TRA	trivial	percolation_excess	record	0.0	-0.22565	
+HomoSapiens	TRA	trivial	percolation_median	record	0.0	0.2532	
 HomoSapiens	TRA	trivial	precision	up	0.005	0.923	
 HomoSapiens	TRA	trivial	purity	up	0.005	0.9195	
 HomoSapiens	TRA	trivial	q	up	0.005	0.79182	
@@ -100,8 +100,8 @@ HomoSapiens	TRB	current-tcremp	partition_clonotypes_reference	record	0.0	36906.0
 HomoSapiens	TRB	current-tcremp	partition_clonotypes_shared	record	0.0	31670.0	
 HomoSapiens	TRB	current-tcremp	partition_neighbours_preserved	baseline	0.005	0.779412	
 HomoSapiens	TRB	current-tcremp	partition_pairs_preserved	record	0.0	0.996466	
-HomoSapiens	TRB	current-tcremp	percolation_excess	down	0.005	-0.06875	declared 2026-09-29, ROADMAP_local.md 53: reading `;` and `+` as candidate separators gives 591 chain-calls over 9 spellings a real IMGT name, and the median moved one rank position because the covered-epitope count went 104 -> 105. Measured: the 105 sorted per-epitope percolations put 0.6522 at rank 51 and 0.6667 at rank 52, so one epitope entering the covered set moves this by up to 0.0072 on its own and no existing epitope got worse. What the change bought on the same run: clusters 772 -> 778, clustered clonotypes 42,803 -> 42,812, covered epitopes 104 -> 105, retention 0.3733 -> 0.3736, and the partition against the previous one scores ARI 0.9977 with 0.9966 of its pairs preserved, so the clustering is structurally the same one with more coverage. Purity moves 0.9832 -> 0.9830 and precision 0.9821 -> 0.9818, both inside 3e-4. Worse than this value fails.
-HomoSapiens	TRB	current-tcremp	percolation_median	down	0.005	0.6444	declared 2026-09-29, ROADMAP_local.md 53: reading `;` and `+` as candidate separators gives 591 chain-calls over 9 spellings a real IMGT name, and the median moved one rank position because the covered-epitope count went 104 -> 105. Measured: the 105 sorted per-epitope percolations put 0.6522 at rank 51 and 0.6667 at rank 52, so one epitope entering the covered set moves this by up to 0.0072 on its own and no existing epitope got worse. What the change bought on the same run: clusters 772 -> 778, clustered clonotypes 42,803 -> 42,812, covered epitopes 104 -> 105, retention 0.3733 -> 0.3736, and the partition against the previous one scores ARI 0.9977 with 0.9966 of its pairs preserved, so the clustering is structurally the same one with more coverage. Purity moves 0.9832 -> 0.9830 and precision 0.9821 -> 0.9818, both inside 3e-4. Worse than this value fails.
+HomoSapiens	TRB	current-tcremp	percolation_excess	record	0.0	-0.06875	recorded, not gated (2026-10-01): percolation is the largest cluster's share of an epitope's clustered clonotypes, which depends on the epitope - one prominent motif (A*02 GIL) should percolate, a featureless one (A*02 NLV) should not. See validate/motif_metrics.py.
+HomoSapiens	TRB	current-tcremp	percolation_median	record	0.0	0.6522	recorded, not gated (2026-10-01): percolation is the largest cluster's share of an epitope's clustered clonotypes, which depends on the epitope - one prominent motif (A*02 GIL) should percolate, a featureless one (A*02 NLV) should not. See validate/motif_metrics.py.
 HomoSapiens	TRB	current-tcremp	precision	up	0.005	0.9816	
 HomoSapiens	TRB	current-tcremp	purity	up	0.005	0.9828	
 HomoSapiens	TRB	current-tcremp	q	up	0.005	0.492819	
@@ -118,8 +118,8 @@ HomoSapiens	TRB	current-tcrnet	partition_clonotypes_reference	record	0.0	36906.0
 HomoSapiens	TRB	current-tcrnet	partition_clonotypes_shared	record	0.0	34586.0	
 HomoSapiens	TRB	current-tcrnet	partition_neighbours_preserved	baseline	0.005	0.898696	
 HomoSapiens	TRB	current-tcrnet	partition_pairs_preserved	record	0.0	0.994993	
-HomoSapiens	TRB	current-tcrnet	percolation_excess	down	0.005	-0.1031	
-HomoSapiens	TRB	current-tcrnet	percolation_median	down	0.005	0.73215	
+HomoSapiens	TRB	current-tcrnet	percolation_excess	record	0.0	-0.1031	
+HomoSapiens	TRB	current-tcrnet	percolation_median	record	0.0	0.73215	
 HomoSapiens	TRB	current-tcrnet	precision	up	0.005	0.9763	
 HomoSapiens	TRB	current-tcrnet	purity	up	0.005	0.9787	
 HomoSapiens	TRB	current-tcrnet	q	up	0.005	0.442652	
@@ -136,8 +136,8 @@ HomoSapiens	TRB	latest	partition_clonotypes_reference	record	0.0	36906.0
 HomoSapiens	TRB	latest	partition_clonotypes_shared	record	0.0	36906.0	
 HomoSapiens	TRB	latest	partition_neighbours_preserved	baseline	0.005	1.0	
 HomoSapiens	TRB	latest	partition_pairs_preserved	record	0.0	1.0	
-HomoSapiens	TRB	latest	percolation_excess	down	0.005	0.0	
-HomoSapiens	TRB	latest	percolation_median	down	0.005	0.7802	
+HomoSapiens	TRB	latest	percolation_excess	record	0.0	0.0	
+HomoSapiens	TRB	latest	percolation_median	record	0.0	0.7802	
 HomoSapiens	TRB	latest	precision	up	0.005	0.9765	
 HomoSapiens	TRB	latest	purity	up	0.005	0.979	
 HomoSapiens	TRB	latest	q	up	0.005	0.436432	
@@ -154,8 +154,8 @@ HomoSapiens	TRB	legacy	partition_clonotypes_reference	record	0.0	36906.0
 HomoSapiens	TRB	legacy	partition_clonotypes_shared	record	0.0	36906.0	
 HomoSapiens	TRB	legacy	partition_neighbours_preserved	baseline	0.005	1.0	
 HomoSapiens	TRB	legacy	partition_pairs_preserved	record	0.0	1.0	
-HomoSapiens	TRB	legacy	percolation_excess	down	0.005	0.0	
-HomoSapiens	TRB	legacy	percolation_median	down	0.005	0.7802	
+HomoSapiens	TRB	legacy	percolation_excess	record	0.0	0.0	
+HomoSapiens	TRB	legacy	percolation_median	record	0.0	0.7802	
 HomoSapiens	TRB	legacy	precision	up	0.005	0.9765	
 HomoSapiens	TRB	legacy	purity	up	0.005	0.979	
 HomoSapiens	TRB	legacy	q	up	0.005	0.436432	
@@ -172,8 +172,8 @@ HomoSapiens	TRB	trivial	partition_clonotypes_reference	record	0.0	36906.0
 HomoSapiens	TRB	trivial	partition_clonotypes_shared	record	0.0	35122.0	
 HomoSapiens	TRB	trivial	partition_neighbours_preserved	baseline	0.005	0.914949	
 HomoSapiens	TRB	trivial	partition_pairs_preserved	record	0.0	0.998852	
-HomoSapiens	TRB	trivial	percolation_excess	down	0.005	-0.50835	
-HomoSapiens	TRB	trivial	percolation_median	down	0.005	0.2812	
+HomoSapiens	TRB	trivial	percolation_excess	record	0.0	-0.50835	
+HomoSapiens	TRB	trivial	percolation_median	record	0.0	0.2812	
 HomoSapiens	TRB	trivial	precision	up	0.005	0.9458	
 HomoSapiens	TRB	trivial	purity	up	0.005	0.9343	
 HomoSapiens	TRB	trivial	q	up	0.005	0.863195	

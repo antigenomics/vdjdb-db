@@ -79,6 +79,104 @@ def _suffix_index(species: str) -> tuple[dict[str, frozenset[str]], dict[str, st
     return {k: frozenset(v) for k, v in index.items()}, longest
 
 
+#: Contiguous residues of the junction's 3' end (anchor excluded) a J call has to match to stand.
+KEEP_RUN = 3
+
+#: What a gene of the called gene's own family has to match when nothing reaches :data:`KEEP_RUN`.
+FAMILY_RUN = 2
+
+
+@lru_cache(maxsize=16)
+def _bodies(species: str, locus: str) -> dict[str, str]:
+    """``gene -> its longest templated residues`` for the J genes of one locus (``TRA`` or ``TRB``)."""
+    _, longest = _suffix_index(species)
+    return {g: b for g, b in longest.items() if g.startswith(locus + "J")}
+
+
+def _walk(tail: str, germline: str) -> tuple[int, int]:
+    """``(matched residues, residues walked)`` over the common 3' end, skipping one mismatch.
+
+    ``ADGLPF`` against ``ADGLTF``: the residue beside the anchor differs (an allele or a read error
+    at the very end of the segment) and the rest agrees, so that residue is not counted and not held
+    against the call. Any other mismatch ends the run.
+    """
+    n, i, bound = 0, 1, min(len(tail), len(germline))
+    while i <= bound:
+        if tail[-i] == germline[-i]:
+            n += 1
+        elif i != 1:
+            break
+        i += 1
+    return n, i - 1
+
+
+def _tolerant_run(tail: str, germline: str) -> int:
+    """Matched residues in the common 3' end, :func:`_walk` without the span."""
+    return _walk(tail, germline)[0]
+
+
+def place(species: str, cdr3: str, gene: str) -> tuple[str, int, bool]:
+    """``(allele, j.start, canonical)`` for ``gene`` on ``cdr3``: where the J begins in the junction.
+
+    The allele is the one of ``gene`` whose germline matches the 3' end for the longest run (ties go
+    to the lowest name). ``j.start`` is the 0-based index in junction space of the first residue of
+    that run, counting a tolerated mismatch beside the anchor as inside the J. ``canonical`` is
+    whether the junction closes on the residue that allele's germline closes on.
+    """
+    organism = ORGANISMS[species]
+    tail = cdr3[:-1]
+    best: tuple[int, int, str, str] | None = None
+    for (segment, name), templated in _anchors(organism).items():
+        if segment != "J" or name.split("*")[0] != gene:
+            continue
+        run, span = _walk(tail, templated[:-1])
+        cand = (-run, span, name, templated)
+        if best is None or cand[:3] < best[:3]:
+            best = cand
+    assert best is not None, f"{gene} has no allele in the {organism} anchor table"
+    _, span, name, templated = best
+    return name, len(cdr3) - 1 - span, cdr3[-1] == templated[-1]
+
+
+def recall(species: str, locus: str, cdr3: str, call: str) -> str | None:
+    """The J gene a call should be replaced by, or ``None`` when it stands (#681).
+
+    The rule is the author's (2026-10-01): **a J is not used when it misses the last 3 residues, and
+    it is kept only when no other gene of the chain's locus explains the end.**
+
+    * the called gene(s) match :data:`KEEP_RUN` or more residues of the junction's 3' end, anchor
+      excluded and one mismatch beside the anchor tolerated: the call stands;
+    * otherwise, a **single** other gene of the locus matching :data:`KEEP_RUN` or more replaces it;
+    * otherwise, where the call matches fewer than :data:`FAMILY_RUN`, a single gene of the called
+      gene's own family matching :data:`FAMILY_RUN` or more replaces it;
+    * ties are not broken, and a call nothing else explains stands.
+
+    The junction itself is never altered. ``None`` for a species or gene without a germline.
+    """
+    genes = _bodies(species, locus)
+    if not genes or not cdr3 or not call:
+        return None
+    called = {g.split("*")[0] for g in call.split(",")}
+    if not called <= genes.keys():
+        return None
+    tail = cdr3[:-1]
+    own = max(_tolerant_run(tail, genes[g]) for g in called)
+    if own >= KEEP_RUN:
+        return None
+    others = {g: _tolerant_run(tail, b) for g, b in genes.items() if g not in called}
+    top = max(others.values(), default=0)
+    if top < KEEP_RUN and own < FAMILY_RUN:
+        family = {g.split("-")[0] for g in called}
+        others = {g: v for g, v in others.items() if g.split("-")[0] in family and v > own}
+        top = max(others.values(), default=0)
+        if top < FAMILY_RUN:
+            return None
+    elif top < KEEP_RUN:
+        return None
+    best = [g for g, v in others.items() if v == top]
+    return best[0] if len(best) == 1 else None
+
+
 def _run(tail: str, germline: str) -> int:
     """Length of the longest common suffix of two strings."""
     n = 0

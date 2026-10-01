@@ -217,9 +217,8 @@ def test_our_clustering_is_not_worse_than_the_latest_release_on_any_gated_axis(
     """Both chains, both methods, every gated axis, through the same code the build's gate uses.
 
     An axis that is worse on purpose is declared with its reason in `rules/motif_metrics.tsv` and
-    capped at the declared value, so the trade stays visible and cannot quietly get worse. One is
-    declared today: our TRA TCREMP percolates more than the release and buys retention, purity, `Q`
-    and two epitopes for it.
+    capped at the declared value, so the trade stays visible and cannot quietly get worse. Percolation
+    is not among the gated axes: it depends on how many prominent motifs the epitope has.
     """
     bad = mmv.regressions_against_latest(measured, mmv.load_baseline())
     assert bad.height == 0, f"{bad.height} undeclared regressions against the release:\n{bad}"

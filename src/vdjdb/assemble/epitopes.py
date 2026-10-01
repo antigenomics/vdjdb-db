@@ -210,7 +210,7 @@ def _analogues(root: Path) -> pl.DataFrame:
     experiment used - and the difference from the proteome is almost always deliberate: an
     anchor-optimised vaccine peptide, a designed altered-peptide ligand, a heteroclitic variant, or
     a structure solved with a modified peptide. Of the 36,496 records on these 211 epitopes, 58
-    carry a `meta.structure.id` and 54 come from `PDB_Database.txt`, so the crystallography case is
+    carry a `meta.structure.id` and 54 come from `PDB_Database.tsv`, so the crystallography case is
     real and small. This column is a **link**, not a finding.
 
     Deduplicated on the epitope: one peptide may have a row per proteome, and `VEALYLVSG` does -

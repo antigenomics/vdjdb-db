@@ -122,7 +122,7 @@ Do not hold a hardcoded list of accepted species in this file - it drifts the mo
 Derive it:
 
 ```bash
-cut -f15 chunks/*.txt | sort | uniq -c | sort -rn
+cut -f15 chunks/*.tsv | sort | uniq -c | sort -rn
 ```
 
 A value absent from that output is new to VDJdb, which `vdjdb submission` also reports, and new is not
@@ -157,7 +157,7 @@ peptide has no source gene. `vdjdb qc` fails any other blank as `bad antigen.gen
 Resolve in this order:
 
 1. **The epitope dictionary** - it may already carry the epitope.
-2. **The rest of the corpus** - `grep -h '<EPITOPE>' chunks/*.txt | cut -f13,14,15 | sort -u`. Another
+2. **The rest of the corpus** - `grep -h '<EPITOPE>' chunks/*.tsv | cut -f13,14,15 | sort -u`. Another
    paper's curated answer for the same peptide is the strongest available prior.
 3. **The publication.** Fetch the abstract for the row's `reference.id` and read the antigen context.
    A neoantigen study is `HomoSapiens`; a cross-reactivity study varies per epitope.
