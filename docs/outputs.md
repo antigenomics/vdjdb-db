@@ -109,7 +109,7 @@ Primary key `record_id`, unique. One chunk row is one record: a chunk is one pap
 paper's report on one clone, and the row reports both chains. `method.*` and `meta.*` sit here
 because they describe what the publication reports about the record.
 
-The table has one row per curated line, **192,623**, which is the 202,277 data lines in `chunks/`
+The table has one row per curated line, **192,609**, which is the 202,263 data lines in `chunks/`
 less 9,636 declared within-chunk duplicates and less 18 rows where one publication was curated in two
 chunk files (#390). `CHUNK_DEDUP_KEY` contains `reference.id`, so a group of it spanning two chunks
 is one paper reporting one clone twice - the chunk is normally the publication, and where the two

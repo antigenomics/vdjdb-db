@@ -10,7 +10,11 @@ import polars as pl
 import pytest
 
 from vdjdb.score.confidence import (
-    SCORE_SIGNATURE, add_score, cell_count, frequency, sequencing_score,
+    SCORE_SIGNATURE,
+    add_score,
+    cell_count,
+    frequency,
+    sequencing_score,
 )
 
 #: Every column `add_score` touches, with values that score 0 unless a test overrides them.
