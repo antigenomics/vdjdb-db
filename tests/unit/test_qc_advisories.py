@@ -137,18 +137,66 @@ def test_one_epitope_does_not_borrow_another_epitope_s_values():
     assert _counters(frame) == set(), "constant within each epitope, so nothing is a counter"
 
 
-def test_the_corpus_carries_exactly_the_one_declared_counter():
-    """`PMID_39286976.txt`, 38 rows, and `patches/mhc.dict` already repairs it at build time.
+def test_the_corpus_carries_no_counter():
+    """The one counter the corpus had, `PMID_39286976.tsv` (38 rows, #625), is repaired at source.
 
-    The rule starts as a regression guard on a clean corpus, which is the state #597 argues a new
-    rule should start from: a finding here means a counter that arrived since, not one of a list a
+    The rule is a regression guard on a clean corpus, which is the state #597 argues a new rule
+    should start from: a finding here means a counter that arrived since, not one of a list a
     reader has to remember to ignore.
     """
     import polars as pl
 
     baseline = pl.read_csv("rules/qc_advisories.tsv", separator="\t")
     counters = baseline.filter(pl.col("rule").str.starts_with("counter in"))
-    assert counters.height == 1
-    assert counters["rule"].item() == "counter in mhc.a"
-    assert counters["findings"].item() == 38
-    assert counters["chunks"].item() == 1
+    assert counters.height == 0
+
+
+def _genes_ok(**cols):
+    """The `one epitope under two HLA genes in one chunk` verdict per row."""
+    import polars as pl
+
+    from vdjdb.qc.rules import _one_hla_gene
+
+    n = len(cols["mhc.a"])
+    base = {"chunk.file": ["c.tsv"] * n, "antigen.epitope": ["RAKFKQLL"] * n,
+            "antigen.species": ["EBV"] * n, "mhc.class": ["MHCI"] * n}
+    return pl.DataFrame(base | cols).select(_one_hla_gene()).to_series().to_list()
+
+
+def test_one_epitope_under_two_hla_genes_in_one_chunk_is_flagged():
+    """#597: `RAKFKQLL` under `HLA-A*02` and `HLA-B*08` in one study. Every row of the group is flagged."""
+    assert _genes_ok(**{"mhc.a": ["HLA-A*02", "HLA-B*08", "HLA-B*08:01"]}) == [False] * 3
+
+
+def test_two_alleles_of_one_gene_are_not_two_genes():
+    assert _genes_ok(**{"mhc.a": ["HLA-A*02:01", "HLA-A*02:06", "HLA-A*02"]}) == [True] * 3
+
+
+def test_a_blank_allele_is_not_a_second_gene():
+    assert _genes_ok(**{"mhc.a": ["HLA-B*08:01", "", "HLA-B*08:01"]}) == [True] * 3
+
+
+def test_the_split_has_to_be_inside_one_chunk_and_one_epitope():
+    """Two papers reporting two restrictions are two reports; so are two epitopes in one paper."""
+    import polars as pl
+
+    from vdjdb.qc.rules import _one_hla_gene
+
+    frame = pl.DataFrame({
+        "chunk.file": ["a.tsv", "b.tsv", "a.tsv"], "antigen.epitope": ["X", "X", "Y"],
+        "antigen.species": ["EBV"] * 3, "mhc.class": ["MHCI"] * 3,
+        "mhc.a": ["HLA-A*02", "HLA-B*08", "HLA-B*08"]})
+    assert frame.select(_one_hla_gene()).to_series().to_list() == [True] * 3
+
+
+def test_class_ii_alleles_are_not_read_as_genes_of_one_locus():
+    assert _genes_ok(**{"mhc.a": ["HLA-DRA*01", "HLA-DQA1*05", "HLA-DPA1*01"],
+                        "mhc.class": ["MHCII"] * 3}) == [True] * 3
+
+
+def test_the_corpus_baseline_for_the_split_rule_is_the_two_papers_that_report_two_restrictions():
+    import polars as pl
+
+    baseline = pl.read_csv("rules/qc_advisories.tsv", separator="\t")
+    row = baseline.filter(pl.col("rule") == "one epitope under two HLA genes in one chunk")
+    assert row["findings"].item() == 28 and row["chunks"].item() == 2

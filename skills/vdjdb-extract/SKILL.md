@@ -141,7 +141,7 @@ reference - is a curation decision, not a fill: `vdjdb qc` reports it as
 **Take the header from a shipping chunk rather than any list, including the ones above:**
 
 ```bash
-head -1 chunks/PMID_28423320.txt
+head -1 chunks/PMID_28423320.tsv
 ```
 
 That is the 33-column canonical header, `chunk.id` first. 173 of 230 chunks carry exactly it.

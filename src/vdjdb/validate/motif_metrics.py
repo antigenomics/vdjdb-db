@@ -70,19 +70,30 @@ SOURCES = ("legacy", "latest", "current-tcrnet", "current-tcremp", "trivial")
 #: 7.1) and it counts epitopes that receive any denoising at all, so losing one is a loss to the
 #: database rather than rounding.
 #:
+#: ``percolation_median`` and ``percolation_excess`` are **recorded and not gated**, and the reason is
+#: what the number measures. Per epitope, percolation is the share of its clustered clonotypes that
+#: sit in its largest cluster. That is a property of the epitope's repertoire before it is a property
+#: of the clustering: a peptide with one prominent motif (A*02 GIL) should percolate, because one
+#: cluster is the correct answer; one with two or three prominent motifs sits lower; a featureless
+#: or bulged peptide with many disjoint motifs (A*02 NLV) sits low because that is what its
+#: repertoire looks like. So a higher median is not worse and a lower one is not better. It is
+#: worse only when two *different* motifs were fused by a spurious edge, and that is a statement about
+#: the purity of the largest cluster, which ``purity``, ``precision`` and ``q`` already measure and
+#: still gate. It used to be gated ``down``, and that moved by one rank step of a median whenever the
+#: corpus changed the set of covered epitopes (2026-09-29 and 2026-10-01), with every quality axis
+#: flat or up, so the gate flagged composition and not clustering.
+#:
 #: ``percolation_excess`` is this source's percolation median **minus** ``latest``'s, both computed on
 #: the epitopes the two of them share. It exists because the own-set median is not comparable across
 #: sources that cover different epitopes, and it is a difference rather than a level because the
-#: comparable pair depends on which source is being compared -- one ``latest`` row cannot serve all of
-#: them, and pairing a source's restricted median against ``latest``'s unrestricted one is the mistake
-#: that hid this on the first attempt.
+#: comparable pair depends on which source is being compared. It is a description of how the two
+#: clusterings differ on the same peptides, not a score.
 #:
-#: Measured on TRA: our TCREMP reads 0.4762 against the release's 0.4583 on their own sets, a gap of
-#: 0.0179, but 0.4387 against 0.3765 on the 98 epitopes both cover -- an excess of 0.0622, three and a
-#: half times larger. The seven epitopes only TCREMP covers are small and necessarily concentrated
-#: (percolation 0.5 to 1.0) and pull its own-set median up; the release's five unique epitopes do the
-#: same to its own. So the own-set figure understates the difference. ``latest``'s own excess is 0.0 by
-#: construction.
+#: Measured on TRA: our TCREMP reads 0.4762 against the release's 0.4583 on their own sets, but 0.4387
+#: against 0.3765 on the 98 epitopes both cover, an excess of 0.0622. The seven epitopes only TCREMP
+#: covers are small and necessarily concentrated (percolation 0.5 to 1.0) and pull its own-set median
+#: up; the release's five unique epitopes do the same to its own. So the own-set figure understates
+#: the difference. ``latest``'s own excess is 0.0 by construction.
 #:
 #: ``clusters`` and ``clonotypes`` are recorded and not gated: more clusters is better for coverage
 #: and worse for parsimony, so neither direction is a regression on its own, and ``Q`` already
@@ -118,8 +129,8 @@ AXES: dict[str, tuple[str, float]] = {
     "h": ("up", 0.005),
     "p": ("up", 0.005),
     "epitopes": ("up", 0.0),
-    "percolation_median": ("down", 0.005),
-    "percolation_excess": ("down", 0.005),
+    "percolation_median": ("record", 0.0),
+    "percolation_excess": ("record", 0.0),
     "clusters": ("record", 0.0),
     "clonotypes": ("record", 0.0),
     "partition_neighbours_preserved": ("baseline", 0.005),

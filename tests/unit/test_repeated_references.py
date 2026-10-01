@@ -29,7 +29,7 @@ def _frame(*rows: dict[str, str]) -> pl.DataFrame:
 def test_one_paper_in_two_chunks_merges_and_the_submission_is_the_base():
     """The paper's own chunk is the base and the derived one fills its blanks."""
     got, report = merge_repeated_references(_frame(
-        {"chunk.file": "PDB_Database.txt", "method.identification": "tetramer-sort",
+        {"chunk.file": "PDB_Database.tsv", "method.identification": "tetramer-sort",
          "method.verification": "structural", "meta.structure.id": "8VCX"},
         {"chunk.file": "PMID_1.txt", "method.identification": "tetramer-sort"}))
     assert got.height == 1
@@ -40,10 +40,10 @@ def test_one_paper_in_two_chunks_merges_and_the_submission_is_the_base():
 
 
 def test_a_column_the_two_disagree_on_stops_the_merge():
-    """`PDB_Database.txt` and `PMID_34433824.txt` give one clone `structural` and `tetramer-sort`:
+    """`PDB_Database.tsv` and `PMID_34433824.tsv` give one clone `structural` and `tetramer-sort`:
     a solved complex and the sort that found it, which is two observations and not a duplicate."""
     got, report = merge_repeated_references(_frame(
-        {"chunk.file": "PDB_Database.txt", "method.identification": "structural"},
+        {"chunk.file": "PDB_Database.tsv", "method.identification": "structural"},
         {"chunk.file": "PMID_1.txt", "method.identification": "tetramer-sort"}))
     assert got.height == 2, "both rows stay"
     assert report["verdict"].to_list() == ["kept"]
@@ -57,7 +57,7 @@ def test_a_curation_column_is_not_a_disagreement():
     """
     assert "chunk.id" in CURATION_ONLY
     got, report = merge_repeated_references(_frame(
-        {"chunk.file": "PDB_Database.txt", "chunk.id": "246"},
+        {"chunk.file": "PDB_Database.tsv", "chunk.id": "246"},
         {"chunk.file": "PMID_1.txt", "chunk.id": "311"}))
     assert got.height == 1 and report["verdict"].to_list() == ["merged"]
 
@@ -66,10 +66,10 @@ def test_the_base_is_deterministic_where_neither_chunk_is_derived():
     """Two `goncharov-*` chunks are both submissions, so the tie is broken by name and never by row
     order - hard rule 7."""
     assert _base_first(["b.txt", "a.txt"]) == ["a.txt", "b.txt"]
-    assert _base_first(["a.txt", "PDB_Database.txt"]) == ["a.txt", "PDB_Database.txt"]
-    assert _base_first(["PDB_Database.txt", "a.txt"]) == ["a.txt", "PDB_Database.txt"]
-    assert _base_first(["small_datasets_2026-05-29.txt", "zz.txt"]) == [
-        "zz.txt", "small_datasets_2026-05-29.txt"]
+    assert _base_first(["a.txt", "PDB_Database.tsv"]) == ["a.txt", "PDB_Database.tsv"]
+    assert _base_first(["PDB_Database.tsv", "a.txt"]) == ["a.txt", "PDB_Database.tsv"]
+    assert _base_first(["small_datasets_2026-05-29.tsv", "zz.txt"]) == [
+        "zz.txt", "small_datasets_2026-05-29.tsv"]
 
 
 def test_two_chunks_naming_two_papers_are_left_alone():
@@ -90,7 +90,7 @@ def test_the_same_clone_twice_in_one_chunk_is_not_this_pass():
 def test_nothing_a_removed_row_carried_is_lost():
     """The invariant that makes the merge safe, and the one asserted on the real corpus: every
     non-blank value in the group survives on the row that is kept."""
-    rows = ({"chunk.file": "PDB_Database.txt", "method.verification": "structural",
+    rows = ({"chunk.file": "PDB_Database.tsv", "method.verification": "structural",
              "meta.structure.id": "6AVF"},
             {"chunk.file": "PMID_1.txt", "meta.epitope.id": "NY-ESO-160-72"})
     before = _frame(*rows)

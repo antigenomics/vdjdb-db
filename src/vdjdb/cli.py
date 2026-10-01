@@ -50,9 +50,10 @@ def submission(
     """
     from .assemble.master import build_master
     from .curate.submission import report
+    from .io.chunks import chunk_files
 
     text = report([str(p) for p in paths],
-                  build_master(sorted(chunks.glob("*.txt")) if chunks else None))
+                  build_master(chunk_files(chunks) if chunks else None))
     if out:
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(text)

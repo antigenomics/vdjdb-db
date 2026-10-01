@@ -21,7 +21,7 @@ dependencies = [
     # vdjtools supplies the AIRR schema/IO, the recombination model (junction-nt inference, Pgen)
     # and TCRNET. Its own core deps are arda-mapper, seqtree and vdjmatch, and its germline
     # reference resolves through arda by allele name, so the two speak one coordinate frame.
-    "vdjtools>=4.8",
+    "vdjtools>=4.8.1",
     # mhcmatch answers "does this allele present this peptide", which is the only authority this
     # repo has for `mhc.a` beyond the publication that reported it. Two consumers, split by what
     # they need at run time: `vdjdb promiscuity` scores a pair with a model fetched from HuggingFace

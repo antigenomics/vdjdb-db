@@ -141,8 +141,8 @@ A submission exported in IMGT CDR3 space is therefore short an anchor at each en
 
 Measured on the 2026-09-29 corpus, after #646 repaired 4,838 junctions in `chunks/` and #647
 corrected the mouse `TRAJ47` allele: **1,037 of 285,950 chains (0.36 %)**, of which 261 still get a
-proposed sequence and none gets a proposed allele. `PMID_34811538.txt` contributes 243 and
-`PMID_15589168.txt` 170.
+proposed sequence and none gets a proposed allele. `PMID_34811538.tsv` contributes 243 and
+`PMID_15589168.tsv` 170.
 
 | Defect | Chains | Example | Repair |
 |---|--:|---|---|

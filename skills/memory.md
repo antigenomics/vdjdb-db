@@ -74,14 +74,14 @@ tables; 1,973 lines out. Gated by 64 tests so the claims cannot go stale again.
 **Source:** All 230 `chunks/*.txt` files
 **Input files:** All chunks; PubMed abstracts fetched for ~50 PMIDs
 **Output files:** 9 `chunks/*.txt` files modified (717 blank rows filled + 18 pre-existing pre-2000 corrections)
-**Summary:** Systematic scan found 717 rows with blank `method.identification` across 9 files. Fixed by combining file-context inference, PubMed abstract research, and the swap/structural/pre-tetramer rules now documented in the proofread skill. Also corrected 18 pre-existing pre-2000 entries in `small_datasets_2026-05-29.txt` that had `antigen-loaded-targets` where `antigen-loaded-targets,limiting-dilution-cloning` is correct.
+**Summary:** Systematic scan found 717 rows with blank `method.identification` across 9 files. Fixed by combining file-context inference, PubMed abstract research, and the swap/structural/pre-tetramer rules now documented in the proofread skill. Also corrected 18 pre-existing pre-2000 entries in `small_datasets_2026-05-29.tsv` that had `antigen-loaded-targets` where `antigen-loaded-targets,limiting-dilution-cloning` is correct.
 
 **Key decisions:**
-- `PDB_Database.txt` blank identification rows → `structural` (both identification and verification). Also fixed `crystal structure` → `structural` and `tetramer sort` → `tetramer-sort`.
-- `PMID_35687696.txt`: all 222 rows had blank identification + `method.verification='antigen-loaded-targets'` — values were swapped; moved verification value to identification, blanked verification.
+- `PDB_Database.tsv` blank identification rows → `structural` (both identification and verification). Also fixed `crystal structure` → `structural` and `tetramer sort` → `tetramer-sort`.
+- `PMID_35687696.tsv`: all 222 rows had blank identification + `method.verification='antigen-loaded-targets'` — values were swapped; moved verification value to identification, blanked verification.
 - `PMID_30418433`, `30575715`, `37317804`, `37468623`, `40640147`: blank rows filled with `tetramer-sort` (consistent with rest of each file).
 - `PMID_34433824` (2 PDB rows): filled with `tetramer-sort` (tetramer-sort paper; PDB structures are additional verification context).
-- `small_datasets_2026-05-29.txt`: 46 PMIDs resolved via PubMed + file context. Key assignments: SCT tetramer / HLA-A24 tetramer / FACS tetramer papers → `tetramer-sort`; established T cell clones (A6/AS01/MBP/Tax-reactive), TCR-Tg studies, functional assay papers → `antigen-loaded-targets`; pre-2000 cloning papers → `antigen-loaded-targets,limiting-dilution-cloning`.
+- `small_datasets_2026-05-29.tsv`: 46 PMIDs resolved via PubMed + file context. Key assignments: SCT tetramer / HLA-A24 tetramer / FACS tetramer papers → `tetramer-sort`; established T cell clones (A6/AS01/MBP/Tax-reactive), TCR-Tg studies, functional assay papers → `antigen-loaded-targets`; pre-2000 cloning papers → `antigen-loaded-targets,limiting-dilution-cloning`.
 - PMID:7964506 (1994, EBV FLRGRAYGL CTL clones): specifically changed from `antigen-loaded-targets` to `antigen-loaded-targets,limiting-dilution-cloning`.
 - PMID:9207000 in small_datasets: fixed to `limiting-dilution-cloning` to match its dedicated chunk file.
 
@@ -91,9 +91,9 @@ tables; 1,973 lines out. Gated by 64 tests so the claims cannot go stale again.
 **Source:** Submitter Chihiro; XLSX `Summary of TCR clonotypes 260522 Chihiro.xlsx` + `readme.md` at `/Users/aekoneva/data/vdjdb-papers/chihiro26`
 **Input files:** `Summary of TCR clonotypes 260522 Chihiro.xlsx` (3 sheets), `readme.md`
 **Output files:**
-- `chunks/PMID_41842944.txt` (285 rows — NF9/HLA-A*24:02, vaccinated donors, PMID:41842944)
-- `chunks/PMID_42125653.txt` (168 rows — QI9/HLA-A*24:02, mixed vaccinated/convalescent, PMID:42125653)
-- `chunks/PMID_40877317.txt` (166 rows — KF9/HLA-C*12:02, convalescent, 52 paired + 114 beta-only, PMID:40877317)
+- `chunks/PMID_41842944.tsv` (285 rows — NF9/HLA-A*24:02, vaccinated donors, PMID:41842944)
+- `chunks/PMID_42125653.tsv` (168 rows — QI9/HLA-A*24:02, mixed vaccinated/convalescent, PMID:42125653)
+- `chunks/PMID_40877317.tsv` (166 rows — KF9/HLA-C*12:02, convalescent, 52 paired + 114 beta-only, PMID:40877317)
 **Summary:** Three SARS-CoV-2 CD8+ tetramer-sort datasets curated from a single submitter XLSX. Sheet 3 had a dual-section structure (paired alpha+beta on the left; beta-only from a second experiment on the right). All three sheets had embedded sub-header rows repeated mid-table. TRBJ/TRBD columns were swapped in sheets 2 and 3 right-section. Two gene cells contained allele+functionality code (`TRAV16*01 F`). One cell had an Excel formula artifact (`TRAJ3+D107:D1082`). 36 rows excluded total; 25 CDR3 sequences flagged as non-canonical (kept in chunks — handled by VDJdb build process).
 
 **Key decisions:**
@@ -108,8 +108,8 @@ tables; 1,973 lines out. Gated by 64 tests so the claims cannot go stale again.
 ### [2026-05-27] Adaptive Biotech ImmunoSEQ naming — fix zero-padded gene names
 
 **Skills used:** none (bulk fix + documentation session)
-**Source:** GitHub issue #495 follow-up; `chunks/PMID_40577481.txt` user-flagged; tcrdist3 docs https://tcrdist3.readthedocs.io/en/latest/adaptive.html
-**Input files:** `chunks/PMID_40577481.txt`, `chunks/goncharov-taa-2020-11-02.txt`, `chunks/goncharov-gluten-2023-05-06.txt`, `chunks/goncharov-taa-2020-11-24.txt`; `proofreading/imgt_alleles.tsv.gz` (verification)
+**Source:** GitHub issue #495 follow-up; `chunks/PMID_40577481.tsv` user-flagged; tcrdist3 docs https://tcrdist3.readthedocs.io/en/latest/adaptive.html
+**Input files:** `chunks/PMID_40577481.tsv`, `chunks/goncharov-taa-2020-11-02.tsv`, `chunks/goncharov-gluten-2023-05-06.tsv`, `chunks/goncharov-taa-2020-11-24.tsv`; `proofreading/imgt_alleles.tsv.gz` (verification)
 **Output files:**
 - 4 `chunks/*.txt` files modified (17 total field changes)
 - `proofreading/imgt.md` updated (new Section 9.2: Adaptive ImmunoSEQ naming; Section 10 table expanded)
@@ -125,7 +125,7 @@ tables; 1,973 lines out. Gated by 64 tests so the claims cannot go stale again.
 **Input files:** All `chunks/*.txt` files; `patches/nomenclature.conversions`; IMGT TRAV/TRBV nomenclature tables (online); `proofreading/imgt_alleles.tsv.gz`
 **Output files:**
 - 26 `chunks/*.txt` files modified (530 total field changes)
-- `chunks/PMID_24906112.txt` additionally deduplicated (49→46 rows; 3 trailing-space duplicates removed)
+- `chunks/PMID_24906112.tsv` additionally deduplicated (49→46 rows; 3 trailing-space duplicates removed)
 - `patches/nomenclature.conversions` updated (29 new Arden→IMGT conversions appended)
 - `proofreading/arden.tsv` created (comprehensive Arden→IMGT conversion table, ~123 rows)
 - `proofreading/imgt.md` updated (Section 9.1 expanded; TRBJ2 dual-numbering documented; CDR3-verified TRAJ entries; arden.tsv reference added)
@@ -133,8 +133,8 @@ tables; 1,973 lines out. Gated by 64 tests so the claims cannot go stale again.
 
 **Key decisions:**
 - `TRAV23S1→TRAV27` retained (existing VDJdb conversion from issues #298/#299 takes precedence over IMGT table discrepancy)
-- `PDB_Database.txt` false-positive duplicate (rows 258/259, differ only in `meta.structure.id`) left as-is; root cause is Gap #3 (meta.structure.id not in SIGNATURE_COLS)
-- 3 genuine duplicates in `PMID_24906112.txt` removed (were masked by trailing spaces in `j.beta`)
+- `PDB_Database.tsv` false-positive duplicate (rows 258/259, differ only in `meta.structure.id`) left as-is; root cause is Gap #3 (meta.structure.id not in SIGNATURE_COLS)
+- 3 genuine duplicates in `PMID_24906112.tsv` removed (were masked by trailing spaces in `j.beta`)
 
 ### [2026-05-26] IMGT allele expansion, Arden nomenclature, HLA resolution, gzip
 **Skills used:** none (skills update session)
@@ -172,7 +172,7 @@ tables; 1,973 lines out. Gated by 64 tests so the claims cannot go stale again.
 |---|---|---|
 | 2026-05-31 | `method.identification` blank = swap candidate | If `method.verification` is non-blank and `method.identification` is blank, check for field swap: the verification value (e.g., `antigen-loaded-targets`) was likely entered in the wrong column. Move to identification; blank verification. Confirmed on PMID_35687696 (222 rows). |
 | 2026-05-31 | Pre-tetramer era (pre-2000) identification | Papers with PMID < ~10,500,000 reporting 1–5 T cell clones predate tetramer availability (1996+). Use `antigen-loaded-targets,limiting-dilution-cloning` for these entries. If the chunk file for the same PMID uses only `limiting-dilution-cloning`, match that. |
-| 2026-05-31 | PDB/structural entries identification | `PDB_Database.txt` rows (or any row with `meta.structure.id` and no other method info): set `method.identification = structural` AND `method.verification = structural`. Non-standard values `crystal structure` → `structural`; `tetramer sort` → `tetramer-sort`. |
+| 2026-05-31 | PDB/structural entries identification | `PDB_Database.tsv` rows (or any row with `meta.structure.id` and no other method info): set `method.identification = structural` AND `method.verification = structural`. Non-standard values `crystal structure` → `structural`; `tetramer sort` → `tetramer-sort`. |
 | 2026-05-26 | Use `proofreading/imgt_alleles.tsv.gz` as primary gene authority, with `patches/IGM_nomenclature_table.tsv` as secondary fallback | IMGT/GENE-DB via genedb-releases is more complete and up-to-date; covers all TR genes across all species at allele resolution |
 | 2026-05-26 | Use `proofreading/mhc_alleles.tsv.gz` (ANHIG/IMGTHLA) for human HLA validation; use `proofreading/mhc.md` for non-human MHC rules | IMGTHLA is the authoritative source for HLA alleles; non-human MHC is not in IMGTHLA so documented as rules |
 | 2026-05-26 | `meta.subset.frequency` gap in ChunkQC.py left unfixed for now; documented in proofread skill as Gap #8 | Fixing the script requires testing; flagged for maintainer attention |
@@ -227,7 +227,7 @@ Novel methods or field values encountered during extraction/formatting that are 
 
 | Date | Field | Proposed value | Example paper | Rationale | Status |
 |---|---|---|---|---|---|
-| 2026-05-31 | `method.identification` | `structural` | `PDB_Database.txt` | Crystal structure entries lack a traditional sort/stimulation-based identification; `structural` signals the TCR was determined crystallographically. Also valid in `method.verification` for the same reason. | accepted (applied to 265 PDB rows) |
+| 2026-05-31 | `method.identification` | `structural` | `PDB_Database.tsv` | Crystal structure entries lack a traditional sort/stimulation-based identification; `structural` signals the TCR was determined crystallographically. Also valid in `method.verification` for the same reason. | accepted (applied to 265 PDB rows) |
 
 ---
 

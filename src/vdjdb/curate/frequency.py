@@ -30,14 +30,14 @@ import polars as pl
 #: partial read of a value nobody checked is worse than no read.
 #:
 #: ``//`` is accepted as well as ``/``. **297 records write the ratio with a doubled slash** - 106
-#: distinct values, all of the form `1//13`, in `PMID_29150238.txt` (239) and `PMID_11046006.txt`
+#: distinct values, all of the form `1//13`, in `PMID_29150238.tsv` (239) and `PMID_11046006.tsv`
 #: (58). A doubled separator carries no second
 #: meaning, so reading it recovers 297 counts. The submitted string is **not** rewritten: only this
 #: parse is tolerant, so `method.frequency` still shows what the curator typed and the repair, if
 #: anyone wants one, stays a chunk edit with its own reason.
 RATIO = r"^\s*(\d+)\s*//?\s*(\d+)\s*$"
 
-#: A bare float, including the exponent form. **689 records of `PMID_28636589.txt` over 17 distinct
+#: A bare float, including the exponent form. **689 records of `PMID_28636589.tsv` over 17 distinct
 #: values** are written `1e-04`, `2e-05` and so on; they are floats and the report must say so
 #: rather than filing them as unreadable. They carry no count either way - a float never does.
 FLOAT = r"^\s*\d*\.?\d+(?:[eE][-+]?\d+)?\s*$"

@@ -54,14 +54,14 @@ Work through the list one file at a time. Do not skip any. Ask before each issue
 ### 2a. The PMID
 
 `PMID_(\d+)\.txt` gives `$pubmedid`. A name that does not match the pattern
-(`10xgenomics-2019-07-09.txt`, `PDB_Database.txt`) has no PMID: show the filename, say so, and ask
+(`10xgenomics-2019-07-09.tsv`, `PDB_Database.tsv`) has no PMID: show the filename, say so, and ask
 whether to skip it or commit it against a user-supplied issue and message.
 
 ### 2b. Check it is ready
 
 ```bash
-uv run vdjdb qc chunks/PMID_$pubmedid.txt
-uv run vdjdb submission chunks/PMID_$pubmedid.txt
+uv run vdjdb qc chunks/PMID_$pubmedid.tsv
+uv run vdjdb submission chunks/PMID_$pubmedid.tsv
 ```
 
 `vdjdb qc` must exit 0. If it does not, stop and run [`/vdjdb-proofread`](../vdjdb-proofread/SKILL.md).
@@ -76,7 +76,7 @@ for eight and ten years and were found only by checking every unmerged branch ag
 ```bash
 gh issue list --repo antigenomics/vdjdb-db --search "PMID:$pubmedid in:title" \
   --state all --json number,title,state,url,body --limit 5
-git log --oneline --all -- "chunks/PMID_$pubmedid.txt" | head -5
+git log --oneline --all -- "chunks/PMID_$pubmedid.tsv" | head -5
 ```
 
 **If it exists**, show the number, title, state, URL and the first lines of the body. For a modified
@@ -85,7 +85,7 @@ column set. Where the new version has cleared metadata the old version had, offe
 old rows and append only rows the new version adds, matched on `cdr3.beta` and `antigen.epitope` - and
 do the merge in Python if the user agrees.
 
-Then ask: "Issue #N exists for PMID:$pubmedid. Commit `chunks/PMID_$pubmedid.txt` with `Fixes #N`?
+Then ask: "Issue #N exists for PMID:$pubmedid. Commit `chunks/PMID_$pubmedid.tsv` with `Fixes #N`?
 [y/n/skip]"
 
 **If it does not exist**, fetch the citation:
@@ -121,7 +121,7 @@ Stage the chunk and the registry, and nothing else:
 
 ```bash
 git restore --staged .
-git add chunks/PMID_$pubmedid.txt registry/records.tsv
+git add chunks/PMID_$pubmedid.tsv registry/records.tsv
 git status --short
 ```
 

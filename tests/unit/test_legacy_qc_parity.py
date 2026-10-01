@@ -504,7 +504,7 @@ def test_every_legacy_master_check_has_a_case() -> None:
 GROUP_RULES: dict[str, str] = {
     f"counter in {column}": "tests/unit/test_qc_advisories.py"
     for column in ("antigen.gene", "antigen.species", "mhc.a", "mhc.b")
-}
+} | {"one epitope under two HLA genes in one chunk": "tests/unit/test_qc_advisories.py"}
 
 
 def test_every_new_row_rule_has_a_case() -> None:
