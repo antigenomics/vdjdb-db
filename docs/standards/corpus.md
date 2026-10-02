@@ -1,8 +1,8 @@
 # The reference corpus
 
-One document per publication, twelve token families over it, and tf-idf weights. It reproduces what
-[vdjdb.com/refsearch](https://vdjdb.com) serves and answers a question the endpoint cannot: whether a
-receptor feature goes with an antigen because of itself, or because of something it travels with.
+One document per publication, twelve token families and tf-idf weights support
+[publication search](https://vdjdb.com). Corpus lift measures co-occurrence within publications.
+Receptor-level motif association uses the record and chain tables separately, as described below.
 
 The corpus is an artifact rather than an index inside a service, so a downstream tool reads three
 parquet files and does not have to re-derive a vocabulary.
@@ -70,7 +70,7 @@ altered-peptide-ligand study of its own epitope.
 human donor. Collapsing them would merge two different claims about a record.
 
 **Why three MHC granularities.** Restriction is a hierarchy and a question picks its level. The lift of
-`k:CAS` given `mc:MHCI`, given `ml:HLA-A`, and given `m:HLA-A*02:01` are three different claims, and
+`k:CAS` given `mc:MHCI`, given `ml:HLA-A`, and given `m:HLA-A*02:01` select three different publication groups, and
 one allele token makes the broad ones unaskable. Two fields is the resolution VDJdb curates at; deeper
 fields are truncated because keeping them would split one restriction across several tokens.
 

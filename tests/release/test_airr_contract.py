@@ -40,6 +40,8 @@ pytestmark = pytest.mark.release
 #: All earlier observations remain; these nine are retained by the tables and AIRR projection.
 #: #893 adds 336 records (542 chains) whose source calls remain incomplete after assembly.
 #: All are retained in the definitive tables and AIRR; legacy requires both V and J.
+#: #934 adds 174 records (239 chains) with incomplete calls after assembly.
+#: These observations remain in the definitive tables and AIRR.
 LEGACY_DROPS_CHAINS = 1760
 LEGACY_DROPS_RECORDS = 1274
 
