@@ -53,7 +53,7 @@ Work through the list one file at a time. Do not skip any. Ask before each issue
 
 ### 2a. The PMID
 
-`PMID_(\d+)\.txt` gives `$pubmedid`. A name that does not match the pattern
+`PMID_(\d+)\.tsv` gives `$pubmedid`. A name that does not match the pattern
 (`10xgenomics-2019-07-09.tsv`, `PDB_Database.tsv`) has no PMID: show the filename, say so, and ask
 whether to skip it or commit it against a user-supplied issue and message.
 
@@ -72,6 +72,17 @@ written on its issue and the issue left **open**. A branch is invisible: two sub
 for eight and ten years and were found only by checking every unmerged branch against the tracker.
 
 ### 2c. Find or create the issue
+
+Search all states by PMID, DOI and publication URL, in titles and bodies. Check shipped chunks and
+`proofreading/reference_ids.tsv` before declaring an issue missing. Reuse the canonical issue and
+rename a DOI or URL title only after PubMed verifies the mapping; keep its earlier identifier in
+the body. Inspect issue history before linking duplicates. A mixed-publication input still needs
+each paper linked to its own issue.
+
+New paper issues use `PMID:<id>`, label `vdjdb-records-paper-pending`, and a verified PubMed citation
+linked to the PubMed record. Public provenance text cites only the paper, its abstract, PubMed,
+patents or PDB. Existing authorization to create issues and commit applies throughout a requested
+batch; ask only for decisions outside that authorization.
 
 ```bash
 gh issue list --repo antigenomics/vdjdb-db --search "PMID:$pubmedid in:title" \
