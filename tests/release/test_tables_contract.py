@@ -48,7 +48,8 @@ pytestmark = pytest.mark.release
 #: Metadata-aware deduplication (#845) restores 285 observations; existing IDs are unchanged.
 # PMID:41098775 adds 19 source-supported observations.
 # PMID:37231180 adds 13 source-table observations.
-EXPECTED_RECORDS = 192_926
+# PMID:40681176 adds 26 source-supported observations.
+EXPECTED_RECORDS = 192_952
 
 
 @pytest.fixture(scope="module")
