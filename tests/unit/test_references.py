@@ -39,6 +39,16 @@ def test_pmid_pattern_tolerates_the_stray_space_but_keeps_the_literal_id():
     assert R._PMID.match("PMID:not-a-number") is None
 
 
+def test_patent_publication_years_resolve_offline():
+    expected = {"US20220324939A1": 2022, "US20230060095A1": 2023,
+                "WO2017048593A1": 2017, "WO2024163935A2": 2024}
+    prefix = "https://patents.google.com/patent/"
+    result = R.resolve([prefix + name for name in expected] + [prefix + "US12345678B2"])
+    assert dict(zip(result["reference.id"], result["year"], strict=True)) == {
+        prefix + name: year for name, year in expected.items()}
+    assert result["source"].unique().to_list() == ["patent-publication-id"]
+
+
 def test_pdb_and_issue_patterns():
     assert R._PDB.match("https://www.rcsb.org/structure/9WBD")[1] == "9WBD"
     assert R._PDB.match("https://www.rcsb.org/structure/9WBD/")[1] == "9WBD"
