@@ -334,3 +334,12 @@ def summarise(findings: pl.DataFrame) -> pl.DataFrame:
     return (findings.group_by("rule")
             .agg(pl.len().alias("rows"), pl.col("chunk.file").n_unique().alias("chunks"))
             .sort("rows", descending=True))
+
+
+def assert_complete(df: pl.DataFrame) -> None:
+    """Reject incomplete observations even when assembly is called without the QC command."""
+    required = ("no.cdr3", "no.antigen.seq", "no.mhc", "bad mhc.class")
+    failed = df.select(*(RULES[rule].not_().sum().alias(rule) for rule in required)).row(0, named=True)
+    if any(failed.values()):
+        detail = ", ".join(f"{rule}: {count}" for rule, count in failed.items() if count)
+        raise ValueError(f"Incomplete chunk observations ({detail}); resolve source values before building")
