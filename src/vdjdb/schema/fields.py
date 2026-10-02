@@ -628,11 +628,17 @@ KEPT_CURATION_COLUMNS: tuple[str, ...] = (
 
 #: Per-chunk deduplication key. Not the score signature, which is a different 11-column key
 #: sharing the name ``SIGNATURE_COLS`` in the legacy code -- two keys, one name.
-CHUNK_DEDUP_KEY: tuple[str, ...] = (
+LEGACY_CHUNK_DEDUP_KEY: tuple[str, ...] = (
     *COMPLEX_COLUMNS,
     "meta.study.id", "meta.cell.subset", "meta.subject.cohort", "meta.subject.id",
     "meta.replica.id", "meta.clone.id", "meta.tissue",
 )
+
+#: All observation fields distinguish records; curation serials and comments do not.
+CHUNK_DEDUP_KEY: tuple[str, ...] = tuple(dict.fromkeys((
+    *LEGACY_CHUNK_DEDUP_KEY, *METHOD_COLUMNS, *META_COLUMNS,
+    "meta.subset.frequency", "method.pairing", "method.frequency.count", "method.frequency.total",
+)))
 
 #: VDJdb column -> AIRR field, projected from the registry so it cannot be restated anywhere.
 AIRR_MAP: dict[str, str] = {}   # populated below, after FIELDS is complete

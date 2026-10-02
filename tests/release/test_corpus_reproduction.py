@@ -52,6 +52,8 @@ MIN_OCCURRENCES = 50
 #: PDB primary-citation reconciliation (#839): 23 structure references become nine new
 #: paper references, reducing documents from 661 to 647 without removing any of 391 PDB rows.
 #: The other expectations remain unchanged; the full CI run passed their assertions.
+#: #845 restores metadata-distinct observations: 26 of 29 RS k-mers are above
+#: the median (previously 25 of 29); the other acceptance expectations still pass.
 EXPECTED = {
     "documents": 647,
     "kmers_scored": 2342,
@@ -59,7 +61,7 @@ EXPECTED = {
     "top_lift": 2.663,
     "median_lift": 1.170,
     "motif_kmers": 29,
-    "motif_above_median": 25,
+    "motif_above_median": 26,
 }
 
 #: ``k:CAS`` is the germline-encoded start of nearly every beta CDR3: present in 614 of 661 documents.

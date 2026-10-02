@@ -36,8 +36,10 @@ pytestmark = pytest.mark.release
 #: `arda.cdr3fix`, which proposes the **locus** as well as the call (2.36) and so answers the 461 keys
 #: that named neither side and had no locus to look one up under. 62 more chains of 90 more records
 #: stop failing the legacy "a CDR3 needs a V and a J" filter.
-LEGACY_DROPS_CHAINS = 970
-LEGACY_DROPS_RECORDS = 755
+#: #845 restores nine additional single-chain observations with unresolved segment calls.
+#: All earlier observations remain; these nine are retained by the tables and AIRR projection.
+LEGACY_DROPS_CHAINS = 979
+LEGACY_DROPS_RECORDS = 764
 
 
 @pytest.fixture(scope="module")

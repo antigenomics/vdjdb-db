@@ -61,7 +61,9 @@ def test_chunk_columns_match_the_groovy_exactly() -> None:
 
 
 def test_dedup_key_matches_the_groovy_signature_cols() -> None:
-    assert list(CHUNK_DEDUP_KEY) == _groovy_list("SIGNATURE_COLS")
+    from vdjdb.schema import LEGACY_CHUNK_DEDUP_KEY
+    assert list(LEGACY_CHUNK_DEDUP_KEY) == _groovy_list("SIGNATURE_COLS")
+    assert set(LEGACY_CHUNK_DEDUP_KEY) <= set(CHUNK_DEDUP_KEY)
 
 
 def test_metadata_differs_from_the_groovy_only_in_the_declared_ways() -> None:

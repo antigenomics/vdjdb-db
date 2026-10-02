@@ -44,7 +44,7 @@ from pathlib import Path
 
 import polars as pl
 
-from ..schema import ALL_COLUMNS, CHUNK_DEDUP_KEY
+from ..schema import ALL_COLUMNS, CHUNK_DEDUP_KEY, LEGACY_CHUNK_DEDUP_KEY
 
 #: The fields that identify a record. A change in any of these is an amendment; a change anywhere
 #: else is re-annotation that keeps the same record.
@@ -58,6 +58,7 @@ from ..schema import ALL_COLUMNS, CHUNK_DEDUP_KEY
 #: against the same epitope in several donors is several records. Dropping ``chunk.file`` merged
 #: 19 pairs that are two papers' independent reports, the signal phase 11 tunes against.
 NATURAL_KEY: tuple[str, ...] = (*CHUNK_DEDUP_KEY, "chunk.file")
+LEGACY_NATURAL_KEY: tuple[str, ...] = (*LEGACY_CHUNK_DEDUP_KEY, "chunk.file")
 
 ID_PREFIX = "VDJDB"
 ID_DIGITS = 10
@@ -116,8 +117,8 @@ def natural_key(row: dict[str, object]) -> str:
 def canonical_content_hash(row: dict[str, object]) -> str:
     """Hash of every build-relevant field, in a fixed order.
 
-    Changes whenever anything about the record changes -- including method and meta, which the
-    natural key ignores. The natural key answers "is this the same record"; the content hash
+    Changes whenever anything about the record changes, including method and meta.
+    The natural key answers "is this the same record"; the content hash
     answers "has it changed".
     """
     return _hash([str(row.get(c) or "").strip() for c in ALL_COLUMNS])
@@ -264,6 +265,17 @@ def reconcile(
     keys = [_key_fields(r) for r in rows]
     key_hashes = [natural_key(r) for r in rows]
     content_hashes = [canonical_content_hash(r) for r in rows]
+
+    # Migrate the old key only when both content and the original source row agree.
+    # Newly retained metadata variants must not take the ID of the earlier retained row.
+    for row, kh, content in zip(rows, key_hashes, content_hashes, strict=True):
+        old = _hash([str(row.get(c) or "").strip() for c in LEGACY_NATURAL_KEY])
+        entry = registry.get(old)
+        if (entry is not None and entry.content_hash == content
+                and entry.chunk_row == int(row.get("chunk.row") or 0)):
+            del registry._by_key[old]
+            entry.natural_key_hash = kh
+            registry._by_key[kh] = entry
 
     matched_entries: set[str] = set()
     assigned: list[str | None] = [None] * len(rows)
@@ -534,4 +546,7 @@ def _unpack_note(note: str) -> tuple[str, ...] | None:
     if not note:
         return None
     parts = tuple(note.split(_SEP))
+    if len(parts) == len(LEGACY_NATURAL_KEY):
+        legacy = dict(zip(LEGACY_NATURAL_KEY, parts, strict=True))
+        return tuple(legacy.get(c, "") for c in NATURAL_KEY)
     return parts if len(parts) == len(NATURAL_KEY) else None
