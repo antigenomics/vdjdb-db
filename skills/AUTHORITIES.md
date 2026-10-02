@@ -102,3 +102,8 @@ Use [the submission guide](../docs/submission.md#separate-blockers-from-follow-u
 separate essential evidence from optional metadata. Supported assay evidence can establish the
 legacy score without a complete donor genotype or every method detail. Keep those questions open
 as nonblocking follow-ups. Do not drop source observations or invent values to make them complete.
+
+Metadata identifiers must be reported in the cited publication or its supplementary tables.
+Do not copy generated export identifiers, joined identifier lists or reference-derived labels into
+`meta.clone.id`, donor, study or epitope fields. If the paper does not supply an identifier, leave
+the field blank. Use the PMID in `reference.id`; do not encode it as a clone identifier.

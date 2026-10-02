@@ -96,7 +96,8 @@ Two consequences for how to write, and neither weakens the distinction above:
 - **Say which sense you mean** the first time "antigen" appears in a document. This page means the
   complex. A paper that means the peptide is not wrong, it is the more common usage.
 
-The source gene and species describe peptide provenance.
+The source protein and organism describe peptide provenance. VDJdb records them in
+`antigen.gene` and `antigen.species`; neither identifies the receptor’s peptide-MHC ligand.
 
 One thing to carry from the cross-reactivity literature, because it bounds the claim in both
 directions. A receptor recognises many peptides, and they usually share a recognition motif rather than
