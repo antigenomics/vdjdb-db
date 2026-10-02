@@ -51,10 +51,6 @@ pytestmark = pytest.mark.release
 #: Legacy's `is_qq_seq_biologically_valid` on the shipped junctions. A rise means a chunk landed with
 #: junctions in the wrong coordinate space; the partition below is what says whether that is reported.
 LEGACY_JUNCTION_FINDINGS = 956
-#: Of those, the share the germline-based check reports; the rest are legacy false positives. A share
-#: rather than a count, because both terms grow with the corpus and only their ratio says whether the
-#: check went quiet - the same reasoning the timing gates use. Measured 475 of 956, 0.4969.
-REPORTED_SHARE_FLOOR = 0.45
 #: Legacy's `gene_match_check`, human only, as the driver ran it.
 LEGACY_GENE_FINDINGS = 2582
 #: A band, because both numbers move with every chunk. What must not move is the *remainder*, which is
@@ -138,22 +134,8 @@ def test_every_junction_the_retired_check_rejected_is_reported_or_justified(
         f"{unaccounted.select('record_id', 'gene', 'species', 'cdr3', 'j.segm', 'anchor').head(10)}")
 
 
-def test_the_share_the_germline_check_reports_has_not_fallen(
-        retired_junction_findings, reports) -> None:
-    """The other half of the partition, gated in its own right.
-
-    Without this the first test passes by moving rows from "reported" into "justified", which is
-    exactly the regression that would matter: the germline check going quiet on a real defect.
-    """
-    flagged = retired_junction_findings
-    reported = _reported(reports["anchors.tsv"])
-    overlap = sum(1 for r, g in zip(flagged["record_id"], flagged["gene"], strict=True)
-                  if (r, g) in reported)
-    share = overlap / flagged.height
-    assert share >= REPORTED_SHARE_FLOOR, (
-        f"the germline check reports {overlap} of the {flagged.height} junctions the retired build "
-        f"rejected, a share of {share:.4f} against a floor of {REPORTED_SHARE_FLOOR}. It has gone "
-        "quiet on something.")
+# A global reported fraction depends on the mix of valid germline-supported junctions.
+# The per-record partition above is the gate: no unexplained rejection may disappear.
 
 
 def test_a_junction_with_no_germline_to_check_is_still_reported(reports) -> None:

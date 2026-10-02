@@ -57,6 +57,14 @@ next submission of the same data.
    record uncertainty in a follow-up, never as a placeholder in the chunk. Missing essential
    evidence or contradictory outcomes block only the affected observations.
 
+## Scope of association checks
+
+Publication search identifies papers; co-occurring tokens do not establish that a receptor was
+assigned to an epitope. For receptor-level checks, join chains to records by `record_id`, select
+species and chain explicitly, and condition on that record's epitope and relevant restriction.
+Use [the record-level query](../docs/standards/corpus.md#receptor-level-motif-association), and
+state whether the denominator counts observations, clonotypes or publications.
+
 ## The commands that replace hand-written checks
 
 The build validates and measures what these skills used to check in prompt-resident Python. Run the
