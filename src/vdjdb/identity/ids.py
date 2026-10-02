@@ -325,9 +325,11 @@ def reconcile(
         # `PDB_Database.tsv` (370 / 209), against a 29,715-row single-reference chunk the second
         # component did nothing for. The chunk does the localising.
         by_bucket: dict[str, list[_Entry]] = defaultdict(list)
+        by_position: dict[tuple[str, int], list[_Entry]] = defaultdict(list)
         for e in leftovers:
             if _unpack_note(e.note) is not None:
                 by_bucket[e.chunk_file].append(e)
+                by_position[e.chunk_file, e.chunk_row].append(e)
 
         # The registry does not store the raw key, only its hash, so amendment matching needs the
         # previous build's key fields. They are recorded in `note` as the reference id plus the
@@ -339,10 +341,27 @@ def reconcile(
         for r in rows:
             rows_present[str(r.get("chunk.file") or "")].add(int(r.get("chunk.row") or 0))
 
+        intact_chunks = {name for name, entries in by_bucket.items()
+                         if all(e.chunk_row in rows_present[name] for e in entries)}
         for i in unmatched_rows:
             row, key = rows[i], keys[i]
-            bucket = by_bucket.get(str(row.get("chunk.file") or ""), [])
+            chunk = str(row.get("chunk.file") or "")
+            bucket = by_bucket.get(chunk, [])
             candidates: list[tuple[_Entry, int]] = []
+            # When every old position remains, the existing ambiguity rule below selects the
+            # same-row candidate. Resolve that case directly instead of scanning a large chunk.
+            if chunk in intact_chunks:
+                for e in by_position.get((chunk, int(row.get("chunk.row") or 0)), []):
+                    if e.record_id not in matched_entries:
+                        prev = _unpack_note(e.note)
+                        assert prev is not None
+                        d = _single_field_difference(key, prev)
+                        if d is not None:
+                            candidates.append((e, d))
+            if len(candidates) == 1:
+                bucket = []
+            else:
+                candidates = []
             for e in bucket:
                 if e.record_id in matched_entries:
                     continue

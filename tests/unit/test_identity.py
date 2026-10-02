@@ -60,6 +60,29 @@ def test_annotation_change_keeps_the_id_but_records_a_new_content_hash():
     assert len(rep.amended) == 1 and not rep.added and not rep.retired
 
 
+def test_bulk_in_place_amendment_compares_one_candidate_per_record(monkeypatch):
+    from vdjdb.identity import ids
+
+    records = frame(*({"meta.subject.id": str(i), "method.identification": "tetramer-sort"}
+                      for i in range(1000)))
+    original, registry, _ = reconcile(records, IdentityRegistry(), release="v1")
+    comparisons = 0
+    difference = ids._single_field_difference
+
+    def counted(a, b):
+        nonlocal comparisons
+        comparisons += 1
+        return difference(a, b)
+
+    monkeypatch.setattr(ids, "_single_field_difference", counted)
+    changed = records.with_columns(pl.lit("beads").alias("method.identification"))
+    result, _, report = reconcile(changed, registry, release="v2")
+    assert result["record_id"].to_list() == original["record_id"].to_list()
+    assert len(report.amended) == 1000
+    assert not report.added and not report.retired
+    assert comparisons == 1000
+
+
 def test_typo_fix_is_traced_as_an_amendment_not_a_delete_plus_insert():
     """The case the whole design exists for."""
     out1, reg, _ = reconcile(frame({}), IdentityRegistry(), release="v1")
