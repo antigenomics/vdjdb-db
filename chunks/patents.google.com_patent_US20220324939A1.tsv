@@ -1,0 +1,57 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
+1				CASSLWGSNTEAFF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41475_132					
+2	CAYRSATGNQFYF							HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41475_132,PN41494_132,PN41559_132,PN41573_132,PN41613_132,PN41702_132,PN41746_132,PN41822_132,PN41829_132,PN41868_132					
+3				CASSLWGWNSPLHF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41494_132					
+4				CASSLFATNEKLFF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41513_132					
+5	CAYRSAPGNQFYF							HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41513_132,PN41518_132,PN41523_132,PN41577_132,PN41608_132					
+6	CAGERDSWGKFQF			CASSFWTGGDEKLFF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41516_132					
+7				CASSLWATNEKLFF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41518_132					
+8				CASSLWGVNSPLHF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41520_132					
+9	CAYRSARGNQFYF							HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41520_132,PN41568_132					
+10				CASSLWGLNTEAFF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41523_132,PN41532_132,PN41746_132					
+11	CAYRSAEGNQFYF							HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41532_132					
+12	CALSEGDTGGFKTIF			CASSYFPDRGLGNTIYF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41539_132					
+13	CAVNLSWGKFQF			CASSLDRSTEAFF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41550_132					
+14	CAVQAVTGGGNKLTF			CSASWDRDYGYTF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41557_132					
+15				CASSLWGWGTEAFF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41559_132					
+16	CAYRSPTGNQFYF			CASSLWAMNTEAFF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41565_132					
+17				CASSLWGTNEKLFF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41568_132,PN41573_132,PN41577_132,PN41607_132,PN41869_132					
+18	CAYRSASGNQFYF							HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41607_132,PN41617_132					
+19				CASSFWGWNTEAFF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41608_132					
+20				CASSLLYSNQPQHF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41613_132					
+21				CASSLWGMNTEAFF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41617_132					
+22	CALNRDDKIIF			CATSDPQRNQPQHF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41636_132					
+23	CAEKRDNYGQNFVF			CASSLYSYGYTF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41654_132					
+24	CAMRDLTTSGTYKYIF			CASSFGGWGYGYTF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41656_132					
+25	CAYRSAIGNQFYF			CASSLWGVNTEAFF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41690_132					
+26				CASSLWAVNEKLFF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41702_132					
+27	CIVRPGGTYKYIF			CATGGDNQPQHF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41703_132					
+28	CALNTGNQFYF							HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41712_132					
+29				CSAWDGFYGYTF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41712_132,PN41748_132					
+30	CGADMYSGGGADGLTF							HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41748_132					
+31	CAFGMYSGGGADGLTF			CASSPTGTGDGYTF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41805_132					
+32	CAVSSGSARQLTF			CASSHDRWDYGYTF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41820_132					
+33				CASSLWALNTEAFF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41822_132,PN41852_132					
+34				CASSLFALNTEAFF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41829_132					
+35	CIVYGGSQGNLIF			CASSFSRVQPQHF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41839_132					
+36	CAYRSALGNDMRF							HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41852_132					
+37	CAFMKTQGGSEKLVF			CASSLVGYGYTF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41867_132					
+38				CASSLWGTHEKLFF				HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41868_132					
+39	CAYRSSTGNQFYF							HomoSapiens	HLA-A*02	B2M	MHCI	KVLEHVVRV	MAGEA8	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN41869_132					
+40	CAVQPSYSGAGSYQLTF	TRAV20	TRAJ28					HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45418_132,PN45446_132					
+41				CASSPGTGGFSPLHF	TRBV27		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45418_132,PN45460_132					
+42	CAVQPLNAGNNRKLF	TRAV20	TRAJ38	CSAREWGGTEAFF	TRBV20-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45428_132					
+43				CSAREWRGTEAFF	TRBV20-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45446_132					
+44	CALSDTRDDKIIF	TRAV9-2	TRAJ30					HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45460_132,PN45481_132					
+45	CAEDGGSQGNLIF	TRAV27	TRAJ42					HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45489_132					
+46				CASSLQGRYYGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45489_132,PN45494_132,PN45481_132					
+47	CALSDTRDDKTIF	TRAV9-2	TRAJ30					HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45494_132					
+48				CASSFGGGYYGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45515_132					
+49	CIVRPYNAGNNRKLF	TRAV26-1	TRAJ38					HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45515_132,PN45539_132					
+50				CASSFEGGYYGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45539_132					
+51	CAYRSGAGGTSYGKLTF	TRAV38-2/DV8	TRAJ52	CASSIRDTYGYTF	TRBV5-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45546_132					
+52				CASSLWTGGGYTF	TRBV27		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45581_132					
+53	CAMREGPGSGNTGKLIF	TRAV14/DV4	TRAJ37	CASSYSEWQNYGYTF	TRBV6-6		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45584_132,PN45557_132					
+54	CAVGAGSARQLTF	TRAV8-3	TRAJ22	CASSFDTEAFF	TRBV5-6		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45590_132					
+55				CASSYWDRGSPLHF	TRBV6-2		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45593_132					
+56	CAMREGPGNNARLF	TRAV14/DV4	TRAJ31					HomoSapiens	HLA-A*02	B2M	MHCI	GVYDGREHTV	MAGEA4	HomoSapiens	https://patents.google.com/patent/US20220324939A1												PN45593_132,PN45581_132					

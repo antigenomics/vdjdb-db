@@ -1,0 +1,67 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
+1	CAANGGSQGNLIF	TRAV27	TRAJ42					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42365_6					
+2				CASSLQDYGYTF	TRBV5-6		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42365_6,PN42378_6,PN42386_6					
+3	CILRPDSWGKFQF	TRAV26-2	TRAJ24					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42378_6,PN42455_6,PN42476_6,PN42655_6,PN42750_6,PN42776_6					
+4	CATNGGSQGNLIF	TRAV27	TRAJ42					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42386_6					
+5	CIRRPGNQFYF	TRAV26-2	TRAJ49	CASSLWTGSEAFF	TRBV27		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42441_6					
+6				CASSPGTANYGYTF	TRBV27		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42442_6					
+7	CAGGTSGTYKYIF	TRAV27	TRAJ40					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42442_6,PN42780_6					
+8	CALGNTDKLIF	TRAV16	TRAJ34	CASSSPRTGWYGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42450_6					
+9				CASSLVDYGYTF	TRBV5-6		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42455_6,PN42498_6					
+10				CASSLGGVDERLSF	TRBV27		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42476_6					
+11				CASSLGGADEKLFF	TRBV27		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42483_6					
+12	CAGDGGSQGNLIF	TRAV27	TRAJ42					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42483_6,PN42498_6					
+13	CILGQGAQKLVF	TRAV26-2	TRAJ54					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42496_6					
+14				CASSLWTGGGYTF	TRBV27		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42496_6,PN42561_6,PN42654_6,PN42655_6,PN42683_6					
+15	CVLGGGSQGNLIF	TRAV22	TRAJ42					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42558_6					
+16				CASSFTDYGYTF	TRBV5-6		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42558_6,PN42870_6					
+17	CILRDGTGNQFYF	TRAV26-2	TRAJ49					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42561_6,PN42677_6					
+18	CAGGPSGTYKYIF	TRAV27	TRAJ40					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42562_6					
+19				CASSPGTPNYGYTF	TRBV27		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42562_6,PN42780_6					
+20	CAGNYGQNFVF	TRAV12-2	TRAJ26	CASSIGLNQPQHF	TRBV13		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42610_6					
+21	CILRDGIGNQFYF	TRAV26-2	TRAJ49					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42654_6					
+22				CASSSTGYYGYTF	TRBV27		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42677_6					
+23	CILRDREYGNKLVF	TRAV26-2	TRAJ47					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42683_6					
+24	CAEDGGSQGNLIF	TRAV27	TRAJ42	CASSLSDYGYTF	TRBV5-6		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42689_6					
+25	CAVEASGTYKYIF	TRAV22	TRAJ40	CASSWGTGGYGYTF	TRBV27		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42706_6					
+26	CAENKRDNYGQNFVF	TRAV13-2	TRAJ26	CASSFWVNTEAFF	TRBV27		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42707_6					
+27	CAVGSSNGYKLSF	TRAV22	TRAJ20					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42711_6					
+28				CASSPGTGGFSPLHF	TRBV27		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42711_6,PN42712_6					
+29	CAVGSSNDYKLSF	TRAV22	TRAJ20					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42712_6					
+30	CAENRQDNYGQNFVF	TRAV13-2	TRAJ26	CASSLWVNTEAFF	TRBV27		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42746_6					
+31				CASSTVRQGNYGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42750_6,PN42888_6					
+32	CILNTGTASKLTF	TRAV26-2	TRAJ44	CASSLSSNTEAFF	TRBV27		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42762_6					
+33	CAVNRGTDKLIF	TRAV12-2	TRAJ34					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42774_6					
+34				CASSWTDYGYTF	TRBV5-6		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42774_6,PN42776_6,PN42840_6					
+35	CVVNGGSQGNLIF	TRAV12-1	TRAJ42	CASSVGDYGYTF	TRBV5-6		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42795_6					
+36	CAENNYGQNFVF	TRAV13-2	TRAJ26	CASSLWDSSPLHF	TRBV27		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42815_6					
+37				CASSLYTHTEAFF	TRBV27		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42826_6					
+38	CAASAGSARQLTF	TRAV29/DV5	TRAJ22					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42826_6,PN42895_6					
+39	CIVRDTTSGTYKYIF	TRAV26-1	TRAJ40	CASSLSSTGFSPLHF	TRBV27		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42833_6					
+40	CAEGGGSQGNLIF	TRAV27	TRAJ42					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42840_6					
+41	CAGIRSNDYKLSF	TRAV27	TRAJ20	CASSSWTAHTEAFF	TRBV27		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42845_6					
+42	CAENSGGGADGLTF	TRAV27	TRAJ45					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42870_6					
+43	CAGEDFGNEKLTF	TRAV27	TRAJ48	CASSWADYGYTF	TRBV5-6		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42879_6					
+44	CAFLTGNQFYF	TRAV24	TRAJ49					HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42888_6					
+45				CASSLWSNTEAFF	TRBV27		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN42895_6					
+46	CALSEFDRGSTLGRLYF	TRAV19	TRAJ18	CSASSRDINEKLFF	TRBV5-5		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46678_6					
+47	CAVQADGGSQGNLIF	TRAV20	TRAJ42	CASSLDINSPLHF	TRBV5-5		TRBJ1-6	HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46714_6					
+48	CAVQEDGGSQGNLIF	TRAV20	TRAJ42	CASSRDINEKLFF	TRBV5-5		TRBJ1-4	HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46723_6					
+49	CAAWNYGQNFVF	TRAV13-1	TRAJ26	CASSLEGSEAFF	TRBV13		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46731_6					
+50	CAENNYGQNFVF	TRAV13-2	TRAJ26	CASSDWGQGVEAFF	TRBV6-1		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46733_6					
+51	CILREYMYSGGGADGLTF	TRAV26-2	TRAJ45	CASSFQAGVNYGYTF	TRBV5-5		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46735_6					
+52	CAFGMYSGGGAGGLTF	TRAV38-1	TRAJ45	CASSDGTGYYFGYTF	TRBV10-2		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46738_6					
+53	CALMEYGNKLVF	TRAV38-1	TRAJ47					HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46777_6					
+54				CASSDGTGYYGYTF	TRBV10-2		TRBJ1-2	HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46777_6,PN46797_6					
+55	CALMEYENKLVF	TRAV38-1	TRAJ47					HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46797_6					
+56	CACGGSGNTGKLIF	TRAV24	TRAJ37					HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46853_6					
+57				CASSSQGQPQHF	TRBV13		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46853_6,PN46871_6					
+58	CALSEGYGNKLVF	TRAV19	TRAJ47					HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46857_6					
+59				CASSHRDDTEAFF	TRBV18		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46857_6,PN46880_6,PN46883_6					
+60	CAVEGTTDSWGKFQF	TRAV21	TRAJ24					HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46871_6					
+61	CALSGASGGSYIPTF	TRAV16	TRAJ6					HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46880_6					
+62	CALSVSSYNTDKLIF	TRAV19	TRAJ34					HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46883_6					
+63	CALSEGYNTDKLIF	TRAV19	TRAJ34	CASSLGGANTIYF	TRBV28		TRBJ1-3	HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46884_6					
+64	CAVNIPNSGYSTLTF	TRAV12-2	TRAJ11	CASSYWEGTEAFF	TRBV6-2		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46889_6					
+65	CAFDYGQNFVF	TRAV38-1	TRAJ26	CASSYGGGQTEAFF	TRBV6-6		TRBJ1-1	HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46909_6					
+66	CALSEGYNQGGKLIF	TRAV19	TRAJ23	CASGADSNQPQHF	TRBV28		TRBJ1-5	HomoSapiens	HLA-A*02	B2M	MHCI	RLDQLLRHV	PRAME	HomoSapiens	https://patents.google.com/patent/US20230060095A1												PN46914_6					
