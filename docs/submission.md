@@ -124,3 +124,8 @@ The repository's [curation skills](https://github.com/antigenomics/vdjdb-db/tree
 extraction, formatting, proofreading, publication, harmonisation and duplicate review. They use the
 same CLI and authority tables as the build. Existing authorization for a batch applies throughout;
 ask for new scientific decisions, not repeated permission for already-authorized routine actions.
+
+Metadata identifiers must be reported in the cited publication or its supplementary tables.
+Do not copy generated export identifiers, joined identifier lists or reference-derived labels into
+`meta.clone.id`, donor, study or epitope fields. If the paper does not supply an identifier, leave
+the field blank. Use the PMID in `reference.id`; do not encode it as a clone identifier.
