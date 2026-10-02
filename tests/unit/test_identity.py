@@ -57,7 +57,7 @@ def test_annotation_change_keeps_the_id_but_records_a_new_content_hash():
 
     assert out1["record_id"][0] == out2["record_id"][0]
     assert before != after
-    assert rep.annotated == 1 and not rep.added and not rep.retired
+    assert len(rep.amended) == 1 and not rep.added and not rep.retired
 
 
 def test_typo_fix_is_traced_as_an_amendment_not_a_delete_plus_insert():
@@ -237,8 +237,8 @@ def test_registry_tsv_is_sorted_so_diffs_are_reviewable(tmp_path):
     assert ids == sorted(ids)
 
 
-def test_natural_key_ignores_assay_annotation_but_content_hash_does_not():
-    """How a record was assayed is annotation, not identity. Which donor it came from is identity."""
+def test_natural_key_distinguishes_assay_and_donor_metadata():
+    """Different methods and donor metadata distinguish independent observations."""
     a = dict.fromkeys(ALL_COLUMNS, "")
     a.update(BASE)
     annotated = dict(a, **{
@@ -247,7 +247,7 @@ def test_natural_key_ignores_assay_annotation_but_content_hash_does_not():
         "meta.donor.MHC": "A02,B07",
         "meta.structure.id": "1AO7",
     })
-    assert natural_key(a) == natural_key(annotated), "re-annotation must not change identity"
+    assert natural_key(a) != natural_key(annotated), "distinct assays must not collapse"
     assert canonical_content_hash(a) != canonical_content_hash(annotated), "but must be detected"
 
     other_donor = dict(a, **{"meta.subject.id": "donor2"})
@@ -493,3 +493,24 @@ def test_two_retirements_from_one_line_link_neither():
     two = {("c.txt", 1): [("VDJDB0000000009", _key()), ("VDJDB0000000010", _key())]}
     assert _successor(a, two, Counter({("c.txt", 1): 1})) == ""
 
+
+
+def test_legacy_key_migration_preserves_ids_and_restores_metadata_variants():
+    from vdjdb.identity.ids import LEGACY_NATURAL_KEY, _hash, _pack_note
+
+    original = frame({"method.identification": "tetramer-sort", "chunk.row": 7})
+    before, registry, _ = reconcile(original, IdentityRegistry(), release="v1")
+    entry = next(iter(registry._by_key.values()))
+    legacy_fields = tuple(str(original.row(0, named=True).get(c) or "") for c in LEGACY_NATURAL_KEY)
+    entry.natural_key_hash = _hash(list(legacy_fields))
+    entry.note = _pack_note(legacy_fields)
+    registry._by_key = {entry.natural_key_hash: entry}
+    restored = frame({"method.identification": "structural", "chunk.row": 8},
+                     {"method.identification": "tetramer-sort", "chunk.row": 7})
+    after, registry, report = reconcile(restored, registry, release="v2")
+    assert after["record_id"][1] == before["record_id"][0]
+    assert after["record_id"].n_unique() == 2
+    assert len(report.added) == 1 and not report.retired and not report.amended
+    again, _, report = reconcile(restored, registry, release="v2")
+    assert after["record_id"].to_list() == again["record_id"].to_list()
+    assert not report.added and not report.retired and not report.amended

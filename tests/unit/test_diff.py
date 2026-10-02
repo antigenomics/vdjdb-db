@@ -567,3 +567,22 @@ def test_a_file_compared_by_digest_alone_that_differs_is_named() -> None:
 def test_a_file_compared_by_digest_alone_that_matches_is_fine() -> None:
     r = DiffReport(files=[FileReport(name="LICENSE", raw_equal=True, canonical_equal=True)])
     assert r.ok and r.uncompared == []
+
+
+def test_full_rows_from_different_cohorts_are_not_paired_as_edits(tmp_path: Path) -> None:
+    from vdjdb.schema import FULL_COLUMNS
+
+    paths = []
+    for name, cohort in (("reference", "Child"), ("candidate", "Elderly")):
+        directory = tmp_path / name
+        directory.mkdir()
+        row = dict.fromkeys(FULL_COLUMNS, "")
+        row.update({"cdr3.beta": "CASSIRSSYEQYF", "reference.id": "PMID:1",
+                    "meta.study.id": cohort})
+        (directory / "vdjdb_full.txt").write_text(
+            "\t".join(FULL_COLUMNS) + "\n" + "\t".join(row.values()) + "\n")
+        paths.append(directory)
+    report = diff(*paths)
+    assert report.files[0].changed_rows == 0
+    assert report.files[0].only_in_reference == report.files[0].only_in_candidate == 1
+    assert not report.unattributed

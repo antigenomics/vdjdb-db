@@ -82,5 +82,5 @@ def test_bad_reference_id_form_is_flagged(tmp_path):
 def test_schema_tuples_are_self_consistent():
     assert len(ALL_COLUMNS) == len(set(ALL_COLUMNS)), "duplicate column in ALL_COLUMNS"
     assert set(COMPLEX_COLUMNS) <= set(ALL_COLUMNS)
-    assert set(CHUNK_DEDUP_KEY) <= set(ALL_COLUMNS)
+    assert set(CHUNK_DEDUP_KEY) <= set(ALL_COLUMNS) | set(KEPT_CURATION_COLUMNS)
     assert not (set(KEPT_CURATION_COLUMNS) & set(ALL_COLUMNS)), "a kept curation column is also a real one"
