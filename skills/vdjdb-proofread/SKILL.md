@@ -86,6 +86,7 @@ default) any non-advisory finding exits 1.
 | `bad reference.id` | `PMID:`, `doi:`, `http://`, `https://` or `unpublished`. Case matters on the first two |
 | `no.cdr3` | neither chain has a sequence. Check the extraction - the row has no TCR in it |
 | `no.antigen.seq` | no epitope. Required |
+| `mhc class/partner mismatch` | Class I requires `mhc.b=B2M`; class II cannot use B2M, and B2M cannot be `mhc.a`. Check the paper restriction, not the CD4/CD8 subset |
 | `no.mhc` | one of `mhc.a`/`mhc.b` is blank. `proofreading/mhc.md` §4 for the pairing, and §4.1 for the precedent fills |
 
 **Advisory rules, reported and never fatal.** Each is advisory for a stated reason, so do not

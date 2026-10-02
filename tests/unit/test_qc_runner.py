@@ -205,6 +205,9 @@ def test_a_structure_id_that_is_not_a_pdb_id_is_reported_and_is_advisory():
     ({"mhc.a": ""}, "no.mhc"),
     ({"mhc.b": ""}, "no.mhc"),
     ({"mhc.class": ""}, "bad mhc.class"),
+    ({"mhc.b": "HLA-DRB1*01:01"}, "mhc class/partner mismatch"),
+    ({"mhc.class": "MHCII"}, "mhc class/partner mismatch"),
+    ({"mhc.a": "B2M"}, "mhc class/partner mismatch"),
 ])
 def test_incomplete_observations_fail_qc_and_direct_build(tmp_path, values, rule):
     from vdjdb.assemble.master import build_master

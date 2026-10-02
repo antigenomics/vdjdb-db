@@ -191,6 +191,23 @@ def assert_mhc_resolves(records: pl.DataFrame, root: Path | None = None) -> None
           "proofreading/mhc_nonhuman.tsv if it is a species the HLA database does not cover.")
 
 
+def assert_mhc_class(records: pl.DataFrame, root: Path | None = None) -> None:
+    """Check the declared class against both harmonised chain names."""
+    root = root or Paths.discover().root
+    table = pl.read_csv(root / "proofreading" / "mhc_nonhuman.tsv", separator="\t",
+                        infer_schema=False, comment_prefix="#")
+    classes = dict(zip(table["name"], table["mhc.class"], strict=True))
+    for column in ("mhc.a", "mhc.b"):
+        name = pl.col(column)
+        expected = (pl.when(name.str.starts_with("HLA-D")).then(pl.lit("MHCII"))
+                    .when(name.str.starts_with("HLA-")).then(pl.lit("MHCI"))
+                    .otherwise(name.replace_strict(classes, default="")))
+        bad = records.filter((expected != "") & (expected != pl.col("mhc.class")))
+        if not bad.is_empty():
+            raise ValueError(f"MHC class disagrees with {column} in {bad.height} records: "
+                             + ", ".join(sorted(bad["chunk.file"].unique())))
+
+
 #: What `proofreading/epitope_proteome.tsv` calls a peptide one residue from a proteome peptide.
 #: Spelled as what was measured, not as what it might mean - see `curate.antigens`.
 ONE_SUB = "one_substitution"
@@ -276,6 +293,7 @@ def build_restriction(records: pl.DataFrame, root: Path | None = None) -> pl.Dat
     9) - `vdjdb promiscuity` refreshes that table through its own pull request.
     """
     assert_mhc_resolves(records, root)
+    assert_mhc_class(records, root)
     built = (
         records.group_by(*KEY, "mhc.a", "mhc.b", "mhc.class")
         .agg(pl.len().alias("records"),
