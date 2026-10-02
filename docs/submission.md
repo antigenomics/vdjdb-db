@@ -2,7 +2,9 @@
 
 To submit a previously published sequence, follow the steps below.
 
-* Create an issue labelled ``paper`` and named by the paper's PubMed id, ``PMID:XXXXXXX``. If the paper is a meta-study, label it ``meta-paper`` and link the issues for its references in a reply to that issue. For unpublished sequences, choose any appropriate issue name and give the submitter details (name, organization) in the issue comments.
+* Before creating a paper issue, search open and closed issues by PMID, DOI and publication URL, including issue bodies. Check shipped chunks and `proofreading/reference_ids.tsv` for the same publication. Reuse the existing issue; when PubMed resolves an older DOI or URL title, rename it `PMID:<id>` and retain the earlier identifier in the issue body. Link duplicate issues to the canonical issue after checking their history.
+
+* Create a missing paper issue titled `PMID:<id>` with label `vdjdb-records-paper-pending`. Its body is the citation retrieved from PubMed, linked to `https://pubmed.ncbi.nlm.nih.gov/<id>/`. Verify the record before posting. Describe provenance using the paper, its abstract or PubMed record; patent and PDB records may be cited where applicable. For a meta-study, link each constituent paper issue. Each paper remains independently traceable, including papers supplied together in one file.
 
 * Branch from `dev`, not from `master`, and add one chunk per paper, named ``PMID_XXXXXXX``. One commit per chunk, and close or reference the corresponding issue in the commit message.
 
