@@ -163,3 +163,31 @@ cdr3.delta | CDR3 of delta chain
 ... | ...
 v.heavy.shm | CIGAR string of hypermutations in the heavy chain Variable segment
 ... | ...
+
+## Completeness and observation identity
+
+Every record requires at least one reported junction (`cdr3.alpha` or `cdr3.beta`) and a
+reported `antigen.epitope`. Neither sequence can be inferred. Missing both junctions or a missing
+epitope fails strict QC and direct assembly. Keep the source submission outside the shipping
+chunks until the missing evidence is supplied; never silently drop the row during a build.
+
+Missing V/J calls do not justify dropping a sequence-bearing observation. Use the built-in
+arda/vdjtools annotation and inspect its proposals. Preserve the submitted call separately from
+inference; an inferred V proposal is not a paper-reported V call.
+
+Resolve `mhc.a`, `mhc.b` and `mhc.class` before submission. Class I uses `B2M` as its second
+chain. For class II, distinguish an explicitly reported pair from a single-chain or haplotype
+label. Use the installed mhcmatch naming and partner-inference functions where supported;
+record the original label, inferred partner and inference basis in the review. Its
+`pseudoseq.class2_key` supports eligible DP/DQ beta-only typings through `alpha_prior`;
+unsupported or ambiguous typings remain unresolved. A prediction of peptide binding is not
+proof of the restriction reported by a paper. Never infer restriction solely from peptide length.
+
+For duplicate review, compare both chains together: `v.alpha`, `j.alpha`, `cdr3.alpha`,
+`v.beta`, `j.beta`, `cdr3.beta`, epitope and both MHC chains, within species. Compare the complete
+observation metadata for every matching group, within and across files. Different references,
+donors, methods, subsets, tissues, clone IDs or other reported metadata distinguish observations.
+File boundaries alone do not establish independence: the same paper can occur in an aggregate
+and its own chunk. Merge only confirmed duplicates, preserving complementary information and
+recording the decision. Review both submitted and harmonised values without silently replacing
+the source values.

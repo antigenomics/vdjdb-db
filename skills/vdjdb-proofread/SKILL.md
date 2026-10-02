@@ -17,6 +17,18 @@ Read [`skills/AUTHORITIES.md`](../AUTHORITIES.md) first.
 /vdjdb-proofread [path-to-tsv]
 ```
 
+## Required completeness and duplicate review
+
+Apply [completeness and observation identity](../../docs/standards/chunk-format.md#completeness-and-observation-identity)
+to every chunk. At least one junction and the epitope must be reported; neither is imputable.
+Strict QC and direct assembly reject missing sequences or incomplete MHC fields. Resolve missing
+MHC partners using paper evidence or a documented supported mhcmatch inference before submission.
+Inspect built-in segment proposals for missing V/J calls without inventing paper-reported calls.
+
+Audit both-chain receptor-pMHC matches within and across chunks, then compare all observation
+metadata. Different donors, references, methods, subsets or other metadata are independent
+observations. Record the reviewed groups and decisions; a matching receptor alone is not a duplicate.
+
 ## Step 1 - structure, before anything parses it
 
 `vdjdb qc` lints the text before it reads the table, and reports `bom`, `encoding`, `crlf`, `empty`,
