@@ -9,13 +9,9 @@
 VDJdb aggregates published information on T-cell receptor antigen specificity - the ability to
 recognize certain epitopes in certain MHC contexts - and curates it into a single repository.
 
-> **A note on terminology.** The antigen a T-cell receptor engages is the **peptide-MHC complex**, and
-> the epitope is the part of it that is specifically recognized - the same distinction the antibody
-> field draws between an antigen and the surface bound on it. A receptor does not recognize a pathogen,
-> a gene or a protein; those are the peptide's *provenance*, which `antigen.gene` and `antigen.species`
-> record and which is a useful way to query the database. Confounding the two is the most common
-> imprecision in this field, so the specification states it explicitly:
-> [Terminology](https://docs.isalgo.dev/vdjdb-db/standards/terminology.html).
+Each observation links a receptor to a peptide-MHC complex and its experimental evidence.
+See [terminology](https://docs.isalgo.dev/vdjdb-db/standards/terminology.html) for the distinction
+between the epitope, MHC restriction and source organism.
 
 Routine updates keep the database current, and a validation scheme standardizes how specificity is
 reported:
@@ -31,36 +27,18 @@ publishes it. `chunks/` is the data, one file per publication; everything else i
 
 ## Documentation
 
-<https://docs.isalgo.dev/vdjdb-db/> is the full specification. Every column table, vocabulary and
-score rule on that site is rendered from the build's own field registry while the page builds, so
-the site and the code cannot disagree.
+Start at [VDJdb documentation](https://docs.isalgo.dev/vdjdb-db/):
 
-Two sections answer most questions:
+- **Tutorial:** [explore your first records](docs/getting-started.md).
+- **How-to guides:** [submit records](docs/submission.md) or [build a release](docs/builds.md).
+- **Reference:** [chunk format](docs/standards/chunk-format.md),
+  [columns](docs/standards/columns.md), [scoring](docs/standards/confidence-score.md) and
+  [output files](docs/outputs.md).
+- **Explanation:** [sequence repair](docs/standards/cdr3-fixing.md),
+  [motifs and denoising](docs/denoising.md), and [the dashboard](docs/dashboard.md).
 
-- [Specification](https://docs.isalgo.dev/vdjdb-db/standards/chunk-format.html) - what a
-  submission may contain, and
-  [every shipped column](https://docs.isalgo.dev/vdjdb-db/standards/columns.html), table by
-  table, generated from the registry.
-- [Dashboard](https://docs.isalgo.dev/vdjdb-db/dashboard.html) - the summary panels for the
-  current state of `chunks/`, rebuilt by CI on every push to `master`. The dashboard is not tied to
-  a release, so records added since the last zip appear there as they land.
-
-The same pages are readable in the tree:
-
-| | |
-|---|---|
-| [Getting started](docs/getting-started.md) | what is in a release, and how to build one |
-| [The chunk format](docs/standards/chunk-format.md) | every complex, method and meta column a submission may contain |
-| [Column reference](docs/standards/columns.md) | every shipped table, generated from the registry |
-| [The confidence score](docs/standards/confidence-score.md) | 0–3, and what each level asserts |
-| [CDR3 fixing](docs/standards/cdr3-fixing.md) | how V/J anchors are repaired, and what `cdr3fix` records |
-| [AIRR mapping](docs/standards/airr-mapping.md) | which VDJdb column maps to which AIRR field, and which columns deliberately do not |
-| [Build outputs](docs/outputs.md) | every file the build produces and its contract |
-| [Denoising](docs/denoising.md) | what the motif stage is for, and the rule that tunes it |
-| [Clustering](docs/clustering.md) | six algorithms, 252 configurations, one harness |
-| [Submitting and curating](docs/submission.md) | the submission guide and the curation skills |
-| [Building and releasing](docs/builds.md) | commands, how a build is compared against the last release, reproducibility |
-| [The dashboard](docs/dashboard.md) | what vdjdb-web's `/overview` is, and how it is checked |
+Column tables, vocabularies and score rules are generated from the package declarations when the
+site builds. Implementation history is available under Explanation, away from the getting-started path.
 
 ## Using the data
 
@@ -87,7 +65,7 @@ uv run vdjdb diff <reference.zip> out/legacy  # compare against a released zip
 uv run pytest -q
 ```
 
-`ROADMAP.md` is the migration plan and the record of what each phase measured.
+`ROADMAP.md` records the project plan; local execution notes track the current curation queue.
 
 ## Contributing
 

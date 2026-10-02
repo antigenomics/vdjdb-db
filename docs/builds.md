@@ -1,4 +1,4 @@
-# Building and releasing
+# Build and release
 
 The build is a `uv`-managed Python package. It reads `chunks/`, `patches/` and `proofreading/`, and
 writes everything else. Nothing computed is stored between builds: every output is recomputed from
@@ -31,50 +31,6 @@ run would ship. Without it, a made-up tag leaves the tree naming a download that
 
 Optional dependency groups: `motifs` for the motif stage, `docs` for this site, `test` for the
 suite, `tuning` for the clustering bake-off under `docs/tuning/`.
-
-## The junction-nucleotide stage
-
-`annotate.junction.add_junction_nt` was 87.2 % of the assembly stage - 407.64 s of 467.72 s on a
-4-vCPU runner over 192,793 records - because `vdjtools.model.infer_nt` wraps a native DP in per-row
-Python and the wrapper, not the DP, was the cost. That profile is what
-[`antigenomics/vdjtools#181`](https://github.com/antigenomics/vdjtools/issues/181) was opened on, and
-`vdjtools` 4.5 answers it with `infer_nt_batch`.
-
-So the stage is **one batched call per (species, locus)** over the distinct
-`(species, gene, cdr3, v, j)` keys - 187,055 of them rather than every row, which is rule 4's
-deduplication - and nothing wraps it. `infer_nt_batch` releases the GIL and partitions the batch
-across its own kernel threads; a pool of our own would oversubscribe the machine and read as
-"batching did not help", which is hard rule 3 and section 0e of `CLAUDE.md` both.
-
-Measured on 3,000 distinct human TRB keys from the corpus, 16 cores: **1.115 ms/key serial against
-0.106 ms batched, 10.5x, and all 3,000 nucleotide sequences identical.** End to end on the 4-vCPU
-runner the stage goes **407.64 s to 108.54 s** and the assembly step 467.72 s to 166.54 s, so it is
-65.2 % of that step rather than 87.2 %; on a 16-core laptop it is 12.44 s and `vdjdb build` is 45.9 s
-wall. The runner wins less because `infer_nt_batch` defaults to `hardware_concurrency - 2` threads,
-which is two there.
-`tests/unit/test_junction.py` asserts both halves of that, because each catches a different failure -
-identity catches a batch call that is not the same computation, and the ratio catches a regression to
-the loop or a batch call that loops internally, neither of which changes an answer.
-
-**Every inferred sequence encodes the junction it came from, and that is by construction rather than
-by luck.** The DP enumerates `(V, delV) x (J, delJ) x (D, delD, position)` and picks the best codon
-assignment *within* each scenario, so a scenario that cannot spell the given residues has probability
-zero and is never a candidate; anything the model cannot encode comes back null rather than wrong.
-Probed on human TRB: a stop codon, an `X`, a `Z`, a one- or two-residue junction, an empty string and
-a true CDR3 with its anchors stripped are all declined. The one input that survives with a difference
-is a lower-case junction, where the nucleotides are right and the comparison is case-sensitive - and
-`vdjdb qc` rejects a residue outside the 20 upper-case letters, with zero such chains in the corpus.
-Measured on the built corpus: **263,437 of 285,989 chains carry an inferred `cdr3nt`, 0 mismatches, 0
-whose length is not exactly three nucleotides per residue**, gated by
-`tests/release/test_tables_contract.py`. That check translates the whole column in one threaded native
-call, `vdjtools._core.translate_junctions` - 0.023 s against 0.284 s for `vdjtools.model.translate` in
-a Python loop, 12.3x, identical on every row.
-
-It previously ran as four worker processes over contiguous parquet slices of the key set, each an
-ordinary invocation of a subcommand that existed only to be that worker. The subcommand,
-`src/vdjdb/__main__.py`, the slice arithmetic and the worker-count argument are all gone: one batched
-call has no worker count, so rule 7's "never let worker count change the answer" holds by
-construction rather than by a tiling test.
 
 ## Comparing against a release
 
@@ -157,7 +113,7 @@ large diff that is mostly format difference, and the work is in classifying it.
 Start with one release, 2023-06-01: recent enough to share most of the schema, old enough that a
 rule which only fits 2026 will not fit it.
 
-## `dev` and `master` cannot be deleted
+## Protect integration and release branches
 
 The repository has `delete_branch_on_merge` enabled, which is right for feature branches and wrong for
 the long-lived ones: a `dev` to `master` pull request has `dev` as its **head**, so merging it used to

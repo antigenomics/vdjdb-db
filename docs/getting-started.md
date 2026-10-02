@@ -1,38 +1,47 @@
-# Getting started
+# Explore your first records
 
-VDJdb is a curated database of T-cell receptor sequences of known antigen specificity, served at
-<https://vdjdb.com>. `chunks/` is the data, one file per publication; everything else in the
-repository validates it, assembles it and publishes it as a release.
+This tutorial downloads a release and reads a few observations. You need an archive extractor
+and Python 3; no database server is required. To search without downloading anything, use
+[vdjdb.com](https://vdjdb.com).
 
-```{note}
-The antigen a receptor engages is the **peptide-MHC complex**; the epitope is the part of it that is
-specifically recognised. A receptor does not recognise a pathogen, a gene or a protein - those are the
-peptide's provenance, which `antigen.gene` and `antigen.species` record. Read
-[Terminology](standards/terminology.md) before writing anything that describes what a record means: the
-distinction is the most common imprecision in the field and the column names predate it.
-```
+## 1. Download and extract a release
 
-## Getting the data
+Open the [release list](https://github.com/antigenomics/vdjdb-db/releases), choose a release,
+and download its database zip. Extract it into a directory you can open in a terminal.
+Keep the release tag with your analysis so another reader can identify the data you used.
 
-Download the latest release zip from
-[the releases page](https://github.com/antigenomics/vdjdb-db/releases). It contains
-`vdjdb.txt` (the full table), `vdjdb.slim.txt` (one row per CDR3-antigen pair, easy to
-parse with R or pandas), `vdjdb_full.txt` (paired-chain records), the two motif tables and
-their metadata files.
+## 2. Choose a table
 
-`vdjmatch` resolves and downloads it for you; `vdjdb-web` serves it at vdjdb.com.
+For this example, use `vdjdb.txt`: it has one row per reported chain. Alpha and beta chains of a
+paired receptor can therefore occupy two rows. `vdjdb_full.txt` puts paired chains in one row;
+`vdjdb.slim.txt` is a reduced projection. See the [file reference](outputs.md) before treating
+rows from different formats as interchangeable observations.
 
-## Building it yourself
+## 3. Read the first five rows
+
+Run this command in the directory containing `vdjdb.txt`:
 
 ```bash
-uv sync
-uv run vdjdb qc                               # chunk validation, fail-fast
-uv run vdjdb build --out out/                 # the definitive tables, then every projection
-uv run vdjdb make legacy --tables out/tables  # the legacy files
-uv run vdjdb convert airr --tables out/tables # AIRR Rearrangement + Reactivity
-uv run vdjdb motifs --tables out/tables       # TCRNET and TCREMP
-uv run vdjdb summary --legacy out/legacy      # the dashboard, offline
+python3 - <<'PYTHON'
+import csv
+from itertools import islice
+
+with open("vdjdb.txt", newline="") as handle:
+    rows = csv.DictReader(handle, delimiter="\t")
+    for row in islice(rows, 5):
+        print(row["gene"], row["cdr3"], row["antigen.epitope"], row["reference.id"])
+PYTHON
 ```
+
+Each output line identifies a chain, its junction sequence, the tested epitope and the publication.
+The exact values depend on the release. A repeated receptor sequence can describe distinct donors,
+assays or publications; do not discard rows on sequence alone.
+
+## Next steps
+
+- Look up [columns](standards/columns.md) and [confidence scores](standards/confidence-score.md).
+- [Submit records](submission.md) from a publication.
+- [Build the database](builds.md) from the source chunks.
 
 ## Citing
 
