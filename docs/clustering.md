@@ -39,6 +39,28 @@ a whole rank step whenever the set of covered epitopes changes, which it did on 
 means the largest cluster holds most of it, which is a measurement of the epitope and, only when its
 purity falls, a defect.
 
+## Interpreting validation metrics
+
+Evaluate purity and retention together with homogeneity `h`, parsimony `p` and
+`Q = 2hp/(h+p)`, where `Q` is their harmonic mean. Purity measures the share of
+clustered observations agreeing with their cluster's dominant epitope; retention
+measures the share of eligible observations assigned to a cluster. Report the
+chain, scoring cohort and observation counts with each metric.
+
+Epitope repertoires can contain sparse motifs or dense communities. A change in
+epitope composition can therefore change aggregate alpha-chain homogeneity even
+when useful motif coverage increases. Homogeneity alone does not establish motif
+quality or require every epitope to yield a discoverable motif. Alpha homogeneity
+acceptance is reviewed for the corpus, alongside purity, retention, precision and
+the homogeneity-parsimony metrics. The reviewed values and tolerance are recorded
+in `rules/motif_metrics.tsv`; this does not change the other quality gates.
+
+The homogeneity-parsimony definitions follow Andreas Tiffeau-Mayer,
+[External Clustering Validation by the Homogeneity-Parsimony Trade-off](https://arxiv.org/abs/2607.20799)
+(DOI [10.48550/arXiv.2607.20799](https://doi.org/10.48550/arXiv.2607.20799)).
+A PubMed title search on 2026-10-03 returned no indexed record, so this reference
+uses its verified preprint identifier.
+
 ---
 
 ## 0. Shared contract

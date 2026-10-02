@@ -3,7 +3,7 @@ HomoSapiens	TRA	current-tcremp	clonotypes	record	0.0	16943.0
 HomoSapiens	TRA	current-tcremp	clusters	record	0.0	1472.0	
 HomoSapiens	TRA	current-tcremp	epitopes	up	0.0	120.0	
 HomoSapiens	TRA	current-tcremp	f1_assignment	up	0.005	0.8951	
-HomoSapiens	TRA	current-tcremp	h	up	0.005	0.965529	
+HomoSapiens	TRA	current-tcremp	h	up	0.005	0.952844	Curator accepted alpha homogeneity for the expanded publication corpus on 2026-10-03: epitope composition changes the mixture of sparse motifs and dense communities. Interpret h alongside purity, retention and the homogeneity-parsimony metrics; retain tolerance 0.005.
 HomoSapiens	TRA	current-tcremp	p	up	0.005	0.085855	
 HomoSapiens	TRA	current-tcremp	partition_ari	record	0.0	0.774078	
 HomoSapiens	TRA	current-tcremp	partition_clonotypes_reference	record	0.0	15016.0	
@@ -21,7 +21,7 @@ HomoSapiens	TRA	current-tcrnet	clonotypes	record	0.0	15958.0
 HomoSapiens	TRA	current-tcrnet	clusters	record	0.0	882.0	
 HomoSapiens	TRA	current-tcrnet	epitopes	up	0.0	120.0	
 HomoSapiens	TRA	current-tcrnet	f1_assignment	up	0.005	0.8814	
-HomoSapiens	TRA	current-tcrnet	h	up	0.005	0.956819	Curator accepted the final import trade-off on 2026-10-02: homogeneity 0.956819 versus released 0.963408; current TCRNET covers 17351 clonotypes and 124 epitopes versus 14224 and 121, with retention 0.2908 versus 0.2435. Keep the 0.005 tolerance.
+HomoSapiens	TRA	current-tcrnet	h	up	0.005	0.940433	Curator accepted alpha homogeneity for the expanded publication corpus on 2026-10-03: epitope composition changes the mixture of sparse motifs and dense communities. Interpret h alongside purity, retention and the homogeneity-parsimony metrics; retain tolerance 0.005.
 HomoSapiens	TRA	current-tcrnet	p	up	0.005	0.09644	
 HomoSapiens	TRA	current-tcrnet	partition_ari	record	0.0	0.989093	
 HomoSapiens	TRA	current-tcrnet	partition_clonotypes_reference	record	0.0	15016.0	
@@ -40,7 +40,7 @@ HomoSapiens	TRA	latest	clusters	record	0.0	895.0
 HomoSapiens	TRA	latest	epitopes	up	0.0	121.0	
 HomoSapiens	TRA	latest	f1_assignment	up	0.005	0.8813	
 HomoSapiens	TRA	latest	h	up	0.005	0.963408	
-HomoSapiens	TRA	latest	p	up	0.005	0.07576	
+HomoSapiens	TRA	latest	p	up	0.005	0.039092	Fixed released clustering scored on the expanded publication cohort; only the recorded reference measurement changes, not the current-method quality gates.
 HomoSapiens	TRA	latest	partition_ari	record	0.0	1.0	
 HomoSapiens	TRA	latest	partition_clonotypes_reference	record	0.0	15016.0	
 HomoSapiens	TRA	latest	partition_clonotypes_shared	record	0.0	15016.0	
@@ -50,7 +50,7 @@ HomoSapiens	TRA	latest	percolation_excess	record	0.0	0.0
 HomoSapiens	TRA	latest	percolation_median	record	0.0	0.375	recorded, not gated (2026-10-01): percolation is the largest cluster's share of an epitope's clustered clonotypes, which depends on the epitope - one prominent motif (A*02 GIL) should percolate, a featureless one (A*02 NLV) should not. See validate/motif_metrics.py.
 HomoSapiens	TRA	latest	precision	up	0.005	0.8749	
 HomoSapiens	TRA	latest	purity	up	0.005	0.8877	
-HomoSapiens	TRA	latest	q	up	0.005	0.140474	
+HomoSapiens	TRA	latest	q	up	0.005	0.075156	Fixed released clustering scored on the expanded publication cohort; only the recorded reference measurement changes, not the current-method quality gates.
 HomoSapiens	TRA	latest	recall	up	0.005	0.8877	
 HomoSapiens	TRA	latest	retention	up	0.005	0.2435	
 HomoSapiens	TRA	legacy	clonotypes	record	0.0	14224.0	
@@ -58,7 +58,7 @@ HomoSapiens	TRA	legacy	clusters	record	0.0	895.0
 HomoSapiens	TRA	legacy	epitopes	up	0.0	121.0	
 HomoSapiens	TRA	legacy	f1_assignment	up	0.005	0.8813	
 HomoSapiens	TRA	legacy	h	up	0.005	0.963408	
-HomoSapiens	TRA	legacy	p	up	0.005	0.07576	
+HomoSapiens	TRA	legacy	p	up	0.005	0.039092	Fixed released clustering scored on the expanded publication cohort; only the recorded reference measurement changes, not the current-method quality gates.
 HomoSapiens	TRA	legacy	partition_ari	record	0.0	1.0	
 HomoSapiens	TRA	legacy	partition_clonotypes_reference	record	0.0	15016.0	
 HomoSapiens	TRA	legacy	partition_clonotypes_shared	record	0.0	15016.0	
@@ -68,14 +68,14 @@ HomoSapiens	TRA	legacy	percolation_excess	record	0.0	0.0
 HomoSapiens	TRA	legacy	percolation_median	record	0.0	0.375	recorded, not gated (2026-10-01): percolation is the largest cluster's share of an epitope's clustered clonotypes, which depends on the epitope - one prominent motif (A*02 GIL) should percolate, a featureless one (A*02 NLV) should not. See validate/motif_metrics.py.
 HomoSapiens	TRA	legacy	precision	up	0.005	0.8749	
 HomoSapiens	TRA	legacy	purity	up	0.005	0.8877	
-HomoSapiens	TRA	legacy	q	up	0.005	0.140474	
+HomoSapiens	TRA	legacy	q	up	0.005	0.075156	Fixed released clustering scored on the expanded publication cohort; only the recorded reference measurement changes, not the current-method quality gates.
 HomoSapiens	TRA	legacy	recall	up	0.005	0.8877	
 HomoSapiens	TRA	legacy	retention	up	0.005	0.2435	
 HomoSapiens	TRA	trivial	clonotypes	record	0.0	61268.0	
 HomoSapiens	TRA	trivial	clusters	record	0.0	1254.0	
 HomoSapiens	TRA	trivial	epitopes	up	0.0	135.0	
 HomoSapiens	TRA	trivial	f1_assignment	up	0.005	0.9243	
-HomoSapiens	TRA	trivial	h	up	0.005	0.892441	
+HomoSapiens	TRA	trivial	h	up	0.005	0.881133	Curator approved corpus-dependent alpha homogeneity on 2026-10-03; epitope composition also changes the trivial partition measurement. Tolerance remains 0.005.
 HomoSapiens	TRA	trivial	p	up	0.005	0.707782	
 HomoSapiens	TRA	trivial	partition_ari	record	0.0	0.179462	
 HomoSapiens	TRA	trivial	partition_clonotypes_reference	record	0.0	15016.0	
@@ -130,7 +130,7 @@ HomoSapiens	TRB	latest	clusters	record	0.0	682.0
 HomoSapiens	TRB	latest	epitopes	up	0.0	108.0	
 HomoSapiens	TRB	latest	f1_assignment	up	0.005	0.9754	
 HomoSapiens	TRB	latest	h	up	0.005	0.992865	
-HomoSapiens	TRB	latest	p	up	0.005	0.249355	
+HomoSapiens	TRB	latest	p	up	0.005	0.215388	Fixed released clustering scored on the expanded publication cohort; only the recorded reference measurement changes, not the current-method quality gates.
 HomoSapiens	TRB	latest	partition_ari	record	0.0	1.0	
 HomoSapiens	TRB	latest	partition_clonotypes_reference	record	0.0	36906.0	
 HomoSapiens	TRB	latest	partition_clonotypes_shared	record	0.0	36906.0	
@@ -140,7 +140,7 @@ HomoSapiens	TRB	latest	percolation_excess	record	0.0	0.0
 HomoSapiens	TRB	latest	percolation_median	record	0.0	0.79665	
 HomoSapiens	TRB	latest	precision	up	0.005	0.9741	
 HomoSapiens	TRB	latest	purity	up	0.005	0.9767	
-HomoSapiens	TRB	latest	q	up	0.005	0.398603	
+HomoSapiens	TRB	latest	q	up	0.005	0.354014	Fixed released clustering scored on the expanded publication cohort; only the recorded reference measurement changes, not the current-method quality gates.
 HomoSapiens	TRB	latest	recall	up	0.005	0.9767	
 HomoSapiens	TRB	latest	retention	up	0.005	0.2891	
 HomoSapiens	TRB	legacy	clonotypes	record	0.0	35954.0	
@@ -148,7 +148,7 @@ HomoSapiens	TRB	legacy	clusters	record	0.0	682.0
 HomoSapiens	TRB	legacy	epitopes	up	0.0	108.0	
 HomoSapiens	TRB	legacy	f1_assignment	up	0.005	0.9754	
 HomoSapiens	TRB	legacy	h	up	0.005	0.992865	
-HomoSapiens	TRB	legacy	p	up	0.005	0.249355	
+HomoSapiens	TRB	legacy	p	up	0.005	0.215388	Fixed released clustering scored on the expanded publication cohort; only the recorded reference measurement changes, not the current-method quality gates.
 HomoSapiens	TRB	legacy	partition_ari	record	0.0	1.0	
 HomoSapiens	TRB	legacy	partition_clonotypes_reference	record	0.0	36906.0	
 HomoSapiens	TRB	legacy	partition_clonotypes_shared	record	0.0	36906.0	
@@ -158,7 +158,7 @@ HomoSapiens	TRB	legacy	percolation_excess	record	0.0	0.0
 HomoSapiens	TRB	legacy	percolation_median	record	0.0	0.79665	
 HomoSapiens	TRB	legacy	precision	up	0.005	0.9741	
 HomoSapiens	TRB	legacy	purity	up	0.005	0.9767	
-HomoSapiens	TRB	legacy	q	up	0.005	0.398603	
+HomoSapiens	TRB	legacy	q	up	0.005	0.354014	Fixed released clustering scored on the expanded publication cohort; only the recorded reference measurement changes, not the current-method quality gates.
 HomoSapiens	TRB	legacy	recall	up	0.005	0.9767	
 HomoSapiens	TRB	legacy	retention	up	0.005	0.2891	
 HomoSapiens	TRB	trivial	clonotypes	record	0.0	121769.0	
