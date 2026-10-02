@@ -223,6 +223,11 @@ RULES: dict[str, pl.Expr] = {
     "bad mhc.b": _blank("mhc.b") | ~pl.col("mhc.b").str.starts_with("HLA")
                  | pl.col("mhc.b").str.contains(_HLA),
     "bad mhc.class": pl.col("mhc.class").is_in(["MHCI", "MHCII"]),
+    "mhc class/partner mismatch": (
+        ((pl.col("mhc.class") != "MHCI") | (pl.col("mhc.b") == "B2M"))
+        & ((pl.col("mhc.class") != "MHCII") | (pl.col("mhc.b") != "B2M"))
+        & (pl.col("mhc.a") != "B2M")
+    ),
     "bad antigen.gene": ~_blank("antigen.gene"),
     "bad reference.id": _blank("reference.id") | pl.col("reference.id").str.contains(_REFERENCE),
     # An internal cysteine. The two anchor flags `v.canonical`/`j.canonical` already mark a junction
@@ -338,7 +343,8 @@ def summarise(findings: pl.DataFrame) -> pl.DataFrame:
 
 def assert_complete(df: pl.DataFrame) -> None:
     """Reject incomplete observations even when assembly is called without the QC command."""
-    required = ("no.cdr3", "no.antigen.seq", "no.mhc", "bad mhc.class")
+    required = ("no.cdr3", "no.antigen.seq", "no.mhc", "bad mhc.class",
+                "mhc class/partner mismatch")
     failed = df.select(*(RULES[rule].not_().sum().alias(rule) for rule in required)).row(0, named=True)
     if any(failed.values()):
         detail = ", ".join(f"{rule}: {count}" for rule, count in failed.items() if count)

@@ -165,3 +165,19 @@ def test_one_molecule_filed_under_two_classes_names_which_side_is_the_outlier():
     assert "molecule is also MHCII on 1 of 2" in outlier["finding"].item()
     assert "epitope is 14 residues" in outlier["finding"].item()
     assert "H2-Kb" not in flagged["mhc.a"].to_list(), "a consistent class I pair is not a finding"
+
+
+@pytest.mark.parametrize("a,b,cls", [
+    ("HLA-DRA*01:01", "HLA-DRB1*01:01", "MHCI"),
+    ("H2-IAb", "H2-IAb", "MHCI"),
+    ("HLA-A*02:01", "B2M", "MHCII"),
+])
+def test_mhc_class_matches_both_harmonised_chains(a, b, cls):
+    from vdjdb.assemble.epitopes import assert_mhc_class
+
+    records = pl.DataFrame({"mhc.a": [a], "mhc.b": [b], "mhc.class": [cls],
+                            "chunk.file": ["PMID_1.tsv"]})
+    with pytest.raises(ValueError, match="MHC class disagrees"):
+        assert_mhc_class(records)
+    corrected = "MHCII" if cls == "MHCI" else "MHCI"
+    assert_mhc_class(records.with_columns(pl.lit(corrected).alias("mhc.class")))
