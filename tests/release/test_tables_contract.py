@@ -49,7 +49,8 @@ pytestmark = pytest.mark.release
 # PMID:41098775 adds 19 source-supported observations.
 # PMID:37231180 adds 13 source-table observations.
 # PMID:40681176 adds 26 source-supported observations.
-EXPECTED_RECORDS = 192_952
+# Remaining import (#893) adds 12364 records.
+EXPECTED_RECORDS = 205_316
 
 
 @pytest.fixture(scope="module")
