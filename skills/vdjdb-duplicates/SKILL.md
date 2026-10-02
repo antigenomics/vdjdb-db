@@ -9,6 +9,10 @@ Measure how records repeat across the corpus, and separate the three reasons the
 
 Read [`skills/AUTHORITIES.md`](../AUTHORITIES.md) first.
 
+A verified PubMed preprint/publication link can identify repeated curation of one work. Reconcile
+that reference without duplicating the source observations or changing unrelated metadata. Different
+publications otherwise remain separate reports. Preserve distinct PDB structure observations.
+
 ## Invocation
 
 ```

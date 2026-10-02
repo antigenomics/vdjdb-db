@@ -53,8 +53,9 @@ next submission of the same data.
 
 5. **Never invent a value.** Every amino acid sequence, gene name, allele, species and reference id
    written into a chunk is confirmed present in the source by a search of the source, and the result
-   of that search is logged. A PMID is never guessed. A value that cannot be confirmed is marked
-   `[UNVERIFIED]` and withheld until the user approves it.
+   of that search is logged. A PMID is never guessed. Use the supplied definitive tables as source evidence. Unknown optional metadata stays blank;
+   record uncertainty in a follow-up, never as a placeholder in the chunk. Missing essential
+   evidence or contradictory outcomes block only the affected observations.
 
 ## The commands that replace hand-written checks
 
@@ -88,3 +89,16 @@ These are the judgement calls, and they are why the skills exist at all:
 - whether a record should land in `chunks/`, `pending/`, `withheld/`, or not at all.
 
 Each one is escalated to the user with the evidence attached, never resolved by guessing.
+
+## Import review and build repair
+
+Preserve supplied sequence and gene cells when `harmonise_all` or the batched CDR3 fixer already
+resolves them. Inspect the assembled result and record **resolved during database build**.
+Routine terminal-flank trimming and subgroup/allele selection do not require repeated paper
+retrieval or manual import edits. A proposed missing V remains inferred, not paper-reported.
+If the paper is inaccessible, stop retrieval attempts and use the supplied definitive tables.
+
+Use [the submission guide](../docs/submission.md#separate-blockers-from-follow-up-questions) to
+separate essential evidence from optional metadata. Supported assay evidence can establish the
+legacy score without a complete donor genotype or every method detail. Keep those questions open
+as nonblocking follow-ups. Do not drop source observations or invent values to make them complete.
