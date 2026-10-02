@@ -11,7 +11,7 @@ input refreshed by its own pull request and never written by a build. That is th
 rule 9 makes for a derived table that exists to make the build offline and deterministic, and it is
 why :func:`refresh` is a separate command rather than a step of ``vdjdb summary``.
 
-Five kinds of reference, four resolvers, no per-record calls (hard rule 3):
+Reference kinds and their resolvers, with no per-record calls (hard rule 3):
 
 ============================  ==========================================  =============
 ``reference.id``              resolver                                    network
@@ -21,6 +21,7 @@ Five kinds of reference, four resolvers, no per-record calls (hard rule 3):
 ``https://arxiv.org/abs/..``  the identifier's own ``YYMM`` prefix        no
 ``https://doi.org/10.1101/``  the bioRxiv/medRxiv DOI's own date          no
 ``https://github.com/...``    GitHub GraphQL, all issues in one query     yes, one call
+``https://patents.google...`` US/WO publication identifier's year        no
 ============================  ==========================================  =============
 
 Anything left unresolved is reported by count and kept out of the table rather than guessed, and a
@@ -55,6 +56,8 @@ _PDB = re.compile(r"^https?://www\.rcsb\.org/structure/(\w+)/?$", re.IGNORECASE)
 _ARXIV = re.compile(r"^https?://arxiv\.org/abs/(\d{2})(\d{2})\.\d+", re.IGNORECASE)
 _BIORXIV = re.compile(r"^https?://doi\.org/10\.1101/(\d{4})\.\d{2}\.\d{2}\.")
 _ISSUE = re.compile(r"^https?://github\.com/([\w-]+)/([\w-]+)/issues/(\d+)")
+_PATENT = re.compile(
+    r"^https?://patents\.google\.com/patent/(?:US|WO)((?:19|20)\d{2})\d{6,7}A[12]/?$")
 
 #: Two references no API resolves: a thesis repository and a vendor application note. Their years
 #: come from the table this module replaces, which is the only record of them -- taken over rather
@@ -160,6 +163,8 @@ def resolve(reference_ids: list[str]) -> pl.DataFrame:
             rows.append({"reference.id": r, "year": 2000 + int(m[1]), "source": "arxiv"})
         elif m := _BIORXIV.match(r):
             rows.append({"reference.id": r, "year": int(m[1]), "source": "biorxiv-doi"})
+        elif m := _PATENT.match(r):
+            rows.append({"reference.id": r, "year": int(m[1]), "source": "patent-publication-id"})
         elif r in LITERAL:
             rows.append({"reference.id": r, "year": LITERAL[r], "source": "literal"})
 
