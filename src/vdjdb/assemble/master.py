@@ -28,6 +28,7 @@ from ..curate.nomenclature import (
 )
 from ..curate.patch import apply_antigen_patch
 from ..io.chunks import merge_repeated_references, read_chunks
+from ..qc.rules import assert_complete
 from ..schema import ALL_COLUMNS, FULL_COLUMNS
 from ..score.confidence import add_score
 
@@ -216,6 +217,7 @@ def build_master(paths: Iterable[Path] | None = None,
     reads.
     """
     df = read_chunks(paths)
+    assert_complete(df)
     # One publication curated in two chunk files is one paper reporting one clone twice, and two
     # rows of one paper are not two independent reports - which is the whole basis for
     # deduplicating within a chunk (#390). Runs before identity, so a collapsed row is retired by
