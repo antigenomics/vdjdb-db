@@ -32,7 +32,7 @@ pytestmark = pytest.mark.release
 def reconciled():
     """The corpus reconciled against the committed registry, without writing anything."""
     from vdjdb.assemble.master import harmonise_all
-    from vdjdb.io.chunks import read_chunks
+    from vdjdb.io.chunks import merge_repeated_references, read_chunks
 
     path = Paths.discover().root / REGISTRY
     if not path.exists():
@@ -41,7 +41,8 @@ def reconciled():
     # it knew about, and adding `harmonise_vocabulary` as a fifth (#637) made it reconcile the
     # committed registry against a frame the build does not produce - 170 amendments reported in the
     # wrong direction, on a registry that was correct. One sequence, two callers.
-    df, _ = harmonise_all(read_chunks(None))
+    df, _ = merge_repeated_references(read_chunks(None))
+    df, _ = harmonise_all(df)
     _, _, report = reconcile(df, IdentityRegistry.load(path), release="test")
     return report
 

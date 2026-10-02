@@ -26,7 +26,7 @@ from pathlib import Path
 import polars as pl
 
 from ..config import Paths
-from ..schema import ALL_COLUMNS, CHUNK_DEDUP_KEY, KEPT_CURATION_COLUMNS
+from ..schema import ALL_COLUMNS, CHUNK_DEDUP_KEY, KEPT_CURATION_COLUMNS, LEGACY_CHUNK_DEDUP_KEY
 
 #: Provenance columns this reader adds. Not part of any chunk.
 PROVENANCE: tuple[str, ...] = ("chunk.file", "chunk.row")
@@ -137,7 +137,7 @@ def _base_first(files: list[str]) -> list[str]:
 def merge_repeated_references(df: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFrame]:
     """Collapse rows that are one publication reporting one clone twice, in two chunk files (#390).
 
-    ``CHUNK_DEDUP_KEY`` contains ``reference.id``, so a group of it spanning two chunk files is one
+    ``LEGACY_CHUNK_DEDUP_KEY`` contains ``reference.id``, so a group of it spanning two chunk files is one
     paper curated twice - and two rows of one paper are not two independent reports, which is the
     whole basis for deduplicating within a chunk in the first place. **The chunk was a proxy for the
     publication**; where the two come apart, the publication is what counts.
@@ -154,17 +154,17 @@ def merge_repeated_references(df: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFr
     """
     report_schema = {"reference.id": pl.String, "chunk.files": pl.String, "verdict": pl.String,
                      "detail": pl.String, "rows": pl.Int64}
-    spanning = (df.group_by(CHUNK_DEDUP_KEY)
+    spanning = (df.group_by(LEGACY_CHUNK_DEDUP_KEY)
                   .agg(pl.col("chunk.file").n_unique().alias("__files"))
                   .filter(pl.col("__files") > 1)
                   .drop("__files"))
     if spanning.is_empty():
         return df, pl.DataFrame(schema=report_schema)
 
-    compared = [c for c in df.columns if c not in CHUNK_DEDUP_KEY and c not in CURATION_ONLY]
-    groups = df.join(spanning, on=CHUNK_DEDUP_KEY, how="inner")
+    compared = [c for c in df.columns if c not in LEGACY_CHUNK_DEDUP_KEY and c not in CURATION_ONLY]
+    groups = df.join(spanning, on=LEGACY_CHUNK_DEDUP_KEY, how="inner")
     rows, drop, patch = [], [], []
-    for key, sub in groups.group_by(CHUNK_DEDUP_KEY, maintain_order=True):
+    for key, sub in groups.group_by(LEGACY_CHUNK_DEDUP_KEY, maintain_order=True):
         files = _base_first(sub["chunk.file"].to_list())
         disagree, fill = {}, {}
         for column in compared:
@@ -173,7 +173,7 @@ def merge_repeated_references(df: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFr
                 disagree[column] = " | ".join(sorted(values))
             elif values:
                 fill[column] = next(iter(values))
-        reference = key[CHUNK_DEDUP_KEY.index("reference.id")]
+        reference = key[LEGACY_CHUNK_DEDUP_KEY.index("reference.id")]
         if disagree:
             rows.append({"reference.id": reference, "chunk.files": ",".join(files),
                          "verdict": "kept", "rows": sub.height,

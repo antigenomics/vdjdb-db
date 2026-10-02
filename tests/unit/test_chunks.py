@@ -17,7 +17,7 @@ from vdjdb.io.chunks import (
     read_chunks,
 )
 from vdjdb.qc.rules import RULES, check
-from vdjdb.schema import ALL_COLUMNS, CHUNK_DEDUP_KEY
+from vdjdb.schema import ALL_COLUMNS
 
 
 def _chunk(tmp: Path, name: str, rows: list[dict[str, str]], *,
@@ -138,12 +138,11 @@ def test_dedup_keeps_the_first_occurrence_and_the_order(tmp_path: Path) -> None:
     assert df["chunk.row"].to_list() == [1, 3]
 
 
-def test_a_field_outside_the_dedup_key_does_not_split_a_duplicate(tmp_path: Path) -> None:
-    """``meta.structure.id`` is not identity; two rows differing only there are one record."""
-    assert "meta.structure.id" not in CHUNK_DEDUP_KEY
-    p = _chunk(tmp_path, "a.txt", [_row(**{"meta.structure.id": "5EUO"}),
-                                   _row(**{"meta.structure.id": "5euo"})])
-    assert dedup(read_chunk(p)).height == 1
+@pytest.mark.parametrize("field", ["method.identification", "method.verification",
+    "method.frequency", "meta.structure.id", "meta.donor.MHC", "meta.epitope.id"])
+def test_observation_metadata_distinguishes_rows(tmp_path: Path, field: str) -> None:
+    p = _chunk(tmp_path, "a.txt", [_row(**{field: "one"}), _row(**{field: "two"})])
+    assert dedup(read_chunk(p)).height == 2
 
 
 def test_the_read_path_loses_nothing_but_declared_duplicates() -> None:
