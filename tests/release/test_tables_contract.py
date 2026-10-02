@@ -47,7 +47,8 @@ pytestmark = pytest.mark.release
 #: per epitope, and pairing them from the paper's supplementary figure 10 takes 46 rows to 32.
 #: Metadata-aware deduplication (#845) restores 285 observations; existing IDs are unchanged.
 # PMID:41098775 adds 19 source-supported observations.
-EXPECTED_RECORDS = 192_913
+# PMID:36298482 adds 20 source-supported observations.
+EXPECTED_RECORDS = 192_933
 
 
 @pytest.fixture(scope="module")
