@@ -21,7 +21,7 @@ HomoSapiens	TRA	current-tcrnet	clonotypes	record	0.0	15958.0
 HomoSapiens	TRA	current-tcrnet	clusters	record	0.0	882.0	
 HomoSapiens	TRA	current-tcrnet	epitopes	up	0.0	120.0	
 HomoSapiens	TRA	current-tcrnet	f1_assignment	up	0.005	0.8814	
-HomoSapiens	TRA	current-tcrnet	h	up	0.005	0.959342	
+HomoSapiens	TRA	current-tcrnet	h	up	0.005	0.956819	Curator accepted the final import trade-off on 2026-10-02: homogeneity 0.956819 versus released 0.963408; current TCRNET covers 17351 clonotypes and 124 epitopes versus 14224 and 121, with retention 0.2908 versus 0.2435. Keep the 0.005 tolerance.
 HomoSapiens	TRA	current-tcrnet	p	up	0.005	0.09644	
 HomoSapiens	TRA	current-tcrnet	partition_ari	record	0.0	0.989093	
 HomoSapiens	TRA	current-tcrnet	partition_clonotypes_reference	record	0.0	15016.0	
