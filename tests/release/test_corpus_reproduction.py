@@ -55,8 +55,8 @@ MIN_OCCURRENCES = 50
 #: #845 restores metadata-distinct observations: 26 of 29 RS k-mers are above
 #: the median (previously 25 of 29); the other acceptance expectations still pass.
 EXPECTED = {
-    "documents": 646,  # PMID:41098775 adds one publication.
-    "kmers_scored": 2342,
+    "documents": 647,  # PMID:37231180 adds one publication.
+    "kmers_scored": 2343,  # PMID:37231180 adds one k-mer above the occurrence cutoff.
     "top_kmer": "k:IRS",
     "top_lift": 2.663,
     "median_lift": 1.170,
