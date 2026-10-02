@@ -54,14 +54,16 @@ MIN_OCCURRENCES = 50
 #: The other expectations remain unchanged; the full CI run passed their assertions.
 #: #845 restores metadata-distinct observations: 26 of 29 RS k-mers are above
 #: the median (previously 25 of 29); the other acceptance expectations still pass.
+#: Remaining import (#893), accepted by the curator on 2026-10-02: 25 of 29
+#: RS k-mers exceed the median; IRS remains first and the family fraction exceeds 0.8.
 EXPECTED = {
     "documents": 676,  # Remaining import adds 28 publication/patent references.
     "kmers_scored": 2346,  # Remaining import adds three k-mers above the occurrence cutoff.
     "top_kmer": "k:IRS",
-    "top_lift": 2.663,
-    "median_lift": 1.170,
+    "top_lift": 2.798,
+    "median_lift": 1.152,
     "motif_kmers": 29,
-    "motif_above_median": 26,
+    "motif_above_median": 25,
 }
 
 #: ``k:CAS`` is the germline-encoded start of nearly every beta CDR3: present in 614 of 661 documents.
