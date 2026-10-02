@@ -38,8 +38,10 @@ pytestmark = pytest.mark.release
 #: stop failing the legacy "a CDR3 needs a V and a J" filter.
 #: #845 restores nine additional single-chain observations with unresolved segment calls.
 #: All earlier observations remain; these nine are retained by the tables and AIRR projection.
-LEGACY_DROPS_CHAINS = 979
-LEGACY_DROPS_RECORDS = 764
+#: #893 adds 336 records (542 chains) whose source calls remain incomplete after assembly.
+#: All are retained in the definitive tables and AIRR; legacy requires both V and J.
+LEGACY_DROPS_CHAINS = 1521
+LEGACY_DROPS_RECORDS = 1100
 
 
 @pytest.fixture(scope="module")
