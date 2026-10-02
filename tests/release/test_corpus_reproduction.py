@@ -49,8 +49,11 @@ MIN_OCCURRENCES = 50
 #: above the middle, which at 25 of 29 is 0.862 against the 0.8 floor the last assertion pins.
 #: A duplicate row is not evidence, so removing it is the right answer even where a derived
 #: statistic reads marginally weaker for it.
+#: PDB primary-citation reconciliation (#839): 23 structure references become nine new
+#: paper references, reducing documents from 661 to 647 without removing any of 391 PDB rows.
+#: The other expectations remain unchanged; the full CI run passed their assertions.
 EXPECTED = {
-    "documents": 661,
+    "documents": 647,
     "kmers_scored": 2342,
     "top_kmer": "k:IRS",
     "top_lift": 2.663,
