@@ -583,8 +583,8 @@ previous copy produces exactly the same ids and reports only that the history is
 
 `registry/records.tsv` maps `record_id` to its state, hashes, provenance and amendment history, so an
 id survives a curator fixing a typo. **It is committed** and is an input to the build, not an output of
-it: 73.8 MB for 192,883 rows, and kilobytes per amendment in the pack, because a reconciliation rewrites
-only the lines it touched. It was going to ship as a release asset the build fetched, and #672 changed
+it. Git LFS stores the TSV because the registry can exceed the repository file-size limit.
+Run `git lfs pull` after cloning; CI checks out the LFS contents before building. It was going to ship as a release asset the build fetched, and #672 changed
 that - without a committed copy the registry went stale between releases and landing one 40-record
 chunk moved `record_id` on 168,723 of 192,753 records (#638). It is written **only** by
 `vdjdb identity update`, which a chunk branch runs and commits alongside the chunk; `vdjdb build` reads

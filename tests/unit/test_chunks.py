@@ -282,3 +282,18 @@ def test_the_two_quarantine_directories_hold_different_formats() -> None:
         assert got != shipping, (
             f"withheld/{p.name} already has the current {shipping}-column header, so it parses. It "
             "belongs in pending/, which says the build is what has to change.")
+
+
+def test_compressed_chunk_preserves_records_and_lint(tmp_path):
+    import gzip
+
+    from vdjdb.qc.lint import lint_file
+
+    plain = _chunk(tmp_path, 'PMID_1.tsv', [{'cdr3.beta': 'CASSLGQETQYF',
+                                          'reference.id': 'PMID:1'}])
+    compressed = tmp_path / 'PMID_1.tsv.gz'
+    compressed.write_bytes(gzip.compress(plain.read_bytes(), mtime=0))
+    assert read_chunk(compressed).drop('chunk.file').equals(read_chunk(plain).drop('chunk.file'))
+    assert [(x.code, x.detail) for x in lint_file(compressed)] == [
+        (x.code, x.detail) for x in lint_file(plain)]
+    assert chunk_files(tmp_path) == [plain, compressed]
