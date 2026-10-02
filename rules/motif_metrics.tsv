@@ -8,7 +8,7 @@ HomoSapiens	TRA	current-tcremp	p	up	0.005	0.085855
 HomoSapiens	TRA	current-tcremp	partition_ari	record	0.0	0.774078	
 HomoSapiens	TRA	current-tcremp	partition_clonotypes_reference	record	0.0	15016.0	
 HomoSapiens	TRA	current-tcremp	partition_clonotypes_shared	record	0.0	7802.0	
-HomoSapiens	TRA	current-tcremp	partition_neighbours_preserved	baseline	0.005	0.283914	
+HomoSapiens	TRA	current-tcremp	partition_neighbours_preserved	baseline	0.005	0.245299	Curator accepted the expanded corpus fraction on 2026-10-03; follow-up #947. Keep the fraction definition and tolerance 0.005; purity, retention, precision and Q remain gated.
 HomoSapiens	TRA	current-tcremp	partition_pairs_preserved	record	0.0	0.305906	
 HomoSapiens	TRA	current-tcremp	percolation_excess	record	0.0	0.0946	recorded, not gated (2026-10-01): percolation is the largest cluster's share of an epitope's clustered clonotypes, which depends on the epitope - one prominent motif (A*02 GIL) should percolate, a featureless one (A*02 NLV) should not. See validate/motif_metrics.py.
 HomoSapiens	TRA	current-tcremp	percolation_median	record	0.0	0.5	recorded, not gated (2026-10-01): percolation is the largest cluster's share of an epitope's clustered clonotypes, which depends on the epitope - one prominent motif (A*02 GIL) should percolate, a featureless one (A*02 NLV) should not. See validate/motif_metrics.py.
@@ -26,7 +26,7 @@ HomoSapiens	TRA	current-tcrnet	p	up	0.005	0.09644
 HomoSapiens	TRA	current-tcrnet	partition_ari	record	0.0	0.989093	
 HomoSapiens	TRA	current-tcrnet	partition_clonotypes_reference	record	0.0	15016.0	
 HomoSapiens	TRA	current-tcrnet	partition_clonotypes_shared	record	0.0	11181.0	
-HomoSapiens	TRA	current-tcrnet	partition_neighbours_preserved	baseline	0.005	0.612869	
+HomoSapiens	TRA	current-tcrnet	partition_neighbours_preserved	baseline	0.005	0.579511	Curator accepted the expanded corpus fraction on 2026-10-03; follow-up #946. Keep the fraction definition and tolerance 0.005; purity, retention, precision and Q remain gated.
 HomoSapiens	TRA	current-tcrnet	partition_pairs_preserved	record	0.0	0.601439	
 HomoSapiens	TRA	current-tcrnet	percolation_excess	record	0.0	0.0096	
 HomoSapiens	TRA	current-tcrnet	percolation_median	record	0.0	0.3939	
@@ -80,7 +80,7 @@ HomoSapiens	TRA	trivial	p	up	0.005	0.707782
 HomoSapiens	TRA	trivial	partition_ari	record	0.0	0.179462	
 HomoSapiens	TRA	trivial	partition_clonotypes_reference	record	0.0	15016.0	
 HomoSapiens	TRA	trivial	partition_clonotypes_shared	record	0.0	12244.0	
-HomoSapiens	TRA	trivial	partition_neighbours_preserved	baseline	0.005	0.653557	
+HomoSapiens	TRA	trivial	partition_neighbours_preserved	baseline	0.005	0.608425	Curator accepted the expanded corpus fraction on 2026-10-03; follow-up #946. Keep the fraction definition and tolerance 0.005; purity, retention, precision and Q remain gated.
 HomoSapiens	TRA	trivial	partition_pairs_preserved	record	0.0	0.613735	
 HomoSapiens	TRA	trivial	percolation_excess	record	0.0	-0.1373	
 HomoSapiens	TRA	trivial	percolation_median	record	0.0	0.25	
@@ -116,7 +116,7 @@ HomoSapiens	TRB	current-tcrnet	p	up	0.005	0.274864
 HomoSapiens	TRB	current-tcrnet	partition_ari	record	0.0	0.999901	
 HomoSapiens	TRB	current-tcrnet	partition_clonotypes_reference	record	0.0	36906.0	
 HomoSapiens	TRB	current-tcrnet	partition_clonotypes_shared	record	0.0	34535.0	
-HomoSapiens	TRB	current-tcrnet	partition_neighbours_preserved	baseline	0.005	0.89653	
+HomoSapiens	TRB	current-tcrnet	partition_neighbours_preserved	baseline	0.005	0.891472	Curator accepted the expanded corpus fraction on 2026-10-03; follow-up #946. Keep the fraction definition and tolerance 0.005; purity, retention, precision and Q remain gated.
 HomoSapiens	TRB	current-tcrnet	partition_pairs_preserved	record	0.0	0.994967	
 HomoSapiens	TRB	current-tcrnet	percolation_excess	record	0.0	-0.11955	
 HomoSapiens	TRB	current-tcrnet	percolation_median	record	0.0	0.7232	
