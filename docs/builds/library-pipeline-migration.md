@@ -1,4 +1,7 @@
-# Migrating the build onto arda 2.36.0 + vdjtools 4.8.0
+# Build history
+
+These are historical implementation notes from September 2026, retained for maintainers.
+For current commands, use [Build and release](../builds.md); this page is not an active task list.
 
 2026-09-30. **Everything the build does to annotate a junction is now one call in a library.** This
 note says which call, what it returns, and which of this repository's modules it replaces. The
@@ -8,7 +11,7 @@ libraries' own design note is `docs/junction_pipeline.md` in `antigenomics/vdjto
 
 Five of this build's modules re-implement, coordinate, or second-guess work the libraries do:
 `annotate/cdr3fix.py` (199 lines), `annotate/junction.py` (203), `annotate/segments.py` (185),
-`annotate/dgene.py` (62) and `curate/anchors.py` (388) — **1,037 lines** that call arda and vdjtools
+`annotate/dgene.py` (62) and `curate/anchors.py` (388) - **1,037 lines** that call arda and vdjtools
 stage by stage, hold the coordinate conversions between them, and in `curate/anchors.py` compute a
 junction repair that is then **reported and never applied** (#711). One library call replaces the
 annotation part of all five. What stays here is *curation*: which records to flag, and what a curator
@@ -32,7 +35,7 @@ out = annotate_junctions(
 ```
 
 **One row out per row in, in input order**, so it joins positionally. A record the model cannot
-explain is present with nulls — never dropped, never an exception. Deduplicate to distinct
+explain is present with nulls - never dropped, never an exception. Deduplicate to distinct
 `(species, cdr3, v, j)` keys first, as the build already does.
 
 ### What comes back
@@ -41,15 +44,15 @@ explain is present with nulls — never dropped, never an exception. Deduplicate
 |---|---|---|
 | `cdr3_repaired` | `annotate/cdr3fix.py` | the repaired junction; `cdr3_aa` is the submission |
 | `v_call`, `j_call` | `annotate/cdr3fix.py` | **confirmed or re-called**; feeds `cdr3fix.vId`/`jId` |
-| `v_alts`, `j_alts` | — | every allele the junction cannot separate, chosen one first |
+| `v_alts`, `j_alts` | - | every allele the junction cannot separate, chosen one first |
 | `proposed` | `annotate/segments.py` | which side the submission left blank and the junction named |
 | `v_end`, `j_start` | `annotate/cdr3fix.py` | residues; VDJdb's `vEnd` / `jStart` |
-| `v_end_nt`, `j_start_nt` | `annotate/junction.py` | nucleotides — no `ceil(nt/3)` conversion here any more |
+| `v_end_nt`, `j_start_nt` | `annotate/junction.py` | nucleotides - no `ceil(nt/3)` conversion here any more |
 | `v_flags`, `j_flags`, `good` | `curate/anchors.py` | `mismatch` is the curator's list; `impossible` is a malformed junction |
 | `cdr3_nt`, `pgen` | `annotate/junction.py` | the inferred nucleotide junction and its Pgen |
-| `d_call`, `d_posterior` | `annotate/dgene.py` | **use as `d.inferred`** — the D GENE, named by the model, with its posterior |
+| `d_call`, `d_posterior` | `annotate/dgene.py` | **use as `d.inferred`** - the D GENE, named by the model, with its posterior |
 | `d_start_nt`, `d_end_nt` | `annotate/junction.py` | where that gene was placed, 1-based closed in junction space |
-| `d_start_aa`, `d_end_aa` | — | the residues whose codons the D touches, recomputed from the nt bounds |
+| `d_start_aa`, `d_end_aa` | - | the residues whose codons the D touches, recomputed from the nt bounds |
 | `np1`, `np2` | `annotate/junction.py` | the N regions either side of the D, sliced from the same bounds |
 
 ## Five things that change in the output, and why
@@ -60,7 +63,7 @@ and every one ships unrepaired. `cdr3_repaired` is the repair, already gated: me
 187,488 keys of the 2026-06-03 release, arda agrees with that release's shipped junction on
 **99.8352 %**, reproduces 4,331 of its 4,499 repairs, and ships **677** non-canonical junctions
 against the release's 715. Applying `cdr3_repaired` is not the ungated "apply the proposal" that
-#711 warns against — the 2,842 rewrites the release never ships are down to 141, of which 35 touch an
+#711 warns against - the 2,842 rewrites the release never ships are down to 141, of which 35 touch an
 already-canonical junction.
 
 **2. `good` means "the junction is well formed", and a germline disagreement no longer contradicts
@@ -78,12 +81,12 @@ whose D and `DStart`/`DEnd` come from the nucleotide sequence:
 |---|---:|---:|
 | E-value-gated alignment chooses and places | 47.93 % | 55.75 % |
 | gated alignment, model posterior where it declines | 71.40 % | 55.75 % |
-| today's `d.inferred` (the length-and-prior posterior) | 69.67 % | — |
+| today's `d.inferred` (the length-and-prior posterior) | 69.67 % | - |
 | **model names, greedy alignment places** | **74.35 %** | **99.80 %** |
 
 ⛔ **`arda.dpost` does not come back, in either library.** The posterior this build reads today is
-dominated by a group-by over a call the pipeline already makes — 69.67 % against 74.33 %, 56.3 µs per
-key against 30.1 — and it needs a fitted prior table and a per-locus tempering constant that the
+dominated by a group-by over a call the pipeline already makes - 69.67 % against 74.33 %, 56.3 µs per
+key against 30.1 - and it needs a fitted prior table and a per-locus tempering constant that the
 replacement does not. `annotate/dgene.py` is replaced by two columns, not re-pointed at a new module.
 So `fields.py`'s comment about `d.posterior` needs rewriting rather than renaming: the number now
 comes from the model's own scenario weights, normalised over D genes.
@@ -96,28 +99,28 @@ to take.
 **4. The model set is chosen per row, not configured.** `model_source="auto"` runs OLGA's bundled
 fit first and arda's on whatever it left unexplained. Neither alone is best: OLGA's is better
 calibrated and cheaper but declines rows outright, arda's answers everything and is thinner. On
-4,000 real human rearrangements the chain wins every column — TRB nucleotide-exact
+4,000 real human rearrangements the chain wins every column - TRB nucleotide-exact
 14.40 / 17.32 / **17.32 %** and D gene 72.58 / 74.08 / **74.35 %** for arda / OLGA / the chain, and
 TRA keeps **4,000 of 4,000** nucleotide junctions where OLGA alone loses 143. Leave the default
 alone unless you are reproducing a published number against one named fit.
 
-⚠ **And the chain's last rung is not a bundled fit at all** — it is a germline scaffold, which is
+⚠ **And the chain's last rung is not a bundled fit at all** - it is a germline scaffold, which is
 what makes the non-human records answer. A fitted model exists for human and mouse and for nothing
 else, so **every rhesus record in VDJdb used to come back empty**: 1,457 keys answered zero times,
 invisible inside a single corpus-wide total. Coverage over the 192,726 curation keys, per species,
-measured on arda 2.36.0 — the floor this page declares:
+measured on arda 2.36.0 - the floor this page declares:
 
 | species | locus | keys | nucleotide junction | D gene | D coordinates |
 |---|---|---:|---:|---:|---:|
 | HomoSapiens | TRB | 115,829 | **115,819** | 115,819 | 113,232 |
-| HomoSapiens | TRA | 58,281 | **58,203** | — | — |
+| HomoSapiens | TRA | 58,281 | **58,203** | - | - |
 | MusMusculus | TRB | 9,015 | **8,805** | 8,805 | 8,694 |
-| MusMusculus | TRA | 8,140 | **8,140** | — | — |
+| MusMusculus | TRA | 8,140 | **8,140** | - | - |
 | MacacaMulatta | TRB | 1,383 | **1,379** | 1,379 | 787 |
-| MacacaMulatta | TRA | 74 | **73** | — | — |
+| MacacaMulatta | TRA | 74 | **73** | - | - |
 | HomoSapiens | TRD | 4 | **4** | 4 | 4 |
 
-**192,423 of 192,726 (99.84 %)**, and no species or locus at zero. TRA and TRD are VJ loci — there
+**192,423 of 192,726 (99.84 %)**, and no species or locus at zero. TRA and TRD are VJ loci - there
 is no D to find. ⛔ **Break any coverage check in the build down BY SPECIES**: one percentage over
 this corpus hid an entire organism answering nothing. ⚠ The `keys` column is as of arda 2.36.0 —
 the 461 keys naming neither V nor J had no locus before and now count under the one they resolve
@@ -125,7 +128,7 @@ to, so a per-locus denominator is not comparable to an older run's.
 
 ⚠ **Every accuracy percentage on this page is human TRB.** The truth set behind them
 (`isalgo/airr_control`) carries TRA and TRB and no immunoglobulin, so none of them may be quoted for
-IGH — and the per-species table above is coverage, not accuracy.
+IGH - and the per-species table above is coverage, not accuracy.
 
 **5. The nucleotides are the authority and the amino-acid bounds are recomputed from them.**
 `v_end_nt`, `j_start_nt`, `d_start_nt` and `d_end_nt` are all read off the inferred nucleotide
@@ -149,7 +152,7 @@ native threaded `infer_nt_batch` and one `best_aa_scenarios_batch` per `(organis
 loaded once, then a thin Python loop over arda's C++ aligner. A pool around it would re-import the
 libraries and re-load the models per worker.
 
-## Version floors
+## Versions used in this migration
 
 ```text
 "arda-mapper>=2.36.0",   # cdr3fix repair policy, v_alts/j_alts, blank-call AND blank-locus proposal, map_d_junction(v_end=, j_start=)
@@ -157,11 +160,11 @@ libraries and re-load the models per worker.
 ```
 
 `arda.dpost` is **gone** in 2.33.0 and does **not** reappear in vdjtools, so `annotate/dgene.py`'s
-`from arda.dpost import posterior_d` breaks on upgrade — that is the intended failure, not a
+`from arda.dpost import posterior_d` breaks on upgrade - that is the intended failure, not a
 surprise, and the fix is to read `d_call` / `d_posterior` rather than to re-point the import.
 `arda markup --d-posterior` and `--d-prior` are gone with it.
 
-## Suggested order
+## Original migration sequence
 
 1. Bump both floors and **delete** `annotate/dgene.py`, reading `d_call` / `d_posterior` from the one
    call instead. The build runs again at this point.
@@ -169,17 +172,61 @@ surprise, and the fix is to read `d_call` / `d_posterior` rather than to re-poin
    `SPECIES` map and its Pgen provenance comment are worth keeping as documentation of what the
    numbers mean.
 3. Replace `annotate/cdr3fix.py` with the stage-1 columns. Keep whatever maps them onto VDJdb's
-   `cdr3fix` JSON key names — `Cdr3Markup.to_cdr3fix()` in arda still emits that object key-for-key.
+   `cdr3fix` JSON key names - `Cdr3Markup.to_cdr3fix()` in arda still emits that object key-for-key.
 4. Delete `annotate/segments.py` and read `proposed` instead. Of the **3,130 blank-call keys**,
    2,669 name one side and 461 name neither. arda 2.34.0 resolved the one-sided ones (2,504 `good`,
    with both boundaries placed) and refused the rest for want of a locus; **2.36.0 proposes the
    locus too**, so all 461 get one and 459 come back `good`. The proposed locus agrees with the
    `cdr3.alpha` / `cdr3.beta` column the record was filed under on **457 of 461 (99.13 %)**; all four
    disagreements are `CACD…DKLIF`, TRDV2's own anchor and TRDJ1's own ending, in a schema with no
-   δ column. An *unresolvable* call — `TRBVnope*01` — is still refused rather than
+   δ column. An *unresolvable* call - `TRBVnope*01` - is still refused rather than
    proposed for, deliberately: a submission that names something wrong is a defect for a curator, not
    a gap for the junction to fill.
 5. **Then** #711: `curate/anchors.py` keeps its classification (which is curation) and drops its
    repair computation (which is annotation), and the build ships `cdr3_repaired`.
 6. Re-run `vdjdb diff` against `reference.zip` and read the junction-column changes against the table
    in §"Five things that change" above.
+
+## Earlier nucleotide-inference performance work
+
+`annotate.junction.add_junction_nt` was 87.2 % of the assembly stage - 407.64 s of 467.72 s on a
+4-vCPU runner over 192,793 records - because `vdjtools.model.infer_nt` wraps a native DP in per-row
+Python and the wrapper, not the DP, was the cost. That profile is what
+[`antigenomics/vdjtools#181`](https://github.com/antigenomics/vdjtools/issues/181) was opened on, and
+`vdjtools` 4.5 answers it with `infer_nt_batch`.
+
+So the stage is **one batched call per (species, locus)** over the distinct
+`(species, gene, cdr3, v, j)` keys - 187,055 of them rather than every row, which is rule 4's
+deduplication - and nothing wraps it. `infer_nt_batch` releases the GIL and partitions the batch
+across its own kernel threads; a pool of our own would oversubscribe the machine and read as
+"batching did not help", which is hard rule 3 and section 0e of `CLAUDE.md` both.
+
+Measured on 3,000 distinct human TRB keys from the corpus, 16 cores: **1.115 ms/key serial against
+0.106 ms batched, 10.5x, and all 3,000 nucleotide sequences identical.** End to end on the 4-vCPU
+runner the stage goes **407.64 s to 108.54 s** and the assembly step 467.72 s to 166.54 s, so it is
+65.2 % of that step rather than 87.2 %; on a 16-core laptop it is 12.44 s and `vdjdb build` is 45.9 s
+wall. The runner wins less because `infer_nt_batch` defaults to `hardware_concurrency - 2` threads,
+which is two there.
+`tests/unit/test_junction.py` asserts both halves of that, because each catches a different failure -
+identity catches a batch call that is not the same computation, and the ratio catches a regression to
+the loop or a batch call that loops internally, neither of which changes an answer.
+
+**Every inferred sequence encodes the junction it came from, and that is by construction rather than
+by luck.** The DP enumerates `(V, delV) x (J, delJ) x (D, delD, position)` and picks the best codon
+assignment *within* each scenario, so a scenario that cannot spell the given residues has probability
+zero and is never a candidate; anything the model cannot encode comes back null rather than wrong.
+Probed on human TRB: a stop codon, an `X`, a `Z`, a one- or two-residue junction, an empty string and
+a true CDR3 with its anchors stripped are all declined. The one input that survives with a difference
+is a lower-case junction, where the nucleotides are right and the comparison is case-sensitive - and
+`vdjdb qc` rejects a residue outside the 20 upper-case letters, with zero such chains in the corpus.
+Measured on the built corpus: **263,437 of 285,989 chains carry an inferred `cdr3nt`, 0 mismatches, 0
+whose length is not exactly three nucleotides per residue**, gated by
+`tests/release/test_tables_contract.py`. That check translates the whole column in one threaded native
+call, `vdjtools._core.translate_junctions` - 0.023 s against 0.284 s for `vdjtools.model.translate` in
+a Python loop, 12.3x, identical on every row.
+
+It previously ran as four worker processes over contiguous parquet slices of the key set, each an
+ordinary invocation of a subcommand that existed only to be that worker. The subcommand,
+`src/vdjdb/__main__.py`, the slice arithmetic and the worker-count argument are all gone: one batched
+call has no worker count, so rule 7's "never let worker count change the answer" holds by
+construction rather than by a tiling test.

@@ -1,243 +1,126 @@
-# Submitting and curating
+# Submit and review records
 
-To submit a previously published sequence, follow the steps below.
+A chunk records observations from one publication. Start with the
+[TSV template](https://raw.githubusercontent.com/antigenomics/vdjdb-db/dev/template.tsv) or
+[Excel template](https://raw.githubusercontent.com/antigenomics/vdjdb-db/dev/template.xlsx).
+The [chunk reference](standards/chunk-format.md) defines the columns; leave unknown values blank.
+The Excel template formats cells as text to preserve allele names and fractions.
 
-* Before creating a paper issue, search open and closed issues by PMID, DOI and publication URL, including issue bodies. Check shipped chunks and `proofreading/reference_ids.tsv` for the same publication. Reuse the existing issue; when PubMed resolves an older DOI or URL title, rename it `PMID:<id>` and retain the earlier identifier in the issue body. Link duplicate issues to the canonical issue after checking their history.
+## Find the publication issue
 
-* Create a missing paper issue titled `PMID:<id>` with label `vdjdb-records-paper-pending`. Its body is the citation retrieved from PubMed, linked to `https://pubmed.ncbi.nlm.nih.gov/<id>/`. Verify the record before posting. Describe provenance using the paper, its abstract or PubMed record; patent and PDB records may be cited where applicable. For a meta-study, link each constituent paper issue. Each paper remains independently traceable, including papers supplied together in one file.
+Search open and closed issues by PMID, DOI and publication URL, including issue bodies. Check
+existing chunks and `proofreading/reference_ids.tsv` before creating a duplicate submission.
+A preprint and its published version may describe the same work; use a verified PubMed version
+link to reconcile them while preserving existing observations and record identifiers.
 
-* Branch from `dev`, not from `master`, and add one chunk per paper, named ``PMID_XXXXXXX``. One commit per chunk, and close or reference the corresponding issue in the commit message.
+New paper issues use the title `PMID:<id>` and label `vdjdb-records-paper-pending`. Their body is
+the citation retrieved from PubMed, linked to `https://pubmed.ncbi.nlm.nih.gov/<id>/`. When a DOI
+or URL issue resolves to a PMID, keep the earlier identifier in its body. Public provenance text
+uses the paper, its abstract or PubMed record; patent and PDB records are also supported.
 
-* Open a pull request against `dev`. `chunk-check` runs on it and reports what the submission does, as a comment updated in place on every push: the records each changed chunk contributes and their confidence-score histogram, every QC finding by rule, and **every value the chunk introduces that no other chunk carries** - a new epitope, species, gene, MHC allele or reference. That last section is the one to read twice: a mistyped epitope passes every format check and arrives as a new epitope, indistinguishable from a genuine one except that you know which you meant. It also counts the records that repeat a clonotype and pMHC another chunk already reports, which is independent replication rather than duplication and is what raises the score. Fix or remove entries until it is green. A pull request straight into `master` is rejected by `branch-policy`, which only lets `dev` and `hotfix/*` merge there.
+## Prepare the chunk
 
-* Run `uv run vdjdb identity update` and commit `registry/records.tsv` in the same branch. That file is the record identity registry: it is what keeps a `record_id` pointing at the same record across releases, so external references and accumulated evidence outlive curation. The command is idempotent, so its diff in your pull request is exactly the records your chunk added, amended or retired - a reviewer reads it the way they read the chunk. Skipping it does not fail anything immediately; it leaves the registry describing a corpus that no longer exists.
+Use `chunks/PMID_<id>.tsv` for a paper. Each row needs an epitope and at least one alpha or beta
+junction. Neither can be invented or inferred. VDJdb stores junctions with both anchors included,
+not the shorter IMGT CDR3 region. See [sequence repair](standards/cdr3-fixing.md).
 
-* Chunks reach `master` with the next `dev` to `master` merge, once the full build has run green on `dev`. The path is `dev` -> chunk branch -> `dev` -> `master`.
+Use the supplied definitive tables first. Routine boundary trimming, supported nomenclature
+conversion and allele resolution happen during database assembly. Keep the submitted cells when
+the build already resolves them, and record the outcome as **resolved during database build**.
+Do not retrieve a paper repeatedly to settle a case the existing machinery handles. If a paper is
+inaccessible, retain supported values from the supplied table and record any remaining question.
 
-The chunk structure is specified in {doc}`standards/chunk-format`. Two rules apply to every submission:
+Check the assembled output: not every missing call can be recovered. A proposed V is reported as
+inferred and is not silently promoted to a paper-reported V call. Class I uses `B2M` as its partner;
+class II partner inference must follow the supported MHC rules, not a guessed allele pairing.
 
-> **STYLE** Avoid spaces in multi-value fields (``TRBV7,TRBV5``, not ``TRBV7, TRBV5``), and leave a field with no information blank rather than filling it with a placeholder. Use only the listed field values. If a critical part of your submission does not fit the current specification, 1) create an issue tagged ``maintainance``, and 2) provide an example, for instance by opening a pull request. Do not put critical information in the comment field.
+Keep experimental details in their structured columns: `method.*` describes the assay,
+`meta.*` describes subjects, donors, tissues, subsets and clones. Reserve `comment` for information
+that has no suitable field. Do not manufacture donor identities or assay evidence.
 
-> **FORMAT** Variable/Joining and MHC names must follow IMGT nomenclature. This does not apply to the donor MHC typing fields.
+## Review completeness and repeated observations
 
-The ``BuildDatabase`` routine runs in CI on every submission and before every release. It performs table format checks, CDR3 sequence checks and fixes where possible ({doc}`standards/cdr3-fixing`), and confidence score assignment ({doc}`standards/confidence-score`).
+```bash
+uv run vdjdb qc chunks/PMID_<id>.tsv
+uv run vdjdb submission chunks/PMID_<id>.tsv
+```
 
-Papers not yet processed are listed under the [`paper` label](https://github.com/antigenomics/vdjdb-db/labels/paper).
+Read the score distribution and fatal/advisory findings. Compare matches using both chains'
+V/J calls and junctions, epitope and MHC, then inspect all observation metadata. Different donors,
+methods, subsets or publications are independent observations. Repeated curation of the same
+publication is different from independent replication. Preserve existing PDB and mixed-paper
+records unless a documented correction is necessary.
 
-Two templates are available for preparing a chunk, generated from the same declaration by
-`vdjdb schema --table chunk --format template`, so neither can describe a column set the build does
-not read:
+Internal cysteine, an unusual terminal residue or a non-functional segment is an advisory finding,
+not sufficient reason to delete a source-supported observation. Inspect assembly repair and flags.
+Missing epitope, missing both junctions, an unresolved pairing or a conflicting positive/negative
+outcome requires action before the affected observation can enter the positive build.
 
-- **[template.xlsx](https://raw.githubusercontent.com/antigenomics/vdjdb-db/master/template.xlsx)** -
-  open this one in Excel, LibreOffice or Numbers. The header is coloured by column group (grey
-  `chunk.id`, peach for the required complex columns, pale yellow for `method.*`, pale green for
-  `meta.*`), each header carries its description as a hover note, and a second **columns** sheet
-  lists every column with its group and a link to this specification.
-- **[template.tsv](https://raw.githubusercontent.com/antigenomics/vdjdb-db/master/template.tsv)** -
-  the same 33 columns and the same examples as plain text, for a script or an editor.
+## Separate blockers from follow-up questions
 
-Both carry four example records, one per shape a submission takes: a paired class I record with a
-structure, a paired class II record, a beta-only record naming its D segment, and an alpha-only
-mouse record. In the `.xlsx` each example's `chunk.id` cell carries a note saying what it
-demonstrates.
+| Question | Action |
+|---|---|
+| Missing receptor or epitope, ambiguous pairing, unresolved restriction, conflicting assay outcome | Keep affected observations pending; ask a specific source-based question |
+| Unreported donor genotype, optional frequency, extra method detail that does not change identity or the supported score | Leave the field blank; keep a nonblocking follow-up issue |
+| Terminal flank or allele spelling handled by assembly | Retain the source cell; note the build resolution |
+| More source material requested after supplied observations are fully imported | Track the request separately from the completed import |
 
-> **CAUTION** ``x/X`` frequencies turning into dates, and allele names being mangled, is the
-> classic way a submission arrives corrupted. **`template.xlsx` formats every cell as *text* to
-> prevent it**, including 100 empty rows past the examples, so typing into a fresh row keeps the
-> protection. If you build a chunk any other way - from `template.tsv`, or by exporting from
-> another tool - set every column to text before you paste, then check `method.frequency` and the
-> V/J calls afterwards.
+Noncritical metadata must not hold up a supported record when its assay and verification evidence
+already determine the [confidence score](standards/confidence-score.md). Record the exact missing
+field and its impact. Do not change a score or infer an experimental result to avoid a question.
 
-## Every change to `chunks/` happens on a branch that names its reason
+## Choose the destination
 
-`chunks/` is the database. A build can be rewritten and re-verified against the last release; a chunk
-edit changes what VDJdb *says*, and the only instrument that notices is the comparison against the
-last release, which reports it as rows appearing and disappearing with no reason attached. So the
-branch carries the reason, and there are exactly two kinds of branch that may touch `chunks/`:
+- `chunks/`: supported positive observations used by the build.
+- `chunks_negative/`: explicitly negative assay observations; excluded from the positive build.
+  A receptor can have a positive binding observation and a negative functional-assay observation.
+- `pending/`: readable material whose import is blocked. Preserve unresolved source rows and state
+  which evidence or build capability would unblock them.
+- `withheld/`: material that cannot yet be assessed because its format needs re-export.
 
-| Branch | Subject | Names |
-|---|---|---|
-| `chunk/PMID_<id>` | one publication's records | the chunk |
-| `proofread/<issue>-<slug>` | one tracker issue about the data | the issue |
+Do not silently discard unresolved rows. Keep the issue open while source observations remain
+pending, withheld or in an unmerged PR. An excluded original file preserved for unresolved rows is
+not evidence that every row in it is still missing; list the unresolved subset explicitly.
 
-No other branch edits `chunks/`. A branch whose subject is the build, the tests, the documentation or
-the CI leaves the data alone, however mechanical the edit looks - and a mechanical repair across many
-files is not an exception to this, it is the case that most needs it. **A normalisation pass gets its
-own issue** saying what it changes and what it must not, and its own `proofread/` branch.
+## Publish through dev
 
-Line endings are the worked example. 99 of the 230 chunks are CRLF, normalising them touches every
-line of every one of those files, and when that was once folded into a build branch the commit message
-said the content was unchanged and was wrong: 92 files were line-endings only, but 11 carried real
-data-line changes, one of them shifting every field of 2,352 rows by dropping an unnamed leading
-column. The fix for a change of that shape is to make it checkable - for line endings,
-`git diff --ignore-cr-at-eol` on the branch returns empty - and to put it where a reviewer reading
-`git log chunks/` sees one line per reason.
+Start a data branch from current `dev`. Normally use one chunk per branch and PR; a maintainer may
+explicitly group a batch, with a per-file manifest and publication links. Keep already-open PRs
+separate unless consolidation was requested.
 
-Whichever branch it is, the commit message carries four things: **which files**, and per file how many
-rows it adds, removes or changes; **why**, naming the paper, the tracker issue or the `proofreading/`
-table the change comes from; **what the build shows**, meaning the row-count delta and the score
-histogram if it moved; and **who decided**, where the edit is a curation judgement rather than a
-mechanical repair. The last one is the part no diff can reconstruct later.
+```bash
+git switch -c codex/chunk-PMID_<id> origin/dev
+uv run vdjdb identity update
+```
 
-## A submission that cannot land yet goes to `pending/` or `withheld/`
+Commit the chunk and `registry/records.tsv` together. Review additions, amendments and retirements;
+existing record IDs must survive. The commit names the changed files, per-file row counts, source
+issue, reason, build result and curator decision where applicable.
 
-Not every chunk can land when it arrives. It may be in a format that predates the current
-specification, carry a species or a nomenclature the build has no germline or allele reference for, or
-raise a question only the submitting author can settle.
+Open the PR against `dev`. Read `chunk-check` and fix fatal findings. Put code, test expectations
+and release-comparison declarations in a **separate validation PR**. Review each changed count:
+corpus growth can change release projections, motif baselines and reference counts. A green test
+must follow an explained measurement, not a blanket tolerance increase.
 
-**Leaving it on a branch is the one wrong answer.** A branch is invisible: nothing indexes it, no build
-reads it, and the submission is lost the moment someone tidies the branch list. Two submissions sat
-unlanded on branches for eight and ten years and were recovered only by checking every unmerged branch
-against the tracker.
+Run full CI on the combined data and validation candidate before integration. When merging separate
+PRs sequentially, refresh the validation branch onto the new dev, verify its complete tree matches
+the green candidate, and wait for its required check. Chunks reach `master` only through a later
+`dev` release merge.
 
-Both directories are inputs that no build reads, so the file stays tracked, greppable and reviewable
-and the records are there when whatever blocks them is fixed. Which one depends on where the problem
-is - in the file, or in the build:
+## Close out the issue
 
-| Directory | The chunk | What has to change | Who changes it |
-|---|---|---|---|
-| `pending/` | is in the current format and parses cleanly | the **build** gains a reference it lacks - a species vocabulary, a germline set, an allele database | a maintainer |
-| `withheld/` | predates the current specification and cannot be read at all | the **file** is re-exported against the current column set | a curator, or the submitting author |
+After the data and validation are merged into `dev`, link the PRs and record the imported scope.
+Close the paper issue only when no source rows, excluded observations, unmerged changes or material
+questions remain. GitHub may not auto-close an issue for a PR targeting `dev`; verify its state.
 
-The difference is checkable rather than a judgement. The five chunks in `withheld/` carry 34- or
-36-column headers beginning `cdr3.alpha`; the current header is 33 columns beginning `chunk.id`. A
-chunk whose header matches a shipping chunk does not belong there, however far it is from landing:
-filing it under `withheld/` tells the next curator to re-export a file that needs no re-export.
-
-`pending/PMID_22058411.txt` is the worked example. Its header is identical to a chunk that ships and
-`vdjdb qc` parses all 53 rows; every row then fails one rule, `bad species`, because `species` is
-`BosTaurus` and three parts of the build have no bovine input. Nothing about the file is wrong.
-
-Either way:
-
-1. `git mv` or copy the chunk under the same name, **unchanged**. Do not repair it on the way in: the
-   file should stay what the submitter sent, so the next curator sees the original.
-2. Commit it on a chunk branch through `dev`, with a message naming what blocks it and what would
-   unblock it.
-3. Comment on the issue with the new path, the blocking reason, and the condition that would let it
-   land. Leave the issue **open** - it is still a pending submission, and closing it makes a blocked
-   chunk indistinguishable from a rejected one. If no issue exists, open one.
-
-Name the blocker in terms someone can act on. "Bad format" is not one; "33-column header predates the
-`.tsv` migration, needs re-export from the source table" is.
-
-This applies to a chunk you merely doubt as much as to one that fails a QC rule. A record you are
-unsure of is better quarantined with the doubt written down than silently dropped or silently shipped.
-Use `pending/` when you expect it to land and `withheld/` when the file itself has to change first.
-
-## What `chunk-check` alerts on without failing
-
-Two checks in the pull-request report block nothing and both exist because the thing they catch passes
-every QC rule.
-
-**Look-alike values.** A value that differs from one VDJdb already has only in case or in a `-`, `_`,
-`.` or space will not join it, so every query filtering on one misses the other. `IE1` and `IE-1` are
-two `antigen.gene` values today for the same CMV gene. Two values that look alike can also both be
-right - one stain against another, `MBP` in human against `Mbp` in mouse - which is why this is an
-alert and not a gate.
-
-**Junctions that contradict their own germline.** VDJdb's `cdr3` is **junction space**: Cys104 through
-Phe/Trp118, **both anchors included**. That is two residues longer than AIRR's or arda's `cdr3_aa`.
-A submission exported in IMGT CDR3 space is therefore short an anchor at each end, and it passes
-`vdjdb qc` - those rules check the residue alphabet and a minimum length, not the ends.
-
-Measured on the 2026-09-29 corpus, after #646 repaired 4,838 junctions in `chunks/` and #647
-corrected the mouse `TRAJ47` allele: **1,037 of 285,950 chains (0.36 %)**, of which 261 still get a
-proposed sequence and none gets a proposed allele. `PMID_34811538.tsv` contributes 243 and
-`PMID_15589168.tsv` 170.
-
-| Defect | Chains | Example | Repair |
-|---|--:|---|---|
-| J unexplained | 469 | `CAAFAGYMLPY` | none proposed |
-| J under-trimmed | 236 | `CAAGGQFYGYT` | `CAAGGQF` |
-| V unexplained | 203 | `AQGLLTGGGNKLTF` | none proposed |
-| J unanchored | 117 | `CAAGGSQGNLI`, no J the reference has | none proposed |
-| V under-trimmed | 20 | `FRAPCSCKDDHKLMF` | `CSCKDDHKLMF` |
-| J absent anchor | 10 | `CASSHPGTSAILSTTGELF` | `CASSHPGTSAILSTTGELFF` |
-| J corrupt anchor | 5 | `CAGSLGGFGNVLHF` on `TRAJ35*01` | `CAGSLGGFGNVLHC` |
-| V unanchored | 1 | no V the reference has | none proposed |
-
-A chain can carry a defect at each end, so these count more than 1,037 between them.
-
-A missing Cys104 is worth a second look even when the rest of the record is fine: no TCR folds without
-it, so a first residue that is not Cys where the body still aligns to the V is a sequencing or
-transcription error rather than a variant.
-
-Two things this check is careful about:
-
-- **The anchor residue is read from the germline of the segment the record names, never assumed to be
-  Phe or Trp.** Mouse `TRAJ47*01` is `HYANKMIC` and human `TRAJ35*01` is `IGFGNVLHC`, so a junction on
-  either ends in Cys. A fixed "ends with F or W" test calls 481 correct chains broken and separately
-  misses 125 that are not.
-- **Where the junction matches a functional sibling allele of the gene, the call is repaired and the
-  sequence is left alone.** An ORF or pseudogene allele has a non-canonical anchor by definition, and
-  arda records that faithfully: of 383 J entries over four organisms only 14 have `templated_aa` not
-  ending in Phe or Trp and 13 of those are marked `ORF` or `P`. So a junction disagreeing with a
-  non-functional allele is evidence about the *call*. 95 mouse chains name `TRAJ47`, which resolves to
-  the ORF `*01` (`HYANKMIC`), and every one reads `DYANKMIF` - exactly `TRAJ47*02`, the functional
-  allele. No record in the corpus reads the `*01` signature. This is the same defect as
-  [#327](https://github.com/antigenomics/vdjdb-db/issues/327), where 66 % of explicit `TRAJ24*01`
-  calls carry the `*02` motif, and rewriting the sequence there would destroy the evidence for it -
-  the reasoning `MAX_REPLACE = 0` already applies to CDR3 repair.
-
-`arda.cdr3fix` repairs most of these on the way through the build, which is the reason the alert
-matters rather than a reason to skip it: the shipped `cdr3` is usually right and **the chunk keeps the
-wrong sequence**, so the next export of that data is wrong again. The repair is therefore proposed
-against the submitted value, not the shipped one - arda may have fixed one end already, and
-`YLCSSQEGGYGYTFGSG` ships as `YLCSSQEGGYGYTF`, framework trimmed behind the anchor and kept in front
-of it.
-
-Applying a repair is a chunk edit, so it follows the rule above: its own branch, its own issue, and a
-message saying which files and rows moved and why. Nothing applies one automatically.
+If only optional metadata remains, keep a focused follow-up open and mark it nonblocking. Remove
+the paper-pending label once the import is complete, so it is not counted as an unprocessed paper.
+Umbrella issues stay open until all their component submissions are accounted for. Deferred
+10X reconciliation is tracked separately and is not part of a routine paper closeout.
 
 ## Curation skills
 
-`skills/` holds six curation skills: instruction documents that walk an agent through one multi-step
-curation task each. They are for [Claude Code](https://claude.ai/code), which loads a skill when its
-description matches the request, and they are plain Markdown, so GitHub Copilot's agent mode and any
-other reader can follow them directly.
-
-Each one **drives `vdjdb` and reads the authority tables** rather than carrying its own copy of what
-the build does. That is deliberate. A skill that restates a validation rule is a second copy of it,
-and the copies drift: before they were reconciled, two of these documents told a curator to normalise
-murine MHC names toward `H-2Db`, which is backwards - `H2-` is the MGI gene symbol prefix,
-`patches/mhc.dict` declares the conversion in the other direction, and the split between the two
-spellings had already cost 768 records their motif badge on the deployed site.
-
-`tests/unit/test_skills.py` is what stops that happening again. It asserts that every repository path
-a skill names exists, that no skill names a retired one, that every QC rule name it quotes is in
-`vdjdb.qc.rules.RULES` with the right fatal-or-advisory verdict, that every `vdjdb` subcommand it shows
-is in the CLI, and that neither of the two specific claims that were wrong - the murine prefix
-direction and the fixed "ends in Phe or Trp" junction rule - can be written again.
-
-| Skill | Invocation | What it does |
-|---|---|---|
-| [`vdjdb-extract`](https://github.com/antigenomics/vdjdb-db/blob/master/skills/vdjdb-extract/SKILL.md) | `/vdjdb-extract [path]` | Raw sources - supplementary tables, PDFs, 10x Genomics output, AIRR TSVs, Adaptive ImmunoSEQ exports - into a chunk TSV, with every value verified back against the source and an extraction log |
-| [`vdjdb-format`](https://github.com/antigenomics/vdjdb-db/blob/master/skills/vdjdb-format/SKILL.md) | `/vdjdb-format [file]` | Controlled-vocabulary fields to the spelling VDJdb records: IMGT gene and allele names, IPD-IMGT/HLA and murine H2 MHC names, species, method vocabulary, reference prefixes |
-| [`vdjdb-harmonize`](https://github.com/antigenomics/vdjdb-db/blob/master/skills/vdjdb-harmonize/SKILL.md) | `/vdjdb-harmonize [file]` | `antigen.gene` and `antigen.species` against the epitope dictionary and the alias tables, blanks resolved by IEDB or the publication, and the table rows that make the result derivable next time |
-| [`vdjdb-proofread`](https://github.com/antigenomics/vdjdb-db/blob/master/skills/vdjdb-proofread/SKILL.md) | `/vdjdb-proofread [file]` | `vdjdb qc` and `vdjdb submission`, every finding explained with its fix and its authority, the method and MHC questions the rules cannot decide, and the `chunks/` / `pending/` / `withheld/` decision |
-| [`vdjdb-publish`](https://github.com/antigenomics/vdjdb-db/blob/master/skills/vdjdb-publish/SKILL.md) | `/vdjdb-publish` | One commit per chunk on a chunk branch against `dev`, its PMID issue found or created, `registry/records.tsv` refreshed, and the message the chunk-change rule requires |
-| [`vdjdb-duplicates`](https://github.com/antigenomics/vdjdb-db/blob/master/skills/vdjdb-duplicates/SKILL.md) | `/vdjdb-duplicates` | Corpus-wide: which clonotypes and pMHC pairs recur, same-lab versus independent replication by author overlap, within-chunk read depth, and inconsistent MHC restriction |
-
-The pipeline is `extract` → `format` → `proofread` → `publish`. `harmonize` runs standalone or from
-`proofread`; `duplicates` is an audit over the built database rather than a stage.
-
-[`skills/AUTHORITIES.md`](https://github.com/antigenomics/vdjdb-db/blob/master/skills/AUTHORITIES.md)
-is the one document all six link to. It names the authority for each question, the five invariants no
-skill may relax - `chunks/` is the submitter's data, empty string is the only missing marker, `cdr3`
-is junction space, the anchor comes from the germline, never invent a value - and the judgement calls
-that are escalated to a curator rather than resolved by any tool.
-
-Every skill asks before a commit or a GitHub API call.
-
-## Reference files for proofreading
-
-| File | Role |
-|---|---|
-| `proofreading/gene_aliases.tsv` | Free-text antigen gene names → VDJdb canonical symbols |
-| `proofreading/species_aliases.tsv` | Source organism substrings → canonical CamelCase species names |
-| `proofreading/cdr3_repair.md` | The junction anchor rule, the defects it names, and why a repair is proposed against the submitted sequence |
-| `proofreading/imgt.md` | IMGT V/D/J gene naming rules |
-| `proofreading/mhc.md` | HLA/MHC allele naming and validation rules, non-human systems, and the precedent fills for a blank class II partner chain |
-| `proofreading/mhc_nonhuman.tsv` | Every MHC name IPD-IMGT/HLA cannot adjudicate: murine `H2-`, macaque Mamu, the light chain |
-| `patches/antigen_epitope_species_gene.dict` | Epitope-keyed authority: epitope → (species, gene) |
+The repository's [curation skills](https://github.com/antigenomics/vdjdb-db/tree/dev/skills) guide
+extraction, formatting, proofreading, publication, harmonisation and duplicate review. They use the
+same CLI and authority tables as the build. Existing authorization for a batch applies throughout;
+ask for new scientific decisions, not repeated permission for already-authorized routine actions.

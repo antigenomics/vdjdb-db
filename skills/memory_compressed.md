@@ -1,45 +1,31 @@
 # VDJdb Skills — Memory (Compressed)
 
-**Last compressed:** 2026-05-26 (rev 3)
-**Covers sessions through:** 2026-09-29
+**Last compressed:** 2026-10-02
+**Covers sessions through:** 2026-10-02
 **Full log:** `skills/memory.md`
 
 ---
 
-## Current State
+## Current workflow
 
-### Chunks In Progress
+Updated 2026-10-02. The [submission guide](../docs/submission.md),
+[shared authorities](AUTHORITIES.md) and individual skills are authoritative.
+Current issue and PR status is in the untracked local roadmap, not a static table here.
 
-| Chunk file | Source | Stage | Blocker |
-|---|---|---|---|
+- Preserve definitive source tables; routine sequence and allele repair belongs in assembly.
+- Keep metadata-distinct observations. Reconcile verified publication versions and preserve PDB
+  structure observations rather than treating a receptor match alone as a duplicate.
+- Optional metadata is a nonblocking open follow-up when identity and assay-supported scoring are
+  unaffected. Keep unresolved essential evidence separate.
+- Separate data and validation PRs; require green combined CI and identical final integration trees.
+- Review corpus-dependent baseline changes explicitly; do not relax gates or duplicate constants.
+- Close completed paper issues after checking leftovers; remove pending labels from metadata-only
+  follow-ups. Keep umbrella issues and deferred work visible.
 
-*None.*
+## Historical decisions and questions
 
-### Skill state
-
-Reconciled 2026-09-29 against the rewritten build. The skills drive `vdjdb qc` / `vdjdb submission` and
-read `proofreading/` and `patches/`; they no longer carry their own copies of the validation rules.
-`skills/AUTHORITIES.md` holds the shared invariants and `tests/unit/test_skills.py` fails any claim that
-drifts from the code. Invocations are `/vdjdb-*`; the short forms are gone.
-
-Open curation debt the reworked skills now report rather than hide:
-
-| Finding | Scale | Where |
-|---|---|---|
-| segment calls IMGT carries at neither level | 3,457 chain-calls, 46 family names a curator must choose within | `out/reports/nomenclature.tsv`, issue #389 |
-| junctions contradicting their own germline | 5,960 chains, 5,097 with a proposed repair | `out/reports/anchors.tsv` |
-| a cysteine after the first residue | 4,325 chunk rows over 108 chunks | `vdjdb qc`, advisory |
-| `antigen.gene` `Spike` (6,307) beside `S` (6) | 6 rows | `out/reports/lookalikes.tsv` |
-
-### Recently Completed Chunks
-
-| Chunk file | PMID | Completed date | Notes |
-|---|---|---|---|
-| `PMID_41842944.tsv` | 41842944 | 2026-05-27 | NF9/HLA-A*24:02; 285 rows; vaccinated donors; tetramer-sort; Sanger |
-| `PMID_42125653.tsv` | 42125653 | 2026-05-27 | QI9/HLA-A*24:02; 168 rows; mixed vaccinated/convalescent |
-| `PMID_40877317.tsv` | 40877317 | 2026-05-27 | KF9/HLA-C*12:02; 166 rows (52 paired + 114 beta-only); convalescent |
-
----
+The entries below are historical context. Verify their status in current code and tracker before
+acting; references to retired code do not describe the current build.
 
 ## Active Decisions
 

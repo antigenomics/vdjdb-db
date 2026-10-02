@@ -1,200 +1,95 @@
 ---
 name: vdjdb-publish
-description: Land a proofread VDJdb chunk on a chunk branch - one commit per chunk, on a branch named for that chunk, targeting dev - after finding or creating its PMID issue on antigenomics/vdjdb-db, refreshing registry/records.tsv with vdjdb identity update, and writing the message the chunk-change rule requires (files, row counts, reason, what the build shows, who decided). Use when a chunk is ready to commit, or when git shows new or modified files under chunks/.
+description: Publish proofread VDJdb chunks through dev, reconcile publication issues, preserve record identity, keep validation changes separate, and close completed imports while tracking unresolved observations and optional metadata follow-ups. Use when a chunk is ready to publish or an imported paper needs closeout.
 ---
 
 # vdjdb-publish
 
-Commit each new or changed chunk on its own branch, against its own issue, with a message a reviewer
-can check. One chunk at a time, asking before every issue and every commit.
+Read [AUTHORITIES.md](../AUTHORITIES.md) and the
+[submission guide](../../docs/submission.md). Use existing batch authorization throughout;
+ask only for a new decision outside that scope.
 
-Read [`skills/AUTHORITIES.md`](../AUTHORITIES.md) first. Invariant 1 is what this skill enforces.
+## 1. Reconcile the submission
 
-## Invocation
+Search open and closed issues by PMID, DOI and URL, including bodies. Check existing chunks and
+`proofreading/reference_ids.tsv`. Verify preprint-to-publication mappings with PubMed before
+merging their provenance; matching sequences alone do not establish that two papers are one work.
 
-```
-/vdjdb-publish
-```
+Create a missing issue as `PMID:<id>`, label `vdjdb-records-paper-pending`, with the retrieved
+PubMed citation and record link. Public provenance cites only the paper, abstract, PubMed,
+patents or PDB. Patent and mixed-paper inputs need their own manifest of references and issues.
 
-No arguments. Run from the repository root.
+Preserve existing chunk content. Audit both-chain V/J/junction, epitope and MHC matches together
+with donor, method, subset, clone and other observation metadata. Never append or deduplicate
+using beta junction plus epitope alone.
 
-## The branch, before anything else
-
-Gitflow here is `master` → `dev` → branch → `dev` → `master`, and `branch-policy.yml` fails any pull
-request into `master` from anything but `dev` or `hotfix/*`.
-
-A chunk branch **starts from `dev` and targets `dev`**. Never branch a chunk off `master`. Never put a
-chunk edit on a branch whose subject is the build, the tests, the docs or CI, however mechanical the
-edit looks: once every line of a file has changed in a commit nobody reviewed as a data change, a
-curation edit and a whitespace edit are indistinguishable in `git log` forever.
+## 2. Check readiness
 
 ```bash
-git switch dev && git pull --ff-only
-git switch -c chunk/PMID_<id>          # one chunk
-git switch -c proofread/<issue>-<slug> # one data issue across several chunks
+uv run vdjdb qc chunks/PMID_<id>.tsv
+uv run vdjdb submission chunks/PMID_<id>.tsv
 ```
 
-If the working tree already has chunk changes on `dev` or on an unrelated branch, say so and move them
-before committing anything.
+Read the reports, including the confidence-score histogram. Retain source cells for routine
+repairs that assembly performs. Say **resolved during database build**, and inspect the built
+result instead of manually repeating the repair at import.
 
-## Step 1 - collect the changed chunks
+A noncritical metadata question is not an import blocker when the supported assay evidence already
+determines the score and observation identity. Leave unknown fields blank and keep a focused
+follow-up issue open. Pairing, epitope/restriction and assay-outcome ambiguities remain blockers for
+the affected observations. Preserve unresolved material in `pending/` or `withheld/` as described
+in the submission guide; explicit negative observations go to `chunks_negative/`.
 
-```bash
-git restore --staged .
-git diff --name-only HEAD -- chunks/
-git ls-files --others --exclude-standard chunks/
-```
+## 3. Commit data separately
 
-Combine, deduplicate, sort. Empty: say "No new or changed chunks found in git" and stop.
-
-## Step 2 - per chunk, in order
-
-Work through the list one file at a time. Do not skip any. Ask before each issue and each commit.
-
-### 2a. The PMID
-
-`PMID_(\d+)\.tsv` gives `$pubmedid`. A name that does not match the pattern
-(`10xgenomics-2019-07-09.tsv`, `PDB_Database.tsv`) has no PMID: show the filename, say so, and ask
-whether to skip it or commit it against a user-supplied issue and message.
-
-### 2b. Check it is ready
+Start from current `dev`, never `master`, and name the branch for the chunk or data issue.
+Normally use one PR per chunk. Group remaining chunks only when the user authorizes a batch;
+retain existing PRs unless they explicitly request consolidation.
 
 ```bash
-uv run vdjdb qc chunks/PMID_$pubmedid.tsv
-uv run vdjdb submission chunks/PMID_$pubmedid.tsv
-```
-
-`vdjdb qc` must exit 0. If it does not, stop and run [`/vdjdb-proofread`](../vdjdb-proofread/SKILL.md).
-Keep the `submission` output - the commit message needs its numbers.
-
-A chunk that cannot pass goes to `pending/` or `withheld/` instead of onto a branch, with the blocker
-written on its issue and the issue left **open**. A branch is invisible: two submissions sat unlanded
-for eight and ten years and were found only by checking every unmerged branch against the tracker.
-
-### 2c. Find or create the issue
-
-Search all states by PMID, DOI and publication URL, in titles and bodies. Check shipped chunks and
-`proofreading/reference_ids.tsv` before declaring an issue missing. Reuse the canonical issue and
-rename a DOI or URL title only after PubMed verifies the mapping; keep its earlier identifier in
-the body. Inspect issue history before linking duplicates. A mixed-publication input still needs
-each paper linked to its own issue.
-
-New paper issues use `PMID:<id>`, label `vdjdb-records-paper-pending`, and a verified PubMed citation
-linked to the PubMed record. Public provenance text cites only the paper, its abstract, PubMed,
-patents or PDB. Existing authorization to create issues and commit applies throughout a requested
-batch; ask only for decisions outside that authorization.
-
-```bash
-gh issue list --repo antigenomics/vdjdb-db --search "PMID:$pubmedid in:title" \
-  --state all --json number,title,state,url,body --limit 5
-git log --oneline --all -- "chunks/PMID_$pubmedid.tsv" | head -5
-```
-
-**If it exists**, show the number, title, state, URL and the first lines of the body. For a modified
-tracked file also show the diff: lines added and removed, the row-count delta, and any change in the
-column set. Where the new version has cleared metadata the old version had, offer to merge - keep the
-old rows and append only rows the new version adds, matched on `cdr3.beta` and `antigen.epitope` - and
-do the merge in Python if the user agrees.
-
-Then ask: "Issue #N exists for PMID:$pubmedid. Commit `chunks/PMID_$pubmedid.tsv` with `Fixes #N`?
-[y/n/skip]"
-
-**If it does not exist**, fetch the citation:
-
-```bash
-curl -s "https://api.ncbi.nlm.nih.gov/lit/ctxp/v1/pubmed/?format=apa&id=$pubmedid"
-```
-
-On an error or empty body, fall back to `esummary.fcgi?db=pubmed&id=$pubmedid&retmode=json` and build
-the citation from `authors`, `title`, `source` and `pubdate`. Propose title `PMID:$pubmedid` and body
-`[<citation>](https://pubmed.ncbi.nlm.nih.gov/$pubmedid/)`, show both, and ask before calling
-`gh issue create`.
-
-### 2d. Refresh the registry
-
-**Every chunk branch runs this, and commits the result with the chunk:**
-
-```bash
+git switch -c codex/chunk-PMID_<id> origin/dev
 uv run vdjdb identity update
+git add chunks/PMID_<id>.tsv registry/records.tsv
 ```
 
-`registry/records.tsv` is the record identity registry, one row per `record_id`, committed. Without
-this step it goes stale and the next build retires every record of the chunk it has not seen. The
-command is idempotent - on an unchanged corpus it rewrites the file byte for byte - so the diff in the
-pull request is exactly the records this branch adds, amends or retires.
+The registry diff must account for this submission only. Preserve old IDs; investigate unexpected
+amendments or retirements before committing. Never stage unrelated files or reset another task's
+staging area.
 
-Before the registry was committed, landing one 40-record chunk moved `record_id` on 168,723 of 192,753
-records.
+The commit describes changed files, per-file added/removed/amended row counts, the source issue,
+why they changed, what the build shows, and who made any curation judgement. Use `Refs #N` while
+material work remains, or `Closes #N` when the import is complete. A batch lists every chunk and
+its issue. Never mix chunk edits with code or validation changes.
 
-### 2e. Commit
+## 4. Validate the combined candidate
 
-Stage the chunk and the registry, and nothing else:
+Keep release-comparison declarations and tests in a separate validation PR. Rebuild from source
+and inspect `vdjdb diff --report`: each changed row bucket needs an explained count and note.
+Do not refreeze all expectations automatically. Check tables, AIRR projection counts, reference
+years and corpus/motif measurements when the import affects them.
 
-```bash
-git restore --staged .
-git add chunks/PMID_$pubmedid.tsv registry/records.tsv
-git status --short
-```
+A fixed released clustering scored on a larger corpus can change its measured statistics.
+Distinguish that from a current-versus-release regression on the same cohort. Keep tolerances and
+acceptance criteria unchanged unless the curator explicitly approves a different criterion.
+Keep one reviewed baseline instead of duplicating corpus-dependent constants in tests.
 
-The message needs five things, because the only instrument that would otherwise notice a chunk edit is
-the comparison against the last release, which reports it as rows appearing and disappearing with no
-reason attached:
+Run required PR checks and full CI on the combined data-plus-validation candidate. Fix failures;
+never merge a red candidate. If legacy compatibility was requested, test the new chunk with the
+specified legacy checkout and retain the result in the local execution record.
 
-1. **which files**, and per file how many rows this adds, removes or changes;
-2. **why** - the paper, the tracker issue, or the `proofreading/` table the change comes from;
-3. **what the build shows** - the row-count delta and the score distribution from step 2b, and the
-   entry in `rules/expected_diffs.toml` the difference is declared under;
-4. **who decided**, whenever the edit is a curation judgement rather than a mechanical repair. "A
-   curator chose X over Y because Z" is the part no diff reconstructs later;
-5. `Fixes #$issue_id` on the last line.
+## 5. Merge and close out
 
-A mechanical repair across many files says so and states the invariant that makes it safe. `b0a479d`
-is the precedent: 103 files, 137,538 insertions and 137,538 deletions, and the message says the content
-is unchanged and names the four header defects it fixed alongside. Without that sentence the diff is
-indistinguishable from rewriting the database.
+Target `dev`. After the combined full build and required checks pass, merge data, refresh the
+separate validation branch on the resulting dev, and compare its complete tree with the green
+candidate. Wait for the refreshed required check, then merge validation and verify the final tree.
+Do not promote to `master` unless requested.
 
-Show the user the full message and the staged file list, then commit. Do not use `--no-verify` if a
-hook fails: show the error and wait.
+Read issue comments and the pending/withheld/negative manifests before closing. Record merged PRs,
+imported scope and any leftover rows. Close only when no material work remains; GitHub may not
+auto-close issues when the target is `dev`. If optional metadata remains, keep a nonblocking
+follow-up and remove the pending-paper label from the completed import. Leave umbrella issues
+open while any component is still pending.
 
-## Step 3 - the release comparison will go red, and that is expected
-
-A new chunk's records are rows the reference release cannot contain, so the `added`, `removed` and
-`row_delta` declarations in `rules/expected_diffs.toml` all move at once.
-
-```bash
-uv run vdjdb build --out out/
-uv run vdjdb diff reference.zip out/legacy --report out/reports/release-diff.md
-```
-
-`vdjdb diff --report` prints declared against measured and names the file. Re-measure, update the
-block, and **extend that block's `note` with the chunk and its record count** - the `PMID_18025130`
-entry is the worked example. Nothing automates this on purpose: a command that re-froze the counts
-would turn the gate into a rubber stamp.
-
-## Step 4 - open the pull request
-
-```bash
-git push -u origin HEAD
-gh pr create --repo antigenomics/vdjdb-db --base dev \
-  --title "<chunk>: <what it adds>" --body "<the commit message, plus the submission report>"
-```
-
-`chunk-check` is the required check on a chunk pull request. It reports records added and removed, the
-score histogram and QC findings by rule, and posts them as a sticky comment. Read it rather than
-re-deriving it.
-
-The chunk reaches `master` with the next `dev` → `master` merge, after the full build has run green on
-`dev`. Not before, and not by a pull request of its own.
-
-## Step 5 - report
-
-Per chunk: committed (and to which issue), skipped, or quarantined (and where, with the blocker).
-Then the branch name and the pull request URL.
-
-## Errors
-
-- `gh` not authenticated: stop, tell the user to run `gh auth login`.
-- A `curl` fetch fails: show the error, ask for the citation.
-- `git commit` fails on a hook: show the error, wait for guidance.
-- `vdjdb identity update` changes more rows than the chunk has records: stop. Either the registry was
-  already stale or the branch is not based on current `dev`. Do not commit it.
+Report prepared, merged and deferred counts separately. Update the local roadmap and per-file
+manifest. Delete only branches whose commits are integrated, with no open PR or attached working
+tree; preserve unresolved source tables and diagnostic evidence.

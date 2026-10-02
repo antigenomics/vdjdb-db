@@ -1,7 +1,22 @@
 # VDJdb build roadmap
 
-Migration of database proofreading, assembly and release from the Docker + GitLab + manual-`scp`
-pipeline to a `uv`/polars Python package driven by GitHub Actions.
+## Current work
+
+The Python build migration is complete. Current work is publication curation, metadata follow-up
+and release preparation. Imports target `dev`; promotion to `master` is a separate release action.
+Use the [submission guide](docs/submission.md) for the current workflow and
+[Build and release](docs/builds.md) for commands.
+
+The untracked `ISSUES_local.md` and `ISSUES_local.tsv` prioritize the live queue by impact,
+effort and who can resolve it. `MASS_UPDATE_local.md` records the batch and `ROADMAP_local.md`
+records execution. Noncritical metadata questions remain open without blocking supported imports;
+material source contradictions and excluded rows remain explicit.
+
+## Completed migration plan
+
+The plan below records the migration from the former build and release pipeline to the current
+Python package and GitHub Actions. Keep its acceptance contracts as reference; do not treat its
+phase list or issue-count snapshots as a new task queue.
 
 Deliverables with acceptance criteria, not dates. Sections 0-12 are the plan: the rules a change is
 measured against, what ships, the gates, and the phase list.

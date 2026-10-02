@@ -29,6 +29,18 @@ Audit both-chain receptor-pMHC matches within and across chunks, then compare al
 metadata. Different donors, references, methods, subsets or other metadata are independent
 observations. Record the reviewed groups and decisions; a matching receptor alone is not a duplicate.
 
+## Resolve routine cases and rank questions
+
+Inspect assembly repair before editing source cells. Terminal flanks, supported nomenclature
+conversions and allele selection are resolved during database build when the machinery supports
+them. Preserve the supplied values in those cases. Stop repeated attempts to fetch inaccessible
+papers; use the supplied definitive tables.
+
+Keep an optional donor, frequency or method-detail question open without blocking a supported
+observation whose assay evidence already determines its score. Unknown fields remain blank.
+Pairing, epitope, MHC restriction and positive/negative outcome contradictions are material and
+block only the affected rows. See the [submission guide](../../docs/submission.md) for closeout.
+
 ## Step 1 - structure, before anything parses it
 
 `vdjdb qc` lints the text before it reads the table, and reports `bom`, `encoding`, `crlf`, `empty`,

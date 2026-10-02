@@ -16,6 +16,30 @@ curation skills. They are invoked as `/vdjdb-extract`, `/vdjdb-format`, `/vdjdb-
 
 ## Session Log
 
+### [2026-10-02] Import closeout and build-stage repair
+
+- Supplied definitive tables are the starting point. Keep source cells when assembly handles
+  boundary trimming, supported nomenclature or allele resolution. Stop repeated inaccessible-paper
+  retrieval for routine cases. The workflow is in `AUTHORITIES.md` and `vdjdb-proofread`.
+- Receptor-pMHC matches require complete observation metadata before deduplication. Preserve
+  donors, methods, subsets, independent papers and distinct PDB structures. Resolve verified
+  preprint/publication versions as one work without adding the same observations twice.
+- Optional metadata that does not change observation identity or supported confidence score is a
+  nonblocking follow-up. Do not infer donor labels, frequencies or assay outcomes.
+- Data and validation remain separate PRs. Full CI tests their combined tree; after sequential
+  integration, compare the final tree to the green candidate. Assembly identity reconciliation is
+  before sequence repair; preserve existing IDs and inspect the registry diff.
+- Corpus growth can move motif baselines, legacy/AIRR projection counts and reference counts.
+  Explain the measured change and keep acceptance criteria. A frozen released clustering also
+  changes when scored on a larger cohort; compare methods on the same cohort before calling it a
+  code regression. Do not keep duplicate hard-coded baselines in tests.
+- A merge to dev does not necessarily auto-close the paper issue. Close only after checking
+  leftovers and comments; retain pending source rows and nonblocking follow-ups. Track prepared
+  and merged work separately. Current state belongs in the local roadmap, not this durable log.
+- Documentation follows tutorials, how-to guides, reference and explanation. Put dependency
+  versions and migration details in build history, not in front-page headings.
+
+
 ### [2026-09-29] Reconcile all six skills against the rewritten build; restore the submission safeguards
 
 **Skills used:** all six, as the subject rather than the tool
