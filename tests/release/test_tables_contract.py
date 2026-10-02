@@ -46,7 +46,8 @@ pytestmark = pytest.mark.release
 #: 192,623 -> 192,609 for #625: `PMID_39286976.tsv` reported seven paired TCRs as 18 single chains
 #: per epitope, and pairing them from the paper's supplementary figure 10 takes 46 rows to 32.
 #: Metadata-aware deduplication (#845) restores 285 observations; existing IDs are unchanged.
-EXPECTED_RECORDS = 192_894
+# PMID:36189878 adds 20 explicitly paired engineered constructs.
+EXPECTED_RECORDS = 192_914
 
 
 @pytest.fixture(scope="module")
