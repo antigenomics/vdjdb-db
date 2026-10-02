@@ -96,7 +96,7 @@ meta.cell.subset | T-cell subset, free style, e.g. ``CD8+``, ``CD4+CD25+``
 meta.subset.frequency | Frequency of a given TCR sequence in the specified cell subset, e.g. ``5%`` means the TCR sequence represents an expanded clone occupying 5% of CD8+ cells
 meta.subject.cohort | Subject cohort, free style, e.g. ``healthy`` or ``HIV+``. Where possible, specify to what extent a healthy donor is healthy, e.g. ``CMV-seronegative``.
 meta.subject.id | Subject id (e.g. ``donor1``, ``donor2``,...)
-meta.replica.id | Identifier distinguishing replicates, experiments or sampling time points within a study (e.g. ``exp1``, ``exp2``, ``5mo``). Use distinct values for separate measurements of the same TCR–pMHC; keep donor identity in ``meta.subject.id`` and assay details in ``method.*``. Prefer identifiers reported by the paper; if assigning experiment labels, document which experiment each label denotes.
+meta.replica.id | Identifier distinguishing replicates, experiments or sampling time points within a study (e.g. ``exp_exploratory``, ``exp_validation_table_s5``, ``5mo``). Use distinct values for separate measurements of the same TCR–pMHC; keep donor identity in ``meta.subject.id`` and assay details in ``method.*``. Prefer identifiers reported by the paper; if assigning experiment labels, document which experiment each label denotes.
 meta.clone.id | T-cell clone id
 meta.epitope.id | Epitope id (e.g. ``FL10``)
 meta.tissue | Tissue used to isolate T-cells: ``PBMC``, ``spleen``, etc. or ``TCL`` (T-cell culture) if isolated from re-stimulated T-cells
@@ -193,3 +193,6 @@ File boundaries alone do not establish independence: the same paper can occur in
 and its own chunk. Merge only confirmed duplicates, preserving complementary information and
 recording the decision. Review both submitted and harmonised values without silently replacing
 the source values.
+
+Large chunk files may use `.tsv.gz`; validation reads the same TSV contents after decompression.
+Negative observations remain in `chunks_negative/` and are excluded from the positive build.

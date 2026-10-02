@@ -10,6 +10,7 @@ then these are reported, and `--strict` decides whether they fail the build.
 """
 from __future__ import annotations
 
+import gzip
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -38,6 +39,8 @@ def lint_file(path: Path) -> list[Finding]:
     out: list[Finding] = []
     name = path.name
     raw = path.read_bytes()
+    if path.suffix == ".gz":
+        raw = gzip.decompress(raw)
 
     if raw.startswith(_BOM):
         out.append(Finding(name, "bom", "file starts with a UTF-8 BOM"))

@@ -20,6 +20,7 @@ them would delete it. Measured: 19 such pairs.
 """
 from __future__ import annotations
 
+import gzip
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -39,7 +40,8 @@ def chunk_files(directory: Path | None = None) -> list[Path]:
     """Every chunk file, sorted. Hidden files are skipped, as the legacy build skipped them."""
     d = directory or Paths.discover().chunks
     return sorted(p for p in d.iterdir()
-                  if p.suffix in {".txt", ".tsv"} and not p.name.startswith("."))
+                  if (p.suffix in {".txt", ".tsv"} or p.name.endswith(".tsv.gz"))
+                  and not p.name.startswith("."))
 
 
 def _normalise_header(name: str) -> str:
@@ -72,7 +74,7 @@ def read_chunk(path: Path) -> pl.DataFrame:
     )
     # A duplicate column name would make the selection below ambiguous. polars renames the second
     # one (`species_duplicated_0`) without an error, so the raw header is where to catch it.
-    with path.open("rb") as fh:
+    with (gzip.open(path, "rb") if path.suffix == ".gz" else path.open("rb")) as fh:
         raw_header = [_normalise_header(c)
                       for c in fh.readline().decode("utf-8", "replace").rstrip("\r\n").split("\t")]
     if len(set(raw_header)) != len(raw_header):

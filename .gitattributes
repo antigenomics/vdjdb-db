@@ -2,3 +2,6 @@ README.md linguist-documentation
 # Chunks are LF everywhere: a Windows submission must not reintroduce CRLF (#581).
 *.txt text eol=lf
 chunks/*.tsv text eol=lf
+registry/records.tsv filter=lfs diff=lfs merge=lfs -text
+chunks_negative/*.tsv.gz filter=lfs diff=lfs merge=lfs -text
+pending/*.tsv.gz filter=lfs diff=lfs merge=lfs -text
