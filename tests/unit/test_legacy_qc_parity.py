@@ -226,10 +226,10 @@ CHUNK_CASES: tuple[Case, ...] = (
                "itself, which is why the retired build had nothing to say here. Reports and does "
                "not repair: which of the three the paper supports is a curation question."),
     _case("method-identification-names-an-unsettled-token",
-          {"method.identification": "tetramer-sort,magnetic beads"},
+          {"method.identification": "tetramer-sort,unrecognised-assay"},
           [], ["undeclared method.identification token"], verdict=STRICTER,
           note="#637. The cell is a comma-separated set, so the finding is per token: "
-               "`tetramer-sort` is declared and `magnetic beads` is `pending` in "
+               "`tetramer-sort` is declared and `unrecognised-assay` is absent from "
                "`proofreading/method_vocabulary.tsv`, which is what makes this row fail while a "
                "cell of only declared tokens does not. The retired build read this column as free "
                "text and said nothing about any value in it."),
