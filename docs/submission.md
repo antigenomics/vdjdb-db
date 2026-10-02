@@ -13,12 +13,19 @@ existing chunks and `proofreading/reference_ids.tsv` before creating a duplicate
 A preprint and its published version may describe the same work; use a verified PubMed version
 link to reconcile them while preserving existing observations and record identifiers.
 
+The [PMID–DOI table](https://github.com/antigenomics/vdjdb-db/blob/master/proofreading/pubmed_doi.tsv)
+lists verified publication identifiers. A blank DOI means the retrieved PubMed record supplied none.
+
 New paper issues use the title `PMID:<id>` and label `vdjdb-records-paper-pending`. Their body is
 the citation retrieved from PubMed, linked to `https://pubmed.ncbi.nlm.nih.gov/<id>/`. When a DOI
 or URL issue resolves to a PMID, keep the earlier identifier in its body. Public provenance text
 uses the paper, its abstract or PubMed record; patent and PDB records are also supported.
 
 ## Prepare the chunk
+
+Check every supplied sequence table, including negative results, against the imported observations.
+An existing publication or chunk does not establish that its later tables are complete. Record each
+table's imported observations and any unresolved remainder before closing the publication issue.
 
 Use `chunks/PMID_<id>.tsv` for a paper. Each row needs an epitope and at least one alpha or beta
 junction. Neither can be invented or inferred. VDJdb stores junctions with both anchors included,

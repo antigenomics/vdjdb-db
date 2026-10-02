@@ -20,6 +20,11 @@ value reaches the output that was not found in the source.
 Respect any scope the user sets ("beta chains only", "skip the MHC typing") and record the limit in
 the log.
 
+An existing reference is not a completeness check. Reconcile every supplied sequence table against
+its publication's observations, including negative tables and supplementary validation experiments.
+Record an explicit disposition for every remainder. Apply a curator-approved historical cutoff
+only to the chunks it covers; never replace this review with a filter for newly seen publications.
+
 ## Step 1 - inventory the source
 
 List every file, name its type, and say what each is likely to hold: TCR sequences, epitope and MHC
