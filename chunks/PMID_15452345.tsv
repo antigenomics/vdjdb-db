@@ -1,0 +1,20 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
+1				CASRDSGSYNEQFFG	TRBV4-3		TRBJ2-1	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+2				CSAAGTGCVEQYFG	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+3				CASSFTTGDGYTFG	TRBV5-4		TRBJ1-2	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+4				CASSHDRGYEQYFG	TRBV7-7		TRBJ2-7	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+5				CSVEVTGELFFG	TRBV29-1		TRBJ2-2	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+6				CSFLAGGVEQGG	TRBV29-1		TRBJ2-1	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+7				CASRRDPTDTQYFG	TRBV19		TRBJ2-3	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+8				CSAPAGNPSYEQYFG	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+9				CASSQKDRGGYEQYFG	TRBV4-2		TRBJ2-7	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+10				CASSQAPSRATYEQYFG	TRBV4-3		TRBJ2-7	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+11				CASSVAQGAEDIQYFG	TRBV9		TRBJ2-4	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+12				CASKGPGTPELGYTFG	TRBV28		TRBJ1-2	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+13				CASSVGVGYEQYFG	TRBV9		TRBJ2-7	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+14				CASSVGDTSEKLFFG	TRBV9		TRBJ1-4	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+15				CASSQWGPEANTEAFFG	TRBV3-1		TRBJ1-1	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+16				CSARGTDSNQPQHFG	TRBV20-1		TRBJ1-5	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+17				CASSVAGAGYEQYFG	TRBV9		TRBJ2-7	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+18				CASRGTGGYDEQYFG	TRBV28		TRBJ2-7	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
+19				CASSVAPSGGGYEQYFG	TRBV9		TRBJ2-7	HomoSapiens	HLA-A*01:01	B2M	MHCI	EVDPIGHLY	MAGEA3	HomoSapiens	PMID:15452345																	
