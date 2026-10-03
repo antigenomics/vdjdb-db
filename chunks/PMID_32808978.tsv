@@ -6,3 +6,4 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 5	CGTEDGRGGADGLTF	TRAV30	TRAJ45	CASSYGIYEQFF	TRBV6-3		TRBJ2-1	HomoSapiens	HLA-A*01:01	B2M	MHCI	ESEERPPTPY	LMP2A	EBV	PMID:32808978	tetramer-sort,cultured-T-cells	24.4%			tetramer-stain,antigen-loaded-targets,antigen-expressing-targets		CD8+		healthy,EBV-seropositive	C		C2		PBMC	HLA-A*01:01		
 6	CAGNNARLMF	TRAV2	TRAJ31	CASSYGWAEAFF	TRBV6-3		TRBJ1-1	HomoSapiens	HLA-A*01:01	B2M	MHCI	ESEERPPTPY	LMP2A	EBV	PMID:32808978	tetramer-sort,cultured-T-cells						CD8+		healthy,EBV-seropositive	D		D		PBMC	HLA-A*01:01		
 7	CIVSGGKLIF	TRAV26	TRAJ23	CASSSSWTSGSGETQYF	TRBV12-3,TRBV12-4		TRBJ2-5	HomoSapiens	HLA-A*01:01	B2M	MHCI	ESEERPPTPY	LMP2A	EBV	PMID:32808978	tetramer-sort,cultured-T-cells						CD8+		healthy,EBV-seropositive	E		E		PBMC	HLA-A*01:01		
+8	CASSWEGQYNEQFF	TRAV12	TRAJ3					HomoSapiens	HLA-A*01:01	B2M	MHCI	ESEERPPTPY	LMP2A	EBV	PMID:32808978	tetramer-sort																
