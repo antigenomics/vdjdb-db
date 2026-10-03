@@ -150,9 +150,9 @@ mouse ones, so `MBP` and `Mbp` are two conventions for one gene and both stay.
 
 ## Step 4 - blank antigen fields
 
-A blank `antigen.gene` is advisory. A mimotope or designed peptide may have no source gene;
-other papers may not identify it. Keep unreported provenance blank when the paper establishes
-a junction and epitope. Review a blank `antigen.species` by the same rule.
+A blank `antigen.gene` is only valid when `antigen.species` is `Synthetic` - a mimotope or designed
+peptide has no source gene. `vdjdb qc` fails any other blank as `bad antigen.gene`. A blank
+`antigen.species` is not currently a QC rule and has to be caught here.
 
 Resolve in this order:
 

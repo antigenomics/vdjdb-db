@@ -156,10 +156,12 @@ def mhc_status(column: str, root: Path | None = None) -> pl.Expr:
 
 
 def assert_mhc_resolves(records: pl.DataFrame, root: Path | None = None) -> None:
-    """Fail the build on a reported MHC call that resolves against neither authority.
+    """Fail the build on an MHC call that is blank or resolves against neither authority.
 
-    Missing restriction annotations remain blank. They do not invalidate a paper-reported
-    receptor junction and epitope, and must not be replaced with an unsupported allele.
+    A record whose restriction names nothing is not a record with a gap; it is a record whose
+    restriction is wrong, and it has always been. Every consumer that filters VDJdb by donor type
+    silently drops it, `restriction` keys on it, and `TCR_hash` hashes it, so the string reaching the
+    release unchecked is worse than the build stopping. Blank is the same defect with less to go on.
 
     The message names the value, the column, the cell count and the chunks, because the fix is a
     `patches/mhc.dict` entry or a `proofreading/mhc_nonhuman.tsv` row and a curator needs to know
@@ -172,7 +174,7 @@ def assert_mhc_resolves(records: pl.DataFrame, root: Path | None = None) -> None
                                   pl.col("chunk.file") if "chunk.file" in records.columns
                                   else pl.lit("").alias("chunk.file"))
                    for c in cols], how="vertical")
-        .filter(pl.col("status") == "unknown")
+        .filter(pl.col("status").is_in(["", "unknown"]))
         .group_by("column", "value")
         .agg(pl.len().alias("cells"),
              pl.col("chunk.file").unique().sort().str.join(", ").alias("chunks"))
@@ -200,8 +202,7 @@ def assert_mhc_class(records: pl.DataFrame, root: Path | None = None) -> None:
         expected = (pl.when(name.str.starts_with("HLA-D")).then(pl.lit("MHCII"))
                     .when(name.str.starts_with("HLA-")).then(pl.lit("MHCI"))
                     .otherwise(name.replace_strict(classes, default="")))
-        bad = records.filter((expected != "") & (pl.col("mhc.class") != "")
-                             & (expected != pl.col("mhc.class")))
+        bad = records.filter((expected != "") & (expected != pl.col("mhc.class")))
         if not bad.is_empty():
             raise ValueError(f"MHC class disagrees with {column} in {bad.height} records: "
                              + ", ".join(sorted(bad["chunk.file"].unique())))
