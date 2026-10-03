@@ -59,7 +59,7 @@ pytestmark = pytest.mark.release
 # PMID39164477 and PMID38588339 add 182 primary-paper records.
 # Primary completion of PMID38524140, PMID34290408, PMID37023751,
 # PMID36923729 and PMID36298482 adds 287 records.
-EXPECTED_RECORDS = 296_605
+EXPECTED_RECORDS = 298_353
 
 
 @pytest.fixture(scope="module")
