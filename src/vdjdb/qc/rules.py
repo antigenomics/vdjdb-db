@@ -222,9 +222,9 @@ RULES: dict[str, pl.Expr] = {
                  | pl.col("mhc.a").str.contains(_HLA),
     "bad mhc.b": _blank("mhc.b") | ~pl.col("mhc.b").str.starts_with("HLA")
                  | pl.col("mhc.b").str.contains(_HLA),
-    "bad mhc.class": _blank("mhc.class") | pl.col("mhc.class").is_in(["MHCI", "MHCII"]),
+    "bad mhc.class": pl.col("mhc.class").is_in(["MHCI", "MHCII"]),
     "mhc class/partner mismatch": (
-        ((pl.col("mhc.class") != "MHCI") | _blank("mhc.b") | (pl.col("mhc.b") == "B2M"))
+        ((pl.col("mhc.class") != "MHCI") | (pl.col("mhc.b") == "B2M"))
         & ((pl.col("mhc.class") != "MHCII") | (pl.col("mhc.b") != "B2M"))
         & (pl.col("mhc.a") != "B2M")
     ),
@@ -343,7 +343,7 @@ def summarise(findings: pl.DataFrame) -> pl.DataFrame:
 
 def assert_complete(df: pl.DataFrame) -> None:
     """Reject incomplete observations even when assembly is called without the QC command."""
-    required = ("no.cdr3", "no.antigen.seq", "bad mhc.class",
+    required = ("no.cdr3", "no.antigen.seq", "no.mhc", "bad mhc.class",
                 "mhc class/partner mismatch")
     failed = df.select(*(RULES[rule].not_().sum().alias(rule) for rule in required)).row(0, named=True)
     if any(failed.values()):

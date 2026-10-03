@@ -184,8 +184,8 @@ CHUNK_CASES: tuple[Case, ...] = (
           ["no.antigen.seq"], ["no.antigen.seq"],
           note="A record with no epitope is not a specificity record."),
     _case("only-one-mhc-chain-is-named", {"mhc.b": ""},
-          ["no.mhc"], ["no.mhc"],
-          note="Missing restriction fields are advisory; a junction and epitope are required."),
+          ["no.mhc"], ["no.mhc", "mhc class/partner mismatch"], verdict=STRICTER,
+          note="Both chains are required even for class I, where `mhc.b` is always B2M."),
 
     # --- the new rules, with no legacy counterpart ---
     _case("the-beta-junction-carries-a-second-cysteine",
