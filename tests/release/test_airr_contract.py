@@ -49,8 +49,10 @@ pytestmark = pytest.mark.release
 # Three new source observations retain six chains without resolvable segment calls.
 # Primary-table segment reconciliation recovers ten chain rows and nine record rows
 # for the legacy projection; the definitive tables retain every observation.
-LEGACY_DROPS_CHAINS = 1809
-LEGACY_DROPS_RECORDS = 1321
+# PMID38100526 full-protein calls recover the two previously unpaired, blank-V observations
+# through their reported pair. Two fewer chains and records fail the legacy segment filter.
+LEGACY_DROPS_CHAINS = 1807
+LEGACY_DROPS_RECORDS = 1319
 
 
 @pytest.fixture(scope="module")
