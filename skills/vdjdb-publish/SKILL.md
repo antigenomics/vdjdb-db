@@ -49,7 +49,7 @@ retain existing PRs unless they explicitly request consolidation.
 ```bash
 git switch -c codex/chunk-PMID_<id> origin/dev
 uv run vdjdb identity update
-git add chunks/PMID_<id>.tsv registry/records.tsv
+git add chunks/PMID_<id>.tsv registry/records.tsv.gz
 ```
 
 The registry diff must account for this submission only. Preserve old IDs; investigate unexpected

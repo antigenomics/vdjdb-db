@@ -857,7 +857,7 @@ def identity_check(
 @identity_app.command("update")
 def identity_update(
     chunks: Path | None = typer.Option(None, help="Chunk directory; default chunks/."),
-    registry: Path | None = typer.Option(None, help="Registry TSV; default registry/records.tsv."),
+    registry: Path | None = typer.Option(None, help="Registry TSV; default registry/records.tsv.gz."),
     release: str = typer.Option("unreleased", help="Release recorded on records seen for the "
                                                    "first time. Leave as `unreleased` on a chunk "
                                                    "branch; the release job sets the tag."),
@@ -868,9 +868,8 @@ def identity_update(
     lands, and a stale registry is worse than none: it retires every record of the chunk it has not
     seen. `vdjdb build` only reads the registry, so nothing else writes this file.
 
-    The diff is the review. A landing chunk adds its records and touches nothing else, which is what
-    makes 93 MB of TSV affordable to commit - measured, one commit of it is 7.0 MB on disk and a
-    later amendment is kilobytes, because git deltifies a sorted table.
+    A landing chunk adds its records and preserves existing identifiers. The sorted TSV is stored
+    as deterministic gzip in Git LFS; submission and reconciliation reports describe its changes.
     """
     from .assemble.master import REGISTRY, build_master
     from .config import Paths as _P

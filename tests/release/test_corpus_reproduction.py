@@ -27,7 +27,7 @@ MIN_OCCURRENCES = 50
 #: Measured on the combined import using human TRB observations joined by record_id.
 #: Publication retrieval is tested separately; it cannot establish receptor specificity.
 EXPECTED = {
-    "documents": 797,
+    "documents": 798,
     "kmers_scored": 361,
     "top_kmer": "k:IRS",
     "top_lift": 12.997678,

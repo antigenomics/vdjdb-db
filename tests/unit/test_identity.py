@@ -410,6 +410,28 @@ def test_a_registry_written_by_a_build_is_matched_by_the_next_build(tmp_path) ->
     assert again["record_id"].to_list() == first["record_id"].to_list()
 
 
+def test_compressed_registry_preserves_plain_tsv_and_deterministic_bytes(tmp_path) -> None:
+    import gzip
+
+    _, registry, _ = reconcile(frame({}, {"cdr3.beta": "CASSQQQGGF"}),
+                               IdentityRegistry(), release="v1")
+    plain = tmp_path / "records.tsv"
+    compressed = tmp_path / "records.tsv.gz"
+    other = tmp_path / "other.tsv.gz"
+    registry.save(plain)
+    registry.save(compressed)
+    registry.save(other)
+    assert gzip.decompress(compressed.read_bytes()) == plain.read_bytes()
+    assert compressed.read_bytes() == other.read_bytes()
+    restored = IdentityRegistry.load(compressed)
+    assert restored.to_frame().equals(registry.to_frame())
+    out, restored, report = reconcile(frame({}), restored, release="v2")
+    assert out["record_id"].to_list() == [format_id(1)]
+    assert report.retired == [format_id(2)]
+    restored.save(compressed)
+    assert IdentityRegistry.load(compressed).to_frame().equals(restored.to_frame())
+
+
 def test_a_registry_keyed_on_repaired_sequences_records_an_amendment_nobody_made(tmp_path) -> None:
     """Why the write has to happen inside the build, stated as the observable consequence.
 

@@ -293,7 +293,7 @@ def _write_frequency(path: Path, report: pl.DataFrame) -> pl.DataFrame:
 #: Where the committed record registry is expected. Absent today, which is why
 #: :func:`add_record_ids` warns: `ROADMAP.md` section 10.4 says a build with no registry "reports that
 #: the run is not id-stable", and until now nothing did.
-REGISTRY = Path("registry") / "records.tsv"
+REGISTRY = Path("registry") / "records.tsv.gz"
 
 
 def add_record_ids(df: pl.DataFrame, registry: Path | None = None, *,

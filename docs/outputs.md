@@ -581,9 +581,9 @@ beside the zips and is listed in `SHA256SUMS`. It is written by `vdjdb release` 
 a curation branch that adds a clonotype and removes it again has retired nothing. A build with no
 previous copy produces exactly the same ids and reports only that the history is unknown.
 
-`registry/records.tsv` maps `record_id` to its state, hashes, provenance and amendment history, so an
+`registry/records.tsv.gz` maps `record_id` to its state, hashes, provenance and amendment history, so an
 id survives a curator fixing a typo. **It is committed** and is an input to the build, not an output of
-it. Git LFS stores the TSV because the registry can exceed the repository file-size limit.
+it. Git LFS stores a deterministic gzip of the TSV. Decompression preserves the complete table, including every identifier and its history. Gzip metadata uses a zero timestamp and no filename, so identical inputs produce identical compressed bytes.
 Run `git lfs pull` after cloning; CI checks out the LFS contents before building. It was going to ship as a release asset the build fetched, and #672 changed
 that - without a committed copy the registry went stale between releases and landing one 40-record
 chunk moved `record_id` on 168,723 of 192,753 records (#638). It is written **only** by
