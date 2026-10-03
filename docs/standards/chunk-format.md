@@ -175,10 +175,12 @@ Missing V/J calls do not justify dropping a sequence-bearing observation. Use th
 arda/vdjtools annotation and inspect its proposals. Preserve the submitted call separately from
 inference; an inferred V proposal is not a paper-reported V call.
 
-Resolve `mhc.a`, `mhc.b` and `mhc.class` before submission. Class I uses `B2M` as its second
-chain. Strict QC and direct assembly reject class I without `B2M`, class II with
+Report `mhc.a`, `mhc.b` and `mhc.class` when the paper establishes them; otherwise leave
+the unreported fields blank. Missing restriction or antigen-gene annotations do not block a
+record with at least one junction and an epitope. Class I uses `B2M` as its second
+chain. Strict QC and direct assembly reject a reported class-I second chain other than `B2M`, class II with
 `B2M`, and `B2M` in the first-chain field. Assembly also checks both harmonised
-chain names against their declared MHC class. For class II, distinguish an explicitly reported pair from a single-chain or haplotype
+chain names against a nonempty declared MHC class. For class II, distinguish an explicitly reported pair from a single-chain or haplotype
 label. Use the installed mhcmatch naming and partner-inference functions where supported;
 record the original label, inferred partner and inference basis in the review. Its
 `pseudoseq.class2_key` supports eligible DP/DQ beta-only typings through `alpha_prior`;

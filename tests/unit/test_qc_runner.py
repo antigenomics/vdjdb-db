@@ -202,9 +202,7 @@ def test_a_structure_id_that_is_not_a_pdb_id_is_reported_and_is_advisory():
 @pytest.mark.parametrize("values,rule", [
     ({"cdr3.alpha": "", "cdr3.beta": ""}, "no.cdr3"),
     ({"antigen.epitope": ""}, "no.antigen.seq"),
-    ({"mhc.a": ""}, "no.mhc"),
-    ({"mhc.b": ""}, "no.mhc"),
-    ({"mhc.class": ""}, "bad mhc.class"),
+    ({"mhc.class": "class III"}, "bad mhc.class"),
     ({"mhc.b": "HLA-DRB1*01:01"}, "mhc class/partner mismatch"),
     ({"mhc.class": "MHCII"}, "mhc class/partner mismatch"),
     ({"mhc.a": "B2M"}, "mhc class/partner mismatch"),
@@ -219,13 +217,37 @@ def test_incomplete_observations_fail_qc_and_direct_build(tmp_path, values, rule
         build_master([path])
 
 
-@pytest.mark.parametrize("chain", ["alpha", "beta"])
-def test_one_junction_and_missing_segment_calls_are_allowed(tmp_path, chain):
-    from vdjdb.io.chunks import read_chunk
-    from vdjdb.qc.rules import assert_complete
+@pytest.mark.parametrize("chain", ["alpha", "beta", "both"])
+def test_one_junction_and_missing_optional_annotations_are_allowed(tmp_path, chain):
+    from vdjdb.assemble.epitopes import build_restriction
+    from vdjdb.assemble.master import build_master
 
     values = {"cdr3.beta": "", "v.beta": "", "j.beta": "",
-              f"cdr3.{chain}": "CASSIRSSYEQYF"}
+              "mhc.a": "", "mhc.b": "", "mhc.class": "", "antigen.gene": "",
+              "cdr3.alpha": "CAVRDSNYQLIW" if chain in ("alpha", "both") else ""}
+    if chain in ("beta", "both"):
+        values["cdr3.beta"] = "CASSIRSSYEQYF"
     path = chunk(tmp_path, rows=[clean_row(**values)])
     assert run_qc([path], strict=True) == 0
-    assert_complete(read_chunk(path))
+    records = build_master([path])
+    assert records.height == 1
+    assert records["antigen.epitope"].to_list() == ["GILGFVFTL"]
+    assert records["mhc.a"].to_list() == [""]
+    restriction = build_restriction(records)
+    assert restriction.height == 1
+    assert restriction["mhc.a.status"].to_list() == [""]
+
+
+@pytest.mark.parametrize("values", [
+    {"mhc.a": ""}, {"mhc.b": ""}, {"mhc.class": ""},
+    {"mhc.a": "HLA-DRA*01:01", "mhc.b": "", "mhc.class": "MHCII"},
+])
+def test_partial_restriction_annotations_are_allowed(tmp_path, values):
+    from vdjdb.assemble.epitopes import build_restriction
+    from vdjdb.assemble.master import build_master
+
+    path = chunk(tmp_path, rows=[clean_row(**values)])
+    assert run_qc([path], strict=True) == 0
+    records = build_master([path])
+    assert records.height == 1
+    assert build_restriction(records).height == 1
