@@ -1,8 +1,8 @@
 """Every MHC call resolves against one of two authorities, or the build stops.
 
 `assert_mhc_resolves` is the gate the corpus already satisfies: measured over 192,793 records, no
-blank MHC cell and no unresolved name in either column. These tests fix that as a contract rather
-than a property of today's data.
+blank MHC cell and no unresolved name in either column. Reported names must resolve; unreported
+restriction fields may remain blank.
 """
 from __future__ import annotations
 
@@ -74,11 +74,12 @@ def test_the_gate_names_the_value_the_column_and_the_chunk() -> None:
     with pytest.raises(ValueError) as e:
         assert_mhc_resolves(df)
     message = str(e.value)
-    assert "2 MHC value(s)" in message
-    for expected in ("HLA-A*99:99", "PMID_2.txt", "<blank>", "PMID_3.txt", "mhc.a",
+    assert "1 MHC value(s)" in message
+    for expected in ("HLA-A*99:99", "PMID_2.txt", "mhc.a",
                      "patches/mhc.dict", "proofreading/mhc_nonhuman.tsv"):
         assert expected in message
     assert "HLA-A*02:01" not in message and "PMID_1.txt" not in message
+    assert "PMID_3.txt" not in message and "<blank>" not in message
 
 
 def test_build_restriction_refuses_to_assemble_an_unresolved_call() -> None:

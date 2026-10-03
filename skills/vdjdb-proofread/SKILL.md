@@ -21,8 +21,9 @@ Read [`skills/AUTHORITIES.md`](../AUTHORITIES.md) first.
 
 Apply [completeness and observation identity](../../docs/standards/chunk-format.md#completeness-and-observation-identity)
 to every chunk. At least one junction and the epitope must be reported; neither is imputable.
-Strict QC and direct assembly reject missing sequences or incomplete MHC fields. Resolve missing
-MHC partners using paper evidence or a documented supported mhcmatch inference before submission.
+Strict QC and direct assembly reject missing sequences. Unreported MHC fields remain blank and
+do not block import. Resolve MHC partners only using paper evidence or a documented supported
+mhcmatch inference; never invent a restriction to satisfy a completeness gate.
 Inspect built-in segment proposals for missing V/J calls without inventing paper-reported calls.
 
 Audit both-chain receptor-pMHC matches within and across chunks, then compare all observation
@@ -93,19 +94,18 @@ default) any non-advisory finding exits 1.
 | `bad v.alpha`, `bad j.alpha`, `bad v.beta`, `bad d.beta`, `bad j.beta` | wrong locus prefix for the column. Run `/vdjdb-format`; `proofreading/imgt.md` §9 has the older nomenclatures and §10 the common errors |
 | `bad species` | not one of the four. If the organism is genuinely a fifth, the chunk goes to `pending/` with an issue naming the missing germline reference |
 | `bad mhc.a`, `bad mhc.b` | an `HLA-` string that is not a well-formed allele name. `proofreading/mhc.md` §2, §9, §11 |
-| `bad mhc.class` | exactly `MHCI` or `MHCII`. Derive it from the `mhc.a` gene, per `proofreading/mhc.md` §6 |
-| `bad antigen.gene` | blank, and only valid when `antigen.species` is `Synthetic`. Run `/vdjdb-harmonize` step 4 |
+| `bad mhc.class` | a reported value must be `MHCI` or `MHCII`; blank is allowed. Derive it from a reported `mhc.a` gene, per `proofreading/mhc.md` §6 |
 | `bad reference.id` | `PMID:`, `doi:`, `http://`, `https://` or `unpublished`. Case matters on the first two |
 | `no.cdr3` | neither chain has a sequence. Check the extraction - the row has no TCR in it |
 | `no.antigen.seq` | no epitope. Required |
-| `mhc class/partner mismatch` | Class I requires `mhc.b=B2M`; class II cannot use B2M, and B2M cannot be `mhc.a`. Check the paper restriction, not the CD4/CD8 subset |
-| `no.mhc` | one of `mhc.a`/`mhc.b` is blank. `proofreading/mhc.md` §4 for the pairing, and §4.1 for the precedent fills |
+| `mhc class/partner mismatch` | A reported class-I second chain must be `B2M`; class II cannot use B2M, and B2M cannot be `mhc.a`. Check the paper restriction, not the CD4/CD8 subset |
 
 **Advisory rules, reported and never fatal.** Each is advisory for a stated reason, so do not
 "fix" one into silence:
 
 | Rule | Why it does not fail |
 |---|---|
+| `no.mhc`, `bad antigen.gene` | MHC and protein annotations are optional. Keep unsupported fields blank when the paper reports a junction and epitope |
 | `non-functional v.alpha`, `non-functional j.alpha`, `non-functional v.beta`, `non-functional j.beta` | IMGT's `ORF`/`P` verdict on the named segment. A P gene can rearrange, and IMGT reclassifies between releases |
 | `internal cysteine in cdr3.alpha`, `internal cysteine in cdr3.beta` | a junction has one cysteine, the Cys104 it opens with. A second is rare and not impossible - the Jurkat receptor has one - so the record is kept and flagged. 1,521 + 2,804 corpus rows over 108 chunks; only the submitter's source settles a given one |
 | `alpha and beta cdr3 identical` | only a curator can say which of the two chains is the wrong one |
