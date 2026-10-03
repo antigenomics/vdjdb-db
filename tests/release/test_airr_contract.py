@@ -44,8 +44,9 @@ pytestmark = pytest.mark.release
 #: These observations remain in the definitive tables and AIRR.
 #: PMID34290408 adds eight TRB observations with incomplete calls; tables and AIRR retain them.
 #: PMID25681349 adds 19 incomplete-call chains retained in definitive tables and AIRR.
-LEGACY_DROPS_CHAINS = 1787
-LEGACY_DROPS_RECORDS = 1301
+#: PMID36516854 adds four incomplete-call observations retained by tables and AIRR.
+LEGACY_DROPS_CHAINS = 1791
+LEGACY_DROPS_RECORDS = 1305
 
 
 @pytest.fixture(scope="module")
