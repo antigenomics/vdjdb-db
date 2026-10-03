@@ -47,8 +47,10 @@ pytestmark = pytest.mark.release
 #: PMID36516854 adds four incomplete-call observations retained by tables and AIRR.
 #: Final publication additions retain 22 further incomplete-V chains in tables/AIRR.
 # Three new source observations retain six chains without resolvable segment calls.
-LEGACY_DROPS_CHAINS = 1819
-LEGACY_DROPS_RECORDS = 1330
+# Primary-table segment reconciliation recovers ten chain rows and nine record rows
+# for the legacy projection; the definitive tables retain every observation.
+LEGACY_DROPS_CHAINS = 1809
+LEGACY_DROPS_RECORDS = 1321
 
 
 @pytest.fixture(scope="module")
