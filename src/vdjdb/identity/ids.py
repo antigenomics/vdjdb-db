@@ -36,6 +36,7 @@ records were added, amended or retired, as a reviewable diff.
 """
 from __future__ import annotations
 
+import gzip
 import hashlib
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
@@ -188,23 +189,13 @@ class IdentityRegistry:
         missing = set(REGISTRY_COLUMNS) - set(df.columns) - {"replaced_by"}
         if missing:
             raise ValueError(f"{path} is missing registry columns: {sorted(missing)}")
-        entries = [
-            _Entry(
-                record_id=r["record_id"], state=r["state"],
-                natural_key_hash=r["natural_key_hash"], content_hash=r["content_hash"],
-                chunk_file=r["chunk_file"], chunk_row=int(r["chunk_row"] or 0),
-                first_seen_release=r["first_seen_release"], first_seen_commit=r["first_seen_commit"],
-                last_seen_release=r["last_seen_release"],
-                last_modified_release=r["last_modified_release"],
-                last_modified_commit=r["last_modified_commit"],
-                amendment_count=int(r["amendment_count"] or 0),
-                amended_from_key_hash=r["amended_from_key_hash"],
-                # Added by #693. A registry written before it has no column, and reading one must
-                # not fail: the field is empty until a retirement fills it.
-                replaced_by=r.get("replaced_by", ""), note=r["note"],
-            )
-            for r in df.iter_rows(named=True)
-        ]
+        # Older inputs predate the successor column. Preserve their empty successor values.
+        if "replaced_by" not in df.columns:
+            df = df.with_columns(pl.lit("").alias("replaced_by"))
+        df = df.select(REGISTRY_COLUMNS).with_columns(
+            pl.col("chunk_row", "amendment_count").str.strip_chars().replace("", "0").cast(pl.Int64)
+        )
+        entries = [_Entry(*row) for row in df.iter_rows()]
         return cls(entries)
 
     def save(self, path: Path) -> None:
@@ -213,7 +204,13 @@ class IdentityRegistry:
             {c: [str(getattr(e, c)) for e in rows] for c in REGISTRY_COLUMNS}
         ) if rows else pl.DataFrame({c: pl.Series(c, [], pl.String) for c in REGISTRY_COLUMNS})
         path.parent.mkdir(parents=True, exist_ok=True)
-        df.write_csv(path, separator="\t", quote_style="never", line_terminator="\n")
+        if path.suffix == ".gz":
+            # Fixed metadata makes the committed input identical across updates and filenames.
+            with (path.open("wb") as raw,
+                  gzip.GzipFile(filename="", fileobj=raw, mode="wb", mtime=0) as compressed):
+                df.write_csv(compressed, separator="\t", quote_style="never", line_terminator="\n")
+        else:
+            df.write_csv(path, separator="\t", quote_style="never", line_terminator="\n")
 
     # ---- lookup ------------------------------------------------------------
 
