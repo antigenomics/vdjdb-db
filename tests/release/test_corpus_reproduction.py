@@ -27,7 +27,7 @@ MIN_OCCURRENCES = 50
 #: Measured on the combined import using human TRB observations joined by record_id.
 #: Publication retrieval is tested separately; it cannot establish receptor specificity.
 EXPECTED = {
-    "documents": 790,
+    "documents": 791,
     "kmers_scored": 358,
     "top_kmer": "k:IRS",
     "top_lift": 13.001634,
@@ -63,7 +63,7 @@ def scored(tables: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
     result = query.receptor_lift(tables["records"], tables["chains"],
                                  species="HomoSapiens", gene="TRB", epitope=EPITOPE,
                                  min_units=MIN_OCCURRENCES)
-    assert result["units"][0] == 247123
+    assert result["units"][0] == 247155
     assert result["given_units"][0] == 18604
     return [(row["lift"], row["term"]) for row in result.iter_rows(named=True)]
 
