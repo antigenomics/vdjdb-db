@@ -55,7 +55,9 @@ pytestmark = pytest.mark.release
 # PMID:34290408 adds 61 supported unpaired TRB observations (#953).
 # PMID:25681349 adds 19 supported GAD2 observations (#962).
 # Final source reconciliation adds 61 supported observations.
-EXPECTED_RECORDS = 294_890
+# Six primary publications add 1246 records with mandatory MHC and labelled segment inference.
+# PMID39164477 and PMID38588339 add 182 primary-paper records.
+EXPECTED_RECORDS = 296_318
 
 
 @pytest.fixture(scope="module")

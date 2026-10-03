@@ -121,3 +121,5 @@ TRBJ2S9	TRBJ2-3	TRB	J	Arden global numbering	patches/nomenclature.conversions
 TRBJ2S10	TRBJ2-4	TRB	J	Arden global numbering	patches/nomenclature.conversions
 TRBJ2S11	TRBJ2-5	TRB	J	Arden global numbering	patches/nomenclature.conversions
 TRBJ2S13	TRBJ2-7	TRB	J	Arden global numbering (S12 not observed in VDJdb data)	patches/nomenclature.conversions
+AV38S2	TRAV38-2/DV8	TRA	V	Boysen human TRAV; reported in PMID 16628627	IMGT human TRAV nomenclature table; Boysen hADV38S2
+TRBV11S1	TRBV25-1	TRB	V	Arden human TRBV; reported in PMID 16628627	IMGT human TRBV nomenclature table
