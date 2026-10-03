@@ -1,6 +1,6 @@
 """The committed record registry against the corpus it is supposed to describe (#672).
 
-`registry/records.tsv` is an input: `vdjdb build` reads it and only `vdjdb identity update` writes it.
+`registry/records.tsv.gz` is an input: `vdjdb build` reads it and only `vdjdb identity update` writes it.
 So it can go stale, and a stale registry is worse than none - it reports amendments nobody made and,
 where a key change is ambiguous, retires published identifiers and mints new ones (vdjdb-db#638).
 
@@ -50,7 +50,7 @@ def reconciled():
 def test_the_committed_registry_needs_no_amendment(reconciled):
     """An amendment here is a key that moved since the registry was written, so the file is stale.
 
-    Run `uv run vdjdb identity update` and commit `registry/records.tsv` on the branch that moved it,
+    Run `uv run vdjdb identity update` and commit `registry/records.tsv.gz` on the branch that moved it,
     with the message naming what moved and how many records.
     """
     assert not reconciled.amended, (
