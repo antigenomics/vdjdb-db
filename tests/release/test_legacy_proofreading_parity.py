@@ -50,7 +50,8 @@ pytestmark = pytest.mark.release
 
 #: Legacy's `is_qq_seq_biologically_valid` on the shipped junctions. A rise means a chunk landed with
 #: junctions in the wrong coordinate space; the partition below is what says whether that is reported.
-LEGACY_JUNCTION_FINDINGS = 1657
+# Primary Cukalac and Kuczma fragments are retained and flagged after labelled segment inference.
+LEGACY_JUNCTION_FINDINGS = 2372
 #: Legacy's `gene_match_check`, human only, as the driver ran it.
 LEGACY_GENE_FINDINGS = 2582
 #: A band, because both numbers move with every chunk. What must not move is the *remainder*, which is
