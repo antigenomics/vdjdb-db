@@ -57,7 +57,9 @@ pytestmark = pytest.mark.release
 # Final source reconciliation adds 61 supported observations.
 # Six primary publications add 1246 records with mandatory MHC and labelled segment inference.
 # PMID39164477 and PMID38588339 add 182 primary-paper records.
-EXPECTED_RECORDS = 296_318
+# Primary completion of PMID38524140, PMID34290408, PMID37023751,
+# PMID36923729 and PMID36298482 adds 287 records.
+EXPECTED_RECORDS = 296_605
 
 
 @pytest.fixture(scope="module")
