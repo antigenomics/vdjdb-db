@@ -42,6 +42,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
+from typing import IO, cast
 
 import polars as pl
 
@@ -208,7 +209,8 @@ class IdentityRegistry:
             # Fixed metadata makes the committed input identical across updates and filenames.
             with (path.open("wb") as raw,
                   gzip.GzipFile(filename="", fileobj=raw, mode="wb", mtime=0) as compressed):
-                df.write_csv(compressed, separator="\t", quote_style="never", line_terminator="\n")
+                df.write_csv(cast(IO[bytes], compressed), separator="\t", quote_style="never",
+                             line_terminator="\n")
         else:
             df.write_csv(path, separator="\t", quote_style="never", line_terminator="\n")
 
