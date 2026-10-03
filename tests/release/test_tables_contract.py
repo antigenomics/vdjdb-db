@@ -52,7 +52,8 @@ pytestmark = pytest.mark.release
 # PMID:36298482 adds 20 source-supported observations.
 # Remaining import (#893) adds 12364 records.
 # PMID:42691161 adds 71036 positive observations, including 28 Table S5 experiments.
-EXPECTED_RECORDS = 294_707
+# PMID:34290408 adds 61 supported unpaired TRB observations (#953).
+EXPECTED_RECORDS = 294_768
 
 
 @pytest.fixture(scope="module")
