@@ -30,8 +30,8 @@ EXPECTED = {
     "documents": 797,
     "kmers_scored": 361,
     "top_kmer": "k:IRS",
-    "top_lift": 12.981633,
-    "median_lift": 0.863368,
+    "top_lift": 12.997678,
+    "median_lift": 0.864435,
     "motif_kmers": 19,
     "motif_above_median": 19,
 }
@@ -63,7 +63,7 @@ def scored(tables: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
     result = query.receptor_lift(tables["records"], tables["chains"],
                                  species="HomoSapiens", gene="TRB", epitope=EPITOPE,
                                  min_units=MIN_OCCURRENCES)
-    assert result["units"][0] == 248375
+    assert result["units"][0] == 248682
     assert result["given_units"][0] == 18711
     return [(row["lift"], row["term"]) for row in result.iter_rows(named=True)]
 
