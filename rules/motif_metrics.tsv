@@ -66,7 +66,7 @@ HomoSapiens	TRA	legacy	partition_neighbours_preserved	baseline	0.005	1.0
 HomoSapiens	TRA	legacy	partition_pairs_preserved	record	0.0	1.0	
 HomoSapiens	TRA	legacy	percolation_excess	record	0.0	0.0	
 HomoSapiens	TRA	legacy	percolation_median	record	0.0	0.375	recorded, not gated (2026-10-01): percolation is the largest cluster's share of an epitope's clustered clonotypes, which depends on the epitope - one prominent motif (A*02 GIL) should percolate, a featureless one (A*02 NLV) should not. See validate/motif_metrics.py.
-HomoSapiens	TRA	legacy	precision	up	0.005	0.8749	
+HomoSapiens	TRA	legacy	precision	up	0.005	0.8927	
 HomoSapiens	TRA	legacy	purity	up	0.005	0.8877	
 HomoSapiens	TRA	legacy	q	up	0.005	0.075156	Fixed released clustering scored on the expanded publication cohort; only the recorded reference measurement changes, not the current-method quality gates.
 HomoSapiens	TRA	legacy	recall	up	0.005	0.8877	
@@ -156,7 +156,7 @@ HomoSapiens	TRB	legacy	partition_neighbours_preserved	baseline	0.005	1.0
 HomoSapiens	TRB	legacy	partition_pairs_preserved	record	0.0	1.0	
 HomoSapiens	TRB	legacy	percolation_excess	record	0.0	0.0	
 HomoSapiens	TRB	legacy	percolation_median	record	0.0	0.79665	
-HomoSapiens	TRB	legacy	precision	up	0.005	0.9741	
+HomoSapiens	TRB	legacy	precision	up	0.005	0.9872	
 HomoSapiens	TRB	legacy	purity	up	0.005	0.9767	
 HomoSapiens	TRB	legacy	q	up	0.005	0.354014	Fixed released clustering scored on the expanded publication cohort; only the recorded reference measurement changes, not the current-method quality gates.
 HomoSapiens	TRB	legacy	recall	up	0.005	0.9767	
