@@ -120,9 +120,12 @@ uv.lock.tmp
 *MATCHMAKERS*
 *matchmakers*
 
-## Working notes -- untracked. Only README.md, ROADMAP.md and CHANGELOG.md are committed;
-## the *_local.md pair carries the execution record and the running log.
+## Local execution notes stay untracked; published documentation stays under docs/.
 /CLAUDE.md
+/AGENTS.md
+/MASS_UPDATE_local.md
+/ISSUES_local.md
+/ISSUES_local.tsv
 /STATUS.md
 /ROADMAP_local.md
 /CHANGELOG_local.md

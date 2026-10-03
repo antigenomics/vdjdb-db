@@ -47,8 +47,9 @@ The error is only in collapsing the union:
 The practical consequence is about **aggregates, not about asking**. A motif, a lift or an enrichment
 computed over a species group pools receptors that were shown different antigens, so the number
 describes the group and cannot be read as a motif *for* that pathogen. `vdjdb.corpus` documents `a:`
-on exactly those terms: reach for it to find the papers and the receptors, and condition on
-`e:<epitope>` - or on that plus a restriction - when the claim is about recognition.
+for publication retrieval. Its document-level conditions do not identify receptor assignments.
+For receptor association, join chains to their own records and filter the epitope, species, chain
+and, when relevant, MHC restriction on those records.
 
 ## How VDJdb's columns map onto this
 
@@ -96,7 +97,8 @@ Two consequences for how to write, and neither weakens the distinction above:
 - **Say which sense you mean** the first time "antigen" appears in a document. This page means the
   complex. A paper that means the peptide is not wrong, it is the more common usage.
 
-The source gene and species describe peptide provenance.
+The source protein and organism describe peptide provenance. VDJdb records them in
+`antigen.gene` and `antigen.species`; neither identifies the receptor’s peptide-MHC ligand.
 
 One thing to carry from the cross-reactivity literature, because it bounds the claim in both
 directions. A receptor recognises many peptides, and they usually share a recognition motif rather than

@@ -31,6 +31,14 @@ murine `H-2` / `H2-` split cost 768 records their motif badge on the deployed si
 Where the authority has no entry for a value, add the entry and say so in the log. Never repair the
 cell alone.
 
+## Preserve source values already handled by assembly
+
+Before rewriting a source cell, inspect the existing harmonisation and batched CDR3-fixer result.
+Supported spelling conversion, terminal-flank trimming and subgroup/allele resolution belong in
+assembly. Retain the supplied cell when the build resolves it; do not fetch a paper or choose a
+family member manually for that case. The rules below describe the target vocabulary and review
+steps, not a requirement to duplicate every build conversion at import.
+
 ## 1. Species
 
 `species` is one of `HomoSapiens`, `MusMusculus`, `RattusNorvegicus`, `MacacaMulatta` - CamelCase, no
@@ -58,8 +66,8 @@ Apply in order:
    named. `proofreading/imgt.md` §8 has both queries.
 5. **A name that resolves at neither level is not a formatting problem** - it is nomenclature debt.
    Report it; do not invent a nearest match. The build lists all of them in
-   `out/reports/nomenclature.tsv`, separating a family name a curator must choose within (`TRBV6` is
-   nine genes) from a name no authority carries at all (`TRBV28-0`).
+   `out/reports/nomenclature.tsv`, separating family-level calls from names the authority does not contain. First inspect the
+   build's sequence-supported resolution; only unresolved source ambiguities need a curator.
 6. **Ambiguous multi-calls** stay as a comma-separated list with no spaces (`TRBV7-2,TRBV7-3`), each
    part checked separately. The build reads `,`, `;`, `+` and `or` as separators.
 

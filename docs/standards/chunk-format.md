@@ -96,7 +96,7 @@ meta.cell.subset | T-cell subset, free style, e.g. ``CD8+``, ``CD4+CD25+``
 meta.subset.frequency | Frequency of a given TCR sequence in the specified cell subset, e.g. ``5%`` means the TCR sequence represents an expanded clone occupying 5% of CD8+ cells
 meta.subject.cohort | Subject cohort, free style, e.g. ``healthy`` or ``HIV+``. Where possible, specify to what extent a healthy donor is healthy, e.g. ``CMV-seronegative``.
 meta.subject.id | Subject id (e.g. ``donor1``, ``donor2``,...)
-meta.replica.id | Replicate sample coming from the same donor, also used for different time points, etc (e.g. ``5mo``)
+meta.replica.id | Identifier distinguishing replicates, experiments or sampling time points within a study (e.g. ``exp_exploratory``, ``exp_validation_table_s5``, ``5mo``). Use distinct values for separate measurements of the same TCR–pMHC; keep donor identity in ``meta.subject.id`` and assay details in ``method.*``. Prefer identifiers reported by the paper; if assigning experiment labels, document which experiment each label denotes.
 meta.clone.id | T-cell clone id
 meta.epitope.id | Epitope id (e.g. ``FL10``)
 meta.tissue | Tissue used to isolate T-cells: ``PBMC``, ``spleen``, etc. or ``TCL`` (T-cell culture) if isolated from re-stimulated T-cells
@@ -163,3 +163,36 @@ cdr3.delta | CDR3 of delta chain
 ... | ...
 v.heavy.shm | CIGAR string of hypermutations in the heavy chain Variable segment
 ... | ...
+
+## Completeness and observation identity
+
+Every record requires at least one reported junction (`cdr3.alpha` or `cdr3.beta`) and a
+reported `antigen.epitope`. Neither sequence can be inferred. Missing both junctions or a missing
+epitope fails strict QC and direct assembly. Keep the source submission outside the shipping
+chunks until the missing evidence is supplied; never silently drop the row during a build.
+
+Missing V/J calls do not justify dropping a sequence-bearing observation. Use the built-in
+arda/vdjtools annotation and inspect its proposals. Preserve the submitted call separately from
+inference; an inferred V proposal is not a paper-reported V call.
+
+Resolve `mhc.a`, `mhc.b` and `mhc.class` before submission. Class I uses `B2M` as its second
+chain. Strict QC and direct assembly reject class I without `B2M`, class II with
+`B2M`, and `B2M` in the first-chain field. Assembly also checks both harmonised
+chain names against their declared MHC class. For class II, distinguish an explicitly reported pair from a single-chain or haplotype
+label. Use the installed mhcmatch naming and partner-inference functions where supported;
+record the original label, inferred partner and inference basis in the review. Its
+`pseudoseq.class2_key` supports eligible DP/DQ beta-only typings through `alpha_prior`;
+unsupported or ambiguous typings remain unresolved. A prediction of peptide binding is not
+proof of the restriction reported by a paper. Never infer restriction solely from peptide length.
+
+For duplicate review, compare both chains together: `v.alpha`, `j.alpha`, `cdr3.alpha`,
+`v.beta`, `j.beta`, `cdr3.beta`, epitope and both MHC chains, within species. Compare the complete
+observation metadata for every matching group, within and across files. Different references,
+donors, methods, subsets, tissues, clone IDs or other reported metadata distinguish observations.
+File boundaries alone do not establish independence: the same paper can occur in an aggregate
+and its own chunk. Merge only confirmed duplicates, preserving complementary information and
+recording the decision. Review both submitted and harmonised values without silently replacing
+the source values.
+
+Large chunk files may use `.tsv.gz`; validation reads the same TSV contents after decompression.
+Negative observations remain in `chunks_negative/` and are excluded from the positive build.

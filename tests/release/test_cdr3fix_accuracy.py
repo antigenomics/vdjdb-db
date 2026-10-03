@@ -99,7 +99,7 @@ _aa = nt_to_aa_boundary_expr
 
 
 @pytest.fixture(scope="module")
-def truth() -> pl.DataFrame:
+def truth_all() -> pl.DataFrame:
     """VDJdb human TRB records whose junction the control also observed, with an agreed boundary."""
     directory = Path(os.environ.get("VDJDB_TABLES", "out/tables"))
     needed = [directory / f"{n}.parquet" for n in ("records", "chains")]
@@ -142,14 +142,28 @@ def truth() -> pl.DataFrame:
                     right_on=["cdr3", "vg", "jg"], how="left", maintain_order="left")
 
 
+@pytest.fixture(scope="module")
+def truth(truth_all) -> pl.DataFrame:
+    """Compare engines only where the released database contains the sequence/gene key."""
+    return truth_all.filter(pl.col("legacy.present").fill_null(False))
+
+
+@pytest.mark.parametrize("coord", ["v_end", "j_start"])
+def test_current_engine_accuracy_includes_new_imports(truth_all, coord) -> None:
+    near = truth_all.filter(
+        (pl.col(f"arda.{coord}") >= 0)
+        & ((pl.col(f"arda.{coord}") - pl.col(f"t.{coord}")).abs() <= 1)).height
+    assert near / truth_all.height > 0.95
+
+
 def _shipped_scanner() -> pl.DataFrame:
     """The scanner's `vEnd` / `jStart` as the 2026-06-03 release shipped them, per gene-level key.
 
     Keyed the same way the control is - `(cdr3, V gene, J gene)` - because the reference's allele
     suffix is the one the scanner resolved and the nomenclature phase has since corrected 10,605 of
     them, so an allele-level key would lose exactly the rows this comparison is about. 123,165
-    distinct beta keys, of which 45 carry two `vEnd` values and 386 two `jStart`; those are dropped
-    rather than averaged, on the same rule the control's own boundary uses.
+    distinct beta keys, of which 45 carry two `vEnd` values and 386 two `jStart`; their boundaries are null
+    rather than averaged; their keys remain present, on the same rule the control's own boundary uses.
     """
     if not REFERENCE.exists():
         pytest.skip(f"{REFERENCE} is not present; set VDJDB_REFERENCE_ZIP")
@@ -167,7 +181,12 @@ def _shipped_scanner() -> pl.DataFrame:
             .agg(pl.col("v_end").n_unique().alias("nv"), pl.col("j_start").n_unique().alias("nj"),
                  pl.col("v_end").first().alias("legacy.v_end"),
                  pl.col("j_start").first().alias("legacy.j_start"))
-            .filter((pl.col("nv") == 1) & (pl.col("nj") == 1))
+            .with_columns(
+                pl.when((pl.col("nv") == 1) & (pl.col("nj") == 1))
+                  .then(pl.col("legacy.v_end")).otherwise(None).alias("legacy.v_end"),
+                pl.when((pl.col("nv") == 1) & (pl.col("nj") == 1))
+                  .then(pl.col("legacy.j_start")).otherwise(None).alias("legacy.j_start"),
+                pl.lit(True).alias("legacy.present"))
             .drop("nv", "nj"))
 
 

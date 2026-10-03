@@ -1,12 +1,7 @@
-"""The corpus against the real database: does the instrument recover something already known?
+"""Publication retrieval contracts and chain-specific receptor-association acceptance tests.
 
-Marked ``release``: needs a built directory (``VDJDB_TABLES``, default ``out/tables``). The unit tests
-check that the weighting is arithmetically right, against ``sklearn``. These check that it is
-*useful*, which arithmetic cannot: a tf-idf corpus over receptor k-mers either recovers the motifs
-immunology already documents for an epitope, or it is a table nobody should draw a conclusion from.
-
-The case is GILGFVFTL, the influenza A M1 epitope, whose specific TCRs are known for an RS motif in
-the beta CDR3. Nothing in the build knows that, so recovering it is evidence the lift means something.
+Release tests read the definitive tables from VDJDB_TABLES. Motif association joins
+chains to their own epitope records; retrieval tests retain publication-level semantics.
 """
 from __future__ import annotations
 
@@ -25,38 +20,20 @@ pytestmark = pytest.mark.release
 EPITOPE = "GILGFVFTL"
 MOTIF = "RS"
 
-#: A 3-mer needs this many occurrences among the epitope's documents before its lift is read. Below
+#: A 3-mer needs this many occurrences among the epitope's chain observations before its lift is read. Below
 #: it, one paper's handful of receptors moves the ratio and the number is noise.
 MIN_OCCURRENCES = 50
 
-#: Measured 2026-09-27 on the 2026-09 build, `documents` re-measured 2026-09-28 when `PMID_18025130`
-#: landed (#161) and again 2026-09-29 when `PMID: 34433824` lost its space (#637): the two spellings
-#: were two documents for one paper, sharing the epitope `GQVELGGGNAVEVCK`, so the count falls by one
-#: rather than rising. Frozen so a change in the weighting shows up here rather than in a conclusion
-#: someone draws later.
-#:
-#: `motif_above_median` re-measured 2026-09-30 on `annotate_junctions`: **25 -> 26**. The corpus's
-#: `v:` and `j:` token families are the shipped segment calls, and arda 2.36 re-calls a segment whose
-#: germline the junction contradicts, so the document-frequency weighting moves. The direction is the
-#: one to want - one more of the 29 `RS` k-mers sits above the median, so the family's claim is
-#: stronger rather than weaker - and `top_kmer`, `top_lift` and `median_lift` did not move at all.
-#:
-#: Re-measured 2026-10-01 on #390: **26 -> 25**, a declared trade rather than a drift. Merging the
-#: 18 rows where one publication was curated in two chunk files changes the document frequency of
-#: the tokens those rows carried, and one of the 29 `RS` k-mers crosses back below the median. Every
-#: other measurement here is unchanged - `documents` 661, `kmers_scored` 2,342, `top_kmer` `k:IRS`,
-#: `top_lift` 2.663, `median_lift` 1.170 - and the claim the test exists for is the *family* sitting
-#: above the middle, which at 25 of 29 is 0.862 against the 0.8 floor the last assertion pins.
-#: A duplicate row is not evidence, so removing it is the right answer even where a derived
-#: statistic reads marginally weaker for it.
+#: Measured on the combined import using human TRB observations joined by record_id.
+#: Publication retrieval is tested separately; it cannot establish receptor specificity.
 EXPECTED = {
-    "documents": 661,
-    "kmers_scored": 2342,
+    "documents": 791,
+    "kmers_scored": 358,
     "top_kmer": "k:IRS",
-    "top_lift": 2.663,
-    "median_lift": 1.170,
-    "motif_kmers": 29,
-    "motif_above_median": 25,
+    "top_lift": 13.001634,
+    "median_lift": 0.873388,
+    "motif_kmers": 19,
+    "motif_above_median": 19,
 }
 
 #: ``k:CAS`` is the germline-encoded start of nearly every beta CDR3: present in 614 of 661 documents.
@@ -81,18 +58,14 @@ def corpus(tables: dict[str, pl.DataFrame]) -> dict[str, pl.DataFrame]:
 
 
 @pytest.fixture(scope="module")
-def scored(corpus: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
-    """Every CDR3 3-mer's lift on the epitope's documents, above the occurrence floor, best first.
-
-    One `lift_family` call rather than a loop over `lift`. The loop recomputed the condition group and
-    the family totals once per term - the same values every time - and cost **50.7 s**, a quarter of
-    the whole suite, against **0.01 s** batched (`ROADMAP_local.md` §57.1). The two agree term for
-    term, which `tests/unit/test_corpus_query.py` asserts.
-    """
-    scored = query.lift_family(corpus, "cdr3_kmer", [f"e:{EPITOPE}"], over="occurrences",
-                               min_units=MIN_OCCURRENCES)
-    return [(r["lift"], r["term"]) for r in scored.iter_rows(named=True)
-            if r["lift"] is not None]
+def scored(tables: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
+    """Human beta-chain observations assigned to this epitope, scored in one Polars pass."""
+    result = query.receptor_lift(tables["records"], tables["chains"],
+                                 species="HomoSapiens", gene="TRB", epitope=EPITOPE,
+                                 min_units=MIN_OCCURRENCES)
+    assert result["units"][0] == 247155
+    assert result["given_units"][0] == 18604
+    return [(row["lift"], row["term"]) for row in result.iter_rows(named=True)]
 
 
 def test_the_corpus_covers_every_offline_family(corpus) -> None:
@@ -111,11 +84,7 @@ def test_every_document_is_l2_normalised(corpus) -> None:
 
 
 def test_the_known_motif_is_the_highest_lifting_kmer_for_its_epitope(scored) -> None:
-    """The acceptance criterion. Nothing in the build knows GILGFVFTL has an RS motif.
-
-    Of the 2,342 CDR3 3-mers with 50 or more occurrences among this epitope's documents, the top one is
-    `k:IRS` at 2.66x against a median of 1.17x.
-    """
+    """IRS ranks first among eligible k-mers of human beta-chain observations."""
     assert len(scored) == EXPECTED["kmers_scored"]
     top_lift, top_term = scored[0]
     assert top_term == EXPECTED["top_kmer"]
@@ -135,18 +104,12 @@ def test_the_motif_family_sits_above_the_middle_of_the_distribution(scored) -> N
     assert above / len(motif) > 0.8, "a motif family scattered around the median is not a signal"
 
 
-def test_a_germline_kmer_reads_flat_under_every_kind_of_condition(corpus) -> None:
-    """`k:CAS` starts nearly every beta CDR3, so any condition it appears enriched under is an artefact.
-
-    Both kinds of condition are asserted, and they are not the same question. `e:GILGFVFTL` names an
-    epitope the receptors were actually shown; `a:HIV-1` is provenance, a union over every epitope of
-    that species and every restriction, which is a legitimate axis but not a specificity one. A
-    germline k-mer has to read flat under both, which is a stronger claim than either alone.
-    """
+def test_document_occurrence_lift_retains_its_retrieval_contract(corpus) -> None:
+    """These are publication-level counts, not a receptor germline-enrichment test."""
     for condition in ("a:HIV-1", f"e:{EPITOPE}"):
         got = query.lift(corpus, GERMLINE_KMER, [condition], over="occurrences")
         assert got.lift is not None
-        assert abs(got.lift - 1.0) < GERMLINE_TOLERANCE, str(got)
+        assert abs(got.lift - 1.0) < GERMLINE_TOLERANCE
 
 
 def test_a_document_level_lift_cannot_answer_a_common_kmer(corpus) -> None:

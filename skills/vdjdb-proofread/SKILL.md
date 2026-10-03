@@ -17,6 +17,30 @@ Read [`skills/AUTHORITIES.md`](../AUTHORITIES.md) first.
 /vdjdb-proofread [path-to-tsv]
 ```
 
+## Required completeness and duplicate review
+
+Apply [completeness and observation identity](../../docs/standards/chunk-format.md#completeness-and-observation-identity)
+to every chunk. At least one junction and the epitope must be reported; neither is imputable.
+Strict QC and direct assembly reject missing sequences or incomplete MHC fields. Resolve missing
+MHC partners using paper evidence or a documented supported mhcmatch inference before submission.
+Inspect built-in segment proposals for missing V/J calls without inventing paper-reported calls.
+
+Audit both-chain receptor-pMHC matches within and across chunks, then compare all observation
+metadata. Different donors, references, methods, subsets or other metadata are independent
+observations. Record the reviewed groups and decisions; a matching receptor alone is not a duplicate.
+
+## Resolve routine cases and rank questions
+
+Inspect assembly repair before editing source cells. Terminal flanks, supported nomenclature
+conversions and allele selection are resolved during database build when the machinery supports
+them. Preserve the supplied values in those cases. Stop repeated attempts to fetch inaccessible
+papers; use the supplied definitive tables.
+
+Keep an optional donor, frequency or method-detail question open without blocking a supported
+observation whose assay evidence already determines its score. Unknown fields remain blank.
+Pairing, epitope, MHC restriction and positive/negative outcome contradictions are material and
+block only the affected rows. See the [submission guide](../../docs/submission.md) for closeout.
+
 ## Step 1 - structure, before anything parses it
 
 `vdjdb qc` lints the text before it reads the table, and reports `bom`, `encoding`, `crlf`, `empty`,
@@ -74,6 +98,7 @@ default) any non-advisory finding exits 1.
 | `bad reference.id` | `PMID:`, `doi:`, `http://`, `https://` or `unpublished`. Case matters on the first two |
 | `no.cdr3` | neither chain has a sequence. Check the extraction - the row has no TCR in it |
 | `no.antigen.seq` | no epitope. Required |
+| `mhc class/partner mismatch` | Class I requires `mhc.b=B2M`; class II cannot use B2M, and B2M cannot be `mhc.a`. Check the paper restriction, not the CD4/CD8 subset |
 | `no.mhc` | one of `mhc.a`/`mhc.b` is blank. `proofreading/mhc.md` §4 for the pairing, and §4.1 for the precedent fills |
 
 **Advisory rules, reported and never fatal.** Each is advisory for a stated reason, so do not

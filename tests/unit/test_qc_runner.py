@@ -197,3 +197,35 @@ def test_a_structure_id_that_is_not_a_pdb_id_is_reported_and_is_advisory():
     assert sorted(failed["chunk.row"].to_list()) == [3, 4, 5]
     assert "structure id is not a PDB id" in ADVISORY, (
         "2,765 corpus rows fail it; what to do with them is a curation decision")
+
+
+@pytest.mark.parametrize("values,rule", [
+    ({"cdr3.alpha": "", "cdr3.beta": ""}, "no.cdr3"),
+    ({"antigen.epitope": ""}, "no.antigen.seq"),
+    ({"mhc.a": ""}, "no.mhc"),
+    ({"mhc.b": ""}, "no.mhc"),
+    ({"mhc.class": ""}, "bad mhc.class"),
+    ({"mhc.b": "HLA-DRB1*01:01"}, "mhc class/partner mismatch"),
+    ({"mhc.class": "MHCII"}, "mhc class/partner mismatch"),
+    ({"mhc.a": "B2M"}, "mhc class/partner mismatch"),
+])
+def test_incomplete_observations_fail_qc_and_direct_build(tmp_path, values, rule):
+    from vdjdb.assemble.master import build_master
+
+    path = chunk(tmp_path, rows=[clean_row(**values)])
+    assert rule not in ADVISORY
+    assert run_qc([path], strict=True) == 1
+    with pytest.raises(ValueError, match=rule):
+        build_master([path])
+
+
+@pytest.mark.parametrize("chain", ["alpha", "beta"])
+def test_one_junction_and_missing_segment_calls_are_allowed(tmp_path, chain):
+    from vdjdb.io.chunks import read_chunk
+    from vdjdb.qc.rules import assert_complete
+
+    values = {"cdr3.beta": "", "v.beta": "", "j.beta": "",
+              f"cdr3.{chain}": "CASSIRSSYEQYF"}
+    path = chunk(tmp_path, rows=[clean_row(**values)])
+    assert run_qc([path], strict=True) == 0
+    assert_complete(read_chunk(path))

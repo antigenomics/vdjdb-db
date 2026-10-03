@@ -1,0 +1,19 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
+1				CSAQGVAGGPYEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+2				CASSFTGATDYDYTF	TRBV5-1		TRBJ1-2	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+3				CATQTDRPVSDQPQHF	TRBV28		TRBJ1-5	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+4				CAISETGEETQYF	TRBV10-3		TRBJ2-5	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+5				CASSLGQGLANYGYTF	TRBV27		TRBJ1-2	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+6				CAWDVKDRRIGNEQFF	TRBV30		TRBJ2-1	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+7				CASSEFPGLSYEQYF	TRBV2		TRBJ2-7	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+8				CSARAQRTYGYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+9				CSATILAGVPYGEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+10				CSASSQRGGIYEQYF	TRBV20-1		TRBJ2-7	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+11				CSARDDLGRVGNQPQHF	TRBV20-1		TRBJ1-5	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+12				CSVEDRGTGVVNEQFF	TRBV29-1		TRBJ2-1	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+13				CASSLERDYEQYF	TRBV7-2		TRBJ2-7	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+14				CASSFFSGTASQPQHF	TRBV12-3		TRBJ1-5	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+15				CASSQEQGRVVGNEQFF	TRBV4-1		TRBJ2-1	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+16				CASSLAALDRVGWDTQYF	TRBV5-4		TRBJ2-3	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+17				CASSLAALDRVGWDTQYF	TRBV5-6		TRBJ2-3	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	
+18				CASILARGGVWTDTQYF	TRBV5-4		TRBJ2-3	HomoSapiens	HLA-B*08	B2M	MHCI	FLKEKGGL	Nef	HIV-1	PMID:16322475																	

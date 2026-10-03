@@ -9,6 +9,10 @@ Measure how records repeat across the corpus, and separate the three reasons the
 
 Read [`skills/AUTHORITIES.md`](../AUTHORITIES.md) first.
 
+A verified PubMed preprint/publication link can identify repeated curation of one work. Reconcile
+that reference without duplicating the source observations or changing unrelated metadata. Different
+publications otherwise remain separate reports. Preserve distinct PDB structure observations.
+
 ## Invocation
 
 ```
@@ -19,57 +23,31 @@ No arguments. Needs a build: `uv run vdjdb build --out out/`.
 
 ## What a repeat is, and is not
 
-**Two rows in two different chunks are independent reports, never duplicates**, even when every
-field matches. A chunk is one publication, so a matching row in a second publication is a second
-laboratory finding the same receptor against the same peptide. That is signal: it is what raises
-`vdjdb.score` and what the motif clustering is tuned against. Deduplication in this database is
-**within a chunk only**, on `schema.CHUNK_DEDUP_KEY`, and the build already does it - the count it
-removes is the gap between 203,308 raw rows and 192,753 released ones, reported as the advisory
-`duplicate` rule.
+A matching receptor-pMHC is a candidate for review, not permission to delete a row.
+Different references, donors, methods, subsets, tissues, clone IDs or other reported metadata
+identify distinct observations and must be preserved. The same reference may occur in an aggregate
+chunk and a paper chunk, so file boundaries alone do not establish independence.
 
-So this audit is not looking for errors to delete. It is separating three things that look alike in a
-row count:
+## Step 1 - compare paired receptors
 
-| Reason a record repeats | What it means | Action |
-|---|---|---|
-| Same lab, follow-up publication | expected; the same cohort re-sequenced or re-analysed | keep both; note the relationship |
-| Independent replication | a public clonotype, the strongest evidence the database holds | keep both; this is the finding |
-| Within-chunk multiplicity from read depth | one clone counted once per cell or per read | keep; state it in the release notes so nobody reads the count as clonal abundance |
+Read [completeness and observation identity](../../docs/standards/chunk-format.md#completeness-and-observation-identity).
+Read chunks with `read_chunks(deduplicate=False)` so the audit can detect what deduplication
+would remove. Group within species on `v.alpha`, `j.alpha`, `cdr3.alpha`, `v.beta`, `j.beta`,
+`cdr3.beta`, `antigen.epitope`, `mhc.a`, `mhc.b` and `mhc.class`. Keep both chains in the same
+key: sharing a beta chain while reporting different alpha chains is not a duplicate receptor.
+Repeat the comparison on harmonised values and retain the submitted-value comparison.
 
-## Step 1 - load the built tables
+## Step 2 - classify each matching group
 
-The build assigns the ids this audit needs, so do not rebuild the keys by hand:
+Compare every `method.*` and `meta.*` field and the reference, including optional fields.
+Retain differing observations. A blank and a populated field need review; do not discard the
+populated value by keeping the first row. Merge only confirmed duplicate reports, preserving
+complementary metadata. Curation serials, submitter and comment do not by themselves establish
+independent biological observations.
 
-- `clonotype_id` on `chains.tsv` keys `(species, gene, cdr3, v.segm, j.segm)`
-- `pmhc_id` on `records.tsv` keys `(antigen.epitope, mhc.a, mhc.b)`
-- `epitope_id` keys the epitope alone
-
-```python
-import polars as pl
-ch = pl.read_csv('out/tables/chains.tsv', separator='\t', infer_schema_length=0)
-rec = pl.read_csv('out/tables/records.tsv', separator='\t', infer_schema_length=0)
-d = ch.join(rec.select('record_id', 'pmhc_id', 'epitope_id', 'reference.id', 'chunk.file',
-                       'meta.subject.id', 'meta.clone.id'), on='record_id', how='left')
-```
-
-A receptor against a peptide is `(clonotype_id, pmhc_id)`. Group on that pair, not on a
-hand-assembled tuple of `cdr3.beta` and `antigen.epitope` - the pair follows the harmonised call and
-the repaired sequence, which is what the database actually ships.
-
-## Step 2 - classify each recurring pair
-
-For every `(clonotype_id, pmhc_id)` with more than one record:
-
-| Class | Test |
-|---|---|
-| within one chunk | one distinct `chunk.file` |
-| across chunks, one reference | several files, one `reference.id` |
-| across chunks, same lab | several PMIDs with overlapping author lists (step 3) |
-| across chunks, independent | several PMIDs with no shared authors |
-
-Report the counts per class and the largest groups. `vdjdb submission <chunk>` gives the same
-relationship for one chunk against the corpus, without a build of your own, and is the right tool when
-the question is about one submission rather than the whole database.
+Report within-file groups, cross-file groups sharing one reference, and cross-reference groups
+separately. Record the decision and evidence on the paper issue. `vdjdb submission <chunk>` is a
+useful recurrence summary, but a shared single-chain clonotype is not this paired-receptor audit.
 
 ## Step 3 - author overlap
 

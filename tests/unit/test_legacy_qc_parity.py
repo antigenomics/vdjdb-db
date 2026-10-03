@@ -19,7 +19,7 @@ Five verdicts, and the difference between them is the whole result:
     which end is wrong and how, so the two agree that the record is broken and disagree about nothing
     else.
 ``stricter``
-    Only the new build reports it. Either a rule with no legacy counterpart, or a row legacy waved
+    The new build reports additional findings. Either a rule with no legacy counterpart, or a row legacy waved
     through: ``species = homosapiens`` passed the retired build, which lower-cased before comparing.
 ``fixable``
     Legacy reported it and the new build repairs the value, so there is nothing left to report. The
@@ -146,7 +146,7 @@ CHUNK_CASES: tuple[Case, ...] = (
           note="The regex constrains any value starting `HLA`, so a serological name is caught while "
                "`A2` on its own would not be."),
     _case("mhc-b-is-a-serotype-not-an-allele", {"mhc.b": "HLA-DRB1"},
-          ["bad mhc.b"], ["bad mhc.b"],
+          ["bad mhc.b"], ["bad mhc.b", "mhc class/partner mismatch"], verdict=STRICTER,
           note="`mhc.b` carries its own rule. It is also where the murine class-II fragmentation "
                "lives, which is the next case."),
     _case("murine-mhc-is-unchecked-by-both", {"species": "MusMusculus", "mhc.a": "I-Ab",
@@ -184,7 +184,7 @@ CHUNK_CASES: tuple[Case, ...] = (
           ["no.antigen.seq"], ["no.antigen.seq"],
           note="A record with no epitope is not a specificity record."),
     _case("only-one-mhc-chain-is-named", {"mhc.b": ""},
-          ["no.mhc"], ["no.mhc"],
+          ["no.mhc"], ["no.mhc", "mhc class/partner mismatch"], verdict=STRICTER,
           note="Both chains are required even for class I, where `mhc.b` is always B2M."),
 
     # --- the new rules, with no legacy counterpart ---
@@ -226,10 +226,10 @@ CHUNK_CASES: tuple[Case, ...] = (
                "itself, which is why the retired build had nothing to say here. Reports and does "
                "not repair: which of the three the paper supports is a curation question."),
     _case("method-identification-names-an-unsettled-token",
-          {"method.identification": "tetramer-sort,magnetic beads"},
+          {"method.identification": "tetramer-sort,unrecognised-assay"},
           [], ["undeclared method.identification token"], verdict=STRICTER,
           note="#637. The cell is a comma-separated set, so the finding is per token: "
-               "`tetramer-sort` is declared and `magnetic beads` is `pending` in "
+               "`tetramer-sort` is declared and `unrecognised-assay` is absent from "
                "`proofreading/method_vocabulary.tsv`, which is what makes this row fail while a "
                "cell of only declared tokens does not. The retired build read this column as free "
                "text and said nothing about any value in it."),
@@ -411,7 +411,7 @@ def test_the_declared_verdict_follows_from_the_two_finding_sets(case: Case) -> N
     if case.verdict == PARITY:
         assert case.legacy and case.new, "parity means both builds report it"
     elif case.verdict == STRICTER:
-        assert not case.legacy and case.new, "stricter means the new build alone reports it"
+        assert case.legacy < case.new, "stricter means the new build adds findings"
     elif case.verdict == BOTH_SILENT:
         assert not case.legacy and not case.new
     else:

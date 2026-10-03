@@ -36,8 +36,18 @@ pytestmark = pytest.mark.release
 #: `arda.cdr3fix`, which proposes the **locus** as well as the call (2.36) and so answers the 461 keys
 #: that named neither side and had no locus to look one up under. 62 more chains of 90 more records
 #: stop failing the legacy "a CDR3 needs a V and a J" filter.
-LEGACY_DROPS_CHAINS = 970
-LEGACY_DROPS_RECORDS = 755
+#: #845 restores nine additional single-chain observations with unresolved segment calls.
+#: All earlier observations remain; these nine are retained by the tables and AIRR projection.
+#: #893 adds 336 records (542 chains) whose source calls remain incomplete after assembly.
+#: All are retained in the definitive tables and AIRR; legacy requires both V and J.
+#: #934 adds 174 records (239 chains) with incomplete calls after assembly.
+#: These observations remain in the definitive tables and AIRR.
+#: PMID34290408 adds eight TRB observations with incomplete calls; tables and AIRR retain them.
+#: PMID25681349 adds 19 incomplete-call chains retained in definitive tables and AIRR.
+#: PMID36516854 adds four incomplete-call observations retained by tables and AIRR.
+#: Final publication additions retain 22 further incomplete-V chains in tables/AIRR.
+LEGACY_DROPS_CHAINS = 1813
+LEGACY_DROPS_RECORDS = 1327
 
 
 @pytest.fixture(scope="module")

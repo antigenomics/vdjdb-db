@@ -42,14 +42,6 @@ RELEASE_MEMBER_ROWS = 55_636
 RELEASE_MEMBER_CIDS = 1_928
 RELEASE_PWM_CIDS = 1_791
 
-#: The bar `docs/clustering.md` sections 4.1 and 4.2 publish for the released clustering. Asserted to
-#: two decimals only: the exact current values live in `rules/motif_metrics.tsv`, which the build
-#: gates against per axis, and duplicating them here is how the pair went stale -- these read 0.8658
-#: and 0.8567 on TRA until the 2026-09-28 chunk merges moved them to 0.8641 and 0.8548, and the
-#: `abs=0.01` tolerance meant nothing noticed.
-PUBLISHED_BAR = {"TRA": {"purity": 0.8658, "precision": 0.8567},
-                 "TRB": {"purity": 0.9790, "precision": 0.9756}}
-
 #: Fraction of the clonotypes the released TCRNET clustered that ours clusters too. Measured
 #: 2026-09-27: TRA 12,177 of 13,327 (0.914), TRB 35,867 of 36,416 (0.985). The floor is what a
 #: reimplementation has to clear to be called the same method; the TRB figure is the interesting one,
@@ -165,13 +157,17 @@ def test_the_release_ships_clusters_with_no_motif(reference: Bundle,
 
 
 @pytest.mark.parametrize("gene", GENES)
-def test_the_harness_reproduces_the_published_legacy_bar(gene: str, released: pl.DataFrame,
+def test_the_harness_reproduces_the_recorded_legacy_bar(gene: str, released: pl.DataFrame,
                                                          cohorts) -> None:
-    """Every comparison below is against these numbers, so they are checked first."""
+    """Score the release on this cohort against its reviewed corpus-specific baseline."""
     got = mb.score(mb.assign(cohorts[gene], _chain(released, gene)))
-    for axis, want in PUBLISHED_BAR[gene].items():
+    baseline = mmv.load_baseline().filter(
+        (pl.col("species") == SPECIES) & (pl.col("gene") == gene)
+        & (pl.col("source") == "legacy") & pl.col("axis").is_in(["purity", "precision"]))
+    assert baseline.height == 2
+    for axis, want in baseline.select("axis", "value").iter_rows():
         assert got[axis] == pytest.approx(want, abs=0.01), (
-            f"{gene} {axis}: {got[axis]:.4f}, docs/clustering.md publishes {want}")
+            f"{gene} {axis}: {got[axis]:.4f}, rules/motif_metrics.tsv records {want}")
 
 
 @pytest.fixture(scope="module")

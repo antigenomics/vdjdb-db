@@ -1,12 +1,7 @@
-"""Two questions you can ask a corpus.
+"""Publication retrieval and record-level receptor association.
 
-:func:`score` ranks documents by how well they match a set of tokens, which is what
-``vdjdb.com/refsearch/`` returns as ``tf_idf``. :func:`lift` asks whether a token goes with a group of
-documents because of itself or because of something it travels with, which the endpoint cannot ask and
-which is the reason the corpus is an artifact rather than an index inside a service.
-
-Both are joins over ``postings``. Neither builds anything, so a caller can ask a hundred questions of
-one corpus without rebuilding it.
+``score``, ``lift`` and ``lift_family`` query publication postings. ``receptor_lift``
+uses the definitive record and chain tables to measure assigned epitope associations.
 """
 from __future__ import annotations
 
@@ -118,33 +113,10 @@ def lift(corpus: dict[str, pl.DataFrame], term: str, given: list[str] | None = N
     above 1.0 that the two go together, below that they avoid each other. ``None`` where nothing
     carries the condition, which is not a lift of zero and must not be averaged as one.
 
-    This is what separates a CDR3 motif from the V gene that templates it: compare
-    ``lift(c, "k:CAS", ["e:KRWIILGLNK"])`` against
-    ``lift(c, "k:CAS", ["e:KRWIILGLNK", "v:TRBV9"])``. If conditioning on the V gene leaves the lift
-    where it was, the k-mer carries the association; if it moves toward 1.0, the V gene did.
-
-    ⚠ **A species condition is a provenance question, not a specificity one.** ``a:HIV-1`` is a real
-    and useful axis - "which papers and receptors are about this species" is where most questions
-    start - but the group it selects is a *union over pMHCs*: every receptor reported against some
-    epitope of that species, under whatever restriction each study used. A lift over it therefore
-    describes that group and is not a motif *for* the pathogen, because its members were shown
-    different antigens. Condition on ``e:<epitope>``, or on that plus a restriction, when the claim is
-    about recognition. ``docs/standards/terminology.md`` has the distinction.
-
-    Measured on the current corpus over occurrences, the answer is neither: `k:CAS` lifts **0.969** on
-    HIV-1 documents (28,422 of 739,216 CDR3 3-mer occurrences against 137,751 of 3,473,003 overall),
-    so it is very slightly depleted rather than enriched, which is what a germline-encoded motif looks
-    like. Holding TRBV9 moves it to 1.006.
-
-    The instrument has range on the same corpus: conditioning on ``e:GILGFVFTL``, ``k:IRS`` is the
-    highest-lifting of the 2,342 CDR3 3-mers with 50 or more occurrences at 2.66x, and the RS-bearing
-    3-mers as a family sit far above the 1.17x median - the motif that epitope is known for.
-
-    ``over="documents"`` counts publications, which is the right denominator for "who reported this"
-    and lets one small study weigh as much as one large one. ``over="occurrences"`` counts token
-    instances within the term's own family, which is the right denominator for "how much of this
-    antigen's receptor repertoire carries the motif" and is the only mode with range for a token most
-    documents contain.
+    Both modes select entire publications. A paper reporting two tokens does not establish
+    that they describe the same receptor, chain or pMHC. Neither mode measures receptor
+    specificity or separates a motif from its germline gene. Use :func:`receptor_lift`
+    for associations between k-mers and the epitope assigned to each record.
     """
     if over not in OVER:
         raise ValueError(f"over must be one of {OVER}, not {over!r}")
@@ -277,3 +249,41 @@ def refsearch_query(cdr3: str = "", epitope: str = "", *, extra_parameters: str 
         out = [t for t in out
                if not (t.startswith(prefix) and t[len(prefix):] in pubmed.STOP_WORDS)]
     return out
+
+
+def receptor_lift(records: pl.DataFrame, chains: pl.DataFrame, *, species: str,
+                  gene: str, epitope: str, min_units: int = 0) -> pl.DataFrame:
+    """K-mer prevalence in one epitope's chain observations versus all chains of that type.
+
+    Species and chain are explicit. Each record contributes once per distinct k-mer,
+    including independent observations of the same sequence. Conditions use the same
+    record_id as the chain; unrelated receptors from the same paper cannot enter the group.
+    Denominators count chain observations, not k-mer windows or publications. MHC restrictions
+    remain pooled within the named epitope; this is an epitope association, not a pMHC claim.
+    """
+    if gene not in {"TRA", "TRB"}:
+        raise ValueError("gene must be TRA or TRB")
+    selected = (chains.filter((pl.col("gene") == gene) & (pl.col("cdr3") != ""))
+                .join(records.filter(pl.col("species") == species)
+                      .select("record_id", "antigen.epitope"), on="record_id", how="inner",
+                      validate="m:1"))
+    units = selected.height
+    given_units = selected.filter(pl.col("antigen.epitope") == epitope).height
+    observed = selected.join(tokens.kmers(selected["cdr3"]), left_on="cdr3",
+                             right_on="sequence", how="inner")
+    return (observed.group_by("kmer").agg(
+                pl.len().alias("term_units"),
+                (pl.col("antigen.epitope") == epitope).sum().alias("both"))
+            .with_columns((pl.lit("k:") + pl.col("kmer")).alias("term"),
+                          pl.lit(units).alias("units"),
+                          pl.lit(given_units).alias("given_units"))
+            .with_columns(
+                (pl.col("both") / given_units if given_units else pl.lit(0.0)).alias("rate_given"),
+                (pl.col("term_units") / units if units else pl.lit(0.0)).alias("rate_overall"))
+            .with_columns(pl.when(pl.lit(given_units) > 0)
+                          .then(pl.col("rate_given") / pl.col("rate_overall"))
+                          .otherwise(None).alias("lift"))
+            .filter(pl.col("both") >= min_units)
+            .select("term", "units", "given_units", "term_units", "both", "rate_given",
+                    "rate_overall", "lift")
+            .sort("lift", "term", descending=[True, False], nulls_last=True))

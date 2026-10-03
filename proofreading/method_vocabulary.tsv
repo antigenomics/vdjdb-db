@@ -65,9 +65,8 @@ TNF Secretion	declared		10
 ELISA	declared		9
 CTL culture	declared		9
 CTL clone	declared		1
-# Pending: present in the corpus, not decided. Each is a curator's call and each is named so the
-# question is on the record rather than in someone's head.
-magnetic beads	pending		36,795. The specification page says to use `beads` for magnetic cell separation, so this is probably an alias - but it is 36,795 records beside `phage display`, one study, and collapsing it asserts the separation was the identification. No score moves either way: `magnetic beads` already contains `beads`
-MHC-peptide-beads	pending		62. More specific than the declared `beads` - the beads carry pMHC, so this is a multimer-like sort rather than a bulk separation. Alias to `beads` or admit as its own term
-tetramer-stain	pending		8. The specification page lists `tetramer-stain` under **method.verification**, not identification, so these 8 cells may be in the wrong column. Needs the papers
-cla	pending		2. Two characters, no expansion anywhere in the corpus or the specification. Needs the chunk read
+# Broad assay terms resolve the remaining source labels; optional detail does not block imports.
+magnetic beads	declared		PMID:40498839; magnetic selection during phage-library panning; reported bead-selection method alongside phage display
+MHC-peptide-beads	declared		PMID:10925283; MHC-peptide multimer selection; the existing term describes the reported selection mechanism
+tetramer-stain	declared		PMID:39286976; tetramer binding identifies the reported receptor populations; staining can also verify an independently identified receptor
+cla	alias	CTL clone	PMID:20139278 abstract reports sequenced T-cell clones; CLA describes their retained CD8+CLA+ subset rather than a specificity assay

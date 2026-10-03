@@ -7,6 +7,7 @@ database it is supposed to describe.
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import polars as pl
@@ -39,6 +40,16 @@ def test_pmid_pattern_tolerates_the_stray_space_but_keeps_the_literal_id():
     assert R._PMID.match("PMID:not-a-number") is None
 
 
+def test_patent_publication_years_resolve_offline():
+    expected = {"US20220324939A1": 2022, "US20230060095A1": 2023,
+                "WO2017048593A1": 2017, "WO2024163935A2": 2024}
+    prefix = "https://patents.google.com/patent/"
+    result = R.resolve([prefix + name for name in expected] + [prefix + "US12345678B2"])
+    assert dict(zip(result["reference.id"], result["year"], strict=True)) == {
+        prefix + name: year for name, year in expected.items()}
+    assert result["source"].unique().to_list() == ["patent-publication-id"]
+
+
 def test_pdb_and_issue_patterns():
     assert R._PDB.match("https://www.rcsb.org/structure/9WBD")[1] == "9WBD"
     assert R._PDB.match("https://www.rcsb.org/structure/9WBD/")[1] == "9WBD"
@@ -53,11 +64,14 @@ def test_unresolved_reports_records_not_references():
     assert out.to_dicts() == [{"reference.id": "PMID:2", "records": 1}]
 
 
-@pytest.mark.skipif(not Path("out/tables/records.parquet").exists(),
+TABLES = Path(os.environ.get("VDJDB_TABLES", "out/tables"))
+
+
+@pytest.mark.skipif(not (TABLES / "records.parquet").exists(),
                     reason="needs a build; run `uv run vdjdb build --out out/`")
 def test_committed_table_still_covers_every_reference_in_the_database():
     """The table is only useful if it has not gone stale -- which is exactly how it failed before."""
-    records = read_table(Path("out/tables"), "records")
+    records = read_table(TABLES, "records")
     missing = R.unresolved(records, R.load())
     assert missing.is_empty(), (
         f"{missing.height} references have no year, covering "

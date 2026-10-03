@@ -1,8 +1,8 @@
 # The reference corpus
 
-One document per publication, twelve token families over it, and tf-idf weights. It reproduces what
-[vdjdb.com/refsearch](https://vdjdb.com) serves and answers a question the endpoint cannot: whether a
-receptor feature goes with an antigen because of itself, or because of something it travels with.
+One document per publication, twelve token families and tf-idf weights support
+[publication search](https://vdjdb.com). Corpus lift measures co-occurrence within publications.
+Receptor-level motif association uses the record and chain tables separately, as described below.
 
 The corpus is an artifact rather than an index inside a service, so a downstream tool reads three
 parquet files and does not have to re-derive a vocabulary.
@@ -55,18 +55,10 @@ k is 3 for both k-mer families. Over 2,118 epitopes of 7 to 25 residues and 180,
 3-mer has a document frequency worth an inverse document frequency, while a 5-mer is close to an
 identifier of its own sequence and a 2-mer is in nearly every document.
 
-**Why `k:` and `kv:` both.** "Is the `CAS` motif specific to HIV-1, or to its TRBV?" is a
-comparison between the lift of `k:CAS` on an epitope's documents and its lift on
-those documents already carrying that V gene. One token cannot express it and neither can a single
-search ranking.
-
-⚠ **A species condition answers a provenance question, not a specificity one.** `a:HIV-1` is a real and
-useful axis - "which papers and receptors are about this species" is how most questions start - but the
-group it selects is a **union over pMHCs**: every receptor reported against some epitope of that
-species, under whatever restriction each study used. So a lift over it describes that group and is not
-a motif *for* the pathogen, because its members were shown different antigens. Condition on
-`e:<epitope>`, or on that plus a restriction, when the claim is about recognition.
-[Terminology](terminology.md) has the full distinction.
+**Why `k:` and `kv:` both.** `k:` retrieves papers mentioning a k-mer; `kv:` retrieves
+papers reporting that k-mer with a particular V gene. Publication-level co-occurrence cannot
+establish a receptor's epitope assignment. A paper can report many unrelated receptors and antigens.
+This applies to epitope, MHC, V-gene and source-species conditions alike.
 
 **Why `ek:`.** Two epitopes sharing a core, or one epitope reported under two source species, are
 linked by their k-mers and by nothing else. Measured: searching `GILGFVFTL` puts nine exact reporters
@@ -78,7 +70,7 @@ altered-peptide-ligand study of its own epitope.
 human donor. Collapsing them would merge two different claims about a record.
 
 **Why three MHC granularities.** Restriction is a hierarchy and a question picks its level. The lift of
-`k:CAS` given `mc:MHCI`, given `ml:HLA-A`, and given `m:HLA-A*02:01` are three different claims, and
+`k:CAS` given `mc:MHCI`, given `ml:HLA-A`, and given `m:HLA-A*02:01` select three different publication groups, and
 one allele token makes the broad ones unaskable. Two fields is the resolution VDJdb curates at; deeper
 fields are truncated because keeping them would split one restriction across several tokens.
 
@@ -159,7 +151,7 @@ Two modes, because they answer different questions.
 | Mode | Unit | For |
 |---|---|---|
 | `documents` | a publication | "who reported this", letting one small study weigh as much as one large one |
-| `occurrences` | a token instance, **within the term's own family** | "how much of this antigen's repertoire carries the motif" |
+| `occurrences` | a token instance, **within the term's own family** | "how often the token occurs in the selected publications" |
 
 The occurrence mode is scoped to the term's family deliberately. Summing every family into one
 denominator puts `k:CAS` over a total including epitope k-mers, MHC tokens and V genes, so its rate
@@ -170,28 +162,21 @@ The document mode cannot answer a common token at all. `k:CAS` is in 614 of 661 
 document-level lift is bounded near 1 however specific it is, and a test asserts that bound rather
 than leaving it as a note.
 
-## Validated against a motif nobody told it about
+## Receptor-level motif association
 
-A tf-idf corpus over receptor k-mers either recovers what immunology already documents, or it is a
-table nobody should draw a conclusion from. The case is GILGFVFTL, the influenza A M1 epitope, whose
-specific TCRs are known for an RS motif in the beta CDR3. Nothing in the build knows that.
+Use `query.receptor_lift(records, chains, species="HomoSapiens", gene="TRB",
+epitope="GILGFVFTL", min_units=50)` to compare k-mer prevalence in beta-chain observations
+assigned to GILGFVFTL with prevalence across human beta-chain observations.
+The join uses `record_id`, not the publication. Each observation contributes once per distinct
+k-mer; alpha chains and other species are excluded. Repeated observations remain independent
+records. Restrictions are pooled within the epitope, so this does not establish MHC-specific effects.
 
-Of the 2,342 CDR3 3-mers with 50 or more occurrences among that epitope's documents:
-
-| | |
-|---|---|
-| highest-lifting 3-mer | **`k:IRS`, 2.663x** |
-| median across all 2,342 | 1.170x |
-| RS-bearing 3-mers | 29, of which **25 above the median** |
-| next four | `k:DGM` 2.603, `k:DLM` 2.566, `k:FMI` 2.519, `k:SIR` 2.473 |
-
-And the control, on the same instrument: `k:CAS`, the germline-encoded start of nearly every beta
-CDR3, lifts **0.969** on HIV-1 documents (28,422 of 739,216 CDR3 3-mer occurrences against 137,751 of
-3,473,003 overall) and 1.006 once TRBV9 is held. Slightly depleted, not enriched, which is what a
-germline motif should look like. Over the first 400 CDR3 3-mers on HIV-1 the range runs 0.05x to
-4.70x, so the instrument has room to move and `k:CAS` genuinely sits at 1.
-
-`tests/release/test_corpus_reproduction.py` pins every number above.
+The combined import has 15,865 human beta-chain observations assigned to GILGFVFTL and
+175,364 human beta-chain observations overall. IRS occurs in 4,281 and 4,408 observations,
+respectively, giving 10.735-fold enrichment. It ranks first among the 355 k-mers present in at
+least 50 assigned observations. All 19 eligible RS-containing k-mers exceed the median lift
+of 0.791402. `tests/release/test_corpus_reproduction.py` pins these record-level measurements.
+Publication retrieval and document-level co-occurrence have separate tests.
 
 ## PubMed records and abstracts
 

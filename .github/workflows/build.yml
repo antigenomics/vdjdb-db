@@ -82,6 +82,8 @@ jobs:
     timeout-minutes: 300
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - uses: astral-sh/setup-uv@v5
         with:

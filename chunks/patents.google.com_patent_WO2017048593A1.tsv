@@ -1,0 +1,21 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id
+1	CAGGPNTGNQFYF							HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGAVGVGK	KRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+2	CALYIYGGSQGNLIF			CASSSTDRIEAF				HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGADGVGK	NRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+3	CATYNFNKFYF			CASTTFKTGRAIEKLF				HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGADGVGK	NRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+4	CAVRDRGGSYIPTF							HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGADGVGK	NRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+5				CASSSRGHSGTEAF				HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGADGVGK	NRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+6	CAGLYSSASKIIF							HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGADGVGK	NRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+7	CLANTGGFKTIF			CATYKVGDEQF				HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGADGVGK	NRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+8	CAETGFQKLVF			CASSDWLAGAKDEQYF				HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGADGVGK	NRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+9	CATDPLDYKLSF			CASSLVASNEQF				HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGAVGVGK	KRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+10	CACQGGSEKLVF			CASSLGLLLYNEQF				HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGAVGVGK	KRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+11	CATDAQTGANNLF			CASSLGDSYEQYF				HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGAVGVGK	KRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+12	CAANAGGTSYGKLTF							HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGAVGVGK	KRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+13				CASSEWGSTGELF				HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGAVGVGK	KRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+14	CAVDIIGGKSTF							HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGAVGVGK	KRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+15	CAASAVGQEYGNKLVF			CASSEYTMGTQYF				HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGAVGVGK	KRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+16	CAASGGGGADGLTF			CASSYSTERGTIYF				HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGAVGVGK	KRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+17	CATDRQSSGDKLTF			CASSLADIYEQYF				HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGAVGVGK	KRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+18	CAPGDNFNKFYF			CASSARNDEAFF				HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGAVGVGK	KRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+19	CAVKSRAGSYQLTF			CASSLGDSEQYF				HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGAVGVGK	KRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
+20	CATDAGGGADGLTF			CASGGRDSTDTQYF				HomoSapiens	HLA-A*11:01	B2M	MHCI	VVGAVGVGK	KRAS	HomoSapiens	https://patents.google.com/patent/WO2017048593A1																	
