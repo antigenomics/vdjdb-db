@@ -46,8 +46,9 @@ pytestmark = pytest.mark.release
 #: PMID25681349 adds 19 incomplete-call chains retained in definitive tables and AIRR.
 #: PMID36516854 adds four incomplete-call observations retained by tables and AIRR.
 #: Final publication additions retain 22 further incomplete-V chains in tables/AIRR.
-LEGACY_DROPS_CHAINS = 1813
-LEGACY_DROPS_RECORDS = 1327
+# Three new source observations retain six chains without resolvable segment calls.
+LEGACY_DROPS_CHAINS = 1819
+LEGACY_DROPS_RECORDS = 1330
 
 
 @pytest.fixture(scope="module")
