@@ -244,22 +244,19 @@ QUARANTINED = ("pending", "withheld")
 
 
 @pytest.mark.parametrize("directory", QUARANTINED)
-def test_a_quarantined_chunk_cannot_reach_the_build(directory: str) -> None:
-    """The only thing keeping these out is that `chunk_files` reads one directory, not a tree.
-
-    Nothing else in the repository names them, so a later `rglob("PMID_*.txt")` would pull them in
-    silently -- and `pending/PMID_22058411.txt` would enter the build carrying a species no part of
-    it can handle. This test is what fails if that happens.
-    """
-    root = Paths.discover().root
-    quarantined = root / directory
-    assert quarantined.is_dir(), f"{directory}/ is missing"
-    assert list(quarantined.glob("*.txt")), f"{directory}/ holds no chunks, so this proves nothing"
-
-    read = {p.resolve() for p in chunk_files()}
-    assert read, "no chunks were read at all"
-    intruders = sorted(p.name for p in quarantined.glob("*.txt") if p.resolve() in read)
-    assert not intruders, f"the build reads {len(intruders)} file(s) from {directory}/: {intruders}"
+def test_a_quarantined_chunk_cannot_reach_the_build(
+    directory: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Check directory exclusion even when all repository submissions have landed."""
+    shipping = tmp_path / "chunks"
+    shipping.mkdir()
+    accepted = _chunk(shipping, "PMID_1.tsv", [{}])
+    quarantined = tmp_path / directory
+    quarantined.mkdir()
+    _chunk(quarantined, "PMID_2.txt", [{}])
+    _chunk(quarantined, "PMID_3.tsv", [{}])
+    monkeypatch.setattr(Paths, "discover", classmethod(lambda cls: Paths(tmp_path)))
+    assert chunk_files() == [accepted]
 
 
 def test_the_two_quarantine_directories_hold_different_formats() -> None:
