@@ -245,6 +245,25 @@ def _single_field_difference(a: tuple[str, ...], b: tuple[str, ...]) -> int | No
     return diff[0] if len(diff) == 1 else None
 
 
+def _amendment_difference(current: tuple[str, ...], previous: tuple[str, ...]) -> int | None:
+    """Accept one changed field, or a lossless misplaced donor-genotype move."""
+    single = _single_field_difference(current, previous)
+    if single is not None:
+        return single
+    donor = NATURAL_KEY.index("meta.donor.MHC")
+    method = NATURAL_KEY.index("meta.donor.MHC.method")
+    changed = {i for i, (a, b) in enumerate(zip(current, previous, strict=True)) if a != b}
+    if changed != {donor, method} or previous[donor] or current[method]:
+        return None
+    if not previous[method].startswith("HLA-") or not current[donor].startswith("HLA-"):
+        return None
+
+    def tokens(value: str) -> tuple[str, ...]:
+        return tuple(part.strip() for part in value.replace(";", ",").split(","))
+
+    return donor if tokens(previous[method]) == tokens(current[donor]) else None
+
+
 def reconcile(
     records: pl.DataFrame,
     registry: IdentityRegistry,
@@ -354,7 +373,7 @@ def reconcile(
                     if e.record_id not in matched_entries:
                         prev = _unpack_note(e.note)
                         assert prev is not None
-                        d = _single_field_difference(key, prev)
+                        d = _amendment_difference(key, prev)
                         if d is not None:
                             candidates.append((e, d))
             if len(candidates) == 1:
@@ -367,7 +386,7 @@ def reconcile(
                 prev = _unpack_note(e.note)
                 if prev is None:
                     continue
-                d = _single_field_difference(key, prev)
+                d = _amendment_difference(key, prev)
                 if d is not None:
                     candidates.append((e, d))
             if len(candidates) > 1:
@@ -400,7 +419,10 @@ def reconcile(
                 assert prev is not None
                 assigned[i] = e.record_id
                 matched_entries.add(e.record_id)
-                report.amended.append((e.record_id, NATURAL_KEY[d], prev[d], key[d]))
+                report.amended.extend(
+                    (e.record_id, NATURAL_KEY[j], prev[j], key[j])
+                    for j in range(len(key)) if prev[j] != key[j]
+                )
                 e.natural_key_hash = key_hashes[i]
                 e.content_hash = content_hashes[i]
                 e.amendment_count += 1

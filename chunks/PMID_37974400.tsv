@@ -1,0 +1,27 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+CAATNAGGTSYGKLTF			CASSYFGSHDEQFF				HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:37974400	tetramer-sort																1						
+CAEYTGTASKLTF			CAWSSRGAMTDTQYF				HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:37974400	tetramer-sort																2						
+CAFGTYKYIF			CASSSNQGNTIYF				HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:37974400	tetramer-sort																3						
+CAFPYNNNDMRF			CASSLEGYTEAFF				HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:37974400	tetramer-sort																4						
+CAFPYNNNDMRF			CASRTTTGVRTDTQYF				HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:37974400	tetramer-sort																5						
+CAMREGHQFYF			CAWSTGTVSSYEQYF				HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:37974400	tetramer-sort																6						
+CAMRLPFNNAGNMLTF			CASSLQREGKNIQYF				HomoSapiens	HLA-A*11:01	B2M	MHCI	ATVQGQNLK	pp65	CMV	PMID:37974400	tetramer-sort																7						
+CAMSVYNAGNMLTF			CASSVAVRGEETQYF				HomoSapiens	HLA-A*11:01	B2M	MHCI	ATVQGQNLK	pp65	CMV	PMID:37974400	tetramer-sort																8						
+CARNAGNMLTF			CASSLVLAPDEQFF				HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:37974400	tetramer-sort																9						
+CARNTGNQFYF			CASRGGGTQPWDEQFF				HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:37974400	tetramer-sort																10						
+CARSNYGGSQGNLIF			CAISDPGSSFGGYTF				HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:37974400	tetramer-sort																11						
+CARYTDKLIF			CASSDRSTTDTQYF				HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:37974400	tetramer-sort																12						
+CASPSGNTGKLIF			CASSFTGTPKFF				HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:37974400	tetramer-sort																13						
+CATDNSGAGSYQLTF			CASSVAVRGEETQYF				HomoSapiens	HLA-A*11:01	B2M	MHCI	ATVQGQNLK	pp65	CMV	PMID:37974400	tetramer-sort																14						
+CAVHPMQAGTALIF			CASSTLREPYNEQFF				HomoSapiens	HLA-A*11:01	B2M	MHCI	ATVQGQNLK	pp65	CMV	PMID:37974400	tetramer-sort																15						
+CAVNGAGSYQLTF			CATSTETGEAFF				HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:37974400	tetramer-sort																16						
+CAVNGGGSNYKLTF			CASSLYGTLNTEAFF				HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:37974400	tetramer-sort																17						
+CAVTDDTGKLIF			CASRRGLSKTTEAFF				HomoSapiens	HLA-A*11:01	B2M	MHCI	ATVQGQNLK	pp65	CMV	PMID:37974400	tetramer-sort																18						
+CAVTDDTGKLIF			CASRRGLSKTTEAFF				HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:37974400	tetramer-sort																19						
+CAYRSFYTGANSKLTF			CASSSTRGPGNQPQHF				HomoSapiens	HLA-A*11:01	B2M	MHCI	ATVQGQNLK	pp65	CMV	PMID:37974400	tetramer-sort																20						
+CAYRSFYTGANSKLTF			CASSFFRGEGNQPQHF				HomoSapiens	HLA-A*11:01	B2M	MHCI	ATVQGQNLK	pp65	CMV	PMID:37974400	tetramer-sort																21						
+CLASGNTGKLIF			CASSLSAVEDYEQYF				HomoSapiens	HLA-A*11:01	B2M	MHCI	ATVQGQNLK	pp65	CMV	PMID:37974400	tetramer-sort																22						
+CLVGERNAGNMLTF			CASSLVEQGHFYEQYF				HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:37974400	tetramer-sort																23						
+CVVSARNAGNNRKLIW			CASSLAGSGFGEQFF				HomoSapiens	HLA-A*24:02	B2M	MHCI	QYDPVAALF	pp65	CMV	PMID:37974400	tetramer-sort																24						
+CAVGFGNQFYF							HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:37974400	tetramer-sort																25						
+			CASSLEGYTEAFF				HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:37974400	tetramer-sort																26						

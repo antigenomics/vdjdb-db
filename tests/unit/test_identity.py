@@ -608,3 +608,39 @@ def test_legacy_key_migration_preserves_ids_and_restores_metadata_variants():
     again, _, report = reconcile(restored, registry, release="v2")
     assert after["record_id"].to_list() == again["record_id"].to_list()
     assert not report.added and not report.retired and not report.amended
+
+
+def test_misplaced_donor_genotype_move_preserves_identity_and_reports_both_fields():
+    original = frame({'meta.donor.MHC.method': 'HLA-A*02,HLA-A*03; HLA-B*35'})
+    before, registry, _ = reconcile(original, IdentityRegistry(), release='v1')
+    corrected = frame({'meta.donor.MHC': 'HLA-A*02,HLA-A*03,HLA-B*35'})
+    after, registry, report = reconcile(corrected, registry, release='v2')
+    assert before['record_id'].to_list() == after['record_id'].to_list()
+    assert {r[1] for r in report.amended} == {'meta.donor.MHC', 'meta.donor.MHC.method'}
+    assert not report.added and not report.retired
+    _, _, again = reconcile(corrected, registry, release='v2')
+    assert not again.amended and not again.added and not again.retired
+
+
+@pytest.mark.parametrize('extra', [
+    {'meta.donor.MHC': 'HLA-A*01,HLA-B*35'},
+    {'cdr3.beta': 'CASSDIFFERENTF'},
+    {'meta.donor.MHC.method': 'PCR'},
+])
+def test_genotype_move_does_not_match_other_changes(extra):
+    original = frame({'meta.donor.MHC.method': 'HLA-A*02;HLA-B*35'})
+    before, registry, _ = reconcile(original, IdentityRegistry(), release='v1')
+    corrected = frame({'meta.donor.MHC': 'HLA-A*02,HLA-B*35', **extra})
+    after, _, report = reconcile(corrected, registry, release='v2')
+    assert before['record_id'].to_list() != after['record_id'].to_list()
+    assert report.added and report.retired
+
+
+def test_ambiguous_genotype_move_is_refused_when_positions_changed():
+    original = frame({'meta.donor.MHC.method': 'HLA-A*02;HLA-B*35', 'chunk.row': 10},
+                     {'meta.donor.MHC.method': 'HLA-A*02,HLA-B*35', 'chunk.row': 11})
+    before, registry, _ = reconcile(original, IdentityRegistry(), release='v1')
+    corrected = frame({'meta.donor.MHC': 'HLA-A*02,HLA-B*35', 'chunk.row': 9})
+    after, _, report = reconcile(corrected, registry, release='v2')
+    assert after['record_id'][0] not in before['record_id'].to_list()
+    assert report.added and report.retired

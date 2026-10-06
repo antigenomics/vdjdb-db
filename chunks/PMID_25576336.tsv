@@ -1,0 +1,15 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+			CASSSGGGNEQFF	TRBV19		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALTPVVVTL	UNC-CDK4-1	HomoSapiens	PMID:25576336	tetramer-sort		yes	amplicon-seq	antigen-loaded-targets		CD8+					UNC-CDK4-1	PBMC				1						
+			CASSAQGFGELFF	TRBV9		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALTPVVVTL	UNC-CDK4-1	HomoSapiens	PMID:25576336	tetramer-sort		yes	amplicon-seq	antigen-loaded-targets		CD8+					UNC-CDK4-1	PBMC				2						
+			CASSEGRETQYF	TRBV25-1		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALTPVVVTL	UNC-CDK4-1	HomoSapiens	PMID:25576336	tetramer-sort		yes	amplicon-seq	antigen-loaded-targets		CD8+					UNC-CDK4-1	PBMC				3						
+			CASSIGQGPYEQYF	TRBV19		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALTPVVVTL	UNC-CDK4-1	HomoSapiens	PMID:25576336	tetramer-sort		yes	amplicon-seq	antigen-loaded-targets		CD8+					UNC-CDK4-1	PBMC				4						
+			CASSLGGRRYEQYF	TRBV11-2		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALTPVVVTL	UNC-CDK4-1	HomoSapiens	PMID:25576336	tetramer-sort		yes	amplicon-seq	antigen-loaded-targets		CD8+					UNC-CDK4-1	PBMC				5						
+			CASSLGQKEQYF	TRBV11-2		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALTPVVVTL	UNC-CDK4-1	HomoSapiens	PMID:25576336	tetramer-sort		yes	amplicon-seq	antigen-loaded-targets		CD8+					UNC-CDK4-1	PBMC				6						
+			CASRMNTEAFF	TRBV19-1		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALTPVVVTL	UNC-CDK4-1	HomoSapiens	PMID:25576336	tetramer-sort		yes	amplicon-seq			CD8+						PBMC				7						
+			CASSAQGFGELFF	TRBV9-1		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALTPVVVTL	UNC-CDK4-1	HomoSapiens	PMID:25576336	tetramer-sort		yes	amplicon-seq			CD8+						PBMC				8						
+			CASSIGQGPYEQYF	TRBV19-1		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALTPVVVTL	UNC-CDK4-1	HomoSapiens	PMID:25576336	tetramer-sort		yes	amplicon-seq			CD8+						PBMC				9						
+			CASSSVNEQFF	TRBV12-3		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25576336	tetramer-sort										pp65NLV						10						
+			CASSFSLPYEQYF	TRBV12-3		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25576336	tetramer-sort										, pp65NLV						11						
+			CASRPFVNTEAFF	TRBV6-5		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25576336	tetramer-sort										pp65NLV						12						
+			CASSSEFGDTAYNEQFF	TRBV7-3		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25576336	tetramer-sort										pp65NLV						13						
+			CASTIVSGYTF	TRBV12-3		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25576336	tetramer-sort										pp65NLV						14						

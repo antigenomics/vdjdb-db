@@ -1,0 +1,27 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+			CASRTYPAARYNEQFF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets																1						
+			CASSYSQAPYGYTF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets																2						
+			CSALDRGSLYVYGYTF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets																3						
+			CASSSTGGLYNEQFF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets																4						
+			CASRDTGRLETQYF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets																5						
+			CASSRPGTGGAAYGYTF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets																6						
+			CATSDLRTGGDTQYF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets																7						
+			CATSDLRGSTDTQYF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets																8						
+			CASSGSGYYGYTF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets																9						
+			CATSKFQGSPLHF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets																10						
+			CASSSVQGPYGYTF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets	38.2%															11						
+			CASNPSDEQYF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets	38.2%															12						
+			CASSMTGVEQYF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets	38.2%															13						
+			CASSSLQGPYGYTF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets	38.2%															14						
+			CASSAGDRALEQYF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets	38.2%															15						
+			CASSLGTSSYNEQFF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets	38.2%															16						
+			CASTEARYGYTF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets	38.2%															17						
+			CATRDRRNSPLHF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets	38.2%															18						
+			CASSLGDRGHSPLHF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets	38.2%															19						
+			CASSSRGVYGYTF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets	38.2%															20						
+			CATNGTGFQPQHF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets	38.2%															21						
+			CSAPDDRLYSNQPQHF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets	38.2%															22						
+			CSARDDRLYSNQPQHF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets	38.2%															23						
+			CASSYSRYQPQHF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets	38.2%															24						
+			CSARIGPSGVGNEQFF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets	38.2%															25						
+			CSARDSAEYSNQPQHF				HomoSapiens	HLA-DPA1*01:03	HLA-DPB1*04:01	MHCII	RSFIEDLLFNKVT	Spike	SARS-CoV-2	PMID:35061630	antigen-loaded-targets	38.2%															26						

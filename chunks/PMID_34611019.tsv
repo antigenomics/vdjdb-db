@@ -1,0 +1,19 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+CILTDNYGQNFVF	TRAV26-2	TRAJ26	CASSLIGLNTEAFF	TRBV27		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	HLVEALYL	Ins1	HomoSapiens	PMID:34611019	antigen-loaded-targets										28.D3						1						
+CAVSMNTGNQFYF	TRAV12-2	TRAJ49	CSVQVYNEQFF	TRBV29-1		TRBJ2-1	HomoSapiens	HLA-B*18:01	B2M	MHCI	IVEQCCTSIC	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										28.E11						2						
+CALSEAGAGSYQLTF	TRAV19	TRAJ28	CASSPSGTSSQETQYF	TRBV2		TRBJ2-5	HomoSapiens	HLA-A*29:02	B2M	MHCI	RGFFYTPKT	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										28.E6						3						
+CAASNSNDMRF	TRAV29/DV5	TRAJ43	CASSLAQREQFF	TRBV7-9		TRBJ2-1	HomoSapiens	HLA-B*41:02	B2M	MHCI	IVEQCCTSIC	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										84.D9						4						
+CAASNSNDMRF	TRAV29/DV5	TRAJ43	CASSLAQREQFF	TRBV7-9		TRBJ2-1	HomoSapiens	HLA-B*41:02	B2M	MHCI	VEQCCTSIC	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										84.D9						5						
+CALSEAGFSDGQKLLF	TRAV19	TRAJ16	CASSIQFSYNEQFF	TRBV19		TRBJ2-1	HomoSapiens	HLA-B*41:02	B2M	MHCI	VEQCCTSIC	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										86.C1						6						
+CALSEAGFSDGQKLLF	TRAV19	TRAJ16	CASSIQFSYNEQFF	TRBV19		TRBJ2-1	HomoSapiens	HLA-B*41:02	B2M	MHCI	IVEQCCTSIC	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										86.C1						7						
+CAVSDGYQLIW	TRAV8-6	TRAJ33	CASSGREAPYEQYF	TRBV6-1		TRBJ2-7	HomoSapiens	HLA-B*35:01	B2M	MHCI	QCCTSICSL	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										86.G3-2						8						
+CAVNNARLMF	TRAV12-2	TRAJ31	CASRPTSGGYNEQFF	TRBV6-5		TRBJ2-1	HomoSapiens	HLA-C*05:01	B2M	MHCI	IVEQCCTSI	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										96.B4						9						
+CAVSDISNFGNEKLTF	TRAV8-6	TRAJ48	CASSVVGLGTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	LWMRLLPLL	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										96.F5						10						
+CAVVADSNYQLIW	TRAV8-3	TRAJ33	CASSQTKGTGELFF	TRBV4		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALWGPDPAA	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										1.B10-1						11						
+CAFKRETSGSRLTF	TRAV24	TRAJ58	CASSTRLAGDEQFF	TRBV13		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALWMRLLPL	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										1.C8						12						
+CAFKRETSGSRLTF	TRAV24	TRAJ58	CASSTRLAGDEQFF	TRBV13		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALWMRLLPLLA	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										1.C8						13						
+CAVENAGNMLTF	TRAV39	TRAJ39	CASWTVSYNEQFF	TRBV10-2		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALWMRLLPLLA	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										1.F3						14						
+CAVSNSGYALNF	TRAV39	TRAJ41	CSVFHRGETQYF	TRBV29-1		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALWGPDPAAA	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										1.F1						15						
+CAVSGGSQGNLIF	TRAV41	TRAJ42	CASSPPTGWGGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALWGPDPAAA	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										23.C12						16						
+CAVSGGSQGNLIF	TRAV41	TRAJ42	CASSPPTGWGGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALWGPDPAAAF	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										23.C12						17						
+CAVTKDTGFQKLVF	TRAV5	TRAJ8	CSARDHFGGSGYEQFF	TRBV20-1		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ALWGPDPAAAF	INS	HomoSapiens	PMID:34611019	antigen-loaded-targets										93.D1						18						
