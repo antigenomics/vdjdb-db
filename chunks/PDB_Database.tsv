@@ -62,7 +62,6 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 166	CAALYGNEKITF	TRAV14D-1*01	TRAJ48*01	CASSDAGGRNTLYF	TRBV13-3*01		TRBJ2-4*01	MusMusculus	H2-Db	B2M	MHCI	KAVANFATM	GPC	LCMV	https://github.com/antigenomics/vdjdb-db/issues/215	structural				structural												5M00	
 167	CAALYGNEKITF	TRAV14D-1*01	TRAJ48*01	CASSDAGGRNTLYF	TRBV13-3*01		TRBJ2-4*01	MusMusculus	H2-Db	B2M	MHCI	KAPANFATM	GPC	LCMV	https://github.com/antigenomics/vdjdb-db/issues/215	structural				structural												5M01	
 168	CAALYGNEKITF	TRAV14D-1*01	TRAJ48*01	CASSDAGGRNTLYF	TRBV13-3*01		TRBJ2-4*01	MusMusculus	H2-Db	B2M	MHCI	KAPFNFATM	GPC	LCMV	https://github.com/antigenomics/vdjdb-db/issues/215	structural				structural												5M02	
-169	CAVDSATSGTYKYIF	TRAV22*01	TRAJ40*01	CASSYQGTEAFF	TRBV6-5*01		TRBJ1-1*01	HomoSapiens	HLA-A*02:01:48	B2M	MHCI	ILAKFLHWL	TERT	HomoSapiens	PMID:27903649	structural				structural												5MEN	
 170	CAVGGGADGLTF	TRAV12-2*01	TRAJ45*01	CASSQGLAGAGELFF	TRBV19*01		TRBJ2-2*01	HomoSapiens	HLA-A*02:01:48	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	https://github.com/antigenomics/vdjdb-db/issues/215	structural				structural												5NHT	
 171	CAVRTNSGYALNF	TRAV12-2*01	TRAJ41*01	CASSDTVSYEQYF	TRBV5-6*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01:48	B2M	MHCI	SLYNTVATL	Gag	HIV-1	PMID:29209312	structural				structural												5NME	
 172	CAVRTNSGYALNF	TRAV12-2*01	TRAJ41*01	CASSDTVSYEQYF	TRBV5-6*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01:48	B2M	MHCI	SLYNTIATL	GAG	HIV-1	PMID:29209312	structural				structural												5NMF	
