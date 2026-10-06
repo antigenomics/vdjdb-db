@@ -13,7 +13,6 @@
 # Lines starting with # are comments and are ignored.
 name	species	mhc.class	level	note
 B2M	*	MHCI	invariant	the class I light chain, not an MHC allele - mhc.b on every class I record
-MHC-A*10	BosTaurus	MHCI	molecule	Reported bovine A10 restriction in PMID22058411; preserve source resolution
 H2-Db	MusMusculus	MHCI	molecule	
 H2-Dd	MusMusculus	MHCI	molecule	
 H2-Kb	MusMusculus	MHCI	molecule	
