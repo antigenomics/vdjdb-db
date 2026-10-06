@@ -1,0 +1,28 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+CAVSESGTYQRF	TRAV3	TRAJ13	CASSIRLGGYAEQFF	TRBV4		TRBJ2-1	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																1						
+CVLGEEGRALIF	TRAV6-2	TRAJ15	CASSLPGQEVFF	TRBV5		TRBJ1-1	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																2						
+CALRAYQGGSAKLIF	TRAV6-6	TRAJ57	CASSQDTGGYEQYF	TRBV2		TRBJ2-7	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																3						
+CIRAGTGGYKVVF	TRAV2	TRAJ12	CASSRQNSDYTF	TRBV4		TRBJ1-2	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																4						
+CILRGLNSGGSNAKLTF	TRAV21/DV12	TRAJ42	CASSWTGGAYEQYF	TRBV3		TRBJ2-7	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																5						
+CAVSKPSGSWQLIF	TRAV7	TRAJ22	CAWSLAGVSYNSPLYF	TRBV31		TRBJ1-6	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																6						
+CIVTEGGGSGNKLIF	TRAV2	TRAJ32	CASGDLGYEQYF	TRBV13		TRBJ2-7	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																7						
+CIVTEGGGSGNKLIF	TRAV2	TRAJ32	CAWSLAGASAETLYF	TRBV31		TRBJ2-3	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																8						
+CAVSMPSGSWQLIF	TRAV7	TRAJ22	CAWSLAGASAETLYF	TRBV31		TRBJ2-3	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																9						
+CILQGGSAKLIF	TRAV21	TRAJ57	CASSDFYEQYF	TRBV13		TRBJ2-7	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																10						
+CALSPPPNTDKVVF	TRAV6	TRAJ34	CASSYRNYAEQFF	TRBV4		TRBJ2-1	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																11						
+CAVTSSSGSWQLIF	TRAV7	TRAJ22	CAWSGQGVSYNSPLYF	TRBV31		TRBJ1-6	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																12						
+CAVRGNYKPTF	TRAV7	TRAJ6	CASSQGDGGNSDYTF	TRBV2		TRBJ1-2	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																13						
+CALSSSGSWQLIF	TRAV6	TRAJ22	CASSQGDGGNSDYTF	TRBV2		TRBJ1-2	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																14						
+CIVTASSGSFNKLTF	TRAV2	TRAJ4	CASSDNSGNTLYF	TRBV2		TRBJ1-3	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																15						
+CIVTASSGSFNKLTF	TRAV2	TRAJ4	CASGDAWGSAETLYF	TRBV13		TRBJ2-3	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																16						
+CATDANQGGSAKLIF	TRAV8	TRAJ57	CASSFYNTEVFF	TRBV19		TRBJ1-1	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																17						
+CAVSKNSGTYQRF	TRAV3	TRAJ13	CASSSRTGGYAEQFF	TRBV4		TRBJ2-1	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																18						
+CILDTGYQNFYF	TRAV21	TRAJ49	CASAGGYEQYF	TRBV13		TRBJ2-7	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																19						
+CATAPSSGSWQLIF	TRAV8	TRAJ22	CAWSLTGGADNQAPLF	TRBV31		TRBJ1-5	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																20						
+CATEGTGSKLSF	TRAV8	TRAJ58	CASGAGANYAEQFF	TRBV13		TRBJ2-1	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																21						
+CILVGGSAKLIF	TRAV21/DV12	TRAJ57	CASGEFGNSDYTF	TRBV13		TRBJ1-2	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																22						
+CASFSAGNKLTF	TRAV6-6	TRAJ17	CASGGSQNTLYF	TRBV13		TRBJ2-4	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																23						
+CALWELSNTGYQNFYF	TRAV15	TRAJ49	CASGGTLNTLYF	TRBV13		TRBJ2-4	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																24						
+CILRDSNYQLIW	TRAV21/DV12	TRAJ33	CASSDGGSYEQYF	TRBV13		TRBJ2-7	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																25						
+CAVSEPSGSWQLIF	TRAV3	TRAJ22	CASSDRGRDQDTQYF	TRBV19		TRBJ2-5	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																26						
+CAFSTGGYKVVF		TRAJ12	CASSGQGSSGNTLYF	TRBV29		TRBJ1-3	MusMusculus	H2-Ld	B2M	MHCI	SPSYVYHQF	envelope	MLV	PMID:32470143	tetramer-sort																27						
