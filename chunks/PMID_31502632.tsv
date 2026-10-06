@@ -1,0 +1,27 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+CALYFFFGNEKLTF	TRAV16						HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																1						
+CAVEYGNQFYF	TRAV3						HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																2						
+CASNTGNQFYF	TRAV24						HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																3						
+CAVNDRGSTLGRLYF	TRAV12-2		CSVWSFGDRDGYTF	TRBV29-1			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																4						
+CAVNDRGSTLGRLYF	TRAV12-2		CASSSANYGYTF	TRBV12-3			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																5						
+CAVNDRGSTLGRLYF	TRAV12-2		CASSSSPGLDNEQFF	TRBV7-6			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																6						
+CAVNDRGSTLGRLYF	TRAV12-2		CASSYITGTGSYGYTF	TRBV6-5			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																7						
+CAVNDRGSTLGRLYF	TRAV12-2						HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																8						
+CAVNFGGGKLIF	TRAV12-2		CASSSANYGYTF	TRBV12-3			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																9						
+CPREEGGSQGNLIF	TRAV26-1		CASSSANYGYTF	TRBV12-3			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																10						
+CPREEGGSQGNLIF	TRAV26-1						HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																11						
+CTSPNTNAGKSTF	TRAV26-1		CSARDRIGNTIYF	TRBV20-1			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																12						
+CKASKIIF	TRAV3						HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																13						
+CAVRGDYKLSF	TRAV1-2						HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																14						
+CIAQNNNDMRF	TRAV26-2						HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																15						
+			CSARDRIGNTIYF				HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:31502632	tetramer-sort																16						
+			CASSTVSGAPSEQFF	TRBV6-5			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																17						
+			CASSSSPGLDNEQFF	TRBV7-6			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																18						
+			CASSEGSWGSDTQYF	TRBV6-5			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																19						
+			CASSLGAGPYNEQFF	TRBV18			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																20						
+			CASSGPISSYNEQFF	TRBV6-1			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																21						
+			CAWSVSDLAKNIQYF	TRBV30			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																22						
+			CASSLSFGTEAFF	TRBV6-4			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																23						
+			CASSYPGTGIHGYTF	TRBV6-5			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																24						
+			CASSLGPSSYEQYF	TRBV5-1			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																25						
+			CASSEQAGGYGYTF	TRBV6-1			HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:31502632	tetramer-sort																26						
