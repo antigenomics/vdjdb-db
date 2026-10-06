@@ -63,7 +63,8 @@ def scored(tables: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
     result = query.receptor_lift(tables["records"], tables["chains"],
                                  species="HomoSapiens", gene="TRB", epitope=EPITOPE,
                                  min_units=MIN_OCCURRENCES)
-    assert result["units"][0] == 249036
+    # PMID38370623 adds five human TRB observations to the comparison population.
+    assert result["units"][0] == 249041
     assert result["given_units"][0] == 18719
     return [(row["lift"], row["term"]) for row in result.iter_rows(named=True)]
 
