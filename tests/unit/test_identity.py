@@ -29,6 +29,55 @@ def frame(*rows: dict) -> pl.DataFrame:
     return pl.DataFrame(full)
 
 
+def test_unique_unchanged_observation_keeps_id_when_moved_to_publication_chunk():
+    before, registry, _ = reconcile(frame({"chunk.file": "aggregate.tsv"}),
+                                    IdentityRegistry(), release="v1")
+    moved = frame({"chunk.file": "PMID_28629751.tsv", "chunk.row": 7})
+    after, registry, report = reconcile(moved, registry, release="v2")
+    assert before["record_id"].to_list() == after["record_id"].to_list()
+    assert not report.added and not report.retired
+    assert report.amended == [(before["record_id"][0], "chunk.file", "aggregate.tsv",
+                               "PMID_28629751.tsv")]
+    entry = next(iter(registry.active()))
+    assert (entry.chunk_file, entry.chunk_row) == ("PMID_28629751.tsv", 7)
+    again, _, report = reconcile(moved, registry, release="v2")
+    assert again["record_id"].to_list() == after["record_id"].to_list()
+    assert report.unchanged == 1 and not report.amended
+
+
+def test_copy_to_another_chunk_does_not_take_original_id():
+    before, registry, _ = reconcile(frame({"chunk.file": "aggregate.tsv"}),
+                                    IdentityRegistry(), release="v1")
+    after, _, report = reconcile(frame({"chunk.file": "aggregate.tsv"},
+                                      {"chunk.file": "PMID_28629751.tsv"}),
+                                 registry, release="v2")
+    assert after["record_id"][0] == before["record_id"][0]
+    assert after["record_id"][1] != before["record_id"][0]
+    assert len(report.added) == 1 and not report.retired and not report.amended
+
+
+@pytest.mark.parametrize("old_files,new_files", [
+    (["one.tsv", "two.tsv"], ["publication.tsv"]),
+    (["aggregate.tsv"], ["one.tsv", "two.tsv"]),
+])
+def test_ambiguous_chunk_relocation_is_refused(old_files, new_files):
+    _, registry, _ = reconcile(frame(*({"chunk.file": f} for f in old_files)),
+                               IdentityRegistry(), release="v1")
+    _, _, report = reconcile(frame(*({"chunk.file": f} for f in new_files)),
+                             registry, release="v2")
+    assert len(report.added) == len(new_files)
+    assert len(report.retired) == len(old_files)
+    assert not report.amended
+
+
+def test_chunk_relocation_with_changed_content_is_refused():
+    _, registry, _ = reconcile(frame({"chunk.file": "aggregate.tsv"}),
+                               IdentityRegistry(), release="v1")
+    _, _, report = reconcile(frame({"chunk.file": "publication.tsv", "antigen.gene": "changed"}),
+                             registry, release="v2")
+    assert len(report.added) == len(report.retired) == 1 and not report.amended
+
+
 def test_ids_are_allocated_monotonically_and_formatted():
     df = frame({}, {"cdr3.beta": "CASSLLLGGF"}, {"cdr3.beta": "CASSQQQGGF"})
     out, reg, rep = reconcile(df, IdentityRegistry(), release="v1")
