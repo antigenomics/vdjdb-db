@@ -149,8 +149,6 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 311	CAMREGRGGGSNYKLTF	TRAV16	TRAJ53	CASSQDLGGLYEQYF	TRBV5		TRBJ2-7	MusMusculus	H2-Db	B2M	MHCI	ASNENMETM	NP	InfluenzaA	https://www.biorxiv.org/content/10.1101/2025.11.05.686789v1.full	tetramer-sort		yes	amplicon-seq			CD8					NP203		mediastinal lymph node				
 312	CAAILATGGNNKLTF	TRAV7-4	TRAJ56	CTCSADRRNSYNSPLYF	TRBV1		TRBJ1-6	MusMusculus	H2-Db	B2M	MHCI	ASNENMETM	NP	InfluenzaA	https://www.biorxiv.org/content/10.1101/2025.11.05.686789v1.full	tetramer-sort		yes	amplicon-seq			CD8					NP204		mediastinal lymph node				
 313	CAVMNYNQGKLIF	TRAV7D-3	TRAJ23	CASSQDRRSSYNSPLYF	TRBV2		TRBJ1-6	MusMusculus	H2-Db	B2M	MHCI	ASNENMETM	NP	InfluenzaA	https://www.biorxiv.org/content/10.1101/2025.11.05.686789v1.full	tetramer-sort		yes	amplicon-seq			CD8					NP105		mediastinal lymph node				
-314	CGIALISGSAGSYQLTF	TRAV21	TRAJ28	CASSPATYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	LRVMMLAPF	YEIH	E.Coli	PMID:42129507	structural											AS19.2					9PBG	
-315	CGIALISGSAGSYQLTF	TRAV21	TRAJ28	CASSPATYSTDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-B*27:05	B2M	MHCI	GRLPLLNPI	PSG5	HomoSapiens	PMID:42129507	structural											AS19.2					9PBH	
 317	WGTYNQGGKLIF	TRAV12-2	TRAJ23	CASSGASHEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	RFPLTFGWCF	Nef	HIV-1	PMID:24192765	structural				structural												3VXU	
 318	WGTYNQGGKLIF	TRAV12-2	TRAJ23	CASSGASHEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	RFPLTFGWCF	Nef	HIV-1	PMID:24192765	structural				structural												3W0W	
 319	CAVSLHRPALTF	TRAV9-4	TRAJ35	CASGGGGTLYF	TRBV13-2		TRBJ2-4	MusMusculus	H2-Ld	B2M	MHCI	GGAPWNPAMMI	synthetic	Synthetic	https://www.rcsb.org/structure/4NHU	structural				structural												4NHU	
