@@ -62,7 +62,8 @@ pytestmark = pytest.mark.release
 # PMID19332877 adds 13 published beta clonotypes from seven mice.
 # PMID38370623 adds five source-supported paired KSHV observations.
 # Pending finalization and PMID11722642 add 544 definitive observations.
-EXPECTED_RECORDS = 299_268
+# PMID37231180 tuple completion adds one source-paired EBV activation observation.
+EXPECTED_RECORDS = 299_269
 
 
 @pytest.fixture(scope="module")
