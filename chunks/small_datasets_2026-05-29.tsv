@@ -1483,3 +1483,31 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 1503				CRRAVMNDPLF	TRBV10-4		TRBJ3-3	BosTaurus	MHC-A*10	B2M	MHCI	KSSHGMGKVGK	Tp2	TheileriaParva	PMID:22058411	antigen-expressing-targets,limiting-dilution-cloning	2%		sanger			CD8+			II	post-challenge		33510	TCL					
 1504				CSLVGRETLF	TRBV12-1		TRBJ2-4	BosTaurus	MHC-A*10	B2M	MHCI	KSSHGMGKVGK	Tp2	TheileriaParva	PMID:22058411	antigen-expressing-targets,limiting-dilution-cloning	1.5%		sanger			CD8+			II	post-immunization		33510	TCL					
 1505				CSYSPGGGSPLF	TRBV12-2		TRBJ3-3	BosTaurus	MHC-A*10	B2M	MHCI	KSSHGMGKVGK	Tp2	TheileriaParva	PMID:22058411	antigen-expressing-targets,limiting-dilution-cloning	3%		sanger			CD8+			II	post-immunization		33510	TCL					
+1506				CASSVTASGPVETQYF	TRBV11-3		TRBJ2-5	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1507				CASSQERAGAPADTQYF	TRBV4-1		TRBJ2-3	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1508				CASSPRALEGTGELFF	TRBV28		TRBJ2-2	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1509				CASSFGQASLGGQYF	TRBV27			HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets											mutPPR13B TCR	PPP1R3B	liver					
+1510				CSVDSHGAGDYGYTF	TRBV29-1		TRBJ1-2	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1511				CSARVVAGGPQETQYF	TRBV20-1		TRBJ2-5	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1512				CATTFTGGAGDTQYF	TRBV6-5		TRBJ2-3	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1513				CATSPPAFDYGYTF	TRBV12-4		TRBJ1-2	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1514				CASRGLTSGEQFF	TRBV6-1		TRBJ2-1	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1515				CASSQDSTAGTQYF	TRBV4-3			HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1516				CASSQDLLAGDTGELFF	TRBV4-3		TRBJ2-2	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1517				CASSQGRGWVENEQFF	TRBV3-1		TRBJ2-1	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1518				CASSYLAGDGNEQFF	TRBV7-3		TRBJ2-1	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1519				CASSFGGPGELFF	TRBV9		TRBJ2-2	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1520				CASSLPGTNEKLFF	TRBV5-1		TRBJ1-4	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1521				CASSFGQGRTGELFF	TRBV6-5		TRBJ2-2	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1522				CASRPGSATNEKLFF	TRBV6-5		TRBJ1-4	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1523				CASSPRQGAHNEQFF	TRBV13		TRBJ2-1	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1524				CASSEPMVSGANVLTF	TRBV25-1		TRBJ2-6	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1525				CASSDAGSYNEQFF	TRBV25-1		TRBJ2-1	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1526				CASSYTGTGESIQYF	TRBV6-5		TRBJ2-4	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1527				CASSYVQNIQYF	TRBV6-2,TRBV6-3		TRBJ2-4	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1528				CASSLSRGHGVRETQYF	TRBV12-4		TRBJ2-5	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1529				CASSLDVVTQETQYF	TRBV28		TRBJ2-5	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1530				CASSLYRDRGVNGYTF	TRBV27		TRBJ1-2	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1531				CASSFGTGQFF	TRBV28		TRBJ2-1	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1532				CAPRGGGENTEAFF	TRBV15		TRBJ1-1	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
+1533				CAWHEETGFNYGYTF	TRBV30		TRBJ1-2	HomoSapiens	HLA-A*01:01	B2M	MHCI	YTDFHCQYVK	PPP1R3B	HomoSapiens	PMID:23690473	antigen-loaded-targets												PPP1R3B	liver					
