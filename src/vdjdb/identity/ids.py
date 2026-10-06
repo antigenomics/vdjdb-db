@@ -409,6 +409,40 @@ def reconcile(
                 e.last_modified_release = release
                 e.last_modified_commit = commits.get(e.chunk_file, "")
 
+    # An unchanged observation may move to its publication's own chunk. Match only a unique
+    # old/new pair, after ordinary amendments, and require the complete content to agree.
+    # A copy whose original remains present is independent and must receive a new ID.
+    old_locations: dict[tuple[tuple[str, ...], str], list[_Entry]] = defaultdict(list)
+    new_locations: dict[tuple[tuple[str, ...], str], list[int]] = defaultdict(list)
+    for e in registry.active():
+        if e.record_id not in matched_entries:
+            previous = _unpack_note(e.note)
+            if previous is not None:
+                old_locations[(previous[:-1], e.content_hash)].append(e)
+    for i, a in enumerate(assigned):
+        if a is None:
+            new_locations[(keys[i][:-1], content_hashes[i])].append(i)
+    for signature, indices in new_locations.items():
+        move_candidates = old_locations.get(signature, [])
+        if len(indices) != 1 or len(move_candidates) != 1:
+            continue
+        i, moved_entry = indices[0], move_candidates[0]
+        chunk = str(rows[i].get("chunk.file") or "")
+        if chunk == moved_entry.chunk_file:
+            continue
+        previous_chunk = moved_entry.chunk_file
+        assigned[i] = moved_entry.record_id
+        matched_entries.add(moved_entry.record_id)
+        report.amended.append((moved_entry.record_id, "chunk.file", previous_chunk, chunk))
+        moved_entry.amended_from_key_hash = moved_entry.natural_key_hash
+        moved_entry.natural_key_hash = key_hashes[i]
+        moved_entry.chunk_file = chunk
+        moved_entry.chunk_row = int(rows[i].get("chunk.row") or 0)
+        moved_entry.amendment_count += 1
+        moved_entry.last_seen_release = release
+        moved_entry.last_modified_release = release
+        moved_entry.last_modified_commit = commits.get(chunk, "")
+
     # Pass 3 -- allocate new ids. Each allocation is recorded against the line of the chunk it came
     # from, so the retirement pass below can answer "which id took over from the one I had".
     allocated_at: dict[tuple[str, int], list[tuple[str, tuple[str, ...]]]] = defaultdict(list)
