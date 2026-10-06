@@ -3770,3 +3770,243 @@ rows = 27
 # shared evidence/score groups and the membership of slim projection groups.
 # Reviewed against all five core files: 18 existing cell-rule counts updated,
 # zero unattributed cells. Rule predicates and scientific tolerances are unchanged.
+
+# Verified publication/submission reference identifiers (#1015).
+
+[[rename]]
+columns = "reference.id"
+from = "https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+from = "http://mediatum.ub.tum.de/doc/1136748"
+to = "https://github.com/antigenomics/vdjdb-db/issues/62"
+
+[[rename]]
+columns = "reference.id"
+from = "https://arxiv.org/abs/2503.00648"
+to = "PMID:40949756"
+
+[[rename]]
+columns = "reference.id"
+from = ""
+to = "doi:10.1101/2021.09.09.459584"
+
+# The slim projection sorts joined references. These 68 rows use verified identifier renames.
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = ",PMID:26860370"
+to = "PMID:26860370,doi:10.1101/2021.09.09.459584"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = ",PMID:26860370,PMID:28146579,PMID:34341170"
+to = "PMID:26860370,PMID:28146579,PMID:34341170,doi:10.1101/2021.09.09.459584"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = ",PMID:27645996"
+to = "PMID:27645996,doi:10.1101/2021.09.09.459584"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = ",PMID:38855806"
+to = "PMID:38855806,doi:10.1101/2021.09.09.459584"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:14568971,PMID:26758806,https://arxiv.org/abs/2503.00648"
+to = "PMID:14568971,PMID:26758806,PMID:40949756"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:15837811,PMID:16600963,PMID:18424733,PMID:32184297,PMID:37193826,https://arxiv.org/abs/2503.00648"
+to = "PMID:15837811,PMID:16600963,PMID:18424733,PMID:32184297,PMID:37193826,PMID:40949756"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:15837811,PMID:16600963,PMID:18424733,PMID:32184297,https://arxiv.org/abs/2503.00648"
+to = "PMID:15837811,PMID:16600963,PMID:18424733,PMID:32184297,PMID:40949756"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:15837811,PMID:31324691,PMID:33483338,PMID:37662363,https://arxiv.org/abs/2503.00648"
+to = "PMID:15837811,PMID:31324691,PMID:33483338,PMID:37662363,PMID:40949756"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:15837811,PMID:31324691,PMID:33483338,PMID:40498839,https://arxiv.org/abs/2503.00648"
+to = "PMID:15837811,PMID:31324691,PMID:33483338,PMID:40498839,PMID:40949756"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:17082594,PMID:20566715,PMID:24759101,https://arxiv.org/abs/2503.00648"
+to = "PMID:17082594,PMID:20566715,PMID:24759101,PMID:40949756"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:19786555,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:19786555,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:24759101,https://arxiv.org/abs/2503.00648"
+to = "PMID:24759101,PMID:40949756"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:25609818,PMID:28250417,PMID:28629751,PMID:40694338,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:25609818,PMID:28250417,PMID:28629751,PMID:40694338,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:25609818,PMID:37749325,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:25609818,PMID:37749325,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:25609818,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:25609818,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:27645996,PMID:32184241,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:27645996,PMID:32184241,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:28250417,PMID:34811538,PMID:37749325,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:28250417,PMID:34811538,PMID:37749325,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:28423320,PMID:28636592,PMID:29997621,PMID:36134660,PMID:40694338,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:28423320,PMID:28636592,PMID:29997621,PMID:36134660,PMID:40694338,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:28423320,PMID:29483513,PMID:40694338,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:28423320,PMID:29483513,PMID:40694338,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:28423320,PMID:36134660,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:28423320,PMID:36134660,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:28423320,PMID:37749325,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:28423320,PMID:37749325,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:28423320,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:28423320,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:28636589,PMID:29997621,PMID:34811538,PMID:37749325,PMID:40694338,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:28636589,PMID:29997621,PMID:34811538,PMID:37749325,PMID:40694338,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:28636589,PMID:32184241,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:28636589,PMID:32184241,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:28636589,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:28636589,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:30418433,PMID:34811538,PMID:37749325,PMID:40694338,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:30418433,PMID:34811538,PMID:37749325,PMID:40694338,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:32184241,PMID:34811538,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:32184241,PMID:34811538,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:32184241,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:32184241,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:34811538,PMID:35401538,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:34811538,PMID:35401538,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:34811538,PMID:37133356,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:34811538,PMID:37133356,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:36134660,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:36134660,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:37749325,PMID:40250246,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:37749325,PMID:40250246,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:37749325,PMID:40694338,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:37749325,PMID:40694338,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:37749325,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:37749325,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:39746936,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:39746936,https://github.com/antigenomics/vdjdb-db/issues/289"
+
+[[rename]]
+columns = "reference.id"
+files = "vdjdb.slim.txt"
+from = "PMID:40694338,https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#"
+to = "PMID:40694338,https://github.com/antigenomics/vdjdb-db/issues/289"
