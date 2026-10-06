@@ -1,0 +1,17 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+CAVNYGNMLTF	TRAV3*01	TRAJ39*01	CASSKTSGSPYNEQFF	TRBV27*01	TRBD2*02	TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																1						
+CILDNNNDMRF	TRAV26-2	TRAJ43					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																2						
+CILREDNYGQNFVF	TRAV26-2	TRAJ26					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																3						
+CILRDGGGGSEKLVF	TRAV26-2	TRAJ57					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																4						
+CAMRFTYNNAGNMLTF	TRAV14/DV4	TRAJ39					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																5						
+CAVGYGNQFYF	TRAV3*01	TRAJ49*01	CASIKTGGAPETQYF	TRBV27*01	TRBD1*01	TRBJ2-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																6						
+CAELNAGNNRKLIW	TRAV5	TRAJ38					HomoSapiens	HLA-A*02:01	B2M	MHCI	VLEETSVML	IE1	CMV	PMID:26800118	tetramer-sort																7						
+CAVFKGGRAGNNRKLIW	TRAV21*01	TRAJ38*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																8						
+CAVTGNTGKLIF	TRAV12-2	TRAJ37					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																9						
+CALGWANNLFF	TRAV16*01	TRAJ36*01	CASSPGTGHTGELFF	TRBV27*01	TRBD1*01	TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																10						
+CAGPKKTSYDKVIF	TRAV35	TRAJ50					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																11						
+CAVRSNFGNEKLTF	TRAV41*01	TRAJ48*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																12						
+CILDRDGGGATNKLIF	TRAV26-2*01	TRAJ32*02	CATSPGLAGAYQETQYF	TRBV24-1*01	TRBD2*02	TRBJ2-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																13						
+CALRDDKIIF	TRAV16*01	TRAJ30*01	CATSPGLAGAYQETQYF	TRBV24-1*01	TRBD2*02	TRBJ2-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																14						
+CAVSYGNMLTF	TRAV3*01	TRAJ39*01	CASNPVAGLPGEQYF	TRBV27*01	TRBD2*01	TRBJ2-7*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																15						
+CVVSDPGAGSYQLTF	TRAV8-2*01	TRAJ28*01					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:26800118	tetramer-sort																16						
