@@ -68,8 +68,6 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 172	CAVRTNSGYALNF	TRAV12-2*01	TRAJ41*01	CASSDTVSYEQYF	TRBV5-6*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01:48	B2M	MHCI	SLYNTIATL	GAG	HIV-1	PMID:29209312	structural				structural												5NMF	
 173	CAVRTNSGYALNF	TRAV12-2*01	TRAJ41*01	CASSDTVSYEQYF	TRBV5-6*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01:48	B2M	MHCI	SLFNTIAVL	GAG	HIV-1	PMID:29209312	structural				structural												5NMG	
 174	CAGGGGADGLTF	TRAV12-2*01	TRAJ45*01	CASSQGLAGAGELFF	TRBV19*01		TRBJ2-2*01	HomoSapiens	HLA-A*02:01:48	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	https://github.com/antigenomics/vdjdb-db/issues/215	structural				structural												5NQK	
-175	CAASEGSGSWQLIF	TRAV14-1*01	TRAJ22*01	CASSAGLDAEQYF	TRBV17*01		TRBJ2-5*01	MusMusculus	H2-Db	B2M	MHCI	ASNENMETM	NP	InfluenzaA	PMID:27717799	structural				structural												5SWS	
-176	CAASETSGSWQLIF	TRAV14-1*01	TRAJ22*01	CASSRDLGRDTQYF	TRBV17*01		TRBJ2-3*01	MusMusculus	H2-Db	B2M	MHCI	ASNENMETM	NP	InfluenzaA	PMID:27717799	structural				structural												5SWZ	
 177	CAASFIIQGAQKLVF	TRAV13-1*01	TRAJ54*01	CASSLLGGWSEAFF	TRBV27*01		TRBJ1-1*01	HomoSapiens	HLA-A*02:01:48	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28931605	structural				structural												5TEZ	
 178	CAALYGNEKITF	TRAV14D-1*01	TRAJ48*01	CASSDAGGRNTLYF	TRBV13-3*01		TRBJ2-4*01	MusMusculus	H2-Db	B2M	MHCI	KAPYNFATM	Gp33	LCMV	https://github.com/antigenomics/vdjdb-db/issues/215	structural				structural												5TIL	
 179	CAALYGNEKITF	TRAV14D-1*01	TRAJ48*01	CASSDAGGRNTLYF	TRBV13-3*01		TRBJ2-4*01	MusMusculus	H2-Db	B2M	MHCI	KAVYNFATM	Gp33-41	LCMV	https://github.com/antigenomics/vdjdb-db/issues/215	structural				structural												5TJE	
