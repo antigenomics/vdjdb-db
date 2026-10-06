@@ -106,6 +106,8 @@ default) any non-advisory finding exits 1.
 
 | Rule | Why it does not fail |
 |---|---|
+| `bad antigen.gene` | A source may omit peptide parent provenance. Keep it blank instead of inventing a gene |
+| `partial class-II restriction` | Retain a reported class-II chain with its unreported partner blank. Do not infer a partner just to complete the row |
 | `non-functional v.alpha`, `non-functional j.alpha`, `non-functional v.beta`, `non-functional j.beta` | IMGT's `ORF`/`P` verdict on the named segment. A P gene can rearrange, and IMGT reclassifies between releases |
 | `internal cysteine in cdr3.alpha`, `internal cysteine in cdr3.beta` | a junction has one cysteine, the Cys104 it opens with. A second is rare and not impossible - the Jurkat receptor has one - so the record is kept and flagged. 1,521 + 2,804 corpus rows over 108 chunks; only the submitter's source settles a given one |
 | `alpha and beta cdr3 identical` | only a curator can say which of the two chains is the wrong one |

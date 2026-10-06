@@ -156,25 +156,31 @@ def mhc_status(column: str, root: Path | None = None) -> pl.Expr:
 
 
 def assert_mhc_resolves(records: pl.DataFrame, root: Path | None = None) -> None:
-    """Fail the build on an MHC call that is blank or resolves against neither authority.
+    """Reject unknown named alleles and absent complete restrictions.
 
-    A record whose restriction names nothing is not a record with a gap; it is a record whose
-    restriction is wrong, and it has always been. Every consumer that filters VDJdb by donor type
-    silently drops it, `restriction` keys on it, and `TCR_hash` hashes it, so the string reaching the
-    release unchecked is worse than the build stopping. Blank is the same defect with less to go on.
+    A reported class-II chain can have an unspecified partner. Preserve that blank,
+    while checking every nonempty name. Both chains missing and a missing class-I
+    chain still fail.
 
     The message names the value, the column, the cell count and the chunks, because the fix is a
     `patches/mhc.dict` entry or a `proofreading/mhc_nonhuman.tsv` row and a curator needs to know
     which paper reported it.
     """
     cols = [c for c in ("mhc.a", "mhc.b") if c in records.columns]
+    partial_allowed = (
+        (pl.col("mhc.class") == "MHCII")
+        & ((pl.col("mhc.a") != "") | (pl.col("mhc.b") != ""))
+        if "mhc.class" in records.columns else pl.lit(False)
+    )
     bad = (
         pl.concat([records.select(pl.lit(c).alias("column"), pl.col(c).alias("value"),
                                   mhc_status(c, root).alias("status"),
+                                  partial_allowed.alias("partial_allowed"),
                                   pl.col("chunk.file") if "chunk.file" in records.columns
                                   else pl.lit("").alias("chunk.file"))
                    for c in cols], how="vertical")
-        .filter(pl.col("status").is_in(["", "unknown"]))
+        .filter((pl.col("status") == "unknown")
+                | ((pl.col("status") == "") & ~pl.col("partial_allowed")))
         .group_by("column", "value")
         .agg(pl.len().alias("cells"),
              pl.col("chunk.file").unique().sort().str.join(", ").alias("chunks"))

@@ -41,13 +41,10 @@ steps, not a requirement to duplicate every build conversion at import.
 
 ## 1. Species
 
-`species` is one of `HomoSapiens`, `MusMusculus`, `RattusNorvegicus`, `MacacaMulatta` - CamelCase, no
-spaces, case-sensitive. Normalise any binomial, common name or abbreviation onto one of the four.
-
-A fifth species is not a formatting problem. `vdjdb qc` fails it as `bad species` because no part of
-the build has a germline reference for it, and the chunk belongs in `pending/` with an issue saying
-which reference would unblock it. `pending/PMID_22058411.txt` is the worked case: 53 bovine records,
-header identical to a shipping chunk, every row failing that one rule.
+Use the declared species vocabulary, including `BosTaurus`, in CamelCase without spaces.
+Normalise a binomial, common name or abbreviation only when the species is unambiguous.
+For a supported species without a germline model, retain the reported junction and calls;
+leave unavailable derived annotations blank. Never borrow another species' model.
 
 ## 2. V, D and J gene calls
 

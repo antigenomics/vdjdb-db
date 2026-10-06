@@ -238,7 +238,13 @@ RULES: dict[str, pl.Expr] = {
     "internal cysteine in cdr3.beta": _one_cysteine("cdr3.beta"),
     "no.cdr3": ~(_blank("cdr3.alpha") & _blank("cdr3.beta")),
     "no.antigen.seq": ~_blank("antigen.epitope"),
-    "no.mhc": ~(_blank("mhc.a") | _blank("mhc.b")),
+    "no.mhc": (~(_blank("mhc.a") | _blank("mhc.b"))
+               | ((pl.col("mhc.class") == "MHCII")
+                  & ~(_blank("mhc.a") & _blank("mhc.b")))),
+    "partial class-II restriction": (
+        (pl.col("mhc.class") != "MHCII")
+        | ~(_blank("mhc.a") | _blank("mhc.b"))
+    ),
     # #561. A paired record whose two chains have the same CDR3 is a transcription error: the
     # beta sequence copied into the alpha field, with the V and J calls left correct. Which chain is
     # wrong cannot be known from the row, so this reports and does not repair -- 99 records on the

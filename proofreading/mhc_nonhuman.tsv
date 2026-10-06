@@ -29,3 +29,4 @@ H2-Aa	MusMusculus	MHCII	chain	MGI symbol for the I-A alpha chain; carries no hap
 H2-Ab1	MusMusculus	MHCII	chain	MGI symbol for the I-A beta chain; carries no haplotype
 H2-Eb1	MusMusculus	MHCII	chain	MGI symbol for the I-E beta chain; carries no haplotype
 Mamu-A*01	MacacaMulatta	MHCI	allele	IPD-MHC, Macaca mulatta
+MHC-A*10	BosTaurus	MHCI	molecule	Reported bovine A10 restriction in PMID22058411; preserve source resolution
