@@ -175,7 +175,7 @@ Missing V/J calls do not justify dropping a sequence-bearing observation. Use th
 arda/vdjtools annotation and inspect its proposals. Preserve the submitted call separately from
 inference; an inferred V proposal is not a paper-reported V call.
 
-Resolve `mhc.a`, `mhc.b` and `mhc.class` before submission. Class I uses `B2M` as its second
+Resolve every reported MHC name and `mhc.class` before submission. Class I uses `B2M` as its second
 chain. Strict QC and direct assembly reject class I without `B2M`, class II with
 `B2M`, and `B2M` in the first-chain field. Assembly also checks both harmonised
 chain names against their declared MHC class. For class II, distinguish an explicitly reported pair from a single-chain or haplotype
@@ -184,6 +184,13 @@ record the original label, inferred partner and inference basis in the review. I
 `pseudoseq.class2_key` supports eligible DP/DQ beta-only typings through `alpha_prior`;
 unsupported or ambiguous typings remain unresolved. A prediction of peptide binding is not
 proof of the restriction reported by a paper. Never infer restriction solely from peptide length.
+
+A source reporting only one class-II chain can be submitted with its partner blank.
+QC reports a partial restriction; the build preserves the reported chain and does
+not invent its partner. Both chains absent, invalid nonempty names and incomplete
+class-I pairs still fail. Unknown peptide parent genes stay blank and are reported
+as missing provenance. Bovine receptors use `BosTaurus`; unavailable germline
+annotations stay empty and do not borrow another species' model.
 
 For duplicate review, compare both chains together: `v.alpha`, `j.alpha`, `cdr3.alpha`,
 `v.beta`, `j.beta`, `cdr3.beta`, epitope and both MHC chains, within species. Compare the complete
