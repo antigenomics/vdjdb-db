@@ -64,8 +64,8 @@ def scored(tables: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
                                  species="HomoSapiens", gene="TRB", epitope=EPITOPE,
                                  min_units=MIN_OCCURRENCES)
     # Finalization adds320 human TRB observations to the comparison population.
-    # PMID37231180 tuple completion adds one human TRB observation.
-    assert result["units"][0] == 249362
+    # PMID37231180 adds one and PMID38306431 adds34 human TRB observations.
+    assert result["units"][0] == 249396
     assert result["given_units"][0] == 18719
     return [(row["lift"], row["term"]) for row in result.iter_rows(named=True)]
 
