@@ -1,0 +1,17 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+CAGYYGQNFVF	TRAV3	TRAJ26	CASSFQGYTEAFF	TRBV28		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:32393905	antigen-loaded-targets										CSS-944 NLV.8						1						
+CVVNVANDYKLSF	TRAV12-1	TRAJ20	CASSIAHVAGGNEQFF	TRBV19		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:32393905	antigen-loaded-targets										CSS-938 GLC.6						2						
+CAVSTDSWGKLQF	TRAV12-2	TRAJ24	CASSLADSEQYF	TRBV7-6		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	KTWGQYWQV	PMEL	HomoSapiens	PMID:32393905	antigen-loaded-targets										CSS-799 PMEL.2						3						
+CAVRDNDYKLSF	TRAV1-1	TRAJ20	CASSLAEQGMYEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	CLGGLLTMV	LMP2A	EBV	PMID:32393905	antigen-loaded-targets										CSS-930 CLG.4						4						
+CAGAGAGSYQLTF	TRAV25	TRAJ28	CASSLEGQASSYEQYF	TRBV5-1		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	CLGGLLTMV	LMP2A	EBV	PMID:32393905	antigen-loaded-targets										CSS-930 CLG.1						5						
+CAPGGDDKIIF	TRAV35	TRAJ30	CASSLGGGADEQFF	TRBV7-6		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	KTWGQYWQV	PMEL	HomoSapiens	PMID:32393905	antigen-loaded-targets										CSS-799 PMEL.3						6						
+CAEDTDKLIF	TRAV5	TRAJ34	CASSLGGGELFF	TRBV11-2		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	KTWGQYWQV	PMEL	HomoSapiens	PMID:32393905	antigen-loaded-targets										CSS-799 PMEL.5						7						
+CVVRTDKLIF	TRAV12-1	TRAJ34	CASSLDSQSSGNTIYF	TRBV5-1		TRBJ1-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	VLEETSVML	IE1	CMV	PMID:32393905	antigen-loaded-targets										CSS-930 VLE.1						8						
+CAGSRWGGWGKLQF	TRAV27	TRAJ24	CASSLWAVNTGELFF	TRBV7-9		TRBJ2-2	HomoSapiens	HLA-A*24:02	B2M	MHCI	TYGPVFMCL	LMP2A	EBV	PMID:32393905	antigen-loaded-targets										CSS-948 TYG.1						9						
+CASGNAGNMLTF	TRAV8-3	TRAJ39	CASSPGTGAVFFYGYTF	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:32393905	antigen-loaded-targets										CSS-944 NLV.10						10						
+CASQTGDSWGKFQF	TRAV21	TRAJ24	CASSQEFPGQGSYEQYF	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:32393905	tetramer-sort										CSS-944 NLV.9						11						
+CAEIANRDDKIIF	TRAV5	TRAJ30	CASSQAVNTGELFF	TRBV4-1		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	KTWGQYWQV	PMEL	HomoSapiens	PMID:32393905	antigen-loaded-targets										CSS-799 PMEL.4						12						
+CGIGNEKLTF	TRAV30	TRAJ48	CASSVAGGTDTQYF	TRBV7-6		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	KTWGQYWQV	PMEL	HomoSapiens	PMID:32393905	antigen-loaded-targets										CSS-799 PMEL.1						13						
+CVVNPTGGFQKLVF	TRAV12-1	TRAJ8	CASSYFSGPYEQYF	TRBV6-3		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:32393905	tetramer-sort										CSS-930 NLV.2						14						
+CGTEIENDYKLSF	TRAV30	TRAJ20	CASSTGQLSNTGELFF	TRBV9		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:32393905	antigen-loaded-targets										CSS-930 GLC.1						15						
+CAFMGVDSNYQLIW	TRAV38-1	TRAJ33	CSVVPANSYEQYF	TRBV29-1		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	CLGGLLTMV	LMP2A	EBV	PMID:32393905	antigen-loaded-targets										CSS-944 CLG.7						16						
