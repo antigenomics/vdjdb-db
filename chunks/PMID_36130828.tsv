@@ -1,0 +1,4 @@
+chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subset.frequency	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	comment
+1	CAVGFTGGGNKLTF	TRAV8-3	TRAJ10	CASSDRDRVPETQYF	TRBV7-9		TRBJ2-5	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYPLTFGW	Nef	HIV-1	PMID:36130828	structural				structural												8GVB	
+2	CAVGFTGGGNKLTF	TRAV8-3	TRAJ10	CASSDRDRVPETQYF	TRBV7-9		TRBJ2-5	HomoSapiens	HLA-A*24:02	B2M	MHCI	RFPLTFGW	Nef	HIV-1	PMID:36130828	structural				structural												8GVG	
+3	CAVVFTGGGNKLTF	TRAV8-3	TRAJ10	CASSLRDRVPETQYF	TRBV7-9		TRBJ2-5	HomoSapiens	HLA-A*24:02	B2M	MHCI	RYPLTFGW	Nef	HIV-1	PMID:36130828	structural				structural												8GVI	
