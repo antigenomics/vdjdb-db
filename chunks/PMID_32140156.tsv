@@ -1,0 +1,11 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+CAVRGTNARLMF	TRAV3	TRAJ31	CASSSVNEAFF	TRBV12		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:32140156	tetramer-sort										HC5						1						
+CAVRNNNARLMF	TRAV3	TRAJ31	CASSIVNEAFF	TRBV12		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:32140156	tetramer-sort										LTR5						2						
+CAFSYNNNDMRF	TRAV38-1	TRAJ43	CASSQETGIYTQYF	TRBV4-1		TRBJ2-3	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPPIFIRRL	EBNA3A	EBV	PMID:32140156	tetramer-sort										LTR54.1						3						
+CAFIQGAQKLVF	TRAV38-1	TRAJ54	CASSQEAFNYEQYF	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPPIFIRRL	EBNA3A	EBV	PMID:32140156	tetramer-sort										LTR54.2						4						
+CAFASSNTGKLIF	TRAV38-1	TRAJ43	CASSQDIWTSGYTF	TRBV4-1		TRBJ2-3	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPPIFIRRL	EBNA3A	EBV	PMID:32140156	tetramer-sort										LTR117						5						
+CALGGGAQKLVF	TRAV38-2/DV8	TRAJ54	CASRLGLGDREDEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPPIFIRRL	EBNA3A	EBV	PMID:32140156	tetramer-sort										LTR119						6						
+CAMRDDTGGFKTIF	TRAV14/DV4	TRAJ9	CASSISSGVAYEQYF	TRBV19		TRBJ2-7	HomoSapiens	HLA-B*07:02	B2M	MHCI	RPPIFIRRL	EBNA3A	EBV	PMID:32140156	tetramer-sort										HD9G6						7						
+CLVGEVRGGFKTIF	TRAV4	TRAJ9	CASSQARGGAETQYF	TRBV4-3		TRBJ2-5	HomoSapiens	HLA-B*57:01	B2M	MHCI	TSTLQEQIGW	Gag	HIV-1	PMID:32140156	tetramer-sort										A16.1						8						
+CLVGGEDYKLSF	TRAV4	TRAJ20	CASSQARGGAETQYF	TRBV4-3		TRBJ2-5	HomoSapiens	HLA-B*57:01	B2M	MHCI	TSTLQEQIGW	Gag	HIV-1	PMID:32140156	tetramer-sort										A16.2 						9						
+CAVDINTSGTYKYIF	TRAV39	TRAJ40	CAISRQGARQETQYF	TRBV10-3		TRBJ2-5	HomoSapiens	HLA-B*57:01	B2M	MHCI	TSTLQEQIGW	Gag	HIV-1	PMID:32140156	tetramer-sort										457						10						

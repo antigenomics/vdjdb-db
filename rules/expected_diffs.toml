@@ -654,23 +654,26 @@ column = "vdjdb.score"
 rows = 100
 
 
+# Metadata donor-list normalization (#1176) extends the earlier whitespace repair.
+# Measured1364 flat cells and1311 JSON cells include canonical allele/group formatting,
+# comma-separated lists and the four misplaced genotypes. All comparison tolerances are unchanged.
 # --- ROADMAP phase 9: input hygiene ------------------------------------------------------------
 # Leading and trailing whitespace is never meaningful in a TSV cell, and it silently forks a value
 # in two -- `tetramer-sort ` beside `tetramer-sort`. Stripped in the reader, so every column is
 # affected at once; these are the cells where the released file carried the untrimmed form.
 
 [[rule]]
-id = "whitespace-meta-donor-mhc-json"
+id = "metadata-donor-mhc-json"
 file = "vdjdb.txt"
 column = "meta"
 json_field = "donor.MHC"
-rows = 318
+rows = 1311
 
 [[rule]]
-id = "whitespace-meta-donor-mhc"
+id = "metadata-donor-mhc-full"
 file = "vdjdb_full.txt"
 column = "meta.donor.MHC"
-rows = 319
+rows = 1364
 
 [[rule]]
 id = "whitespace-meta-subject-cohort"
@@ -4058,3 +4061,27 @@ from = "Unknown"
 to = ""
 when_columns = "reference.id"
 when_contains = "rcsb.org/structure/7NMF"
+
+[[rule]]
+id = "metadata-donor-genotype-moved-method-1"
+file = "vdjdb_full.txt"
+column = "meta.donor.MHC.method"
+from = "HLA-A*01,HLA-A*11;HLA-B*08,HLA-B*15:01;HLA-C*03,HLA-C*07"
+to = ""
+rows = 1
+
+[[rule]]
+id = "metadata-donor-genotype-moved-method-2"
+file = "vdjdb_full.txt"
+column = "meta.donor.MHC.method"
+from = "HLA-A*02,HLA-A*03;HLA-B*35,HLA-B*40:01;HLA-C*03,HLA-C*15"
+to = ""
+rows = 1
+
+[[rule]]
+id = "metadata-donor-genotype-moved-method-3"
+file = "vdjdb_full.txt"
+column = "meta.donor.MHC.method"
+from = "HLA-A*02:01;HLA-B*35:03,HLA-B*57:01;HLA-C*04,HLA-C*06"
+to = ""
+rows = 1

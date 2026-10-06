@@ -1,0 +1,13 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+CAVSGGYQKVTF			CASTGSYGYTF				HomoSapiens	HLA-B*57:01	B2M	MHCI	LTLTPEIAPYF	HAD	EnterococcusSaccharolyticus	PMID:32716298	antigen-loaded-targets										AGA1-like						1						
+CAVSGGYQKVTF			CASTGSYGYTF				HomoSapiens	HLA-B*57:01	B2M	MHCI	LSITPEISPYF	HAD	Bacillus	PMID:32716298	antigen-loaded-targets										AGA1-like						2						
+CAVSGGYQKVTF			CASTGSYGYTF				HomoSapiens	HLA-B*57:01	B2M	MHCI	RSLAPEVRGYW	PD-DXK	OlsenellaUli	PMID:32716298	antigen-loaded-targets										AGA1-like						3						
+CAVSGGYQKVTF			CASTGSYGYTF				HomoSapiens	HLA-B*57:01	B2M	MHCI	LTISPEIPSYF	HAD	SporosarcinaNewyorkensis	PMID:32716298	antigen-loaded-targets										AGA1-like						4						
+CAVSGGYQKVTF			CASTGSYGYTF				HomoSapiens	HLA-B*57:01	B2M	MHCI	LTITPEIAPYF	HAD	SchinkiaAzotoformans	PMID:32716298	antigen-loaded-targets										AGA1-like						5						
+CAVSGGYQKVTF			CASTGSYGYTF				HomoSapiens	HLA-B*57:01	B2M	MHCI	LTISPEIPPYF	HAD	SporosarcinaNewyorkensis	PMID:32716298	antigen-loaded-targets										AGA1-like						6						
+CAVSGGYQKVTF			CASTGSYGYTF				HomoSapiens	HLA-B*57:01	B2M	MHCI	LSITPEIAPYF	HAD	HalalkalibacterHemicellulosilyticus	PMID:32716298	antigen-loaded-targets										AGA1-like						7						
+CAVSGGYQKVTF			CASTGSYGYTF				HomoSapiens	HLA-B*57:01	B2M	MHCI	LTITPEIAPFF	HAD	AlkalihalobacillusTrypoxylicola	PMID:32716298	antigen-loaded-targets										AGA1-like						8						
+CAVSGGYQKVTF			CASTGSYGYTF				HomoSapiens	HLA-B*57:01	B2M	MHCI	KAFSPEVIPMF	Gag	HIV-1	PMID:32716298	antigen-loaded-targets										AGA1-like						9						
+CAVSGGYQKVTF			CASTGSYGYTF				HomoSapiens	HLA-B*57:01	B2M	MHCI	GSLSPELRPIF	CORT_0A05310	CandidaOrthopsilosis	PMID:32716298	antigen-loaded-targets										AGA1-like						10						
+CAVSGGYQKVTF			CASTGSYGYTF				HomoSapiens	HLA-B*57:01	B2M	MHCI	LTITPEIRPYF	HAD	PriestiaKoreensis	PMID:32716298	antigen-loaded-targets										AGA1-like						11						
+CAVSGGYQKVTF			CASTGSYGYTF				HomoSapiens	HLA-B*57:01	B2M	MHCI	LAITPEIAPYF	HAD	BacillusYapensis	PMID:32716298	antigen-loaded-targets										AGA1-like						12						
