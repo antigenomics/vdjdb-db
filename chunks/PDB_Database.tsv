@@ -148,7 +148,6 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 318	WGTYNQGGKLIF	TRAV12-2	TRAJ23	CASSGASHEQYF	TRBV27		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	RFPLTFGWCF	Nef	HIV-1	PMID:24192765	structural				structural												3W0W	
 319	CAVSLHRPALTF	TRAV9-4	TRAJ35	CASGGGGTLYF	TRBV13-2		TRBJ2-4	MusMusculus	H2-Ld	B2M	MHCI	GGAPWNPAMMI	synthetic	Synthetic	https://www.rcsb.org/structure/4NHU	structural				structural												4NHU	
 321	CAVSEQDDKIIF	TRAV8-4	TRAJ30	CATSDESYGYTF	TRBV24-1		TRBJ1-2	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*01:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:32668259	structural				structural												6R0E	
-328	CAEPSGNTGKLIF	TRAV5	TRAJ37	CASSLHHEQYF	TRBV7-9		TRBJ2-7	HomoSapiens	HLA-A*24:02	B2M	MHCI	QLPRLFPLL	Unknown	Unknown	https://www.rcsb.org/structure/7NMF	structural				structural												7NMF	
 336	CAVNVAGKSTF	TRAV12-2	TRAJ27	CAWSETGLGTGELFF	TRBV30		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLSALGIFST	IGF2BP2	HomoSapiens	PMID:37490916	structural				structural												7Q99	
 337	CAVNVAGKSTF	TRAV12-2	TRAJ27	CAWSETGLGTGELFF	TRBV30		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	LLLGIGILVL	BST2	HomoSapiens	PMID:37490916	structural				structural												7Q9A	
 338	CAVQKLVF	TRAV12-2	TRAJ8	CASSYSFTEATYEQYF	TRBV6-5		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	EAAGIGILTV	MLANA	HomoSapiens	PMID:37490916	structural				structural												7Q9B	
