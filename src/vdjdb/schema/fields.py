@@ -645,7 +645,7 @@ CHUNK_DEDUP_KEY: tuple[str, ...] = tuple(dict.fromkeys((
 AIRR_MAP: dict[str, str] = {}   # populated below, after FIELDS is complete
 
 SPECIES: frozenset[str] = frozenset({
-    "HomoSapiens", "MusMusculus", "RattusNorvegicus", "MacacaMulatta",
+    "HomoSapiens", "MusMusculus", "RattusNorvegicus", "MacacaMulatta", "BosTaurus",
 })
 
 _META_HEADER = "name\ttype\tvisible\tsearchable\tautocomplete\tdata.type\ttitle\tcomment"

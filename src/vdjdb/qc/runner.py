@@ -43,6 +43,8 @@ from .rules import check, summarise
 #: (`cdr3.beta`, `v.beta`, `species`, `antigen.epitope` and `reference.id` all check out). A header
 #: the reader cannot map is a different matter and still fails.
 ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form", "duplicate",
+                      # Missing provenance and single-chain class-II typing remain explicit.
+                      "bad antigen.gene", "partial class-II restriction",
                       # A named path that is gone: the caller passed a stale list, which is worth
                       # reporting but is not a defect in anybody's data.
                       "missing-file",

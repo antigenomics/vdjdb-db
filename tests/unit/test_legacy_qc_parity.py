@@ -54,6 +54,7 @@ from vdjdb.schema import ALL_COLUMNS
 
 PARITY, STRICTER, FIXABLE = "parity", "stricter", "fixable"
 FALSE_POSITIVE, BOTH_SILENT = "legacy false positive", "both silent"
+REPORTED_GAP = "reported partial restriction"
 
 
 @dataclass(frozen=True)
@@ -186,6 +187,10 @@ CHUNK_CASES: tuple[Case, ...] = (
     _case("only-one-mhc-chain-is-named", {"mhc.b": ""},
           ["no.mhc"], ["no.mhc", "mhc class/partner mismatch"], verdict=STRICTER,
           note="Both chains are required even for class I, where `mhc.b` is always B2M."),
+    _case("reported-class-II-alpha-with-unknown-partner",
+          {"mhc.a": "HLA-DRA*01:01", "mhc.b": "", "mhc.class": "MHCII"},
+          ["no.mhc"], ["partial class-II restriction"], verdict=REPORTED_GAP,
+          note="Retain the reported chain and flag its missing partner instead of inventing one."),
 
     # --- the new rules, with no legacy counterpart ---
     _case("the-beta-junction-carries-a-second-cysteine",
@@ -414,6 +419,9 @@ def test_the_declared_verdict_follows_from_the_two_finding_sets(case: Case) -> N
         assert case.legacy < case.new, "stricter means the new build adds findings"
     elif case.verdict == BOTH_SILENT:
         assert not case.legacy and not case.new
+    elif case.verdict == REPORTED_GAP:
+        assert case.legacy == {"no.mhc"}
+        assert case.new == {"partial class-II restriction"}
     else:
         assert case.legacy and not case.new, f"{case.verdict} means legacy alone reported it"
 
