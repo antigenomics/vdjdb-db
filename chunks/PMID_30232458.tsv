@@ -1,0 +1,19 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+			CATSEFTGELFF				HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	AQPLPDCCRQKTCSC	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																1						
+			CSASDRDRGLSRQYF				HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	RRCSAPAAASVAPGG	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																2						
+			CASSFDSYGYTF	TRBV2*01	TRBD1*01	TRBJ1-2*01	HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	PPGLQGRLQRLLQAS	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																3						
+			CASSAATGVPTDTQYF				HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	PPGLQGRLQRLLQAS	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																4						
+			CASSSSRAHEQYF				HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	PPGLQGRLQRLLQAS	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																5						
+			CASSATSGAINEQFF				HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	RRCSAPAAASVAPGG	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																6						
+			CASSRDSALAKNIQYF				HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	LHGAGNHAAGILTLG	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																7						
+			CASSRDSALAKNIQYF				HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	QASGNHAAGILTMGR	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																8						
+			CASSLNRGLNGYTF				HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	LLLLLLPPALLSSGA	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																9						
+			CASSQLAANEQFF				HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	LLLLLLPPALLSSGA	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																10						
+			CASSFPGQGSYNEQFF				HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	PAPRPCLGRRCSAPA	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																11						
+			CASSVGGGLQPHEQYF				HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	QRLLQASGNHAAGIL	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																12						
+			CASSLYQGFSGNTIYF	TRBV5-4*01	TRBD1*01	TRBJ1-3*01	HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	PPGLQGRLQRLLQAS	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																13						
+			CASRPDSGANVLTF	TRBV12		TRBJ2-6*01	HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	GNHAAGILTLGKRRS	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																14						
+			CASSLRIGTSGRHTQNF				HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	GNHAAGILTLGKRRS	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																15						
+			CASSRQGGNTGELFF				HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	GNHAAGILTLGKRRS	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																16						
+			CASSRKTAGVGSPLHF				HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	SGAAAQPLPDCCRQK	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																17						
+			CASSLAAGGAGELFF	TRBV12	TRBD2*02	TRBJ2-2*01	HomoSapiens	HLA-DQB1*06:02	HLA-DQA1*01:02	MHCII	CSCRLYELLHGAGNH	HCRT	HomoSapiens	PMID:30232458	antigen-loaded-targets,cultured-T-cells																18						
