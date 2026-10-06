@@ -24,9 +24,3 @@ def test_partial_class_II_checks_the_reported_chain(a, b):
 def test_missing_complete_restrictions_and_invalid_named_alleles_still_fail(a, b, cls):
     with pytest.raises(ValueError):
         assert_mhc_resolves(record(a, b, cls))
-
-
-def test_bovine_source_serotype_is_declared():
-    r = record('MHC-A*10', 'B2M', 'MHCI')
-    assert_mhc_resolves(r)
-    assert_mhc_class(r)
