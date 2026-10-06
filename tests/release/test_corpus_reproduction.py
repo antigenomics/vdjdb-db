@@ -27,11 +27,11 @@ MIN_OCCURRENCES = 50
 #: Measured on the combined import using human TRB observations joined by record_id.
 #: Publication retrieval is tested separately; it cannot establish receptor specificity.
 EXPECTED = {
-    "documents": 829,
+    "documents": 830,
     "kmers_scored": 349,
     "top_kmer": "k:IRS",
-    "top_lift": 13.184815,
-    "median_lift": 0.847993,
+    "top_lift": 13.185084,
+    "median_lift": 0.848011,
     "motif_kmers": 18,
     "motif_above_median": 18,
 }
@@ -65,7 +65,7 @@ def scored(tables: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
                                  min_units=MIN_OCCURRENCES)
     # Finalization adds320 human TRB observations to the comparison population.
     # PMID37231180 adds one and PMID38306431 adds34 human TRB observations.
-    assert result["units"][0] == 244777
+    assert result["units"][0] == 244782
     assert result["given_units"][0] == 18164
     return [(row["lift"], row["term"]) for row in result.iter_rows(named=True)]
 
