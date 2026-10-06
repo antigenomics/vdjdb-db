@@ -1,0 +1,21 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+CAEDNNARLMF	TRAV5	TRAJ31					HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01						1						
+CAEIHARLMF	TRAV5	TRAJ31					HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01						2						
+CAEDSNARLMF	TRAV5	TRAJ31					HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01						3						
+CAEDLNARLMF	TRAV5	TRAJ31					HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01						4						
+CAEDQNARLMF	TRAV5	TRAJ31					HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01						5						
+CAEDQNAKLMF	TRAV5	TRAJ31					HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01						6						
+			CSARDRTGNGYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01, Clone 2, F						7						
+			CSARDQTGNGYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01, Clone 7, P						8						
+			CSARDRIGNGYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01, Clone 8						9						
+			CSAREGTGNGYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01, B						10						
+			CSARDWTGNGYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01						11						
+			CSARSGTGGDYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01						12						
+			CSARDSTGNGYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01						13						
+			CSARDATGNGYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01						14						
+			CSARDNLSGYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01, M						15						
+			CSARDGSGNGYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01						16						
+			CSARDGTGNDYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01, P, B						17						
+			CSARDRKGNGYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01						18						
+			CSARDGKGNGYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01						19						
+			CSARDQTGNDYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	GLCTLVAML	BMLF1	EBV	PMID:21124993	antigen-loaded-targets										AS01						20						
