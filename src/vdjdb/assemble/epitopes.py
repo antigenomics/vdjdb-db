@@ -167,12 +167,15 @@ def assert_mhc_resolves(records: pl.DataFrame, root: Path | None = None) -> None
     which paper reported it.
     """
     cols = [c for c in ("mhc.a", "mhc.b") if c in records.columns]
+    partial_allowed = (
+        (pl.col("mhc.class") == "MHCII")
+        & ((pl.col("mhc.a") != "") | (pl.col("mhc.b") != ""))
+        if "mhc.class" in records.columns else pl.lit(False)
+    )
     bad = (
         pl.concat([records.select(pl.lit(c).alias("column"), pl.col(c).alias("value"),
                                   mhc_status(c, root).alias("status"),
-                                  ((pl.col("mhc.class") == "MHCII")
-                                   & ((pl.col("mhc.a") != "") | (pl.col("mhc.b") != "")))
-                                  .alias("partial_allowed"),
+                                  partial_allowed.alias("partial_allowed"),
                                   pl.col("chunk.file") if "chunk.file" in records.columns
                                   else pl.lit("").alias("chunk.file"))
                    for c in cols], how="vertical")
