@@ -1,0 +1,17 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+CNYGSSGNKLIF							MusMusculus	H2-Kb	B2M	MHCI	IMYNYPAM	EsxH	M.tuberculosis	PMID:29782535	tetramer-sort																1						
+CAVTNNYAQGLTF							MusMusculus	H2-Kb	B2M	MHCI	IMYNYPAM	EsxH	M.tuberculosis	PMID:29782535	tetramer-sort																2						
+CAVSTGGRALIF							MusMusculus	H2-Kb	B2M	MHCI	IMYNYPAM	EsxH	M.tuberculosis	PMID:29782535	tetramer-sort																3						
+CAVSQGGRALIF							MusMusculus	H2-Kb	B2M	MHCI	IMYNYPAM	EsxH	M.tuberculosis	PMID:29782535	tetramer-sort																4						
+CAVSPYNVLYF							MusMusculus	H2-Kb	B2M	MHCI	IMYNYPAM	EsxH	M.tuberculosis	PMID:29782535	tetramer-sort																5						
+CAVSGGGRALIF							MusMusculus	H2-Kb	B2M	MHCI	IMYNYPAM	EsxH	M.tuberculosis	PMID:29782535	tetramer-sort																6						
+CAVGNMGYKLTF							MusMusculus	H2-Kb	B2M	MHCI	IMYNYPAM	EsxH	M.tuberculosis	PMID:29782535	tetramer-sort																7						
+CAPLNTGNYKYVF							MusMusculus	H2-Kb	B2M	MHCI	IMYNYPAM	EsxH	M.tuberculosis	PMID:29782535	tetramer-sort																8						
+CLSTGDNYQLIW			CASSLRDRVQNTLYF				MusMusculus	H2-Kb	B2M	MHCI	IMYNYPAM	EsxH	M.tuberculosis	PMID:29782535	antigen-loaded-targets										TB10Rg3						9						
+CAVSGGSALGRLHF	TRAV3	TRAJ15	CASSFESSAETLYF	TRBV16		TRBJ2-3	MusMusculus	H2-IAb	H2-Ab1	MHCII	FQDAYNAAGGHNAVF	Ag85B	M.tuberculosis	PMID:29782535	antigen-loaded-targets										P25						10						
+			CASSLDRENSDYTF				MusMusculus	H2-Kb	B2M	MHCI	IMYNYPAM	EsxH	M.tuberculosis	PMID:29782535	tetramer-sort																11						
+			CASSLVWAAEQFF				MusMusculus	H2-Kb	B2M	MHCI	IMYNYPAM	EsxH	M.tuberculosis	PMID:29782535	tetramer-sort																12						
+			CASSPDRGNTGQLYF				MusMusculus	H2-Kb	B2M	MHCI	IMYNYPAM	EsxH	M.tuberculosis	PMID:29782535	tetramer-sort																13						
+			CASSQDRENSDYTF				MusMusculus	H2-Kb	B2M	MHCI	IMYNYPAM	EsxH	M.tuberculosis	PMID:29782535	tetramer-sort																14						
+			CASSRDRENSDYTF				MusMusculus	H2-Kb	B2M	MHCI	IMYNYPAM	EsxH	M.tuberculosis	PMID:29782535	tetramer-sort																15						
+			CASSRQGADEQYF				MusMusculus	H2-Kb	B2M	MHCI	IMYNYPAM	EsxH	M.tuberculosis	PMID:29782535	tetramer-sort																16						
