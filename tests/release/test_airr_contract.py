@@ -52,8 +52,8 @@ pytestmark = pytest.mark.release
 # PMID38100526 full-protein calls recover the two previously unpaired, blank-V observations
 # through their reported pair. Two fewer chains and records fail the legacy segment filter.
 # Finalization retains 98 further single-chain observations with unresolved segments.
-LEGACY_DROPS_CHAINS = 1905
-LEGACY_DROPS_RECORDS = 1417
+LEGACY_DROPS_CHAINS = 1915
+LEGACY_DROPS_RECORDS = 1422
 
 
 @pytest.fixture(scope="module")
