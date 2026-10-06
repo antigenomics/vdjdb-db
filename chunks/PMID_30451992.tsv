@@ -1,0 +1,12 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+	TRAV12-1*01	TRAJ43*01	CAIRQFDANTGELFF	TRBV10-3*01		TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	KLLEIAPNC	LT	MCPyV	PMID:30451992	tetramer-sort										w678 1, w678 1.5						1						
+CAFRVSHDMRF	TRAV38-1*01	TRAJ43*01	CASSIIAGSSYNEQFF	TRBV19*01		TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	KLLEIAPNC	LT	MCPyV	PMID:30451992	tetramer-sort										w678 2						2						
+CVVATYSGGGADGLTF	TRAV12-1*01	TRAJ45*01	CASSIIAGSSYNEQFF	TRBV19*01		TRBJ2-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	KLLEIAPNC	LT	MCPyV	PMID:30451992	tetramer-sort										w678 3						3						
+CVVATYSGGGADGLTF	TRAV12-1*01	TRAJ45*01	CASSSGNPSTDTQYF	TRBV10-2*01		TRBJ2-3*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	KLLEIAPNC	LT	MCPyV	PMID:30451992	tetramer-sort										w678 4						4						
+CVVTEYSGGGADGLTF	TRAV12-1*01	TRAJ45*01	CASRGQNTGELFF	TRBV10-3*01		TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	KLLEIAPNC	LT	MCPyV	PMID:30451992	tetramer-sort										w876 2						5						
+CAYNQGGKLIF	TRAV38-1*01	TRAJ23*01	CASSVLNTGELFF	TRBV10-2*01		TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	KLLEIAPNC	LT	MCPyV	PMID:30451992	tetramer-sort										w876 5, w876 5.5						6						
+CVVPLYSSASKIIF	TRAV12-1*01	TRAJ3*01	CASSDTPDLNTEAFF	TRBV6-1*01		TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	KLLEIAPNC	LT	MCPyV	PMID:30451992	tetramer-sort										w876 6						7						
+CVGNNNDMRF	TRAV12-1*01	TRAJ43*01	CAISARDQNTGELFF	TRBV10-3*01		TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	KLLEIAPNC	LT	MCPyV	PMID:30451992	tetramer-sort										w876 9						8						
+CVLNNNDMRF	TRAV12-1*01	TRAJ43*01	CAIRQFDANTGELFF	TRBV10-3*01		TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	KLLEIAPNC	LT	MCPyV	PMID:30451992	tetramer-sort										w678 1						9						
+CVLNNNDMRF	TRAV12-1*01	TRAJ43*01	CASSILGASNQPQHF	TRBV19*01		TRBJ1-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	KLLEIAPNC	LT	MCPyV	PMID:30451992	tetramer-sort										w830 4						10						
+CVVALYSGGGADGLTF	TRAV12-1*01	TRAJ45*01	CASRSQNYYGYTF	TRBV6-5*01		TRBJ1-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	KLLEIAPNC	LT	MCPyV	PMID:30451992	tetramer-sort										w683 1						11						
