@@ -50,7 +50,6 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 150	CAMRGDSSYKLIF	TRAV12-3*01	TRAJ12*01	CASSLWEKLAKNIQYF	TRBV12-4*01		TRBJ2-4*01	HomoSapiens	HLA-A*02:01:48	B2M	MHCI	RQFGPDFPTI	synthetic	Synthetic	PMID:27183389	structural				structural												5C0B	
 151	CAMRGDSSYKLIF	TRAV12-3*01	TRAJ12*01	CASSLWEKLAKNIQYF	TRBV12-4*01		TRBJ2-4*01	HomoSapiens	HLA-A*02:01:48	B2M	MHCI	RQFGPDWIVA	synthetic	Synthetic	PMID:27183389	structural				structural												5C0C	
 152	CAGPGGSSNTGKLIF	TRAV35*01	TRAJ37*01	CASSLIYPGELFF	TRBV27*01		TRBJ2-2*01	HomoSapiens	HLA-A*02:01:48	B2M	MHCI	GILGFVFTL	M	InfluenzaA	https://github.com/antigenomics/vdjdb-db/issues/215	structural				structural												5E6I	
-153	CAVTKYSWGKLQF	TRAV12-2*01	TRAJ24*01	CASRPGWMAGGVELYF	TRBV6-5*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01:48	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:27238970	structural				structural												5E9D	
 154	CAVLSSGGSNYKLTF	TRAV21*01	TRAJ53*01	CASSFIGGTDTQYF	TRBV7-3*01		TRBJ2-3*01	HomoSapiens	HLA-A*02:01:48	B2M	MHCI	YLEPGPVTV	PMEL	HomoSapiens	PMID:26917722	structural				structural												5EU6	
 155	CAGAIGPSNTGKLIF	TRAV27*01	TRAJ37*01	CASSIRSSYEQYF	TRBV19*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:01:48	B2M	MHCI	GILGFVFTL	M	InfluenzaA	https://github.com/antigenomics/vdjdb-db/issues/215	structural				structural												5EUO	
 156	CAGAGSQGNLIF	TRAV27*01	TRAJ42*01	CASSSRSSYEQYF	TRBV19*01		TRBJ2-7*01	HomoSapiens	HLA-A*02:266	B2M	MHCI	GILGLVFTL	M1-F5L	Synthetic	PMID:27036003	structural				structural												5HHM	
