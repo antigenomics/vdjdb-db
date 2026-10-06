@@ -1,0 +1,11 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+CIVRGTYNQGGKLIF	TRAV26-1	TRAJ23					HomoSapiens	HLA-B*81:01	B2M	MHCI	TPQDLNTML	Gag	HIV-1	PMID:30479346																	1						
+CILRGLMNRDDKIIF	TRAV26-2	TRAJ30	CASKQGVAEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-B*81:01	B2M	MHCI	TPQDLNTML	Gag	HIV-1	PMID:30479346																	2						
+CALRGRGSTLGRLYF	TRAV16	TRAJ18	CASSSSLTGVTSYNEQFF	TRBV7-9		TRBJ1-3	HomoSapiens	HLA-B*81:01	B2M	MHCI	TPQDLNTML	Gag	HIV-1	PMID:30479346																	3						
+			CASSFSKNTEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-B*81:01	B2M	MHCI	TPQDLNTML	Gag	HIV-1	PMID:30479346																	4						
+CAATNAGNNRKLIW	TRAV13-1	TRAJ38					HomoSapiens	HLA-B*81:01	B2M	MHCI	TPQDLNTML	Gag	HIV-1	PMID:30479346																	5						
+			CASSHSKNTEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-B*81:01	B2M	MHCI	TPQDLNTML	Gag	HIV-1	PMID:30479346																	6						
+CAACNAGNNRKLIW	TRAV13-1	TRAJ38	CASSYSKNTEAFF	TRBV12-3		TRBJ1-1	HomoSapiens	HLA-B*81:01	B2M	MHCI	TPQDLNTML	Gag	HIV-1	PMID:30479346																	7						
+CIVRGLNNAGNMLTF	TRAV26-1	TRAJ39	CASSLGIDAIYF	TRBV12-3		TRBJ1-3	HomoSapiens	HLA-B*81:01	B2M	MHCI	TPQDLNTML	Gag	HIV-1	PMID:30479346																	8						
+CVVNIRGNARLMF	TRAV12-1	TRAJ31					HomoSapiens	HLA-B*81:01	B2M	MHCI	TPQDLNTML	Gag	HIV-1	PMID:30479346																	9						
+			CASSLGTLNEQFF	TRBV12-3		TRBJ2-1	HomoSapiens	HLA-B*81:01	B2M	MHCI	TPQDLNTML	Gag	HIV-1	PMID:30479346																	10						
