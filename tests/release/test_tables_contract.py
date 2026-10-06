@@ -60,7 +60,8 @@ pytestmark = pytest.mark.release
 # Primary completion of PMID38524140, PMID34290408, PMID37023751,
 # PMID36923729 and PMID36298482 adds 287 records.
 # PMID19332877 adds 13 published beta clonotypes from seven mice.
-EXPECTED_RECORDS = 298_719
+# PMID38370623 adds five source-supported paired KSHV observations.
+EXPECTED_RECORDS = 298_724
 
 
 @pytest.fixture(scope="module")

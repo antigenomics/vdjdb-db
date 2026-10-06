@@ -59,6 +59,12 @@ there is not an amendment but a different clonotype.
 One consequence: exactly one registry is consulted during a build, the record registry, and the four
 derived levels need no history in order to be correct.
 
+Moving an unchanged observation from an aggregate file to its publication's chunk preserves its
+record ID. Reconciliation requires identical content and every natural-key field except
+`chunk.file`, with exactly one unmatched old record and one unmatched new record. It records the
+file change as an amendment. Ambiguous moves receive new IDs; copying a record while its original
+remains present also receives a new ID.
+
 ## The hash
 
 sha256 over the key fields joined by `\x1f`, truncated to 16 hex digits, with the level's prefix in

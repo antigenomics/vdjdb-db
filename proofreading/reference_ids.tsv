@@ -6,7 +6,7 @@
 # Most non-PMID references are NOT resolvable and are absent on purpose: the 10x application note
 # (20,358 records) is a vendor note, the eight `github.com/antigenomics/vdjdb-db/issues/*` references
 # (4,366) are direct submissions and the issue *is* the reference, the 42 `rcsb.org/structure/*` are
-# PDB entries, and `arxiv.org/abs/2503.00648` is a computer-science preprint PubMed does not index.
+# PDB entries. The Hermes preprint is indexed as PMID40949756, verified 2026-10-06.
 #
 # Resolved 2026-09-25 via the NCBI ID converter.
 reference.id	pmid	note
@@ -15,3 +15,4 @@ https://www.biorxiv.org/content/10.1101/2025.11.05.686789v1.full	PMID:41279151	b
 doi:10.1172/jci.insight.174776	PMID:39024572	JCI Insight 2024
 # Checked and deliberately unmapped:
 # https://doi.org/10.1101/2020.05.04.20085779	-	medRxiv preprint, never indexed in PubMed
+https://arxiv.org/abs/2503.00648	PMID:40949756	Hermes preprint indexed in PubMed; verified 2026-10-06 (#1015)

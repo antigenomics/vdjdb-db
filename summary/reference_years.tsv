@@ -700,6 +700,7 @@ PMID:40744664	2025	pubmed
 PMID:40847198	2025	pubmed
 PMID:40877317	2025	pubmed
 PMID:40892914	2025	pubmed
+PMID:40949756	2025	pubmed
 PMID:41019458	2025	pubmed
 PMID:41034205	2025	pubmed
 PMID:41042909	2025	pubmed
@@ -749,6 +750,7 @@ PMID:9820521	1998	pubmed
 PMID:9862375	1998	pubmed
 PMID:9971792	1999	pubmed
 doi:10.1101/2021.06.06.447276	2021	biorxiv-doi
+doi:10.1101/2021.09.09.459584	2021	doi
 http://mediatum.ub.tum.de/doc/1136748	2014	literal
 https://arxiv.org/abs/2503.00648	2025	arxiv
 https://doi.org/10.1101/2020.05.04.20085779	2020	biorxiv-doi
@@ -756,10 +758,12 @@ https://github.com/antigenomics/vdjdb-db/issues/193	2017	github
 https://github.com/antigenomics/vdjdb-db/issues/215	2017	github
 https://github.com/antigenomics/vdjdb-db/issues/252	2018	github
 https://github.com/antigenomics/vdjdb-db/issues/288	2019	github
+https://github.com/antigenomics/vdjdb-db/issues/289	2019	literal
 https://github.com/antigenomics/vdjdb-db/issues/315	2020	github
 https://github.com/antigenomics/vdjdb-db/issues/323	2021	github
 https://github.com/antigenomics/vdjdb-db/issues/333	2022	github
 https://github.com/antigenomics/vdjdb-db/issues/397	2024	github
+https://github.com/antigenomics/vdjdb-db/issues/62	2014	literal
 https://patents.google.com/patent/CN111592589A	2020	patent-publication-metadata
 https://patents.google.com/patent/CN111592590A	2020	patent-publication-metadata
 https://patents.google.com/patent/EP3149031B1	2019	patent-publication-metadata
