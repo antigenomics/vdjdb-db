@@ -1,0 +1,11 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+CAVSDPPPLLTF	TRAV9-4*01		CASGGGGTLYF	TRBV13-2*01			MusMusculus	H2-Ld	B2M	MHCI	QLSPFPFDL	OGDH	MusMusculus	PMID:12469116	tetramer-sort										m13α						1						
+CAVSLERPYLTF	TRAV9-4*01		CASGGGGTLYF	TRBV13-2*01, TRBV13-2*03			MusMusculus	H2-Kb	B2M	MHCI	EQYKFYSV	Ndufa4	MusMusculus	PMID:12469116	antigen-loaded-targets										m67α						2						
+CAVSLERPYLTF	TRAV9-4*01		CASGGGGTLYF	TRBV13-2*01, TRBV13-2*03			MusMusculus	H2-Kb	B2M	MHCI	SIYRYYGL	Synthetic	Synthetic	PMID:12469116	tetramer-sort										m67α						3						
+CAVSHQGRYLTF	TRAV9-4*01		CASGGGGTLYF	TRBV13-2*01			MusMusculus	H2-Ld	B2M	MHCI	QLSPFPFDL	OGDH	MusMusculus	PMID:12469116	tetramer-sort										m6α						4						
+CAVSSDRPYLTF			CASGGGGTLYF	TRBV13-2*01			MusMusculus	H2-Kb	B2M	MHCI	SIYRYYGL	Synthetic	Synthetic	PMID:12469116	tetramer-sort										m23α						5						
+CAVSLHRPALTF	TRAV9-4*01		CASGGGGTLYF	TRBV13-2*01			MusMusculus	H2-Ld	B2M	MHCI	QLSPFPFDL	OGDH	MusMusculus	PMID:12469116	tetramer-sort										m33α						6						
+CAVSLHRPALTF	TRAV9-4*01		CASGGGGTLYF	TRBV13-2*01			MusMusculus	H2-Kb	B2M	MHCI	SIYRYYGL	Synthetic	Synthetic	PMID:12469116	antigen-loaded-targets										m33α						7						
+CAVSESRPYLTF			CASGGGGTLYF	TRBV13-2*01			MusMusculus	H2-Kb	B2M	MHCI	EQYKFYSV	Ndufa4	MusMusculus	PMID:12469116	tetramer-sort										m80α						8						
+CAVSESRPYLTF			CASGGGGTLYF	TRBV13-2*01			MusMusculus	H2-Ld	B2M	MHCI	QLSPFPFDL	OGDH	MusMusculus	PMID:12469116	tetramer-sort										m80α						9						
+CAVSESRPYLTF			CASGGGGTLYF	TRBV13-2*01			MusMusculus	H2-Kb	B2M	MHCI	SIYRYYGL	Synthetic	Synthetic	PMID:12469116	tetramer-sort										m80α						10						
