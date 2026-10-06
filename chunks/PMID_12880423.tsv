@@ -1,0 +1,34 @@
+cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a	mhc.b	mhc.class	antigen.epitope	antigen.gene	antigen.species	reference.id	method.identification	method.frequency	method.singlecell	method.sequencing	method.verification	meta.study.id	meta.cell.subset	meta.subject.cohort	meta.subject.id	meta.replica.id	meta.clone.id	meta.epitope.id	meta.tissue	meta.donor.MHC	meta.donor.MHC.method	meta.structure.id	chunk.id	submitter	comment	meta.subset.frequency	method.pairing	method.frequency.count	method.frequency.total
+			CASSRSPDTQYF	TRBV9		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-expressing-targets		CD8+						PBMC				1						
+			CASSPLSSVRLF	TRBV7		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		50		PBMC				2						
+			CASSERAGELFF	TRBV2		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		8		PBMC				3						
+			CSARDREDEKLFF	TRBV20		TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		26		PBMC				4						
+			CASSFGGSQPQHF	TRBV27		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		13		PBMC				5						
+			CASTLGQGQPQHF	TRBV3		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		45		PBMC				6						
+			CASSYSTGDGVHF	TRBV6		TRBJ1-6	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		12		PBMC				7						
+			CATSVSANTGELFF	TRBV9		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		53		PBMC				8						
+			CASSQEAGGETQYF	TRBV4		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		29		PBMC				9						
+			CASSLMASFETQYF	TRBV27		TRBJ2-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		21		PBMC				10						
+			CASRGLAGAGEQYF	TRBV3		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		20		PBMC				11						
+			CASSYLGSGNEQFF	TRBV6		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		41		PBMC				12						
+			CASSPGLAYYEQYF	TRBV3		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		31		PBMC				13						
+			CASTPGPRDSPLHF	TRBV2		TRBJ1-6	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		48		PBMC				14						
+			CASSLLQGSDTQYF	TRBV27		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		59		PBMC				15						
+			CASSRGQGIDTQYF	TRBV7		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		54		PBMC				16						
+			CASSPEQGGQPQHF	TRBV4		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		14		PBMC				17						
+			CASSYDTLGTEAFF	TRBV6		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		43		PBMC				18						
+			CSASSGGAGVDTQYF	TRBV20		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		38		PBMC				19						
+			CASSVGGGNTGELFF	TRBV6		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		27		PBMC				20						
+			CASRLPGLSLNEQYF	TRBV6		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		34		PBMC				21						
+			CASSQESLAGNEQFF	TRBV4		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		55		PBMC				22						
+			CASSQVGMTTGELFF	TRBV3		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		56		PBMC				23						
+			CASSLMTAVYNSPLHF	TRBV12		TRBJ1-6	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		2		PBMC				24						
+			CSARDQLGLNTGELFF	TRBV20		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		28		PBMC				25						
+			CASSQIQGAVAGELFF	TRBV4		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		49		PBMC				26						
+			CAISESQVGVANTEAFF	TRBV10		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		60		PBMC				27						
+			CASSSAGGPHLRDEQFF	TRBV13		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		33		PBMC				28						
+			CASSPQRTSGRADEQFF	TRBV11		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		6		PBMC				29						
+			CASSLSGVTGVASYGYTF	TRBV27		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		36		PBMC				30						
+			CATSRAPGLAVTDTQTF	TRBV15		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		4.1,4.7,4.8,4.12,4.33		PBMC				31						
+			CASSFAALPGETEAFF	TRBV5		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		4.9, 4.16		PBMC				32						
+			CASSQAHGLFSYEQYF	TRBV3		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGILTV	MLANA	HomoSapiens	PMID:12880423	tetramer-sort			sanger	antigen-loaded-targets		CD8+		PSA		4.27		PBMC				33						
