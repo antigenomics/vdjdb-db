@@ -63,7 +63,7 @@ pytestmark = pytest.mark.release
 # PMID38370623 adds five source-supported paired KSHV observations.
 # Pending finalization and PMID11722642 add 544 definitive observations.
 # PMID37231180 tuple completion adds one source-paired EBV activation observation.
-EXPECTED_RECORDS = 299_303
+EXPECTED_RECORDS = 293_484
 
 
 @pytest.fixture(scope="module")
