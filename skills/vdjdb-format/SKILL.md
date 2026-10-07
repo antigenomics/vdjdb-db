@@ -12,6 +12,17 @@ positional column numbers or copied column lists.
 Run `vdjdb qc <file>` first. Resolve malformed headers, wrong separators and shifted fields from
 the original source. An invalid layout cannot be repaired by renaming values in the shifted cells.
 
+## Name the publication
+
+Use a verified `PMID_<id>.tsv`, including for PubMed-indexed preprints. Without a PMID, use
+`DOI_<doi>.tsv` with `/` replaced by `_`. Extract the DOI from its URL first; exclude hostnames,
+`content`, `v1` and `.full`. Verify the reference against PubMed or the publisher rather than
+inferring it from a filename.
+
+Before a rename, check for a target collision. Preserve the source bytes, update the identity
+registry on the data-issue branch and verify all record IDs and content hashes. Record the old
+and new paths on the issue. A rename can amend provenance keys without changing observations.
+
 ## Inspect assembly before editing
 
 Preserve supplied sequence and segment cells when the build already resolves them. Inspect the

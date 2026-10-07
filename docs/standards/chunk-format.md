@@ -4,9 +4,23 @@ A chunk is one publication, stored as `chunks/PMID_<id>.tsv` with one record per
 record reports paired chains: the alpha and the beta of one clone are columns of the same
 row. `chains` is derived from that, never the other way round.
 
-Two rows in two different chunks are independent reports, never duplicates, even when
-every field matches. The motif stage is tuned against that replication
-({doc}`../denoising`).
+Reports from different publications remain separate, including repeated receptor assays.
+Different reference identifiers alone do not establish independent capture or validation.
+Check shared experiments, reused constructs and author overlap before assigning that claim
+({doc}`../submission`).
+
+## Publication filenames
+
+Use `PMID_<id>.tsv` when PubMed indexes the paper, including indexed preprints. Otherwise use
+`DOI_<doi>.tsv`, replacing the DOI slash with `_`, for example
+`DOI_10.1101_2021.09.09.459584.tsv`. Strip `https://doi.org/`, publisher URLs,
+`/content/`, version suffixes such as `v1`, and page suffixes such as `.full` before naming.
+The submitted `reference.id` uses the verified identifier; a filename is not a reference identifier.
+
+Check that the target filename is absent before renaming. Do not overwrite another chunk or
+combine two submissions without reviewing their source observations. Perform mechanical renames
+on a data-issue branch, retain the source bytes, run `vdjdb identity update`, and check that
+record IDs and content hashes are preserved. Source paths and their natural keys can change.
 
 ## The declared column order
 
