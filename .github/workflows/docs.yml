@@ -1,17 +1,6 @@
-# The specification site -> https://docs.isalgo.dev/vdjdb-db/
-#
-# Pages is already provisioned for this repository with `build_type: workflow`, so there is no
-# setup step -- this workflow is the deployment path.
-#
-# Two things here are deliberate and easy to undo by accident:
-#
-#   `sphinx-build -E` forces a full environment rebuild on every run. The schema tables, the
-#   vocabularies and the score rules are DIRECTIVES that import `vdjdb.schema` while a page
-#   renders, and Sphinx's incremental build keys on source mtime -- so a change to the registry
-#   with no change to a `.md` file would publish the previous build's tables. Measured: it does.
-#
-#   The dashboard download is `continue-on-error`. A 30-minute database build must never block a
-#   typo fix in the docs, so a missing artifact falls back to the committed placeholder.
+# Publish the specification and the latest successful master summary.
+# Rebuild schema directives on every run. A completed master build must supply
+# its own fragment; ordinary docs updates can use the placeholder.
 name: docs
 
 on:
@@ -64,18 +53,18 @@ jobs:
         # provide it. Measured on run 36282458490, the first time that step ever executed.
         run: uv sync --extra docs --extra test
 
-      # The rendered dashboard fragment, from the last successful database build. Optional by
-      # design: `docs/_static/dashboard.html` is a committed placeholder that says so.
+      # A completed master build supplies its required fragment. Other docs runs may use
+      # the latest successful master fragment or the committed placeholder.
       - name: Fetch the dashboard fragment
-        continue-on-error: true
+        continue-on-error: ${{ github.event_name != 'workflow_run' }}
         uses: dawidd6/action-download-artifact@v6
         with:
           workflow: build.yml
-          branch: master
+          branch: ${{ github.event_name != 'workflow_run' && 'master' || '' }}
           run_id: ${{ github.event.workflow_run.id || '' }}
           name: summary-fragment
           path: docs/_static/
-          if_no_artifact_found: warn
+          if_no_artifact_found: ${{ github.event_name == 'workflow_run' && 'fail' || 'warn' }}
 
       # The docs extension's own tests run HERE, where docutils exists. The database build skips
       # the import test for want of Sphinx, so without this step nothing would exercise it.
