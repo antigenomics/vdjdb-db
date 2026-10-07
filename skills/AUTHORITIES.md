@@ -61,3 +61,7 @@ publications. See [record-level queries](../docs/standards/corpus.md#receptor-le
 Use the [submission guide](../docs/submission.md) for blockers and quarantine, and
 [publish](vdjdb-publish/SKILL.md) for Gitflow, validation and issue closeout. Request a decision only
 when source evidence and existing authorization do not resolve it.
+
+Use [structures](vdjdb-structures/SKILL.md) for the local tcren extraction of deposited complexes.
+Use [build integrity](vdjdb-build-integrity/SKILL.md) for code, CI and release lifecycle validation;
+it does not replace source curation.

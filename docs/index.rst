@@ -36,6 +36,7 @@ complete a task, reference pages define the data, and explanations describe the 
 
    submission
    builds
+   build-integrity
 
 .. toctree::
    :hidden:

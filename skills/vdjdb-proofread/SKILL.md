@@ -9,6 +9,9 @@ Read [AUTHORITIES.md](../AUTHORITIES.md), the
 [chunk specification](../../docs/standards/chunk-format.md), and
 [submission guide](../../docs/submission.md). Review the extraction evidence if present.
 
+For structural sources, follow [structures](../vdjdb-structures/SKILL.md): check complete polymer
+sequences, unresolved coordinates, allele ties and evidence from forced or clamped complexes.
+
 ## Run the checks
 
 ```bash
