@@ -93,7 +93,7 @@ EXAMPLES: tuple[dict[str, str], ...] = (
         'method.verification': 'structural',
         'meta.structure.id': '1AO7',
     },
-    # a paired class II record: mhc.a and mhc.b are both real alleles (from chunks/Jupudi_2025_Ro60.tsv)
+    # A paired class II record with two reported MHC alleles (chunks/PMID_41424382.tsv).
     {
         'chunk.id': '2',
         'cdr3.alpha': 'CAVNSGNNNDMRF',
