@@ -24,7 +24,6 @@ from pathlib import Path
 import pytest
 
 from vdjdb.qc.rules import RULES
-from vdjdb.qc.runner import ADVISORY
 
 ROOT = Path(__file__).resolve().parents[2]
 SKILLS = ROOT / "skills"
@@ -173,16 +172,12 @@ def test_every_qc_rule_name_a_skill_quotes_is_a_rule(doc: Path) -> None:
         f"{unknown}")
 
 
-def test_the_advisory_rules_a_skill_lists_are_the_advisory_ones() -> None:
-    """`vdjdb-proofread` tells a curator which findings never fail a build and why. A rule that moved
-    between the two lists makes that table wrong in the direction that costs a curator most: fixing
-    something the build deliberately tolerates, in `chunks/`, which is the data."""
+def test_advisory_status_is_read_from_the_generated_report() -> None:
+    """Guide curators to the current report instead of a copied rule list that can drift."""
     body = _body(SKILLS / "vdjdb-proofread" / "SKILL.md")
-    fatal, advisory = body.split("**Advisory rules", 1)
-    for rule in sorted(set(RULES) & set(ADVISORY)):
-        assert f"`{rule}`" in advisory, f"{rule} is advisory and the skill does not list it as one"
-    for rule in sorted(set(RULES) - set(ADVISORY)):
-        assert f"`{rule}`" in fatal, f"{rule} is fatal and the skill does not list it as one"
+    assert "qc-summary.tsv" in body
+    assert "advisory flag" in body
+    assert "**Advisory rules" not in body
 
 
 def _subcommands() -> set[str]:
@@ -233,16 +228,8 @@ def test_no_skill_tells_a_curator_to_write_the_classical_murine_prefix() -> None
                 f"{where} has `H-2` in the target cell of a from/to row:\n  {line.strip()}")
 
 
-def test_the_skills_state_the_junction_definition(_unused: None = None) -> None:
-    """A TCR junction starts with Cys104 and ends with Phe118 or Trp118, and has one cysteine. That is
-    the definition of the region, and an earlier revision of this test forbade stating it - on the
-    reading that germline agreement could make a non-canonical junction correct. It cannot: of the 864
-    corpus chains that fail the J anchor, 212 agree with an *ORF* allele's lost anchor, which is the
-    mis-called-allele finding one level up, and about 200 disagree with a germline that does carry the
-    Phe. The definition is what `v.canonical`, `j.canonical` and `cdr3.one.cysteine` ship as flags.
-
-    So this asserts the reverse: the skills that admit sequences say what a junction is.
-    """
+def test_the_skills_state_the_junction_definition() -> None:
+    """Sequence admission guides must state both canonical anchors and junction space."""
     for name in ("vdjdb-extract", "vdjdb-proofread"):
         body = _body(SKILLS / name / "SKILL.md")
         assert re.search(r"start(?:s)? with `?C`?", body), f"{name} does not state the V anchor"

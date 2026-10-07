@@ -1,8 +1,7 @@
-# What decides, and what reads it
+# Curation authorities
 
-Every curation skill in this directory links here once. It holds the parts they share, so no skill
-restates a rule another file already owns - a restated rule is a second copy that drifts, and the
-copies in these skills had already drifted apart on murine MHC before this file existed.
+Use the specification and reviewed authority tables below. Keep source evidence and decisions in
+the local execution record; retain material questions on the publication issue.
 
 ## One authority per question
 
@@ -20,98 +19,45 @@ copies in these skills had already drifted apart on murine MHC before this file 
 | What score will these method fields earn | [`docs/standards/confidence-score.md`](../docs/standards/confidence-score.md) | `vdjdb submission` computes it |
 | Which method vocabulary is recognised | `docs/standards/chunk-format.md`, method columns | - |
 
-When a value has no entry, the fix is to **add the entry** to the authority and say so, not to repair
-the chunk cell in isolation. A chunk repaired without a declared rule behind it repeats itself on the
-next submission of the same data.
+## Submission invariants
 
-## Five invariants no skill may relax
+- Preserve literal source sequences and calls when assembly already resolves them. Inspect the
+  submitted and shipped values together; an inferred V is not a reported V.
+- Use empty cells for missing values. Do not insert placeholders or generated export identifiers.
+- The definition of VDJdb junction space includes Cys104 and Phe/Trp118. AIRR `cdr3_aa` excludes both; use
+  `junction_aa` when available. Printed cores, flanks and noncanonical anchors require repair
+  inspection, not automatic deletion or manual sequence substitution.
+- At least one reported junction and the literal peptide are required. Optional provenance may
+  stay blank. Partially reported class-II restriction may retain its missing partner blank.
+- Report positive, explicitly negative, unassigned and unresolved observations separately.
+  Do not infer peptide identity, pairing or restriction from a protein label or sequence similarity.
+- Different experiments and publication reports remain separate observations. Compare both chains,
+  pMHC and complete metadata before identifying duplicates.
+- Chunk edits use a branch for that chunk or data issue, separately from code changes. Reconcile
+  identity, document the per-file reason/counts, and validate against the release before publishing.
 
-1. **`chunks/` is the submitter's data.** It is never edited to make a tool pass. A chunk edit is its
-   own commit on its own branch named for the chunk or the data issue it answers, with a message
-   saying which files and rows moved, why, and who decided. Never bundle a chunk edit with a code
-   change. See `CLAUDE.md`.
-2. **Empty string is the only missing marker.** Never `NA`, `N/A`, `null`, `nan`, `-`, `.`, or `?`.
-3. **`cdr3` is junction space** - Cys104 through Phe/Trp118, **both anchors included**. That is two
-   residues longer than AIRR's and arda's `cdr3_aa`. A submission exported in IMGT CDR3 space is
-   short one residue at each end and passes `vdjdb qc`, because those rules check the alphabet and a
-   minimum length, not the ends. `vdjdb submission` is what catches it.
-4. **A TCR junction starts with Cys104 and ends with Phe118 or Trp118. That is the definition, not a
-   heuristic**, and it is checked at submission time, where it is cheap to fix. A sequence failing it
-   is not a variant: it is an export in IMGT CDR3 space, a mis-read anchor, framework left in, or a
-   mis-called allele.
-
-   The germline of the segment the record names says **which** of those it is, never whether it is
-   one. Read it that way round. Measured over the corpus, 864 of 285,989 chains fail the definition:
-   212 sit on an ORF allele whose anchor is genuinely lost, so the *call* is what needs repairing
-   (mouse `TRAJ47`/`TRAJ7`/`TRAJ44` resolve to an ORF `*01` where a functional sibling matches the
-   sequence - the same defect as [#327](https://github.com/antigenomics/vdjdb-db/issues/327)); about
-   200 name a germline that does carry the Phe, so the *sequence* is wrong; 144 name no J at all, so
-   the definition is the only thing left to check them against.
-
-   Germline agreement with a non-functional allele is not a validation. It is the same finding one
-   level up.
-
-5. **Never invent a value.** Every amino acid sequence, gene name, allele, species and reference id
-   written into a chunk is confirmed present in the source by a search of the source, and the result
-   of that search is logged. A PMID is never guessed. Use the supplied definitive tables as source evidence. Unknown optional metadata stays blank;
-   record uncertainty in a follow-up, never as a placeholder in the chunk. Missing essential
-   evidence or contradictory outcomes block only the affected observations.
-
-## Scope of association checks
-
-Publication search identifies papers; co-occurring tokens do not establish that a receptor was
-assigned to an epitope. For receptor-level checks, join chains to records by `record_id`, select
-species and chain explicitly, and condition on that record's epitope and relevant restriction.
-Use [the record-level query](../docs/standards/corpus.md#receptor-level-motif-association), and
-state whether the denominator counts observations, clonotypes or publications.
-
-## The commands that replace hand-written checks
-
-The build validates and measures what these skills used to check in prompt-resident Python. Run the
-command; read its report. The command is tested, versioned and the same for every curator.
+## Commands and reports
 
 ```bash
-uv run vdjdb qc <file> --report out/reports/qc.tsv   # 24 row rules, 12 text lints, per row
-uv run vdjdb submission <file>                       # records, score distribution, values new to
-                                                     # VDJdb, junction/germline conflicts, replication
-uv run vdjdb schema --table records                  # the column contract, from the field registry
-uv run vdjdb rules                                   # regenerate declared nomenclature renames
+uv run vdjdb qc <file> --strict --report out/reports/qc.tsv
+uv run vdjdb submission <file>
+uv run vdjdb build --out out/
+uv run vdjdb schema --table records
 ```
 
-`vdjdb qc` writes `qc.tsv` (one row per finding) beside `qc-summary.tsv` (one row per rule, with an
-`advisory` flag). A rule marked advisory is reported and never fatal; `--strict` fails on the rest.
+`qc-summary.tsv` declares which findings are advisory. Build reports identify harmonisation,
+unresolved nomenclature, junction/germline conflicts and lookalike terms. Read them before proposing
+source edits. Unknown optional metadata does not block a supported observation; material pairing,
+peptide/restriction or outcome contradictions block the affected rows only.
 
-`vdjdb submission` assembles the whole corpus, so every number it prints is relative to the database
-rather than to the file. It stops before the annotation stages, which cost ten times as much and
-change nothing a curator decides on.
+Methods describe the experiment. Culture before sequencing, initial identification and later
+receptor verification are distinct. Use source evidence for each rather than paper date, token
+frequency or another row's method.
 
-## What the CLI cannot decide
+For association queries, join records and chains by `record_id`, select species/chain and condition
+on the epitope and restriction. State whether the denominator counts observations, clonotypes or
+publications. See [record-level queries](../docs/standards/corpus.md#receptor-level-motif-association).
 
-These are the judgement calls, and they are why the skills exist at all:
-
-- which of two spellings a paper actually meant;
-- whether a method the authors describe maps to an existing vocabulary term or needs a new one;
-- whether two rows from one paper are two observations or one entered twice;
-- whether an epitope that is a substring of a longer one is a truncation artefact or a real shorter
-  peptide;
-- whether a record should land in `chunks/`, `pending/`, `withheld/`, or not at all.
-
-Each one is escalated to the user with the evidence attached, never resolved by guessing.
-
-## Import review and build repair
-
-Preserve supplied sequence and gene cells when `harmonise_all` or the batched CDR3 fixer already
-resolves them. Inspect the assembled result and record **resolved during database build**.
-Routine terminal-flank trimming and subgroup/allele selection do not require repeated paper
-retrieval or manual import edits. A proposed missing V remains inferred, not paper-reported.
-If the paper is inaccessible, stop retrieval attempts and use the supplied definitive tables.
-
-Use [the submission guide](../docs/submission.md#separate-blockers-from-follow-up-questions) to
-separate essential evidence from optional metadata. Supported assay evidence can establish the
-legacy score without a complete donor genotype or every method detail. Keep those questions open
-as nonblocking follow-ups. Do not drop source observations or invent values to make them complete.
-
-Metadata identifiers must be reported in the cited publication or its supplementary tables.
-Do not copy generated export identifiers, joined identifier lists or reference-derived labels into
-`meta.clone.id`, donor, study or epitope fields. If the paper does not supply an identifier, leave
-the field blank. Use the PMID in `reference.id`; do not encode it as a clone identifier.
+Use the [submission guide](../docs/submission.md) for blockers and quarantine, and
+[publish](vdjdb-publish/SKILL.md) for Gitflow, validation and issue closeout. Request a decision only
+when source evidence and existing authorization do not resolve it.

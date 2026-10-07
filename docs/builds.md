@@ -7,7 +7,7 @@ writes everything else. Nothing computed is stored between builds: every output 
 ## Local build
 
 ```bash
-uv sync
+uv sync --extra motifs --extra summary --extra test
 uv run vdjdb qc                               # chunk validation, fail-fast
 uv run vdjdb build --out out/                 # the definitive tables, then every projection
 uv run vdjdb make legacy --tables out/tables  # the legacy files, from the tables that shipped
@@ -18,16 +18,17 @@ uv run vdjdb identity check --tables out/tables # the identifier invariants
 uv run vdjdb corpus build --tables out/tables # the reference corpus: tf-idf over 12 token families
 uv run vdjdb diff <reference.zip> out/legacy  # compare against a released zip
 uv run vdjdb release --tag vYYYY.MM.P --dry-run  # the three bundles, without touching the tree
-uv run pytest -q
+VDJDB_REFERENCE_ZIP=reference.zip uv run pytest -q
 ```
 
 Output goes to `out/`, not `build/`: `build/` is gitignored as a Python packaging convention.
 
-**`vdjdb release` writes `latest-version.txt`, which is tracked**, so pass `--dry-run` when the
-question is the bundle shape rather than a release you are about to publish (#707). The flag leaves
-the repository copy alone and still puts the tag's URL in the bundles, so the members are what a real
-run would ship. Without it, a made-up tag leaves the tree naming a download that 404s - the defect
-`ROADMAP.md` §3.2 records as having shipped once already, from the other direction.
+`vdjdb release` writes tracked `latest-version.txt`. Use `--dry-run` to inspect bundles without
+changing the repository's download URL. Supply an intended release tag when publishing.
+
+Download the 2026-06-03 release as `reference.zip` before running the comparison or release tests.
+A plain `pytest -q` skips the reference checks when `VDJDB_REFERENCE_ZIP` is unset. See
+[dashboard requirements](dashboard.md#rendering-it) for R and pandoc installation.
 
 Optional dependency groups: `motifs` for the motif stage, `docs` for this site, `test` for the
 suite, `tuning` for the clustering bake-off under `docs/tuning/`.

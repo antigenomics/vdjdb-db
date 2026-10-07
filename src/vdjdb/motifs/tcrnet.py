@@ -28,6 +28,8 @@ The background is always passed in. Left to itself ``tcrnet()`` calls
 """
 from __future__ import annotations
 
+from tempfile import TemporaryDirectory
+
 import polars as pl
 
 from ..config import SEED
@@ -164,16 +166,16 @@ TUNED: dict[str, dict] = {
 def control_for(species: str, gene: str, size: int = CONTROL_SIZE, seed: int = SEED):
     """The background index for one ``(species, gene)``, or ``None`` if there is no background.
 
-    Delegates to ``seqtree.control.load_control``, which streams from ``isalgo/airr_control``,
-    filters to the productive 20 and reservoir-samples uniformly over unique clonotypes rather
-    than taking the abundance-sorted head. What it stores is the fetched table, which is an input,
-    not a computed result (CLAUDE.md hard rule 9); the sample it draws is deterministic in the seed.
+    The published loader filters productive sequences and samples unique clonotypes with the
+    configured seed. Its serialized index is temporary; every build recomputes the index from
+    the downloaded input table.
     """
     name = CONTROLS.get((species, gene))
     if name is None:
         return None
     from seqtree.control import load_control
-    return load_control(name, size=size, seed=seed)
+    with TemporaryDirectory(prefix="vdjdb-control-") as directory:
+        return load_control(name, size=size, seed=seed, cache_dir=directory)
 
 
 def legacy_pvalue(degree: pl.Expr, n_control: pl.Expr, n_sample: int, m_control: int) -> pl.Expr:
