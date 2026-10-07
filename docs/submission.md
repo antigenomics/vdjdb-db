@@ -254,3 +254,12 @@ The browser currently reads `evidence.validation.same.study` and
 chain/epitope, while its same-study flag has no producer. The new categories audit checks these
 claims using assay, replicate and author metadata; it does not silently change the published
 confidence scores, motif tuning objective or historical evidence flags.
+
+Applying the author rule to the size-at-least-20 comparison above leaves the following paired
+junction results. Unknown/pooled donor groups remain included; laboratory independence does not
+by itself prove independent samples or assays.
+
+| Peptide | Author-qualified group pairs | Shared pairs summed | Size products summed | Pooled ratio +1 |
+|---|---:|---:|---:|---:|
+| NLVPMVATV | 20 | 0 | 1,384,473 | 7.22e-7 |
+| YLQPRTFLL | 11 | 13 | 186,835 | 7.49e-5 |

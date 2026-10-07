@@ -68,3 +68,22 @@ def test_four_classes_and_reuse_warning_do_not_confuse_assay_with_replication() 
     assert not held["independent.support"].any()
     assert held.filter(pl.col("provenance.warning"))["record_id"].to_list() == ["5", "6"]
     assert held.filter(pl.col("record_id") == "2")["assay.validated"].item()
+
+
+def test_reviewed_input_covers_corpus_pmids_and_preserves_order() -> None:
+    from vdjdb.corpus.pubmed import PMID
+    from vdjdb.curate.authors import AUTHOR_TABLE
+    from vdjdb.curate.nomenclature import harmonise_references
+    from vdjdb.io.chunks import read_chunks
+
+    records, _ = harmonise_references(read_chunks())
+    needed = {ref for ref in records['reference.id'].unique() if PMID.fullmatch(ref)}
+    authors = pl.read_csv(AUTHOR_TABLE, separator="\t")
+    assert needed <= set(authors['reference.id'])
+    assert authors.select('reference.id', 'ordinal').n_unique() == authors.height
+    assert authors['author.key'].ne('').all()
+    order = authors.group_by('reference.id').agg(pl.col('ordinal').min().alias('first'),
+                                               pl.col('ordinal').max().alias('last'),
+                                               pl.len().alias('n'))
+    assert order['first'].eq(1).all()
+    assert order['last'].equals(order['n'].cast(pl.Int64))
