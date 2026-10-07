@@ -63,6 +63,8 @@ NFAT luminescence	declared		7. The same readout without the construct; kept sepa
 IFNg capture assay	declared		46
 TNF Secretion	declared		10
 ELISA	declared		9
+ELISpot	declared		IFNg release measured by ELISpot; PMID32102902 experimental source.
+IFNg	declared		IFNg production in reconstructed-receptor peptide assays; PMID36778273 experimental source.
 CTL culture	declared		9
 CTL clone	declared		1
 # Broad assay terms resolve the remaining source labels; optional detail does not block imports.
