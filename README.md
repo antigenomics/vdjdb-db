@@ -38,7 +38,8 @@ Start at [VDJdb documentation](https://docs.isalgo.dev/vdjdb-db/):
   [motifs and denoising](docs/denoising.md), and [the dashboard](docs/dashboard.md).
 
 Column tables, vocabularies and score rules are generated from the package declarations when the
-site builds. Implementation history is available under Explanation, away from the getting-started path.
+site builds. The [summary dashboard](https://docs.isalgo.dev/vdjdb-db/dashboard.html) follows the
+latest successful build on `master`; released downloads are dated snapshots.
 
 ## Using the data
 
@@ -53,19 +54,21 @@ downloaded release is planned.
 ## Building it
 
 ```bash
-uv sync
+uv sync --extra motifs --extra summary --extra test
 uv run vdjdb qc                               # chunk validation, fail-fast
 uv run vdjdb build --out out/                 # the definitive tables, then every projection
 uv run vdjdb make legacy --tables out/tables  # the legacy files
+uv run vdjdb convert airr --tables out/tables # AIRR tables
 uv run vdjdb motifs --tables out/tables       # TCRNET + TCREMP
 uv run vdjdb summary --legacy out/legacy      # the dashboard, offline
 uv run vdjdb identity check --tables out/tables # the identifier invariants
 uv run vdjdb corpus build --tables out/tables # the reference corpus: tf-idf over 12 token families
 uv run vdjdb diff <reference.zip> out/legacy  # compare against a released zip
-uv run pytest -q
+VDJDB_REFERENCE_ZIP=reference.zip uv run pytest -q
 ```
 
-`ROADMAP.md` records the project plan; local execution notes track the current curation queue.
+Use the 2026-06-03 release as `reference.zip` for the release comparison and tests. The static
+summary also requires R and pandoc; see [build requirements](docs/builds.md).
 
 ## Contributing
 
