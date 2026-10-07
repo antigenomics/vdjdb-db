@@ -71,6 +71,8 @@ jobs:
         uses: dawidd6/action-download-artifact@v6
         with:
           workflow: build.yml
+          branch: master
+          run_id: ${{ github.event.workflow_run.id || '' }}
           name: summary-fragment
           path: docs/_static/
           if_no_artifact_found: warn

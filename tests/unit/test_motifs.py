@@ -14,6 +14,48 @@ from vdjdb.motifs import tcremp as TE
 from vdjdb.motifs import tcrnet as T
 
 
+def test_background_indexes_are_recomputed_and_temporary(monkeypatch):
+    from pathlib import Path
+
+    import seqtree.control
+
+    directories = []
+    marker = object()
+
+    def loader(name, *, size, seed, cache_dir):
+        directory = Path(cache_dir)
+        assert directory.is_dir()
+        assert not list(directory.iterdir())
+        (directory / "computed-index").write_bytes(b"index")
+        directories.append(directory)
+        assert name == T.CONTROLS[("HomoSapiens", "TRB")]
+        assert (size, seed) == (T.CONTROL_SIZE, T.SEED)
+        return marker
+
+    monkeypatch.setattr(seqtree.control, "load_control", loader)
+    assert T.control_for("HomoSapiens", "TRB") is marker
+    assert T.control_for("HomoSapiens", "TRB") is marker
+    assert len(set(directories)) == 2
+    assert all(not directory.exists() for directory in directories)
+
+
+def test_temporary_background_index_is_removed_after_failure(monkeypatch):
+    from pathlib import Path
+
+    import seqtree.control
+
+    directories = []
+
+    def loader(name, *, size, seed, cache_dir):
+        directories.append(Path(cache_dir))
+        raise RuntimeError("failed to index background")
+
+    monkeypatch.setattr(seqtree.control, "load_control", loader)
+    with pytest.raises(RuntimeError, match="failed to index background"):
+        T.control_for("HomoSapiens", "TRB")
+    assert all(not directory.exists() for directory in directories)
+
+
 def test_the_legacy_statistic_never_returns_zero_where_the_shipped_one_does():
     """The whole reason ``tcrnet``'s own p-value is unusable (ROADMAP section 8.1).
 
