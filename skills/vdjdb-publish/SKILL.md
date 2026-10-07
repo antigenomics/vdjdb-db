@@ -28,6 +28,11 @@ Preserve existing chunk content. Audit both-chain V/J/junction, epitope and MHC 
 with donor, method, subset, clone and other observation metadata. Never append or deduplicate
 using beta junction plus epitope alone.
 
+For an extension, apply the curator's scope to existing records. If they instruct keeping those
+records, preserve their source cells and add supported new observations. Change an existing field
+only when requested. Do not make re-proofreading or optional metadata completion a prerequisite
+for the extension. Reconcile identity, run the combined build and finish the authorized merge.
+
 ## 2. Check readiness
 
 ```bash
