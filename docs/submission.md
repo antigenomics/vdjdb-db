@@ -128,10 +128,19 @@ Umbrella issues stay open until all their component submissions are accounted fo
 
 ## Curation skills
 
-The repository's [curation skills](https://github.com/antigenomics/vdjdb-db/tree/dev/skills) guide
-extraction, formatting, proofreading, publication, harmonisation and duplicate review. They use the
+The repository's [curation skills](https://github.com/antigenomics/vdjdb-db/tree/master/skills) guide
+extraction, formatting, proofreading, publication, harmonisation and duplicate review. Use the
+[structural collection skill](https://github.com/antigenomics/vdjdb-db/tree/master/skills/vdjdb-structures)
+for deposited TCR-pMHC complexes and the local tcren pipeline. They use the
 same CLI and authority tables as the build. Existing authorization for a batch applies throughout;
 ask for new scientific decisions, not repeated permission for already-authorized routine actions.
+
+Publication issues use `PMID:<id>` as the title and a linked citation from the PubMed API's NBIB
+record: authors, article title, journal, date and pages. Keep source attachments and one concise
+open question or disposition. A preprint without a PMID uses its title and DOI; do not guess an
+identifier. Closed imports link their current chunk and imported scope. A duplicate names its
+active intake; an excluded or unsuitable submission states why it does not enter the build.
+Quarantined submissions remain open.
 
 Metadata identifiers must be reported in the cited publication or its supplementary tables.
 Do not copy generated export identifiers, joined identifier lists or reference-derived labels into

@@ -9,6 +9,10 @@ Read [AUTHORITIES.md](../AUTHORITIES.md) and the
 [chunk specification](../../docs/standards/chunk-format.md). Respect the requested source and
 technology scope. A reference already present in VDJdb does not establish complete coverage.
 
+For deposited complexes, use [structures](../vdjdb-structures/SKILL.md) and the local tcren
+pipeline. New observations go to the PDB aggregate with their publication reference; inventory
+reused templates separately. Inspect complete polymer sequences as well as resolved coordinates.
+
 ## Reconcile the sources
 
 Inventory the supplied article, supplements and processed assignments. Record which tables
