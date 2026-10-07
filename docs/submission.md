@@ -16,7 +16,8 @@ link to reconcile them while preserving existing observations and record identif
 The [PMID–DOI table](https://github.com/antigenomics/vdjdb-db/blob/master/proofreading/pubmed_doi.tsv)
 lists verified publication identifiers. A blank DOI means the retrieved PubMed record supplied none.
 
-New paper issues use the title `PMID:<id>` and label `vdjdb-records-paper-pending`. Their body is
+New paper issues use the title `PMID:<id>` and label `vdjdb-records-paper-pending`. Follow-up issues
+for one paper use `PMID:<id> - <purpose>`. Their body is
 the citation retrieved from PubMed, linked to `https://pubmed.ncbi.nlm.nih.gov/<id>/`. When a DOI
 or URL issue resolves to a PMID, keep the earlier identifier in its body. Public provenance text
 uses the paper, its abstract or PubMed record; patent and PDB records are also supported.
