@@ -92,10 +92,6 @@ df = fread(file.path(params$legacy, "vdjdb.slim.txt"), header=T, sep="\t")
 
 !summary_embed_start!
 
-```{r, null_prefix=TRUE, warning=FALSE}
-paste("Last updated on", format(Sys.time(), '%d %B, %Y'))
-```
-
 #### Record statistics by species and TCR chain
 
 General statistics. Note that general statistics are computed using the 'slim' database version. Slim version, for example, lists the same TCR sequence found in several donors/studies only once and selects representative V/J for a given CDR3aa clonotype and the best score across all redundant records.
