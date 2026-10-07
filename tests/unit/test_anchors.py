@@ -189,3 +189,8 @@ def test_the_anchor_table_being_empty_raises_rather_than_reporting_nothing():
     finally:
         arda.cdr3fix.load_anchors = original
         anchors._anchors.cache_clear()
+
+
+def test_v_cysteine_alone_does_not_establish_a_j_undertrim() -> None:
+    assert anchors._j_end("CAVFFG", "IGFGNVLHC") == "unexplained"
+    assert anchors._j_end("CAVFF", "IGFGNVLHC") == "unexplained"

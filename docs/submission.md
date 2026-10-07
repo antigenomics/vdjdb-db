@@ -53,9 +53,10 @@ uv run vdjdb submission chunks/PMID_<id>.tsv
 ```
 
 Read the score distribution and fatal/advisory findings. Compare matches using both chains'
-V/J calls and junctions, epitope and MHC, then inspect all observation metadata. Different donors,
-methods, subsets or publications are independent observations. Repeated curation of the same
-publication is different from independent replication. Preserve existing PDB and mixed-paper
+V/J calls and junctions, epitope and MHC, then inspect all observation metadata. Different methods can validate the same
+sample within one publication. Independent validation across studies requires evidence that the
+underlying samples or experiments are independent; different publication IDs alone do not establish
+this. Repeated curation of the same assay is reused data. Preserve existing PDB and mixed-paper
 records unless a documented correction is necessary.
 
 Internal cysteine, an unusual terminal residue or a non-functional segment is an advisory finding,
@@ -146,3 +147,119 @@ Metadata identifiers must be reported in the cited publication or its supplement
 Do not copy generated export identifiers, joined identifier lists or reference-derived labels into
 `meta.clone.id`, donor, study or epitope fields. If the paper does not supply an identifier, leave
 the field blank. Use the PMID in `reference.id`; do not encode it as a clone identifier.
+
+## Check experimental provenance through repertoire overlap
+
+Run `vdjdb overlap --by-sample` for the complete report, including pairs with no matches.
+Add `--submitted` to compare original junctions before repair. `vdjdb submission` includes a
+compact overlap screen; CI attaches the complete corpus report to each pull request.
+
+Within each species and `(epitope, mhc.a, mhc.b, mhc.class)`, compare distinct alpha junctions,
+beta junctions and paired junctions separately. For two sets of sizes `n1` and `n2`, report the
+intersection `k`, size product `n1*n2`, containment `k/min(n1,n2)` and smoothed ratio
+`(k+1)/(n1*n2+1)`. Repeated cells, peptide variants and technical replicates must not inflate the
+set sizes. Missing chains do not match. Donor identifiers are scoped to their publication;
+blank donor identifiers mean unknown, not a shared sample. Chunk-level sizes can pool donors.
+
+The operational review threshold is at least five shared junctions and 20% containment of the
+smaller set. It requests source tracing; it is not a significance test or a deletion rule.
+Inspect smaller datasets even when they fall below the threshold. Use YLQPRTFLL and NLVPMVATV
+as empirical comparison strata, with matching chain mode and restrictions, and include zero-match
+pairs. These database comparisons include follow-up studies and reused data, so they do not by
+themselves estimate independent-donor collision probabilities.
+
+A sequence generation probability is not its probability in a selected tetramer-positive
+repertoire. Selection, expansion, public clonotypes, chain pairing and ascertainment affect
+sharing. Do not turn a typical `pgen` range into a universal overlap cutoff or multiply it by
+chunk sizes to claim a p-value. See the [OLGA methods paper](https://doi.org/10.1093/bioinformatics/btz035).
+
+For every flagged group, trace the manuscript, table, donor/cohort, receptor construct and assay.
+Compare both chains' V/J calls and all `method.*` and `meta.*` fields before deciding:
+
+- **Within-study validation:** the same sample or construct measured by different experiments.
+  Preserve the reported observations and describe validation within that study.
+- **Independent validation:** separately obtained samples or independently performed experiments
+  confirmed by source evidence. Preserve both reports; state whether they share a construct.
+- **Reused measurement:** the same source table or assay reprinted under another identifier.
+  Correct provenance or repeated curation on a data-issue branch; do not count reuse as independent validation.
+- **Conflicting attribution:** unmatched samples, assay labels or references. Resolve each matched
+  observation against its original source, splitting mixed-source records when the evidence supports it.
+
+An overlap flag alone never rewrites references, merges records or changes confidence scores.
+Record per-observation decisions and source locations on the data issue before changing a chunk.
+
+`paired.pmhc` additionally compares distinct paired-receptor/pMHC observations across peptides
+within species. This catches reprinted mutational scans even when each peptide has fewer than
+five receptors. Its denominator counts receptor/pMHC observations, not distinct receptors.
+
+Measured on 2026-10-07, using repaired junctions, different reference IDs, matched species/pMHC
+and both set sizes at least 20 (including unknown or pooled donors):
+
+| Peptide | Mode | Group pairs | Shared junctions summed | Size products summed | Pooled ratio +1 |
+|---|---|---:|---:|---:|---:|
+| NLVPMVATV | alpha | 27 | 63 | 4,114,595 | 1.56e-5 |
+| NLVPMVATV | beta | 98 | 222 | 11,063,981 | 2.02e-5 |
+| NLVPMVATV | paired | 34 | 0 | 4,619,954 | 2.16e-7 |
+| YLQPRTFLL | alpha | 31 | 241 | 609,001 | 3.97e-4 |
+| YLQPRTFLL | beta | 45 | 248 | 446,070 | 5.58e-4 |
+| YLQPRTFLL | paired | 18 | 16 | 353,274 | 4.81e-5 |
+
+The pooled ratio is `(sum(shared)+1)/(sum(n1*n2)+1)`, with one pseudocount for the aggregate.
+Junctions shared by several group pairs are counted once per comparison. These are corpus
+screens, not verified independent-donor benchmarks. Regenerate the full TSV for current counts;
+singleton sets have pseudocount-dominated ratios and should not calibrate a large-repertoire screen.
+
+## Classify validation evidence
+
+Keep these evidence classes separate; a record can have several kinds of support. When a single
+label is needed, use the order 4, 2, 3, 1:
+
+| Class | Evidence required | Browser selection |
+|---|---|---|
+| 1. Observed only | Initial capture/identification, without reported subsequent verification or replication | No additional validation requirement |
+| 2. Observed and validated | A reported receptor verification assay, such as cloning followed by pMHC staining, target stimulation or direct binding measurement | Inspect `method.verification` and assay confidence |
+| 3. Repeated within a study | Matching receptor/pMHC with distinct reported experiments, sampling time points, replicas or donors within the same reference | Same study validation |
+| 4. Independently corroborated | Matching chain/receptor and pMHC in author-independent references, with reused-source observations excluded | Independent validation |
+
+Replication within one study is stronger than one observation but does not replace receptor
+verification. Different assays on the same sample are valid within-study evidence. A method name
+change or a curation serial alone is not proof of a second experiment.
+
+`vdjdb overlap` also writes a per-record `*-categories.tsv` audit. It uses nonempty
+`method.verification` for reported assay validation and distinct nonempty replica/subject identifiers
+for documented within-study repetition. Replication that the source reports only in prose requires
+curation; blank identifiers do not establish it. The audit includes independent support separately
+for alpha and beta. One supported chain does not establish independent capture of the paired receptor.
+
+Author independence uses ordered PubMed author lists in `proofreading/pubmed_authors.tsv`:
+
+- Senior authors must differ, and neither senior author may appear in the other paper's author list.
+- Shared authors must be fewer than one third of the smaller list, using the strict inequality
+  `3*shared < min(n_authors_1,n_authors_2)`.
+- Missing, truncated or consortium-only senior-author metadata yields unknown. Non-PMID references
+  require source-based review; do not treat missing metadata as disjoint author lists.
+
+Names are matched conservatively by surname and first initial, with case, accents and punctuation
+folded. Homonyms can require manual disambiguation. The author screen is a laboratory-independence
+rule, not proof that an assay was repeated: a collection can reprint another laboratory's data.
+High repertoire overlap requests original-table tracing even when authors qualify as independent.
+
+Refresh this input explicitly with `vdjdb refs-authors`; review and commit the retrieved table.
+Builds and CI read it offline. The audit excludes cross-reference support between high-overlap
+reference pairs until source tracing establishes independence, while preserving direct verification
+and within-study evidence. Other qualified supporting references remain available.
+
+The browser currently reads `evidence.validation.same.study` and
+`evidence.validation.independent`. The historical build's independent flag counts references per
+chain/epitope, while its same-study flag has no producer. The new categories audit checks these
+claims using assay, replicate and author metadata; it does not silently change the published
+confidence scores, motif tuning objective or historical evidence flags.
+
+Applying the author rule to the size-at-least-20 comparison above leaves the following paired
+junction results. Unknown/pooled donor groups remain included; laboratory independence does not
+by itself prove independent samples or assays.
+
+| Peptide | Author-qualified group pairs | Shared pairs summed | Size products summed | Pooled ratio +1 |
+|---|---:|---:|---:|---:|
+| NLVPMVATV | 20 | 0 | 1,384,473 | 7.22e-7 |
+| YLQPRTFLL | 11 | 13 | 186,835 | 7.49e-5 |

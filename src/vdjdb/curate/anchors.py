@@ -272,7 +272,8 @@ def _j_end(cdr3: str, germline: str) -> str:
         return "ok"
     for i in range(1, min(6, len(cdr3))):                    # framework behind the anchor
         head = cdr3[:len(cdr3) - i]
-        if cdr3[-1 - i] == anchor and _overlap(head, germline, suffix=True) > at_anchor:
+        # Cys104 alone cannot also establish the J anchor of a two-anchor junction.
+        if len(head) > 1 and cdr3[-1 - i] == anchor and _overlap(head, germline, suffix=True) > at_anchor:
             return "under-trimmed"
     if one_short > at_anchor and one_short >= MATCH:
         return "absent anchor"
