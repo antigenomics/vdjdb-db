@@ -1,5 +1,8 @@
 # Build and release
 
+Use [build integrity](build-integrity.md) for candidate validation, CI artifact checks and
+promotion from one release to the next.
+
 The build is a `uv`-managed Python package. It reads `chunks/`, `patches/` and `proofreading/`, and
 writes everything else. Nothing computed is stored between builds: every output is recomputed from
 `chunks/` on every run.

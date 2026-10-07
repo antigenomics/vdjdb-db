@@ -16,7 +16,12 @@ Search open and closed issues by PMID, DOI and URL, including bodies. Check exis
 merging their provenance; matching sequences alone do not establish that two papers are one work.
 
 Create a missing issue as `PMID:<id>`, label `vdjdb-records-paper-pending`, with the retrieved
-PubMed citation and record link. Public provenance cites only the paper, abstract, PubMed,
+PubMed NBIB citation and record link: author names, title, journal, date and pages in one linked
+paragraph. Preserve source attachments and one concise blocker or disposition. Use a concise
+title and DOI for an unindexed preprint. A multi-PDB paper has one issue; use
+[structures](../vdjdb-structures/SKILL.md) and place supported rows in `chunks/PDB_Database.tsv`
+with their publication reference and individual structure identifiers.
+Public provenance cites only the paper, abstract, PubMed,
 patents or PDB. Patent and mixed-paper inputs need their own manifest of references and issues.
 
 Preserve existing chunk content. Audit both-chain V/J/junction, epitope and MHC matches together
@@ -89,6 +94,12 @@ imported scope and any leftover rows. Close only when no material work remains; 
 auto-close issues when the target is `dev`. If optional metadata remains, keep a nonblocking
 follow-up and remove the pending-paper label from the completed import. Leave umbrella issues
 open while any component is still pending.
+
+Verify the actual `reference.id` rows, including verified preprint/publication aliases and aggregate
+chunks; a PMID-shaped filename or a matching receptor alone does not prove coverage. Closed imports
+link the current path and scope. A duplicate links its active intake. An unsuitable submission has
+a brief source-supported exclusion reason; a quarantined or incomplete submission remains open.
+Build and CI issues need their implementation and validation evidence, not a publication chunk.
 
 Report prepared, merged and deferred counts separately. Update the local roadmap and per-file
 manifest. Delete only branches whose commits are integrated, with no open PR or attached working
