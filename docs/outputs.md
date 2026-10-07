@@ -2,11 +2,6 @@
 
 Every file the build produces, what it contains, whether it ships, and who consumes it.
 
-`myst-parser` renders this file on the documentation site from the Markdown source, which is why it
-stays Markdown rather than becoming `.rst`. Its section numbers are cited from `ROADMAP.md`, from the
-package docstrings and from `docs/tuning/`, so treat them as stable identifiers and do not renumber a
-section.
-
 Status key: **shipped** in the release zip · **artifact** produced and uploaded by CI but not zipped
 · **internal** produced during a build, not published.
 
@@ -29,7 +24,7 @@ Alongside them, as release assets rather than zip members: `manifest.json`, `SHA
 
 ## 2. Legacy bundle - `vdjdb-legacy-<version>.zip`
 
-Exactly ten members under a single `vdjdb-<version>/` directory. The member basenames are a contract:
+Ten required members under a single `vdjdb-<version>/` directory. The member basenames are a contract:
 `vdjmatch` looks inside the zip for `vdjdb.txt`, `vdjdb.slim.txt` and `vdjdb_full.txt` by basename,
 and `vdjdb-web` resolves the rest as `<database.path>/<name>`.
 
@@ -109,31 +104,18 @@ Primary key `record_id`, unique. One chunk row is one record: a chunk is one pap
 paper's report on one clone, and the row reports both chains. `method.*` and `meta.*` sit here
 because they describe what the publication reports about the record.
 
-The table has one row per curated line, **192,609**, which is the 202,263 data lines in `chunks/`
-less 9,636 declared within-chunk duplicates and less 18 rows where one publication was curated in two
-chunk files (#390). `CHUNK_DEDUP_KEY` contains `reference.id`, so a group of it spanning two chunks
-is one paper reporting one clone twice - the chunk is normally the publication, and where the two
-come apart the publication is what deduplication is about. 19 such groups exist over 38 rows; 18
-merge, filling the base row's blanks from the other, and the 19th is left alone because
-`PDB_Database.tsv` and `PMID_34433824.tsv` give one clone `structural` and `tetramer-sort`, which is
-a solved complex and the sort that found it. `out/reports/repeated-references.tsv` lists all 19 with
-the verdict and the reason.
+The table has one row per retained publication report. Exact within-publication duplicates
+are merged; reports from different publications remain separate. When a publication appears
+in two chunk files, compatible rows merge and fill each other's blanks. Different observations,
+such as a solved structure and the sort that found the receptor, remain separate.
+`out/reports/repeated-references.tsv` records these decisions. See the
+[current master summary](dashboard.md) for database sizes.
 
 The receptor is not here: a chain is an observation, so it is a row of `chains`, while
 `vdjdb_full.txt` folds both chains into paired columns and leaves half of them blank.
 
-35 columns:
-
-| Group | Columns |
-|---|---|
-| identity | `record_id`, `pmhc_id`, `epitope_id` |
-| antigen | `species`, `mhc_a`, `mhc_b`, `mhc_class`, `antigen_epitope`, `antigen_gene`, `antigen_species` |
-| provenance | `reference_id` |
-| sample | `meta_study_id`, `meta_cell_subset`, `meta_subject_cohort`, `meta_subject_id`, `meta_replica_id`, `meta_clone_id`, `meta_tissue` - the id fields that are part of identity |
-| annotation | `meta_epitope_id`, `meta_donor_MHC`, `meta_donor_MHC_method`, `meta_structure_id`, `meta_subset_frequency` |
-| method | `method_identification`, `method_frequency`, `method_frequency_count`, `method_frequency_total`, `method_singlecell`, `method_sequencing`, `method_verification`, `method_pairing` |
-| score | `vdjdb_score` |
-| curation | `chunk_file`, `chunk_row`, `chunk_id`, `submitter`, `comment` |
+The [generated column reference](standards/columns.md) lists names, types and descriptions.
+Record fields cover identity, antigen, publication, sample, method, score and curation.
 
 `submitter`, `comment`, `chunk_id`, `meta_subset_frequency` and `method_pairing` are kept here; the
 legacy build discards all five.
@@ -164,13 +146,9 @@ Primary key `(record_id, gene)`. This is the level `vdjdb.txt` is written at. Ch
 table so that record fields are not duplicated per chain, as in `vdjdb.txt`, and not folded into
 paired alpha/beta columns, as in `vdjdb_full.txt`.
 
-35 columns: `record_id`, `gene` (`TRA`/`TRB`), `clonotype_id`, `clone_id`, `cdr3`, `v_segm`,
-`d_segm`, `j_segm`,
-`v_end`, `j_start`, `cdr3nt`, `cdr3nt_pgen`, `cdr3nt_margin`, `v_inferred`, `j_inferred`,
-`d_inferred`, `d_start`, `d_end`, `d_posterior`, `v_end_inferred`, `j_start_inferred`,
-`cdr3_original`, `fix_needed`, `fix_good`, `v_fix_type`, `j_fix_type`, `v_canonical`, `j_canonical`,
-`v_segm_submitted`, `j_segm_submitted`, `d_segm_submitted`, `v_segm_arda`, `j_segm_arda`,
-`TCR_hash`.
+The [generated column reference](standards/columns.md) lists every chain field. Submitted
+sequences and V/D/J calls remain available beside repaired junctions, canonical calls and
+inferred segments, so consumers can distinguish the source observation from the build result.
 
 `j_segm` is the J that ships, and it is not always the J the paper reported. Three values sit side by
 side: `j_segm_submitted` is the call as submitted, `j_segm_arda` is the allele `arda.cdr3fix` aligned
@@ -295,16 +273,17 @@ store is re-keyed.
 
 VDJdb's own list of epitopes and the MHCs that present them.
 
-| Table | Key | Rows |
-|---|---|---|
-| `epitopes` | `(antigen.epitope, antigen.species)` | 2,131 |
-| `restriction` | `(antigen.epitope, antigen.species, mhc.a, mhc.b)` | 2,343 |
+| Table | Key |
+|---|---|
+| `epitopes` | `(antigen.epitope, antigen.species)` |
+| `restriction` | `(antigen.epitope, antigen.species, mhc.a, mhc.b)` |
 
 `epitopes` has `antigen.gene`, `epitope.length`, `mhc.class`, and the support counts `records`,
-`chains`, `clonotypes` and `references`. 379 epitopes are reported by two or more publications.
+`chains`, `clonotypes` and `references`. Counts are recomputed on each build.
 
 **`proteome_peptide` and `proteome_substitution`** link an epitope to the host-proteome peptide it is
-one substitution from, where the epitope is not itself in the proteome (#632). 211 of the 2,131
+one substitution from, where the epitope is not itself in the proteome (#632). In the
+2026-09-29 measurement, 211 of the 2,131
 epitopes carry the link, and **67 of those have the proteome form curated in VDJdb as a separate
 row** - 35,346 records, 18.3% of the database, on rows nothing else says are two forms of one
 peptide:
@@ -374,8 +353,9 @@ IPD has. Measured 2026-09-29: 14 calls over 105 records, and 80 of those are one
 `HLA-A*02:01` has 169 Confirmed alleles under it. What to do about that is a curation question about
 what the submitters meant, so it is reported and never fatal.
 
-**A build carrying an `unknown` or blank call fails**, naming the value, the column, the cell count and
-the chunks that report it, so only `known`, `unconfirmed` and `declared` reach a release. The fix is an entry in
+**An unknown call fails the build**, naming the value, column and affected chunks.
+A reported class-II chain can have an unreported partner; the build preserves that partial
+restriction. See [chunk format](standards/chunk-format.md) for permitted missing values. The fix is an entry in
 `patches/mhc.dict` when the call is wrong, or a row in `proofreading/mhc_nonhuman.tsv` when it is a
 species IPD-IMGT/HLA does not cover. Whether the allele could *present* that peptide, rather than only
 whether its name exists, is phase 9e: `presentation.tsv` above for the offline half, and the six
@@ -434,50 +414,16 @@ a projection of the same registry, so none of them can drift.
 The dtype is read off the written frame rather than declared, so the schema cannot claim a type the
 shipped files do not have.
 
-### 3.6 `clusters.parquet` and `motifs.parquet` - the motif tables
+### 3.6 Motif files
 
-The new-format counterpart of `cluster_members.txt` and `motif_pwms.txt` (§2). They resolve the
-cluster ids that `evidence.parquet` stores in `evidence_value` on its `motif_tcrnet` and
-`motif_tcremp` rows; in the legacy bundle those ids resolve only into a positionally-parsed text file.
-Both methods go into one pair of tables, separated by the `method` column rather than by a second pair
-of files.
+The primary bundle currently includes the same `cluster_members.txt` and `motif_pwms.txt`
+files as the legacy bundle (§2), plus their optional TCREmp counterparts. It does not ship
+`clusters.parquet` or `motifs.parquet`.
 
-`clusters` has one row per `(method, cid, clonotype_id)`, i.e. a cluster's membership:
-
-| Column | Note |
-|---|---|
-| `method` | `tcrnet` or `tcremp` |
-| `cid` | `<species-initial>.<chain-initial>.<epitope>.<n>`, TCREMP appending `L<len>` |
-| `clonotype_id` | joins to `chains.parquet`; the level motif evidence attaches at |
-| `species`, `gene`, `antigen.epitope` | the scope the clustering ran in |
-| `csz` | cluster size, in clonotypes |
-| `v.segm.repr`, `j.segm.repr` | modal allele over the cluster |
-| `x`, `y` | graph layout coordinates, for `vdjdb-web` |
-
-Membership is keyed on `clonotype_id`, not on the CDR3/V/J triple. The legacy file repeats `cdr3aa
-v.segm j.segm` plus seven annotation columns on every member row, which is why a 55,636-row file has
-19 columns of mostly-duplicated epitope metadata. Here the annotation appears once, in `records` and
-`epitopes`, and the membership row stores a key, so `cluster_members.txt` is one join away and the
-normalisation rule of §3 holds.
-
-`motifs` has one row per `(method, cid, pos, aa)`, the position weight matrix:
-
-`method`, `cid`, `pos`, `aa`, `len`, `count`, `freq`, `count.bg`, `total.bg`, `count.bg.i`,
-`total.bg.i`, `level.bg`, `freq.bg`, `I`, `I.norm`, `height.I`, `height.I.norm`.
-
-A residue a cluster never shows has no row, rather than a zero-count one: the logo has no letter
-there, and the legacy file omits it too.
-
-`level.bg` names which background stratum supplied `count.bg`: the `(v.gene, j.gene, len)` cell when
-it has support, otherwise the coarser `len`-only cell. The legacy schema records the imputation as a
-bare `need.impute` boolean, which says that a fallback happened but not what it fell back to. The
-legacy projection derives that boolean from `level.bg`.
-
-Backgrounds never ship (CLAUDE.md hard rule 5). `count.bg` and `total.bg` are derived statistics
-computed against a background streamed at build time; no background row reaches any output.
-
-The per-epitope diagnostic for both tables is `reports/motifs_per_epitope.tsv` (§5), a report rather
-than a shipped table, derived entirely from `clusters` and the corpus.
+Run `vdjdb motifs --tables out/tables` to produce these files under `out/motifs`.
+The column orders in §2 apply to both bundles. Background data are inputs; only derived
+counts and statistics ship. The per-epitope diagnostic is
+`reports/motifs_per_epitope.tsv` (§5).
 
 ---
 
@@ -616,10 +562,7 @@ and the one cost it pays, in the module that uses it.
 
 ## 7. Never produced, never shipped
 
-**TCRvdb / MATCHMAKERS** (Messemaker et al., doi:10.1101/2025.04.28.651095) is proprietary:
-academic, non-commercial, **no redistribution, in whole or in part**.
-
-It is used only as a held-out validation set, read from a path given by `VDJDB_TCRVDB` and never from
+**TCRvdb / MATCHMAKERS** (Messemaker et al., doi:10.1101/2025.04.28.651095) is used only as a held-out validation set, read from a path given by `VDJDB_TCRVDB` and never from
 inside this repository. No file in any bundle, artifact or report may contain its rows, its per-record
 labels, or any value derived from them at record granularity. Aggregate validation metrics (counts,
 AUROC, recall at a threshold) may be reported; per-record verdicts may not.
