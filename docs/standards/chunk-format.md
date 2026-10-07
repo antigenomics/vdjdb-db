@@ -17,6 +17,10 @@ Use `PMID_<id>.tsv` when PubMed indexes the paper, including indexed preprints. 
 `/content/`, version suffixes such as `v1`, and page suffixes such as `.full` before naming.
 The submitted `reference.id` uses the verified identifier; a filename is not a reference identifier.
 
+Unpublished submissions use `ISSUE_<number>.tsv`. Mixed-publication collections retain descriptive
+names, such as `PDB_Database.tsv`; each row retains its own reference. Excluded negative datasets
+may use `PMID_<id>_negative.txt`. Keep experiment suffixes where they distinguish source files.
+
 Check that the target filename is absent before renaming. Do not overwrite another chunk or
 combine two submissions without reviewing their source observations. Perform mechanical renames
 on a data-issue branch, retain the source bytes, run `vdjdb identity update`, and check that
