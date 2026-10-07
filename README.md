@@ -31,6 +31,8 @@ Start at [VDJdb documentation](https://docs.isalgo.dev/vdjdb-db/):
 
 - **Tutorial:** [explore your first records](docs/getting-started.md).
 - **How-to guides:** [submit records](docs/submission.md), [build a release](docs/builds.md),
+  [check experimental provenance](docs/submission.md#check-experimental-provenance-through-repertoire-overlap)
+  and [validation evidence](docs/submission.md#classify-validation-evidence),
   or [verify build integrity](docs/build-integrity.md).
 - **Reference:** [chunk format](docs/standards/chunk-format.md),
   [columns](docs/standards/columns.md), [scoring](docs/standards/confidence-score.md) and

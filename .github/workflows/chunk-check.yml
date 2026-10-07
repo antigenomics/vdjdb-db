@@ -137,6 +137,18 @@ jobs:
               | xargs -0 uv run vdjdb submission --out submission.md > /dev/null
           fi
 
+      - name: Experimental provenance overlap
+        run: |
+          uv run vdjdb overlap --by-sample --out out/reports/provenance-overlap.tsv
+          uv run vdjdb overlap --by-sample --submitted --out out/reports/provenance-overlap-submitted.tsv
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: provenance-overlap
+          path: out/reports/provenance-overlap*.tsv
+          retention-days: 14
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
