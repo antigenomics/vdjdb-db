@@ -11,6 +11,18 @@ Use a fresh build and read raw chunks with `read_chunks(deduplicate=False)`.
 
 ## Compare receptors and experiments
 
+Before importing a collection, measure epitope plus CDR3 overlap against both the last release
+and current chunks, within species and for each chain. Compare submitted and repaired junctions
+separately. Report matched and unmatched rows and distinct pairs per original publication, with
+the source files that matched. This broad screen detects earlier imports; it does not prove
+that paired receptors, restrictions or experiments are identical.
+
+For substantial overlap, reconcile the matched observations with their primary papers before
+creating a chunk. Verify paired chains, V/J calls, restriction and experiment metadata using
+the comparison below. Keep independently reported experiments; do not import the same source
+observation again under a collection's reference. Review unmatched measurements against the
+original assay before classifying them as positive or negative.
+
 Within species, group both chains together using `cdr3.alpha`, `v.alpha`, `j.alpha`,
 `cdr3.beta`, `v.beta`, `j.beta`, `antigen.epitope`, `mhc.a`, `mhc.b` and `mhc.class`.
 Compare submitted values first, then harmonised values. Sharing a beta chain does not establish

@@ -15,6 +15,14 @@ reused templates separately. Inspect complete polymer sequences as well as resol
 
 ## Reconcile the sources
 
+Before extracting a collection or follow-up paper, compare its reported epitope and CDR3
+sequences with the last released database and current chunks. Use
+[duplicate review](../vdjdb-duplicates/SKILL.md) to measure overlap by original publication,
+then check paired chains, restriction and experiment identifiers. A large overlap can identify
+an earlier import; a paper filename or reference count alone cannot establish coverage.
+Attribute reused observations to their original papers. Use the collection paper's reference
+only for observations first reported in its own experiments.
+
 Inventory the supplied article, supplements and processed assignments. Record which tables
 contain sequences, pairing, peptides, restrictions and assays. Join on reported clone, donor,
 well or barcode identifiers and record join cardinality. Do not infer alpha/beta pairing from
