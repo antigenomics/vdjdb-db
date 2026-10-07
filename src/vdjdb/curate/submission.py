@@ -253,11 +253,15 @@ def report(files: list[str], records: pl.DataFrame) -> str:
     if anchor_text:
         out += [anchor_text]
 
-    # A row keyed identically to one another chunk already reports is not a duplicate - two chunks are
-    # two independent reports (CLAUDE.md) - but it is the thing that raises the score, so say so.
-    key = ["cdr3.alpha", "cdr3.beta", "antigen.epitope", "mhc.a"]
+    # A broad recurrence screen, followed by a size-normalised provenance screen.
+    key = ["species", "cdr3.alpha", "cdr3.beta", "antigen.epitope", "mhc.a", "mhc.b"]
     echoed = mine.join(rest.select(key).unique(), on=key, how="semi").height
-    out += [f"**{echoed:,} record(s) repeat a clonotype/pMHC another chunk already reports.** That is "
-            "independent replication, not duplication - it is what raises `vdjdb.score` - but a chunk "
-            "where every record is an echo may be a dataset VDJdb already has.", ""]
+    out += [f"**{echoed:,} record(s) repeat a clonotype/pMHC another chunk already reports.** "
+            "Check the source experiment before calling this independent validation. Different "
+            "reference IDs can describe reused samples or assays. Validation of the same sample "
+            "by a second experiment is supported evidence within that study.", ""]
+    from .overlap import overlaps
+    from .overlap import report as overlap_report
+
+    out += [overlap_report(overlaps(records), names)]
     return "\n".join(out)

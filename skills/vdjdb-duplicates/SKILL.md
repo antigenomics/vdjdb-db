@@ -62,3 +62,30 @@ Keep per-group evidence and counts in the local execution record. Report denomin
 observations, clonotypes or publications. Link unresolved source questions to the publication issue;
 create a data issue for a mechanical corpus correction. Apply chunk changes only on the branch
 for that chunk or data issue, with identity reconciliation and release-aware validation.
+
+## Trace high overlap to the experimental source
+
+Run `vdjdb overlap --by-sample` and repeat with `--submitted`. Retain zero-match pairs.
+For each species/pMHC and alpha, beta or paired mode, report distinct set sizes, shared junctions,
+size product, containment and `(shared+1)/(n1*n2+1)`. Compare YLQPRTFLL and NLVPMVATV strata
+with the same chain mode and restriction. Pooled chunk sizes are not donor repertoire sizes.
+
+At least five matches with 20% containment requests source tracing. This operational screen is
+not a p-value. Public clonotypes and selected repertoires prevent deriving a universal threshold
+from typical generation probabilities. Smaller reused datasets can evade the screen.
+
+Inspect every matched observation's original table, sample/cohort, construct and assay, plus
+both chains' V/J calls and every method/meta field. Distinguish same-sample validation within a
+study, independently measured validation, reused measurements and conflicting attribution.
+Different reference IDs or different method labels alone do not prove independence. Identical
+donor labels across papers do not prove the same donor; blanks never identify a donor.
+
+Preserve distinct experiments, including validation within the same reference and sample.
+Do not import reprinted assays as new independent evidence. Resolve erroneous reference IDs or
+split mixed-source observations only from source evidence, on the corresponding data-issue branch.
+Record one decision and a source location for every matched observation, not just one conclusion
+for the overlapping papers. The screen cannot automatically deduplicate or change scores.
+
+Also inspect `paired.pmhc`: it compares paired receptor/pMHC observations across peptide strata
+within species, detecting reused mutational scans with few receptors per peptide. Its set sizes
+count distinct receptor/pMHC observations. Keep it separate from paired-junction repertoire sizes.

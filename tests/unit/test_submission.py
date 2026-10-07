@@ -45,12 +45,13 @@ def test_the_score_histogram_is_per_chunk() -> None:
     assert "| `old.txt` | 1 | 0 | 1 | 0 | 0 |" in text
 
 
-def test_a_clonotype_another_chunk_already_reports_is_counted_as_replication() -> None:
-    """Not as a duplicate. Two chunks are two independent reports, and that is what raises the score."""
+def test_a_recurrence_requires_source_evidence_for_independence() -> None:
+    """Publication labels alone do not establish independent experiments."""
     echo = ("new.txt", 0, OLD[2], OLD[3], OLD[4], OLD[5], OLD[6], OLD[7], "", "HomoSapiens", "PMID:3")
     text = report(["new.txt"], rows(echo, OLD))
     assert "**1 record(s) repeat a clonotype/pMHC" in text
-    assert "independent replication, not duplication" in text
+    assert "Check the source experiment" in text
+    assert "independent replication, not duplication" not in text
 
 
 def test_no_record_from_the_changed_file_says_so_rather_than_printing_zeroes() -> None:

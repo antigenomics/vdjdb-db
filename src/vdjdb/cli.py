@@ -60,6 +60,26 @@ def submission(
     typer.echo(text, nl=False)
 
 
+@app.command(name="overlap")
+def overlap(
+    out: Path = typer.Option(Path("out/reports/provenance-overlap.tsv"), help="Complete pair report."),
+    chunks: Path | None = typer.Option(None, help="Chunk directory; default chunks/."),
+    by_sample: bool = typer.Option(False, help="Separate reported donor IDs within each reference."),
+    submitted: bool = typer.Option(False, help="Compare submitted junctions before repair."),
+) -> None:
+    """Screen distinct junction overlap within species/pMHC for source provenance review."""
+    from .assemble.master import build_master
+    from .curate.overlap import overlaps
+    from .io.chunks import chunk_files
+
+    records = build_master(chunk_files(chunks) if chunks else None)
+    pairs = overlaps(records, by_sample=by_sample, submitted=submitted)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    pairs.write_csv(out, separator="\t")
+    typer.echo(f"{pairs.height:,} group pairs; "
+               f"{pairs['review.provenance'].sum():,} provenance review candidates -> {out}")
+
+
 @app.command()
 def schema(
     table: str = typer.Option("vdjdb", help="Any declared table: vdjdb, vdjdb-web, slim, full, "
