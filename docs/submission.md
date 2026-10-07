@@ -208,3 +208,49 @@ The pooled ratio is `(sum(shared)+1)/(sum(n1*n2)+1)`, with one pseudocount for t
 Junctions shared by several group pairs are counted once per comparison. These are corpus
 screens, not verified independent-donor benchmarks. Regenerate the full TSV for current counts;
 singleton sets have pseudocount-dominated ratios and should not calibrate a large-repertoire screen.
+
+## Classify validation evidence
+
+Keep these evidence classes separate; a record can have several kinds of support. When a single
+label is needed, use the order 4, 2, 3, 1:
+
+| Class | Evidence required | Browser selection |
+|---|---|---|
+| 1. Observed only | Initial capture/identification, without reported subsequent verification or replication | No additional validation requirement |
+| 2. Observed and validated | A reported receptor verification assay, such as cloning followed by pMHC staining, target stimulation or direct binding measurement | Inspect `method.verification` and assay confidence |
+| 3. Repeated within a study | Matching receptor/pMHC with distinct reported experiments, sampling time points, replicas or donors within the same reference | Same study validation |
+| 4. Independently corroborated | Matching chain/receptor and pMHC in author-independent references, with reused-source observations excluded | Independent validation |
+
+Replication within one study is stronger than one observation but does not replace receptor
+verification. Different assays on the same sample are valid within-study evidence. A method name
+change or a curation serial alone is not proof of a second experiment.
+
+`vdjdb overlap` also writes a per-record `*-categories.tsv` audit. It uses nonempty
+`method.verification` for reported assay validation and distinct nonempty replica/subject identifiers
+for documented within-study repetition. Replication that the source reports only in prose requires
+curation; blank identifiers do not establish it. The audit includes independent support separately
+for alpha and beta. One supported chain does not establish independent capture of the paired receptor.
+
+Author independence uses ordered PubMed author lists in `proofreading/pubmed_authors.tsv`:
+
+- Senior authors must differ, and neither senior author may appear in the other paper's author list.
+- Shared authors must be fewer than one third of the smaller list, using the strict inequality
+  `3*shared < min(n_authors_1,n_authors_2)`.
+- Missing, truncated or consortium-only senior-author metadata yields unknown. Non-PMID references
+  require source-based review; do not treat missing metadata as disjoint author lists.
+
+Names are matched conservatively by surname and first initial, with case, accents and punctuation
+folded. Homonyms can require manual disambiguation. The author screen is a laboratory-independence
+rule, not proof that an assay was repeated: a collection can reprint another laboratory's data.
+High repertoire overlap requests original-table tracing even when authors qualify as independent.
+
+Refresh this input explicitly with `vdjdb refs-authors`; review and commit the retrieved table.
+Builds and CI read it offline. The audit excludes cross-reference support between high-overlap
+reference pairs until source tracing establishes independence, while preserving direct verification
+and within-study evidence. Other qualified supporting references remain available.
+
+The browser currently reads `evidence.validation.same.study` and
+`evidence.validation.independent`. The historical build's independent flag counts references per
+chain/epitope, while its same-study flag has no producer. The new categories audit checks these
+claims using assay, replicate and author metadata; it does not silently change the published
+confidence scores, motif tuning objective or historical evidence flags.

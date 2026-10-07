@@ -89,3 +89,21 @@ for the overlapping papers. The screen cannot automatically deduplicate or chang
 Also inspect `paired.pmhc`: it compares paired receptor/pMHC observations across peptide strata
 within species, detecting reused mutational scans with few receptors per peptide. Its set sizes
 count distinct receptor/pMHC observations. Keep it separate from paired-junction repertoire sizes.
+
+## Separate validation classes and laboratory independence
+
+Use the four classes in [validation evidence](../../docs/submission.md#classify-validation-evidence):
+observed only; observed with receptor verification; repeated within one study; author-independent
+corroboration. Direct verification ranks above within-study repetition. Both may support one record.
+Inspect the per-record `*-categories.tsv` audit; alpha or beta support alone does not confirm a paired receptor.
+
+Read the ordered author input `proofreading/pubmed_authors.tsv`, refreshed explicitly by
+`vdjdb refs-authors`. Author-independent references have different senior authors, neither senior
+author in the other list, and strictly less than one third overlap of the smaller author list.
+Missing/truncated lists or consortium-only senior authors mean unknown. Name keys use surname and
+first initial; resolve homonyms from source evidence rather than treating a collision as identity.
+
+Trace source assays even when the authors pass: a review or collection can reuse another laboratory's
+measurements. Preserve direct assays and same-sample experiments; do not promote them to independent
+repertoire capture. Check the historical browser evidence flags against the audit rather than assuming
+those flags already enforce the author rule. Keep private manuscript and validation data out of the repository.

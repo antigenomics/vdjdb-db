@@ -81,12 +81,13 @@ def report(pairs: pl.DataFrame, files: list[str]) -> str:
            "source experiment; it does not establish independent validation or justify deletion.", "",
            "Review candidates have at least 5 shared junctions and 20% containment of the smaller set. "
            "The smoothed ratio is (shared + 1)/(n1*n2 + 1), a descriptive measure, not a p-value.", "",
-           "| Reference 1 | Reference 2 | Peptide | Mode | n1 | n2 | Shared | Ratio +1 |",
-           "|---|---|---|---|---:|---:|---:|---:|"]
+           "| Reference 1 | Reference 2 | Peptide | Mode | n1 | n2 | Shared | Ratio +1 | Authors |",
+           "|---|---|---|---|---:|---:|---:|---:|---|"]
     for row in flagged.iter_rows(named=True):
         out.append(f"| {row['reference.id']} | {row['reference.id.other']} | "
                    f"{row['antigen.epitope']} | {row['mode']} | {row['n']} | "
-                   f"{row['n.other']} | {row['shared']} | {row['ratio.plus1']:.3g} |")
+                   f"{row['n.other']} | {row['shared']} | {row['ratio.plus1']:.3g} | "
+                   f"{row.get('author.independence', 'unknown')} |")
     if flagged.is_empty():
         out += ["", "No group exceeds the screening threshold. Small reused datasets can still escape it."]
     return "\n".join([*out, ""])

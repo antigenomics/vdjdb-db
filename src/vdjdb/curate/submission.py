@@ -260,8 +260,12 @@ def report(files: list[str], records: pl.DataFrame) -> str:
             "Check the source experiment before calling this independent validation. Different "
             "reference IDs can describe reused samples or assays. Validation of the same sample "
             "by a second experiment is supported evidence within that study.", ""]
+    from .authors import AUTHOR_TABLE, author_pairs
     from .overlap import overlaps
     from .overlap import report as overlap_report
 
-    out += [overlap_report(overlaps(records), names)]
+    pairs = overlaps(records)
+    if AUTHOR_TABLE.exists():
+        pairs = author_pairs(pairs, pl.read_csv(AUTHOR_TABLE, separator="\t"))
+    out += [overlap_report(pairs, names)]
     return "\n".join(out)

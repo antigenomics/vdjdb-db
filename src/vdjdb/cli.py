@@ -60,6 +60,22 @@ def submission(
     typer.echo(text, nl=False)
 
 
+@app.command(name="refs-authors")
+def refs_authors(
+    out: Path = typer.Option(Path("proofreading/pubmed_authors.tsv"), help="Reviewed author input."),
+) -> None:
+    """Fetch ordered author lists for corpus PMIDs; network input refresh, never a build step."""
+    from .curate.authors import fetch_authors
+    from .curate.nomenclature import harmonise_references
+    from .io.chunks import read_chunks
+
+    records, _ = harmonise_references(read_chunks())
+    authors = fetch_authors(records["reference.id"].unique().to_list())
+    out.parent.mkdir(parents=True, exist_ok=True)
+    authors.write_csv(out, separator="\t")
+    typer.echo(f"{authors['reference.id'].n_unique():,} PubMed author lists -> {out}")
+
+
 @app.command(name="overlap")
 def overlap(
     out: Path = typer.Option(Path("out/reports/provenance-overlap.tsv"), help="Complete pair report."),
@@ -68,14 +84,21 @@ def overlap(
     submitted: bool = typer.Option(False, help="Compare submitted junctions before repair."),
 ) -> None:
     """Screen distinct junction overlap within species/pMHC for source provenance review."""
+    import polars as pl
+
     from .assemble.master import build_master
+    from .curate.authors import AUTHOR_TABLE, author_pairs, categories
     from .curate.overlap import overlaps
     from .io.chunks import chunk_files
 
     records = build_master(chunk_files(chunks) if chunks else None)
     pairs = overlaps(records, by_sample=by_sample, submitted=submitted)
+    authors = pl.read_csv(AUTHOR_TABLE, separator="\t")
+    pairs = author_pairs(pairs, authors)
     out.parent.mkdir(parents=True, exist_ok=True)
     pairs.write_csv(out, separator="\t")
+    categories(records, authors, pairs).write_csv(
+        out.with_name(out.stem + "-categories.tsv"), separator="\t")
     typer.echo(f"{pairs.height:,} group pairs; "
                f"{pairs['review.provenance'].sum():,} provenance review candidates -> {out}")
 
