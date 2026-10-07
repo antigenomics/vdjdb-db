@@ -24,7 +24,8 @@ sequence-free chunks. Preserve downloadable source attachments when shortening i
 
 ## Use tcren locally
 
-Use `~/vcs/code/tcren` and read its `AGENTS.md` and `skills/tcren/SKILL.md`. Install it into an
+Use `~/vcs/code/tcren` and read its `AGENTS.md` and
+`~/vcs/code/tcren/skills/tcren/SKILL.md`. Install it into an
 isolated extraction environment when needed. This is a curation tool, not a source-checkout
 replacement for this repository's published build dependencies.
 

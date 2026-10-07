@@ -5,7 +5,8 @@ description: Validate VDJdb build code, CI, output contracts and release promoti
 
 # Verify the build and release lifecycle
 
-Read repository `AGENTS.md`, [build and release](../../docs/builds.md),
+Read repository `AGENTS.md`, [source authorities](../AUTHORITIES.md),
+[build and release](../../docs/builds.md),
 [outputs](../../docs/outputs.md) and [build integrity](../../docs/build-integrity.md).
 Read `docs/denoising.md` before motif changes. Inspect the current local roadmap and worktree
 before starting; preserve existing source work and unresolved follow-ups.
