@@ -27,11 +27,11 @@ MIN_OCCURRENCES = 50
 #: Measured on the combined import using human TRB observations joined by record_id.
 #: Publication retrieval is tested separately; it cannot establish receptor specificity.
 EXPECTED = {
-    "documents": 833,
+    "documents": 834,
     "kmers_scored": 349,
     "top_kmer": "k:IRS",
-    "top_lift": 13.201674,
-    "median_lift": 0.849078,
+    "top_lift": 13.213817,
+    "median_lift": 0.848004,
     "motif_kmers": 18,
     "motif_above_median": 18,
 }
@@ -63,9 +63,9 @@ def scored(tables: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
     result = query.receptor_lift(tables["records"], tables["chains"],
                                  species="HomoSapiens", gene="TRB", epitope=EPITOPE,
                                  min_units=MIN_OCCURRENCES)
-    # The collection extension and six follow-up assays add297 human TRB observations.
+    # PMID42826196 adds618 human TRB observations.
     # The GILGFVFTL cohort and its leading IRS motif remain unchanged.
-    assert result["units"][0] == 245090
+    assert result["units"][0] == 245708
     assert result["given_units"][0] == 18164
     return [(row["lift"], row["term"]) for row in result.iter_rows(named=True)]
 
