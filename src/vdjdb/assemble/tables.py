@@ -43,6 +43,8 @@ the other direction:
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 import polars as pl
 
 from ..annotate.junction import NT_COLUMNS
@@ -174,10 +176,12 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
                   .with_columns(pl.col("clone_id").fill_null("")))
 
 
-def build_tables(master: pl.DataFrame, *, release: str = "dev") -> dict[str, pl.DataFrame]:
+def build_tables(master: pl.DataFrame, *, release: str = "dev", pmhc_reference: Path | None = None,
+                 epitope_jobs: int = 1) -> dict[str, pl.DataFrame]:
     """The definitive tables, keyed by name."""
     from ..annotate.junction import add_junction_nt
     from ..timing import stage
+    from .assessment import build_assessment
     from .epitopes import build_epitopes, build_restriction
     from .evidence import build_evidence
 
@@ -200,6 +204,8 @@ def build_tables(master: pl.DataFrame, *, release: str = "dev") -> dict[str, pl.
         epitopes = build_epitopes(records, chains)
     with stage("build_restriction"):
         restriction = build_restriction(records)
+    with stage("build_epitope_assessment"):
+        assessment = build_assessment(records, reference=pmhc_reference, jobs=epitope_jobs)
 
     return {
         "records": records,
@@ -207,4 +213,5 @@ def build_tables(master: pl.DataFrame, *, release: str = "dev") -> dict[str, pl.
         "evidence": evidence,
         "epitopes": epitopes,
         "restriction": restriction,
+        "epitope_assessment": assessment,
     }

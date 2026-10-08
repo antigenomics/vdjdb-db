@@ -23,10 +23,10 @@ dependencies = [
     # reference resolves through arda by allele name, so the two speak one coordinate frame.
     "vdjtools>=4.8.1",
     # mhcmatch answers "does this allele present this peptide", which is the only authority this
-    # repo has for `mhc.a` beyond the publication that reported it. Two consumers, split by what
-    # they need at run time: `vdjdb promiscuity` scores a pair with a model fetched from HuggingFace
-    # and is therefore never part of a build, while `curate/presentation.py` reads only the bundled
-    # pseudosequence FASTAs - 31,130 keys, 0.01 s, no network - so the build does import it.
+    # repo has for `mhc.a` beyond the publication that reported it. Assessment computes from an
+    # explicit pinned reference during builds; the reference download is a separate input step.
+    # The older promiscuity command refreshes its reviewed input, and presentation checks read
+    # only bundled pseudosequences. The assessment specification pins its scoring version.
     "mhcmatch>=1.20",
 ]
 

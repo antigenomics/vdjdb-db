@@ -390,6 +390,66 @@ epitope outside the 8-11mer class I range, and the rest resolve only at a depth 
 name. A deeper spelling such as `HLA-A*02:01:48` is scored at its two-field molecule, because the
 panel is named at two fields and there is no deeper groove.
 
+### 3.3b `epitope_assessment.parquet` - reported peptides and predicted binding cores
+
+Also shipped as `epitope_assessment.tsv` in the primary bundle. This extends the presentation
+annotation in section 3.3a and ROADMAP section 10.6 (#1315). It records predictions separately from
+the `epitopes` provenance catalogue and the reported MHC pairs in `restriction`.
+
+The key is `(antigen_epitope, antigen_species, antigen_gene, species, mhc_species, mhc_class,
+mhc_a, mhc_b, prediction_allele)`. Every reported pair has a row with `reported = true`, including
+unsupported peptides and molecules. Competing parent-gene labels are retained. `species` describes
+the receptor; `mhc_species` selects the presentation model from the reported molecule; neither is
+the peptide's `antigen_species`. Additional predicted pairings have `reported = false`, blank
+`mhc_a`/`mhc_b` and zero `records`/`references`. Support counts belong to reported pairs only.
+
+`prediction_allele` is the mhcmatch panel key. Class-II keys identify a molecule, including both
+polymorphic chains for DP/DQ; an absent DP/DQ partner is not imputed. `allele_resolution` distinguishes
+an exact resolution from prefix completion. The lowest presentation percentile is marked
+`prediction_best`, with ties broken by allele name. All weak/strong predicted presenters and every
+reported pairing are retained. The best panel allele is retained even when its band is non-binder.
+That flag is a ranking within this panel, not evidence that the peptide is presented.
+
+`prediction_peptide` is the scored sequence. A reported class-I peptide longer than eleven residues
+is assessed as binding-length windows, retaining the best window per allele and its 0-based
+`prediction_offset` in the reported sequence. Class II is scored as the reported sequence, with its
+allele-dependent register. `core` and `core_offset` come from the same model register, not an
+allele-independent register guess. Class-I cores follow mhcmatch's footprint: eight residues for
+an 8-mer, nine for a 9-11-mer, with central insertions omitted. Such a core need not be a contiguous
+substring, and should not replace the full peptide in a structure model.
+
+`tcr_facing` is the scored peptide with mhcmatch's class-default anchors masked by `X`.
+`core_tcr_facing` applies the core residue mapping to that sequence, excluding class-II flanks.
+These are predicted representations, not measured minimal recognition epitopes or measured contact
+maps. A shared core under the same molecule supports a comparison between reported peptides; it
+does not establish equivalent TCR recognition. Flanks and alternative registers can still matter.
+No record, pMHC id, motif group or curation field is changed by this table.
+
+`assessment_status` states coverage. `scored` rows contain the presentation percentile, calibrated
+probability and mhcmatch class-specific band. Other rows name the absent reference, unsupported
+peptide/species/class, absent panel allele, empty reference panel, or unscorable pair. Optional
+measurements are text, with empty string as
+the missing value; select scored rows and cast to numeric types for calculations. The generated
+[column reference](standards/columns.md) declares every field.
+
+Build-time predictions use the published mhcmatch version and revision/checksum-pinned reference
+declared in `rules/epitope_assessment.toml`. Human and mouse class I/II are supported. Fetching the
+reference is a separate input step; assembly is offline, recomputes predictions and calibration on
+every run, and disables persisted calibration results. The fitted models bundled with mhcmatch are
+immutable model inputs. Each row records the software version, reference SHA256, calibration seed,
+background and footprint. CI runs:
+
+```bash
+uv run vdjdb epitope-reference --out out/inputs
+uv run vdjdb build --out out/ --pmhc-reference out/inputs/pmhc/pmhc_full.tsv.gz --epitope-jobs 4
+```
+
+Without `--pmhc-reference`, the table still catalogs all reported pairs and marks
+`reference_not_supplied`; it makes no predictions. `--epitope-jobs` budgets processes over distinct
+MHC species/class groups, each with one native thread. Results are sorted independently of worker
+count. The older reviewed class-I promiscuity input and its `restriction` columns retain their
+existing meaning; this table provides detailed freshly computed assessment alongside them.
+
 ### 3.4 `vdjdb.parquet` - the joined view
 
 `records ⋈ chains ⋈ evidence`, one row per chain, with each evidence type pivoted to a boolean. It is

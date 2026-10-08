@@ -47,6 +47,7 @@ def _frame(rows: list[dict], columns: tuple[str, ...], dtypes: dict) -> pl.DataF
 
 @pytest.fixture
 def tables() -> dict[str, pl.DataFrame]:
+    from vdjdb.assemble.assessment import build_assessment
     from vdjdb.assemble.epitopes import build_epitopes, build_restriction
 
     records = _frame(RECORDS, RECORD_COLUMNS, {"vdjdb.score": pl.Int64, "chunk.row": pl.Int64})
@@ -54,7 +55,7 @@ def tables() -> dict[str, pl.DataFrame]:
     return {"records": records, "chains": chains,
             "evidence": build_evidence(records, chains, release="v1"),
             "epitopes": build_epitopes(records, chains),
-            "restriction": build_restriction(records)}
+            "restriction": build_restriction(records), "epitope_assessment": build_assessment(records)}
 
 
 def test_the_view_declares_every_evidence_column_even_without_a_producer(tables):
@@ -83,8 +84,17 @@ def test_record_level_evidence_is_refused_rather_than_silently_dropped(tables):
 def test_tables_round_trip_through_parquet_unchanged(tmp_path, tables):
     vdjdb3.write_all(tables, tmp_path)
     back = vdjdb3.read_tables(tmp_path)
-    for name in ("records", "chains", "evidence"):
+    for name in tables:
         assert back[name].equals(tables[name]), name
+
+
+def test_older_tables_without_assessment_still_project_to_legacy(tmp_path, tables):
+    vdjdb3.write_all(tables, tmp_path / "tables")
+    for suffix in ("parquet", "tsv"):
+        (tmp_path / "tables" / f"epitope_assessment.{suffix}").unlink()
+    old = vdjdb3.read_tables(tmp_path / "tables")
+    assert "epitope_assessment" not in old
+    legacy.write_all(old, tmp_path / "legacy")
 
 
 def test_the_legacy_export_is_a_projection_of_what_shipped(tmp_path, tables):

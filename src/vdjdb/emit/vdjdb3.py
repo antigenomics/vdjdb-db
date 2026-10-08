@@ -26,6 +26,7 @@ import polars as pl
 
 from ..schema import (
     CHAIN_COLUMNS,
+    EPITOPE_ASSESSMENT_COLUMNS,
     EPITOPE_COLUMNS,
     EVIDENCE_TABLE_COLUMNS,
     RECORD_COLUMNS,
@@ -61,6 +62,7 @@ _FROM_TIDY: dict[str, str] = {v: k for k, v in _TIDY.items()}
 _TABLE_ORDER: dict[str, tuple[str, ...]] = {
     "records": RECORD_COLUMNS, "chains": CHAIN_COLUMNS, "evidence": EVIDENCE_TABLE_COLUMNS,
     "epitopes": EPITOPE_COLUMNS, "restriction": RESTRICTION_COLUMNS,
+    "epitope_assessment": EPITOPE_ASSESSMENT_COLUMNS,
 }
 
 
@@ -125,7 +127,10 @@ def read_tables(d: Path) -> dict[str, pl.DataFrame]:
 
     This is what makes the legacy export a projection: it reads what shipped, never ``chunks/``.
     """
-    return {name: read_table(d, name) for name in _TABLE_ORDER}
+    # Older primary bundles precede the assessment table. Their projections remain readable.
+    return {name: read_table(d, name) for name in _TABLE_ORDER
+            if name != "epitope_assessment" or (d / f"{name}.parquet").exists()
+            or (d / f"{name}.tsv").exists()}
 
 
 def write_all(tables: dict[str, pl.DataFrame], out: Path) -> dict[str, Path]:

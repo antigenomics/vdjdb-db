@@ -160,6 +160,10 @@ def build(
     legacy: bool = typer.Option(True, help="Write the legacy projection."),
     airr: bool = typer.Option(True, help="Write the AIRR projection."),
     release: str = typer.Option("dev", help="Release tag recorded on new evidence rows."),
+    pmhc_reference: Path | None = typer.Option(
+        None, help="Pinned pMHC input from epitope-reference; no download."),
+    epitope_jobs: int = typer.Option(
+        1, min=1, help="Processes for epitope assessment; one native thread each."),
 ) -> None:
     """Assemble the database: the definitive tables, and every format projected from them."""
     import polars as pl
@@ -188,7 +192,7 @@ def build(
     paths = chunk_files(chunks) if chunks else None
     with stage("assemble.master.build_master"):
         master = build_master(paths, write_report=out / "reports" / "harmonisation.tsv")
-    built = build_tables(master, release=release)
+    built = build_tables(master, release=release, pmhc_reference=pmhc_reference, epitope_jobs=epitope_jobs)
     out.mkdir(parents=True, exist_ok=True)
 
     # Advisory, and deliberately not a gate: a value one character from another may be a typo or may
@@ -696,6 +700,16 @@ def antigens_cmd(
         for row in clash.head(5).iter_rows(named=True):
             typer.echo(f"  {row['antigen.epitope']:18} {row['antigen.gene']:18} -> "
                        f"{row['source.gene']:10} {row['records']:6,} record(s)")
+
+
+@app.command(name="epitope-reference")
+def epitope_reference_cmd(
+    out: Path = typer.Option(Path("out/inputs"), help="Directory for the pinned reference input."),
+) -> None:
+    """Fetch the reviewed pMHC reference before an offline build with --pmhc-reference."""
+    from .assemble.assessment import fetch_reference
+
+    typer.echo(str(fetch_reference(out)))
 
 
 @app.command(name="promiscuity")
