@@ -95,6 +95,43 @@ method.verification | ``tetramer-stain``, ``dextramer-stain``, ``pelimer-stain``
 
 > For special cases such as CD8-null tetramers, which use HLA with mutated residues that abrogate CD8 binding, specify ``cd8null-tetramer`` in ``method.identification`` rather than using the ``mhc.a`` field.
 
+### Count-only records: a suggested denominator review
+
+A source can report ``method.frequency.count`` without a sample total. Keep that count;
+absence of a denominator does not erase the sequencing support. As a curation workaround,
+consider deriving a total by summing compatible counts within the smallest group that the
+available metadata identifies. This is a suggestion for source review, not an automatic build
+rule. Prefer groups in this order:
+
+| Preference | Group identified by the source |
+|---|---|
+| 1 | Cell subset in a donor, or a replica from that donor; retain both distinctions when available |
+| 2 | Donor |
+| 3 | Experiment |
+| 4 | Epitope within the study |
+
+Every group stays within one publication and study, one peptide-MHC assignment and one
+count unit. Use ``meta.cell.subset``, ``meta.subject.id``, ``meta.replica.id``, ``meta.tissue``
+and ``meta.study.id`` only to the resolution the paper supplies. Do not pool different donors,
+sampling times, tissues, subsets or restrictions when the source distinguishes them.
+
+Before using the sum, check that counts represent comparable cells, reads or UMIs and count
+independent observations once. Include each paired receptor's reported support count once,
+preserving its cell, read or UMI multiplicity. A copied count attached to several verification
+assays is not several independent sequencing observations.
+A table of selected reconstructed clones can yield a panel total, but that sum does not establish
+the denominator of the original epitope-reactive population. Where completeness or count units
+cannot be established, retain the count and leave the total blank.
+
+Record the grouping fields, included source observations, count units and arithmetic in the
+tracked issue, with links to the source evidence. Record the resulting changes to frequency,
+record identity and confidence score, including when those values remain unchanged.
+If the review supports a derived denominator, distinguish it from a reported total in the
+curation comment and issue, fill ``method.frequency.total`` and keep any supplied frequency
+consistent with the count/total pair. Recheck QC, record identity and confidence scores on a
+separate data-issue branch. The count-only corpus review is tracked in
+[issue #1308](https://github.com/antigenomics/vdjdb-db/issues/1308).
+
 The build collapses the columns above into a JSON string held in a single ``method`` column, e.g.:
 ```json
 {

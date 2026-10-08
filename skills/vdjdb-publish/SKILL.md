@@ -94,6 +94,13 @@ separate validation branch on the resulting dev, and compare its complete tree w
 candidate. Wait for the refreshed required check, then merge validation and verify the final tree.
 Do not promote to `master` unless requested.
 
+Before every PR merge, check both CI results and code review. Inspect the final diff and all
+available review summaries, inline comments and unresolved threads; resolve substantive findings.
+Record the review outcome and CI evidence in the local execution record. An empty review list
+does not replace reviewing the diff. Checks and reviews must cover the final head or a
+proven-identical tree; after a material revision, review the changed diff again and obtain fresh
+applicable checks. A stale review or check does not cover subsequent changes.
+
 Read issue comments and the pending/withheld/negative manifests before closing. Record merged PRs,
 imported scope and any leftover rows. Close only when no material work remains; GitHub may not
 auto-close issues when the target is `dev`. If optional metadata remains, keep a nonblocking
