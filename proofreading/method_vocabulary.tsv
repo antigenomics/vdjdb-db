@@ -72,3 +72,4 @@ magnetic beads	declared		PMID:40498839; magnetic selection during phage-library 
 MHC-peptide-beads	declared		PMID:10925283; MHC-peptide multimer selection; the existing term describes the reported selection mechanism
 tetramer-stain	declared		PMID:39286976; tetramer binding identifies the reported receptor populations; staining can also verify an independently identified receptor
 cla	alias	CTL clone	PMID:20139278 abstract reports sequenced T-cell clones; CLA describes their retained CD8+CLA+ subset rather than a specificity assay
+dextramer-umi	declared		PMID:42826196; DNA-barcoded dCODE dextramers assign pMHC binding by UMI counts; specification permits UMI-tagged multimers
