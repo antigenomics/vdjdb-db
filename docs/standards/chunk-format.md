@@ -111,18 +111,21 @@ rule. Prefer groups in this order:
 | 4 | Epitope within the study |
 
 Every group stays within one publication and study, one peptide-MHC assignment and one
-count unit. Use ``meta.cell.subset``, ``meta.subject.id``, ``meta.replica.id`` and
-``meta.study.id`` only to the resolution the paper supplies. Do not pool different donors,
-sampling times, subsets or restrictions when the source distinguishes them.
+count unit. Use ``meta.cell.subset``, ``meta.subject.id``, ``meta.replica.id``, ``meta.tissue``
+and ``meta.study.id`` only to the resolution the paper supplies. Do not pool different donors,
+sampling times, tissues, subsets or restrictions when the source distinguishes them.
 
 Before using the sum, check that counts represent comparable cells, reads or UMIs and count
-independent observations once. A paired receptor is one counting unit, and a copied count
-attached to several verification assays is not several independent sequencing observations.
+independent observations once. Include each paired receptor's reported support count once,
+preserving its cell, read or UMI multiplicity. A copied count attached to several verification
+assays is not several independent sequencing observations.
 A table of selected reconstructed clones can yield a panel total, but that sum does not establish
 the denominator of the original epitope-reactive population. Where completeness or count units
 cannot be established, retain the count and leave the total blank.
 
-Record the grouping fields, included source observations and arithmetic in the source proof.
+Record the grouping fields, included source observations, count units and arithmetic in the
+tracked issue, with links to the source evidence. Record the resulting changes to frequency,
+record identity and confidence score, including when those values remain unchanged.
 If the review supports a derived denominator, distinguish it from a reported total in the
 curation comment and issue, fill ``method.frequency.total`` and keep any supplied frequency
 consistent with the count/total pair. Recheck QC, record identity and confidence scores on a
