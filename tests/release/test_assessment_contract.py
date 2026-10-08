@@ -37,6 +37,8 @@ def test_reported_pairs_preserve_provenance_and_support(frames):
     inferred = assessment.filter(~pl.col("reported"))
     assert inferred.filter((pl.col("mhc.a") != "") | (pl.col("mhc.b") != "") |
                            (pl.col("records") != 0) | (pl.col("references") != 0)).is_empty()
+    assert inferred.filter(~pl.col("prediction.best") &
+                           (pl.col("presentation.band") == "non-binder")).is_empty()
 
 
 def test_scored_core_coordinates_and_model_provenance(frames):

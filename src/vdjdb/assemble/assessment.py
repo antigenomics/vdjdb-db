@@ -223,7 +223,9 @@ def build_assessment(records: pl.DataFrame, *, reference: Path | None = None,
     expanded = (expanded.join(counts, on=KEY, how="left")
                 .filter(~pl.col("reported") | pl.col("records").is_not_null()))
     reported_rows = expanded.filter(pl.col("reported"))
-    inferred_rows = expanded.filter(~pl.col("reported")).join(
+    inferred_rows = expanded.filter(
+        ~pl.col("reported") & ((pl.col("presentation.band") != "non-binder")
+                               | pl.col("prediction.best"))).join(
         reported_rows.filter(pl.col("prediction.allele") != "").select(
             *PROVENANCE, "prediction.allele").unique(),
         on=[*PROVENANCE, "prediction.allele"], how="anti")

@@ -48,15 +48,18 @@ def test_checksum_failure_precedes_any_scoring(tmp_path):
         A.build_assessment(records(), reference=bad)
 
 
-def test_join_keeps_predictions_for_other_provenance_and_never_invents_support(monkeypatch, tmp_path):
+@pytest.mark.parametrize("band, expected", [("weak", 1), ("non-binder", 0)])
+def test_join_keeps_predictions_for_other_provenance_and_never_invents_support(
+        monkeypatch, tmp_path, band, expected):
     def score(task):
         return [
             {"antigen.epitope": "PKYVKQNTLKLAT", "mhc.a": "HLA-DRA*01:01",
              "mhc.b": "HLA-DRB1*01:01", "reported": True, "prediction.allele": "DRB1_0101",
-             "core": "YVKQNTLKL", "core.offset": "2", "assessment.status": "scored"},
+             "core": "YVKQNTLKL", "core.offset": "2", "assessment.status": "scored",
+             "presentation.band": band},
             {"antigen.epitope": "PKYVKQNTLKLAT", "reported": False,
              "prediction.allele": "DRB1_0101", "core": "YVKQNTLKL", "core.offset": "2",
-             "assessment.status": "scored"},
+             "assessment.status": "scored", "presentation.band": band},
             {"antigen.epitope": "AA", "mhc.a": "HLA-DRA*01:01", "mhc.b": "HLA-DRB1*01:01",
              "reported": True, "assessment.status": "unsupported_peptide"},
         ]
@@ -67,9 +70,10 @@ def test_join_keeps_predictions_for_other_provenance_and_never_invents_support(m
     assert reported["records"].sum() == 4
     assert reported.filter(pl.col("antigen.gene") == "Other")["mhc.b"].to_list() == ["HLA-DRB1*04:01"]
     predicted = result.filter(~pl.col("reported"))
-    assert predicted["antigen.gene"].to_list() == ["Other"]
-    assert predicted["records"].to_list() == [0]
-    assert predicted["references"].to_list() == [0]
+    assert predicted.height == expected
+    assert predicted["antigen.gene"].to_list() == ["Other"] * expected
+    assert predicted["records"].to_list() == [0] * expected
+    assert predicted["references"].to_list() == [0] * expected
     assert sum(result.null_count().row(0)) == 0
 
 
