@@ -27,7 +27,7 @@ MIN_OCCURRENCES = 50
 #: Measured on the combined import using human TRB observations joined by record_id.
 #: Publication retrieval is tested separately; it cannot establish receptor specificity.
 EXPECTED = {
-    "documents": 835,
+    "documents": 836,
     "kmers_scored": 349,
     "top_kmer": "k:IRS",
     "top_lift": 13.212713,
@@ -67,7 +67,8 @@ def scored(tables: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
     # The GILGFVFTL cohort and its leading IRS motif remain unchanged.
     # PMID42826196 adds313 candidate-row TRB observations; these are not
     # independent source clonotypes. The source clone IDs remain available.
-    assert result["units"][0] == 246080
+    # PMID41686909 adds15 human TRB observations without changing the GILGFVFTL cohort.
+    assert result["units"][0] == 246095
     assert result["given_units"][0] == 18164
     return [(row["lift"], row["term"]) for row in result.iter_rows(named=True)]
 
