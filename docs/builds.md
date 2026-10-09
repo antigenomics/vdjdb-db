@@ -80,9 +80,10 @@ gh workflow run chunk-check.yml --ref <branch> \
 ```
 
 Presentation calibration still has a fixed per-species/class setup cost for small submissions.
-The first full-corpus assessment measured 129.3 seconds on four CI cores, 34.6% of timed
-**assembly**, not of the complete workflow. That initial timing used marginal calibration; class-II ranks now use matched-length backgrounds,
-so it is historical rather than a current runtime claim. Assessment timing reports also record
+The corrected full-corpus assessment measured 861.0 seconds on four CI cores, 82.4% of timed
+**assembly**, not of the complete workflow. Class-II ranks use matched-length backgrounds.
+The earlier 129.3-second / 34.6% measurement used marginal calibration and is superseded.
+Assessment timing reports also record
 `peak_tree_rss_mb`, the aggregate RSS of parent and descendants sampled every 50 milliseconds.
 The assembly gate separately budgets this at 8,192 MiB, based on the measured 4,931.4 MiB cold
 process-tree peak, while keeping its 4,096 MiB parent budget. Unmeasured tree peaks are blank.

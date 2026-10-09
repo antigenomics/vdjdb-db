@@ -411,7 +411,7 @@ reported pairing are retained. The best panel allele is retained even when its b
 That flag is a ranking within this panel, not evidence that the peptide is presented.
 
 Class-II percentile ranks use a random-peptide background of the same length as the scored
-peptide, so maximizing over additional registers does not inflate the presentation band.
+peptide, so the null includes the same number of available register frames.
 Class I retains mhcmatch's marginal background and length preference. `presentation_p_present`
 is the published scorer's separate isotonic probability; it is not a length-conditioned percentile.
 
