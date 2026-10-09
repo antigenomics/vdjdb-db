@@ -53,6 +53,13 @@ uv run vdjdb qc chunks/PMID_<id>.tsv
 uv run vdjdb submission chunks/PMID_<id>.tsv
 ```
 
+For peptide/MHC review, optionally run `vdjdb assess-epitopes <chunk>` with the pinned
+`--pmhc-reference` input. See [check scopes](builds.md#choose-the-scope-of-a-check) for the
+standalone command and opt-in CI. This selected-input report avoids junction inference, motifs
+and dashboard generation. It supplements quick triage; full integration checks remain required.
+Predicted binding cores and TCR-facing sequences are advisory. Preserve the reported assay peptide,
+MHC and parent provenance; matching predicted cores does not establish equivalent recognition.
+
 Read the score distribution and fatal/advisory findings. Compare matches using both chains'
 V/J calls and junctions, epitope and MHC, then inspect all observation metadata. Different methods can validate the same
 sample within one publication. Independent validation across studies requires evidence that the

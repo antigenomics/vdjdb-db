@@ -210,3 +210,16 @@ def test_the_report_carries_the_input_size_and_the_core_count(report) -> None:
     _, timings, _, _ = report
     assert (timings["rows"] > 0).all(), "the timing report must carry the record count"
     assert (timings["cores"] > 0).all(), "the timing report must carry the core count"
+
+
+def test_assessment_process_tree_stays_inside_its_memory_budget(report) -> None:
+    name, timings, _, _ = report
+    if name != "build-timings.tsv":
+        return
+    assessment = timings.filter(pl.col("stage") == "build_epitope_assessment")
+    assert assessment.height == 1
+    assert "peak_tree_rss_mb" in assessment.columns
+    peak = assessment["peak_tree_rss_mb"].cast(pl.Float64).item()
+    # Cold four-process assessment measured 4,931.4 MiB across parent and workers.
+    # Keep the existing 4,096 MiB parent gate and separately budget the process tree.
+    assert 0 < peak <= 8192, f"assessment process-tree peak {peak:,.1f} MiB exceeds 8,192 MiB"

@@ -390,6 +390,76 @@ epitope outside the 8-11mer class I range, and the rest resolve only at a depth 
 name. A deeper spelling such as `HLA-A*02:01:48` is scored at its two-field molecule, because the
 panel is named at two fields and there is no deeper groove.
 
+### 3.3b `epitope_assessment.parquet` - reported peptides and predicted binding cores
+
+Also shipped as `epitope_assessment.tsv` in the primary bundle. This extends the presentation
+annotation in section 3.3a and ROADMAP section 10.6 (#1315). It records predictions separately from
+the `epitopes` provenance catalogue and the reported MHC pairs in `restriction`.
+
+The key is `(antigen_epitope, antigen_species, antigen_gene, species, mhc_species, mhc_class,
+mhc_a, mhc_b, prediction_allele)`. Every reported pair has a row with `reported = true`, including
+unsupported peptides and molecules. Competing parent-gene labels are retained. `species` describes
+the receptor; `mhc_species` selects the presentation model from the reported molecule; neither is
+the peptide's `antigen_species`. Additional predicted pairings have `reported = false`, blank
+`mhc_a`/`mhc_b` and zero `records`/`references`. Support counts belong to reported pairs only.
+
+`prediction_allele` is the mhcmatch panel key. Class-II keys identify a molecule, including both
+polymorphic chains for DP/DQ; an absent DP/DQ partner is not imputed. `allele_resolution` distinguishes
+an exact resolution from prefix completion. Deep-field class-II chain names are normalized
+to their two-field groove names for scoring; reported chain names remain unchanged. The lowest presentation percentile is marked
+`prediction_best`, with ties broken by allele name. All weak/strong predicted presenters and every
+reported pairing are retained. The best panel allele is retained even when its band is non-binder.
+That flag is a ranking within this panel, not evidence that the peptide is presented.
+
+Class-II percentile ranks use a random-peptide background of the same length as the scored
+peptide, so the null includes the same number of available register frames.
+Class I retains mhcmatch's marginal background and length preference. `presentation_p_present`
+is the published scorer's separate isotonic probability; it is not a length-conditioned percentile.
+
+`prediction_peptide` is the scored sequence. A reported class-I peptide longer than eleven residues
+is assessed as binding-length windows, retaining the best window per allele and its 0-based
+`prediction_offset` in the reported sequence. Class II is scored as the reported sequence, with its
+allele-dependent register. `core` and `core_offset` come from the same model register, not an
+allele-independent register guess. Class-I cores follow mhcmatch's footprint: eight residues for
+an 8-mer, nine for a 9-11-mer, with central insertions omitted. Such a core need not be a contiguous
+substring, and should not replace the full peptide in a structure model.
+
+`tcr_facing` is the scored peptide with mhcmatch's class-default anchors masked by `X`.
+`core_tcr_facing` applies the core residue mapping to that sequence, excluding class-II flanks.
+These are predicted representations, not measured minimal recognition epitopes or measured contact
+maps. A shared core under the same molecule supports a comparison between reported peptides; it
+does not establish equivalent TCR recognition. Flanks and alternative registers can still matter.
+No record, pMHC id, motif group or curation field is changed by this table.
+
+`assessment_status` states coverage. `scored` rows contain the presentation percentile, calibrated
+probability and mhcmatch class-specific band. Other rows name the absent reference, unsupported
+peptide/species/class, absent panel allele, empty reference panel, or unscorable pair. Optional
+measurements are text, with empty string as
+the missing value; select scored rows and cast to numeric types for calculations. The generated
+[column reference](standards/columns.md) declares every field.
+
+Build-time predictions use the published mhcmatch version and revision/checksum-pinned reference
+declared in `rules/epitope_assessment.toml`. Human and mouse class I/II are supported. Fetching the
+reference is a separate input step; assembly is offline, recomputes predictions and calibration on
+every run, and disables persisted calibration results. The fitted models bundled with mhcmatch are
+immutable model inputs. Each row records the software version, reference SHA256, calibration seed,
+background and footprint. CI runs:
+
+```bash
+uv run vdjdb epitope-reference --out out/inputs
+uv run vdjdb build --out out/ --pmhc-reference out/inputs/pmhc/pmhc_full.tsv.gz --epitope-jobs 4
+```
+
+The same table can be recomputed independently with `vdjdb assess-epitopes`, over explicit chunk
+files or `--tables`. See [check scopes](builds.md#choose-the-scope-of-a-check); selected-input
+support counts are not full-corpus measurements.
+
+Without `--pmhc-reference`, the table still catalogs all reported pairs and marks
+`reference_not_supplied`; it makes no predictions. `--epitope-jobs` budgets processes over distinct
+MHC species/class groups, each with one native thread. Results are sorted independently of worker
+count. The older reviewed class-I promiscuity input and its `restriction` columns retain their
+existing meaning; this table provides detailed freshly computed assessment alongside them.
+
 ### 3.4 `vdjdb.parquet` - the joined view
 
 `records ⋈ chains ⋈ evidence`, one row per chain, with each evidence type pivoted to a boolean. It is
@@ -506,7 +576,7 @@ they ship in future is open (ROADMAP §9).
 | `nomenclature.tsv` | one row per segment call IMGT has at neither allele nor gene level, after harmonisation (#389). This is the report the retired build wrote as `vdjdb_full_gene_broken.txt` and `vdjdb_full_allele_broken.txt`, and nothing replaced it: `harmonise_segments` reports what it *rewrote*, `build_master` discards even that, and a call naming a gene no authority carries reached every shipped table with no report anywhere. Columns: the species, the chunk column, the call as written, the `part` that failed (a curator recording two candidates writes `TRBD1,TRBD2`, and each member is resolved separately), the chain count, and `family.members` with up to four `candidates`. Written by `vdjdb build` on every run, **never a gate**. Measured 2026-09-29: **88 rows over 69 distinct names and 3,457 chain-calls**, of which 2,823 are an under-specified *family* - `TRBV6` is nine IMGT genes and the record chose none of them, which only a curator can resolve - and the rest have no IMGT candidate at all, which is a spelling defect or a gene that species does not have. 850 are not human, and the retired check never saw one of those: its table was a 741-row human immunoglobulin list, so the driver ORed both masks with `species != 'HomoSapiens'`. It also compared `int(allele)` against a per-gene allele count rather than asking IMGT, which is a range check wearing the clothes of a membership check - its single finding on the whole corpus, `TRBV28*02`, is an allele IMGT lists. `tests/release/test_legacy_proofreading_parity.py` partitions every retired finding against this report and `anchors.tsv` with no remainder |
 | `presentation.tsv` | one row per `(antigen.epitope, mhc.a, mhc.b, mhc.class)` pair that fails at least one of four checks on whether the recorded MHC could present the recorded epitope at all (ROADMAP phase 9e), and `presentation-summary.tsv` the same counted per finding. `proofreading/mhc_alleles.tsv.gz` answers whether IPD-IMGT/HLA lists a name; this asks whether the name reaches a **binding groove**, which is the 34 residues every presentation model reasons over. `mhcmatch` bundles those pseudosequences - 20,082 class I keys and 11,048 class II, loaded in 0.01 s with no network - so unlike `vdjdb promiscuity`, which fetches a model, this runs inside the build without breaking its offline determinism. The four: the call reaches a pseudosequence key; the key's own class agrees with `mhc.class`; a class I record's epitope fits a class I groove; and one molecule is not filed under two classes. **Advisory, never a gate** - a model is evidence about a pair, never authority over a publication. Measured 2026-09-29: **93 pairs over 1,213 records** of 2,343 and 192,641. 71 reach no groove, of which 64 are murine class II (`mhcmatch`'s class II pseudosequences are HLA, so this is a coverage statement rather than a finding against the record) and 2 are `H2-Qa-1b` and a four-field HLA spelling; 22 are a class I record whose epitope runs 12 to 20 residues; and 21 are `H2-IAb`, filed `MHCII` on 20 pairs and `MHCI` on the 77-record `QVYSLIRPNENPAH`, which is the one all three other checks agree on. An allele resolved by prefix is carried in `mhc.resolution` and is **not** a finding: 87 pairs over 17,836 records are an allele *group* the specification allows, `HLA-A*02` completed to its first member, so `mhcmatch` is guessing rather than the record being wrong |
 | `functionality.tsv` | one row per chain-segment IMGT does not call functional, and `functionality-summary.tsv` the same counted per verdict (#634). `proofreading/imgt_alleles.tsv.gz` has carried IMGT's own F / ORF / P column since phase 9 and nothing read it: `vdjdb qc` asks whether a call *looks* like a TRBV name and `curate/nomenclature.py` asks whether IMGT *has* it, and neither asks whether IMGT thinks the gene is functional. Columns: the record, the chain, `V` or `J`, the call, IMGT's verdict as IMGT spells it, and `level` - `allele` where IMGT names that exact allele, `gene` where the verdict is inherited from the gene's alleles. Written by `vdjdb build` on every run, **never a gate**: a pseudogene V call is not automatically wrong, because a P gene can rearrange - `TRBV21-1` is 303 chains and turns up in real repertoires - and IMGT reclassifies genes between releases, so a gate would fail on a reference update rather than on a curation error. Measured 2026-09-29: **2,608 chain-segments, 1,172 V and 1,436 J**, largest `TRAJ58*01` ORF on 656 chains, `TRBJ1-6*01` ORF on 327 and `TRBV21-1*01` P on 303. The same verdict drives four advisory `non-functional *` rules in `vdjdb qc`. A gene's verdict is every verdict among its alleles and **one functional allele is enough**: `TRBJ2-7` reads `F/ORF` because `*02` is an ORF and it is one of the commonest J calls in VDJdb, so the stricter reading flagged 17,891 chunk rows with nothing actionable in the difference |
-| `build-timings.tsv` | one row per build stage: the parent stage it sits inside, wall seconds **exclusive of any stage timed inside it**, share of the recorded total, peak RSS in MiB, the record count and the core count. Seconds sum to the wall clock and shares sum to 1, which they did not while a nested stage was counted both in its own row and in its parent's - the motif report summed 268.7 s over a 198 s step and understated every share by 36 %. Written by `vdjdb build` on every run. The share is gated against `rules/build_timings.tsv` (`tests/release/test_build_timings.py`); the seconds are recorded and not gated, because they are a property of the host, so a uniform slowdown is visible in the artifact rather than caught by a bar. Peak RSS is gated absolutely at 4,096 MiB for this stage, because memory is a property of the data and the code rather than of the host; measured 1,577 MiB on a laptop and 1,064 MiB on the runner, which allocates less because polars chunks to fewer threads. The share baseline is recorded on the runner and carries its core count: measured, the nine shares here agree to within 1.3 points between 4 and 16 cores, which is why a share gate works for this report. ⚠ The assemble stage is **not** the pipeline's memory peak - see `motif-timings.tsv`. `annotate.junction.add_junction_nt` was 87.2 % of the wall time (`antigenomics/vdjtools#181`); since `vdjtools` 4.5 it is one `infer_nt_batch` call per (species, locus) and **65.2 %** - 108.54 s of a 166.54 s stage on the runner, against 407.64 s of 467.72 s. See `docs/builds.md` |
+| `build-timings.tsv` | one row per build stage: the parent stage it sits inside, wall seconds **exclusive of any stage timed inside it**, share of the recorded total, parent peak RSS in MiB, optional `peak_tree_rss_mb` sampled across parent and descendants, the record count and the core count. Seconds sum to the wall clock and shares sum to 1, which they did not while a nested stage was counted both in its own row and in its parent's - the motif report summed 268.7 s over a 198 s step and understated every share by 36 %. Written by `vdjdb build` on every run. The share is gated against `rules/build_timings.tsv` (`tests/release/test_build_timings.py`); the seconds are recorded and not gated, because they are a property of the host, so a uniform slowdown is visible in the artifact rather than caught by a bar. Peak RSS is gated absolutely at 4,096 MiB for this stage, because memory is a property of the data and the code rather than of the host; measured 1,577 MiB on a laptop and 1,064 MiB on the runner, which allocates less because polars chunks to fewer threads. The share baseline is recorded on the runner and carries its core count: measured, the nine shares here agree to within 1.3 points between 4 and 16 cores, which is why a share gate works for this report. ⚠ The assemble stage is **not** the pipeline's memory peak - see `motif-timings.tsv`. `annotate.junction.add_junction_nt` was 87.2 % of the wall time (`antigenomics/vdjtools#181`); since `vdjtools` 4.5 it is one `infer_nt_batch` call per (species, locus) and **65.2 %** - 108.54 s of a 166.54 s stage on the runner, against 407.64 s of 467.72 s. See `docs/builds.md` |
 | `motif-metrics.tsv` | one row per (species, gene, source, axis): eighteen axes for four sources -- the last legacy release, the latest release, this build's two methods, and the partition that clusters nothing. 180 rows. Thirteen axes score a clustering on this build's cohort (two of them, `percolation_median` and `percolation_excess`, are recorded and never gated, because the largest cluster's share depends on how many prominent motifs the epitope has); the five `partition_*` axes compare it against **the shipped file**, asking whether a record still has the cluster-mates the last release gave it. Those exist because nothing compared those tables: `vdjdb diff` keys `cluster_members.txt` on `cid`, a cid carries a position in a sorted list, so one renumbered cluster reads as the entire file replaced. Only `partition_neighbours_preserved` is gated, and the reason is measured: 19,971 of the released TRB clustering's 36,906 clonotypes sit in one cluster holding 94.7 % of the file's co-clustered pairs, so a pair-weighted score measures that one blob -- the do-nothing partition reads 0.9991 on it. Written by `vdjdb motif-metrics`, which also gates them: `current-*` against `latest` catches a code regression, every source against `rules/motif_metrics.tsv` catches a corpus one. The metrics used to live only inside test assertions, so a corpus change moved them inside the slack and nobody learned the new values |
 | `motif-metrics.md` | the same table as markdown, with each axis against its baseline and against `latest`, written into the CI step summary so the values that did **not** trip a gate are still read |
 | `motifs.debug/` | per-clonotype enrichment statistics, embeddings, cluster labels, eps sweeps, the pooled cross-epitope confusion matrix |

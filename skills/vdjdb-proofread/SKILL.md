@@ -68,3 +68,13 @@ An unreadable older-format submission needing re-export goes to `withheld/`. Pre
 negatives in `chunks_negative/`; they do not enter the positive build. Name the path, actionable
 blocker and condition for admission on the issue, and leave it open. Follow
 [publish](../vdjdb-publish/SKILL.md) for separate data/validation commits and release-aware gates.
+
+## Choose assessment scope
+
+Start triage with `qc` and corpus-relative `submission`. For peptide/MHC review, use
+`vdjdb assess-epitopes <chunk>` with the pinned reference, or opt-in `assessment.yml` CI when
+authorized. Selected support counts describe only the chosen input. Follow the
+[assessment guidance](../vdjdb-build-integrity/SKILL.md#choose-assessment-scope) for coverage,
+core/TCR-facing fields and partial versus full validation. Preserve reported assay peptides,
+restrictions and parent provenance; shared predicted cores do not justify trimming or merging.
+Full combined-corpus integration checks remain required before merging.

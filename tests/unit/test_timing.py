@@ -7,7 +7,13 @@ gate excludes from its denominator while the download also sat inside the enrich
 """
 from __future__ import annotations
 
+import subprocess
+import sys
+import threading
 import time
+
+import psutil
+import pytest
 
 from vdjdb import timing
 
@@ -68,3 +74,31 @@ def test_reset_clears_an_interrupted_stack() -> None:
     with timing.stage("fresh"):
         _sleepy(0.001)
     assert timing.frame(rows=1)["parent"].to_list() == [""]
+
+
+def test_process_tree_sampling_includes_a_live_worker():
+    timing.reset()
+    before = psutil.Process().memory_info().rss / (1024 * 1024)
+    with timing.stage('workers', process_tree=True), subprocess.Popen([sys.executable, '-c',
+                           'import time; data=bytearray(128*1024*1024); '
+                           'print("ready",flush=True); time.sleep(.3)'],
+                          stdout=subprocess.PIPE, text=True) as child:
+        assert child.stdout.readline().strip() == 'ready'
+        assert child.wait(timeout=5) == 0
+    peak = float(timing.frame()['peak_tree_rss_mb'].item())
+    assert peak > before + 96
+    assert not any(t.name == 'vdjdb-rss' for t in threading.enumerate())
+
+
+def test_process_tree_measurement_failure_is_explicit_and_cleans_up(monkeypatch):
+    timing.reset()
+
+    def denied():
+        raise psutil.AccessDenied()
+
+    monkeypatch.setattr(psutil, 'Process', denied)
+    with pytest.raises(RuntimeError, match='process-tree RSS measurement failed'), \
+            timing.stage('denied', process_tree=True):
+        pass
+    assert not timing._OPEN
+    assert not any(t.name == 'vdjdb-rss' for t in threading.enumerate())

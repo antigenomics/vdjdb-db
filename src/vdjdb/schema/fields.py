@@ -443,6 +443,56 @@ FIELDS: dict[str, Field] = dict([
                "tell which one a number came from. Blank on a row scored before the column "
                "existed."),
 
+    _f("mhc.species", title="MHC species",
+       comment="HomoSapiens for HLA, MusMusculus for H2, empty for unsupported molecules. "
+               "Independent of receptor and antigen species."),
+    _f("prediction.background", title="Presentation background",
+       comment="mhcmatch calibration/background axis, proteome for this assessment."),
+    _f("prediction.footprint", title="Presentation footprint",
+       comment="mhcmatch presentation-model footprint, adaptive for this assessment."),
+    _f("reported", title="Reported restriction", data_type="bool",
+       comment="True for a peptide and MHC pair reported by a publication; false for a predicted pairing."),
+    _f("assessment.status", title="Assessment status",
+       comment="scored, reference_not_supplied, unsupported_peptide, allele_not_in_panel, empty_panel, "
+               "not_scorable, "
+               "or unsupported_mhc_species_or_class. Reported observations are always retained."),
+    _f("prediction.allele", title="Predicted panel allele",
+       comment="mhcmatch panel key; class II identifies the alpha-beta molecule, with DR keyed by beta."),
+    _f("prediction.peptide", type=SEQ, title="Scored peptide",
+       comment="Reported peptide, or a predicted binding-length window within a long class-I assay peptide."),
+    _f("prediction.offset", title="Scored peptide offset",
+       comment="0-based start in the reported peptide. Empty when unscored."),
+    _f("prediction.best", title="Best panel allele", data_type="bool",
+       comment="Lowest presentation percent rank for this peptide, MHC species and class; "
+               "ties by allele name."),
+    _f("presentation.percent_rank", title="Presentation percent rank",
+       comment="Proteome-background presentation percentile, lower is stronger. "
+               "Decimal text; empty when unscored."),
+    _f("presentation.p_present", title="Presentation probability",
+       comment="mhcmatch calibrated presentation probability. Decimal text; empty when unavailable."),
+    _f("presentation.band", title="Presentation band",
+       comment="mhcmatch class-specific strong, weak or non-binder band, empty when unscored."),
+    _f("allele.resolution", title="Reported allele resolution",
+       comment="exact or nearest resolution of the reported allele into the model panel; "
+               "empty when unresolved."),
+    _f("core", type=SEQ, title="Predicted binding core",
+       comment="Allele-conditioned nine-residue class-II core, or the class-I footprint "
+               "(eight or nine residues). "
+               "A model representation, not a measured minimal recognition epitope."),
+    _f("core.offset", title="Core offset",
+       comment="0-based offset in prediction_peptide. Class I uses offset zero "
+               "and may omit central insertions."),
+    _f("core.source", title="Core inference method",
+       comment="model for the class-II best register; footprint for the class-I residue mapping."),
+    _f("tcr.facing", type=SEQ, title="Predicted TCR-facing sequence",
+       comment="Scored peptide with mhcmatch class-default anchor positions masked by X. Includes flanks."),
+    _f("core.tcr.facing", type=SEQ, title="Predicted TCR-facing core",
+       comment="The same core residue mapping applied to tcr_facing; flanks excluded for class II."),
+    _f("reference.sha256", title="Presentation reference checksum",
+       comment="SHA256 of the pinned pMHC input used for prediction; empty without a reference."),
+    _f("prediction.seed", title="Presentation calibration seed",
+       comment="vdjdb.config.SEED used for the calibration background, recorded as text."),
+
     _f("evidence_id", searchable=0, autocomplete=0, title="Evidence id",
        comment="Identifies one piece of evidence within a record: a hash of its type, chain, "
                "source and value, so the same evidence keeps the same id across releases."),
@@ -593,6 +643,17 @@ RESTRICTION_COLUMNS: tuple[str, ...] = (
     *PROMISCUITY_COLUMNS,
 )
 
+EPITOPE_ASSESSMENT_COLUMNS: tuple[str, ...] = (
+    "antigen.epitope", "antigen.species", "antigen.gene", "species", "mhc.species", "mhc.class",
+    "mhc.a", "mhc.b",
+    "reported", "records", "references", "assessment.status", "allele.resolution",
+    "prediction.allele", "prediction.peptide", "prediction.offset", "prediction.best",
+    "presentation.percent_rank", "presentation.p_present", "presentation.band",
+    "core", "core.offset", "core.source", "tcr.facing", "core.tcr.facing",
+    "mhcmatch.version", "reference.sha256", "prediction.seed",
+    "prediction.background", "prediction.footprint",
+)
+
 #: ``evidence`` -- one row per piece of evidence, PK ``(record_id, evidence_id)``. Long rather than
 #: wide: a record may have any number of pieces of evidence of any number of kinds, and the wide
 #: form would be mostly empty.
@@ -690,6 +751,7 @@ TABLES: dict[str, tuple[str, ...]] = {
     "evidence": EVIDENCE_TABLE_COLUMNS,
     "epitopes": EPITOPE_COLUMNS,
     "restriction": RESTRICTION_COLUMNS,
+    "epitope_assessment": EPITOPE_ASSESSMENT_COLUMNS,
 }
 
 

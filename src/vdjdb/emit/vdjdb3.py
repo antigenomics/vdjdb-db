@@ -26,6 +26,7 @@ import polars as pl
 
 from ..schema import (
     CHAIN_COLUMNS,
+    EPITOPE_ASSESSMENT_COLUMNS,
     EPITOPE_COLUMNS,
     EVIDENCE_TABLE_COLUMNS,
     RECORD_COLUMNS,
@@ -61,6 +62,7 @@ _FROM_TIDY: dict[str, str] = {v: k for k, v in _TIDY.items()}
 _TABLE_ORDER: dict[str, tuple[str, ...]] = {
     "records": RECORD_COLUMNS, "chains": CHAIN_COLUMNS, "evidence": EVIDENCE_TABLE_COLUMNS,
     "epitopes": EPITOPE_COLUMNS, "restriction": RESTRICTION_COLUMNS,
+    "epitope_assessment": EPITOPE_ASSESSMENT_COLUMNS,
 }
 
 
@@ -125,7 +127,23 @@ def read_tables(d: Path) -> dict[str, pl.DataFrame]:
 
     This is what makes the legacy export a projection: it reads what shipped, never ``chunks/``.
     """
-    return {name: read_table(d, name) for name in _TABLE_ORDER}
+    # Older primary bundles precede the assessment table. Their projections remain readable.
+    return {name: read_table(d, name) for name in _TABLE_ORDER
+            if name != "epitope_assessment" or (d / f"{name}.parquet").exists()
+            or (d / f"{name}.tsv").exists()}
+
+
+def write_table(frame: pl.DataFrame, name: str, out: Path) -> dict[str, Path]:
+    """Write one declared table with the same names and formats as the primary bundle."""
+    out.mkdir(parents=True, exist_ok=True)
+    if name in _TABLE_ORDER:
+        frame = frame.select(_TABLE_ORDER[name])
+    elif name != "vdjdb":
+        raise ValueError(f"undeclared table: {name}")
+    frame = frame.rename({c: _TIDY[c] for c in frame.columns})
+    frame.write_parquet(out / f"{name}.parquet")
+    frame.write_csv(out / f"{name}.tsv", separator="\t", line_terminator="\n")
+    return {f"{name}.{suffix}": out / f"{name}.{suffix}" for suffix in ("parquet", "tsv")}
 
 
 def write_all(tables: dict[str, pl.DataFrame], out: Path) -> dict[str, Path]:
@@ -135,13 +153,7 @@ def write_all(tables: dict[str, pl.DataFrame], out: Path) -> dict[str, Path]:
     frames = {**{n: tables[n].select(cols) for n, cols in _TABLE_ORDER.items()},
               "vdjdb": joined(tables)}
     for name, frame in frames.items():
-        # The one place the tidy names are applied. `strict=False` is wrong here: every column of
-        # these tables is declared, so an unmapped one is a registry gap and should raise.
-        frame = frame.rename({c: _TIDY[c] for c in frame.columns})
-        frame.write_parquet(out / f"{name}.parquet")
-        frame.write_csv(out / f"{name}.tsv", separator="\t", line_terminator="\n")
-        written[f"{name}.parquet"] = out / f"{name}.parquet"
-        written[f"{name}.tsv"] = out / f"{name}.tsv"
+        written.update(write_table(frame, name, out))
 
     # Dtypes are read off the frames rather than declared, so the schema cannot claim a type the
     # files do not have.

@@ -969,6 +969,43 @@ them:
 re-running under a new model rewrites those columns and no id. Phase 9e already calls `mhcmatch` for
 catalogue validation; this keeps its output instead of discarding it.
 
+### 10.6a Reported assay peptides and allele-conditioned binding cores (#1315)
+
+Publications may report an assay peptide whose processed ligand or recognition epitope is unknown.
+Class-II peptides in particular can differ in flanks and binding register. Preserve the reported
+sequence and add a separate assessment before comparing studies or selecting a peptide for a
+TCR:pMHC model. A predicted binding core is a comparison representation, not proof of a minimal
+recognition epitope or of equivalent recognition across two flank variants.
+
+`epitope_assessment` extends section 10.6 and phase 9e with reported peptide/MHC pairs, every
+reported parent gene/species, predicted panel presenters, presentation scores, binding cores,
+register offsets and anchor-masked TCR-facing sequences. Predictions are allele-conditioned and
+stay out of identity, motif grouping and curation corrections. Class-I footprint cores may omit
+central insertions; class-II cores are contiguous nine-residue model registers. Neither substitutes
+for a structure-ready ligand. The output contract is in `docs/outputs.md` section 3.3b.
+
+Unlike the historical class-I summary input, this assessment is recomputed during CI/build from
+a separately downloaded, revision/checksum-pinned reference and the published mhcmatch dependency.
+The fitted models are immutable inputs; calibration and predictions are never persisted for reuse.
+This resolves phase 9e's download concern while keeping assembly offline. Preserve the existing
+`restriction` summary contract. Verify cold runtime and process-tree memory, serial/parallel
+equality, reported support/ID preservation, explicit coverage status and primary-bundle membership.
+
+Selected-chunk triage uses `qc` and the corpus-relative `submission` report. The independent
+`assess-epitopes` stage and opt-in `assessment.yml` CI compute assessment only, without junction
+inference, motifs or dashboard generation. Maintenance and submission skills route checks by
+scope; full combined-corpus validation remains necessary before integration. See `docs/builds.md`.
+
+Cross-repo gate [mhcmatch #4](https://github.com/antigenomics/mhcmatch/issues/4) is resolved by
+published mhcmatch 1.20.2. Assessment uses its bounded batch scoring and public calibration
+cleanup, with one scorer per worker slice. Matched-length ranks and seeded backgrounds retain
+their contract; per-allele scorer reconstruction is removed.
+
+Follow-ups: consumer queries comparing flank variants under the same molecule; alternative
+plausible class-II registers with upstream uncertainty support; and structure-input selection that
+retains the required flanks rather than treating a binding core as a full ligand. No automatic
+grouping or source trimming is proposed.
+
 ### 10.7 The legacy structure id is preserved, not redefined
 
 `TCR_hash` is the identifier linking a record to a structure. It comes from the legacy recipe and
@@ -1233,10 +1270,12 @@ Four checks, in increasing strength, each a column on `restriction` and an advis
    a pair, not authority over a publication, and its false-positive rate has to be stated with any
    threshold.
 
-Checks 1-3 are deterministic string and length work and belong in the build. Check 4 needs a model
-and its reference data (fetched from `isalgo/pmhc_data` on first use), so it runs as its own CI job
-over the 2,381 `(epitope, MHC)` pairs and publishes a report, not inside `vdjdb build`, whose
-offline determinism (hard rule 9) must not depend on a download.
+Checks 1-3 are deterministic string and length work and belong in the build. Check 4 was originally
+planned as a separate CI job because it needs a model and reference data from `isalgo/pmhc_data`.
+Section 10.6a (#1315) extends it into build-time assessment using a separately fetched, pinned
+reference input and the published fitted models. Assembly remains offline; calibration and
+predictions are recomputed each time. The existing checks 1-3 and reviewed class-I summary keep
+their contracts.
 
 **Checks 1-3 landed 2026-09-29** as `vdjdb.curate.presentation`, writing `out/reports/presentation.tsv`
 and its summary on every build. Three things the measurement changed about the plan as written:

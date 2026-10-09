@@ -36,6 +36,71 @@ A plain `pytest -q` skips the reference checks when `VDJDB_REFERENCE_ZIP` is uns
 Optional dependency groups: `motifs` for the motif stage, `docs` for this site, `test` for the
 suite, `tuning` for the clustering bake-off under `docs/tuning/`.
 
+## Choose the scope of a check
+
+Use the smallest stage that answers the current question. Every invocation recomputes its
+results; partial assessment is not a stored intermediate for a later release build.
+
+| Question | Command or workflow | What it establishes |
+|---|---|---|
+| Is this chunk well formed? | `vdjdb qc <chunk>` | Source validation for the selected files |
+| What does it contribute? | `vdjdb submission <chunk>` / `chunk-check.yml` | Corpus-relative scores, novelty and source-review reports, before expensive downstream annotation |
+| What does mhcmatch predict for these reported peptides? | `vdjdb assess-epitopes <chunk>` / `assessment.yml` | Selected-pair assessment, independent of junction inference, motifs and dashboard |
+| Recompute assessment for a built corpus | `vdjdb assess-epitopes --tables out/tables` | Fresh assessment from the records table, without reading previous predictions |
+| Re-emit a format | `vdjdb make legacy` / `vdjdb convert airr` | A projection from the explicitly selected built tables |
+| Assess corpus-wide consequences and integrate | `build.yml` | Full assembly, corpus, motifs, dashboard, release comparison and release tests |
+
+For selected-chunk predictions:
+
+```bash
+uv run vdjdb epitope-reference --out out/inputs
+uv run vdjdb assess-epitopes chunks/PMID_<id>.tsv --out out/assessment \
+  --pmhc-reference out/inputs/pmhc/pmhc_full.tsv.gz --jobs 4
+```
+
+This writes only `epitope_assessment.parquet`, `epitope_assessment.tsv` and
+`assessment-timings.tsv`. Without a reference, reported pairs remain visible with
+`reference_not_supplied`. Files are harmonised and deduplicated through the existing master
+assembly; support counts describe the selected input only. For corpus-relative scores and
+cross-publication checks, use `submission`, which reads the complete source corpus. Neither
+partial command writes the identity registry. A subset is not a release bundle.
+
+The opt-in `assessment.yml` workflow takes whitespace-separated tracked `chunks/` paths from
+the chosen revision and a `predict` switch. It runs selected QC, the corpus-relative submission
+report and the standalone assessment on a hosted runner, uploading one assessment artifact.
+It does not run motifs, junction-nucleotide inference, R or the release comparison. Keep ordinary
+chunk-check CI fast; request this additional workflow when a peptide/MHC question needs it.
+The existing `chunk-check.yml` manual entry point also accepts `assessment_chunks` and
+`assessment_predict`, calling the same workflow as an additional job. Ordinary pull requests
+leave it disabled. To exercise it on a feature revision:
+
+```bash
+gh workflow run chunk-check.yml --ref <branch> \
+  -f assessment_chunks=chunks/PMID_<id>.tsv -f assessment_predict=true
+```
+
+Presentation calibration still has a fixed per-species/class setup cost for small submissions.
+With mhcmatch 1.20.2, the full-corpus assessment measured 198.3 seconds on four hosted CI
+cores, 51.4% of timed assembly, with a sampled process-tree peak of 3,365.6 MiB. The previous
+1.20.0 profile took 861.0 seconds / 82.4% of assembly. These are assembly shares, not shares of
+the complete workflow. Locally, four single-thread workers took 83.2 seconds against the earlier
+262.8-second workaround on the same host, with a 2,317.2 MiB sampled process-tree peak.
+Serial output is identical. Assessment timing records
+`peak_tree_rss_mb`, the aggregate RSS of parent and descendants sampled every 50 milliseconds.
+The assembly gate separately budgets this at 8,192 MiB, based on the measured 4,931.4 MiB cold
+process-tree peak, while keeping its 4,096 MiB parent budget. Unmeasured tree peaks are blank.
+Published mhcmatch 1.20.2 resolves [mhcmatch #4](https://github.com/antigenomics/mhcmatch/issues/4).
+Assessment reads the reference and constructs one scorer per species/class worker slice, calls
+`score_many` once per allele, and clears calibration distributions through the public API between
+alleles. The per-allele scorer reconstruction workaround is removed. Sorted class-II alleles
+still use contiguous worker slices; global best flags use unrounded ranks and an allele-name
+tiebreak. Matched-length calibration, fixed seeds and disabled persistence are unchanged. Native numerical
+threads are capped before scorer imports in serial and parallel mode, including already loaded
+caller libraries; the caller's thread settings are restored afterward.
+Read the standalone timing report for a selected
+submission instead of extrapolating that ratio. Full integration must still recompute non-additive
+outputs such as clustering, motifs and corpus-wide statistics from the combined corpus.
+
 ## Comparing against a release
 
 `vdjdb diff` compares a candidate build against a released bundle in three passes: the file set,

@@ -23,7 +23,7 @@ runner = CliRunner()
 #: Every command `vdjdb --help` must offer. A command disappearing from the app is a packaging
 #: break that no other test would notice.
 COMMANDS = ["version", "qc", "schema", "build", "make", "rules", "convert", "motifs", "summary",
-            "refs", "release", "changelog", "diff"]
+            "refs", "release", "changelog", "diff", "assess-epitopes", "epitope-reference"]
 
 
 def test_help_lists_every_command():

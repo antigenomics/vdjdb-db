@@ -42,3 +42,13 @@ For each change, record file/row, old/new value and source or authority. Add rev
 entries when needed, then inspect the resulting build. Chunk edits require a chunk/data-issue
 branch, identity update and separate validation. Leave optional provenance follow-ups open without
 blocking otherwise supported observations. Re-run `vdjdb qc` and the submission report.
+
+## Choose assessment scope
+
+Start triage with `qc` and corpus-relative `submission`. For peptide/MHC review, use
+`vdjdb assess-epitopes <chunk>` with the pinned reference, or opt-in `assessment.yml` CI when
+authorized. Selected support counts describe only the chosen input. Follow the
+[assessment guidance](../vdjdb-build-integrity/SKILL.md#choose-assessment-scope) for coverage,
+core/TCR-facing fields and partial versus full validation. Preserve reported assay peptides,
+restrictions and parent provenance; shared predicted cores do not justify trimming or merging.
+Full combined-corpus integration checks remain required before merging.
