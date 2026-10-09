@@ -2,6 +2,7 @@
 from pathlib import Path
 
 import polars as pl
+import pytest
 from typer.testing import CliRunner
 
 from vdjdb.cli import app
@@ -50,8 +51,15 @@ def test_table_source_recomputes_from_records_without_reading_old_assessment(tmp
     assert read_table(out, 'epitope_assessment')['records'].sum() == 1
 
 
-def test_assessment_requires_one_explicit_source():
+def test_assessment_requires_one_explicit_source(monkeypatch):
+    from vdjdb.assemble import master
+    from vdjdb.emit import vdjdb3
+
+    def unexpected_read(*args, **kwargs):
+        pytest.fail('ambiguous input must be rejected before reading any source')
+
+    monkeypatch.setattr(master, 'build_master', unexpected_read)
+    monkeypatch.setattr(vdjdb3, 'read_table', unexpected_read)
     for args in [[], ['chunks/PMID_1.tsv', '--tables', 'out/tables']]:
         result = runner.invoke(app, ['assess-epitopes', *args])
-        assert result.exit_code != 0
-        assert 'give chunk files or --tables, exclusively' in result.output
+        assert result.exit_code == 2
