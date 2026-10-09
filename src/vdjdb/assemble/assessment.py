@@ -7,6 +7,7 @@ once on its distinct peptide set and joined back to all reported provenance.
 """
 from __future__ import annotations
 
+import gc
 import hashlib
 import math
 import os
@@ -72,7 +73,7 @@ def _environment(*, parallel: bool):
 
 
 def _score_group(task: tuple) -> list[dict]:
-    """One published mhcmatch scorer per species/class, with no peptide tiling for class II."""
+    """Class-I scorer per species; allele-owned class-II scorers bound frame memoization."""
     import mhcmatch
     from mhcmatch.predict import KMER_LENS, band_for, build_scorer, tile
     from mhcmatch.pseudoseq import class2_key, resolve_allele
@@ -84,32 +85,40 @@ def _score_group(task: tuple) -> list[dict]:
     if not panel:
         return [{"antigen.epitope": p, "mhc.a": a, "mhc.b": b, "reported": True,
                  "assessment.status": "empty_panel"} for p, a, b in observed]
-    model, cal, _ = build_scorer(store, cls, background=spec["background"],
-                                footprint=spec["footprint"], seed=SEED)
     # Resolve each distinct reported pair once. Do not impute an absent DP/DQ partner.
     aliases = {}
     for a, b in sorted({(a, b) for _, a, b in observed}):
-        name = class2_key(a, b, impute_alpha=False) if cls == "mhc2" else a
+        partner = "" if species == "mouse" and a == b else b
+        name = class2_key(a, partner, impute_alpha=False) if cls == "mhc2" else a
         incomplete = cls == "mhc2" and any("DQ" in v or "DP" in v for v in (a, b)) and (not a or not b)
         hits = store.panel_alleles(cls, [name]) if name and not incomplete else []
         _resolved, exact = resolve_allele(name, cls) if name else (None, False)
-        aliases[a, b] = (hits[0], "exact" if exact else "nearest") if hits else ("", "")
+        aliases[a, b] = (hits[0], "exact" if exact or name == hits[0] else "nearest") if hits else ("", "")
     rows = []
-    for peptide in sorted({p for p, _, _ in observed}):
+    peptides = sorted({p for p, _, _ in observed})
+    valid = []
+    for peptide in peptides:
         reported = sorted({(a, b) for p, a, b in observed if p == peptide})
         if not set(peptide) <= _AA or len(peptide) < (8 if cls == "mhc1" else 9):
             rows.extend({"antigen.epitope": peptide, "mhc.a": a, "mhc.b": b,
                          "assessment.status": "unsupported_peptide", "reported": True,
                          "prediction.allele": aliases[a, b][0],
-                         "allele.resolution": aliases[a, b][1]}
-                        for a, b in reported)
-            continue
-        # A long class-I assay peptide may contain the ligand. Retain the best window per allele
-        # and its offset as a prediction. For normal class-I ligands score the reported sequence.
-        candidates = list(tile(peptide, KMER_LENS[cls])) if cls == "mhc1" and len(peptide) > 11 \
-            else [(peptide, 0)]
-        scored = []
-        for allele in panel:
+                         "allele.resolution": aliases[a, b][1]} for a, b in reported)
+        else:
+            valid.append(peptide)
+    scored = {peptide: [] for peptide in valid}
+    if valid and cls == "mhc1":
+        model, cal, affinity = build_scorer(store, cls, background=spec["background"],
+                                          footprint=spec["footprint"], seed=SEED)
+    for allele in panel if valid else []:
+        if cls == "mhc2":
+            # Fresh public scorer ownership per allele bounds frame memoization over lengths.
+            # Remove this workaround after antigenomics/mhcmatch#4 ships a bounded batch API.
+            model, cal, affinity = build_scorer(store, cls, background=spec["background"],
+                                              footprint=spec["footprint"], seed=SEED)
+        for peptide in valid:
+            candidates = list(tile(peptide, KMER_LENS[cls])) if cls == "mhc1" and len(peptide) > 11 \
+                else [(peptide, 0)]
             best = None
             for candidate, offset in candidates:
                 score = model.score(candidate, allele)
@@ -129,7 +138,7 @@ def _score_group(task: tuple) -> list[dict]:
             face = store.decompose(candidate, cls, allele, register_start=register).tcr_facing
             core_face, _ = binding_core(face, cls, register_start=register)
             probability = cal.p_present(allele, score)
-            scored.append((rank, allele, {
+            scored[peptide].append((rank, allele, {
                 "antigen.epitope": peptide, "prediction.allele": allele,
                 "prediction.peptide": candidate, "prediction.offset": str(offset),
                 "presentation.percent_rank": f"{rank:.3f}",
@@ -140,9 +149,17 @@ def _score_group(task: tuple) -> list[dict]:
                 "tcr.facing": face, "core.tcr.facing": core_face,
                 "assessment.status": "scored",
             }))
-        scored.sort(key=lambda item: item[:2])
+        if cls == "mhc2":
+            del model, cal, affinity, store
+            gc.collect()
+            if allele != panel[-1]:
+                store = mhcmatch.Store.from_pmhc(path=path, species=species, classes=(cls,))
+    for peptide in valid:
+        reported = sorted({(a, b) for p, a, b in observed if p == peptide})
+        predictions = scored[peptide]
+        predictions.sort(key=lambda item: item[:2])
         found = set()
-        for index, (_, allele, prediction) in enumerate(scored):
+        for index, (_, allele, prediction) in enumerate(predictions):
             pairs = [(a, b) for a, b in reported if aliases[a, b][0] == allele]
             if not pairs and prediction["presentation.band"] == "non-binder" and index != 0:
                 continue

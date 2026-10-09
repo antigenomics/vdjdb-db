@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import weakref
 
 import polars as pl
 import pytest
@@ -145,6 +146,75 @@ def test_class_one_footprint_is_not_a_contiguous_subsequence():
     from mhcmatch.store import binding_core
 
     assert binding_core("GILGFVFTLA", "mhc1") == ("GILGFFTLA", 0)
+
+
+def test_class_two_releases_the_previous_allele_scorer(monkeypatch):
+    import mhcmatch
+    import mhcmatch.predict
+
+    models = []
+    def store(**kwargs):
+        assert not models or models[-1]() is None
+        return mhcmatch.Store.from_records([
+            {"epitope": "PKYVKQNTLKLAT", "mhc_class": "II", "mhc_a": "HLA-DRA*01:01",
+             "mhc_b": allele} for allele in ("HLA-DRB1*01:01", "HLA-DRB1*04:01")])
+
+    class Model:
+        def score(self, peptide, allele):
+            return 1.0
+        def best_register(self, peptide, allele):
+            return 0, 1.0
+
+    class Calibration:
+        def percent_rank(self, allele, score, length=None):
+            assert length == 13
+            return 1.0
+        def p_present(self, allele, score):
+            return 0.75
+
+    def scorer(*args, **kwargs):
+        model = Model()
+        models.append(weakref.ref(model))
+        return model, Calibration(), None
+
+    monkeypatch.setattr(mhcmatch.Store, "from_pmhc", store)
+    monkeypatch.setattr(mhcmatch.predict, "build_scorer", scorer)
+    rows = A._score_group(("unused", A.specification(), "human", "mhc2", [
+        ("PKYVKQNTLKLAT", "HLA-DRA*01:01", "HLA-DRB1*01:01")]))
+    assert len(models) == 2 and all(model() is None for model in models)
+    assert {r["prediction.allele"] for r in rows} == {"DRB1_0101", "DRB1_0401"}
+
+
+def test_duplicated_mouse_class_two_molecule_resolves_to_its_real_panel_key(monkeypatch):
+    import mhcmatch
+    import mhcmatch.predict
+
+    store = mhcmatch.Store.from_records([
+        {"epitope": "AAAAAAAAAAAAA", "mhc_class": "II", "mhc_a": "H2-IAg7", "mhc_b": ""}])
+
+    class Model:
+        def score(self, peptide, allele):
+            assert allele == 'H2-IAg7'
+            return 1.0
+        def best_register(self, peptide, allele):
+            return 0, 1.0
+
+    class Calibration:
+        def percent_rank(self, allele, score, length=None):
+            return 1.0
+        def p_present(self, allele, score):
+            return .75
+
+    monkeypatch.setattr(mhcmatch.Store, 'from_pmhc', lambda **kwargs: store)
+    monkeypatch.setattr(mhcmatch.predict, 'build_scorer',
+                        lambda *args, **kwargs: (Model(), Calibration(), None))
+    got = A._score_group(('unused', A.specification(), 'mouse', 'mhc2', [
+        ('AAAAAAAAAAAAA', 'H2-IAg7', 'H2-IAg7')]))
+    reported = next(r for r in got if r['reported'])
+    assert reported['assessment.status'] == 'scored'
+    assert reported['prediction.allele'] == 'H2-IAg7'
+    assert reported['allele.resolution'] == 'exact'
+    assert reported['mhc.a'] == reported['mhc.b'] == 'H2-IAg7'
 
 
 def test_mhc_species_is_independent_of_receptor_species():

@@ -728,7 +728,8 @@ def assess_epitopes_cmd(
     from .timing import write as write_timings
 
     if bool(paths) == (tables is not None):
-        raise typer.BadParameter("give chunk files or --tables, exclusively")
+        typer.secho("give chunk files or --tables, exclusively", fg=typer.colors.RED, err=True)
+        raise typer.Exit(2)
     reset()
     with stage("assessment.read_records"):
         records = read_table(tables, "records") if tables else build_master(paths)
