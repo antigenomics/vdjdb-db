@@ -63,4 +63,4 @@ def test_assessment_requires_one_explicit_source(monkeypatch):
     for args in [[], ['chunks/PMID_1.tsv', '--tables', 'out/tables']]:
         result = runner.invoke(app, ['assess-epitopes', *args])
         assert result.exit_code == 2
-        assert 'give chunk files or --tables, exclusively' in result.output
+        assert 'give chunk files or --tables, exclusively' in result.stderr
