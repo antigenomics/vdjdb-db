@@ -712,6 +712,33 @@ def epitope_reference_cmd(
     typer.echo(str(fetch_reference(out)))
 
 
+@app.command(name="assess-epitopes")
+def assess_epitopes_cmd(
+    paths: list[Path] = typer.Argument(None, help="Only these chunk files; alternative to --tables."),
+    tables: Path | None = typer.Option(None, help="Read records from this built table directory."),
+    out: Path = typer.Option(Path("out/assessment"), help="Standalone assessment output directory."),
+    pmhc_reference: Path | None = typer.Option(None, help="Pinned reference input; no download."),
+    jobs: int = typer.Option(1, min=1, help="Processes; one native thread each."),
+) -> None:
+    """Assess selected chunks or built records without junction inference, motifs or projections."""
+    from .assemble.assessment import build_assessment
+    from .assemble.master import build_master
+    from .emit.vdjdb3 import read_table, write_table
+    from .timing import reset, stage
+    from .timing import write as write_timings
+
+    if bool(paths) == (tables is not None):
+        raise typer.BadParameter("give chunk files or --tables, exclusively")
+    reset()
+    with stage("assessment.read_records"):
+        records = read_table(tables, "records") if tables else build_master(paths)
+    with stage("build_epitope_assessment"):
+        assessment = build_assessment(records, reference=pmhc_reference, jobs=jobs)
+    write_table(assessment, "epitope_assessment", out)
+    write_timings(out / "assessment-timings.tsv", rows=records.height)
+    typer.echo(f"{records.height:,} selected record(s), {assessment.height:,} assessment row(s) -> {out}")
+
+
 @app.command(name="promiscuity")
 def promiscuity_cmd(
     out: Path = typer.Option(Path("proofreading/epitope_promiscuity.tsv"),

@@ -133,6 +133,19 @@ def read_tables(d: Path) -> dict[str, pl.DataFrame]:
             or (d / f"{name}.tsv").exists()}
 
 
+def write_table(frame: pl.DataFrame, name: str, out: Path) -> dict[str, Path]:
+    """Write one declared table with the same names and formats as the primary bundle."""
+    out.mkdir(parents=True, exist_ok=True)
+    if name in _TABLE_ORDER:
+        frame = frame.select(_TABLE_ORDER[name])
+    elif name != "vdjdb":
+        raise ValueError(f"undeclared table: {name}")
+    frame = frame.rename({c: _TIDY[c] for c in frame.columns})
+    frame.write_parquet(out / f"{name}.parquet")
+    frame.write_csv(out / f"{name}.tsv", separator="\t", line_terminator="\n")
+    return {f"{name}.{suffix}": out / f"{name}.{suffix}" for suffix in ("parquet", "tsv")}
+
+
 def write_all(tables: dict[str, pl.DataFrame], out: Path) -> dict[str, Path]:
     """Every new-format member: three tables, the joined view, and the generated schema."""
     out.mkdir(parents=True, exist_ok=True)
@@ -140,13 +153,7 @@ def write_all(tables: dict[str, pl.DataFrame], out: Path) -> dict[str, Path]:
     frames = {**{n: tables[n].select(cols) for n, cols in _TABLE_ORDER.items()},
               "vdjdb": joined(tables)}
     for name, frame in frames.items():
-        # The one place the tidy names are applied. `strict=False` is wrong here: every column of
-        # these tables is declared, so an unmapped one is a registry gap and should raise.
-        frame = frame.rename({c: _TIDY[c] for c in frame.columns})
-        frame.write_parquet(out / f"{name}.parquet")
-        frame.write_csv(out / f"{name}.tsv", separator="\t", line_terminator="\n")
-        written[f"{name}.parquet"] = out / f"{name}.parquet"
-        written[f"{name}.tsv"] = out / f"{name}.tsv"
+        written.update(write_table(frame, name, out))
 
     # Dtypes are read off the frames rather than declared, so the schema cannot claim a type the
     # files do not have.

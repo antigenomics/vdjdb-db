@@ -79,3 +79,25 @@ Prepare all three bundles with `vdjdb release --dry-run`, inspect manifests and 
 and publish a tag only when requested. Keep the live-master dashboard distinct from dated release
 snapshots. Update local execution/merge records, reconcile completed issues, back-sync hotfixes to
 dev and delete only ancestry-verified integrated branches. Retain source proofs and unmerged work.
+
+## Choose assessment scope
+
+Use [check scopes](../../docs/builds.md#choose-the-scope-of-a-check) to select the work needed
+for the current decision. Start chunk triage with `vdjdb qc <chunk>` and `vdjdb submission <chunk>`.
+For a peptide/MHC question, run `vdjdb assess-epitopes <chunk>` with the separately fetched pinned
+reference, or request opt-in `assessment.yml` CI on those tracked paths when CI is authorized.
+For an existing built corpus, `--tables` recomputes assessment from records; previous predictions
+are never reused. Selected-input support counts describe that input, not the full database.
+
+Read `reported`, `assessment_status`, `allele_resolution`, predicted presenter and core fields
+with their [output contract](../../docs/outputs.md).
+Keep receptor, MHC and parent species separate. Preserve literal assay peptides and source-supported
+parent genes/species. Predicted cores and TCR-facing sequences are advisory comparison representations,
+not measured minimal recognition epitopes or contact maps. Class-II registers depend on the molecule;
+class-I footprint cores can omit insertions. Do not trim source peptides, infer an unreported DP/DQ
+partner, merge records or assign motif groups from these predictions. Structure inputs require the
+full appropriate ligand and source evidence.
+
+Partial checks accelerate review. Full integration still recomputes junction annotation, corpus,
+motifs, dashboard and release measurements on the combined candidate; a partial artifact does not
+establish those contracts. Record the scope, selected inputs and revision with each result.

@@ -991,6 +991,11 @@ This resolves phase 9e's download concern while keeping assembly offline. Preser
 `restriction` summary contract. Verify cold runtime and process-tree memory, serial/parallel
 equality, reported support/ID preservation, explicit coverage status and primary-bundle membership.
 
+Selected-chunk triage uses `qc` and the corpus-relative `submission` report. The independent
+`assess-epitopes` stage and opt-in `assessment.yml` CI compute assessment only, without junction
+inference, motifs or dashboard generation. Maintenance and submission skills route checks by
+scope; full combined-corpus validation remains necessary before integration. See `docs/builds.md`.
+
 Follow-ups: consumer queries comparing flank variants under the same molecule; alternative
 plausible class-II registers with upstream uncertainty support; and structure-input selection that
 retains the required flanks rather than treating a binding core as a full ligand. No automatic

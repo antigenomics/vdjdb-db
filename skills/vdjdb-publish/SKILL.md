@@ -116,3 +116,13 @@ Build and CI issues need their implementation and validation evidence, not a pub
 Report prepared, merged and deferred counts separately. Update the local roadmap and per-file
 manifest. Delete only branches whose commits are integrated, with no open PR or attached working
 tree; preserve unresolved source tables and diagnostic evidence.
+
+## Choose assessment scope
+
+Start triage with `qc` and corpus-relative `submission`. For peptide/MHC review, use
+`vdjdb assess-epitopes <chunk>` with the pinned reference, or opt-in `assessment.yml` CI when
+authorized. Selected support counts describe only the chosen input. Follow the
+[assessment guidance](../vdjdb-build-integrity/SKILL.md#choose-assessment-scope) for coverage,
+core/TCR-facing fields and partial versus full validation. Preserve reported assay peptides,
+restrictions and parent provenance; shared predicted cores do not justify trimming or merging.
+Full combined-corpus integration checks remain required before merging.

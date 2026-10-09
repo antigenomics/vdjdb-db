@@ -444,6 +444,10 @@ uv run vdjdb epitope-reference --out out/inputs
 uv run vdjdb build --out out/ --pmhc-reference out/inputs/pmhc/pmhc_full.tsv.gz --epitope-jobs 4
 ```
 
+The same table can be recomputed independently with `vdjdb assess-epitopes`, over explicit chunk
+files or `--tables`. See [check scopes](builds.md#choose-the-scope-of-a-check); selected-input
+support counts are not full-corpus measurements.
+
 Without `--pmhc-reference`, the table still catalogs all reported pairs and marks
 `reference_not_supplied`; it makes no predictions. `--epitope-jobs` budgets processes over distinct
 MHC species/class groups, each with one native thread. Results are sorted independently of worker

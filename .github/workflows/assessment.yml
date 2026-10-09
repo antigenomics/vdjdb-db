@@ -1,0 +1,69 @@
+name: assessment
+
+on:
+  workflow_call:
+    inputs:
+      chunks:
+        required: true
+        type: string
+      predict:
+        default: true
+        type: boolean
+  workflow_dispatch:
+    inputs:
+      chunks:
+        description: Whitespace-separated tracked chunks/ paths to assess
+        required: true
+        type: string
+      predict:
+        description: Fetch the pinned input and compute mhcmatch predictions
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  assess:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen
+      - name: Selected-chunk assessment
+        env:
+          SELECTED_CHUNKS: ${{ inputs.chunks }}
+          PREDICT: ${{ inputs.predict }}
+        run: |
+          uv run python - <<'PY'
+          import os
+          from pathlib import Path
+          import subprocess
+
+          paths = sorted(set(os.environ['SELECTED_CHUNKS'].split()))
+          tracked = set(subprocess.check_output(
+              ['git', 'ls-files', '-z', 'chunks/'], text=True).split('\0'))
+          if not paths or any(p not in tracked or not Path(p).is_file() for p in paths):
+              raise SystemExit('Select existing tracked chunks/ paths from this revision')
+          subprocess.run(['uv', 'run', 'vdjdb', 'qc', *paths], check=True)
+          subprocess.run(['uv', 'run', 'vdjdb', 'submission', *paths,
+                          '--out', 'out/assessment/submission.md'], check=True)
+          command = ['uv', 'run', 'vdjdb', 'assess-epitopes', *paths,
+                     '--out', 'out/assessment', '--jobs', '4']
+          if os.environ['PREDICT'] == 'true':
+              subprocess.run(['uv', 'run', 'vdjdb', 'epitope-reference'], check=True)
+              command += ['--pmhc-reference', 'out/inputs/pmhc/pmhc_full.tsv.gz']
+          subprocess.run(command, check=True)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as report:
+              report.write('Selected-chunk assessment only; full integration build still required.\n\n')
+              report.write(Path('out/assessment/submission.md').read_text())
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: selected-chunk-assessment
+          path: out/assessment/
+          if-no-files-found: error
+          retention-days: 14
