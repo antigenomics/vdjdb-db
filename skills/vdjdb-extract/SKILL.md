@@ -25,10 +25,14 @@ only for observations first reported in its own experiments.
 
 Inventory the supplied article, supplements and processed assignments. Record which tables
 contain sequences, pairing, peptides, restrictions and assays. Join on reported clone, donor,
-well or barcode identifiers and record join cardinality. Do not infer alpha/beta pairing from
-row order or oligoclonal coexpression. Preserve ambiguous extra chains for review.
+well or barcode identifiers and record join cardinality. Do not assert resolved pairing from
+row order or oligoclonal coexpression. For several reported chains in one source clonotype,
+prefer the [candidate-pair convention](../../docs/standards/chunk-format.md#multiple-chains-in-one-clonotype):
+one row per distinct alpha-beta combination, `method.pairing=ambiguous`, the original
+`meta.clone.id` on every row, and an issue comment describing the uncertainty. Retain the same
+experiment/pMHC metadata and source counts; repeated counts are one clonotype's support.
 
-One row reports one observation, with both chains of a reported pair on that row. Verify literal
+One row reports one observation or an explicitly marked candidate pair. Verify literal
 sequences, calls and identifiers against the source. A positive specificity needs at least one
 reported junction, a literal peptide and supported restriction. A gene or protein label alone
 is not a peptide assignment. Never derive the tested peptide from a canonical protein sequence.

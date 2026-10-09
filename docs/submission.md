@@ -69,14 +69,18 @@ records unless a documented correction is necessary.
 
 Internal cysteine, an unusual terminal residue or a non-functional segment is an advisory finding,
 not sufficient reason to delete a source-supported observation. Inspect assembly repair and flags.
-Missing epitope, missing both junctions, an unresolved pairing or a conflicting positive/negative
-outcome requires action before the affected observation can enter the positive build.
+Missing epitope, missing both junctions or a conflicting positive/negative outcome requires
+action before the affected observation can enter the positive build. Multiple reported chains
+within a source clonotype can be retained as explicitly ambiguous candidate pairs under the
+[multiple-chain convention](standards/chunk-format.md#multiple-chains-in-one-clonotype), keeping
+the original clonotype ID and documenting the decision on the issue.
 
 ## Separate blockers from follow-up questions
 
 | Question | Action |
 |---|---|
-| Missing receptor or epitope, ambiguous pairing, unresolved restriction, conflicting assay outcome | Keep affected observations pending; ask a specific source-based question |
+| Multiple reported chains in one identified clonotype, with supported pMHC assignment | Prefer candidate pairs; retain the original clonotype ID, mark pairing ambiguous and document the issue |
+| Missing receptor or epitope, unsupported association between source chains, unresolved restriction, conflicting assay outcome | Keep affected observations pending; ask a specific source-based question |
 | Unreported donor genotype, optional frequency, extra method detail that does not change identity or the supported score | Leave the field blank; keep a nonblocking follow-up issue |
 | Terminal flank or allele spelling handled by assembly | Retain the source cell; note the build resolution |
 | More source material requested after supplied observations are fully imported | Track the request separately from the completed import |

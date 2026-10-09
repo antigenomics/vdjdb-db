@@ -48,6 +48,14 @@ Use the score histogram and assay description to check identification versus ver
 sequencing, pairing and culture before sequencing. A low score alone does not prove a method-field
 error. Optional detail stays blank when the paper does not provide it.
 
+For multiple-chain clonotypes, verify the
+[candidate-pair convention](../../docs/standards/chunk-format.md#multiple-chains-in-one-clonotype):
+all chains come from the same source clonotype, every candidate retains the original
+`meta.clone.id` and experiment metadata, and `method.pairing=ambiguous` plus the comment/issue
+describe unresolved pairing. Check that expansion preserves source counts without treating the
+candidate rows as independent clonotypes. Do not quarantine solely because more than one chain
+was reported.
+
 Count distinct values and blanks in every field. Inspect frequent junctions and singleton metadata
 with source locations. Use [harmonize](../vdjdb-harmonize/SKILL.md) for provenance aliases and
 [duplicates](../vdjdb-duplicates/SKILL.md) for paired receptor-pMHC recurrence. Compare complete
