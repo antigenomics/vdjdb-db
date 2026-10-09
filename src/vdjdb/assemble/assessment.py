@@ -99,7 +99,9 @@ def _score_group(task: tuple) -> list[dict]:
         reported = sorted({(a, b) for p, a, b in observed if p == peptide})
         if not set(peptide) <= _AA or len(peptide) < (8 if cls == "mhc1" else 9):
             rows.extend({"antigen.epitope": peptide, "mhc.a": a, "mhc.b": b,
-                         "assessment.status": "unsupported_peptide", "reported": True}
+                         "assessment.status": "unsupported_peptide", "reported": True,
+                         "prediction.allele": aliases[a, b][0],
+                         "allele.resolution": aliases[a, b][1]}
                         for a, b in reported)
             continue
         # A long class-I assay peptide may contain the ligand. Retain the best window per allele
@@ -152,6 +154,8 @@ def _score_group(task: tuple) -> list[dict]:
                              "allele.resolution": aliases[a, b][1] if (a, b) in pairs else ""})
                 found.add((a, b))
         rows.extend({"antigen.epitope": peptide, "mhc.a": a, "mhc.b": b,
+                     "prediction.allele": aliases[a, b][0],
+                     "allele.resolution": aliases[a, b][1],
                      "reported": True, "assessment.status": "not_scorable" if aliases[a, b][0]
                      else "allele_not_in_panel"}
                     for a, b in reported if (a, b) not in found)

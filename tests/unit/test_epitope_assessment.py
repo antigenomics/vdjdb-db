@@ -115,14 +115,28 @@ def test_class_two_uses_allele_register_and_preserves_incomplete_dq(monkeypatch)
     got = A._score_group(("unused", A.specification(), "human", "mhc2", [
         ("PKYVKQNTLKLAT", "HLA-DRA*01:01", "HLA-DRB1*01:01"),
         ("PKYVKQNTLKLAT", "", "HLA-DQB1*03:01"),
+        ("AA", "HLA-DRA*01:01", "HLA-DRB1*01:01"),
     ]))
-    reported = next(row for row in got if row["mhc.b"] == "HLA-DRB1*01:01")
+    reported = next(row for row in got if row["mhc.b"] == "HLA-DRB1*01:01"
+                    and row["assessment.status"] == "scored")
     assert reported["core"] == "VKQNTLKLA"
     assert reported["core.offset"] == "3"
     assert reported["core.tcr.facing"] == "XKQXTXKLX"  # mhcmatch class-default anchors
     partial = next(row for row in got if row["mhc.b"] == "HLA-DQB1*03:01")
     assert partial["assessment.status"] == "allele_not_in_panel"
     assert "core" not in partial
+    unsupported = next(row for row in got if row["antigen.epitope"] == "AA")
+    assert unsupported["assessment.status"] == "unsupported_peptide"
+    assert unsupported["prediction.allele"] == reported["prediction.allele"]
+    assert unsupported["allele.resolution"] == "exact"
+
+    monkeypatch.setattr(Model, "score", lambda *args: float("nan"))
+    unscored = A._score_group(("unused", A.specification(), "human", "mhc2", [
+        ("PKYVKQNTLKLAT", "HLA-DRA*01:01", "HLA-DRB1*01:01"),
+    ]))[0]
+    assert unscored["assessment.status"] == "not_scorable"
+    assert unscored["allele.resolution"] == "exact"
+    assert unscored["prediction.allele"] == reported["prediction.allele"]
 
 
 def test_class_one_footprint_is_not_a_contiguous_subsequence():

@@ -27,7 +27,7 @@ dependencies = [
     # explicit pinned reference during builds; the reference download is a separate input step.
     # The older promiscuity command refreshes its reviewed input, and presentation checks read
     # only bundled pseudosequences. The assessment specification pins its scoring version.
-    "mhcmatch>=1.20",
+    "mhcmatch==1.20.0",
 ]
 
 [project.optional-dependencies]
