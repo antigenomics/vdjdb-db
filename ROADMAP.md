@@ -996,9 +996,10 @@ Selected-chunk triage uses `qc` and the corpus-relative `submission` report. The
 inference, motifs or dashboard generation. Maintenance and submission skills route checks by
 scope; full combined-corpus validation remains necessary before integration. See `docs/builds.md`.
 
-Cross-repo gate: [mhcmatch #4](https://github.com/antigenomics/mhcmatch/issues/4) tracks bounded
-length-conditioned calibration. Until its published fix, class-II scorers are owned per allele
-to bound frame memoization; matched-length ranks and seeded backgrounds retain their contract.
+Cross-repo gate [mhcmatch #4](https://github.com/antigenomics/mhcmatch/issues/4) is resolved by
+published mhcmatch 1.20.2. Assessment uses its bounded batch scoring and public calibration
+cleanup, with one scorer per worker slice. Matched-length ranks and seeded backgrounds retain
+their contract; per-allele scorer reconstruction is removed.
 
 Follow-ups: consumer queries comparing flank variants under the same molecule; alternative
 plausible class-II registers with upstream uncertainty support; and structure-input selection that

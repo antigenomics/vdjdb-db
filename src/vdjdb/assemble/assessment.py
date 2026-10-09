@@ -7,14 +7,12 @@ once on its distinct peptide set and joined back to all reported provenance.
 """
 from __future__ import annotations
 
-import gc
 import hashlib
 import math
 import os
 import tomllib
 from concurrent.futures import ProcessPoolExecutor
 from contextlib import contextmanager
-from copy import copy
 from multiprocessing import get_context
 from pathlib import Path
 
@@ -74,7 +72,7 @@ def _environment(*, parallel: bool):
 
 
 def _score_group(task: tuple) -> list[dict]:
-    """Class-I scorer per species; allele-owned class-II scorers bound frame memoization."""
+    """One scorer per species/class slice, with public bounded class-II batch scoring."""
     import mhcmatch
     from mhcmatch.predict import KMER_LENS, band_for, build_scorer, tile
     from mhcmatch.pseudoseq import class2_key, resolve_allele
@@ -110,24 +108,21 @@ def _score_group(task: tuple) -> list[dict]:
         else:
             valid.append(peptide)
     scored = {peptide: [] for peptide in valid}
-    reference_store = store
-    if valid and cls == "mhc1":
-        model, cal, affinity = build_scorer(store, cls, background=spec["background"],
-                                          footprint=spec["footprint"], seed=SEED)
+    candidates_by_peptide = {
+        peptide: list(tile(peptide, KMER_LENS[cls])) if cls == "mhc1" and len(peptide) > 11
+        else [(peptide, 0)] for peptide in valid}
+    if valid and selected:
+        model, cal, _affinity = build_scorer(store, cls, background=spec["background"],
+                                           footprint=spec["footprint"], seed=SEED)
     for allele in selected if valid else []:
-        if cls == "mhc2":
-            # Fresh public scorer ownership per allele bounds frame memoization over lengths.
-            # Remove this workaround after antigenomics/mhcmatch#4 ships a bounded batch API.
-            # Copy the unscored store: reference panels are read once and shared within this run.
-            store = copy(reference_store)
-            model, cal, affinity = build_scorer(store, cls, background=spec["background"],
-                                              footprint=spec["footprint"], seed=SEED)
+        batch_scores = iter(model.score_many(
+            (candidate for candidates in candidates_by_peptide.values()
+             for candidate, _ in candidates), allele))
         for peptide in valid:
-            candidates = list(tile(peptide, KMER_LENS[cls])) if cls == "mhc1" and len(peptide) > 11 \
-                else [(peptide, 0)]
+            candidates = candidates_by_peptide[peptide]
             best = None
             for candidate, offset in candidates:
-                score = model.score(candidate, allele)
+                score = next(batch_scores)
                 if not math.isfinite(score):
                     continue
                 rank = cal.percent_rank(allele, score, length=len(candidate) if cls == "mhc2" else None)
@@ -156,9 +151,8 @@ def _score_group(task: tuple) -> list[dict]:
                 "assessment.status": "scored",
                 "__rank": rank,
             }))
-        if cls == "mhc2":
-            del model, cal, affinity, store
-            gc.collect()
+        # Retain the seeded null within this execution, releasing allele distributions.
+        cal.clear()
     for peptide in valid:
         reported = sorted({(a, b) for p, a, b in observed if p == peptide})
         predictions = scored[peptide]

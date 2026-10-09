@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import hashlib
 import os
-import weakref
 
 import polars as pl
 import pytest
@@ -97,6 +96,9 @@ def test_class_two_uses_allele_register_and_preserves_incomplete_dq(monkeypatch)
     import mhcmatch.predict
 
     class Model:
+        def score_many(self, peptides, allele):
+            return [self.score(peptide, allele) for peptide in peptides]
+
         def score(self, peptide, allele):
             return 1.0
 
@@ -104,6 +106,9 @@ def test_class_two_uses_allele_register_and_preserves_incomplete_dq(monkeypatch)
             return 3, 1.0
 
     class Calibration:
+        def clear(self):
+            pass
+
         def percent_rank(self, allele, score, length=None):
             assert length in (13, 14)
             return 1.0
@@ -151,44 +156,49 @@ def test_class_one_footprint_is_not_a_contiguous_subsequence():
     assert binding_core("GILGFVFTLA", "mhc1") == ("GILGFFTLA", 0)
 
 
-def test_class_two_releases_the_previous_allele_scorer(monkeypatch):
+def test_one_scorer_batches_alleles_and_releases_calibration_distributions(monkeypatch):
     import mhcmatch
     import mhcmatch.predict
 
-    models = []
-    reads = []
+    reads, builds, batches, cleared = [], [], [], []
     def store(**kwargs):
         reads.append(kwargs)
-        assert not models or models[-1]() is None
         return mhcmatch.Store.from_records([
             {"epitope": "PKYVKQNTLKLAT", "mhc_class": "II", "mhc_a": "HLA-DRA*01:01",
              "mhc_b": allele} for allele in ("HLA-DRB1*01:01", "HLA-DRB1*04:01")])
 
     class Model:
-        def score(self, peptide, allele):
-            return 1.0
+        def score(self, *args):
+            raise AssertionError("assessment must use the batch API")
+        def score_many(self, peptides, allele):
+            peptides = list(peptides)
+            batches.append((allele, peptides))
+            return [1.0] * len(peptides)
         def best_register(self, peptide, allele):
             return 0, 1.0
 
     class Calibration:
         def percent_rank(self, allele, score, length=None):
-            assert length == 13
+            assert length in (13, 14)
             return 1.0
         def p_present(self, allele, score):
             return 0.75
+        def clear(self):
+            cleared.append(True)
 
     def scorer(*args, **kwargs):
-        assert not models or models[-1]() is None
-        model = Model()
-        models.append(weakref.ref(model))
-        return model, Calibration(), None
+        builds.append(kwargs)
+        return Model(), Calibration(), None
 
     monkeypatch.setattr(mhcmatch.Store, "from_pmhc", store)
     monkeypatch.setattr(mhcmatch.predict, "build_scorer", scorer)
     rows = A._score_group(("unused", A.specification(), "human", "mhc2", [
-        ("PKYVKQNTLKLAT", "HLA-DRA*01:01", "HLA-DRB1*01:01")]))
-    assert len(models) == 2 and all(model() is None for model in models)
-    assert len(reads) == 1
+        ("PKYVKQNTLKLAT", "HLA-DRA*01:01", "HLA-DRB1*01:01"),
+        ("PKYVKQNTLKLATA", "HLA-DRA*01:01", "HLA-DRB1*01:01")]))
+    assert len(builds) == len(reads) == 1
+    assert len(cleared) == 2
+    assert batches == [(allele, ["PKYVKQNTLKLAT", "PKYVKQNTLKLATA"])
+                       for allele in ("DRB1_0101", "DRB1_0401")]
     assert {r["prediction.allele"] for r in rows} == {"DRB1_0101", "DRB1_0401"}
 
 
@@ -200,6 +210,9 @@ def test_duplicated_mouse_class_two_molecule_resolves_to_its_real_panel_key(monk
         {"epitope": "AAAAAAAAAAAAA", "mhc_class": "II", "mhc_a": "H2-IAg7", "mhc_b": ""}])
 
     class Model:
+        def score_many(self, peptides, allele):
+            return [self.score(peptide, allele) for peptide in peptides]
+
         def score(self, peptide, allele):
             assert allele == 'H2-IAg7'
             return 1.0
@@ -207,6 +220,9 @@ def test_duplicated_mouse_class_two_molecule_resolves_to_its_real_panel_key(monk
             return 0, 1.0
 
     class Calibration:
+        def clear(self):
+            pass
+
         def percent_rank(self, allele, score, length=None):
             return 1.0
         def p_present(self, allele, score):
