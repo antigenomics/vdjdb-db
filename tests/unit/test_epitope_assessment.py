@@ -57,10 +57,13 @@ def test_join_keeps_predictions_for_other_provenance_and_never_invents_support(
             {"antigen.epitope": "PKYVKQNTLKLAT", "mhc.a": "HLA-DRA*01:01",
              "mhc.b": "HLA-DRB1*01:01", "reported": True, "prediction.allele": "DRB1_0101",
              "core": "YVKQNTLKL", "core.offset": "2", "assessment.status": "scored",
-             "presentation.band": band},
+             "presentation.band": band, "__rank": 2.0},
             {"antigen.epitope": "PKYVKQNTLKLAT", "reported": False,
              "prediction.allele": "DRB1_0101", "core": "YVKQNTLKL", "core.offset": "2",
-             "assessment.status": "scored", "presentation.band": band},
+             "assessment.status": "scored", "presentation.band": band, "__rank": 2.0},
+            {"antigen.epitope": "PKYVKQNTLKLAT", "mhc.a": "HLA-DRA*01:01",
+             "mhc.b": "HLA-DRB1*04:01", "reported": True, "prediction.allele": "DRB1_0401",
+             "assessment.status": "scored", "presentation.band": "strong", "__rank": 1.0},
             {"antigen.epitope": "AA", "mhc.a": "HLA-DRA*01:01", "mhc.b": "HLA-DRB1*01:01",
              "reported": True, "assessment.status": "unsupported_peptide"},
         ]
@@ -153,7 +156,9 @@ def test_class_two_releases_the_previous_allele_scorer(monkeypatch):
     import mhcmatch.predict
 
     models = []
+    reads = []
     def store(**kwargs):
+        reads.append(kwargs)
         assert not models or models[-1]() is None
         return mhcmatch.Store.from_records([
             {"epitope": "PKYVKQNTLKLAT", "mhc_class": "II", "mhc_a": "HLA-DRA*01:01",
@@ -173,6 +178,7 @@ def test_class_two_releases_the_previous_allele_scorer(monkeypatch):
             return 0.75
 
     def scorer(*args, **kwargs):
+        assert not models or models[-1]() is None
         model = Model()
         models.append(weakref.ref(model))
         return model, Calibration(), None
@@ -182,6 +188,7 @@ def test_class_two_releases_the_previous_allele_scorer(monkeypatch):
     rows = A._score_group(("unused", A.specification(), "human", "mhc2", [
         ("PKYVKQNTLKLAT", "HLA-DRA*01:01", "HLA-DRB1*01:01")]))
     assert len(models) == 2 and all(model() is None for model in models)
+    assert len(reads) == 1
     assert {r["prediction.allele"] for r in rows} == {"DRB1_0101", "DRB1_0401"}
 
 
@@ -232,6 +239,7 @@ def test_real_scorer_serial_parallel_and_input_order_are_identical(tmp_path, mon
         "NLVPMVATV\tHLA-A*02:01\tB2M\tI\tHomoSapiens\n"
         "PKYVKQNTLKLAT\tHLA-DRA*01:01\tHLA-DRB1*01:01\tII\tHomoSapiens\n"
         "YVKQNTLKLAT\tHLA-DRA*01:01\tHLA-DRB1*01:01\tII\tHomoSapiens\n"
+        "AAAAAAAAAAAAA\tHLA-DRA*01:01\tHLA-DRB1*04:01\tII\tHomoSapiens\n"
     )
     spec = {**A.specification(), "sha256": hashlib.sha256(reference.read_bytes()).hexdigest()}
     monkeypatch.setattr(A, "specification", lambda: spec)

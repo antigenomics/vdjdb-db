@@ -14,6 +14,7 @@ import os
 import tomllib
 from concurrent.futures import ProcessPoolExecutor
 from contextlib import contextmanager
+from copy import copy
 from multiprocessing import get_context
 from pathlib import Path
 
@@ -79,12 +80,13 @@ def _score_group(task: tuple) -> list[dict]:
     from mhcmatch.pseudoseq import class2_key, resolve_allele
     from mhcmatch.store import binding_core
 
-    path, spec, species, cls, observed = task
+    path, spec, species, cls, observed = task[:5]
+    shard, shards = task[5:] if len(task) > 5 else (0, 1)
     store = mhcmatch.Store.from_pmhc(path=path, species=species, classes=(cls,))
     panel = sorted(store.panel_alleles(cls))
     if not panel:
         return [{"antigen.epitope": p, "mhc.a": a, "mhc.b": b, "reported": True,
-                 "assessment.status": "empty_panel"} for p, a, b in observed]
+                 "assessment.status": "empty_panel"} for p, a, b in observed if shard == 0]
     # Resolve each distinct reported pair once. Do not impute an absent DP/DQ partner.
     aliases = {}
     for a, b in sorted({(a, b) for _, a, b in observed}):
@@ -95,6 +97,7 @@ def _score_group(task: tuple) -> list[dict]:
         _resolved, exact = resolve_allele(name, cls) if name else (None, False)
         aliases[a, b] = (hits[0], "exact" if exact or name == hits[0] else "nearest") if hits else ("", "")
     rows = []
+    selected = panel[len(panel) * shard // shards:len(panel) * (shard + 1) // shards]
     peptides = sorted({p for p, _, _ in observed})
     valid = []
     for peptide in peptides:
@@ -103,17 +106,20 @@ def _score_group(task: tuple) -> list[dict]:
             rows.extend({"antigen.epitope": peptide, "mhc.a": a, "mhc.b": b,
                          "assessment.status": "unsupported_peptide", "reported": True,
                          "prediction.allele": aliases[a, b][0],
-                         "allele.resolution": aliases[a, b][1]} for a, b in reported)
+                         "allele.resolution": aliases[a, b][1]} for a, b in reported if shard == 0)
         else:
             valid.append(peptide)
     scored = {peptide: [] for peptide in valid}
+    reference_store = store
     if valid and cls == "mhc1":
         model, cal, affinity = build_scorer(store, cls, background=spec["background"],
                                           footprint=spec["footprint"], seed=SEED)
-    for allele in panel if valid else []:
+    for allele in selected if valid else []:
         if cls == "mhc2":
             # Fresh public scorer ownership per allele bounds frame memoization over lengths.
             # Remove this workaround after antigenomics/mhcmatch#4 ships a bounded batch API.
+            # Copy the unscored store: reference panels are read once and shared within this run.
+            store = copy(reference_store)
             model, cal, affinity = build_scorer(store, cls, background=spec["background"],
                                               footprint=spec["footprint"], seed=SEED)
         for peptide in valid:
@@ -148,12 +154,11 @@ def _score_group(task: tuple) -> list[dict]:
                 "core.source": ("model" if cls == "mhc2" else "footprint") if core else "",
                 "tcr.facing": face, "core.tcr.facing": core_face,
                 "assessment.status": "scored",
+                "__rank": rank,
             }))
         if cls == "mhc2":
             del model, cal, affinity, store
             gc.collect()
-            if allele != panel[-1]:
-                store = mhcmatch.Store.from_pmhc(path=path, species=species, classes=(cls,))
     for peptide in valid:
         reported = sorted({(a, b) for p, a, b in observed if p == peptide})
         predictions = scored[peptide]
@@ -175,7 +180,8 @@ def _score_group(task: tuple) -> list[dict]:
                      "allele.resolution": aliases[a, b][1],
                      "reported": True, "assessment.status": "not_scorable" if aliases[a, b][0]
                      else "allele_not_in_panel"}
-                    for a, b in reported if (a, b) not in found)
+                    for a, b in reported if (a, b) not in found and
+                    (aliases[a, b][0] in selected or (not aliases[a, b][0] and shard == 0)))
     return rows
 
 
@@ -219,9 +225,11 @@ def build_assessment(records: pl.DataFrame, *, reference: Path | None = None,
         for (species, cls), frame in sorted(groups.items()):
             if species not in _SPECIES or cls not in _CLASS:
                 continue
-            tasks.append((str(reference), spec, _SPECIES[species], _CLASS[cls],
-                          frame.select("antigen.epitope", "mhc.a", "mhc.b").sort(
-                              "antigen.epitope", "mhc.a", "mhc.b").rows()))
+            observed = frame.select("antigen.epitope", "mhc.a", "mhc.b").sort(
+                "antigen.epitope", "mhc.a", "mhc.b").rows()
+            slices = jobs if cls == "MHCII" else 1
+            tasks.extend((str(reference), spec, _SPECIES[species], _CLASS[cls],
+                          observed, i, slices) for i in range(slices))
         with _environment(parallel=jobs > 1):
             if jobs > 1 and len(tasks) > 1:
                 with ProcessPoolExecutor(max_workers=min(jobs, len(tasks)),
@@ -237,7 +245,17 @@ def build_assessment(records: pl.DataFrame, *, reference: Path | None = None,
                                                              "species", "records", "references")}
     # Expand predictions to every reported provenance, including competing parent-gene labels.
     defaults = {c: False if t == pl.Boolean else "" for c, t in pred_schema.items()}
-    predicted = pl.DataFrame([{**defaults, **row} for row in predictions], schema=pred_schema)
+    predicted = pl.DataFrame([{**defaults, "__rank": float("inf"), **row} for row in predictions],
+                             schema={**pred_schema, "__rank": pl.Float64})
+    group = ["antigen.epitope", "mhc.species", "mhc.class"]
+    best = (predicted.filter(pl.col("assessment.status") == "scored")
+            .sort("__rank", "prediction.allele").group_by(group)
+            .agg(pl.col("prediction.allele").first().alias("__best")))
+    predicted = (predicted.join(best, on=group, how="left")
+                 .with_columns(((pl.col("assessment.status") == "scored") &
+                                (pl.col("prediction.allele") == pl.col("__best")))
+                               .fill_null(False).alias("prediction.best"))
+                 .drop("__rank", "__best"))
     provenance = counts.select(PROVENANCE).unique()
     expanded = provenance.join(predicted, on=["antigen.epitope", "mhc.species", "mhc.class"], how="inner")
     # A prediction for an alias must not claim that every source reports that alias.

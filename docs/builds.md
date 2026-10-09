@@ -88,7 +88,10 @@ The assembly gate separately budgets this at 8,192 MiB, based on the measured 4,
 process-tree peak, while keeping its 4,096 MiB parent budget. Unmeasured tree peaks are blank.
 Class-II scorer ownership is bounded to one allele at a time because mhcmatch 1.20.0 retains
 frame computations across all queried lengths. This uses fresh public scorer/store objects,
-without editing private dependency caches. [mhcmatch #4](https://github.com/antigenomics/mhcmatch/issues/4)
+without editing private dependency caches. Sorted class-II alleles are divided into contiguous
+worker slices; global best-allele flags are reduced afterward using unrounded ranks and an
+allele-name tiebreak. Each slice reads its reference panel once and shares it across fresh scorer
+owners, so a new allele does not reread the reference. [mhcmatch #4](https://github.com/antigenomics/mhcmatch/issues/4)
 tracks the upstream bounded-memory batch API and removal of this workaround.
 Read the standalone timing report for a selected
 submission instead of extrapolating that ratio. Full integration must still recompute non-additive
