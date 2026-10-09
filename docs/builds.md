@@ -80,11 +80,12 @@ gh workflow run chunk-check.yml --ref <branch> \
 ```
 
 Presentation calibration still has a fixed per-species/class setup cost for small submissions.
-With mhcmatch 1.20.2, the full-corpus assessment measured 83.2 seconds locally with four
-single-thread workers, against 262.8 seconds for the earlier bounded workaround on the same
-host. Its sampled process-tree peak was 2,317.2 MiB. The previous four-core hosted measurement
-of 861.0 seconds / 82.4% of timed assembly used mhcmatch 1.20.0 and is historical; it was never
-a share of the complete workflow. Hosted CI is profiled separately. Assessment timing records
+With mhcmatch 1.20.2, the full-corpus assessment measured 198.3 seconds on four hosted CI
+cores, 51.4% of timed assembly, with a sampled process-tree peak of 3,365.6 MiB. The previous
+1.20.0 profile took 861.0 seconds / 82.4% of assembly. These are assembly shares, not shares of
+the complete workflow. Locally, four single-thread workers took 83.2 seconds against the earlier
+262.8-second workaround on the same host, with a 2,317.2 MiB sampled process-tree peak.
+Serial output is identical. Assessment timing records
 `peak_tree_rss_mb`, the aggregate RSS of parent and descendants sampled every 50 milliseconds.
 The assembly gate separately budgets this at 8,192 MiB, based on the measured 4,931.4 MiB cold
 process-tree peak, while keeping its 4,096 MiB parent budget. Unmeasured tree peaks are blank.
