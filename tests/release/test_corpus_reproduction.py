@@ -30,8 +30,8 @@ EXPECTED = {
     "documents": 835,
     "kmers_scored": 349,
     "top_kmer": "k:IRS",
-    "top_lift": 13.213817,
-    "median_lift": 0.848004,
+    "top_lift": 13.212713,
+    "median_lift": 0.849288,
     "motif_kmers": 18,
     "motif_above_median": 18,
 }
@@ -65,7 +65,9 @@ def scored(tables: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
                                  min_units=MIN_OCCURRENCES)
     # PMID38956325 audit retains59 human TRB observations.
     # The GILGFVFTL cohort and its leading IRS motif remain unchanged.
-    assert result["units"][0] == 245767
+    # PMID42826196 adds313 candidate-row TRB observations; these are not
+    # independent source clonotypes. The source clone IDs remain available.
+    assert result["units"][0] == 246080
     assert result["given_units"][0] == 18164
     return [(row["lift"], row["term"]) for row in result.iter_rows(named=True)]
 
