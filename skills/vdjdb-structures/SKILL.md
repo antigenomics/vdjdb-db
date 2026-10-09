@@ -70,3 +70,12 @@ Use [duplicates](../vdjdb-duplicates/SKILL.md) to compare complete observations 
 [publish](../vdjdb-publish/SKILL.md) for a PDB/data-issue branch, registry reconciliation,
 separate validation and release-aware checks. Close the intake only when its material scope is
 accounted for; a PDB citation match alone is not complete curation.
+
+## Reported peptides and predicted cores
+
+Preserve the complete assay peptide and source-supported MHC/provenance. Use standalone
+`vdjdb assess-epitopes` during review when predicted presenters, binding registers or TCR-facing
+representations help resolve a comparison. Follow the
+[assessment guidance](../vdjdb-build-integrity/SKILL.md#choose-assessment-scope). Predictions
+do not supply a missing experimental epitope or establish equivalent recognition. A predicted
+core can omit required flanks or insertions and does not replace a structure's full ligand.

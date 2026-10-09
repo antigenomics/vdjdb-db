@@ -1,37 +1,79 @@
-"""Per-stage wall time, recorded by the build instead of profiled by hand afterwards.
+"""Exclusive per-stage wall time and process memory measured during each build.
 
-The assemble stage's profile was measured once, on 2026-09-28, with an ad-hoc script: 156.19 s of
-181.89 s in `annotate.junction.add_junction_nt`, 85.9 % of the whole (``ROADMAP_local.md`` §49). That
-number is the reason `antigenomics/vdjtools#181` exists, and nothing in the build recorded it - so the
-next time a stage doubles, someone has to notice the build feels slow and profile it again.
-
-``CLAUDE.md`` asks for a profile as part of any bottleneck report, and asks for the wall time, the
-share, the input size and the core count. This module makes all four fall out of an ordinary run.
-
-**Peak RSS is gated absolutely, unlike the seconds**, because it is a property of the data and the
-code rather than of the host: the same build allocates the same way on a laptop and on a runner. The
-claim it protects is that this build runs on a 16 GB hosted runner, which the README used to put at
-64 GB for the pandas pipeline, and which nothing checked - the ``benchmark`` mark in
-``pyproject.toml`` promised "runtime and peak-RSS budgets" and **no test ever used it**.
-
-**What is gated and what is only recorded, and why the difference is not laziness.** Absolute seconds
-are a property of the host: a 4-vCPU runner is three to four times slower than the laptop these
-numbers were first measured on, and gating them would either be so loose as to be useless or so tight
-as to fail on a busy runner - which is how a timing bar gets deleted (``ROADMAP_local.md`` §52.2).
-**Share of total** is a ratio measured inside one run, so host speed cancels, and it catches the thing
-worth catching: one stage blowing up relative to the others. It cannot catch a uniform slowdown, and
-that is stated rather than papered over.
+Reports retain seconds, shares, input rows and core count. Fixed reference
+profiles define time budgets scaled by input rows on the same core count.
+Network fetches are excluded from compute budgets; memory limits are absolute.
 """
 from __future__ import annotations
 
 import os
 import resource
 import sys
+import threading
 import time
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from pathlib import Path
 
 import polars as pl
+import psutil
+
+
+def row_scaled_limits(timings: pl.DataFrame, baseline: pl.DataFrame, *,
+                      exclude_prefixes: tuple[str, ...] = ()) -> pl.DataFrame:
+    """Compare stage seconds with budgets scaled by the recorded input row count.
+
+    A tolerance is a fraction of the reference's total compute time, preserving
+    the former percentage-point allowance. Fetch time contributes to neither
+    the reference total nor the gated stages. Row counts describe records for
+    assembly and chains for motifs; they must agree within each profile. The
+    median compute-stage time-per-row ratio adjusts for common run speed.
+    Uniform code and host slowdowns cannot be distinguished by this profile;
+    the raw seconds remain available for that review.
+    """
+    for name, frame in (("timings", timings), ("baseline", baseline)):
+        required = {"stage", "seconds", "rows", "cores"}
+        if name == "baseline":
+            required.add("tolerance")
+        if not required <= set(frame.columns):
+            raise ValueError(f"{name}: missing timing budget columns")
+        if (frame.is_empty() or frame.select(sorted(required)).null_count().sum_horizontal().item()
+                or frame["stage"].n_unique() != frame.height
+                or frame["rows"].n_unique() != 1 or frame["cores"].n_unique() != 1
+                or not (frame["rows"] > 0).all() or not (frame["cores"] > 0).all()
+                or not frame["seconds"].is_finite().all()
+                or not (frame["seconds"] >= 0).all()):
+            raise ValueError(f"{name}: invalid timing profile")
+    if timings["cores"][0] != baseline["cores"][0]:
+        raise ValueError("timing budgets require the same core count")
+    if (not baseline["tolerance"].is_finite().all()
+            or not (baseline["tolerance"] >= 0).all()):
+        raise ValueError("baseline: invalid timing tolerance")
+    reference, current = baseline, timings
+    for prefix in exclude_prefixes:
+        reference = reference.filter(~pl.col("stage").str.starts_with(prefix))
+        current = current.filter(~pl.col("stage").str.starts_with(prefix))
+    total = reference["seconds"].sum()
+    if not total or total <= 0:
+        raise ValueError("baseline: no positive compute time")
+    if not set(reference["stage"]) <= set(current["stage"]):
+        raise ValueError("timings: a reference stage was not measured")
+    scale = timings["rows"][0] / baseline["rows"][0]
+    compared = reference.select("stage", "seconds", "tolerance").join(
+        current.select("stage", pl.col("seconds").alias("now_seconds")),
+        on="stage", how="left")
+    speed = (compared.filter(pl.col("seconds") > 0)
+             .select((pl.col("now_seconds") / (pl.col("seconds") * scale)).median())
+             .item())
+    if not speed or speed <= 0:
+        raise ValueError("timings: no positive common run speed")
+    return (compared
+            .with_columns(
+                (pl.col("seconds") * scale).alias("expected_seconds"),
+                ((pl.col("seconds") + pl.col("tolerance") * total) * scale * speed)
+                .alias("budget_seconds"),
+                pl.lit(scale).alias("row_scale"),
+                pl.lit(speed).alias("run_scale"))
+            .sort("stage"))
 
 
 def peak_rss_mb() -> float:
@@ -64,7 +106,7 @@ def reset() -> None:
 
 
 @contextmanager
-def stage(name: str):
+def stage(name: str, *, process_tree: bool = False):
     """Time one named stage, exclusive of any stage timed inside it.
 
     **A nested stage used to be counted twice.** ``motifs.tcrnet.background.*`` runs inside
@@ -77,19 +119,53 @@ def stage(name: str):
     a child belongs.
     """
     me = len(_STAGES)
-    _STAGES.append([name, _OPEN[-1] if _OPEN else -1, 0.0, 0.0, 0.0])
+    _STAGES.append([name, _OPEN[-1] if _OPEN else -1, 0.0, 0.0, 0.0, None])
     _OPEN.append(me)
+    stop = threading.Event()
+    peak = [0]
+    errors = []
+
+    def sample():
+        try:
+            parent = psutil.Process()
+            processes = [parent, *parent.children(recursive=True)]
+            rss = 0
+            for process in processes:
+                # A child can exit between enumeration and reading its RSS.
+                with suppress(psutil.NoSuchProcess):
+                    rss += process.memory_info().rss
+            peak[0] = max(peak[0], rss)
+        except Exception as error:
+            errors.append(error)
+            stop.set()
+
+    def monitor():
+        while not stop.wait(0.05):
+            sample()
+
+    sampler = None
+    if process_tree:
+        sample()
+        sampler = threading.Thread(target=monitor, name="vdjdb-rss", daemon=True)
+        sampler.start()
     start = time.perf_counter()
     try:
         yield
     finally:
         elapsed = time.perf_counter() - start
+        if sampler is not None:
+            stop.set()
+            sampler.join()
+            sample()
+            _STAGES[me][5] = peak[0] / (1024 * 1024)
         _OPEN.pop()
         # ``ru_maxrss`` is a high-water mark, so the value after a stage is "peak so far" rather than
         # that stage's own footprint. That is the useful reading: it says which stage raised the peak.
         _STAGES[me][2], _STAGES[me][4] = elapsed, peak_rss_mb()
         if _STAGES[me][1] >= 0:
             _STAGES[_STAGES[me][1]][3] += elapsed
+        if errors:
+            raise RuntimeError("process-tree RSS measurement failed") from errors[0]
 
 
 def cores_available() -> int:
@@ -128,6 +204,7 @@ def frame(*, rows: int | None = None, cores: int | None = None) -> pl.DataFrame:
         "seconds": [round(s, 3) for s in self_s],
         "share": [round(s / total, 5) for s in self_s],
         "peak_rss_mb": [round(e[4], 1) for e in _STAGES],
+        "peak_tree_rss_mb": [f"{e[5]:.1f}" if e[5] is not None else "" for e in _STAGES],
         "rows": [rows if rows is not None else -1] * len(_STAGES),
         "cores": [cores if cores is not None else cores_available()] * len(_STAGES),
     })
@@ -147,12 +224,18 @@ def report(df: pl.DataFrame) -> str:
     ``inside`` is the parent stage, empty for a top-level one. Seconds are exclusive of children, so
     the total is the wall clock and not the 36 % overstatement summing every row used to give.
     """
-    out = ["| stage | inside | seconds | share | peak RSS MiB | rows | cores |",
-           "|---|---|--:|--:|--:|--:|--:|"]
+    out = ["| stage | inside | seconds | share | parent peak RSS MiB | "
+           "sampled tree peak RSS MiB | rows | cores |",
+           "|---|---|--:|--:|--:|--:|--:|--:|"]
     for r in df.sort("seconds", descending=True).iter_rows(named=True):
         parent = r.get("parent") or ""
+        tree = r.get("peak_tree_rss_mb")
+        tree_text = f"{float(tree):,.0f}" if tree else "-"
         out.append(f"| `{r['stage']}` | {f'`{parent}`' if parent else ''} | {r['seconds']:.2f} | "
-                   f"{r['share']:.1%} | {r['peak_rss_mb']:,.0f} | {r['rows']:,} | {r['cores']} |")
+                   f"{r['share']:.1%} | {r['peak_rss_mb']:,.0f} | {tree_text} | "
+                   f"{r['rows']:,} | {r['cores']} |")
+    trees = [float(v) for v in df['peak_tree_rss_mb'] if v]
+    tree_total = f"{max(trees):,.0f}" if trees else "-"
     out.append(f"| **total** | | **{df['seconds'].sum():.2f}** | | "
-               f"**{df['peak_rss_mb'].max():,.0f}** | | |")
+               f"**{df['peak_rss_mb'].max():,.0f}** | **{tree_total}** | | |")
     return "\n".join(out)

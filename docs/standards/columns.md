@@ -65,6 +65,12 @@ from them.
 :columns: ships_as, title
 ```
 
+### `epitope_assessment`
+
+```{vdjdb-schema} epitope_assessment
+:columns: ships_as, title
+```
+
 ## The motif files
 
 ⚠ **These two files are parsed positionally by `vdjdb-web`**, which hands Tablesaw a fixed

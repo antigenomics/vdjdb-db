@@ -71,3 +71,12 @@ with source table/row, literal values, joins, exclusions and unresolved question
 
 Write the current schema header with UTF-8, tabs, LF endings and empty cells for missing values.
 Continue with [format](../vdjdb-format/SKILL.md) and [proofread](../vdjdb-proofread/SKILL.md).
+
+## Reported peptides and predicted cores
+
+Preserve the complete assay peptide and source-supported MHC/provenance. Use standalone
+`vdjdb assess-epitopes` during review when predicted presenters, binding registers or TCR-facing
+representations help resolve a comparison. Follow the
+[assessment guidance](../vdjdb-build-integrity/SKILL.md#choose-assessment-scope). Predictions
+do not supply a missing experimental epitope or establish equivalent recognition. A predicted
+core can omit required flanks or insertions and does not replace a structure's full ligand.

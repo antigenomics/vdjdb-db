@@ -15,6 +15,15 @@ on:
   pull_request:
   merge_group:
   workflow_dispatch:
+    inputs:
+      assessment_chunks:
+        description: Optional whitespace-separated tracked chunks/ paths for additional assessment
+        default: ''
+        type: string
+      assessment_predict:
+        description: Compute predictions in the optional assessment job
+        default: true
+        type: boolean
 
 concurrency:
   group: chunk-check-${{ github.event.pull_request.number || github.ref }}
@@ -25,6 +34,13 @@ permissions:
   pull-requests: write
 
 jobs:
+  assessment:
+    if: github.event_name == 'workflow_dispatch' && inputs.assessment_chunks != ''
+    uses: ./.github/workflows/assessment.yml
+    with:
+      chunks: ${{ inputs.assessment_chunks }}
+      predict: ${{ inputs.assessment_predict }}
+
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 15

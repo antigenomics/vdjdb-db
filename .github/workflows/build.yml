@@ -124,12 +124,25 @@ jobs:
           . .github/stage-timing.sh
           stage proofread uv run vdjdb qc --strict --report out/reports/qc.tsv
 
+      - name: Presentation reference input
+        run: uv run vdjdb epitope-reference --out out/inputs
+
       - name: Assemble
         run: |
           . .github/stage-timing.sh
-          stage assemble uv run vdjdb build --out out/
+          stage assemble uv run vdjdb build --out out/ --pmhc-reference out/inputs/pmhc/pmhc_full.tsv.gz --epitope-jobs 4
           stage emit-legacy uv run vdjdb make legacy --tables out/tables --out out/legacy
           stage emit-airr uv run vdjdb convert airr --tables out/tables --out out/airr
+
+      # Available before motifs/dashboard finish, so a new assembly stage can be measured
+      # on the CI host before its timing declaration is reviewed.
+      - name: Assembly profile
+        uses: actions/upload-artifact@v4
+        with:
+          name: assemble-profile
+          path: out/reports/build-timings.tsv
+          retention-days: 7
+          if-no-files-found: error
 
       # Six of the seven identity invariants (ROADMAP.md section 10.5). The seventh, that a
       # permuted chunk order changes no id, is a property of two builds and runs as a unit test on a

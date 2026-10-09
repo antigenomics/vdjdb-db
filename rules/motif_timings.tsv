@@ -1,19 +1,19 @@
-stage	share	tolerance	cores
-motifs.tcrnet.enrichment	0.04199	0.1	4
-motifs.tcrnet.background.HomoSapiens.TRA	0.03736	0.1	4
-motifs.tcrnet.background.HomoSapiens.TRB	0.21158	0.1	4
-motifs.tcrnet.background.MacacaMulatta.TRB	0.0	0.1	4
-motifs.tcrnet.background.MusMusculus.TRA	0.00917	0.1	4
-motifs.tcrnet.background.MusMusculus.TRB	0.0143	0.1	4
-motifs.tcrnet.cluster	0.07207	0.1	4
-motifs.tcrnet.pwm_and_emit	0.05293	0.1	4
-motifs.tcremp.embed.HomoSapiens.TRA	0.05038	0.1	4
-motifs.tcremp.dbscan.HomoSapiens.TRA	0.14083	0.1	4
-motifs.tcremp.embed.HomoSapiens.TRB	0.05242	0.1	4
-motifs.tcremp.dbscan.HomoSapiens.TRB	0.22063	0.1	4
-motifs.tcremp.embed.MusMusculus.TRA	0.01039	0.1	4
-motifs.tcremp.dbscan.MusMusculus.TRA	0.00151	0.1	4
-motifs.tcremp.embed.MusMusculus.TRB	0.01331	0.1	4
-motifs.tcremp.dbscan.MusMusculus.TRB	0.00174	0.1	4
-motifs.tcremp.pwm_and_emit	0.06073	0.1	4
-motifs.per_epitope_report	0.00864	0.1	4
+stage	seconds	rows	tolerance	cores
+motifs.tcrnet.enrichment	9.598	478688	0.1	4
+motifs.tcrnet.background.HomoSapiens.TRA	9.522	478688	0.1	4
+motifs.tcrnet.background.HomoSapiens.TRB	53.747	478688	0.1	4
+motifs.tcrnet.background.MacacaMulatta.TRB	0.0	478688	0.1	4
+motifs.tcrnet.background.MusMusculus.TRA	2.538	478688	0.1	4
+motifs.tcrnet.background.MusMusculus.TRB	3.8	478688	0.1	4
+motifs.tcrnet.cluster	15.641	478688	0.1	4
+motifs.tcrnet.pwm_and_emit	11.383	478688	0.1	4
+motifs.tcremp.embed.HomoSapiens.TRA	11.418	478688	0.1	4
+motifs.tcremp.dbscan.HomoSapiens.TRA	33.909	478688	0.1	4
+motifs.tcremp.embed.HomoSapiens.TRB	11.574	478688	0.1	4
+motifs.tcremp.dbscan.HomoSapiens.TRB	53.869	478688	0.1	4
+motifs.tcremp.embed.MusMusculus.TRA	2.94	478688	0.1	4
+motifs.tcremp.dbscan.MusMusculus.TRA	0.325	478688	0.1	4
+motifs.tcremp.embed.MusMusculus.TRB	3.178	478688	0.1	4
+motifs.tcremp.dbscan.MusMusculus.TRB	0.428	478688	0.1	4
+motifs.tcremp.pwm_and_emit	12.779	478688	0.1	4
+motifs.per_epitope_report	1.887	478688	0.1	4
