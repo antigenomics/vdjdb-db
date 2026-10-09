@@ -47,8 +47,11 @@ uv run vdjdb schema --table records
 
 `qc-summary.tsv` declares which findings are advisory. Build reports identify harmonisation,
 unresolved nomenclature, junction/germline conflicts and lookalike terms. Read them before proposing
-source edits. Unknown optional metadata does not block a supported observation; material pairing,
-peptide/restriction or outcome contradictions block the affected rows only.
+source edits. Unknown optional metadata does not block a supported observation. Multiple reported
+chains in the same identified clonotype follow the
+[candidate-pair convention](../docs/standards/chunk-format.md#multiple-chains-in-one-clonotype),
+retaining the original clonotype ID and marking the uncertainty. Unsupported source-chain
+association, peptide/restriction or outcome contradictions block the affected rows only.
 
 Methods describe the experiment. Culture before sequencing, initial identification and later
 receptor verification are distinct. Use source evidence for each rather than paper date, token

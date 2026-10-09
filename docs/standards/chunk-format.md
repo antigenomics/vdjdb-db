@@ -1,8 +1,9 @@
 # The chunk format
 
 A chunk is one publication, stored as `chunks/PMID_<id>.tsv` with one record per row. A
-record reports paired chains: the alpha and the beta of one clone are columns of the same
-row. `chains` is derived from that, never the other way round.
+record stores the alpha and beta of one clone as columns of the same row; an unknown chain
+may remain blank. Multiple reported chains can produce candidate pairs as described below.
+`chains` is derived from the reported sequence columns, never the other way round.
 
 Reports from different publications remain separate, including repeated receptor assays.
 Different reference identifiers alone do not establish independent capture or validation.
@@ -74,6 +75,38 @@ submitter | Name of submitting person/organization
 > V/(D)/J fields may be left blank, in which case the CDR3 fixing and verification procedure is skipped for that record.
 
 > Every record must have at least one of ``cdr3.alpha`` and ``cdr3.beta`` filled.
+
+## Multiple chains in one clonotype
+
+When a source identifies several alpha or beta chains within the same clonotype but does not
+resolve the functional pair, prefer one row per distinct candidate alpha-beta combination.
+Use only source-reported chains associated with that clonotype. Do not invent a sequence or
+combine chains from different source clonotypes, donors or experiments.
+
+For one beta `B` and two alphas `A1` and `A2`, the two representations are:
+
+| Representation | Rows | Preference |
+|---|---|---|
+| Candidate pairs | `A1+B`, `A2+B` | Preferred; retains a possible functional pair and every reported chain |
+| Separate chains | `A1` only, `A2` only, `B` only | Alternative when paired candidates are not requested |
+
+Candidate pairs can include an incorrect combination; expansion does not establish which pair
+recognizes the reported pMHC. Set `method.pairing` to `ambiguous`, add a short row comment that
+identifies candidate pairing, and explain the representation and source evidence on the issue.
+Keep identification and verification fields faithful to the source; do not claim that every
+candidate was reconstructed or tested separately.
+
+**Always retain the original `meta.clone.id` on every resulting row.** Also retain the donor,
+replica, study, tissue, subset, peptide/MHC assignment and source frequency metadata. Change only
+the fields that describe the selected chains and the pairing annotation. Never replace the
+source clonotype ID with a generated row number or candidate-specific suffix.
+
+Repeated source counts describe the same clonotype, not independent observations. Group by the
+original clonotype and its experiment metadata before summing counts or counting independent
+clonotypes. Identical amino-acid receptors from different nucleotide contigs need one protein
+row; retain the nucleotide distinctions in the source proof and issue. Record candidate-row and
+source-clonotype counts separately. Missing peptide, restriction or assay outcome remains a
+blocker; multiple reported chains alone need not quarantine a supported clonotype.
 
 ## Method information columns (optional)
 
