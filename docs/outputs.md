@@ -405,7 +405,8 @@ the peptide's `antigen_species`. Additional predicted pairings have `reported = 
 
 `prediction_allele` is the mhcmatch panel key. Class-II keys identify a molecule, including both
 polymorphic chains for DP/DQ; an absent DP/DQ partner is not imputed. `allele_resolution` distinguishes
-an exact resolution from prefix completion. The lowest presentation percentile is marked
+an exact resolution from prefix completion. Deep-field class-II chain names are normalized
+to their two-field groove names for scoring; reported chain names remain unchanged. The lowest presentation percentile is marked
 `prediction_best`, with ties broken by allele name. All weak/strong predicted presenters and every
 reported pairing are retained. The best panel allele is retained even when its band is non-binder.
 That flag is a ranking within this panel, not evidence that the peptide is presented.

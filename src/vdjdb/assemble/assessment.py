@@ -27,7 +27,8 @@ _SPECIES = {"HomoSapiens": "human", "MusMusculus": "mouse"}
 _CLASS = {"MHCI": "mhc1", "MHCII": "mhc2"}
 _AA = frozenset("ACDEFGHIKLMNPQRSTVWY")
 _THREAD_ENV = ("POLARS_MAX_THREADS", "RAYON_NUM_THREADS", "OPENBLAS_NUM_THREADS",
-               "MKL_NUM_THREADS", "OMP_NUM_THREADS", "OMP_THREAD_LIMIT", "NUMEXPR_NUM_THREADS")
+               "MKL_NUM_THREADS", "OMP_NUM_THREADS", "OMP_THREAD_LIMIT", "NUMEXPR_NUM_THREADS",
+               "VECLIB_MAXIMUM_THREADS")
 
 
 def specification(root: Path | None = None) -> dict:
@@ -54,15 +55,18 @@ def fetch_reference(out: Path) -> Path:
 
 
 @contextmanager
-def _environment(*, parallel: bool):
+def _environment():
     # Disable dependency calibration persistence even in serial calls; restore caller settings.
-    changes = {"MHCMATCH_CALIBRATION_CACHE": "off"}
-    if parallel:
-        changes.update(dict.fromkeys(_THREAD_ENV, "1"))
+    changes = {"MHCMATCH_CALIBRATION_CACHE": "off", **dict.fromkeys(_THREAD_ENV, "1")}
     previous = {key: os.environ.get(key) for key in changes}
     os.environ.update(changes)
     try:
-        yield
+        # Load NumPy under these defaults and also cap already-initialized caller libraries.
+        __import__("numpy")
+        from threadpoolctl import threadpool_limits
+
+        with threadpool_limits(limits=1):
+            yield
     finally:
         for key, value in previous.items():
             if value is None:
@@ -75,7 +79,7 @@ def _score_group(task: tuple) -> list[dict]:
     """One scorer per species/class slice, with public bounded class-II batch scoring."""
     import mhcmatch
     from mhcmatch.predict import KMER_LENS, band_for, build_scorer, tile
-    from mhcmatch.pseudoseq import class2_key, resolve_allele
+    from mhcmatch.pseudoseq import class2_key, resolve_allele, trim_allele
     from mhcmatch.store import binding_core
 
     path, spec, species, cls, observed = task[:5]
@@ -89,7 +93,8 @@ def _score_group(task: tuple) -> list[dict]:
     aliases = {}
     for a, b in sorted({(a, b) for _, a, b in observed}):
         partner = "" if species == "mouse" and a == b else b
-        name = class2_key(a, partner, impute_alpha=False) if cls == "mhc2" else a
+        name = class2_key(trim_allele(a), trim_allele(partner), impute_alpha=False) \
+            if cls == "mhc2" else a
         incomplete = cls == "mhc2" and any("DQ" in v or "DP" in v for v in (a, b)) and (not a or not b)
         hits = store.panel_alleles(cls, [name]) if name and not incomplete else []
         _resolved, exact = resolve_allele(name, cls) if name else (None, False)
@@ -208,33 +213,33 @@ def build_assessment(records: pl.DataFrame, *, reference: Path | None = None,
     spec = specification()
     predictions = []
     if reference is not None:
-        import mhcmatch
+        with _environment():
+            import mhcmatch
 
-        verify_reference(reference, spec)
-        if mhcmatch.__version__ != spec["mhcmatch_version"]:
-            raise ValueError("mhcmatch version differs from rules/epitope_assessment.toml")
-        unique = counts.select("mhc.species", "mhc.class", "antigen.epitope", "mhc.a", "mhc.b").unique()
-        tasks = []
-        groups = unique.partition_by("mhc.species", "mhc.class", as_dict=True)
-        for (species, cls), frame in sorted(groups.items()):
-            if species not in _SPECIES or cls not in _CLASS:
-                continue
-            observed = frame.select("antigen.epitope", "mhc.a", "mhc.b").sort(
-                "antigen.epitope", "mhc.a", "mhc.b").rows()
-            slices = jobs if cls == "MHCII" else 1
-            tasks.extend((str(reference), spec, _SPECIES[species], _CLASS[cls],
-                          observed, i, slices) for i in range(slices))
-        with _environment(parallel=jobs > 1):
+            verify_reference(reference, spec)
+            if mhcmatch.__version__ != spec["mhcmatch_version"]:
+                raise ValueError("mhcmatch version differs from rules/epitope_assessment.toml")
+            unique = counts.select("mhc.species", "mhc.class", "antigen.epitope", "mhc.a", "mhc.b").unique()
+            tasks = []
+            groups = unique.partition_by("mhc.species", "mhc.class", as_dict=True)
+            for (species, cls), frame in sorted(groups.items()):
+                if species not in _SPECIES or cls not in _CLASS:
+                    continue
+                observed = frame.select("antigen.epitope", "mhc.a", "mhc.b").sort(
+                    "antigen.epitope", "mhc.a", "mhc.b").rows()
+                slices = jobs if cls == "MHCII" else 1
+                tasks.extend((str(reference), spec, _SPECIES[species], _CLASS[cls],
+                              observed, i, slices) for i in range(slices))
             if jobs > 1 and len(tasks) > 1:
                 with ProcessPoolExecutor(max_workers=min(jobs, len(tasks)),
                                          mp_context=get_context("spawn")) as pool:
                     results = list(pool.map(_score_group, tasks))
             else:
                 results = [_score_group(task) for task in tasks]
-        for task, result in zip(tasks, results, strict=True):
-            species = next(key for key, value in _SPECIES.items() if value == task[2])
-            cls = next(key for key, value in _CLASS.items() if value == task[3])
-            predictions.extend({**row, "mhc.species": species, "mhc.class": cls} for row in result)
+            for task, result in zip(tasks, results, strict=True):
+                species = next(key for key, value in _SPECIES.items() if value == task[2])
+                cls = next(key for key, value in _CLASS.items() if value == task[3])
+                predictions.extend({**row, "mhc.species": species, "mhc.class": cls} for row in result)
     pred_schema = {c: t for c, t in schema.items() if c not in ("antigen.gene", "antigen.species",
                                                              "species", "records", "references")}
     # Expand predictions to every reported provenance, including competing parent-gene labels.

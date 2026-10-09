@@ -94,7 +94,9 @@ Assessment reads the reference and constructs one scorer per species/class worke
 `score_many` once per allele, and clears calibration distributions through the public API between
 alleles. The per-allele scorer reconstruction workaround is removed. Sorted class-II alleles
 still use contiguous worker slices; global best flags use unrounded ranks and an allele-name
-tiebreak. Matched-length calibration, fixed seeds and disabled persistence are unchanged.
+tiebreak. Matched-length calibration, fixed seeds and disabled persistence are unchanged. Native numerical
+threads are capped before scorer imports in serial and parallel mode, including already loaded
+caller libraries; the caller's thread settings are restored afterward.
 Read the standalone timing report for a selected
 submission instead of extrapolating that ratio. Full integration must still recompute non-additive
 outputs such as clustering, motifs and corpus-wide statistics from the combined corpus.

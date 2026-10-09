@@ -3058,6 +3058,7 @@ dependencies = [
     { name = "mhcmatch" },
     { name = "polars" },
     { name = "psutil" },
+    { name = "threadpoolctl" },
     { name = "typer" },
     { name = "vdjtools" },
 ]
@@ -3129,6 +3130,7 @@ requires-dist = [
     { name = "scikit-learn", marker = "extra == 'motifs'", specifier = ">=1.4" },
     { name = "scipy", marker = "extra == 'summary'", specifier = ">=1.11" },
     { name = "sphinx", marker = "extra == 'docs'", specifier = ">=7" },
+    { name = "threadpoolctl", specifier = ">=3.1" },
     { name = "typer", specifier = ">=0.12" },
     { name = "vdjtools", specifier = ">=4.8.1" },
 ]

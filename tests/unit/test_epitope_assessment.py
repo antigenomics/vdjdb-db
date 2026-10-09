@@ -52,6 +52,7 @@ def test_checksum_failure_precedes_any_scoring(tmp_path):
 def test_join_keeps_predictions_for_other_provenance_and_never_invents_support(
         monkeypatch, tmp_path, band, expected):
     def score(task):
+        assert all(os.environ[key] == "1" for key in A._THREAD_ENV)
         return [
             {"antigen.epitope": "PKYVKQNTLKLAT", "mhc.a": "HLA-DRA*01:01",
              "mhc.b": "HLA-DRB1*01:01", "reported": True, "prediction.allele": "DRB1_0101",
@@ -83,7 +84,7 @@ def test_join_keeps_predictions_for_other_provenance_and_never_invents_support(
 def test_environment_restored_after_failure(monkeypatch):
     monkeypatch.setenv("MHCMATCH_CALIBRATION_CACHE", "before")
     monkeypatch.setenv("OMP_NUM_THREADS", "7")
-    with pytest.raises(RuntimeError), A._environment(parallel=True):
+    with pytest.raises(RuntimeError), A._environment():
         assert os.environ["MHCMATCH_CALIBRATION_CACHE"] == "off"
         assert os.environ["OMP_NUM_THREADS"] == "1"
         raise RuntimeError("failed scorer")
@@ -259,7 +260,9 @@ def test_real_scorer_serial_parallel_and_input_order_are_identical(tmp_path, mon
     )
     spec = {**A.specification(), "sha256": hashlib.sha256(reference.read_bytes()).hexdigest()}
     monkeypatch.setattr(A, "specification", lambda: spec)
-    first = records().head(1)
+    first = records().head(1).with_columns(
+        pl.lit("HLA-DRA*01:01:01").alias("mhc.a"),
+        pl.lit("HLA-DRB1*01:01:01").alias("mhc.b"))
     second = first.with_columns(pl.lit("GILGFVFTL").alias("antigen.epitope"),
                                 pl.lit("MHCI").alias("mhc.class"),
                                 pl.lit("HLA-A*02:01").alias("mhc.a"),
@@ -270,3 +273,54 @@ def test_real_scorer_serial_parallel_and_input_order_are_identical(tmp_path, mon
     assert serial.equals(parallel)
     assert serial.filter(pl.col("reported"))["assessment.status"].to_list() == ["scored", "scored"]
     assert serial.write_csv(separator="\t") == parallel.write_csv(separator="\t")
+
+
+def test_serial_environment_caps_live_native_pools_and_restores_them():
+    import numpy as np
+    from threadpoolctl import threadpool_info, threadpool_limits
+
+    np.dot(np.ones((8, 8)), np.ones((8, 8)))
+    with threadpool_limits(limits=2):
+        before = threadpool_info()
+        if not before:
+            assert not os.environ.get("CI"), "CI must exercise an initialized native pool"
+            pytest.skip("no threadpoolctl-supported native pool on this host")
+        with A._environment():
+            assert all(os.environ[key] == "1" for key in A._THREAD_ENV)
+            assert all(pool["num_threads"] == 1 for pool in threadpool_info())
+        assert threadpool_info() == before
+
+
+@pytest.mark.parametrize("a,b,expected", [
+    ("HLA-DRA*01:01:01", "HLA-DRB1*01:01:01", "DRB1_0101"),
+    ("HLA-DPA1*01:03:01", "HLA-DPB1*04:01:01", "HLA-DPA10103-DPB10401"),
+    ("HLA-DQA1*01:01:01", "HLA-DQB1*05:01:01", "HLA-DQA10101-DQB10501"),
+])
+def test_deep_class_two_fields_resolve_without_rewriting_reported_chains(monkeypatch,a,b,expected):
+    import mhcmatch
+    import mhcmatch.predict
+    from mhcmatch.pseudoseq import trim_allele
+
+    store = mhcmatch.Store.from_records([{"epitope":"AAAAAAAAAAAAA", "mhc_class":"II",
+        "mhc_a":trim_allele(a), "mhc_b":trim_allele(b)}])
+    class Model:
+        def score_many(self, peptides, allele):
+            assert allele == expected
+            return [1.] * len(list(peptides))
+        def best_register(self,*args):
+            return 0, 1.
+    class Calibration:
+        def percent_rank(self,*args,**kwargs):
+            return 1.
+        def p_present(self,*args):
+            return .75
+        def clear(self):
+            pass
+    monkeypatch.setattr(mhcmatch.Store,"from_pmhc",lambda **kw:store)
+    monkeypatch.setattr(mhcmatch.predict,"build_scorer",lambda *args,**kw:(Model(),Calibration(),None))
+    rows=A._score_group(("unused",A.specification(),"human","mhc2",[("AAAAAAAAAAAAA",a,b)]))
+    row=next(r for r in rows if r["reported"])
+    assert (row["mhc.a"],row["mhc.b"]) == (a,b)
+    assert row["assessment.status"] == "scored"
+    assert row["prediction.allele"] == expected
+    assert row["allele.resolution"] == "exact"
