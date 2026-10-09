@@ -1,42 +1,14 @@
-"""The build's own profile, gated on share of total rather than on seconds.
+"""Stage time budgets scale with the number of input rows on the same core count.
 
-Marked ``release``: needs the timing report a real build writes (``VDJDB_TIMINGS``, default
-``out/reports/build-timings.tsv``).
-
-`ROADMAP_local.md` §49 profiled the assemble stage once, by hand, and found 156.19 s of 181.89 s in
-`annotate.junction.add_junction_nt` - the measurement `antigenomics/vdjtools#181` rests on. Nothing in
-the build recorded it, so the next stage to double would have been found the same way: by somebody
-noticing the build felt slow.
-
-**Why share and not seconds.** Seconds are a property of the host. A 4-vCPU runner is two to five
-times slower than the laptop these numbers were first taken on, so a seconds bar is either useless or
-fails on a busy runner - and a bar that fails on a correct build gets deleted, which is the lesson of
-§52.2. Share is a ratio inside one run, so a *uniform* host slowdown cancels.
-
-**Share cancels host speed only when the stages scale alike, and that was measured on both reports
-rather than assumed.** Same corpus, 16-core laptop against the 4-vCPU runner:
-
-* **assemble**: 187.3 s against 443.2 s, 2.37x, and the largest share difference over nine stages is
-  **1.3 points**. Every stage there is slower by about the same factor, so the ratio does cancel.
-* **motifs**: 40.1 s against 211.3 s, 5.27x, and the largest share difference over thirteen stages is
-  **33.8 points** - because the per-stage slowdown ranges from 1.46x (`tcrnet.pwm_and_emit`, polars)
-  to 24.0x (`tcrnet.background`, which streams four backgrounds from HuggingFace on the runner and
-  reads them out of the local cache on a laptop).
-
-So the share comparison runs **only when the run's core count matches the count the baseline was
-recorded on**, which the baseline now carries. Under CI that is an assertion rather than a skip: the
-runner is fixed at 4 vCPU, so a mismatch means the baseline was recorded somewhere else and has to be
-re-recorded, and a gate that skips itself is the failure mode that reads as a pass (§59.2).
-
-**What share cannot catch, stated rather than implied**: a uniform slowdown moves no share at all. The
-absolute seconds are recorded in the artifact and printed into the step summary for exactly that case,
-where a human comparing two runs is the instrument. What the gate catches is one stage blowing up
-relative to the others, which is the failure that actually happened here (one call at 86 %).
-
-**Peak RSS needs none of this**, so it is gated absolutely and on every host. Five measurements of
-the motif stage: 6,871 and 6,898 MiB on the laptop, 6,786, 6,802 and 7,531 MiB on the runner. The
-runner spread is 11 %, so it is not the invariant the first pair suggested, and the budget is set
-against the largest observation rather than the flattering one.
+The reviewed reference profile records seconds and input rows. Assembly uses
+records assembled from chunks; motifs use input chains. A stage's budget is
+(reference seconds + tolerance * reference compute seconds) * current/reference rows * run scale.
+The tolerance remains a fraction of reference compute time, and network fetches
+contribute to neither the total nor the gated stages. This permits linear input
+growth without editing the baseline. Multiply budgets by the median compute-stage
+time-per-row ratio to adjust for common run speed. Uniform code and host slowdowns
+cannot be distinguished; raw seconds remain recorded for review.
+Core counts must match. Memory budgets remain absolute.
 """
 from __future__ import annotations
 
@@ -48,43 +20,12 @@ import pytest
 
 pytestmark = pytest.mark.release
 
-#: Stages that are a network fetch rather than a computation. They are timed and recorded - the
-#: runner spends 55.6 s and 73.0 s of the motif stage acquiring four backgrounds over two measured
-#: runs - but they are **excluded from the share comparison, denominator included**, because their
-#: duration is GitHub's network and not this repository's code.
-#:
-#: Without that, the gate is one slow download from red. Measured against the committed baseline,
-#: where the fetch is 0.36619 of the recorded total: if the fetch were free,
-#: `tcremp.dbscan.HomoSapiens.TRB` renormalises 0.18512 -> 0.29207, delta +0.10695; if it took twice
-#: as long, `background.HomoSapiens.TRB` goes 0.28560 -> 0.41810, delta +0.13250. Both exceed the 0.1
-#: band while nothing about the code changed, and the fetch already varied 55.6 s -> 73.0 s (1.31x)
-#: between two runs of one commit.
-#:
-#: ⚠ **Excluding the fetch did not exclude the download until `vdjdb.timing` stopped double-counting
-#: nested stages.** `background.*` runs inside `motifs.tcrnet.enrichment`, and the old report gave
-#: each stage its inclusive duration, so dropping the four background rows left their seconds sitting
-#: inside the enrichment row - which is why that row read 0.29646 where the enrichment's own compute
-#: is **0.03884**, an eighth of it. Every share in this baseline was also understated by 36 %,
-#: because the raw total counted every nested second twice.
-#:
-#: Compared compute-only, the same two runs differ by at most **0.05290** and the fetch moves nothing.
+#: Fetch stages are excluded from both time budgets and the reference compute total.
 NETWORK_STAGES = ("motifs.tcrnet.background.",)
 
-#: `build-timings.tsv` was **re-recorded from a green CI run** on 2026-09-30, after
-#: `annotate.dgene.add_d_posterior` and `annotate.junction.add_junction_nt` became one
-#: `annotate_junctions` call. The interim baseline for the merged stage was *derived* - the retired
-#: stage's 0.18056 folded into the survivor's 0.65172 to give 0.83228 - and the runner then measured
-#: **0.83061**, a delta of 0.00167 against a 0.1 band. Worth recording because it says the
-#: derivation was sound: on 16 cores the two stages were 0.651 of the build together before and the
-#: merged stage was 0.657 after, so folding the share was the right arithmetic and not a guess that
-#: happened to land.
-#:
-#: The seven `curate.*` report stages are in the baseline now rather than only bounded by
-#: `test_a_new_stage_is_recorded_before_it_can_dominate`. Largest is
-#: `curate.anchors.noncanonical` at 0.01505.
-#:
-#: report -> (committed share baseline, peak-RSS budget in MiB). Both stages are covered, because
-#: the pipeline's real memory peak is not in the one that was measured first.
+#: Fixed four-core reference profiles from CI37919286987, before the gate migration.
+#: Budgets retain the previous 0.1 allowances and absolute memory limits.
+#: Refresh only for a reviewed algorithm or workload change, not ordinary row growth.
 REPORTS = {
     "build-timings.tsv": (Path("rules/build_timings.tsv"), 4096),
     "motif-timings.tsv": (Path("rules/motif_timings.tsv"), 10240),
@@ -143,39 +84,35 @@ def test_every_stage_in_the_baseline_was_timed(report) -> None:
 
 
 def _same_host(name: str, timings: pl.DataFrame, baseline: pl.DataFrame) -> None:
-    """Share is comparable within a host class, not across them. See the module docstring."""
+    """Compare stage budgets only on the recorded core count."""
     ran, recorded = int(timings["cores"][0]), int(baseline["cores"][0])
     if ran == recorded:
         return
     assert not os.environ.get("CI"), (
-        f"{name}: the baseline was recorded on {recorded} cores and this CI run has {ran}. Share is "
-        f"not comparable across host classes - re-record the baseline from a CI run.")
-    pytest.skip(f"{name}: baseline recorded on {recorded} cores, this run has {ran}; the share "
+        f"{name}: the baseline was recorded on {recorded} cores and this CI run has {ran}. Time is "
+        f"not comparable across host classes - use a reviewed matching reference profile.")
+    pytest.skip(f"{name}: baseline recorded on {recorded} cores, this run has {ran}; the timing "
                 f"comparison needs one host class. The memory budget still applies.")
 
 
 def _compute_only(df: pl.DataFrame) -> pl.DataFrame:
-    """Drop the network stages and renormalise ``share`` over what is left. See NETWORK_STAGES.
-
-    Both sides of the comparison go through this, so the committed baseline keeps the shares as they
-    were measured and the fetch is excluded from the denominator on the run as well.
-    """
+    """Compute-only shares identify previously unrecorded dominant stages."""
     d = df.filter(~pl.col("stage").str.starts_with(NETWORK_STAGES[0]))
     for prefix in NETWORK_STAGES[1:]:
         d = d.filter(~pl.col("stage").str.starts_with(prefix))
     return d.with_columns(pl.col("share") / pl.col("share").sum())
 
 
-def test_no_stage_took_a_much_larger_share_than_its_baseline(report) -> None:
+def test_no_stage_exceeds_its_row_scaled_time_budget(report) -> None:
+    from vdjdb.timing import row_scaled_limits
+
     name, timings, baseline, _ = report
     _same_host(name, timings, baseline)
-    timings, baseline = _compute_only(timings), _compute_only(baseline)
-    j = (baseline.join(timings.select("stage", pl.col("share").alias("now")), on="stage", how="left")
-         .with_columns((pl.col("now") - pl.col("share")).alias("delta")))
-    over = j.filter(pl.col("delta") > pl.col("tolerance"))
+    limits = row_scaled_limits(timings, baseline, exclude_prefixes=NETWORK_STAGES)
+    over = limits.filter(pl.col("now_seconds") > pl.col("budget_seconds"))
     assert over.height == 0, (
-        f"{name}: a stage grew by more than its tolerated share; profile it, open an issue on the "
-        f"repository whose code is slow, and re-record its baseline:\n{over}")
+        f"{name}: stage time exceeded its input-row-scaled budget. Profile it and "
+        f"open an issue in the repository owning the slow code:\n{over}")
 
 
 def test_a_new_stage_is_recorded_before_it_can_dominate(report) -> None:
@@ -186,12 +123,12 @@ def test_a_new_stage_is_recorded_before_it_can_dominate(report) -> None:
     0.10 on download time alone and red the build for a fetch nobody wrote.
     """
     name, timings, baseline, _ = report
-    timings, baseline = _compute_only(timings), _compute_only(baseline)
+    timings = _compute_only(timings)
     unknown = timings.filter(~pl.col("stage").is_in(baseline["stage"].to_list()))
     big = unknown.filter(pl.col("share") > 0.10)
     assert big.height == 0, (
         f"{name}: new stage(s) over 10 % of the run and not in the baseline:\n{big}\n"
-        f"add them to {REPORTS[name][0]} with their measured share")
+        f"add them to {REPORTS[name][0]} with their measured seconds and input rows")
 
 
 def test_the_build_stays_inside_its_memory_budget(report) -> None:
