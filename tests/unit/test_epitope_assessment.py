@@ -100,7 +100,8 @@ def test_class_two_uses_allele_register_and_preserves_incomplete_dq(monkeypatch)
             return 3, 1.0
 
     class Calibration:
-        def percent_rank(self, allele, score):
+        def percent_rank(self, allele, score, length=None):
+            assert length in (13, 14)
             return 1.0
 
         def p_present(self, allele, score):
@@ -116,6 +117,7 @@ def test_class_two_uses_allele_register_and_preserves_incomplete_dq(monkeypatch)
         ("PKYVKQNTLKLAT", "HLA-DRA*01:01", "HLA-DRB1*01:01"),
         ("PKYVKQNTLKLAT", "", "HLA-DQB1*03:01"),
         ("AA", "HLA-DRA*01:01", "HLA-DRB1*01:01"),
+        ("PKYVKQNTLKLATA", "HLA-DRA*01:01", "HLA-DRB1*01:01"),
     ]))
     reported = next(row for row in got if row["mhc.b"] == "HLA-DRB1*01:01"
                     and row["assessment.status"] == "scored")

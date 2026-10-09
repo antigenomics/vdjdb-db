@@ -15,6 +15,7 @@ keywords = ["immunology", "tcr", "vdjdb", "airr", "epitope", "bioinformatics"]
 dependencies = [
     "polars>=1.20",
     "typer>=0.12",
+    "psutil>=5.9",
     # arda is imported directly for cdr3fix / germline anchors / D inference. vdjtools pulls it
     # transitively, but a direct import deserves a direct dependency.
     "arda-mapper>=2.36",

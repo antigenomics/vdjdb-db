@@ -204,7 +204,7 @@ def build_tables(master: pl.DataFrame, *, release: str = "dev", pmhc_reference: 
         epitopes = build_epitopes(records, chains)
     with stage("build_restriction"):
         restriction = build_restriction(records)
-    with stage("build_epitope_assessment"):
+    with stage("build_epitope_assessment", process_tree=True):
         assessment = build_assessment(records, reference=pmhc_reference, jobs=epitope_jobs)
 
     return {

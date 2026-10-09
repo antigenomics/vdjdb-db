@@ -115,7 +115,7 @@ def _score_group(task: tuple) -> list[dict]:
                 score = model.score(candidate, allele)
                 if not math.isfinite(score):
                     continue
-                rank = cal.percent_rank(allele, score)
+                rank = cal.percent_rank(allele, score, length=len(candidate) if cls == "mhc2" else None)
                 if not math.isfinite(rank):
                     continue
                 value = (rank, offset, candidate, score)

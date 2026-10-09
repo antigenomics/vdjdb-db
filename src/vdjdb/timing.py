@@ -27,11 +27,13 @@ from __future__ import annotations
 import os
 import resource
 import sys
+import threading
 import time
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from pathlib import Path
 
 import polars as pl
+import psutil
 
 
 def peak_rss_mb() -> float:
@@ -64,7 +66,7 @@ def reset() -> None:
 
 
 @contextmanager
-def stage(name: str):
+def stage(name: str, *, process_tree: bool = False):
     """Time one named stage, exclusive of any stage timed inside it.
 
     **A nested stage used to be counted twice.** ``motifs.tcrnet.background.*`` runs inside
@@ -77,19 +79,53 @@ def stage(name: str):
     a child belongs.
     """
     me = len(_STAGES)
-    _STAGES.append([name, _OPEN[-1] if _OPEN else -1, 0.0, 0.0, 0.0])
+    _STAGES.append([name, _OPEN[-1] if _OPEN else -1, 0.0, 0.0, 0.0, None])
     _OPEN.append(me)
+    stop = threading.Event()
+    peak = [0]
+    errors = []
+
+    def sample():
+        try:
+            parent = psutil.Process()
+            processes = [parent, *parent.children(recursive=True)]
+            rss = 0
+            for process in processes:
+                # A child can exit between enumeration and reading its RSS.
+                with suppress(psutil.NoSuchProcess):
+                    rss += process.memory_info().rss
+            peak[0] = max(peak[0], rss)
+        except Exception as error:
+            errors.append(error)
+            stop.set()
+
+    def monitor():
+        while not stop.wait(0.05):
+            sample()
+
+    sampler = None
+    if process_tree:
+        sample()
+        sampler = threading.Thread(target=monitor, name="vdjdb-rss", daemon=True)
+        sampler.start()
     start = time.perf_counter()
     try:
         yield
     finally:
         elapsed = time.perf_counter() - start
+        if sampler is not None:
+            stop.set()
+            sampler.join()
+            sample()
+            _STAGES[me][5] = peak[0] / (1024 * 1024)
         _OPEN.pop()
         # ``ru_maxrss`` is a high-water mark, so the value after a stage is "peak so far" rather than
         # that stage's own footprint. That is the useful reading: it says which stage raised the peak.
         _STAGES[me][2], _STAGES[me][4] = elapsed, peak_rss_mb()
         if _STAGES[me][1] >= 0:
             _STAGES[_STAGES[me][1]][3] += elapsed
+        if errors:
+            raise RuntimeError("process-tree RSS measurement failed") from errors[0]
 
 
 def cores_available() -> int:
@@ -128,6 +164,7 @@ def frame(*, rows: int | None = None, cores: int | None = None) -> pl.DataFrame:
         "seconds": [round(s, 3) for s in self_s],
         "share": [round(s / total, 5) for s in self_s],
         "peak_rss_mb": [round(e[4], 1) for e in _STAGES],
+        "peak_tree_rss_mb": [f"{e[5]:.1f}" if e[5] is not None else "" for e in _STAGES],
         "rows": [rows if rows is not None else -1] * len(_STAGES),
         "cores": [cores if cores is not None else cores_available()] * len(_STAGES),
     })
@@ -147,12 +184,18 @@ def report(df: pl.DataFrame) -> str:
     ``inside`` is the parent stage, empty for a top-level one. Seconds are exclusive of children, so
     the total is the wall clock and not the 36 % overstatement summing every row used to give.
     """
-    out = ["| stage | inside | seconds | share | peak RSS MiB | rows | cores |",
-           "|---|---|--:|--:|--:|--:|--:|"]
+    out = ["| stage | inside | seconds | share | parent peak RSS MiB | "
+           "sampled tree peak RSS MiB | rows | cores |",
+           "|---|---|--:|--:|--:|--:|--:|--:|"]
     for r in df.sort("seconds", descending=True).iter_rows(named=True):
         parent = r.get("parent") or ""
+        tree = r.get("peak_tree_rss_mb")
+        tree_text = f"{float(tree):,.0f}" if tree else "-"
         out.append(f"| `{r['stage']}` | {f'`{parent}`' if parent else ''} | {r['seconds']:.2f} | "
-                   f"{r['share']:.1%} | {r['peak_rss_mb']:,.0f} | {r['rows']:,} | {r['cores']} |")
+                   f"{r['share']:.1%} | {r['peak_rss_mb']:,.0f} | {tree_text} | "
+                   f"{r['rows']:,} | {r['cores']} |")
+    trees = [float(v) for v in df['peak_tree_rss_mb'] if v]
+    tree_total = f"{max(trees):,.0f}" if trees else "-"
     out.append(f"| **total** | | **{df['seconds'].sum():.2f}** | | "
-               f"**{df['peak_rss_mb'].max():,.0f}** | | |")
+               f"**{df['peak_rss_mb'].max():,.0f}** | **{tree_total}** | | |")
     return "\n".join(out)

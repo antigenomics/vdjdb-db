@@ -732,7 +732,7 @@ def assess_epitopes_cmd(
     reset()
     with stage("assessment.read_records"):
         records = read_table(tables, "records") if tables else build_master(paths)
-    with stage("build_epitope_assessment"):
+    with stage("build_epitope_assessment", process_tree=True):
         assessment = build_assessment(records, reference=pmhc_reference, jobs=jobs)
     write_table(assessment, "epitope_assessment", out)
     write_timings(out / "assessment-timings.tsv", rows=records.height)
