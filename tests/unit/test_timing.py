@@ -12,10 +12,59 @@ import sys
 import threading
 import time
 
+import polars as pl
 import psutil
 import pytest
 
 from vdjdb import timing
+
+
+def _profile(rows=100, *, seconds=(80.0, 20.0, 10.0), network=5.0, cores=4):
+    return pl.DataFrame({
+        "stage": ["score", "emit", "sort", "fetch.background"],
+        "seconds": [*seconds, network], "rows": [rows] * 4,
+        "cores": [cores] * 4, "tolerance": [0.1] * 4,
+    })
+
+
+def test_timing_budgets_scale_with_input_growth_and_shrinkage():
+    for rows, seconds in ((200, (160.0, 40.0, 20.0)), (50, (40.0, 10.0, 5.0))):
+        limits = timing.row_scaled_limits(_profile(rows, seconds=seconds), _profile(),
+                                          exclude_prefixes=("fetch.",))
+        assert limits["budget_seconds"].to_list() == [31 * rows / 100, 91 * rows / 100, 21 * rows / 100]
+        assert not limits.filter(pl.col("now_seconds") > pl.col("budget_seconds")).height
+
+
+def test_row_scaling_catches_individual_stage_regressions():
+    limits = timing.row_scaled_limits(_profile(200, seconds=(190.0, 40.0, 20.0)),
+                                      _profile(), exclude_prefixes=("fetch.",))
+    assert limits.filter(pl.col("now_seconds") > pl.col("budget_seconds"))["stage"].to_list() == ["score"]
+
+
+def test_common_speed_variation_is_recorded_without_moving_the_reference():
+    limits = timing.row_scaled_limits(_profile(200, seconds=(192.0, 48.0, 24.0)),
+                                      _profile(), exclude_prefixes=("fetch.",))
+    assert limits["row_scale"].to_list() == [2.0] * 3
+    assert limits["run_scale"].to_list() == pytest.approx([1.2] * 3)
+    assert not limits.filter(pl.col("now_seconds") > pl.col("budget_seconds")).height
+
+
+def test_fetch_seconds_do_not_change_compute_budgets():
+    limits = timing.row_scaled_limits(_profile(network=50000.0), _profile(network=70000.0),
+                                      exclude_prefixes=("fetch.",))
+    assert limits["stage"].to_list() == ["emit", "score", "sort"]
+    assert limits["budget_seconds"].to_list() == [31.0, 91.0, 21.0]
+
+
+@pytest.mark.parametrize("bad", [
+    _profile(rows=0), _profile(cores=2), _profile(seconds=(float("nan"), 20.0, 10.0)),
+    _profile().with_columns(pl.Series("rows", [100, 200, 100, 100])),
+    _profile().with_columns(pl.lit(None, dtype=pl.Int64).alias("rows")),
+    _profile().with_columns(pl.lit(-0.1).alias("tolerance")),
+])
+def test_invalid_timing_reference_is_rejected(bad):
+    with pytest.raises(ValueError):
+        timing.row_scaled_limits(_profile(), bad, exclude_prefixes=("fetch.",))
 
 
 def _sleepy(seconds: float) -> None:
