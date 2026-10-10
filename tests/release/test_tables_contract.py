@@ -67,7 +67,17 @@ pytestmark = pytest.mark.release
 # PMID42826196 adds618 source-supported paper and structural observations.
 # PMID38956325 audit retains75 paired observations and one OT-II alpha observation.
 # PMID42826196 adds313 explicitly ambiguous candidate-pair observations (#1310).
-EXPECTED_RECORDS = 294_880
+# PMID41686909 adds15 paired experimental observations (#478).
+# Paper audit adds145 records: PMID41170916(31), PMID41702949(18),
+# PMID41961941(79), PMID18799721(7), PMID27254288(10).
+# PMID24205294 adds14 source-reported public TRB junction observations.
+# PMID42709546 publication reconciliation adds41 functional observations,
+# preserving248 existing observations and all their record identities.
+# PMID37330172 adds one conventional paired mimotope observation.
+# PMID38459027 adds34 primary observations while preserving77 relocated IDs.
+# PMID38039963 adds24 paired observations; PMID42709546 adds2 NP2 assays.
+# PMID22102287 adds205 paired functional observations.
+EXPECTED_RECORDS = 298_820
 
 
 @pytest.fixture(scope="module")

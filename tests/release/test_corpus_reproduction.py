@@ -27,11 +27,11 @@ MIN_OCCURRENCES = 50
 #: Measured on the combined import using human TRB observations joined by record_id.
 #: Publication retrieval is tested separately; it cannot establish receptor specificity.
 EXPECTED = {
-    "documents": 835,
+    "documents": 846,
     "kmers_scored": 349,
     "top_kmer": "k:IRS",
-    "top_lift": 13.212713,
-    "median_lift": 0.849288,
+    "top_lift": 13.405362,
+    "median_lift": 0.848217,
     "motif_kmers": 18,
     "motif_above_median": 18,
 }
@@ -67,7 +67,15 @@ def scored(tables: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
     # The GILGFVFTL cohort and its leading IRS motif remain unchanged.
     # PMID42826196 adds313 candidate-row TRB observations; these are not
     # independent source clonotypes. The source clone IDs remain available.
-    assert result["units"][0] == 246080
+    # PMID41686909 adds15 human TRB observations without changing the GILGFVFTL cohort.
+    # Five audit papers add65 human TRB observations; the GILGFVFTL cohort
+    # remains unchanged. Candidate pairs retain their source clone IDs.
+    # PMID24205294 and PMID37330172 add15 human TRB observations.
+    # The GILGFVFTL cohort retains its18164 observations.
+    # PMID38039963 and PMID22102287 add229 human TRB observations.
+    # Publication relocation adds no independent receptor observation.
+    # PMID42759506 adds3264 human TRB candidate observations from source clonotypes.
+    assert result["units"][0] == 249668
     assert result["given_units"][0] == 18164
     return [(row["lift"], row["term"]) for row in result.iter_rows(named=True)]
 

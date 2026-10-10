@@ -11,7 +11,7 @@
 # Resolved 2026-09-25 via the NCBI ID converter.
 reference.id	pmid	note
 https://doi.org/10.1016/j.xcrm.2023.101017	PMID:37030296	Cell Rep Med 2023; also #467's 80 A*24:01 records
-https://www.biorxiv.org/content/10.1101/2025.11.05.686789v1.full	PMID:41279151	bioRxiv preprint, indexed since submission
+https://www.biorxiv.org/content/10.1101/2025.11.05.686789v1.full	PMID:42709546	Published study; all 242 source clonotypes and six named structural pairs reconciled (#568)
 doi:10.1172/jci.insight.174776	PMID:39024572	JCI Insight 2024
 # Checked and deliberately unmapped:
 # https://doi.org/10.1101/2020.05.04.20085779	-	medRxiv preprint, never indexed in PubMed
