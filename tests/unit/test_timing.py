@@ -127,15 +127,16 @@ def test_reset_clears_an_interrupted_stack() -> None:
 
 def test_process_tree_sampling_includes_a_live_worker():
     timing.reset()
-    before = psutil.Process().memory_info().rss / (1024 * 1024)
     with timing.stage('workers', process_tree=True), subprocess.Popen([sys.executable, '-c',
                            'import time; data=bytearray(128*1024*1024); '
                            'print("ready",flush=True); time.sleep(.3)'],
                           stdout=subprocess.PIPE, text=True) as child:
         assert child.stdout.readline().strip() == 'ready'
+        # Parent RSS can fall during startup; compare while the allocated worker is alive.
+        parent_with_worker = psutil.Process().memory_info().rss / (1024 * 1024)
         assert child.wait(timeout=5) == 0
     peak = float(timing.frame()['peak_tree_rss_mb'].item())
-    assert peak > before + 96
+    assert peak > parent_with_worker + 96
     assert not any(t.name == 'vdjdb-rss' for t in threading.enumerate())
 
 
