@@ -56,8 +56,11 @@ pytestmark = pytest.mark.release
 # PMID41702949 and PMID41961941 add97 observations with191 chains whose
 # source V calls are unavailable. Definitive tables and AIRR retain them;
 # the legacy segment filter remains unchanged.
-LEGACY_DROPS_CHAINS = 2106
-LEGACY_DROPS_RECORDS = 1519
+# PMID22102287 adds205 incomplete-call pairs and PMID38039963 adds24.
+# All229 observations and458 chains remain
+# in definitive tables and AIRR; legacy still requires reported V calls.
+LEGACY_DROPS_CHAINS = 2564
+LEGACY_DROPS_RECORDS = 1748
 
 
 @pytest.fixture(scope="module")
