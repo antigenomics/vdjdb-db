@@ -44,6 +44,10 @@ Column tables, vocabularies and score rules are generated from the package decla
 site builds. The [summary dashboard](https://docs.isalgo.dev/vdjdb-db/dashboard.html) follows the
 latest successful build on `master`; released downloads are dated snapshots.
 
+For corpus checks, distinguish repeated source rows from assembled observations. The build removes
+duplicate curation within a publication and preserves distinct experiments. See
+[metadata and reference checks](docs/build-integrity.md#check-metadata-and-references).
+
 ## Using the data
 
 Download the latest release zip from

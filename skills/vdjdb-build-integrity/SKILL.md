@@ -80,6 +80,11 @@ and publish a tag only when requested. Keep the live-master dashboard distinct f
 snapshots. Update local execution/merge records, reconcile completed issues, back-sync hotfixes to
 dev and delete only ancestry-verified integrated branches. Retain source proofs and unmerged work.
 
+For a final corpus audit, follow [metadata and reference checks](../../docs/build-integrity.md#check-metadata-and-references).
+Record source duplicate counts separately from assembled observations and retained experimental
+replications. Reopened curation issues do not invalidate a build; retain their agreed scope and
+proofreading/maintenance labels without changing supported source observations.
+
 ## Choose assessment scope
 
 Use [check scopes](../../docs/builds.md#choose-the-scope-of-a-check) to select the work needed

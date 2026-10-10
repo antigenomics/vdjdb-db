@@ -72,7 +72,9 @@ submitter | Name of submitting person/organization
 
 > If a record represents a clonotype whose alpha or beta sequence is unknown, leave the missing CDR3/V/(D)/J fields blank.
 
-> V/(D)/J fields may be left blank, in which case the CDR3 fixing and verification procedure is skipped for that record.
+> Leave unreported V/(D)/J fields blank. The build preserves submitted calls, attempts junction
+> annotation where supported and distinguishes inferred calls from reported ones. An inferred V
+> is reported separately; it does not replace a missing submitted V call.
 
 > Every record must have at least one of ``cdr3.alpha`` and ``cdr3.beta`` filled.
 
@@ -115,7 +117,7 @@ These columns are optional to fill, but should be present in the table header. T
 column name     | description
 ----------------|-------------
 method.identification | ``tetramer-sort``, ``dextramer-sort``, ``pelimer-sort``, ``pentamer-sort``, etc. for sorting-based identification. For molecular assays use ``antigen-loaded-targets`` (T cell specificity analysed against cells incubated with antigenic peptide) or ``antigen-expressing-targets`` (T cell specificity analysed against cells transformed with an antigenic organism, protein or peptide, e.g. BCL transformed with EBV). For magnetic cell separation use ``beads``. Add ``cultured-T-cells`` or ``limiting-dilution-cloning`` if T cells were cultured before sequencing, since ``method.frequency`` then has a different meaning. For UMI-tagged multimers use ``tetramer-umi``, etc. Separate phrases with a comma.
-method.frequency | Frequency in the isolated epitope-reactive population, reported as ``X/X`` where possible, e.g. ``7/30`` if a given V/D/J/CDR3 is encountered in 7 out of 30 tetramer+ clones. The population is defined by the pMHC the sort used, not by the antigen it came from - a tetramer is one epitope on one allele. The formats ``X%``, ``X.X%``, ``X.X`` and ``1e-04`` are also supported. Measured over the corpus: 43,231 records write a ratio, 17,700 a percentage, 2,601 a float.
+method.frequency | Frequency in the isolated epitope-reactive population, reported as ``X/X`` where possible, e.g. ``7/30`` if a given V/D/J/CDR3 is encountered in 7 out of 30 tetramer+ clones. The population is defined by the pMHC the sort used, not by the antigen it came from - a tetramer is one epitope on one allele. The formats ``X%``, ``X.X%``, ``X.X`` and ``1e-04`` are also supported. The build's ``frequency.tsv`` reports the current format counts.
 method.frequency.count | **Optional, and preferred over encoding the count in the string above** (#696). Reads, UMIs or cells supporting this clonotype, as an integer. A clonotype supported by 3 reads is better evidence than one supported by 1, and a frequency erases exactly that difference: at any realistic depth both are ``~1/total``, and ``1/33921`` against ``3/33921`` is 2.9e-5 against 8.8e-5, which a two-significant-figure export makes the same number.
 method.frequency.total | **Optional.** The sample total ``method.frequency.count`` is out of. Where this pair is left blank the build parses it out of ``method.frequency`` when that is an unambiguous ``x/X``; where it is given, **the submitted value wins and nothing is parsed**. Where all three are present they must agree - ``vdjdb qc`` reports ``frequency disagrees with its count and total`` and does not repair it, because which of the three the paper supports is a curation question.
 method.singlecell | ``yes`` if single cell sequencing was performed, blank otherwise

@@ -61,6 +61,11 @@ with source locations. Use [harmonize](../vdjdb-harmonize/SKILL.md) for provenan
 [duplicates](../vdjdb-duplicates/SKILL.md) for paired receptor-pMHC recurrence. Compare complete
 experiment metadata before merging; preserve different experiments and publication reports.
 
+Separate closed vocabularies from descriptive metadata. Cohort, subset, tissue and source identifiers
+allow free text. Check aliases in the assembled output before editing source spellings. Prefer a
+verified PMID, but retain vendor submission and unpublished structure references when no publication
+link is established. A reanalysis does not supply independent measurements of the original dataset.
+
 ## Resolve and report
 
 Fix supported mechanical defects under the existing authorization. Request a curator decision

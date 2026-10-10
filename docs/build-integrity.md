@@ -44,6 +44,27 @@ on focused issues and state which validation remains unavailable.
 Measure slow stages with input size, wall time, core count and memory. File bottlenecks where the
 slow code is maintained. Optimize with vectorized expressions and batch calls before adding workers.
 
+## Check metadata and references
+
+Count distinct values, blanks and singleton values in every `method.*` and `meta.*` field, with
+source locations. Compare submitted values with the assembled tables: declared aliases are applied
+by the build, so a source spelling difference need not survive in a release. Identification tokens
+are declared in `proofreading/method_vocabulary.tsv`; cohort, subset, tissue and source identifiers
+allow descriptive text. Do not treat those fields as a closed vocabulary or collapse donor labels
+across publications. Review sentinel values, column shifts and contradictory assay descriptions
+against their sources.
+
+Use `vdjdb qc --report out/reports/qc.tsv` for source findings and a fresh build for
+`harmonisation.tsv`, `lookalikes.tsv` and `repeated-references.tsv`. Repeated source rows removed by
+assembly are different from repeated experiments retained as observations. Compare both chains,
+restriction and experiment metadata before changing either.
+
+Prefer a verified PMID for an indexed publication. Reviewed mappings in
+`proofreading/reference_ids.tsv` apply during assembly. Retain DOI, patent, PDB or submission-issue
+identifiers when they describe the actual source and no publication link is verified. Vendor data
+and a paper reanalysing those data are the same underlying measurements; changing their reference
+does not make them independent experiments.
+
 ## Integrate and publish
 
 Merge the validated candidate through dev, then promote the final tested tree to master when
