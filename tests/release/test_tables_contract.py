@@ -77,7 +77,7 @@ pytestmark = pytest.mark.release
 # PMID38459027 adds34 primary observations while preserving77 relocated IDs.
 # PMID38039963 adds24 paired observations; PMID42709546 adds2 NP2 assays.
 # PMID22102287 adds205 paired functional observations.
-EXPECTED_RECORDS = 295_361
+EXPECTED_RECORDS = 298_820
 
 
 @pytest.fixture(scope="module")
