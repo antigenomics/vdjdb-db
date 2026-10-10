@@ -53,8 +53,11 @@ pytestmark = pytest.mark.release
 # through their reported pair. Two fewer chains and records fail the legacy segment filter.
 # Finalization retains 98 further single-chain observations with unresolved segments.
 # PMID38956325 audit completes six OT-I pairs and one OT-II alpha for legacy export.
-LEGACY_DROPS_CHAINS = 1915
-LEGACY_DROPS_RECORDS = 1422
+# PMID41702949 and PMID41961941 add97 observations with191 chains whose
+# source V calls are unavailable. Definitive tables and AIRR retain them;
+# the legacy segment filter remains unchanged.
+LEGACY_DROPS_CHAINS = 2106
+LEGACY_DROPS_RECORDS = 1519
 
 
 @pytest.fixture(scope="module")
