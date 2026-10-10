@@ -67,7 +67,8 @@ pytestmark = pytest.mark.release
 # PMID42826196 adds618 source-supported paper and structural observations.
 # PMID38956325 audit retains75 paired observations and one OT-II alpha observation.
 # PMID42826196 adds313 explicitly ambiguous candidate-pair observations (#1310).
-EXPECTED_RECORDS = 294_880
+# PMID41686909 adds15 paired experimental observations (#478).
+EXPECTED_RECORDS = 294_895
 
 
 @pytest.fixture(scope="module")
