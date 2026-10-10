@@ -11,5 +11,5 @@ text	unknown-column	2	-1	true	0
 text	empty-column-name	1	-1	true	0
 text	prose-column-name	1	-1	true	0
 row	one epitope under two HLA genes in one chunk	28	2	true	10
-row	bad antigen.gene	550	5	true	0
+row	bad antigen.gene	560	6	true	0
 row	partial class-II restriction	73	4	true	0
