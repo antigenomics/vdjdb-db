@@ -70,7 +70,11 @@ pytestmark = pytest.mark.release
 # PMID41686909 adds15 paired experimental observations (#478).
 # Paper audit adds145 records: PMID41170916(31), PMID41702949(18),
 # PMID41961941(79), PMID18799721(7), PMID27254288(10).
-EXPECTED_RECORDS = 295_040
+# PMID24205294 adds14 source-reported public TRB junction observations.
+# PMID42709546 publication reconciliation adds41 functional observations,
+# preserving248 existing observations and all their record identities.
+# PMID37330172 adds one conventional paired mimotope observation.
+EXPECTED_RECORDS = 295_096
 
 
 @pytest.fixture(scope="module")
