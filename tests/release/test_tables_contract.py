@@ -78,7 +78,8 @@ pytestmark = pytest.mark.release
 # PMID38039963 adds24 paired observations; PMID42709546 adds2 NP2 assays.
 # PMID22102287 adds205 paired functional observations.
 # DOI10.1186/s13059-026-04266-w adds10 paired cloned-receptor assays.
-EXPECTED_RECORDS = 298_830
+# Source review1352 preserves78 unresolved original rows in withheld/.
+EXPECTED_RECORDS = 298_752
 
 
 @pytest.fixture(scope="module")
