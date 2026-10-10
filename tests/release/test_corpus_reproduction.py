@@ -27,7 +27,7 @@ MIN_OCCURRENCES = 50
 #: Measured on the combined import using human TRB observations joined by record_id.
 #: Publication retrieval is tested separately; it cannot establish receptor specificity.
 EXPECTED = {
-    "documents": 847,
+    "documents": 844,
     "kmers_scored": 349,
     "top_kmer": "k:IRS",
     "top_lift": 13.402948,
@@ -76,8 +76,9 @@ def scored(tables: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
     # Publication relocation adds no independent receptor observation.
     # PMID42759506 adds3264 human TRB candidate observations from source clonotypes.
     # ERTransformer adds10 TRB observations, four against GILGFVFTL.
-    assert result["units"][0] == 249678
-    assert result["given_units"][0] == 18168
+    # Source review1352 withholds unsupported contigs/restrictions; three GIL rows removed.
+    assert result["units"][0] == 249605
+    assert result["given_units"][0] == 18165
     return [(row["lift"], row["term"]) for row in result.iter_rows(named=True)]
 
 
