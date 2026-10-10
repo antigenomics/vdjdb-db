@@ -74,7 +74,10 @@ pytestmark = pytest.mark.release
 # PMID42709546 publication reconciliation adds41 functional observations,
 # preserving248 existing observations and all their record identities.
 # PMID37330172 adds one conventional paired mimotope observation.
-EXPECTED_RECORDS = 295_096
+# PMID38459027 adds34 primary observations while preserving77 relocated IDs.
+# PMID38039963 adds24 paired observations; PMID42709546 adds2 NP2 assays.
+# PMID22102287 adds205 paired functional observations.
+EXPECTED_RECORDS = 295_361
 
 
 @pytest.fixture(scope="module")
