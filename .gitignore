@@ -129,6 +129,7 @@ uv.lock.tmp
 /STATUS.md
 /ROADMAP_local.md
 /CHANGELOG_local.md
+/SOURCE_RECONCILIATION_local.md
 
 ## Scratch -- notes and one-off scripts. Anchored to the repo root so tests/ and docs/ are unaffected.
 /scratch/
