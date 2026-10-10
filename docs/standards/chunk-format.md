@@ -14,7 +14,7 @@ Check shared experiments, reused constructs and author overlap before assigning 
 
 Use `PMID_<id>.tsv` when PubMed indexes the paper, including indexed preprints. Otherwise use
 `DOI_<doi>.tsv`, replacing the DOI slash with `_`, for example
-`DOI_10.1101_2021.09.09.459584.tsv`. Strip `https://doi.org/`, publisher URLs,
+`DOI_10.1101_2020.05.04.20085779.tsv`. Strip `https://doi.org/`, publisher URLs,
 `/content/`, version suffixes such as `v1`, and page suffixes such as `.full` before naming.
 The submitted `reference.id` uses the verified identifier; a filename is not a reference identifier.
 
