@@ -59,8 +59,9 @@ pytestmark = pytest.mark.release
 # PMID22102287 adds205 incomplete-call pairs and PMID38039963 adds24.
 # All229 observations and458 chains remain
 # in definitive tables and AIRR; legacy still requires reported V calls.
-LEGACY_DROPS_CHAINS = 2564
-LEGACY_DROPS_RECORDS = 1748
+# ERTransformer retains seven designed receptors with14 unreported-V chains in tables/AIRR.
+LEGACY_DROPS_CHAINS = 2578
+LEGACY_DROPS_RECORDS = 1755
 
 
 @pytest.fixture(scope="module")
