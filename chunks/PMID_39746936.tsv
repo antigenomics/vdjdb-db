@@ -15549,7 +15549,6 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 15612				CASSQVTAGGLKNEQFF	TRBV4-1	TRBD1	TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		ATCCACCCATGATCCA-1					
 15613				CASSQVTAGGLKNEQFF	TRBV4-1	TRBD1	TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		ATCCACCCATGCCCGA-1					
 15614				CASSTPDGQRDEQFF	TRBV19		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		ATCCACCGTATCTGCA-1					
-15615	CAALGRNLLRQGDIWARDKLISHSKGLSQGYCNSTKDCVTPMQANQPLGM	TRAV13-1	TRAJ10					HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		ATCCACCTCAACGGGA-1					
 15616	CREVSGGSYIPTF	TRAV4	TRAJ6					HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		ATCCACCTCACAATGC-1					
 15617	CAASMDSSYKLIF	TRAV13-1	TRAJ12					HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		ATCCACCTCCCTGACT-1					
 15618				CAISDPGNTEAFF	TRBV10-3		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		ATCCACCTCCCTTGTG-1					
@@ -17223,7 +17222,6 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 17375				CASSSPNPGQGSNIQYF	TRBV7-9	TRBD1	TRBJ2-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		CGTGTCTTCTTGCCGT-1					
 17376				CASSSPNPGQGSNIQYF	TRBV7-9	TRBD1	TRBJ2-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		CGTTAGAAGAACAACT-1					
 17377				CASSLNDYEQYF	TRBV7-9		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		CGTTAGAAGTGACTCT-1					
-17378				CASSYSTVLHGCLLSAQKDHTGAGVSQSPSNKVTEKGKDVELRCDPISGHTALYWYRQRLGQGLEFLIYFQGNSAPDKSGLPSDRFSAERTGESVSTLTIQRTQQEDSAVYLCAAPSQGESDEQFF	TRBV6-2		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		CGTTAGAAGTGTACCT-1					
 17379	CALDFDLGVTRKLPLEL	TRAV6	TRAJ13					HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		CGTTAGACACAACTGT-1					
 17380				CASSQDLVKANYGYTF	TRBV4-1		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		CGTTAGACAGCTGTGC-1					
 17381				CASSSTGSSYNEQFF	TRBV7-9	TRBD1	TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	VISNDVCAQV	KLK3	HomoSapiens	PMID:39746936	antigen-expressing-targets		yes	amplicon-seq						donor_3		CGTTAGACATCACCCT-1					
