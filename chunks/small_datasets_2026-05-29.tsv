@@ -162,8 +162,6 @@ CGTETNTGNQFYF	TRAV29	TRAJ49	CASSLGRYNEQFF	TRBV8		TRBJ2-1	HomoSapiens	HLA-A*02:01
 CAASTSGGTSYGKLTF	TRAV8	TRAJ52	CASSLGSSYEQYF	TRBV14		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTA	gp100	HomoSapiens	PMID:12574392	antigen-loaded-targets,limiting-dilution-cloning			sanger	antigen-loaded-targets		CD8+					gp100280–288	PBMC				161						
 CAVLSSGGSNYKLTF	TRAV21	TRAJ53	CASSFIGGTDTQYF	TRBV7-3		TRBJ2-3	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTA	gp100	HomoSapiens	PMID:26917722	tetramer sort			sanger	antigen-loaded-targets		CD8+					gp100280–288	PBMC			5EU6	162						
 CATDGDTPLVF	TRAV17	TRAJ29	CASSIGGPYEQYF	TRBV19		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	YLEPGPVTA	gp100	HomoSapiens	PMID:26917722	tetramer sort			sanger	antigen-loaded-targets		CD8+					gp100280–288	PBMC				163						
-			CASSLRGNEQFF	TRBV11-3		TRBJ2-1	HomoSapiens	HLA-B*52:01	B2M	MHCI	YLAMPFATPMEAELARRSLA	NY-ESO-1	HomoSapiens	PMID:26291626	tetramer sort			amplicon-seq	antigen-loaded-targets		CD8+					NY-ESO-1 91–110	PBMC				164						
-			CASSLVGTNIQYF	TRBV5-8		TRBJ2-4	HomoSapiens	HLA-B*35:01	B2M	MHCI	YLAMPFATPMEAELARRSLA	NY-ESO-1	HomoSapiens	PMID:26291626	tetramer sort			amplicon-seq	antigen-loaded-targets		CD8+					NY-ESO-1 91–110	PBMC				165						
 CAVRPTSGGSYIPTF	TRAV21*01	TRAJ6*01	CASSYVGNTGELFF	TRBV6-5*01		TRBJ2-2*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLMWITQC	NY-ESO-1	HomoSapiens	PMID:18424733	multimer-sort			sanger	antigen-loaded-targets		CD8+					NY-ESO-1 157-165	PBMC				166						
 CAVNFGGGKLIF	TRAV12-2*01	TRAJ23*01	CASSLSFGTEAFF	TRBV6-4*01		TRBJ1-1*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	AAGIGILTV	MLANA	HomoSapiens	PMID:18424733	multimer-sort			sanger	antigen-loaded-targets		CD8+					MART-1 27-35	PBMC				167						
 CAGGTGNQFYF	TRAV35*02	TRAJ49*01	CAISEVGVGQPQHF	TRBV10-3		TRBJ1-5*01	HomoSapiens	HLA-A*02:01	B2M	MHCI	AAGIGILTV	MLANA	HomoSapiens	PMID:18424733	multimer-sort			sanger	antigen-loaded-targets		CD8+					MART-1 27-35	PBMC				168						
@@ -1026,7 +1024,7 @@ CLVGPMRTNAGKSTF	TRAV4	TRAJ27	CASSLSGDNEQFF	TRBV12-4		TRBJ2-1	HomoSapiens	HLA-A*2
 CATWLSGSARQLTF	TRAV17	TRAJ46	CASSNRASSYNEQFF	TRBV12-4		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	FLPSDFFPSI	HBcAg	HBV	https://patents.google.com/patent/US10004801B2																	1025						
 CATWLSGSARQLTF	TRAV17	TRAJ46	CASSNRASSYNEQFF	TRBV12-4		TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	FLPSDFFPSV	HBcAg	HBV	https://patents.google.com/patent/US10004801B2																	1026						
 CAVNLYAGNMLTF	TRAV12-2	TRAJ39	CASSSDFGNQPQHF	TRBV7-8		TRBJ1-5	HomoSapiens	HLA-A*02:01	B2M	MHCI	SIVSPFIPLL	S	HBV	https://patents.google.com/patent/US10004801B2																	1027						
-CASSFTDTQYPGPGTRLIVIEDLENVF							HomoSapiens	HLA-A*02	B2M	MHCI	GLYDGMEHL	MAGEA10	HomoSapiens	https://patents.google.com/patent/US11203627B2																	1028						
+			CASSFTDTQYF				HomoSapiens	HLA-A*02	B2M	MHCI	GLYDGMEHL	MAGEA10	HomoSapiens	https://patents.google.com/patent/US11203627B2																	1028						
 CAVRGTGRRALTF							HomoSapiens	HLA-A*02	B2M	MHCI	GLYDGMEHL	MAGEA10	HomoSapiens	https://patents.google.com/patent/US11203627B2																	1029						
 CAGARNFNKFYF			CSARSWRGGLEQFF				HomoSapiens	HLA-A*02:01	B2M	MHCI	YMLDLQPET	E7	HPV16	https://patents.google.com/patent/US11471489B2																	1030						
 CAVMENGDTKLIFG	TRAV14-1	TRAJ34	CASSLDLIQEQTYQFG	TRBV6-2		TRBJ2-5	HomoSapiens	HLA-A*02	B2M	MHCI	KIFGSLAFL	ERBB2	HomoSapiens	https://patents.google.com/patent/US20110280894A1																	1031						
@@ -1052,10 +1050,10 @@ CAVLNQAGTALIF			CASSAETGPWLGNEQFF				HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRA
 CAYRWAQGGSEKLVF			CATELWSSGGTGELFF				HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20180273602A1																	1051						
 CAVGPSGTYKYIF			CASSPGGSGNEQFF				HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20180273602A1																	1052						
 CAWSGGGADGLTF			CASSLGRGGQPQHF				HomoSapiens	HLA-A*02	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/US20180273602A1																	1053						
-CAASMAGAGSYQLTF							HomoSapiens	HLA-B*35:01	B2M	MHCI	NHTTPILCGAQYRIH	WT1	HomoSapiens	https://patents.google.com/patent/US20240132569A																	1054						
-			CAISVGQGALYEQYF				HomoSapiens	HLA-B*35:01	B2M	MHCI	NHTTPILCGAQYRIH	WT1	HomoSapiens	https://patents.google.com/patent/US20240132569A																	1055						
-			CASSVARDRRNYGYTF				HomoSapiens	HLA-B*35:01	B2M	MHCI	NHTTPILCGAQYRIH	WT1	HomoSapiens	https://patents.google.com/patent/US20240132569A																	1056						
-CAARSYNTDKLIF			CASSWGYQETQYF				HomoSapiens	HLA-B*35:01	B2M	MHCI	NHTTPILCGAQYRIH	WT1	HomoSapiens	https://patents.google.com/patent/US20240132569A																	1057						
+CAASMAGAGSYQLTF							HomoSapiens	HLA-B*35:01	B2M	MHCI	NHTTPILCGAQYRIH	WT1	HomoSapiens	https://patents.google.com/patent/US20240132569A1																	1054						
+			CAISVGQGALYEQYF				HomoSapiens	HLA-B*35:01	B2M	MHCI	NHTTPILCGAQYRIH	WT1	HomoSapiens	https://patents.google.com/patent/US20240132569A1																	1055						
+			CASSVARDRRNYGYTF				HomoSapiens	HLA-B*35:01	B2M	MHCI	NHTTPILCGAQYRIH	WT1	HomoSapiens	https://patents.google.com/patent/US20240132569A1																	1056						
+CAARSYNTDKLIF			CASSWGYQETQYF				HomoSapiens	HLA-B*35:01	B2M	MHCI	NHTTPILCGAQYRIH	WT1	HomoSapiens	https://patents.google.com/patent/US20240132569A1																	1057						
 CAVNSQNGYALNF							HomoSapiens	HLA-A*02	B2M	MHCI	FMNKFIYEI	AFP	HomoSapiens	https://patents.google.com/patent/US20250122263A1																	1058						
 CAVNSDSGYALNF							HomoSapiens	HLA-A*02	B2M	MHCI	FMNKFIYEI	AFP	HomoSapiens	https://patents.google.com/patent/US20250122263A1																	1059						
 CASSLGGESEQF							HomoSapiens	HLA-A*02	B2M	MHCI	FMNKFIYEI	AFP	HomoSapiens	https://patents.google.com/patent/US20250122263A1																	1060						
@@ -1066,7 +1064,7 @@ CAVNSQSGYSLNF							HomoSapiens	HLA-A*02	B2M	MHCI	FMNKFIYEI	AFP	HomoSapiens	http
 CAVNSQSSYALNF							HomoSapiens	HLA-A*02	B2M	MHCI	FMNKFIYEI	AFP	HomoSapiens	https://patents.google.com/patent/US20250122263A1																	1065						
 CAVNSQSGVALNF							HomoSapiens	HLA-A*02	B2M	MHCI	FMNKFIYEI	AFP	HomoSapiens	https://patents.google.com/patent/US20250122263A1																	1066						
 CAVTYSGAGSYQLF	TRAV1-2	TRAJ28	CASSQKQGWEKLF	TRBV13		TRBJ1-4	HomoSapiens	HLA-A*02:01	B2M	MHCI	YMDGTMSQV	TYR	HomoSapiens	https://patents.google.com/patent/WO2010058023A1																	1067						
-CAGIPRDNYGQNFVFGPGTRLSVLPF	TRAV35		CASTPWLAGGNEQFFGPGTRLTVLF	TRBV28			HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/WO2016142783A2																	1068						
+CAGIPRDNYGQNFVF	TRAV35		CASTPWLAGGNEQFF	TRBV28			HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/WO2016142783A2																	1068						
 CAVSGQTGANNLFFGTGTRLTVIPF	TRAV8-4		CASARWDRGGEQYFGPGTRLTVTF	TRBV9			HomoSapiens	HLA-A*02:01	B2M	MHCI	SLLQHLIGL	PRAME	HomoSapiens	https://patents.google.com/patent/WO2016142783A2																	1069						
 CAVKDNAGNMLLTFGGGTRLMVKPF	TRAV12-2		CASSDGGGVYEQYFGPGTRLTVTF	TRBV9			HomoSapiens	HLA-A*02:01	B2M	MHCI	QLLALLPSL	PRAME	HomoSapiens	https://patents.google.com/patent/WO2016142783A2																	1070						
 CAATNSGYALNF			CAWSVDGAEQYF				HomoSapiens	HLA-A*02:01	B2M	MHCI	ILSLELMKL	HMMR	HomoSapiens	https://patents.google.com/patent/WO2016177195A1																	1071						
@@ -1226,7 +1224,7 @@ CAYRSYNAGNMLTF	TRAV38-2/DV8	TRAJ39					HomoSapiens	HLA-DRA*01:01	HLA-DRB1*15:01	
 CAVDMWNNNARLMF	TRAV39	TRAJ31					HomoSapiens	HLA-DRA*01:01	HLA-DRB5*02:02	MHCII	IFFDIKLLRNIPRWTHLLR			https://patents.google.com/patent/JP6625705B2																	1225		Pairing, parent annotations and optional experimental metadata are unspecified.				
 CAFINFNKFYF	TRAV24	TRAJ21					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV			https://patents.google.com/patent/JP6625705B2																	1226		Pairing, parent annotations and optional experimental metadata are unspecified.				
 			CSSRTPNTGQLYF	TRBV30		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	SIDWFMVTV			https://patents.google.com/patent/JP6625705B2																	1227		Pairing, parent annotations and optional experimental metadata are unspecified.				
-CAVADSWGKLQF	TRAV1-2	TRAJ24					HomoSapiens	HLA-B*35:01	B2M	MHCI	PLICMLNIPSINVHHYP			https://patents.google.com/patent/JP6625705B2																	1228		Pairing, parent annotations and optional experimental metadata are unspecified.				
+CAVADSWGKLQF	TRAV1-2	TRAJ24					HomoSapiens	HLA-B*35:01	B2M	MHCI	PLKMLNIPSINVHHYPSAAERKH			https://patents.google.com/patent/JP6625705B2																	1228		Pairing, parent annotations and optional experimental metadata are unspecified.				
 CAVVRWETSGSRLTF	TRAV22	TRAJ58					HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV			https://patents.google.com/patent/JP6625705B2																	1229		Pairing, parent annotations and optional experimental metadata are unspecified.				
 			CATSDTGTSRNEQFF	TRBV24-1		TRBJ2-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB5*02:02	MHCII	KLIRRRVSENICRRYT			https://patents.google.com/patent/JP6625705B2																	1230		Pairing, parent annotations and optional experimental metadata are unspecified.				
 			CASSFGQVVVADTQYF	TRBV6-6		TRBJ2-3	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*07:01	MHCII	ILADLIFTDSKLYIPLEYR			https://patents.google.com/patent/JP6625705B2																	1231		Pairing, parent annotations and optional experimental metadata are unspecified.				
@@ -1264,7 +1262,7 @@ CAVNARDNAGKSTF	TRAV8-1	TRAJ27					HomoSapiens	HLA-DRA*01:01	HLA-DRB1*15:01	MHCII
 			CASSEAGGSSFEQYF	TRBV6-1		TRBJ2-7	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*15:01	MHCII	DSKLYIPLEYRSISLAIAL			https://patents.google.com/patent/JP6625705B2																	1263		Pairing, parent annotations and optional experimental metadata are unspecified.				
 			CASSQDGWGYEQYF	TRBV2		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	PMTVLCSIDWFMVTVHPFM			https://patents.google.com/patent/JP6625705B2																	1264		Pairing, parent annotations and optional experimental metadata are unspecified.				
 CARAVNYGGSQGNLIF	TRAV9-2	TRAJ42					HomoSapiens	HLA-DRA*01:01	HLA-DRB5*02:02	MHCII	SRLLEFYLAMPFATP			https://patents.google.com/patent/JP6625705B2																	1265		Pairing, parent annotations and optional experimental metadata are unspecified.				
-			CASSQEGLAGASNNEQFF	TRBV3-1		TRBJ2-1	HomoSapiens	HLA-B*35:01	B2M	MHCI	PLICMLNIPSINVHHYP			https://patents.google.com/patent/JP6625705B2																	1266		Pairing, parent annotations and optional experimental metadata are unspecified.				
+			CASSQEGLAGASNNEQFF	TRBV3-1		TRBJ2-1	HomoSapiens	HLA-B*35:01	B2M	MHCI	PLKMLNIPSINVHHYPSAAERKH			https://patents.google.com/patent/JP6625705B2																	1266		Pairing, parent annotations and optional experimental metadata are unspecified.				
 			CAWKLGNYAEQFF			TRBJ2-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	PMTVLCSIDWFMVTVHPFM			https://patents.google.com/patent/JP6625705B2																	1267		Pairing, parent annotations and optional experimental metadata are unspecified.				
 CAARSYGGSQGNLIF	TRAV29/DV5	TRAJ42					HomoSapiens	HLA-DRA*01:01	HLA-DRB5*02:02	MHCII	KLIRRRVSENICRRYT			https://patents.google.com/patent/JP6625705B2																	1268		Pairing, parent annotations and optional experimental metadata are unspecified.				
 CATASNFGNEKLTF	TRAV14/DV4	TRAJ48					HomoSapiens	HLA-DRA*01:01	HLA-DRB4*01:01	MHCII	NWNLPPRRILFIICHFITYS			https://patents.google.com/patent/JP6625705B2																	1269		Pairing, parent annotations and optional experimental metadata are unspecified.				
