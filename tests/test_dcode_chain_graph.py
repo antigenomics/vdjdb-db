@@ -99,6 +99,40 @@ def test_leakage_of_an_expanded_beta_is_not_a_second_clone():
     assert clones.height == 41
 
 
+def test_expanded_clone_is_not_the_ambient_profile():
+    """A frequent beta expressed above the extra-chain rate stays endogenous.
+
+    Rare second betas would make a frequency-scaled ambient mean larger than
+    this clone's own count. The clone is the receptor. Copies at the extra-chain
+    rate, behind another beta, are contamination.
+    """
+    rows = []
+    for i in range(40):
+        rows.append(_contig(f"e{i}", "TRA", str(i), f"CAE{i}", 5))
+        rows.append(_contig(f"e{i}", "TRB", str(i), f"CASE{i}", 6))
+        rows.append(_contig(f"e{i}", "TRB", f"x{i}", f"CASSX{i}", 1))
+    for i in range(30):
+        rows.append(_contig(f"c{i}", "TRA", f"a{i}", f"CAC{i}", 4))
+        rows.append(_contig(f"c{i}", "TRB", "9", "CASSPUBLIC", 6))
+    for i in range(10):
+        rows.append(_contig(f"l{i}", "TRA", f"b{i}", f"CAL{i}", 8))
+        rows.append(_contig(f"l{i}", "TRB", f"b{i}", f"CASSL{i}", 10))
+        rows.append(_contig(f"l{i}", "TRB", "9", "CASSPUBLIC", 1))
+    endogenous = dcode.mark_endogenous(dcode.chain_table(pl.DataFrame(rows), donor=1))
+    public = endogenous.filter(pl.col("cdr3") == "CASSPUBLIC")
+    high = public.filter(pl.col("umi") == 6)
+    low = public.filter(pl.col("umi") == 1)
+    assert high.height == 30
+    assert int(high["endogenous"].sum()) == 30
+    assert low.height == 10
+    assert int(low["endogenous"].sum()) == 0
+    own = endogenous.filter(
+        pl.col("barcode").str.starts_with("c") & (pl.col("cdr3") != "CASSPUBLIC")
+    )
+    assert own.height == 30
+    assert int(own["endogenous"].sum()) == 30
+
+
 def test_repeated_dual_alpha_is_kept():
     rows = []
     for i in range(5):
@@ -161,6 +195,139 @@ def test_additive_doublet_is_dropped_and_dual_alpha_feature_is_kept():
     kept = dcode.drop_doublets(clones, features, ["CD8a", "MART", "KLG", "NC"])
     assert "dbl" not in kept["barcode"].to_list()
     assert "dual" in kept["barcode"].to_list()
+
+
+def _ab_row(barcode: str, alpha: str, beta: str) -> dict:
+    return {
+        "donor": 1, "barcode": barcode, "shape": "ab",
+        "alpha1": alpha, "alpha2": None, "beta": beta, "clone_id": f"{alpha}||{beta}",
+    }
+
+
+def test_two_clones_of_one_alpha_are_not_a_doublet():
+    """Other betas of a public alpha are not two parents of a dual-alpha cell.
+
+    The second alpha has no clone of its own. The peptide count is one spike.
+    The barcode stays, because no cross-alpha parent pair exists.
+    """
+    def chain(locus: str, gene: str, cdr3: str) -> str:
+        return f"{locus}|{locus}V-{gene}|{locus}J-{gene}|{cdr3}"
+
+    public = chain("TRA", "12-2", "CAVNN")
+    second = chain("TRA", "2", "CAVVV")
+    beta = chain("TRB", "4", "CASRM")
+    left = chain("TRB", "10", "CAISE")
+    right = chain("TRB", "2", "CASSE")
+    rows = []
+    features = []
+    for i in range(4):
+        rows.append(_ab_row(f"L{i}", public, left))
+        features.append({"barcode": f"L{i}", "ELA": 16.0, "NC": 0.0})
+        rows.append(_ab_row(f"R{i}", public, right))
+        features.append({"barcode": f"R{i}", "ELA": 7.0, "NC": 0.0})
+    rows.append({
+        "donor": 1, "barcode": "cell", "shape": "aab",
+        "alpha1": public, "alpha2": second, "beta": beta,
+        "clone_id": f"{public}|{second}||{beta}",
+    })
+    features.append({"barcode": "cell", "ELA": 65.0, "NC": 0.0})
+    kept = dcode.drop_doublets(pl.DataFrame(rows), pl.DataFrame(features), ["ELA", "NC"])
+    assert "cell" in kept["barcode"].to_list()
+
+
+def test_public_alphas_drop_only_when_counts_fit_the_sum():
+    """Two public alphas drop when the sum of their clones fits, and stay when it does not."""
+    def chain(locus: str, gene: str, cdr3: str) -> str:
+        return f"{locus}|{locus}V-{gene}|{locus}J-{gene}|{cdr3}"
+
+    a1 = chain("TRA", "1", "CAAA")
+    a2 = chain("TRA", "2", "CABB")
+    beta = chain("TRB", "9", "CASSNEW")
+    b1 = chain("TRB", "1", "CASS1")
+    b2 = chain("TRB", "2", "CASS2")
+    rows = []
+    features = []
+    for i in range(3):
+        rows.append(_ab_row(f"p{i}", a1, b1))
+        features.append({"barcode": f"p{i}", "ELA": 10.0, "GIL": 0.0})
+        rows.append(_ab_row(f"q{i}", a2, b2))
+        features.append({"barcode": f"q{i}", "ELA": 0.0, "GIL": 10.0})
+    rows.append({
+        "donor": 1, "barcode": "spike", "shape": "aab",
+        "alpha1": a1, "alpha2": a2, "beta": beta,
+        "clone_id": f"{a1}|{a2}||{beta}",
+    })
+    features.append({"barcode": "spike", "ELA": 40.0, "GIL": 0.0})
+    rows.append({
+        "donor": 1, "barcode": "sum", "shape": "aab",
+        "alpha1": a1, "alpha2": a2, "beta": beta,
+        "clone_id": f"{a1}|{a2}||{beta}",
+    })
+    features.append({"barcode": "sum", "ELA": 10.0, "GIL": 10.0})
+    kept = dcode.drop_doublets(pl.DataFrame(rows), pl.DataFrame(features), ["ELA", "GIL"])
+    barcodes = kept["barcode"].to_list()
+    assert "spike" in barcodes
+    assert "sum" not in barcodes
+
+
+def test_primary_low_count_stays_endogenous_and_a_later_copy_does_not():
+    """A first-slot count of 1 from a receptor chain stays. The same count behind another chain does not.
+
+    The slot prior is estimated from these rows. It is not a count cutoff.
+    """
+    rows = []
+    for i in range(30):
+        rows.append(_contig(f"e{i}", "TRA", str(i), f"CAE{i}", 6))
+        rows.append(_contig(f"e{i}", "TRB", str(i), f"CASE{i}", 6))
+        rows.append(_contig(f"e{i}", "TRB", f"x{i}", f"CASSX{i}", 1))
+    for i in range(20):
+        rows.append(_contig(f"h{i}", "TRA", "9", "CAVPUB", 6))
+        rows.append(_contig(f"h{i}", "TRB", f"h{i}", f"CASSH{i}", 6))
+    for i in range(6):
+        rows.append(_contig(f"p{i}", "TRA", "9", "CAVPUB", 1))
+        rows.append(_contig(f"p{i}", "TRB", f"p{i}", f"CASSP{i}", 8))
+    for i in range(8):
+        rows.append(_contig(f"l{i}", "TRA", f"l{i}", f"CAL{i}", 8))
+        rows.append(_contig(f"l{i}", "TRA", "9", "CAVPUB", 1))
+        rows.append(_contig(f"l{i}", "TRB", f"l{i}", f"CASSL{i}", 8))
+    endogenous = dcode.mark_endogenous(dcode.chain_table(pl.DataFrame(rows), donor=1))
+    public = endogenous.filter(pl.col("cdr3") == "CAVPUB")
+    primary_low = public.filter(pl.col("barcode").str.starts_with("p"))
+    later = public.filter(pl.col("barcode").str.starts_with("l"))
+    primary_high = public.filter(pl.col("barcode").str.starts_with("h"))
+    assert primary_low.height == 6
+    assert int(primary_low["endogenous"].sum()) == 6
+    assert later.height == 8
+    assert int(later["endogenous"].sum()) == 0
+    assert int(primary_high["endogenous"].sum()) == 20
+
+
+def test_skewed_receptor_cloud_keeps_a_mid_count():
+    """A heavy tail is one negative binomial. A mid count stays endogenous.
+
+    Two Poisson rates fit the same tail, and they would call the mid count a
+    contaminant. The second rate has to beat the negative binomial.
+    """
+    rows = []
+    for i in range(30):
+        rows.append(_contig(f"e{i}", "TRA", str(i), f"CAE{i}", 6))
+        rows.append(_contig(f"e{i}", "TRB", str(i), f"CASE{i}", 6))
+        rows.append(_contig(f"e{i}", "TRB", f"x{i}", f"CASSX{i}", 1))
+    primary = [1, 1, 1, 1, 4, 5, 5, 5, 5, 6, 7, 18, 26]
+    for i, umi in enumerate(primary):
+        rows.append(_contig(f"h{i}", "TRA", "9", "CAVSKEW", umi))
+        rows.append(_contig(f"h{i}", "TRB", f"h{i}", f"CASSH{i}", 8))
+    for i in range(8):
+        rows.append(_contig(f"l{i}", "TRA", f"l{i}", f"CAL{i}", 8))
+        rows.append(_contig(f"l{i}", "TRB", f"l{i}", f"CASSL{i}", 8))
+        rows.append(_contig(f"l{i}", "TRB", "9", "CASSLEAK", 1))
+    endogenous = dcode.mark_endogenous(dcode.chain_table(pl.DataFrame(rows), donor=1))
+    skew = endogenous.filter(pl.col("cdr3") == "CAVSKEW")
+    mid = skew.filter(pl.col("umi") == 5)
+    high = skew.filter(pl.col("umi") == 26)
+    assert mid.height == 4
+    assert int(mid["endogenous"].sum()) == 4
+    assert int(high["endogenous"].sum()) == 1
 
 
 def _singleton_panel(

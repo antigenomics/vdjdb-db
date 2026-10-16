@@ -2,18 +2,25 @@
 """Chain co-occurrence graph for the four-donor Immudex dCODE matrices.
 
 A node is one chain (locus + V + J + CDR3). An edge is two chains in the same
-cell barcode, carrying both UMI counts. Leakage is a Poisson ambient component
+cell barcode, carrying both UMI counts. A cell carries one beta and up to two
+alphas; any further chain is the contamination slot. The ambient rate is the
+lower Poisson component of those extra-chain counts. The upper component is
+the receptor expression, the mean of the primary-slot counts. A chain count is
+endogenous when that is the posterior mode. The likelihood is Poisson at the
+chain's receptor rate against the ambient rate, or against the chain's lower
+rate when the chain is two Poissons. The prior is the endogenous weight of the
+slot (first alpha, second alpha, first beta, or a further chain), estimated by
+empirical Bayes with a Beta(1, 1) pseudocount. A tie stays ambient. An expanded
+clone does not set the ambient rate. A kept label is alpha-beta,
+alpha-alpha-beta, beta only, alpha only, or two alphas. A second beta is not a
+label.
 
-    lambda(b, c) = rho_b * U_c / sum(U)
-
-with rho_b fit once from the chains in barcode b that cannot be the primary
-receptor (a third TRA, a second TRB). A chain is endogenous when that mixture
-assigns it to the high component. A kept label is alpha-beta, alpha-alpha-beta,
-beta only, alpha only, or two alphas. A second beta is not a label.
-
-A barcode whose counts fit the sum of two parents is dropped. Contig UMI is not
-used to rescale dextramer UMI: the multimer count on a kept barcode stays the
-measured count. The clone id is only a label after that.
+An alpha-alpha-beta barcode is dropped when its dextramer counts fit the sum of
+two parents better than one parent. The two parents are one clone of each
+alpha, or this barcode's own alpha-beta clone plus the other alpha's clone.
+Two clones of the same alpha are not two cells in the droplet. Contig UMI is
+not used to rescale dextramer UMI: the multimer count on a kept barcode stays
+the measured count. The clone id is only a label after that.
 
 Three counts are not interchangeable. Cells per label are the sample size of
 the within-label likelihood. TCR contig UMI is the chain-graph weight only.
@@ -34,8 +41,8 @@ Median and MAD of log1p(dextramer UMI) are written afterwards as checks. They
 are not inputs.
 
 The on-disk "binarized" matrix is numeric counts. Columns ending in ``_binder``
-are a previous 0/1 call and are not read. There is no transcriptome in the
-dCODE directory; surface-protein counts stand in for the expression background.
+are a previous 0/1 call and are not read. Surface-protein columns are not
+evidence of specificity. There is no transcriptome in the dCODE directory.
 
 # 2026-10-16. Issue https://github.com/antigenomics/vdjdb-db/issues/1357
 """
@@ -133,52 +140,156 @@ def edge_table(chains: pl.DataFrame) -> pl.DataFrame:
     )
 
 
-def _fit_excess(y: np.ndarray, lam: np.ndarray, n_iter: int = 25) -> tuple[float, float]:
-    """Moment estimate of the endogenous excess mu and its mixing weight pi.
+def _ambient_rate(primary: np.ndarray, excess: np.ndarray) -> float:
+    """Lower Poisson component of extra-chain counts. Upper mean is fixed.
 
-    Ambient mean lam is known per barcode. The endogenous component is Poisson
-    with mean lam + mu. Responsibilities use that likelihood; mu is the weighted
-    mean of (y - lam) on the endogenous component, floored at 0. One fit, no
-    cutoff grid.
+    The upper component is the primary-slot mean, the receptor expression.
+    An extra chain as strong as a receptor is a second receptor, and then the
+    sample has no lower component. The ambient rate is the floor in that case.
     """
-    y = np.asarray(y, dtype=np.float64)
-    lam = np.maximum(np.asarray(lam, dtype=np.float64), LAM_FLOOR)
-    gap = y - lam
-    mu = max(float(np.quantile(gap, 0.9)), 1.0)
-    pi = 0.2
-    for _ in range(n_iter):
-        rate_e = lam + mu
-        log_e = math.log(pi) + y * np.log(rate_e) - rate_e
-        log_a = math.log(1.0 - pi) + y * np.log(lam) - lam
-        # log y! cancels. Shift for stability.
-        shift = np.maximum(log_e, log_a)
-        re = np.exp(log_e - shift)
-        ra = np.exp(log_a - shift)
-        r = re / (re + ra)
-        pi = float(np.clip(r.mean(), 1e-3, 1.0 - 1e-3))
-        weight = float(r.sum())
-        if weight < 1e-6:
-            return 0.0, pi
-        mu_next = max(float((r * gap).sum() / weight), 0.0)
-        if abs(mu_next - mu) < 1e-3:
-            mu = mu_next
+    if primary.size == 0 or excess.size == 0:
+        return LAM_FLOOR
+    mu = float(primary.mean())
+    if mu <= LAM_FLOOR:
+        return LAM_FLOOR
+    if float(excess.mean()) >= mu:
+        return LAM_FLOOR
+    lam = float(excess.mean())
+    # Weight of the receptor component among the extra-chain counts.
+    pi = 0.5
+    y = excess.astype(np.float64)
+    for _ in range(25):
+        log_high = math.log(pi) + y * np.log(mu) - mu
+        log_low = math.log(1.0 - pi) + y * np.log(lam) - lam
+        shift = np.maximum(log_high, log_low)
+        high = np.exp(log_high - shift)
+        low = np.exp(log_low - shift)
+        responsibility = high / (high + low)
+        low_weight = float((1.0 - responsibility).sum())
+        if low_weight < 1.0:
+            return LAM_FLOOR
+        lam_next = float(((1.0 - responsibility) * y).sum() / low_weight)
+        lam_next = min(max(lam_next, LAM_FLOOR), mu)
+        pi_next = float(np.clip(responsibility.mean(), 1e-3, 1.0 - 1e-3))
+        if abs(lam_next - lam) < 1e-3 and abs(pi_next - pi) < 1e-4:
+            lam = lam_next
             break
-        mu = mu_next
-    return mu, pi
+        lam = lam_next
+        pi = pi_next
+    if lam >= mu:
+        return LAM_FLOOR
+    return lam
+
+
+def _negbin_kernel(y: np.ndarray, mean: float) -> float:
+    """One-component log likelihood, factorial omitted.
+
+    The negative binomial is the one-component model when the unbiased variance
+    exceeds the mean. Theta is the moment estimate, and the variance is
+    ``mean + mean^2 / theta``. A chain with no extra-Poisson variance uses the
+    Poisson kernel. The factorial term is shared with the two-Poisson kernel
+    and is left out of both.
+    """
+    poisson = float(np.sum(y * np.log(mean) - mean))
+    if y.size < 2:
+        return poisson
+    var = float(y.var(ddof=1))
+    if var <= mean + 1e-8:
+        return poisson
+    theta = mean * mean / (var - mean)
+    if theta > 1.0e6:
+        return poisson
+    gamma = sum(math.lgamma(float(count) + theta) - math.lgamma(theta) for count in y)
+    return (
+        gamma
+        + y.size * theta * math.log(theta / (theta + mean))
+        + float(y.sum()) * math.log(mean / (theta + mean))
+    )
+
+
+def _component_means(y: np.ndarray) -> tuple[float, float]:
+    """Receptor mean, and a lower mean only when a second rate beats a negative binomial.
+
+    One negative binomial is the default. A second Poisson rate is accepted when
+    both components are supported by more than one count and the mixture at
+    least doubles the per-count likelihood of that negative binomial. A skewed
+    receptor cloud does not split. The lower mean is NaN when the chain stays
+    one component.
+    """
+    mean = max(float(y.mean()), LAM_FLOOR)
+    if y.size < 4 or float(np.var(y)) <= mean + 1e-8:
+        return mean, math.nan
+    high = max(float(y.max()), LAM_FLOOR)
+    low = max(float(y.min()), LAM_FLOOR)
+    if high <= low:
+        return mean, math.nan
+    pi = 0.5
+    for _ in range(25):
+        log_high = math.log(pi) + y * np.log(high) - high
+        log_low = math.log(1.0 - pi) + y * np.log(low) - low
+        shift = np.maximum(log_high, log_low)
+        high_r = np.exp(log_high - shift)
+        low_r = np.exp(log_low - shift)
+        responsibility = high_r / (high_r + low_r)
+        high_weight = float(responsibility.sum())
+        low_weight = float((1.0 - responsibility).sum())
+        if high_weight < 2.0 or low_weight < 2.0:
+            return mean, math.nan
+        high_next = max(float((responsibility * y).sum() / high_weight), LAM_FLOOR)
+        low_next = max(float(((1.0 - responsibility) * y).sum() / low_weight), LAM_FLOOR)
+        pi_next = float(np.clip(responsibility.mean(), 1e-3, 1.0 - 1e-3))
+        if abs(high_next - high) < 1e-3 and abs(low_next - low) < 1e-3:
+            high, low, pi = high_next, low_next, pi_next
+            break
+        high, low, pi = high_next, low_next, pi_next
+    if low >= high or high_weight < 2.0 or low_weight < 2.0:
+        return mean, math.nan
+    one = _negbin_kernel(y, mean)
+    mixture = float(np.sum(np.logaddexp(
+        math.log(pi) + y * np.log(high) - high,
+        math.log(1.0 - pi) + y * np.log(low) - low,
+    )))
+    # Doubling the per-count likelihood is the prior break-even for a second rate.
+    if (mixture - one) / y.size <= math.log(2.0):
+        return mean, math.nan
+    return high, low
+
+
+def _slot_log_prior(log_lik_odds: np.ndarray, slot: np.ndarray) -> np.ndarray:
+    """Log prior odds of an endogenous chain, one empirical-Bayes value per slot.
+
+    ``slot`` is 0 first alpha, 1 second alpha, 2 first beta, 3 a further chain.
+    Responsibilities are the current posterior. A Beta(1, 1) pseudocount keeps
+    an empty slot at one half. The result aligns with ``log_lik_odds``.
+    """
+    pi = np.full(4, 0.5)
+    for _ in range(30):
+        prior = np.log(pi[slot] / (1.0 - pi[slot]))
+        responsibility = 1.0 / (1.0 + np.exp(-np.clip(log_lik_odds + prior, -60.0, 60.0)))
+        previous = pi.copy()
+        for code in range(4):
+            mask = slot == code
+            n_slot = int(mask.sum())
+            if n_slot == 0:
+                pi[code] = 0.5
+                continue
+            pi[code] = (float(responsibility[mask].sum()) + 1.0) / (n_slot + 2.0)
+        if float(np.max(np.abs(pi - previous))) < 1e-4:
+            break
+    return np.log(pi[slot] / (1.0 - pi[slot]))
 
 
 def mark_endogenous(chains: pl.DataFrame) -> pl.DataFrame:
     """Add ``endogenous`` to each cell-barcode chain row.
 
-    Non-cell rows are returned with ``endogenous`` false. They have already
-    contributed to the chain frequency f_c.
+    A chain that needs two Poissons is scored at its upper rate against its
+    lower rate. A chain that is one Poisson is scored against the shared
+    ambient rate. The slot prior then shifts those likelihood odds, and the
+    posterior mode assigns the row. A tie stays ambient. Non-cell rows are not
+    part of either component.
     """
     if chains.is_empty():
         return chains.with_columns(pl.lit(False).alias("endogenous"))
-
-    totals = chains.group_by("chain_id").agg(pl.col("umi").sum().alias("u_c"))
-    u_sum = float(totals.select(pl.col("u_c").sum()).item())
-    totals = totals.with_columns((pl.col("u_c") / u_sum).alias("f_c"))
 
     cells = chains.filter(pl.col("is_cell"))
     if cells.is_empty():
@@ -203,107 +314,48 @@ def mark_endogenous(chains: pl.DataFrame) -> pl.DataFrame:
             | ((pl.col("locus") == "TRB") & (pl.col("locus_rank") > 1))
         ).alias("excess_slot"),
     )
-    ranked = ranked.join(totals.select("chain_id", "f_c", "u_c"), on="chain_id", how="left")
-    # A chain seen in one barcode is not the soup. Using it as rho would force
-    # lam equal to its own count and hide a second receptor.
-    n_per = ranked.group_by("chain_id").agg(pl.len().alias("n_cell_all"))
-    ranked = ranked.join(n_per, on="chain_id", how="left")
-
-    excess = (
-        ranked.filter(pl.col("excess_slot") & (pl.col("n_cell_all") >= 2))
-        .group_by("barcode")
-        .agg(pl.col("umi").sum().alias("excess_umi"), pl.col("f_c").sum().alias("excess_f"))
-        .with_columns(
-            pl.when(pl.col("excess_f") > 0)
-            .then(pl.col("excess_umi") / pl.col("excess_f"))
-            .otherwise(None)
-            .alias("rho")
-        )
-    )
-    rho_fill = excess.select(pl.col("rho").drop_nulls().median()).item()
-    if rho_fill is None:
-        rho_fill = 0.0
-    ranked = ranked.join(excess.select("barcode", "rho"), on="barcode", how="left").with_columns(
-        pl.col("rho").fill_null(float(rho_fill)),
-    )
-    ranked = ranked.with_columns((pl.col("rho") * pl.col("f_c")).clip(lower_bound=LAM_FLOOR).alias("lam"))
-
-    # Abundant chains get one mixture. Rare chains use their own primary excess:
-    # a chain seen in a handful of barcodes cannot be the ambient soup.
-    sizes = ranked.group_by("chain_id").agg(pl.len().alias("n_cell"), pl.col("u_c").first())
-    abundant_ids = sizes.filter((pl.col("n_cell") >= 8) & (pl.col("u_c") >= 20))["chain_id"].to_list()
-    mu_pi: dict[str, tuple[float, float]] = {}
-    if abundant_ids:
-        sub = ranked.filter(pl.col("chain_id").is_in(abundant_ids)).sort("chain_id")
-        ids = sub["chain_id"].to_numpy()
-        y = sub["umi"].to_numpy()
-        lam = sub["lam"].to_numpy()
-        if len(ids):
-            cuts = np.flatnonzero(ids[1:] != ids[:-1]) + 1
-            starts = np.concatenate(([0], cuts))
-            ends = np.concatenate((cuts, [len(ids)]))
-            for start, end in zip(starts, ends, strict=True):
-                mu, pi = _fit_excess(y[start:end], lam[start:end])
-                mu_pi[str(ids[start])] = (mu, pi)
-
     primary = ranked.filter(pl.col("primary_slot"))
-    own = primary.group_by("chain_id").agg(
-        pl.len().alias("n_primary"),
-        (pl.col("umi") - pl.col("lam")).max().alias("mu_max"),
-    )
-    n_cell = ranked.group_by("chain_id").agg(pl.len().alias("n_cell"))
-    depth = ranked.group_by("barcode").agg(pl.col("umi").max().alias("depth"))
-    med_depth = float(depth.select(pl.col("depth").median()).item() or 1.0)
-    pos = primary.filter((pl.col("umi") - pl.col("lam")) > 0)
-    mu_global = 1.0 if pos.is_empty() else float(
-        pos.select((pl.col("umi") - pl.col("lam")).median()).item()
-    )
-    depth = depth.with_columns((pl.col("depth") / med_depth).alias("depth_scale"))
-
-    fitted = pl.DataFrame(
-        {
-            "chain_id": list(mu_pi),
-            "mu_fit": [v[0] for v in mu_pi.values()],
-            "pi_fit": [v[1] for v in mu_pi.values()],
-        }
-    ) if mu_pi else pl.DataFrame(
-        schema={"chain_id": pl.String, "mu_fit": pl.Float64, "pi_fit": pl.Float64}
-    )
-
-    ranked = (
-        ranked.join(own, on="chain_id", how="left")
-        .join(n_cell, on="chain_id", how="left")
-        .join(depth.select("barcode", "depth_scale"), on="barcode", how="left")
-        .join(fitted, on="chain_id", how="left")
-        .with_columns(
-            pl.col("n_primary").fill_null(0),
-            pl.col("mu_max").fill_null(0.0),
-        )
-    )
-    # π pseudocount keeps a chain that is primary in every barcode able to lose
-    # a low-UMI member, and keeps an unseen chain from a log(0).
+    excess = ranked.filter(pl.col("excess_slot"))
+    primary_umi = primary["umi"].to_numpy().astype(np.float64)
+    excess_umi = excess["umi"].to_numpy().astype(np.float64)
+    ambient = _ambient_rate(primary_umi, excess_umi)
+    observed = ranked["umi"].to_numpy().astype(np.float64)
+    order = np.argsort(ranked["chain_id"].to_numpy(), kind="mergesort")
+    y_sorted = observed[order]
+    chain_sorted = ranked["chain_id"].to_numpy()[order]
+    cuts = np.flatnonzero(chain_sorted[1:] != chain_sorted[:-1]) + 1
+    starts = np.concatenate((np.zeros(1, dtype=np.int64), cuts))
+    ends = np.concatenate((cuts, np.array([chain_sorted.size])))
+    mu_sorted = np.empty(chain_sorted.size, dtype=np.float64)
+    alt_sorted = np.empty(chain_sorted.size, dtype=np.float64)
+    for start, end in zip(starts, ends, strict=True):
+        high, low = _component_means(y_sorted[start:end])
+        mu_sorted[start:end] = high
+        alt_sorted[start:end] = low
+    inverse = np.empty(order.size, dtype=np.int64)
+    inverse[order] = np.arange(order.size)
+    chain_rate = mu_sorted[inverse]
+    alt = alt_sorted[inverse]
+    shared = max(ambient, LAM_FLOOR)
+    alt_rate = np.where(np.isnan(alt), shared, np.maximum(alt, LAM_FLOOR))
+    # A one-component chain at or below the ambient rate is not a receptor.
+    chain_rate = np.maximum(np.maximum(chain_rate, alt_rate), LAM_FLOOR)
+    log_odds = observed * np.log(chain_rate / alt_rate) - (chain_rate - alt_rate)
+    locus = ranked["locus"].to_numpy()
+    locus_rank = ranked["locus_rank"].to_numpy()
+    slot = np.full(locus.shape[0], 3, dtype=np.int64)
+    slot[(locus == "TRA") & (locus_rank == 1)] = 0
+    slot[(locus == "TRA") & (locus_rank == 2)] = 1
+    slot[(locus == "TRB") & (locus_rank == 1)] = 2
+    log_odds = log_odds + _slot_log_prior(log_odds, slot)
+    posterior = 1.0 / (1.0 + np.exp(-np.clip(log_odds, -60.0, 60.0)))
     ranked = ranked.with_columns(
-        pl.when(pl.col("mu_fit").is_not_null())
-        .then(pl.col("mu_fit"))
-        .when(pl.col("n_primary") >= 1)
-        .then(pl.col("mu_max").clip(lower_bound=0.0))
-        .otherwise(mu_global * pl.col("depth_scale"))
-        .alias("mu"),
-        pl.when(pl.col("pi_fit").is_not_null())
-        .then(pl.col("pi_fit"))
-        .otherwise((pl.col("n_primary") + 0.5) / (pl.col("n_cell") + 1.0))
-        .alias("pi"),
-    )
-    ranked = ranked.with_columns(
-        (
-            (pl.col("pi") / (1.0 - pl.col("pi"))).log()
-            + pl.col("umi") * ((pl.col("lam") + pl.col("mu").clip(lower_bound=1e-6)) / pl.col("lam")).log()
-            - pl.col("mu")
-        ).alias("log_odds")
-    )
-    # A count that does not clear the ambient mean is the ambient component.
-    ranked = ranked.with_columns(
-        ((pl.col("log_odds") > 0) & (pl.col("umi") > pl.col("lam"))).alias("endogenous")
+        pl.lit(shared).alias("rho"),
+        pl.Series("lam", alt_rate),
+        pl.Series("mu", chain_rate),
+        pl.Series("pi", posterior),
+        pl.Series("log_odds", log_odds),
+        pl.Series("endogenous", log_odds > 0.0),
     )
     keep = [
         "donor", "barcode", "chain_id", "locus", "v_call", "j_call", "cdr3",
@@ -419,26 +471,34 @@ def _poisson_ll(y: np.ndarray, rate: np.ndarray) -> float:
     return float(np.sum(y * np.log(rate) - rate))
 
 
+def _alpha_partners(ab: pl.DataFrame) -> dict[str, dict[str, str]]:
+    """Map each alpha to the beta clone ids it forms. One id per alpha-beta pair."""
+    partners: dict[str, dict[str, str]] = {}
+    for alpha, beta, clone_id in zip(
+        ab["alpha1"].to_list(), ab["beta"].to_list(), ab["clone_id"].to_list(), strict=True
+    ):
+        partners.setdefault(alpha, {}).setdefault(beta, clone_id)
+    return partners
+
+
 def drop_doublets(
     clones: pl.DataFrame,
     features: pl.DataFrame,
     count_cols: list[str],
 ) -> pl.DataFrame:
-    """Drop an alpha-alpha-beta barcode when one alpha has another beta and the counts fit the sum.
+    """Drop an alpha-alpha-beta barcode when its counts fit two parents better than one.
 
-    Parents are the alpha-beta clones of those chains, not random cells. A second
-    alpha that never forms another clone stays: that is a dual-alpha receptor.
+    A parent is an alpha-beta clone. The doublet hypothesis is one clone of each
+    alpha, or this beta's own alpha-beta clone plus the other alpha's clone.
+    Two clones of the same alpha are a different beta, not a second cell in this
+    droplet. Equal prior, so the call is the likelihood, and a tie keeps the
+    barcode. A second alpha that never forms another clone stays.
     """
     if clones.is_empty() or "aab" not in clones["shape"].to_list():
         return clones
-    # Barcode order makes the parent-mean sums and the partner lists reproducible.
+    # Barcode order makes the parent-mean sums reproducible.
     ab = clones.filter(pl.col("shape") == "ab").sort("barcode")
-    partners: dict[str, list[tuple[str, str]]] = {}
-    for alpha, beta, clone_id in zip(
-        ab["alpha1"].to_list(), ab["beta"].to_list(), ab["clone_id"].to_list(), strict=True
-    ):
-        partners.setdefault(alpha, []).append((beta, clone_id))
-    # One profile per alpha-beta clone.
+    partners = _alpha_partners(ab)
     matrix, index = _feature_matrix(features, count_cols)
     sums: dict[str, np.ndarray] = {}
     counts: dict[str, int] = {}
@@ -462,45 +522,47 @@ def drop_doublets(
         aab["beta"].to_list(),
         strict=True,
     ):
-        foreign = []
-        for alpha in (a1, a2):
-            for other_beta, clone_id in partners.get(alpha, []):
-                if other_beta != beta and clone_id in means:
-                    foreign.append(clone_id)
-        if not foreign:
-            continue
-        # Both alphas already head a different beta clone: two receptors in one droplet.
-        a1_foreign = any(b != beta for b, _cid in partners.get(a1, []))
-        a2_foreign = any(b != beta for b, _cid in partners.get(a2, []))
         row_i = index.get(barcode)
-        if row_i is None or (a1_foreign and a2_foreign):
-            drop.add(barcode)
+        if row_i is None:
             continue
-        parent_ids = sorted(set(foreign))
         y = matrix[row_i]
-        # The alpha-beta clone of this barcode's own beta, if one alpha also forms it.
-        own_ids = sorted({
-            clone_id
-            for alpha in (a1, a2)
-            for other_beta, clone_id in partners.get(alpha, [])
-            if other_beta == beta and clone_id in means
-        })
-        if not own_ids:
-            # No separate alpha-beta profile for this pair. Drop when the sum of two
-            # foreign parents fits better than either parent alone.
-            for i, left in enumerate(parent_ids):
-                for right in parent_ids[i + 1:]:
-                    both = means[left] + means[right]
-                    if (
-                        _poisson_ll(y, both) > _poisson_ll(y, means[left])
-                        and _poisson_ll(y, both) > _poisson_ll(y, means[right])
-                    ):
-                        drop.add(barcode)
+        by_alpha = []
+        for alpha in (a1, a2):
+            own = None
+            foreign: list[str] = []
+            for other_beta, clone_id in partners.get(alpha, {}).items():
+                if clone_id not in means:
+                    continue
+                if other_beta == beta:
+                    own = clone_id
+                else:
+                    foreign.append(clone_id)
+            by_alpha.append((own, foreign))
+        (own_1, foreign_1), (own_2, foreign_2) = by_alpha
+        # This beta already has an alpha-beta profile. The other alpha's clone is
+        # the only admissible second parent.
+        compared = False
+        for own, foreign in ((own_1, foreign_2), (own_2, foreign_1)):
+            if own is None:
+                continue
+            compared = True
+            own_mean = means[own]
+            own_ll = _poisson_ll(y, own_mean)
+            for other_id in foreign:
+                if _poisson_ll(y, own_mean + means[other_id]) > own_ll:
+                    drop.add(barcode)
+                    break
+        if compared or barcode in drop:
             continue
-        for own_id in own_ids:
-            own = means[own_id]
-            for other_id in parent_ids:
-                if _poisson_ll(y, own + means[other_id]) > _poisson_ll(y, own):
+        # No alpha-beta profile for this beta. A doublet is one foreign clone of
+        # each alpha. Same-alpha pairs are not a hypothesis.
+        for left in foreign_1:
+            for right in foreign_2:
+                both = means[left] + means[right]
+                if (
+                    _poisson_ll(y, both) > _poisson_ll(y, means[left])
+                    and _poisson_ll(y, both) > _poisson_ll(y, means[right])
+                ):
                     drop.add(barcode)
                     break
     if not drop:
@@ -521,16 +583,6 @@ def dextramer_columns(columns: list[str]) -> list[str]:
         if ALLELE_RE.match(head):
             out.append(col)
     return out
-
-
-def surface_columns(columns: list[str]) -> list[str]:
-    skip = set(META_COLUMNS)
-    dex = set(dextramer_columns(columns))
-    nc = set(negative_control_columns(columns))
-    return [
-        c for c in columns
-        if c not in skip and not c.endswith("_binder") and c not in dex and c not in nc
-    ]
 
 
 def _empty_calls() -> pl.DataFrame:
@@ -1029,8 +1081,9 @@ def process_donor(dcode: Path, donor: int) -> dict[str, pl.DataFrame]:
     features = load_features(feature_path)
     dex_cols = dextramer_columns(features.columns)
     nc_cols = negative_control_columns(features.columns)
-    surface = surface_columns(features.columns)
-    clones = drop_doublets(clones, features, surface + dex_cols + nc_cols)
+    # Surface-protein totals are not the multimer evidence. A doublet is a cell
+    # whose dextramer and negative-control counts are the sum of two parents.
+    clones = drop_doublets(clones, features, dex_cols + nc_cols)
     # Dextramer UMI is the measured multimer count. Contig UMI does not rescale it.
     calls, checks = assign_specificities(clones, features, dex_cols, features, nc_cols)
     return {
