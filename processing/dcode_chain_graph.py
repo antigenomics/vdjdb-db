@@ -50,9 +50,13 @@ def chain_table(contigs: pl.DataFrame, donor: int) -> pl.DataFrame:
     ambient frequency. They are not clone barcodes. ``high_confidence`` is not
     a filter: low-confidence contigs are the leakage observations.
     """
+    if contigs.schema["productive"] == pl.Boolean:
+        productive_ok = pl.col("productive").fill_null(False)
+    else:
+        productive_ok = pl.col("productive").cast(pl.String).is_in(list(PRODUCTIVE))
     df = contigs.filter(
         pl.col("chain").is_in(list(LOCI))
-        & pl.col("productive").is_in(list(PRODUCTIVE))
+        & productive_ok
         & pl.col("cdr3").is_not_null()
         & (pl.col("cdr3") != "")
         & (pl.col("cdr3") != "None")

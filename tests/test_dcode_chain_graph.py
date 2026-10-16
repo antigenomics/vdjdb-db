@@ -42,6 +42,23 @@ def test_boolean_is_cell_from_polars_csv_inference():
     assert chains["is_cell"][0] is True
 
 
+def test_boolean_productive_is_kept():
+    """Polars infers ``is_cell`` as Boolean. A Boolean ``productive`` must not empty the table."""
+    contigs = pl.DataFrame({
+        "barcode": ["c1", "c1", "c2"],
+        "is_cell": [True, True, False],
+        "chain": ["TRA", "TRB", "TRA"],
+        "v_gene": ["TRAV1", "TRBV1", "TRAV2"],
+        "j_gene": ["TRAJ1", "TRBJ1", "TRAJ2"],
+        "productive": [True, False, True],
+        "cdr3": ["CAAA", "CASS", "CAGG"],
+        "umis": [4, 8, 3],
+    })
+    chains = dcode.chain_table(contigs, donor=1)
+    assert chains.height == 2
+    assert set(chains.filter(pl.col("is_cell"))["cdr3"].to_list()) == {"CAAA"}
+
+
 def test_lowercase_true_is_a_cell_and_edges_are_undirected():
     contigs = pl.DataFrame([
         _contig("c1", "TRA", "1", "CAAA", 5),
