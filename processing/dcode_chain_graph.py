@@ -16,16 +16,22 @@ used to rescale dextramer UMI: the multimer count on a kept barcode stays the
 measured count. The clone id is only a label after that.
 
 Three counts are not interchangeable. Cells per label are the sample size of
-the within-label distribution. TCR contig UMI is the chain-graph weight only.
-Dextramer UMI is the number of pMHC multimers bound: zero-inflated, median 0,
-so specificity is scored on log1p(dextramer UMI).
+the within-label likelihood. TCR contig UMI is the chain-graph weight only.
+Dextramer UMI is the number of pMHC multimers bound.
 
-A label is specific for a peptide when its median log1p(dextramer UMI) sits
-above three distributions on that scale: the label's own per-cell negative
-controls, the donor's negative-control edge (mean + 3 SD; the control median
-is 0, so a median/MAD edge would be 0), and that peptide's across-label mean
-+ 3 SD. A peptide that is high on most labels has a high across-label edge.
-No UMI cutoff is scanned and no permutation null is used.
+Specificity is a per-peptide negative-binomial mixture. A cell's mean is a
+peptide baseline times a capture scale. The scale is the posterior mean of a
+gamma factor given that cell's negative-control total, and it is 1 when the
+controls are zero or have no extra-Poisson variance. Background cells share
+one baseline. A specific label draws one shared baseline from a discrete
+uniform prior on the log baseline, supported only above that peptide's
+background baseline. A label with two or more cells can instead be one
+elevated cell and the rest background. Every hypothesis uses that dispersion.
+Given that a label is not background, the prior splits equally between the
+shared mean and the single hot cell. The call is the maximum a posteriori
+hypothesis, and a tie stays background.
+Median and MAD of log1p(dextramer UMI) are written afterwards as checks. They
+are not inputs.
 
 The on-disk "binarized" matrix is numeric counts. Columns ending in ``_binder``
 are a previous 0/1 call and are not read. There is no transcriptome in the
@@ -48,9 +54,13 @@ CELL_FLAGS = ("True", "true", "TRUE")
 PRODUCTIVE = ("True", "true", "TRUE")
 LOCI = ("TRA", "TRB")
 LAM_FLOOR = 1e-8
-# Control median of log1p(dextramer UMI) is 0, so median and MAD mark no edge.
-# Three standard deviations is the control-chart width of that distribution.
-CONTROL_DEVIATIONS = 3.0
+# Dispersion floor keeps a degenerate infinite-variance negative binomial from
+# making every count look like background. It is not a count cutoff.
+THETA_FLOOR = 0.05
+THETA_CEILING = 1.0e4
+MU_FLOOR = 1.0e-4
+GRID_SIZE = 96
+EM_ITERATIONS = 40
 META_COLUMNS = ("barcode", "donor", "cell_clono_cdr3_aa", "cell_clono_cdr3_nt")
 ALLELE_RE = re.compile(r"^([ABC])(\d{2})(\d{2})$")
 
@@ -537,20 +547,441 @@ def _empty_calls() -> pl.DataFrame:
     )
 
 
-def control_edge(nc_max: np.ndarray) -> tuple[float, float, float]:
-    """Mean, SD, and mean + 3 SD of log1p(per-cell maximum negative-control UMI).
+def _empty_checks() -> pl.DataFrame:
+    return pl.DataFrame(
+        schema={
+            "donor": pl.Int64,
+            "peptide": pl.String,
+            "mhc": pl.String,
+            "mu0": pl.Float64,
+            "theta": pl.Float64,
+            "pi_background": pl.Float64,
+            "pi_specific": pl.Float64,
+            "pi_outlier": pl.Float64,
+            "n_labels": pl.Int64,
+            "n_called": pl.Int64,
+            "median_log1p_called": pl.Float64,
+            "mad_log1p_called": pl.Float64,
+            "median_log1p_rest": pl.Float64,
+            "mad_log1p_rest": pl.Float64,
+            "median_log1p_nc_called": pl.Float64,
+            "mad_log1p_nc_called": pl.Float64,
+            "median_log1p_nc_rest": pl.Float64,
+            "mad_log1p_nc_rest": pl.Float64,
+        }
+    )
 
-    ``nc_max`` is one dextramer-UMI number per cell, the maximum of that cell's
-    negative-control reagents. It is not a TCR contig UMI and not a cell count.
-    The median of this sample is 0, so the edge is the mean and SD on the
-    log1p scale.
+
+def _logsumexp(values: np.ndarray, axis: int = 0) -> np.ndarray:
+    peak = np.max(values, axis=axis, keepdims=True)
+    safe = np.where(np.isfinite(peak), peak, 0.0)
+    total = np.log(np.sum(np.exp(values - safe), axis=axis))
+    return total + np.squeeze(safe, axis=axis)
+
+
+def _segment_logsumexp(values: np.ndarray, starts: np.ndarray) -> np.ndarray:
+    peak = np.maximum.reduceat(values, starts)
+    safe = np.where(np.isfinite(peak), peak, 0.0)
+    lengths = np.diff(np.append(starts, values.size))
+    shifted = np.exp(values - np.repeat(safe, lengths))
+    return np.log(np.add.reduceat(shifted, starts)) + safe
+
+
+def _clone_kernel(
+    n: np.ndarray,
+    total: np.ndarray,
+    mean: np.ndarray | float,
+    theta: float,
+) -> np.ndarray:
+    """Mean-dependent negative-binomial log likelihood of a shared mean.
+
+    ``n`` and ``total`` are the cell count and the summed dextramer UMI of each
+    label. Gamma terms do not depend on the mean, so they cancel in every
+    Bayes factor and are left out.
     """
-    logged = np.log1p(np.asarray(nc_max, dtype=np.float64))
-    if logged.size == 0:
-        return 0.0, 0.0, 0.0
-    mean = float(logged.mean())
-    sd = float(logged.std())
-    return mean, sd, mean + CONTROL_DEVIATIONS * sd
+    log_theta = math.log(theta)
+    mean_arr = np.asarray(mean, dtype=np.float64)
+    if mean_arr.ndim == 0:
+        loc = float(mean_arr)
+        return (
+            n * theta * log_theta
+            - (n * theta + total) * math.log(theta + loc)
+            + np.where(total > 0.0, total * math.log(loc), 0.0)
+        )
+    return (
+        n[:, None] * theta * log_theta
+        - (n[:, None] * theta + total[:, None]) * np.log(theta + mean_arr)[None, :]
+        + np.where(total[:, None] > 0.0, total[:, None] * np.log(mean_arr)[None, :], 0.0)
+    )
+
+
+def _elevated_log_prior(mu_grid: np.ndarray, mu0: float) -> np.ndarray:
+    """Discrete uniform prior on log mean, supported only above the background mean."""
+    log_prior = np.zeros(mu_grid.shape, dtype=np.float64)
+    log_prior[mu_grid <= mu0] = -np.inf
+    if not np.isfinite(log_prior).any():
+        return log_prior
+    return log_prior - _logsumexp(log_prior)
+
+
+def _log1p_median_mad(values: np.ndarray) -> tuple[float | None, float | None]:
+    """Median and MAD of log1p(count). A check, never an assignment rule."""
+    if values.size == 0:
+        return None, None
+    logged = np.log1p(np.clip(values, 0.0, None))
+    median = float(np.median(logged))
+    mad = float(np.median(np.abs(logged - median)))
+    return median, mad
+
+
+def _stickiness(nc: np.ndarray) -> np.ndarray:
+    """Per-cell scale for the peptide mean, from that cell's negative-control total.
+
+    The prior on the scale has weight at least one observation at the control
+    mean, so one extreme control cell cannot drive every other scale to zero.
+    All-zero controls carry no stickiness and return scale 1.
+    """
+    if nc.size == 0 or float(np.sum(nc)) <= 0.0:
+        return np.ones(nc.size, dtype=np.float64)
+    mu = float(nc.mean())
+    var = float(nc.var())
+    if var <= mu + 1e-8:
+        return np.ones(nc.size, dtype=np.float64)
+    alpha = max(mu * mu / (var - mu), mu)
+    return (alpha + nc) / (alpha + mu)
+
+
+def _nb_mean_offset(y: np.ndarray, sigma: np.ndarray, theta: float, mu_init: float) -> float:
+    """Negative-binomial MLE of a baseline mean with per-cell scales."""
+    mu = max(mu_init, MU_FLOOR)
+    for _ in range(6):
+        mean = mu * sigma
+        slope = np.sum(y / mu - (theta + y) * sigma / (theta + mean))
+        curve = np.sum(-y / mu**2 + (theta + y) * (sigma**2) / (theta + mean) ** 2)
+        if not np.isfinite(slope) or not np.isfinite(curve) or curve >= -1e-12:
+            break
+        nxt = mu - slope / curve
+        if nxt <= 0.0:
+            nxt = mu * 0.5
+        if abs(nxt - mu) <= 1e-4 * max(mu, MU_FLOOR):
+            return max(float(nxt), MU_FLOOR)
+        mu = float(nxt)
+    return max(float(mu), MU_FLOOR)
+
+
+def _fit_peptide_offset(
+    y: np.ndarray,
+    starts: np.ndarray,
+    lengths: np.ndarray,
+    sigma: np.ndarray,
+) -> dict[str, object]:
+    """Same three hypotheses. Each cell mean is the baseline times its scale.
+
+    The likelihood of a cell depends on that cell only through its count and
+    its scale, so identical pairs are evaluated once.
+    """
+    n_labels = int(lengths.size)
+    n = lengths.astype(np.float64)
+    sigma = np.maximum(sigma, MU_FLOOR)
+    uniq, inverse = np.unique(np.column_stack((y, sigma)), axis=0, return_inverse=True)
+    uy = uniq[:, 0]
+    us = uniq[:, 1]
+    hi = math.log(max(float(np.max(uy / us)) * 1.5, 1.0))
+    mu_grid = np.exp(np.linspace(-6.0, hi, GRID_SIZE))
+    mu0 = max(float(np.sum(y) / np.sum(sigma)), MU_FLOOR)
+    theta = 5.0
+    pi = np.array([0.94, 0.03, 0.03])
+
+    def e_step(mu0: float, theta: float, pi: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        log_prior = _elevated_log_prior(mu_grid, mu0)
+        log_theta = math.log(theta)
+        mean = us[:, None] * mu_grid[None, :]
+        ll_u = (
+            theta * log_theta
+            - (theta + uy[:, None]) * np.log(theta + mean)
+            + np.where(uy[:, None] > 0.0, uy[:, None] * np.log(mean), 0.0)
+        )
+        ll_grid = ll_u[inverse]
+        clone_ll = np.add.reduceat(ll_grid, starts, axis=0)
+        log_m1 = _logsumexp(ll_u + log_prior[None, :], axis=1)[inverse]
+        mean0 = us * mu0
+        ll0 = (
+            theta * log_theta
+            - (theta + uy) * np.log(theta + mean0)
+            + np.where(uy > 0.0, uy * np.log(mean0), 0.0)
+        )[inverse]
+        clone_ll0 = np.add.reduceat(ll0, starts)
+        log_m_spec = _logsumexp(clone_ll + log_prior[None, :], axis=1)
+        log_m_out = _segment_logsumexp(log_m1 - ll0, starts) + clone_ll0 - np.log(n)
+        log_post = np.column_stack((
+            clone_ll0 + math.log(pi[0]),
+            log_m_spec + math.log(pi[1]),
+            log_m_out + math.log(pi[2]),
+        ))
+        # A singleton cannot be one hot cell plus background, so the outlier
+        # prior mass belongs to the specific hypothesis.
+        singleton = lengths == 1
+        log_post[singleton, 1] = log_m_spec[singleton] + math.log(pi[1] + pi[2])
+        log_post[singleton, 2] = -np.inf
+        post = np.exp(log_post - _logsumexp(log_post, axis=1)[:, None])
+        return post, log_m1, ll0
+
+    for iteration in range(EM_ITERATIONS):
+        post, log_m1, ll0 = e_step(mu0, theta, pi)
+        excess = log_m1 - ll0
+        peak = np.maximum.reduceat(excess, starts)
+        safe = np.where(np.isfinite(peak), peak, 0.0)
+        shifted = np.exp(excess - np.repeat(safe, lengths))
+        segment_sum = np.add.reduceat(shifted, starts)
+        p_cell = shifted / np.repeat(np.maximum(segment_sum, 1e-300), lengths)
+        weight = np.repeat(post[:, 0], lengths) + np.repeat(post[:, 2], lengths) * (1.0 - p_cell)
+        weight = np.where(np.isfinite(weight), weight, 0.0)
+        background = weight >= 0.5
+        mu_new = mu0
+        if int(background.sum()) >= 2:
+            y_bg = y[background]
+            sigma_bg = sigma[background]
+            guess = max(float(np.sum(y_bg) / np.sum(sigma_bg)), MU_FLOOR)
+            mu_new = _nb_mean_offset(y_bg, sigma_bg, theta, guess)
+            fitted = mu_new * sigma_bg
+            numer = float(np.sum(fitted * fitted))
+            denom = float(np.sum((y_bg - fitted) ** 2 - fitted))
+            if denom > 1e-8 and numer > 0.0:
+                theta = float(np.clip(numer / denom, THETA_FLOOR, THETA_CEILING))
+            else:
+                theta = THETA_CEILING
+        pi_new = _hypothesis_weights(post, n_labels)
+        stable = (
+            iteration >= 5
+            and abs(mu_new - mu0) <= 1e-3 * max(mu0, MU_FLOOR)
+            and float(np.max(np.abs(pi_new - pi))) < 1e-4
+        )
+        mu0 = mu_new
+        pi = pi_new
+        if stable:
+            break
+    post, _, _ = e_step(mu0, theta, pi)
+    call = (post[:, 1] > post[:, 0]) & (post[:, 1] > post[:, 2])
+    return {"call": call, "posterior": post[:, 1], "mu0": float(mu0), "theta": float(theta), "pi": pi}
+
+
+def _fit_peptide(
+    y: np.ndarray,
+    starts: np.ndarray,
+    lengths: np.ndarray,
+    sigma: np.ndarray | None = None,
+) -> dict[str, object]:
+    """MAP labels for one peptide. ``y`` is dextramer UMI grouped by label.
+
+    A constant scale, including the all-ones scale of a zero control column,
+    uses the shared-mean update. A varying scale is a per-cell multiplier.
+    """
+    n_labels = int(lengths.size)
+    none = {
+        "call": np.zeros(n_labels, dtype=bool),
+        "posterior": np.zeros(n_labels, dtype=np.float64),
+        "mu0": 0.0,
+        "theta": None,
+        "pi": np.array([1.0, 0.0, 0.0]),
+    }
+    if y.size == 0 or float(y.max()) <= 0.0:
+        return none
+    if (
+        sigma is not None
+        and sigma.size == y.size
+        and float(np.max(sigma) - np.min(sigma)) > 1e-8
+    ):
+        return _fit_peptide_offset(y, starts, lengths, sigma)
+    n = lengths.astype(np.float64)
+    total = np.add.reduceat(y, starts)
+    hi = math.log(max(float(y.max()) * 1.5, 1.0))
+    log_mu = np.linspace(-6.0, hi, GRID_SIZE)
+    mu_grid = np.exp(log_mu)
+    mu0 = max(float(y.mean()), MU_FLOOR)
+    theta = 5.0
+    pi = np.array([0.94, 0.03, 0.03])
+
+    def e_step(mu0: float, theta: float, pi: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        log_prior = _elevated_log_prior(mu_grid, mu0)
+        clone_ll = _clone_kernel(n, total, mu_grid, theta)
+        unique_y, inverse = np.unique(y, return_inverse=True)
+        cell_ll = _clone_kernel(np.ones(unique_y.size), unique_y, mu_grid, theta)
+        log_m1 = _logsumexp(cell_ll + log_prior[None, :], axis=1)[inverse]
+        ll0 = _clone_kernel(np.ones(y.size), y, mu0, theta)
+        clone_ll0 = np.add.reduceat(ll0, starts)
+        log_m_spec = _logsumexp(clone_ll + log_prior[None, :], axis=1)
+        log_m_out = _segment_logsumexp(log_m1 - ll0, starts) + clone_ll0 - np.log(n)
+        log_post = np.column_stack((
+            clone_ll0 + math.log(pi[0]),
+            log_m_spec + math.log(pi[1]),
+            log_m_out + math.log(pi[2]),
+        ))
+        # A singleton cannot be one hot cell plus background, so the outlier
+        # prior mass belongs to the specific hypothesis.
+        singleton = lengths == 1
+        log_post[singleton, 1] = log_m_spec[singleton] + math.log(pi[1] + pi[2])
+        log_post[singleton, 2] = -np.inf
+        post = np.exp(log_post - _logsumexp(log_post, axis=1)[:, None])
+        return post, log_m1, ll0
+
+    for iteration in range(EM_ITERATIONS):
+        post, log_m1, ll0 = e_step(mu0, theta, pi)
+        excess = log_m1 - ll0
+        peak = np.maximum.reduceat(excess, starts)
+        safe = np.where(np.isfinite(peak), peak, 0.0)
+        shifted = np.exp(excess - np.repeat(safe, lengths))
+        segment_sum = np.add.reduceat(shifted, starts)
+        p_cell = shifted / np.repeat(np.maximum(segment_sum, 1e-300), lengths)
+        weight = np.repeat(post[:, 0], lengths) + np.repeat(post[:, 2], lengths) * (1.0 - p_cell)
+        weight = np.where(np.isfinite(weight), weight, 0.0)
+        # Soft mean, so one elevated cell does not set the background level.
+        # Dispersion uses only cells the model explains by the background, and
+        # that set's own mean: a soft mean under a hard set makes a single 1
+        # look infinitely overdispersed and then no count is evidence.
+        weight_sum = float(weight.sum())
+        mu_new = mu0
+        if weight_sum > 0.0:
+            mu_new = max(float(np.sum(weight * y) / weight_sum), MU_FLOOR)
+        background = weight >= 0.5
+        if int(background.sum()) >= 2:
+            y_bg = y[background]
+            mu_bg = float(y_bg.mean())
+            var = float(np.mean((y_bg - mu_bg) ** 2))
+            if var > mu_bg + 1e-8 and mu_bg > 0.0:
+                theta = float(np.clip(mu_bg ** 2 / (var - mu_bg), THETA_FLOOR, THETA_CEILING))
+            else:
+                theta = THETA_CEILING
+        pi_new = _hypothesis_weights(post, n_labels)
+        stable = (
+            iteration >= 5
+            and abs(mu_new - mu0) <= 1e-3 * max(mu0, MU_FLOOR)
+            and float(np.max(np.abs(pi_new - pi))) < 1e-4
+        )
+        mu0 = mu_new
+        pi = pi_new
+        if stable:
+            break
+    post, _, _ = e_step(mu0, theta, pi)
+    call = (post[:, 1] > post[:, 0]) & (post[:, 1] > post[:, 2])
+    return {"call": call, "posterior": post[:, 1], "mu0": mu0, "theta": theta, "pi": pi}
+
+
+def _hypothesis_weights(post: np.ndarray, n_labels: int) -> np.ndarray:
+    """Background weight is empirical Bayes. The other two weights stay equal.
+
+    Before the counts are seen, a one-hot label and a coherent label are
+    equally likely. A collapsed outlier weight turns the one-hot label into
+    a specific call.
+    """
+    pi_background = (float(post[:, 0].sum()) + 0.5) / (n_labels + 1.5)
+    rest = (1.0 - pi_background) / 2.0
+    return np.array([pi_background, rest, rest])
+
+
+def _label_segments(clone_id: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    if clone_id.size == 0:
+        return np.zeros(0, dtype=np.int64), np.zeros(0, dtype=np.int64)
+    change = np.flatnonzero(clone_id[1:] != clone_id[:-1]) + 1
+    starts = np.concatenate((np.zeros(1, dtype=np.int64), change.astype(np.int64)))
+    lengths = np.diff(np.append(starts, clone_id.size))
+    return starts, lengths
+
+
+def assign_specificities(
+    clones: pl.DataFrame,
+    counts: pl.DataFrame,
+    dex_cols: list[str],
+    controls: pl.DataFrame,
+    nc_cols: list[str],
+) -> tuple[pl.DataFrame, pl.DataFrame]:
+    """Assign each label by the posterior mode, and record median/MAD checks.
+
+    ``counts`` are raw dextramer UMIs. Contig UMI is not a column this reads.
+    The negative-control sum sets each cell's capture scale. The negative-control
+    maximum is only the check. ``score`` on a called row is the posterior
+    probability of the specific hypothesis.
+    """
+    if clones.is_empty() or not dex_cols:
+        return _empty_calls(), _empty_checks()
+    selected = counts.select(
+        "barcode",
+        *[pl.col(c).cast(pl.Float64).clip(lower_bound=0.0).alias(c) for c in dex_cols],
+    )
+    if nc_cols:
+        nc_terms = [pl.col(c).cast(pl.Float64).clip(lower_bound=0.0) for c in nc_cols]
+        ctrl = controls.select(
+            "barcode",
+            pl.max_horizontal(nc_terms).alias("_nc"),
+            pl.sum_horizontal(nc_terms).alias("_nc_sum"),
+        )
+    else:
+        ctrl = selected.select("barcode").unique().with_columns(
+            pl.lit(0.0).alias("_nc"),
+            pl.lit(0.0).alias("_nc_sum"),
+        )
+    joined = (
+        clones.select("donor", "barcode", "clone_id")
+        .join(selected, on="barcode", how="inner")
+        .join(ctrl, on="barcode", how="left")
+        .with_columns(pl.col("_nc").fill_null(0.0))
+    )
+    if joined.is_empty():
+        return _empty_calls(), _empty_checks()
+    rows: list[dict[str, object]] = []
+    checks: list[dict[str, object]] = []
+    for donor in joined["donor"].unique().sort().to_list():
+        part = joined.filter(pl.col("donor") == donor).sort("clone_id")
+        clone_id = part["clone_id"].to_numpy()
+        starts, lengths = _label_segments(clone_id)
+        nc = part["_nc"].to_numpy().astype(np.float64)
+        sigma = _stickiness(part["_nc_sum"].to_numpy().astype(np.float64))
+        label_id = clone_id[starts]
+        label_n = lengths.astype(np.int64)
+        for col in dex_cols:
+            peptide, mhc = parse_dextramer(col)
+            y = part[col].to_numpy().astype(np.float64)
+            fit = _fit_peptide(y, starts, lengths, sigma)
+            call = fit["call"]
+            posterior = fit["posterior"]
+            called_cells = np.repeat(call, lengths)
+            med_c, mad_c = _log1p_median_mad(y[called_cells])
+            med_r, mad_r = _log1p_median_mad(y[~called_cells])
+            nc_c, nc_mad_c = _log1p_median_mad(nc[called_cells])
+            nc_r, nc_mad_r = _log1p_median_mad(nc[~called_cells])
+            pi = fit["pi"]
+            checks.append({
+                "donor": int(donor),
+                "peptide": peptide,
+                "mhc": mhc,
+                "mu0": float(fit["mu0"]),
+                "theta": None if fit["theta"] is None else float(fit["theta"]),
+                "pi_background": float(pi[0]),
+                "pi_specific": float(pi[1]),
+                "pi_outlier": float(pi[2]),
+                "n_labels": int(lengths.size),
+                "n_called": int(np.sum(call)),
+                "median_log1p_called": med_c,
+                "mad_log1p_called": mad_c,
+                "median_log1p_rest": med_r,
+                "mad_log1p_rest": mad_r,
+                "median_log1p_nc_called": nc_c,
+                "mad_log1p_nc_called": nc_mad_c,
+                "median_log1p_nc_rest": nc_r,
+                "mad_log1p_nc_rest": nc_mad_r,
+            })
+            for i in np.flatnonzero(call):
+                rows.append({
+                    "donor": int(donor),
+                    "clone_id": label_id[i],
+                    "n_cells": int(label_n[i]),
+                    "column": col,
+                    "peptide": peptide,
+                    "mhc": mhc,
+                    "score": float(posterior[i]),
+                })
+    call_frame = pl.DataFrame(rows).sort("donor", "peptide", "mhc", "clone_id") if rows else _empty_calls()
+    check_frame = pl.DataFrame(checks).sort("donor", "peptide", "mhc") if checks else _empty_checks()
+    return call_frame, check_frame
 
 
 def call_specificities(
@@ -560,64 +991,9 @@ def call_specificities(
     controls: pl.DataFrame,
     nc_cols: list[str],
 ) -> pl.DataFrame:
-    """One row per label per pMHC whose log1p dextramer median clears both distributions.
-
-    ``counts`` are dextramer UMIs (multimers bound), after leakage subtraction.
-    ``n_cells`` is stored as the within-label sample size and is not added to
-    the score. The score is the median of log1p(dextramer UMI) inside the label.
-    """
-    if clones.is_empty() or not dex_cols:
-        return _empty_calls()
-    selected = counts.select(
-        "barcode",
-        *[pl.col(c).cast(pl.Float64).clip(lower_bound=0.0).alias(c) for c in dex_cols],
-    )
-    if nc_cols:
-        ctrl = controls.select(
-            "barcode",
-            pl.max_horizontal(
-                [pl.col(c).cast(pl.Float64).clip(lower_bound=0.0) for c in nc_cols]
-            ).alias("_nc"),
-        )
-    else:
-        ctrl = selected.select("barcode").unique().with_columns(pl.lit(0.0).alias("_nc"))
-    joined = (
-        clones.select("donor", "barcode", "clone_id")
-        .join(selected, on="barcode", how="inner")
-        .join(ctrl, on="barcode", how="left")
-        .with_columns(pl.col("_nc").fill_null(0.0))
-    )
-    if joined.is_empty():
-        return _empty_calls()
-    _mean, _sd, fence = control_edge(joined.unique(subset=["barcode"])["_nc"].to_numpy())
-    agg = joined.group_by("donor", "clone_id").agg(
-        pl.len().alias("n_cells"),
-        pl.col("_nc").log1p().median().alias("nc_score"),
-        *[pl.col(c).log1p().median().alias(c) for c in dex_cols],
-    )
-    donor = agg["donor"].to_numpy()
-    clone_ids = agg["clone_id"].to_list()
-    n_cells = agg["n_cells"].to_numpy()
-    nc_score = agg["nc_score"].to_numpy()
-    rows: list[dict[str, object]] = []
-    for col in dex_cols:
-        peptide, mhc = parse_dextramer(col)
-        score = agg[col].to_numpy().astype(np.float64)
-        across = float(score.mean() + CONTROL_DEVIATIONS * score.std())
-        keep = (score > nc_score) & (score > fence) & (score > across)
-        for i in np.flatnonzero(keep):
-            rows.append({
-                "donor": int(donor[i]),
-                "clone_id": clone_ids[i],
-                "n_cells": int(n_cells[i]),
-                "column": col,
-                "peptide": peptide,
-                "mhc": mhc,
-                "score": float(score[i]),
-            })
-    if not rows:
-        return _empty_calls()
-    return pl.DataFrame(rows).sort("donor", "peptide", "mhc", "clone_id")
+    """Called labels only. ``score`` is the posterior of the specific hypothesis."""
+    calls, _checks = assign_specificities(clones, counts, dex_cols, controls, nc_cols)
+    return calls
 
 
 def parse_dextramer(column: str) -> tuple[str, str]:
@@ -656,28 +1032,13 @@ def process_donor(dcode: Path, donor: int) -> dict[str, pl.DataFrame]:
     surface = surface_columns(features.columns)
     clones = drop_doublets(clones, features, surface + dex_cols + nc_cols)
     # Dextramer UMI is the measured multimer count. Contig UMI does not rescale it.
-    calls = call_specificities(clones, features, dex_cols, features, nc_cols)
-    kept = features.join(clones.select("barcode").unique(), on="barcode", how="inner")
-    if nc_cols and kept.height:
-        nc_max = kept.select(
-            pl.max_horizontal([pl.col(c).cast(pl.Float64) for c in nc_cols])
-        ).to_numpy().ravel()
-    else:
-        nc_max = np.zeros(kept.height, dtype=np.float64)
-    nc_mean, nc_sd, fence = control_edge(nc_max)
-    control = pl.DataFrame({
-        "donor": [donor],
-        "n_cells": [int(nc_max.size)],
-        "nc_mean": [nc_mean],
-        "nc_sd": [nc_sd],
-        "fence": [fence],
-    })
+    calls, checks = assign_specificities(clones, features, dex_cols, features, nc_cols)
     return {
         "chains": endogenous,
         "edges": edges,
         "clones": clones,
         "calls": calls,
-        "control": control,
+        "checks": checks,
     }
 
 
@@ -692,7 +1053,7 @@ def main() -> None:
     parser.add_argument("--donors", type=int, nargs="+", default=[1, 2, 3, 4])
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
-    keys = ("chains", "edges", "clones", "calls", "control")
+    keys = ("chains", "edges", "clones", "calls", "checks")
     parts: dict[str, list[pl.DataFrame]] = {key: [] for key in keys}
     for donor in args.donors:
         print(f"donor {donor}", flush=True)
@@ -706,8 +1067,7 @@ def main() -> None:
             f"  chains {result['chains'].height} edges {result['edges'].height} "
             f"cells ab {shapes.count('ab')} aab {shapes.count('aab')} "
             f"b {shapes.count('b')} a {shapes.count('a')} aa {shapes.count('aa')} "
-            f"clones {n_clones} calls {result['calls'].height} "
-            f"fence {float(result['control']['fence'][0]):.3f}",
+            f"clones {n_clones} calls {result['calls'].height}",
             flush=True,
         )
     sort_by = {
@@ -715,7 +1075,7 @@ def main() -> None:
         "edges": ["donor", "barcode", "chain_a", "chain_b"],
         "clones": ["donor", "barcode"],
         "calls": ["donor", "peptide", "mhc", "clone_id"],
-        "control": ["donor"],
+        "checks": ["donor", "peptide", "mhc"],
     }
     for key, frames in parts.items():
         frame = pl.concat(frames, how="diagonal_relaxed")
