@@ -8,15 +8,24 @@ cell barcode, carrying both UMI counts. Leakage is a Poisson ambient component
 
 with rho_b fit once from the chains in barcode b that cannot be the primary
 receptor (a third TRA, a second TRB). A chain is endogenous when that mixture
-assigns it to the high component. Kept clones are alpha-beta or alpha-alpha-beta.
+assigns it to the high component. A kept label is alpha-beta, alpha-alpha-beta,
+beta only, alpha only, or two alphas. A second beta is not a label.
 
-The same graph names the parent of a leaked chain. A fraction of that parent's
-feature profile is subtracted from the barcode. A clone is then specific for a
-pMHC when its mean per-cell residual exceeds every per-cell negative-control
-count from that donor and the peptide's clone-mean histogram has a local mode
-at or above that count. A sticky mode whose tail only leaks past the controls
-is not a call. Clone size cannot sum a mild residual over the bar.
-There is no UMI cutoff.
+A barcode whose counts fit the sum of two parents is dropped. Contig UMI is not
+used to rescale dextramer UMI: the multimer count on a kept barcode stays the
+measured count. The clone id is only a label after that.
+
+Three counts are not interchangeable. Cells per label are the sample size of
+the within-label distribution. TCR contig UMI is the chain-graph weight only.
+Dextramer UMI is the number of pMHC multimers bound: zero-inflated, median 0,
+so specificity is scored on log1p(dextramer UMI).
+
+A label is specific for a peptide when its median log1p(dextramer UMI) sits
+above three distributions on that scale: the label's own per-cell negative
+controls, the donor's negative-control edge (mean + 3 SD; the control median
+is 0, so a median/MAD edge would be 0), and that peptide's across-label mean
++ 3 SD. A peptide that is high on most labels has a high across-label edge.
+No UMI cutoff is scanned and no permutation null is used.
 
 The on-disk "binarized" matrix is numeric counts. Columns ending in ``_binder``
 are a previous 0/1 call and are not read. There is no transcriptome in the
@@ -39,6 +48,9 @@ CELL_FLAGS = ("True", "true", "TRUE")
 PRODUCTIVE = ("True", "true", "TRUE")
 LOCI = ("TRA", "TRB")
 LAM_FLOOR = 1e-8
+# Control median of log1p(dextramer UMI) is 0, so median and MAD mark no edge.
+# Three standard deviations is the control-chart width of that distribution.
+CONTROL_DEVIATIONS = 3.0
 META_COLUMNS = ("barcode", "donor", "cell_clono_cdr3_aa", "cell_clono_cdr3_nt")
 ALLELE_RE = re.compile(r"^([ABC])(\d{2})(\d{2})$")
 
@@ -318,20 +330,26 @@ def pairing_label(n_tra: int, n_trb: int) -> str:
 
 
 def clone_table(endogenous: pl.DataFrame) -> pl.DataFrame:
-    """Barcodes whose endogenous chains are exactly alpha-beta or alpha-alpha-beta."""
+    """One label per barcode whose endogenous chains are a kept receptor shape.
+
+    Kept shapes are alpha-beta, alpha-alpha-beta, beta only, alpha only, and
+    two alphas. A second beta is a doublet and is not a label. The id is a
+    grouping key for the dextramer distribution, not a specificity score.
+    """
+    empty = pl.DataFrame(
+        schema={
+            "donor": pl.Int64,
+            "barcode": pl.String,
+            "shape": pl.String,
+            "alpha1": pl.String,
+            "alpha2": pl.String,
+            "beta": pl.String,
+            "clone_id": pl.String,
+        }
+    )
     keep = endogenous.filter(pl.col("endogenous"))
     if keep.is_empty():
-        return pl.DataFrame(
-            schema={
-                "donor": pl.Int64,
-                "barcode": pl.String,
-                "shape": pl.String,
-                "alpha1": pl.String,
-                "alpha2": pl.String,
-                "beta": pl.String,
-                "clone_id": pl.String,
-            }
-        )
+        return empty
     tra = (
         keep.filter(pl.col("locus") == "TRA")
         .sort("chain_id")
@@ -340,24 +358,40 @@ def clone_table(endogenous: pl.DataFrame) -> pl.DataFrame:
     )
     trb = (
         keep.filter(pl.col("locus") == "TRB")
+        .sort("chain_id")
         .group_by("donor", "barcode")
         .agg(pl.col("chain_id").alias("betas"), pl.len().alias("n_trb"))
     )
-    both = tra.join(trb, on=["donor", "barcode"], how="inner")
+    both = tra.join(trb, on=["donor", "barcode"], how="full", coalesce=True)
+    both = both.with_columns(
+        pl.col("n_tra").fill_null(0),
+        pl.col("n_trb").fill_null(0),
+    )
     both = both.filter(
         ((pl.col("n_tra") == 1) & (pl.col("n_trb") == 1))
         | ((pl.col("n_tra") == 2) & (pl.col("n_trb") == 1))
+        | ((pl.col("n_tra") == 0) & (pl.col("n_trb") == 1))
+        | ((pl.col("n_tra") == 1) & (pl.col("n_trb") == 0))
+        | ((pl.col("n_tra") == 2) & (pl.col("n_trb") == 0))
     )
     both = both.with_columns(
-        pl.when(pl.col("n_tra") == 1).then(pl.lit("ab")).otherwise(pl.lit("aab")).alias("shape"),
-        pl.col("alphas").list.get(0).alias("alpha1"),
+        pl.when((pl.col("n_tra") == 1) & (pl.col("n_trb") == 1)).then(pl.lit("ab"))
+        .when((pl.col("n_tra") == 2) & (pl.col("n_trb") == 1)).then(pl.lit("aab"))
+        .when((pl.col("n_tra") == 0) & (pl.col("n_trb") == 1)).then(pl.lit("b"))
+        .when((pl.col("n_tra") == 1) & (pl.col("n_trb") == 0)).then(pl.lit("a"))
+        .otherwise(pl.lit("aa"))
+        .alias("shape"),
+        pl.col("alphas").list.get(0, null_on_oob=True).alias("alpha1"),
         pl.when(pl.col("n_tra") == 2).then(pl.col("alphas").list.get(1)).otherwise(None).alias("alpha2"),
-        pl.col("betas").list.get(0).alias("beta"),
+        pl.col("betas").list.get(0, null_on_oob=True).alias("beta"),
     )
     both = both.with_columns(
-        pl.when(pl.col("shape") == "ab")
-        .then(pl.col("alpha1") + pl.lit("||") + pl.col("beta"))
-        .otherwise(pl.col("alpha1") + pl.lit("|") + pl.col("alpha2") + pl.lit("||") + pl.col("beta"))
+        pl.when(pl.col("shape") == "ab").then(pl.col("alpha1") + pl.lit("||") + pl.col("beta"))
+        .when(pl.col("shape") == "aab")
+        .then(pl.col("alpha1") + pl.lit("|") + pl.col("alpha2") + pl.lit("||") + pl.col("beta"))
+        .when(pl.col("shape") == "b").then(pl.lit("||") + pl.col("beta"))
+        .when(pl.col("shape") == "a").then(pl.col("alpha1") + pl.lit("||"))
+        .otherwise(pl.col("alpha1") + pl.lit("|") + pl.col("alpha2") + pl.lit("||"))
         .alias("clone_id")
     )
     return both.select("donor", "barcode", "shape", "alpha1", "alpha2", "beta", "clone_id")
@@ -464,83 +498,6 @@ def drop_doublets(
     return clones.filter(~pl.col("barcode").is_in(list(drop)))
 
 
-def subtract_leakage(
-    endogenous: pl.DataFrame,
-    clones: pl.DataFrame,
-    features: pl.DataFrame,
-    count_cols: list[str],
-) -> pl.DataFrame:
-    """Subtract each leaked chain's parent profile from kept barcodes.
-
-    Fraction is this barcode's UMI of the leaked chain divided by that chain's
-    mean endogenous UMI. The parent is the kept clone in which the chain's
-    endogenous UMI is highest.
-    """
-    corrected = features.select(["barcode", *count_cols]).with_columns(
-        [pl.col(c).cast(pl.Float64) for c in count_cols]
-    )
-    if clones.is_empty():
-        return corrected
-    kept = set(clones["barcode"].to_list())
-    members = clones.select(
-        "barcode", "clone_id", "alpha1", "alpha2", "beta"
-    )
-    long = (
-        members.unpivot(
-            index=["barcode", "clone_id"],
-            on=["alpha1", "alpha2", "beta"],
-            value_name="chain_id",
-        )
-        .drop("variable")
-        .drop_nulls("chain_id")
-    )
-    endo_umi = endogenous.filter(pl.col("endogenous")).select("barcode", "chain_id", "umi")
-    long = long.join(endo_umi, on=["barcode", "chain_id"], how="left")
-    chain_parent = (
-        long.group_by("chain_id", "clone_id")
-        .agg(pl.col("umi").mean().alias("mean_umi"), pl.len().alias("n"))
-        .sort(["mean_umi", "clone_id"], descending=[True, False])
-        .unique(subset=["chain_id"], keep="first")
-    )
-    parent_of = dict(zip(chain_parent["chain_id"].to_list(), chain_parent["clone_id"].to_list(), strict=True))
-    mean_umi = dict(zip(chain_parent["chain_id"].to_list(), chain_parent["mean_umi"].to_list(), strict=True))
-
-    matrix, index = _feature_matrix(corrected, count_cols)
-    sums: dict[str, np.ndarray] = {}
-    counts: dict[str, int] = {}
-    ordered = clones.sort("barcode")
-    for barcode, clone_id in zip(ordered["barcode"].to_list(), ordered["clone_id"].to_list(), strict=True):
-        row = index.get(barcode)
-        if row is None:
-            continue
-        if clone_id not in sums:
-            sums[clone_id] = np.zeros(len(count_cols))
-            counts[clone_id] = 0
-        sums[clone_id] += matrix[row]
-        counts[clone_id] += 1
-    means = {cid: sums[cid] / counts[cid] for cid in sums}
-
-    present = (
-        endogenous.filter(pl.col("barcode").is_in(list(kept)) & ~pl.col("endogenous"))
-        .sort("barcode", "chain_id")
-    )
-    for barcode, chain_id, umi in zip(
-        present["barcode"].to_list(), present["chain_id"].to_list(), present["umi"].to_list(), strict=True
-    ):
-        parent = parent_of.get(chain_id)
-        row = index.get(barcode)
-        base = mean_umi.get(chain_id) or 0.0
-        if parent is None or row is None or base <= 0 or parent not in means:
-            continue
-        fraction = float(umi) / float(base)
-        matrix[row] = np.maximum(matrix[row] - fraction * means[parent], 0.0)
-
-    out = pl.DataFrame({"barcode": corrected["barcode"].to_list()})
-    for j, col in enumerate(count_cols):
-        out = out.with_columns(pl.Series(col, matrix[:, j]))
-    return out
-
-
 def negative_control_columns(columns: list[str]) -> list[str]:
     return [c for c in columns if "_NC" in c and not c.endswith("_binder")]
 
@@ -566,44 +523,6 @@ def surface_columns(columns: list[str]) -> list[str]:
     ]
 
 
-def column_residuals(
-    corrected: pl.DataFrame, dex_cols: list[str], nc_cols: list[str],
-) -> tuple[pl.DataFrame, dict[str, float]]:
-    """Residual dextramer counts after an additive and proportional control effect.
-
-    alpha_p is the median count where the negative-control total is zero: the
-    floor a sticky dextramer has even with no control signal. gamma_p is the
-    median of (count - alpha) / control total where the control total is
-    positive. A rare peptide moves neither median.
-    """
-    if not nc_cols:
-        residuals = corrected.select(["barcode", *dex_cols])
-        return residuals, {col: 0.0 for col in dex_cols}
-    work = corrected.with_columns(
-        pl.sum_horizontal([pl.col(c) for c in nc_cols]).alias("nc_total")
-    )
-    silent = work.filter(pl.col("nc_total") == 0)
-    loaded = work.filter(pl.col("nc_total") > 0)
-    gammas: dict[str, float] = {}
-    alphas: dict[str, float] = {}
-    for col in dex_cols:
-        alpha = 0.0 if silent.is_empty() else float(silent.select(pl.col(col).median()).item() or 0.0)
-        if loaded.is_empty():
-            gamma = 0.0
-        else:
-            gamma = loaded.select(
-                ((pl.col(col) - alpha) / pl.col("nc_total")).median()
-            ).item()
-            gamma = max(float(gamma or 0.0), 0.0)
-        alphas[col] = alpha
-        gammas[col] = gamma
-    residual = work.select("barcode")
-    for col in dex_cols:
-        expected = alphas[col] + gammas[col] * work["nc_total"]
-        residual = residual.with_columns((work[col] - expected).clip(lower_bound=0.0).alias(col))
-    return residual, gammas
-
-
 def _empty_calls() -> pl.DataFrame:
     return pl.DataFrame(
         schema={
@@ -613,86 +532,80 @@ def _empty_calls() -> pl.DataFrame:
             "column": pl.String,
             "peptide": pl.String,
             "mhc": pl.String,
-            "residual": pl.Float64,
+            "score": pl.Float64,
         }
     )
 
 
-def control_envelope(clones: pl.DataFrame, controls: pl.DataFrame, nc_cols: list[str]) -> float:
-    """Maximum per-cell negative-control count on the kept clone barcodes.
+def control_edge(nc_max: np.ndarray) -> tuple[float, float, float]:
+    """Mean, SD, and mean + 3 SD of log1p(per-cell maximum negative-control UMI).
 
-    A specificity has to fall outside the control sample, not above a quantile
-    of it. A sticky control reagent sets the bar. This is not a scanned UMI cutoff.
+    ``nc_max`` is one dextramer-UMI number per cell, the maximum of that cell's
+    negative-control reagents. It is not a TCR contig UMI and not a cell count.
+    The median of this sample is 0, so the edge is the mean and SD on the
+    log1p scale.
     """
-    if clones.is_empty() or not nc_cols:
-        return 0.0
-    joined = clones.select("barcode").unique().join(
-        controls.select(["barcode", *nc_cols]), on="barcode", how="inner",
-    )
-    if joined.is_empty():
-        return 0.0
-    ceiling = joined.select(pl.max_horizontal(nc_cols).max()).item()
-    return float(ceiling or 0.0)
-
-
-def component_threshold(values: np.ndarray, envelope: float) -> float | None:
-    """Call threshold for one peptide, or None when the tail is not its own mode.
-
-    Bins are powers of two. A local mode is a bin above both neighbors. Only a
-    mode whose left edge is at or above the control envelope qualifies; the
-    threshold is that edge, walked left along the ascent while the bin stays
-    above the envelope. A mode centered below the envelope is stickiness, and
-    its leak past the controls is not called.
-    """
-    values = np.asarray(values, dtype=np.float64)
-    if values.size == 0:
-        return None
-    top = float(max(values.max(), envelope, 1.0))
-    edges = [0.0, 1.0]
-    while edges[-1] <= top:
-        edges.append(edges[-1] * 2.0)
-    hist, _ = np.histogram(values, bins=edges)
-    modes = []
-    for i in range(1, len(hist)):
-        right = hist[i + 1] if i + 1 < len(hist) else -1
-        if hist[i] > hist[i - 1] and hist[i] >= right:
-            modes.append(i)
-    qualify = [i for i in modes if edges[i] >= envelope]
-    if not qualify:
-        return None
-    start = qualify[0]
-    while start > 0 and hist[start - 1] < hist[start] and edges[start - 1] >= envelope:
-        start -= 1
-    return max(envelope, edges[start])
+    logged = np.log1p(np.asarray(nc_max, dtype=np.float64))
+    if logged.size == 0:
+        return 0.0, 0.0, 0.0
+    mean = float(logged.mean())
+    sd = float(logged.std())
+    return mean, sd, mean + CONTROL_DEVIATIONS * sd
 
 
 def call_specificities(
     clones: pl.DataFrame,
-    residuals: pl.DataFrame,
+    counts: pl.DataFrame,
     dex_cols: list[str],
     controls: pl.DataFrame,
     nc_cols: list[str],
 ) -> pl.DataFrame:
-    """One row per clone per pMHC whose mean residual clears the control envelope and its mode."""
-    if clones.is_empty():
+    """One row per label per pMHC whose log1p dextramer median clears both distributions.
+
+    ``counts`` are dextramer UMIs (multimers bound), after leakage subtraction.
+    ``n_cells`` is stored as the within-label sample size and is not added to
+    the score. The score is the median of log1p(dextramer UMI) inside the label.
+    """
+    if clones.is_empty() or not dex_cols:
         return _empty_calls()
-    ceiling = control_envelope(clones, controls, nc_cols)
-    joined = clones.select("donor", "barcode", "clone_id").join(residuals, on="barcode", how="inner")
+    selected = counts.select(
+        "barcode",
+        *[pl.col(c).cast(pl.Float64).clip(lower_bound=0.0).alias(c) for c in dex_cols],
+    )
+    if nc_cols:
+        ctrl = controls.select(
+            "barcode",
+            pl.max_horizontal(
+                [pl.col(c).cast(pl.Float64).clip(lower_bound=0.0) for c in nc_cols]
+            ).alias("_nc"),
+        )
+    else:
+        ctrl = selected.select("barcode").unique().with_columns(pl.lit(0.0).alias("_nc"))
+    joined = (
+        clones.select("donor", "barcode", "clone_id")
+        .join(selected, on="barcode", how="inner")
+        .join(ctrl, on="barcode", how="left")
+        .with_columns(pl.col("_nc").fill_null(0.0))
+    )
+    if joined.is_empty():
+        return _empty_calls()
+    _mean, _sd, fence = control_edge(joined.unique(subset=["barcode"])["_nc"].to_numpy())
     agg = joined.group_by("donor", "clone_id").agg(
         pl.len().alias("n_cells"),
-        *[pl.col(c).mean().alias(c) for c in dex_cols],
+        pl.col("_nc").log1p().median().alias("nc_score"),
+        *[pl.col(c).log1p().median().alias(c) for c in dex_cols],
     )
-    rows: list[dict[str, object]] = []
     donor = agg["donor"].to_numpy()
     clone_ids = agg["clone_id"].to_list()
     n_cells = agg["n_cells"].to_numpy()
+    nc_score = agg["nc_score"].to_numpy()
+    rows: list[dict[str, object]] = []
     for col in dex_cols:
         peptide, mhc = parse_dextramer(col)
-        values = agg[col].to_numpy()
-        threshold = component_threshold(values, ceiling)
-        if threshold is None:
-            continue
-        for i in np.flatnonzero(values > threshold):
+        score = agg[col].to_numpy().astype(np.float64)
+        across = float(score.mean() + CONTROL_DEVIATIONS * score.std())
+        keep = (score > nc_score) & (score > fence) & (score > across)
+        for i in np.flatnonzero(keep):
             rows.append({
                 "donor": int(donor[i]),
                 "clone_id": clone_ids[i],
@@ -700,11 +613,11 @@ def call_specificities(
                 "column": col,
                 "peptide": peptide,
                 "mhc": mhc,
-                "residual": float(values[i]),
+                "score": float(score[i]),
             })
     if not rows:
         return _empty_calls()
-    return pl.DataFrame(rows)
+    return pl.DataFrame(rows).sort("donor", "peptide", "mhc", "clone_id")
 
 
 def parse_dextramer(column: str) -> tuple[str, str]:
@@ -738,25 +651,33 @@ def process_donor(dcode: Path, donor: int) -> dict[str, pl.DataFrame]:
     endogenous = mark_endogenous(chains)
     clones = clone_table(endogenous)
     features = load_features(feature_path)
-    count_cols = [c for c in features.columns if c not in META_COLUMNS]
     dex_cols = dextramer_columns(features.columns)
     nc_cols = negative_control_columns(features.columns)
     surface = surface_columns(features.columns)
     clones = drop_doublets(clones, features, surface + dex_cols + nc_cols)
-    corrected = subtract_leakage(endogenous, clones, features, count_cols)
-    residuals, gammas = column_residuals(corrected, dex_cols, nc_cols)
-    calls = call_specificities(clones, residuals, dex_cols, corrected, nc_cols)
-    ceiling = control_envelope(clones, corrected, nc_cols)
-    gamma_frame = pl.DataFrame({"column": list(gammas), "gamma": [gammas[c] for c in gammas]}).with_columns(
-        pl.lit(donor).alias("donor"),
-        pl.lit(ceiling).alias("envelope"),
-    )
+    # Dextramer UMI is the measured multimer count. Contig UMI does not rescale it.
+    calls = call_specificities(clones, features, dex_cols, features, nc_cols)
+    kept = features.join(clones.select("barcode").unique(), on="barcode", how="inner")
+    if nc_cols and kept.height:
+        nc_max = kept.select(
+            pl.max_horizontal([pl.col(c).cast(pl.Float64) for c in nc_cols])
+        ).to_numpy().ravel()
+    else:
+        nc_max = np.zeros(kept.height, dtype=np.float64)
+    nc_mean, nc_sd, fence = control_edge(nc_max)
+    control = pl.DataFrame({
+        "donor": [donor],
+        "n_cells": [int(nc_max.size)],
+        "nc_mean": [nc_mean],
+        "nc_sd": [nc_sd],
+        "fence": [fence],
+    })
     return {
         "chains": endogenous,
         "edges": edges,
         "clones": clones,
         "calls": calls,
-        "gamma": gamma_frame,
+        "control": control,
     }
 
 
@@ -771,19 +692,22 @@ def main() -> None:
     parser.add_argument("--donors", type=int, nargs="+", default=[1, 2, 3, 4])
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
-    keys = ("chains", "edges", "clones", "calls", "gamma")
+    keys = ("chains", "edges", "clones", "calls", "control")
     parts: dict[str, list[pl.DataFrame]] = {key: [] for key in keys}
     for donor in args.donors:
         print(f"donor {donor}", flush=True)
         result = process_donor(args.dcode, donor)
         for key, frame in result.items():
             parts[key].append(frame)
-        n_clones = result["clones"]["clone_id"].n_unique() if result["clones"].height else 0
-        n_ab = result["clones"].filter(pl.col("shape") == "ab").height if result["clones"].height else 0
-        n_aab = result["clones"].filter(pl.col("shape") == "aab").height if result["clones"].height else 0
+        clones = result["clones"]
+        n_clones = clones["clone_id"].n_unique() if clones.height else 0
+        shapes = clones["shape"].to_list() if clones.height else []
         print(
             f"  chains {result['chains'].height} edges {result['edges'].height} "
-            f"cells ab {n_ab} aab {n_aab} clones {n_clones} calls {result['calls'].height}",
+            f"cells ab {shapes.count('ab')} aab {shapes.count('aab')} "
+            f"b {shapes.count('b')} a {shapes.count('a')} aa {shapes.count('aa')} "
+            f"clones {n_clones} calls {result['calls'].height} "
+            f"fence {float(result['control']['fence'][0]):.3f}",
             flush=True,
         )
     sort_by = {
@@ -791,7 +715,7 @@ def main() -> None:
         "edges": ["donor", "barcode", "chain_a", "chain_b"],
         "clones": ["donor", "barcode"],
         "calls": ["donor", "peptide", "mhc", "clone_id"],
-        "gamma": ["donor", "column"],
+        "control": ["donor"],
     }
     for key, frames in parts.items():
         frame = pl.concat(frames, how="diagonal_relaxed")

@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import importlib.util
+import math
 from pathlib import Path
 
+import numpy as np
 import polars as pl
 
 _SCRIPT = Path(__file__).resolve().parents[1] / "processing" / "dcode_chain_graph.py"
@@ -161,111 +163,295 @@ def test_additive_doublet_is_dropped_and_dual_alpha_feature_is_kept():
     assert "dual" in kept["barcode"].to_list()
 
 
-def test_sticky_column_is_the_negative_control_median_and_a_rare_peptide_is_called():
-    rows = []
-    klg = "A0301_KLGGALQAK_IE-1_CMV"
-    mart = "A0201_ELAGIGILTV_MART-1_Cancer"
-    nc = "A0201_ALIAPVHAV_NC"
-    for i in range(30):
-        rows.append({"barcode": f"b{i}", klg: 20.0, mart: 0.0, nc: 10.0})
-    for i in range(4):
-        rows.append({"barcode": f"m{i}", klg: 20.0, mart: 40.0, nc: 10.0})
-    features = pl.DataFrame(rows)
-    dex = dcode.dextramer_columns(features.columns)
-    nc = dcode.negative_control_columns(features.columns)
-    assert dex == ["A0301_KLGGALQAK_IE-1_CMV", "A0201_ELAGIGILTV_MART-1_Cancer"]
-    residuals, gammas = dcode.column_residuals(features, dex, nc)
-    assert gammas["A0301_KLGGALQAK_IE-1_CMV"] == 2.0
-    assert gammas["A0201_ELAGIGILTV_MART-1_Cancer"] == 0.0
-    assert float(residuals.filter(pl.col("barcode") == "m0")["A0301_KLGGALQAK_IE-1_CMV"][0]) == 0.0
-    assert float(residuals.filter(pl.col("barcode") == "m0")["A0201_ELAGIGILTV_MART-1_Cancer"][0]) == 40.0
-    clones = pl.DataFrame(
-        [{"donor": 1, "barcode": f"b{i}", "clone_id": f"c{i}"} for i in range(30)]
-        + [{"donor": 1, "barcode": f"m{i}", "clone_id": "mart"} for i in range(4)]
-    )
-    calls = dcode.call_specificities(clones, residuals, dex, features, nc)
-    peptides = set(calls["peptide"].to_list())
-    assert "ELAGIGILTV" in peptides
-    assert "KLGGALQAK" not in peptides
-    assert calls.filter(pl.col("peptide") == "ELAGIGILTV")["mhc"][0] == "HLA-A*02:01"
-
-
-def test_unit_residual_does_not_clear_the_negative_control_envelope():
-    """A pile of residual 1 is inside the control sample. A separated residual is not."""
-    mart = "A0201_ELAGIGILTV_MART-1_Cancer"
-    vteh = "A0101_VTEHDTLLY_pp65_CMV"
-    nc_col = "A0201_ALIAPVHAV_NC"
-    residual_rows = []
+def _singleton_panel(
+    n_background: int,
+    extras: list[tuple[str, dict[str, float], float]],
+    columns: list[str],
+    nc_col: str,
+) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame]:
+    """Background labels at 0, plus extra labels of (clone_id, dextramer UMIs, max NC)."""
+    count_rows = []
     control_rows = []
     clone_rows = []
-    for i in range(50):
-        residual_rows.append({"barcode": f"b{i}", mart: float(i % 2), vteh: 1.0})
-        control_rows.append({"barcode": f"b{i}", nc_col: 0.0 if i < 40 else 30.0})
+    for i in range(n_background):
+        count_rows.append({"barcode": f"z{i}", **{col: 0.0 for col in columns}})
+        control_rows.append({"barcode": f"z{i}", nc_col: 0.0})
+        clone_rows.append({"donor": 1, "barcode": f"z{i}", "clone_id": f"z{i}"})
+    for clone_id, dex, nc in extras:
+        barcode = f"{clone_id}-0"
+        count_rows.append({"barcode": barcode, **{col: float(dex.get(col, 0.0)) for col in columns}})
+        control_rows.append({"barcode": barcode, nc_col: float(nc)})
+        clone_rows.append({"donor": 1, "barcode": barcode, "clone_id": clone_id})
+    return pl.DataFrame(clone_rows), pl.DataFrame(count_rows), pl.DataFrame(control_rows)
+
+
+def test_control_edge_is_mean_plus_three_sd_not_the_maximum():
+    """One control cell at 50 UMIs must not set the bar at 50."""
+    nc_max = np.array([0.0] * 42 + [50.0])
+    mean, sd, fence = dcode.control_edge(nc_max)
+    assert mean < 0.2
+    assert fence < math.log1p(11)
+    assert fence > math.log1p(1)
+    assert fence < math.log1p(50)
+    assert sd > 0
+
+
+def test_ela_singleton_clears_its_own_control_and_not_the_donor_maximum():
+    """ELAGIGILTV at 11 dextramer UMIs, own NC 0, is a call. A count of 1 is not.
+
+    The donor's highest negative-control cell is 50. The score is log1p of the
+    dextramer UMI, and n_cells of the hit is 1.
+    """
+    ela = "A0201_ELAGIGILTV_MART-1_Cancer"
+    nc_col = "A0201_ALIAPVHAV_NC"
+    clones, counts, controls = _singleton_panel(
+        40,
+        [
+            ("donor_max", {ela: 0.0}, 50.0),
+            ("noise", {ela: 1.0}, 0.0),
+            ("ela", {ela: 11.0}, 0.0),
+        ],
+        [ela],
+        nc_col,
+    )
+    # The helper stores the NC on the control frame via the third field, and
+    # also copies a per-cell override when present. donor_max's NC is 50.
+    calls = dcode.call_specificities(clones, counts, [ela], controls, [nc_col])
+    assert calls["clone_id"].to_list() == ["ela"]
+    assert calls["peptide"].to_list() == ["ELAGIGILTV"]
+    assert calls["mhc"].to_list() == ["HLA-A*02:01"]
+    assert calls["n_cells"].to_list() == [1]
+    assert math.isclose(float(calls["score"][0]), math.log1p(11), rel_tol=0, abs_tol=1e-9)
+
+
+def test_sticky_peptide_high_on_every_label_is_not_a_call():
+    """KLGGALQAK at 20 on every label beats a zero control and is still not a call.
+
+    ELAGIGILTV at 40 on one label, against a bulk of zeros, is a call.
+    """
+    klg = "A0301_KLGGALQAK_IE-1_CMV"
+    ela = "A0201_ELAGIGILTV_MART-1_Cancer"
+    nc_col = "A0201_ALIAPVHAV_NC"
+    count_rows = []
+    control_rows = []
+    clone_rows = []
+    for i in range(30):
+        count_rows.append({"barcode": f"b{i}", klg: 20.0, ela: 0.0})
+        control_rows.append({"barcode": f"b{i}", nc_col: 0.0})
         clone_rows.append({"donor": 1, "barcode": f"b{i}", "clone_id": f"c{i}"})
-    residual_rows.append({"barcode": "hi", mart: 80.0, vteh: 1.0})
-    control_rows.append({"barcode": "hi", nc_col: 0.0})
-    clone_rows.append({"donor": 1, "barcode": "hi", "clone_id": "hi"})
-    residuals = pl.DataFrame(residual_rows)
+    for i in range(4):
+        count_rows.append({"barcode": f"m{i}", klg: 20.0, ela: 40.0})
+        control_rows.append({"barcode": f"m{i}", nc_col: 0.0})
+        clone_rows.append({"donor": 1, "barcode": f"m{i}", "clone_id": "mart"})
+    counts = pl.DataFrame(count_rows)
     controls = pl.DataFrame(control_rows)
-    clones = pl.DataFrame(clone_rows)
-    dex = [mart, vteh]
-    calls = dcode.call_specificities(clones, residuals, dex, controls, [nc_col])
-    peptides = set(calls["peptide"].to_list()) if calls.height else set()
-    assert peptides == {"ELAGIGILTV"}
-    assert calls["clone_id"].to_list() == ["hi"]
+    dex = [klg, ela]
+    assert dcode.dextramer_columns([*dex, nc_col]) == dex
+    assert dcode.negative_control_columns([*dex, nc_col]) == [nc_col]
+    calls = dcode.call_specificities(
+        pl.DataFrame(clone_rows), counts, dex, controls, [nc_col],
+    )
+    assert set(calls["peptide"].to_list()) == {"ELAGIGILTV"}
+    assert calls["clone_id"].to_list() == ["mart"]
+    assert calls["mhc"].to_list() == ["HLA-A*02:01"]
+    assert int(calls["n_cells"][0]) == 4
+    assert math.isclose(float(calls["score"][0]), math.log1p(40), rel_tol=0, abs_tol=1e-9)
 
 
-def test_clone_size_does_not_sum_a_shoulder_into_a_call():
-    """Eight cells at residual 6 stay under a control cell of 20. A singleton at 80 clears it."""
+def test_eight_cells_at_one_umi_are_not_one_cell_at_eight():
+    """Cell count is the sample size. Eight dextramer UMIs of 1 do not sum to 8."""
     pep = "A0201_GILGFVFTL_Flu-MP_Influenza"
     nc_col = "A0201_ALIAPVHAV_NC"
-    residual_rows = [{"barcode": f"e{i}", pep: 6.0} for i in range(8)]
-    control_rows = [{"barcode": f"e{i}", nc_col: 0.0} for i in range(8)]
-    clone_rows = [{"donor": 1, "barcode": f"e{i}", "clone_id": "expanded"} for i in range(8)]
-    residual_rows.append({"barcode": "ctrl", pep: 0.0})
-    control_rows.append({"barcode": "ctrl", nc_col: 20.0})
-    clone_rows.append({"donor": 1, "barcode": "ctrl", "clone_id": "ctrl"})
-    residual_rows.append({"barcode": "real", pep: 80.0})
-    control_rows.append({"barcode": "real", nc_col: 0.0})
-    clone_rows.append({"donor": 1, "barcode": "real", "clone_id": "real"})
-    residual_rows.append({"barcode": "tied", pep: 20.0})
-    control_rows.append({"barcode": "tied", nc_col: 0.0})
-    clone_rows.append({"donor": 1, "barcode": "tied", "clone_id": "tied"})
+    count_rows = []
+    control_rows = []
+    clone_rows = []
+    for i in range(40):
+        count_rows.append({"barcode": f"z{i}", pep: 0.0})
+        control_rows.append({"barcode": f"z{i}", nc_col: 0.0})
+        clone_rows.append({"donor": 1, "barcode": f"z{i}", "clone_id": f"z{i}"})
+    for i in range(4):
+        count_rows.append({"barcode": f"n{i}", pep: 0.0})
+        control_rows.append({"barcode": f"n{i}", nc_col: 3.0})
+        clone_rows.append({"donor": 1, "barcode": f"n{i}", "clone_id": f"n{i}"})
+    for i in range(8):
+        count_rows.append({"barcode": f"e{i}", pep: 1.0})
+        control_rows.append({"barcode": f"e{i}", nc_col: 0.0})
+        clone_rows.append({"donor": 1, "barcode": f"e{i}", "clone_id": "eight"})
+    count_rows.append({"barcode": "one", pep: 8.0})
+    control_rows.append({"barcode": "one", nc_col: 0.0})
+    clone_rows.append({"donor": 1, "barcode": "one", "clone_id": "one"})
     calls = dcode.call_specificities(
         pl.DataFrame(clone_rows),
-        pl.DataFrame(residual_rows),
+        pl.DataFrame(count_rows),
         [pep],
         pl.DataFrame(control_rows),
         [nc_col],
     )
-    assert calls["clone_id"].to_list() == ["real"]
+    assert calls["clone_id"].to_list() == ["one"]
+    assert calls["n_cells"].to_list() == [1]
+    assert math.isclose(float(calls["score"][0]), math.log1p(8), rel_tol=0, abs_tol=1e-9)
+    assert float(calls["score"][0]) != 8.0
 
 
-def test_a_mode_below_the_controls_does_not_leak_past_them():
-    """A declining tail past the controls is not a call. A mode above them is."""
-    sticky = "A0301_KLGGALQAK_IE-1_CMV"
-    flu = "A0201_GILGFVFTL_Flu-MP_Influenza"
+def test_within_label_median_ignores_one_hot_cell():
+    """One cell at 100 dextramer UMIs among three zeros has median log1p 0.
+
+    Four cells stable at 30 are the within-label signal. The raw mean of the
+    hot cell would have been 25 and is not the score.
+    """
+    pep = "A0201_GILGFVFTL_Flu-MP_Influenza"
     nc_col = "A0201_ALIAPVHAV_NC"
-    residual_rows = []
+    count_rows = []
     control_rows = []
     clone_rows = []
-
-    def add(barcode: str, klg: float, gilg: float, nc: float) -> None:
-        residual_rows.append({"barcode": barcode, sticky: klg, flu: gilg})
-        control_rows.append({"barcode": barcode, nc_col: nc})
-        clone_rows.append({"donor": 1, "barcode": barcode, "clone_id": barcode})
-
-    for i, value in enumerate([4.0] * 20 + [8.0] * 8 + [16.0] * 4 + [40.0] * 2):
-        add(f"s{i}", value, 0.0, 0.0)
-    for i, value in enumerate([0.0] * 15 + [4.0] * 2 + [40.0] * 8 + [80.0] * 5):
-        add(f"g{i}", 0.0, value, 0.0)
-    add("ctrl", 0.0, 0.0, 30.0)
+    for i in range(20):
+        count_rows.append({"barcode": f"z{i}", pep: 0.0})
+        control_rows.append({"barcode": f"z{i}", nc_col: 0.0})
+        clone_rows.append({"donor": 1, "barcode": f"z{i}", "clone_id": f"z{i}"})
+    for i, value in enumerate([0.0, 0.0, 0.0, 100.0]):
+        count_rows.append({"barcode": f"h{i}", pep: value})
+        control_rows.append({"barcode": f"h{i}", nc_col: 0.0})
+        clone_rows.append({"donor": 1, "barcode": f"h{i}", "clone_id": "hot"})
+    for i in range(4):
+        count_rows.append({"barcode": f"s{i}", pep: 30.0})
+        control_rows.append({"barcode": f"s{i}", nc_col: 0.0})
+        clone_rows.append({"donor": 1, "barcode": f"s{i}", "clone_id": "stable"})
     calls = dcode.call_specificities(
         pl.DataFrame(clone_rows),
-        pl.DataFrame(residual_rows),
-        [sticky, flu],
+        pl.DataFrame(count_rows),
+        [pep],
         pl.DataFrame(control_rows),
         [nc_col],
     )
-    assert set(calls["peptide"].to_list()) == {"GILGFVFTL"}
-    assert calls.height == 13
+    assert calls["clone_id"].to_list() == ["stable"]
+    assert calls["n_cells"].to_list() == [4]
+    assert math.isclose(float(calls["score"][0]), math.log1p(30), rel_tol=0, abs_tol=1e-9)
+
+
+def test_cross_reactive_label_keeps_both_peptides():
+    """Two peptides that each clear the control and the across-label bulk both stay."""
+    ela = "A0201_ELAGIGILTV_MART-1_Cancer"
+    gil = "A0201_GILGFVFTL_Flu-MP_Influenza"
+    nlv = "A0201_NLVPMVATV_pp65_CMV"
+    nc_col = "A0201_ALIAPVHAV_NC"
+    clones, counts, controls = _singleton_panel(
+        40,
+        [
+            ("donor_max", {ela: 0.0, gil: 0.0, nlv: 0.0}, 50.0),
+            ("both", {ela: 40.0, gil: 40.0, nlv: 1.0}, 0.0),
+        ],
+        [ela, gil, nlv],
+        nc_col,
+    )
+    calls = dcode.call_specificities(clones, counts, [ela, gil, nlv], controls, [nc_col])
+    assert set(calls["peptide"].to_list()) == {"ELAGIGILTV", "GILGFVFTL"}
+    assert set(calls["clone_id"].to_list()) == {"both"}
+
+
+def test_contig_umi_column_is_not_the_dextramer_score():
+    """A contig-like UMI column of 500 is not read. The score is log1p(11)."""
+    ela = "A0201_ELAGIGILTV_MART-1_Cancer"
+    nc_col = "A0201_ALIAPVHAV_NC"
+    clones, counts, controls = _singleton_panel(
+        40,
+        [
+            ("donor_max", {ela: 0.0}, 50.0),
+            ("ela", {ela: 11.0}, 0.0),
+        ],
+        [ela],
+        nc_col,
+    )
+    counts = counts.with_columns(pl.lit(500.0).alias("umis"))
+    calls = dcode.call_specificities(clones, counts, [ela], controls, [nc_col])
+    assert calls.height == 1
+    assert math.isclose(float(calls["score"][0]), math.log1p(11), rel_tol=0, abs_tol=1e-9)
+
+
+def test_orphan_alpha_and_beta_are_labels_and_a_second_beta_is_not():
+    """A barcode with one chain is a label. Two betas are not."""
+    rows = [
+        _contig("pair", "TRA", "1", "CAAA", 10),
+        _contig("pair", "TRB", "1", "CASS", 10),
+        _contig("betaonly", "TRB", "2", "CASSB", 12),
+        _contig("alphaonly", "TRA", "3", "CAAAA", 12),
+        _contig("doublet", "TRA", "4", "CADD", 10),
+        _contig("doublet", "TRB", "5", "CASS1", 12),
+        _contig("doublet", "TRB", "6", "CASS2", 11),
+    ]
+    clones = dcode.clone_table(dcode.mark_endogenous(dcode.chain_table(pl.DataFrame(rows), donor=1)))
+    shapes = dict(zip(clones["barcode"].to_list(), clones["shape"].to_list(), strict=True))
+    assert shapes["pair"] == "ab"
+    assert shapes["betaonly"] == "b"
+    assert shapes["alphaonly"] == "a"
+    assert "doublet" not in shapes
+    beta_id = clones.filter(pl.col("barcode") == "betaonly")["clone_id"][0]
+    alpha_id = clones.filter(pl.col("barcode") == "alphaonly")["clone_id"][0]
+    assert beta_id.startswith("||TRB|")
+    assert alpha_id.endswith("||")
+    assert "TRB|" not in alpha_id.split("||", 1)[1]
+
+    ela = "A0201_ELAGIGILTV_MART-1_Cancer"
+    nc_col = "A0201_ALIAPVHAV_NC"
+    panel_clones, counts, controls = _singleton_panel(
+        40,
+        [("donor_max", {ela: 0.0}, 50.0)],
+        [ela],
+        nc_col,
+    )
+    extra_clones = pl.DataFrame([
+        {"donor": 1, "barcode": "betaonly", "clone_id": beta_id},
+    ])
+    extra_counts = pl.DataFrame([{"barcode": "betaonly", ela: 11.0}])
+    extra_controls = pl.DataFrame([{"barcode": "betaonly", nc_col: 0.0}])
+    calls = dcode.call_specificities(
+        pl.concat([panel_clones, extra_clones], how="diagonal_relaxed"),
+        pl.concat([counts, extra_counts], how="diagonal_relaxed"),
+        [ela],
+        pl.concat([controls, extra_controls], how="diagonal_relaxed"),
+        [nc_col],
+    )
+    assert calls["clone_id"].to_list() == [beta_id]
+    assert calls["n_cells"].to_list() == [1]
+
+
+def test_beta_only_dextramer_umi_is_not_rescaled_by_contig_umi(tmp_path: Path) -> None:
+    """A leaked chain's contig UMI must not pull down the dextramer median.
+
+    The beta-only cells carry the binder beta plus a low contig-UMI copy of the
+    paired clone's alpha. The score is log1p of the measured dextramer UMI.
+    """
+    pep = "A0201_GILGFVFTL_Flu-MP_Influenza"
+    nc_col = "A0201_ALIAPVHAV_NC"
+    rows = []
+    features = []
+    for i in range(30):
+        rows.append(_contig(f"z{i}", "TRA", str(i), f"CAV{i}", 12))
+        rows.append(_contig(f"z{i}", "TRB", str(i), f"CASS{i}", 12))
+        features.append({"barcode": f"z{i}", pep: 0.0, nc_col: 0.0})
+    for i in range(5):
+        rows.append(_contig(f"p{i}", "TRA", "G", "CAAA", 30))
+        rows.append(_contig(f"p{i}", "TRB", "G", "CASSGILG", 40))
+        features.append({"barcode": f"p{i}", pep: 100.0, nc_col: 0.0})
+    for i in range(4):
+        rows.append(_contig(f"b{i}", "TRB", "G", "CASSGILG", 40))
+        rows.append(_contig(f"b{i}", "TRA", "G", "CAAA", 1))
+        features.append({"barcode": f"b{i}", pep: 100.0, nc_col: 0.0})
+    features.append({"barcode": "n0", pep: 0.0, nc_col: 20.0})
+    rows.append(_contig("n0", "TRA", "N", "CANEG", 10))
+    rows.append(_contig("n0", "TRB", "N", "CASSNEG", 10))
+    donor_dir = tmp_path
+    pl.DataFrame(rows).write_csv(
+        donor_dir / "vdj_v1_hs_aggregated_donor1_all_contig_annotations.csv.gz",
+        compression="gzip",
+    )
+    pl.DataFrame(features).write_csv(
+        donor_dir / "vdj_v1_hs_aggregated_donor1_binarized_matrix.csv.gz",
+        compression="gzip",
+    )
+    result = dcode.process_donor(donor_dir, 1)
+    beta_only = result["clones"].filter(pl.col("shape") == "b")
+    assert beta_only.height == 4
+    hit = result["calls"].filter(pl.col("clone_id") == beta_only["clone_id"][0])
+    assert hit.height == 1
+    assert hit["peptide"].to_list() == ["GILGFVFTL"]
+    assert math.isclose(float(hit["score"][0]), math.log1p(100), rel_tol=0, abs_tol=1e-9)
