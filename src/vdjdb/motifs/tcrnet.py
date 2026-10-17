@@ -227,7 +227,8 @@ def enrich(sample: pl.DataFrame, control, *, scope: str = SCOPE) -> pl.DataFrame
     return scored.with_columns(
         legacy_pvalue(pl.col("n_neighbors"), pl.col("n_control"), n, m).alias("p.legacy"),
     ).with_columns(
-        _bh(pl.col("p.legacy")).alias("q.legacy"),
+        # Degree-zero rows have no conditional tail; include them as p=1 in the family.
+        _bh(pl.col("p.legacy").clip(upper_bound=1.0)).alias("q.legacy"),
     )
 
 

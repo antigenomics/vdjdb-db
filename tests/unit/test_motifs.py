@@ -107,6 +107,21 @@ def test_bh_matches_reference_in_any_row_order():
         assert got == pytest.approx(false_discovery_control(values))
 
 
+def test_enrich_bh_treats_untested_zero_degree_as_one(monkeypatch):
+    import numpy as np
+    import vdjtools.overlap
+    from scipy.stats import false_discovery_control
+
+    scored = pl.DataFrame({"n_neighbors": [0, 1, 2, 3], "n_control": [0] * 4})
+    monkeypatch.setattr(vdjtools.overlap, "tcrnet", lambda *args, **kwargs: scored)
+    got = T.enrich(pl.DataFrame(), list(range(100)))
+    raw = got["p.legacy"].to_numpy()
+    assert raw[0] > 1.0
+    assert got["q.legacy"][0] == 1.0
+    assert got["q.legacy"].to_numpy() == pytest.approx(
+        false_discovery_control(np.minimum(raw, 1.0)))
+
+
 def test_edges_are_the_hamming_one_ball_without_self_or_mirror():
     seqs = ["CASSF", "CASSY", "CAWWW", "CASSW"]
     edges = C._edges(seqs, "1,0,0,1")
