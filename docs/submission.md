@@ -32,6 +32,9 @@ Use `chunks/PMID_<id>.tsv` for a paper. Each row needs an epitope and at least o
 junction. Neither can be invented or inferred. VDJdb stores junctions with both anchors included,
 not the shorter IMGT CDR3 region. See [sequence repair](standards/cdr3-fixing.md).
 
+For a 10x Genomics dextramer matrix, call the chain co-occurrence caller for the donors in that
+chunk. See [Process a 10x dextramer assay](tenx-dextramer.md).
+
 Use the supplied definitive tables first. Routine boundary trimming, supported nomenclature
 conversion and allele resolution happen during database assembly. Keep the submitted cells when
 the build already resolves them, and record the outcome as **resolved during database build**.

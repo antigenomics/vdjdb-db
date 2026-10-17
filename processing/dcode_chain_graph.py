@@ -44,6 +44,14 @@ The on-disk "binarized" matrix is numeric counts. Columns ending in ``_binder``
 are a previous 0/1 call and are not read. Surface-protein columns are not
 evidence of specificity. There is no transcriptome in the dCODE directory.
 
+Call ``process_donor(dcode, donor)`` for one donor. The command line takes
+``--dcode``, ``--donors`` (default 1 2 3 4) and ``--out``, and writes
+``chains.tsv``, ``edges.tsv``, ``clones.tsv``, ``calls.tsv`` and ``checks.tsv``.
+Those tables are the call behind ``chunks/ISSUE_289.tsv``. Deposited ITRAP
+count tables are reshaped by ``processing/itrap_reprocess.py`` and then use
+this caller. The procedure for the corresponding chunks is
+``docs/tenx-dextramer.md``.
+
 # 2026-10-16. Issue https://github.com/antigenomics/vdjdb-db/issues/1357
 """
 

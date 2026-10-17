@@ -737,3 +737,44 @@ def test_beta_only_dextramer_umi_is_not_rescaled_by_contig_umi(tmp_path: Path) -
     assert hit["peptide"].to_list() == ["GILGFVFTL"]
     assert float(hit["score"][0]) != math.log1p(100)
     _assert_posterior(float(hit["score"][0]))
+
+
+def test_cli_writes_the_five_tables_for_a_donor_directory(tmp_path: Path, monkeypatch) -> None:
+    """`--dcode --donors --out` is the call that rebuilds one donor of a 10x chunk."""
+    pep = "A0201_GILGFVFTL_Flu-MP_Influenza"
+    nc_col = "A0201_ALIAPVHAV_NC"
+    rows = []
+    features = []
+    for i in range(8):
+        rows.append(_contig(f"z{i}", "TRA", str(i), f"CAV{i}F", 12))
+        rows.append(_contig(f"z{i}", "TRB", str(i), f"CASS{i}F", 12))
+        features.append({"barcode": f"z{i}", pep: 0.0, nc_col: 0.0})
+    for i in range(4):
+        rows.append(_contig(f"p{i}", "TRA", "G", "CAAAAF", 30))
+        rows.append(_contig(f"p{i}", "TRB", "G", "CASSGILF", 40))
+        features.append({"barcode": f"p{i}", pep: 40.0, nc_col: 0.0})
+    dcode_dir = tmp_path / "dcode"
+    dcode_dir.mkdir()
+    pl.DataFrame(rows).write_csv(
+        dcode_dir / "vdj_v1_hs_aggregated_donor1_all_contig_annotations.csv.gz",
+        compression="gzip",
+    )
+    pl.DataFrame(features).write_csv(
+        dcode_dir / "vdj_v1_hs_aggregated_donor1_binarized_matrix.csv.gz",
+        compression="gzip",
+    )
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "dcode_chain_graph.py",
+            "--dcode", str(dcode_dir),
+            "--donors", "1",
+            "--out", str(out),
+        ],
+    )
+    dcode.main()
+    names = ("chains.tsv", "edges.tsv", "clones.tsv", "calls.tsv", "checks.tsv")
+    for name in names:
+        frame = pl.read_csv(out / name)
+        assert frame.height >= 1 or name == "calls.tsv"

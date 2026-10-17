@@ -30,7 +30,8 @@ publishes it. `chunks/` is the data, one file per publication; everything else i
 Start at [VDJdb documentation](https://docs.isalgo.dev/vdjdb-db/):
 
 - **Tutorial:** [explore your first records](docs/getting-started.md).
-- **How-to guides:** [submit records](docs/submission.md), [build a release](docs/builds.md),
+- **How-to guides:** [submit records](docs/submission.md),
+  [process a 10x dextramer assay](docs/tenx-dextramer.md), [build a release](docs/builds.md),
   [check experimental provenance](docs/submission.md#check-experimental-provenance-through-repertoire-overlap)
   and [validation evidence](docs/submission.md#classify-validation-evidence),
   or [verify build integrity](docs/build-integrity.md).
@@ -76,6 +77,20 @@ VDJDB_REFERENCE_ZIP=reference.zip uv run pytest -q
 
 Use the 2026-06-03 release as `reference.zip` for the release comparison and tests. The static
 summary also requires R and pandoc; see [build requirements](docs/builds.md).
+
+## 10x dextramer assays
+
+The chain co-occurrence caller in `processing/dcode_chain_graph.py` turns a donor's contig
+annotations and dextramer UMI matrix into specificity calls. `process_donor(dcode, donor)` is
+that call for one donor. The command line takes `--dcode`, `--donors` and `--out` and writes
+`chains.tsv`, `edges.tsv`, `clones.tsv`, `calls.tsv` and `checks.tsv`.
+
+`chunks/ISSUE_289.tsv` (28,125 rows, the four-donor Immudex dCODE assay) is the committed output
+of that caller. Deposited ITRAP matrices go through `processing/itrap_reprocess.py` into the same
+model: `itrap1_tables` then `run_frames` for PMID:37133356, and `viral_tables` then `run_frames`
+for the viral assay. The committed files `chunks/PMID_37133356.tsv` (1,440 rows) and
+`chunks/DOI_10.64898_2025.12.19.695506.tsv` (2,468 rows) are the published assignment tables.
+The procedure is [Process a 10x dextramer assay](docs/tenx-dextramer.md).
 
 ## Contributing
 

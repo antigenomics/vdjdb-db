@@ -83,3 +83,15 @@ def test_two_clones_keep_their_own_peptide():
     assert len(gil_clone) == 1
     assert len(nlv_clone) == 1
     assert gil_clone[0][0] != nlv_clone[0][0]
+    assert set(result) == {"chains", "edges", "clones", "calls", "checks"}
+
+
+def test_write_result_uses_the_caller_table_names(tmp_path: Path) -> None:
+    """The ITRAP reshaper writes the same five tables the 10x command writes."""
+    result = {
+        key: pl.DataFrame({"donor": [1]})
+        for key in ("chains", "edges", "clones", "calls", "checks")
+    }
+    itrap.write_result(result, tmp_path)
+    written = {path.name for path in tmp_path.iterdir()}
+    assert written == {"chains.tsv", "edges.tsv", "clones.tsv", "calls.tsv", "checks.tsv"}

@@ -41,6 +41,11 @@ Missing anchors, internal cysteines, partial germlines
 and conflicting calls require interpretation with the source and the germline reports. They are
 not all transcription errors. Preserve literal cores/flanks when the build resolves them. Do not
 edit a source sequence merely to make a canonical flag true. A proposed V is inferred, not reported.
+A 10x dextramer chunk is produced by the caller in
+[Process a 10x dextramer assay](../../docs/tenx-dextramer.md). On
+`chunks/DOI_10.64898_2025.12.19.695506.tsv`, blank `antigen.gene` and `antigen.species` are the
+published table (2468 rows). A `non-functional j.alpha` finding on `chunks/ISSUE_289.tsv` or that
+viral chunk is the source J call.
 
 ## Review metadata and repeats
 

@@ -35,6 +35,7 @@ complete a task, reference pages define the data, and explanations describe the 
    :caption: How-to guides
 
    submission
+   tenx-dextramer
    builds
    build-integrity
 
