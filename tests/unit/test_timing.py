@@ -127,8 +127,9 @@ def test_reset_clears_an_interrupted_stack() -> None:
 
 def test_process_tree_sampling_includes_a_live_worker():
     timing.reset()
+    # Nonzero bytes touch the pages; zero-filled allocations can stay lazily mapped.
     with timing.stage('workers', process_tree=True), subprocess.Popen([sys.executable, '-c',
-                           'import time; data=bytearray(128*1024*1024); '
+                           'import time; data=bytearray(b"x")*(128*1024*1024); '
                            'print("ready",flush=True); time.sleep(.3)'],
                           stdout=subprocess.PIPE, text=True) as child:
         assert child.stdout.readline().strip() == 'ready'
