@@ -4,7 +4,7 @@
 source_name	vdjdb_name
 BMLF1 protein	BMLF1
 EBNA-3B nuclear protein	EBNA3B
-Epstein-Barr nuclear antigen 3	EBNA3B
+Epstein-Barr nuclear antigen 3	EBNA3A
 nuclear antigen EBNA-3	EBNA3B
 EBNA3A nuclear protein	EBNA3A
 Replication and transcription activator	BRLF1
@@ -12,6 +12,29 @@ EBNA-1 protein	EBNA1
 EBNA3C latent protein	EBNA3C
 latent membrane protein 1	LMP1
 Latent membrane protein 2	LMP2A
+Latent membrane protein 1	LMP1
+Epstein-Barr nuclear antigen 1	EBNA1
+Epstein-Barr nuclear antigen 4	EBNA4
+Epstein-Barr nuclear antigen 6	EBNA6
+Immediate early protein IE1	IE1
+Tegument protein VP16	VP16
+Tegument protein UL46	UL46
+DNA polymerase processivity factor BMRF1	BMRF1
+DNA polymerase processivity factor	pp50
+Membrane glycoprotein US8	US8
+Protein UL29/28	UL29/28
+Protein OPG200	OPG200
+Protein K12	K12
+Initiator protein NS1	NS1
+Ubiquitin carboxyl-terminal hydrolase isozyme L1	UCHL1
+SUMO-activating enzyme subunit 2	UBA2
+Replication origin-binding protein	UL9
+Small capsomere-interacting protein	BFRF3
+Small capsomere-interacting	BFRF3
+Envelope glycoprotein H	UL75
+E3 ubiquitin-protein ligase ICP0	RL2
+Early E1A protein	E1A
+Early E1A	E1A
 Lytic switch protein BZLF1	BZLF1
 tegument protein VP22	VP22
 HCMVUL83	pp65
