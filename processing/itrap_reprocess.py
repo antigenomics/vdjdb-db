@@ -11,6 +11,7 @@ from __future__ import annotations
 import csv
 import gzip
 import importlib.util
+import math
 from pathlib import Path
 
 import numpy as np
@@ -23,6 +24,11 @@ dcode = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(dcode)
 
 AA = set("ACDEFGHIKLMNPQRSTVWY")
+CONTIG_SCHEMA = {
+    "barcode": pl.String, "is_cell": pl.String, "chain": pl.String,
+    "v_gene": pl.String, "j_gene": pl.String, "productive": pl.String,
+    "cdr3": pl.String, "umis": pl.Float64, "donor": pl.Int64,
+}
 
 
 def _parts(value) -> list[str]:
@@ -121,11 +127,7 @@ def itrap1_tables(frame: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFrame, dict
         counts["barcode"] = gem
         counts["donor"] = donor
         count_rows.append(counts)
-    contigs = pl.DataFrame(contig_rows) if contig_rows else pl.DataFrame(schema={
-        "barcode": pl.String, "is_cell": pl.String, "chain": pl.String,
-        "v_gene": pl.String, "j_gene": pl.String, "productive": pl.String,
-        "cdr3": pl.String, "umis": pl.Float64, "donor": pl.Int64,
-    })
+    contigs = pl.DataFrame(contig_rows, schema=CONTIG_SCHEMA)
     peptide_cols = sorted(peptides)
     columns = ["barcode", "donor", *peptide_cols]
     filled = []
@@ -159,7 +161,9 @@ def run_frames(contigs: pl.DataFrame, features: pl.DataFrame) -> dict[str, pl.Da
     for donor in contigs["donor"].unique().sort().to_list():
         donor_contigs = contigs.filter(pl.col("donor") == donor).drop("donor")
         barcodes = donor_contigs["barcode"].unique().to_list()
-        donor_features = features.filter(pl.col("barcode").is_in(barcodes)).drop("donor")
+        donor_features = features.filter(
+            (pl.col("donor") == donor) & pl.col("barcode").is_in(barcodes)
+        ).drop("donor")
         chains = dcode.chain_table(donor_contigs, int(donor))
         edges = dcode.edge_table(chains)
         endogenous = dcode.mark_endogenous(chains)
@@ -179,6 +183,8 @@ def run_frames(contigs: pl.DataFrame, features: pl.DataFrame) -> dict[str, pl.Da
     for key, frames in parts.items():
         frames = [frame for frame in frames if frame.height]
         out[key] = pl.concat(frames, how="diagonal_relaxed") if frames else pl.DataFrame()
+        if out[key].height:
+            out[key] = out[key].sort(dcode.TABLE_SORT_COLUMNS[key])
     return out
 
 
@@ -210,18 +216,33 @@ def _matrix_antibody(
     column_index = {name: i for i, name in enumerate(columns)}
     matrix = np.zeros((len(barcodes), len(columns)), dtype=np.float64)
     with gzip.open(matrix_path, "rt") as handle:
-        header_seen = False
+        expected_entries = None
+        entries = 0
         for line in handle:
+            line = line.strip()
             if not line or line.startswith("%"):
                 continue
-            if not header_seen:
-                header_seen = True
+            fields = line.split()
+            if len(fields) != 3:
+                raise ValueError("MatrixMarket rows must have three fields")
+            if expected_entries is None:
+                n_features, n_barcodes, expected_entries = map(int, fields)
+                if (n_features, n_barcodes) != (len(feature_names), len(barcodes)) or expected_entries < 0:
+                    raise ValueError("MatrixMarket dimensions do not match the feature and barcode files")
                 continue
-            feature_i, barcode_i, value = line.split()
-            column = wanted.get(int(feature_i))
+            feature_i, barcode_i = map(int, fields[:2])
+            value = float(fields[2])
+            if not (1 <= feature_i <= len(feature_names) and 1 <= barcode_i <= len(barcodes)):
+                raise ValueError("MatrixMarket coordinate is outside the declared dimensions")
+            if not math.isfinite(value) or value < 0.0 or not value.is_integer():
+                raise ValueError("MatrixMarket UMI counts must be finite nonnegative integers")
+            entries += 1
+            column = wanted.get(feature_i)
             if column is None:
                 continue
-            matrix[int(barcode_i) - 1, column_index[column]] += float(value)
+            matrix[barcode_i - 1, column_index[column]] += value
+        if expected_entries is None or entries != expected_entries:
+            raise ValueError("MatrixMarket entry count does not match its declaration")
     frame = pl.DataFrame({"barcode": barcodes, **{name: matrix[:, i] for i, name in enumerate(columns)}})
     return frame
 
@@ -301,7 +322,7 @@ def viral_tables(
                     "umis": umi_value,
                     "donor": labels[label],
                 })
-    contigs = pl.DataFrame(contig_rows)
+    contigs = pl.DataFrame(contig_rows, schema=CONTIG_SCHEMA)
     keep = set(contigs["barcode"].unique().to_list()) if contigs.height else set()
     features = features.filter(pl.col("barcode").is_in(list(keep))).with_columns(pl.lit(0).alias("donor"))
     # Donor on a feature row follows its contig donor. A barcode is one donor.
@@ -322,4 +343,4 @@ def viral_tables(
 def write_result(result: dict[str, pl.DataFrame], out: Path) -> None:
     out.mkdir(parents=True, exist_ok=True)
     for key, frame in result.items():
-        frame.write_csv(out / f"{key}.tsv")
+        frame.write_csv(out / f"{key}.tsv", separator="\t")

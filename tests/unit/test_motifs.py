@@ -96,6 +96,17 @@ def test_bh_is_monotone_and_bounded():
     assert q[0] == pytest.approx(0.005)          # 0.001 * 5 / 1
 
 
+def test_bh_matches_reference_in_any_row_order():
+    from itertools import permutations
+
+    from scipy.stats import false_discovery_control
+
+    for values in [*permutations([0.04, 0.001, 0.03, 0.03]), (0.01, 0.01)]:
+        p = pl.DataFrame({"p": values})
+        got = p.select(T._bh(pl.col("p"))).to_series().to_numpy()
+        assert got == pytest.approx(false_discovery_control(values))
+
+
 def test_edges_are_the_hamming_one_ball_without_self_or_mirror():
     seqs = ["CASSF", "CASSY", "CAWWW", "CASSW"]
     edges = C._edges(seqs, "1,0,0,1")

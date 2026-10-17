@@ -72,11 +72,9 @@ SCOPE = "1,0,0,1"
 
 #: Threshold on the enrichment p-value. ⚠ Applied to the raw p, not a BH-adjusted q, because
 #: that is what the legacy does: `compute_vdjdb_motifs.Rmd` writes `mutate(p.adj = p.value.g)`,
-#: which is an identity -- the name says adjusted and the code adjusts nothing. Over 185,738 scored
-#: clonotypes, BH `q <= 0.05` calls 53,609 enriched where raw `p <= 0.05` calls 48,418, because the
-#: p-value distribution is bottom-heavy enough that the step-up threshold rises well above 0.05.
-#: `q.legacy` is computed and written regardless, so switching is a one-line change and a
-#: measurement (ROADMAP section 30.3).
+#: which is an identity: the name says adjusted and the code adjusts nothing.
+#: Standard BH adjusted values are at least their raw p-values. ``q.legacy`` is reported
+#: separately; it does not select enriched clonotypes.
 P_THRESHOLD = 0.05
 
 #: Within-sample neighbours a clonotype needs before it can be called enriched, independent of its
@@ -208,7 +206,8 @@ def _bh(p: pl.Expr) -> pl.Expr:
     """Benjamini-Hochberg step-up, as a monotone expression -- no ``statsmodels`` for six lines."""
     n = pl.len()
     rank = p.rank("ordinal")
-    return (p * n / rank).reverse().cum_min().reverse().clip(upper_bound=1.0)
+    return ((p * n / rank).sort_by(rank).reverse().cum_min().reverse()
+            .clip(upper_bound=1.0).gather(rank.cast(pl.UInt32) - 1))
 
 
 def enrich(sample: pl.DataFrame, control, *, scope: str = SCOPE) -> pl.DataFrame:

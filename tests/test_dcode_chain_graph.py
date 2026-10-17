@@ -8,6 +8,7 @@ from pathlib import Path
 
 import numpy as np
 import polars as pl
+import pytest
 
 _SCRIPT = Path(__file__).resolve().parents[1] / "processing" / "dcode_chain_graph.py"
 _spec = importlib.util.spec_from_file_location("dcode_chain_graph", _SCRIPT)
@@ -268,6 +269,48 @@ def test_public_alphas_drop_only_when_counts_fit_the_sum():
     barcodes = kept["barcode"].to_list()
     assert "spike" in barcodes
     assert "sum" not in barcodes
+
+
+def test_doublet_sum_must_beat_the_best_single_parent():
+    rows = [_ab_row("p", "a1", "b"), _ab_row("q", "a2", "b"), _ab_row("r", "a2", "other")]
+    rows.append({
+        "donor": 1, "barcode": "dual", "shape": "aab", "alpha1": "a1",
+        "alpha2": "a2", "beta": "b", "clone_id": "a1|a2||b",
+    })
+    features = pl.DataFrame({"barcode": ["p", "q", "r", "dual"], "count": [100, 140, 40, 140]})
+    # The sum 100 + 40 beats 100, but ties the other single parent's 140.
+    kept = dcode.drop_doublets(pl.DataFrame(rows), features, ["count"])
+    assert "dual" in kept["barcode"].to_list()
+
+
+@pytest.mark.parametrize("value", [-1.0, 1.5, math.nan, math.inf, None])
+def test_invalid_umi_counts_are_rejected(value):
+    contigs = pl.DataFrame([_contig("cell", "TRB", "1", "CASSYF", 6)])
+    with pytest.raises(ValueError, match="finite nonnegative integers"):
+        dcode.chain_table(contigs.with_columns(pl.lit(value).alias("umis")), 1)
+    clones = pl.DataFrame({"donor": [1], "barcode": ["cell"], "clone_id": ["clone"]})
+    counts = pl.DataFrame({"barcode": ["cell"], "A0201_GILGFVFTL": [value]})
+    controls = pl.DataFrame({"barcode": ["cell"], "A0201_NC": [0]})
+    with pytest.raises(ValueError, match="finite nonnegative integers"):
+        dcode.assign_specificities(clones, counts, ["A0201_GILGFVFTL"], controls, ["A0201_NC"])
+    counts = counts.with_columns(pl.lit(1).alias("A0201_GILGFVFTL"))
+    with pytest.raises(ValueError, match="finite nonnegative integers"):
+        dcode.assign_specificities(
+            clones, counts, ["A0201_GILGFVFTL"],
+            controls.with_columns(pl.lit(value).alias("A0201_NC")), ["A0201_NC"],
+        )
+
+
+def test_missing_control_barcode_is_rejected():
+    clones = pl.DataFrame({"donor": [1], "barcode": ["cell"], "clone_id": ["clone"]})
+    counts = pl.DataFrame({"barcode": ["cell"], "A0201_GILGFVFTL": [1]})
+    controls = pl.DataFrame({"barcode": ["other"], "A0201_NC": [0]})
+    with pytest.raises(ValueError, match="Missing negative-control counts"):
+        dcode.assign_specificities(clones, counts, ["A0201_GILGFVFTL"], controls, ["A0201_NC"])
+
+
+def test_zero_excess_counts_have_a_finite_ambient_rate():
+    assert dcode._ambient_rate(np.array([5.0, 5.0]), np.array([0.0, 0.0])) == dcode.LAM_FLOOR
 
 
 def test_primary_low_count_stays_endogenous_and_a_later_copy_does_not():
@@ -776,5 +819,6 @@ def test_cli_writes_the_five_tables_for_a_donor_directory(tmp_path: Path, monkey
     dcode.main()
     names = ("chains.tsv", "edges.tsv", "clones.tsv", "calls.tsv", "checks.tsv")
     for name in names:
-        frame = pl.read_csv(out / name)
+        frame = pl.read_csv(out / name, separator="\t")
+        assert "donor" in frame.columns and frame.width > 1
         assert frame.height >= 1 or name == "calls.tsv"

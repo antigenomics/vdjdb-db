@@ -78,13 +78,32 @@ GRID_SIZE = 96
 EM_ITERATIONS = 40
 META_COLUMNS = ("barcode", "donor", "cell_clono_cdr3_aa", "cell_clono_cdr3_nt")
 ALLELE_RE = re.compile(r"^([ABC])(\d{2})(\d{2})$")
+TABLE_SORT_COLUMNS = {
+    "chains": ["donor", "barcode", "chain_id"],
+    "edges": ["donor", "barcode", "chain_a", "chain_b"],
+    "clones": ["donor", "barcode"],
+    "calls": ["donor", "peptide", "mhc", "clone_id"],
+    "checks": ["donor", "peptide", "mhc"],
+}
+
+
+def _validated_counts(frame: pl.DataFrame, columns: list[str]) -> pl.DataFrame:
+    """Cast count columns and reject missing or invalid UMI observations."""
+    frame = frame.with_columns(pl.col(c).cast(pl.Float64) for c in columns)
+    if columns and frame.select(pl.any_horizontal([
+        pl.col(c).is_null() | ~pl.col(c).is_finite()
+        | (pl.col(c) < 0.0) | (pl.col(c) != pl.col(c).floor())
+        for c in columns
+    ])).to_series().any():
+        raise ValueError("UMI counts must be finite nonnegative integers")
+    return frame
 
 
 def chain_table(contigs: pl.DataFrame, donor: int) -> pl.DataFrame:
     """One row per chain per barcode. Productive TRA/TRB only.
 
-    ``is_cell`` false barcodes stay in the table so their UMIs enter the
-    ambient frequency. They are not clone barcodes. ``high_confidence`` is not
+    ``is_cell`` false barcodes stay in this preparation table but are excluded
+    from endogenous-chain inference. ``high_confidence`` is not
     a filter: low-confidence contigs are the leakage observations.
     """
     if contigs.schema["productive"] == pl.Boolean:
@@ -98,6 +117,7 @@ def chain_table(contigs: pl.DataFrame, donor: int) -> pl.DataFrame:
         & (pl.col("cdr3") != "")
         & (pl.col("cdr3") != "None")
     )
+    df = _validated_counts(df, ["umis"])
     if df.schema["is_cell"] == pl.Boolean:
         cell_flag = pl.col("is_cell")
     else:
@@ -162,7 +182,7 @@ def _ambient_rate(primary: np.ndarray, excess: np.ndarray) -> float:
         return LAM_FLOOR
     if float(excess.mean()) >= mu:
         return LAM_FLOOR
-    lam = float(excess.mean())
+    lam = max(float(excess.mean()), LAM_FLOOR)
     # Weight of the receptor component among the extra-chain counts.
     pi = 0.5
     y = excess.astype(np.float64)
@@ -257,7 +277,7 @@ def _component_means(y: np.ndarray) -> tuple[float, float]:
         math.log(pi) + y * np.log(high) - high,
         math.log(1.0 - pi) + y * np.log(low) - low,
     )))
-    # Doubling the per-count likelihood is the prior break-even for a second rate.
+    # Require a twofold geometric-mean likelihood gain per observation.
     if (mixture - one) / y.size <= math.log(2.0):
         return mean, math.nan
     return high, low
@@ -321,7 +341,7 @@ def mark_endogenous(chains: pl.DataFrame) -> pl.DataFrame:
             ((pl.col("locus") == "TRA") & (pl.col("locus_rank") > 2))
             | ((pl.col("locus") == "TRB") & (pl.col("locus_rank") > 1))
         ).alias("excess_slot"),
-    )
+    ).sort("barcode", "locus", "locus_rank", "chain_id")
     primary = ranked.filter(pl.col("primary_slot"))
     excess = ranked.filter(pl.col("excess_slot"))
     primary_umi = primary["umi"].to_numpy().astype(np.float64)
@@ -346,7 +366,7 @@ def mark_endogenous(chains: pl.DataFrame) -> pl.DataFrame:
     alt = alt_sorted[inverse]
     shared = max(ambient, LAM_FLOOR)
     alt_rate = np.where(np.isnan(alt), shared, np.maximum(alt, LAM_FLOOR))
-    # A one-component chain at or below the ambient rate is not a receptor.
+    # Clamp the receptor rate at the alternative rate before applying the slot prior.
     chain_rate = np.maximum(np.maximum(chain_rate, alt_rate), LAM_FLOOR)
     log_odds = observed * np.log(chain_rate / alt_rate) - (chain_rate - alt_rate)
     locus = ranked["locus"].to_numpy()
@@ -468,7 +488,10 @@ def clone_table(endogenous: pl.DataFrame) -> pl.DataFrame:
 
 
 def _feature_matrix(features: pl.DataFrame, columns: list[str]) -> tuple[np.ndarray, dict[str, int]]:
+    features = _validated_counts(features, columns)
     barcodes = features["barcode"].to_list()
+    if len(set(barcodes)) != len(barcodes):
+        raise ValueError("Feature barcodes must be unique within a donor")
     index = {barcode: i for i, barcode in enumerate(barcodes)}
     matrix = features.select(columns).to_numpy().astype(np.float64)
     return matrix, index
@@ -494,7 +517,7 @@ def drop_doublets(
     features: pl.DataFrame,
     count_cols: list[str],
 ) -> pl.DataFrame:
-    """Drop an alpha-alpha-beta barcode when its counts fit two parents better than one.
+    """Drop a dual-alpha barcode when a parent sum beats the best single parent.
 
     A parent is an alpha-beta clone. The doublet hypothesis is one clone of each
     alpha, or this beta's own alpha-beta clone plus the other alpha's clone.
@@ -547,6 +570,14 @@ def drop_doublets(
                     foreign.append(clone_id)
             by_alpha.append((own, foreign))
         (own_1, foreign_1), (own_2, foreign_2) = by_alpha
+        singletons = [own for own in (own_1, own_2) if own is not None]
+        if own_1 is not None:
+            singletons.extend(foreign_2)
+        if own_2 is not None:
+            singletons.extend(foreign_1)
+        if not singletons:
+            singletons = foreign_1 + foreign_2
+        best_single = max((_poisson_ll(y, means[c]) for c in singletons), default=-math.inf)
         # This beta already has an alpha-beta profile. The other alpha's clone is
         # the only admissible second parent.
         compared = False
@@ -555,9 +586,8 @@ def drop_doublets(
                 continue
             compared = True
             own_mean = means[own]
-            own_ll = _poisson_ll(y, own_mean)
             for other_id in foreign:
-                if _poisson_ll(y, own_mean + means[other_id]) > own_ll:
+                if _poisson_ll(y, own_mean + means[other_id]) > best_single:
                     drop.add(barcode)
                     break
         if compared or barcode in drop:
@@ -567,10 +597,7 @@ def drop_doublets(
         for left in foreign_1:
             for right in foreign_2:
                 both = means[left] + means[right]
-                if (
-                    _poisson_ll(y, both) > _poisson_ll(y, means[left])
-                    and _poisson_ll(y, both) > _poisson_ll(y, means[right])
-                ):
+                if _poisson_ll(y, both) > best_single:
                     drop.add(barcode)
                     break
     if not drop:
@@ -963,13 +990,13 @@ def assign_specificities(
     """
     if clones.is_empty() or not dex_cols:
         return _empty_calls(), _empty_checks()
-    selected = counts.select(
+    selected = _validated_counts(counts, dex_cols).select(
         "barcode",
-        *[pl.col(c).cast(pl.Float64).clip(lower_bound=0.0).alias(c) for c in dex_cols],
+        *dex_cols,
     )
     if nc_cols:
-        nc_terms = [pl.col(c).cast(pl.Float64).clip(lower_bound=0.0) for c in nc_cols]
-        ctrl = controls.select(
+        nc_terms = [pl.col(c) for c in nc_cols]
+        ctrl = _validated_counts(controls, nc_cols).select(
             "barcode",
             pl.max_horizontal(nc_terms).alias("_nc"),
             pl.sum_horizontal(nc_terms).alias("_nc_sum"),
@@ -981,16 +1008,17 @@ def assign_specificities(
         )
     joined = (
         clones.select("donor", "barcode", "clone_id")
-        .join(selected, on="barcode", how="inner")
-        .join(ctrl, on="barcode", how="left")
-        .with_columns(pl.col("_nc").fill_null(0.0))
+        .join(selected, on="barcode", how="inner", validate="1:1")
+        .join(ctrl, on="barcode", how="left", validate="1:1")
     )
+    if joined["_nc_sum"].null_count():
+        raise ValueError("Missing negative-control counts for a retained barcode")
     if joined.is_empty():
         return _empty_calls(), _empty_checks()
     rows: list[dict[str, object]] = []
     checks: list[dict[str, object]] = []
     for donor in joined["donor"].unique().sort().to_list():
-        part = joined.filter(pl.col("donor") == donor).sort("clone_id")
+        part = joined.filter(pl.col("donor") == donor).sort("clone_id", "barcode")
         clone_id = part["clone_id"].to_numpy()
         starts, lengths = _label_segments(clone_id)
         nc = part["_nc"].to_numpy().astype(np.float64)
@@ -1105,7 +1133,7 @@ def process_donor(dcode: Path, donor: int) -> dict[str, pl.DataFrame]:
 
 def _write(frame: pl.DataFrame, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    frame.write_csv(path)
+    frame.write_csv(path, separator="\t")
 
 
 def main() -> None:
@@ -1131,17 +1159,10 @@ def main() -> None:
             f"clones {n_clones} calls {result['calls'].height}",
             flush=True,
         )
-    sort_by = {
-        "chains": ["donor", "barcode", "chain_id"],
-        "edges": ["donor", "barcode", "chain_a", "chain_b"],
-        "clones": ["donor", "barcode"],
-        "calls": ["donor", "peptide", "mhc", "clone_id"],
-        "checks": ["donor", "peptide", "mhc"],
-    }
     for key, frames in parts.items():
         frame = pl.concat(frames, how="diagonal_relaxed")
         if frame.height:
-            frame = frame.sort(sort_by[key])
+            frame = frame.sort(TABLE_SORT_COLUMNS[key])
         _write(frame, args.out / f"{key}.tsv")
     calls = pl.concat(parts["calls"], how="diagonal_relaxed")
     if calls.height:
