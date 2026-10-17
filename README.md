@@ -58,8 +58,8 @@ Download the latest release zip from
 [vdjdb.com](https://vdjdb.com), served by [VDJdb-web](https://github.com/antigenomics/vdjdb-web).
 
 [vdjmatch](https://github.com/antigenomics/vdjmatch) can resolve a release for you when annotating
-repertoires. That path is work in progress; see the vdjmatch repository. Standalone annotation from a
-downloaded release is planned.
+repertoires. It selects release bundles by their manifest role; see the vdjmatch repository for
+annotation commands.
 
 ## Building it
 
@@ -87,7 +87,7 @@ annotations and dextramer UMI matrix into specificity calls. `process_donor(dcod
 that call for one donor. The command line takes `--dcode`, `--donors` and `--out` and writes
 `chains.tsv`, `edges.tsv`, `clones.tsv`, `calls.tsv` and `checks.tsv`.
 
-`chunks/ISSUE_289.tsv` (28,125 rows, the four-donor Immudex dCODE assay) is the committed output
+`chunks/ISSUE_289.tsv` (28,040 rows, the four-donor Immudex dCODE assay) is the committed output
 of that caller. Deposited ITRAP matrices go through `processing/itrap_reprocess.py` into the same
 model: `itrap1_tables` then `run_frames` for PMID:37133356, and `viral_tables` then `run_frames`
 for the viral assay. The committed files `chunks/PMID_37133356.tsv` (1,440 rows) and
