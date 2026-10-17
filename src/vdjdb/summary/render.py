@@ -6,7 +6,7 @@ Three steps, each able to fail the build on its own:
    build, with ``clean = FALSE`` so knitr's intermediate survives. The render makes no network call
    -- publication years come from the committed table :mod:`vdjdb.summary.references` writes -- so
    it is reproducible and runs offline.
-2. one more `pandoc` pass over that intermediate with ``summary/embed.html`` and
+2. one more `pandoc` pass over that intermediate with ``summary/embed.tpl`` and
    ``summary/embed.lua``, which emit the publishable fragment directly.
 3. ``summary/check_summary.py`` asserts the structure, the palette and the three contracts
    ``vdjdb-web`` depends on, against the committed fingerprint.
@@ -21,9 +21,6 @@ textual difference is the position of one attribute inside 8 ``<img>`` tags.
 ``-auto_identifiers`` is deliberate: without it pandoc puts an ``id`` on every ``<h4>``, which the
 rmarkdown path did not because it hung ids on section ``<div>``s instead. Adding anchors to the
 fragment is a separate decision from this refactor.
-
-The paper figures (``summary/vdjdb_paper_figures.Rmd``) are not part of a release and are not
-rendered here; they need ``maps`` and ``scatterpie``, which the release path deliberately does not.
 """
 from __future__ import annotations
 

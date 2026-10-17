@@ -2,7 +2,7 @@
   Produce the publishable fragment directly, instead of rendering a whole document and then
   deleting parts of it with string surgery.
 
-      pandoc vdjdb_summary.knit.md --template summary/embed.html --lua-filter summary/embed.lua ...
+      pandoc vdjdb_summary.knit.md --template summary/embed.tpl --lua-filter summary/embed.lua ...
 
   `MakeEmbedableHtml.py` line-scanned pandoc's output for `<div`, `<pre class="r">` and `<table>`.
   Every one of those is a guess about markup pandoc happens to emit today, and each guess silently

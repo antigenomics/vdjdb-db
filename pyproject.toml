@@ -42,7 +42,7 @@ dependencies = [
 #
 # Why it is still pandas, measured 2026-09-28 on a 143,497-row TRB cohort: `mb.score` (pandas) 2.100 s
 # against `qscore.score` (polars) 0.283 s on the same data, so about 21 s of a ~30-minute build, 1.2 %.
-# `CLAUDE.md` section 10 says not to restructure what is not the bottleneck, and the bottleneck is
+# The measured bottleneck was
 # `infer_nt` at 86 % (antigenomics/vdjtools#181). The reason to keep it is comparability with the
 # benchmark's `metrics_full.tsv`, which is what phase 11's acceptance criterion rests on -- weakened,
 # but not removed, by the one deliberate divergence in that module (the tie-break, antigenomics/tcremp#8).
@@ -81,7 +81,7 @@ src = ["src", "tests"]
 # Three kinds of code that must not be reformatted, for three different reasons:
 #   attic        retired reference. `tests/unit/test_schema.py` parses the Groovy at test time.
 #   metrics_lib  vendored verbatim so the benchmark metrics stay comparable with the reference.
-#   processing   a curator's one-off notebooks, not library code.
+#   processing   standalone curation scripts with their own formatting.
 # `src/vdjdb/annotate/_legacy_fixer` was a fourth until #658 deleted it with `res/`.
 exclude = ["attic", "src/vdjdb/validate/metrics_lib.py", "processing"]
 

@@ -3,7 +3,7 @@
 Any one of these failing silently blanks ``/overview``: the Scala side matches each image with a
 regex that does not cross newlines, deletes nothing itself, and reads the fragment by a fixed
 filename. They used to be properties of a Python script that line-scanned pandoc's output; they are
-now properties of ``summary/embed.lua`` and ``summary/embed.html``, so the test drives the real
+now properties of ``summary/embed.lua`` and ``summary/embed.tpl``, so the test drives the real
 pipeline -- pandoc, the template and the filter -- over a fixture rather than a reimplementation.
 """
 from __future__ import annotations

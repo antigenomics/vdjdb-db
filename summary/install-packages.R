@@ -23,13 +23,12 @@ CODENAME <- tryCatch(
 if (is.na(CODENAME) || !nzchar(CODENAME)) CODENAME <- "noble"
 SNAPSHOT <- sprintf("https://packagemanager.posit.co/cran/__linux__/%s/2026-09-01", CODENAME)
 
-# What the RELEASE half of the Rmd needs. `vdjdb_paper_figures.Rmd` additionally needs `maps`,
-# `scatterpie` and `ggrepel`; the split exists so the release path does not.
+# Packages needed by the release dashboard.
 #
 # `reshape2` is here because of `reshape2::dcast(...)` -- a NAMESPACED call, which appears in no
 # `library()` line. Deriving the list from `library()` calls alone missed it and the build died
 # fifteen minutes in with "there is no package called 'reshape2'". The check below closes that gap
-# for good: it greps both documents for `pkg::` as well as `library(pkg)`.
+# for good: it checks the dashboard for `pkg::` as well as `library(pkg)`.
 PACKAGES <- c(
   "rmarkdown", "knitr", "ggplot2", "RColorBrewer", "data.table", "forcats",
   "ggalluvial", "circlize", "tidyverse", "stringr", "gridExtra", "cowplot", "reshape2"
