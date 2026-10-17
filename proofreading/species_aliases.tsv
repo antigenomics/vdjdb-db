@@ -2,6 +2,14 @@
 # Checked in order — first match wins. Longer/more-specific fragments must come first.
 # Lines starting with # are comments and are ignored.
 fragment	canonical
+human alphaherpesvirus 1	HSV-1
+human alphaherpesvirus 2	HSV-2
+human betaherpesvirus 5	CMV
+human gammaherpesvirus 4	EBV
+human gammaherpesvirus 8	HHV8
+herpesvirus 6 strain z29	HHV-6B
+human metapneumovirus	HMPV
+parvovirus b19	B19
 human herpesvirus 4	EBV
 epstein barr	EBV
 epstein-barr	EBV

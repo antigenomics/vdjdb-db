@@ -111,6 +111,8 @@ uv.lock.tmp
 ## artifact - it is re-downloaded, never restored from here (hard rule 9: fetching an input is not a
 ## cache, and committing one would make it look like a cache).
 /reference.zip
+# The index vdjmatch writes beside that zip. Same rule: rebuilt from the zip, never committed.
+/reference.zip.vdjmatch/
 
 ## Proprietary held-out validation data -- TCRvdb / MATCHMAKERS is academic, non-commercial and
 ## NON-REDISTRIBUTABLE. It must never be committed here. Read it via $VDJDB_TCRVDB instead.

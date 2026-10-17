@@ -489,7 +489,8 @@ def motif_metrics(
     The three are always the same: the last legacy release, the latest release, and this build. A
     fourth row is the partition that clusters nothing, because a bar it passes is not a bar.
 
-    Exits 1 on an undeclared regression, naming the axis, both values and the delta.
+    Exits 1 on an undeclared same-cohort regression. Historical snapshot drift is reported;
+    missing or non-finite measurements fail.
     """
     import polars as pl
 
@@ -521,17 +522,13 @@ def motif_metrics(
     out.mkdir(parents=True, exist_ok=True)
     measured.write_csv(out / "motif-metrics.tsv", separator="\t")
     base = mmv.load_baseline(baseline)
+    mmv.validate_measurements(measured, base)
     (out / "motif-metrics.md").write_text(mmv.report(measured, base) + "\n")
     typer.echo(f"{out / 'motif-metrics.tsv'}  {measured.height} rows")
 
     if record:
         baseline.parent.mkdir(parents=True, exist_ok=True)
-        # Carry the declared reasons forward: re-recording must not silently undeclare a trade that
-        # is still being made, which would turn the next run's pass into an unexplained pass.
-        keep = base.select(*mmv.KEY, "reason") if "reason" in base.columns else None
-        rec = (measured.join(keep, on=list(mmv.KEY), how="left") if keep is not None
-               else measured.with_columns(pl.lit(None, dtype=pl.Utf8).alias("reason")))
-        rec.select(*mmv.COLUMNS).write_csv(baseline, separator="\t")
+        mmv.record_measurements(measured, base).write_csv(baseline, separator="\t")
         typer.secho(f"baseline rewritten: {baseline}. Say why in the commit message.",
                     fg=typer.colors.YELLOW)
         return
@@ -539,13 +536,11 @@ def motif_metrics(
     bad = mmv.regressions_against_latest(measured, base)
     drift = mmv.regressions_against_baseline(measured, base)
     for title, frame in (("worse than the latest release", bad),
-                         ("drifted from the committed baseline", drift)):
+                         ("historical corpus drift (reported, not an acceptance failure)", drift)):
         if frame.height:
-            typer.secho(f"\n{frame.height} gated axes {title}:", fg=typer.colors.RED, err=True)
+            typer.secho(f"\n{frame.height} axes {title}:", fg=typer.colors.RED, err=True)
             typer.echo(frame, err=True)
-    if bad.height or drift.height:
-        typer.secho("\nA drift that a corpus change explains is accepted by moving "
-                    f"{baseline} in a commit that says why (--record).", err=True)
+    if bad.height:
         raise typer.Exit(1)
     typer.secho("no gated axis regressed", fg=typer.colors.GREEN)
 

@@ -1,0 +1,14 @@
+digraph dcode_method {
+  graph [rankdir=TB, bgcolor="white", pad="0.15", ranksep="0.28"];
+  node [shape=box, style="rounded,filled", fillcolor="#f4f6f8", color="#465362", fontname="Arial", fontsize=12, margin="0.15,0.08"];
+  edge [color="#465362", arrowsize=0.7];
+  input [label="One donor: productive contigs + numeric reagent UMI matrix\nKey cells by donor and barcode; validate counts and joins"];
+  chains [label="Collapse identical cell/chain observations\nEstimate ambient, chain-expression and slot-prior parameters"];
+  shape [label="Classify endogenous chains\nKeep ab, aab, a, b, aa; exclude extra endogenous chains"];
+  doublet [label="Dual-alpha feature check\nDrop only when an admissible parent sum beats the best singleton"];
+  counts [label="Fit each peptide-MHC reagent across retained labels\nNegative-control totals give plug-in capture scales"];
+  hyp [label="Compare negative-binomial hypotheses\nB: background   S: shared elevation   O: one hot cell"];
+  call [label="Call only if P(S) exceeds P(B) and P(O)\nSingleton: combine S/O priors; ties remain uncalled"];
+  out [label="Sorted TSV: chains, edges, clones, calls, checks\nExport literal source chains and marked candidate pairs\nPosterior scores are model-conditional, not FDR bounds"];
+  input -> chains -> shape -> doublet -> counts -> hyp -> call -> out;
+}

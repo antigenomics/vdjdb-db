@@ -11,8 +11,9 @@ Four choices here are measured, not defaults.
 
 Chunking is required, not an optimisation. A single-shot ``embed`` -> ``StandardScaler`` ->
 ``PCA`` on human TRB peaks at 9.77 GB, and 12.41 GB if the scaler is fitted on the full matrix;
-that OOMs a 16 GB runner alongside the rest of the build. The scaler and the PCA are fitted on a
-seeded :data:`FIT_SAMPLE` subsample and every chunk is reduced to 50 dimensions as it is embedded,
+that OOMs a 16 GB runner alongside the rest of the build. The scaler and the PCA are fitted on an
+identity-priority :data:`FIT_SAMPLE` sample of unique receptor inputs; every chunk is reduced
+to 50 dimensions as it is embedded,
 so the wide ``(n, 3 * n_prototypes)`` matrix is never materialised in full: peak is one chunk,
 ~480 MB at 2,000 prototypes, against 22 MB for the reduced result. Chunks run sequentially, one
 internally threaded ``embed()`` each -- never a worker pool (CLAUDE.md hard rule 3, ROADMAP
@@ -34,6 +35,9 @@ and the pooled clustering is what is measured (ROADMAP section 8.4).
 """
 from __future__ import annotations
 
+import hashlib
+import json
+
 import numpy as np
 import polars as pl
 
@@ -42,10 +46,13 @@ from ..config import SEED
 #: Clonotypes embedded per call. One internally-threaded ``embed()`` each, run in sequence.
 CHUNK = 20_000
 
-#: Clonotypes the ``StandardScaler`` and ``PCA`` are fitted on, drawn with :data:`SEED`. Re-fitted
+#: Unique receptors the ``StandardScaler`` and ``PCA`` are fitted on, ranked with :data:`SEED`. Re-fitted
 #: every build: a stored fit could be one that no longer matches the data, and refitting costs
 #: minutes (CLAUDE.md hard rule 9).
 FIT_SAMPLE = 25_000
+
+#: The embedding input identity, independent of peptide labels and observation counts.
+INPUT_KEY = ("junction_aa", "v_call", "j_call")
 
 #: PCA dimensions. The benchmark's front-end, applied to every method so the representation is the
 #: only variable.
@@ -97,25 +104,49 @@ def cohort(chains: pl.DataFrame, records: pl.DataFrame, *,
               .sort("species", "gene", "antigen.epitope", "junction_aa", "v_call", "j_call"))
 
 
+def receptor_inputs(clonotypes: pl.DataFrame) -> tuple[pl.DataFrame, np.ndarray]:
+    """Sorted unique receptor inputs and their indices for restoring the labelled rows."""
+    keys = clonotypes.select(INPUT_KEY)
+    inputs = keys.unique().sort(INPUT_KEY)
+    inverse = keys.join(inputs.with_row_index("__input"), on=INPUT_KEY, how="left",
+                        validate="m:1", maintain_order="left")["__input"].to_numpy()
+    return inputs, inverse
+
+
+def fit_indices(inputs: pl.DataFrame, *, size: int = FIT_SAMPLE,
+                seed: int = SEED) -> np.ndarray:
+    """Sample unique receptors without replacement by stable seeded identity priority.
+
+    BLAKE2b priorities avoid row-position dependence and Python's process-randomized hash.
+    Canonical receptor order also fixes PCA's input order, including hash ties.
+    """
+    priorities = [hashlib.blake2b(
+        json.dumps([seed, *row], separators=(",", ":"), ensure_ascii=True).encode("ascii"),
+        digest_size=16).digest() for row in inputs.select(INPUT_KEY).iter_rows()]
+    return (inputs.with_row_index("__index").with_columns(pl.Series("__priority", priorities))
+            .sort("__priority", *INPUT_KEY).head(size).sort(INPUT_KEY)["__index"].to_numpy())
+
+
 def embed_reduced(clonotypes: pl.DataFrame, species: str, locus: str, *,
                   chunk: int = CHUNK, fit_sample: int = FIT_SAMPLE,
                   n_components: int = N_COMPONENTS, seed: int = SEED) -> np.ndarray:
     """Embed and reduce in one pass. ``(n_clonotypes, n_components)`` float64.
 
-    The scaler and the PCA are fitted on one seeded subsample, then every chunk is embedded and
-    immediately projected, so the wide matrix is never held. Deterministic in ``seed`` and in the
-    input order (CLAUDE.md hard rule 7).
+    Fit and project unique receptor inputs, then restore the labelled input rows. Peptide
+    duplication and input order cannot change the fitted geometry. The fit sample follows
+    receptor identities rather than row positions; genuine cohort changes can still change it.
     """
     from mir.embedding import TCREmp
     from sklearn.decomposition import PCA
     from sklearn.preprocessing import StandardScaler
 
-    cols = clonotypes.select("junction_aa", "v_call", "j_call")
+    cols, inverse = receptor_inputs(clonotypes)
     model = TCREmp.from_defaults(SPECIES[species], locus)
 
     n = cols.height
-    rng = np.random.default_rng(seed)
-    idx = np.sort(rng.choice(n, size=min(fit_sample, n), replace=False))
+    idx = fit_indices(cols, size=fit_sample, seed=seed)
+    if len(idx) < 2:
+        raise ValueError("TCREmp reduction requires at least two unique receptor inputs")
     fit = model.embed(cols[idx])
     scaler = StandardScaler().fit(fit)
     pca = PCA(n_components=min(n_components, fit.shape[1], len(idx) - 1),
@@ -126,11 +157,11 @@ def embed_reduced(clonotypes: pl.DataFrame, species: str, locus: str, *,
     for start in range(0, n, chunk):
         block = cols[start:start + chunk]
         out[start:start + block.height] = pca.transform(scaler.transform(model.embed(block)))
-    return out
+    return out[inverse]
 
 
-def mean_nn_distance(X: np.ndarray) -> float:
-    """Mean distance to the 1st non-self neighbour, over all of ``X``.
+def mean_nn_distance(X: np.ndarray, *, clonotypes: pl.DataFrame | None = None) -> float:
+    """Mean distance to the 1st non-self neighbour, over unique receptor inputs when given.
 
     The reference implementation asks for 4 neighbours, sorts each column and reads column 1.
     Sorting a column does not change its mean, and columns 2 and 3 are never used, so 2 neighbours
@@ -138,13 +169,18 @@ def mean_nn_distance(X: np.ndarray) -> float:
     """
     from sklearn.neighbors import NearestNeighbors
 
+    if clonotypes is not None:
+        if len(X) != clonotypes.height:
+            raise ValueError("coordinates and receptor rows must have equal lengths")
+        _, inverse = receptor_inputs(clonotypes)
+        X = X[np.unique(inverse, return_index=True)[1]]
     d, _ = NearestNeighbors(n_neighbors=2).fit(X).kneighbors(X)
     return float(d[:, 1].mean())
 
 
-def chain_eps(X: np.ndarray, coef: float) -> float:
+def chain_eps(X: np.ndarray, coef: float, *, clonotypes: pl.DataFrame | None = None) -> float:
     """The chain-global DBSCAN radius: ``coef * mean(1st-NN distance)``, on the pooled geometry."""
-    return round(mean_nn_distance(X) * coef, 3)
+    return round(mean_nn_distance(X, clonotypes=clonotypes) * coef, 3)
 
 
 def knee_eps_debug(X: np.ndarray, coef: float, k: int = 4, floor_frac: float = 0.40) -> dict:
@@ -407,7 +443,7 @@ def fit_coef(cohort_chain: pl.DataFrame, X: np.ndarray, is_replicated: np.ndarra
     costs one DBSCAN pass per grid point, not one nearest-neighbour search per point.
     """
     epitopes = cohort_chain["antigen.epitope"].to_numpy()
-    base = mean_nn_distance(X)
+    base = mean_nn_distance(X, clonotypes=cohort_chain)
     rows = []
     for coef in grid:
         labels = cluster_labels(X, epitopes, round(base * coef, 3), min_samples=min_samples)

@@ -69,6 +69,6 @@ def test_every_declared_table_is_documented_somewhere():
 
 @pytest.mark.parametrize("page", ["index.rst", "getting-started.md", "builds.md",
                                   "dashboard.md", "submission.md", "outputs.md",
-                                  "denoising.md", "clustering.md"])
+                                  "denoising.md", "clustering.md", "tenx-dextramer.md"])
 def test_toctree_pages_exist(page):
     assert (DOCS / page).exists()

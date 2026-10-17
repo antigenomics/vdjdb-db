@@ -22,10 +22,11 @@ itself a verbatim copy of the TCREMP source. Phase 11's acceptance criterion is 
 numbers in that benchmark's `results/metrics_full.tsv`, and a comparison is only a comparison if both
 sides are scored the same way.
 
-⚠ **Not interchangeable with `mir.bench.metrics.cluster_metrics`**, which uses
-`recall = tp / n_true_clustered` over clustered records only, where
-:func:`precision_recall_fscore` here folds unclustered records into FN. The two metric families are
-not comparable and mixing them silently rescales every number (ROADMAP section 8.9).
+The aggregate :func:`get_clustermetrics` passes only retained records to
+:func:`precision_recall_fscore`; its recall is conditional on retention. The separate
+:func:`per_epitope_metrics` includes unassigned records in false negatives. See
+``docs/clustering.md`` for the exact populations and denominators. Preserve the
+benchmark definitions when comparing historical values.
 
 This module is the one place in the package that uses pandas; it is a validation dependency
 (the ``motifs`` extra), never a build dependency.

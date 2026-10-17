@@ -55,8 +55,23 @@ it or substitute standard residues. Ask only for a curation decision that is sti
 
 For spreadsheets, inspect repeated headers, formula cells, functionality suffixes and swapped
 J/D fields. Do not strip allele suffixes merely because a cell also contains a functionality code.
-For 10x, barcode pairing and clonotype aggregation have different meanings; respect the published
-assignment and the user's choice of vendor versus reanalysis data.
+For a 10x Genomics dextramer matrix, call the chain co-occurrence caller for the donors in that
+chunk. `process_donor(dcode, donor)` and
+`processing/dcode_chain_graph.py --dcode DIR --donors 1 2 3 4 --out DIR` rebuild the five tables
+behind `chunks/ISSUE_289.tsv`. Deposited ITRAP matrices use `processing/itrap_reprocess.py`:
+`itrap1_tables` then `run_frames` for `chunks/PMID_37133356.tsv`, and `viral_tables` then
+`run_frames` for `chunks/DOI_10.64898_2025.12.19.695506.tsv`. The procedure, the filenames and
+which committed file is the published table are in
+[Process a 10x dextramer assay](../../docs/tenx-dextramer.md). The standalone script reads numeric UMIs, never `_binder` flags, and writes five sorted
+tab-separated tables. Fit donors separately: a barcode is unique only within its donor.
+Validate finite nonnegative integer counts and preserve measured zeros; missing measurements
+are not zero. Inspect chain posteriors, retained shapes and doublet decisions before exporting
+calls to the chunk schema. `score` is a fitted-model posterior, not a p-value or an FDR bound;
+keep it separate from the VDJdb confidence score. Follow the linked formulas for the
+negative-binomial background/shared-elevation/single-hot-cell model and its numerical limits.
+Barcode pairing and clonotype
+aggregation have different meanings; keep a published assignment when that published table is
+the chunk.
 
 ## Record methods and provenance
 

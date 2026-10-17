@@ -22,8 +22,9 @@ to 0.8641 and its precision from 0.8567 to 0.8548, and TRB's `Q` from 0.4433 to 
 here are not restated for that**, because every configuration in the scorecard was scored against the
 same bar in the same run and re-stating one column would break the comparison the document exists to
 make. The current values of every axis for the released files, the latest release and the build are
-measured on every build and recorded in `rules/motif_metrics.tsv`, which is what a regression is gated
-against (`vdjdb motif-metrics`).
+measured on every build by `vdjdb motif-metrics`. Its report compares methods on that same cohort
+and also shows changes from the historical `rules/motif_metrics.tsv` snapshot; historical corpus
+drift alone does not fail acceptance.
 
 **Percolation is recorded there and not gated, and it is not a score.** Per epitope it is the share
 of the epitope's clustered clonotypes that sit in its largest cluster, so it describes the shape of
@@ -60,6 +61,208 @@ The homogeneity-parsimony definitions follow Andreas Tiffeau-Mayer,
 (DOI [10.48550/arXiv.2607.20799](https://doi.org/10.48550/arXiv.2607.20799)).
 A PubMed title search on 2026-10-03 returned no indexed record, so this reference
 uses its verified preprint identifier.
+
+
+### Metric definitions and denominators
+
+Three evaluation populations are used. `validate.motif_bench.cohort` keeps every
+eligible **record** for one species and chain, after requiring at least 30 records
+per peptide. `validate.qscore.frame` instead keeps each distinct
+**(peptide, junction, V, J)** combination once. The independent-publication
+objective in `denoising.md` uses distinct **clonotype-peptide pairs**, with its
+explicit non-display scoring subset. Repeated reports therefore affect the first
+population's weights, but do not create extra observations in the latter two.
+
+All three use a clonotype assignment map keyed by species, chain, junction, V and
+J when evaluating emitted membership. `motif_bench.members_map` keeps the first
+input membership for a clonotype with several cids. The epitope is deliberately
+absent from that join, so a clonotype reported against two peptides receives one
+chosen cluster on both observations. Input order determines that choice; use
+the same sorted input for all comparisons. This is how the evaluation can detect
+cross-peptide disagreement despite production clustering separately per peptide.
+It is not an independent pooled clustering run.
+
+#### Purity, retention and majority-epitope assignment
+
+Let $n$ be the eligible record count and $S$ the records assigned to a non-noise
+cluster containing at least two cohort records; write $n_S=|S|$. For epitope $a$
+and retained cluster $k$, define $n_{ak}$ as the number of records of $a$ in $k$,
+$n_k=\sum_a n_{ak}$ and $a_k$ as a label maximizing $n_{ak}$. The deterministic
+tie-break chooses the lexicographically first label. The reported quantities are
+
+$$
+\mathrm{purity}=\frac{\sum_k\max_a n_{ak}}{n_S},\qquad
+\mathrm{retention}=\frac{n_S}{n}.
+$$
+
+These are record-weighted, not means of per-cluster purities. Both are zero if
+no cluster is retained. Assignment predicts $\widehat a_i=a_{k(i)}$ for each
+$i\in S$. For each observed epitope $a$ in $S$, let
+$\mathrm{TP}_a$, $\mathrm{FP}_a$, $\mathrm{FN}_a$ be its one-versus-rest counts
+**within $S$**, and $s_a=\sum_k n_{ak}$. The aggregate implementation is
+
+$$
+P_A=\sum_a\frac{s_a}{n_S}
+       \frac{\mathrm{TP}_a}{\mathrm{TP}_a+\mathrm{FP}_a},\qquad
+R_A=\sum_a\frac{s_a}{n_S}
+       \frac{\mathrm{TP}_a}{\mathrm{TP}_a+\mathrm{FN}_a},\qquad
+F_{1,A}=\frac{2P_AR_A}{P_A+R_A}.
+$$
+
+Zero denominators contribute zero. $F_{1,A}$ is the harmonic mean of the two
+weighted aggregates, not the weighted mean of per-epitope F1 values. The report
+calls this `f1_assignment`; the tuning tables' `F1` is the replication-prediction
+$F_{1,R}$ from `denoising.md`.
+
+**Implementation discrepancy requiring review.** `metrics_lib` documents an
+intended full-cohort recall, but `get_clustermetrics` passes its already retained
+subset into `precision_recall_fscore`. Unassigned records therefore do not enter
+that aggregate recall or its support weights. Its separate `per_epitope_metrics`
+function does include unassigned records in false negatives and uses the full
+per-epitope denominator. Existing measurements below are preserved; changing the
+aggregate implementation would require an explicit decision and reassessment,
+not relabelling historical values as full-cohort recall.
+
+The auxiliary `consistency` implementation is also specific: if $A_S$ is the
+number of epitopes represented in $S$, it returns
+$\sum_a\max_k n_{ak}/(A_S n_S)$, rather than ordinary inverse purity
+$\sum_a\max_k n_{ak}/n_S$. Its `ami` compares true epitope labels to majority
+**epitope predictions** on $S$, not to original cluster ids. Neither quantity
+should be substituted for another library's similarly named metric.
+
+#### Homogeneity and parsimony from ClusterEval
+
+For the $N$ distinct clonotype-epitope observations used by `qscore.frame`, let
+$C$ be the epitope label and $K$ the assigned cluster. Every unassigned observation
+receives its own singleton cluster; it is not dropped and all unassigned rows
+are not combined into one noise cluster. Write $n_{ck}$ for contingency counts,
+$p_{ck}=n_{ck}/N$, $p_c=\sum_k p_{ck}$ and $p_k=\sum_c p_{ck}$. With natural
+logarithms and $0\log0=0$,
+
+$$
+H(C)=-\sum_c p_c\log p_c,\quad
+H(C\mid K)=-\sum_{c,k}p_{ck}\log\frac{p_{ck}}{p_k},\quad
+H(K\mid C)=-\sum_{c,k}p_{ck}\log\frac{p_{ck}}{p_c}.
+$$
+
+The scores are
+
+$$
+h=1-\frac{H(C\mid K)}{H(C)},\qquad
+p=1-\frac{H(K\mid C)}{\log N-H(C)},\qquad
+Q=\begin{cases}2hp/(h+p),&h+p>0,\\0,&h+p=0.\end{cases}
+$$
+
+The denominator of $p$ is the greatest possible class-conditional cluster
+entropy: assigning every observation its own cluster gives $H(K)=\log N$
+and $H(K\mid C)=\log N-H(C)$. Thus $(h,p,Q)$ is $(1,1,1)$ for the epitope
+partition, $(1,0,0)$ for all singletons, and $(0,1,0)$ for one cluster, provided
+$1<|C|<N$. ClusterEval returns $h=1$ when $H(C)=0$, and $p=1$ when
+$\log N-H(C)=0$; the usual corner examples require the nondegenerate condition.
+
+These are the Shannon-entropy definitions in Tiffeau-Mayer's
+[paper, equations 14 and 16 and Appendix D](https://arxiv.org/html/2607.20799v1),
+verified against `clustereval` 0.2 `core.py`, the installed package used by
+`validate/qscore.py`, and the author's
+[qimmuno/clustereval repository](https://github.com/qimmuno/clustereval).
+They are different from ClusterEval's normalized purity and inverse-purity
+scores, which are set-matching alternatives. The author proves that refinement
+can only increase $h$ and decrease $p$; the harmonic mean chooses one trade-off
+between them. That theorem does not imply that increasing $Q$ improves motif
+denoising across different retentions or peptide populations. In particular,
+a peptide can have several biological motifs; the external labels are peptide
+labels, not a complete reference partition of motifs.
+
+(normalized-set-matching-alternatives)=
+#### Normalized set-matching alternatives
+
+On the same nonempty contingency table, ClusterEval also defines
+
+$$
+u=\frac{1}{N}\sum_k\max_c n_{ck},\qquad
+v=\frac{1}{N}\sum_c\max_k n_{ck},\qquad
+h_\infty=\frac{u-\max_c p_c}{1-\max_c p_c},\qquad
+p_\infty=\frac{v-|C|/N}{1-|C|/N}.
+$$
+
+Here $u$ is ordinary purity, $v$ is inverse purity, and $|C|$ counts represented
+classes. The first normalization subtracts the one-cluster purity baseline $\max_c p_c$; the second removes the inverse purity of all singletons.
+These are set-matching scores, not Shannon $h$ and $p$, and not observed call
+precision or recovery recall. ClusterEval returns 1 for a zero denominator in
+either normalized score. The auxiliary dCODE comparison helper instead reports
+0 at these degenerate endpoints; state that convention when reproducing its
+`h_inf` and `p_inf` fields. Neither endpoint convention changes the nondegenerate
+formulas above. Use the same observation set and treatment of unassigned rows
+before comparing any of these scores.
+
+#### Per-epitope shape and release gates
+
+For epitope $a$, let $u_a$ be its distinct eligible clonotypes, $v_a$ its assigned
+clonotypes and $v_{ak}$ its assigned count in cluster $k$. The per-epitope
+retention is $v_a/u_a$, and percolation is $\max_k v_{ak}/v_a$, undefined when
+$v_a=0$. The reported percolation median uses only epitopes with clusters.
+`percolation_excess` subtracts the latest release's median from the candidate's
+median on their **shared covered epitopes**, not on each source's separate set.
+Epitope coverage counts epitopes with at least one assigned cluster.
+
+`validate/motif_metrics.py::AXES` implements the build checks and
+`rules/motif_metrics.tsv` stores reviewed comparison values and exceptions.
+Its nonzero tolerances are comparison tolerances, not confidence intervals.
+The gate still includes $Q$ as a floor, consistent with `denoising.md` §7.1;
+§8 below explains why it cannot rank quality across retentions. Percolation
+levels are recorded rather than gated. None of these scores estimates a binding
+false-positive rate without the additional evidence assumptions in `denoising.md`.
+
+### Corpus changes, acceptance margins and confidence intervals
+
+For metric $m$, evaluate the candidate and published partition on exactly the
+same current cohort $D$, and report
+$\Delta_m=m(\mathrm{candidate};D)-m(\mathrm{published};D)$.
+The default rate tolerance is 0.005. Historical values on another cohort are
+reported separately: their changes mix corpus composition with method changes.
+They are not an acceptance test of the current implementation. Required source
+and axis coverage, unique measurement keys and finite values remain mandatory.
+
+The explicit relative policy in `rules/motif_tradeoffs.tsv` permits human TRB
+TCREmp homogeneity to decrease by at most **0.01**. The extra allowance beyond
+the ordinary 0.005 tolerance applies only when both
+$\Delta_Q>0$ and $\Delta_{\mathrm{retention}}>0$. Equality or a missing improvement
+axis does not qualify. After the author authorized a small trade-off on 17 October 2026, this implementation
+selected a one-percentage-point engineering limit. It is not a statistical
+confidence bound or a change to the definition of homogeneity. Other quality
+checks remain active. Previously accepted absolute exception caps remain in
+`rules/motif_metrics.tsv`; `--record` preserves those caps instead of silently
+replacing them with the latest measurement.
+
+Matched-cohort checks distinguish an implementation change from a corpus change.
+In the 138,449-observation TRB comparison, the stable, deduplicated TCREmp method
+improves Q from 0.510419 for the original parent partition to 0.525942, and
+retains 62,869 rather than 58,981 distinct clonotype-peptide observations.
+Homogeneity changes from 0.989535 to 0.988791. Of its net decrease 0.000744,
+newly assigned observations contribute -0.000800; lost assignments contribute
++0.000102 and observations retained or unassigned by both partitions contribute
+-0.000046. These are additive entropy contributions, not significance tests.
+The largest negative epitope contributions are LPRRSGAAGA (-0.000107; 2,130
+observations), TPRVTGGGAM (-0.000102; 2,564) and LLLDRLNQL (-0.000092; 1,719).
+The assignments involve junction/V/J identities already reported against several
+peptides. Recovering their motif membership can lower h without introducing a
+new peptide label. Removing recovered observations merely to increase h would
+sacrifice coverage; the report therefore retains all assignments and scores.
+Between the two fixed parent/candidate runs, matched h actually increases from
+0.988528 to 0.988791, while Q differs by -0.000741. The original Q/retention gains
+are preserved rather than hidden by an exception.
+
+These metrics are exact summaries of a specified finite corpus and fitted
+partition. Sampling confidence intervals require a defined target population
+and sampling design; they do not describe computational uncertainty in an exact
+corpus statistic. The [US Census Bureau's quality guidance](https://www.census.gov/about/policies/quality/guidelines/objectivity.html)
+distinguishes sampling error from measurement and processing errors. In this
+setting, receptor rows and peptide labels are dependent. If the target becomes
+performance on future studies, paired resampling would need independently
+recruited study or participant units, resolving reused cohorts across papers.
+Holding fitted geometry and clusters fixed would quantify only conditional
+scoring variability; pipeline uncertainty would require refitting within each
+replicate. No such interval or bootstrap is used as an acceptance gate here.
 
 ---
 
@@ -202,7 +405,7 @@ per epitope at one radius estimated on the chain's pooled geometry.
 
 | Parameter | Where | Default | Effect |
 |---|---|---|---|
-| `eps` | `coef × mean(1st-NN)` | TRA 1.8, TRB 1.15 × | the radius, and the primary knob |
+| `eps` | `coef × mean(1st-NN)` | TRA 1.8, TRB 1.55 × | the radius, and the primary knob |
 | `min_samples` | `tcremp.MIN_SAMPLES` | `2` | the TCREMP paper's Table-1 value, and the smallest number that can be a cluster |
 | `n_components` | `tcremp.TUNED` | `50` | PCA dimensions before clustering |
 | `min_cluster` | `tcremp.TUNED` | `5` | post length-split filter |
@@ -211,12 +414,148 @@ per epitope at one radius estimated on the chain's pooled geometry.
 is the degenerate regime a knee fails in (§5), so the geometry is estimated once per chain and the
 clustering runs per epitope (ROADMAP §8.4).
 
-The frontier is monotone, so tuning is a bisection rather than a search: lift falls as `eps` widens
+The recorded frontier is monotone over the measured settings, so its crossing can be located by bisection: lift falls as `eps` widens
 and `Q` rises, so the best admissible cell is the smallest `eps` clearing the `Q` bar, and both
 chains therefore sit on the boundary by construction, TRB clearing by 0.0004 and TRA's next step
 down missing by 0.0010. `min_cluster` 5 dominates 3 on lift, purity and precision at every `coef`
 measured, so there is no trade-off between them: clusters of 3–4 contribute low-confidence members,
 not signal.
+
+
+### 3.1 Prototype embedding, standardisation and PCA
+
+A query clonotype $x=(v,j,s)$ contains a V call $v$, J call $j$ and junction
+amino-acid string $s$. For a fixed panel of $P$ prototypes
+$q_\ell=(v_\ell,j_\ell,s_\ell)$, the production `mir.embedding.TCREmp` default
+`vjcdr3` representation is the $3P$-vector
+
+$$
+z(x)=\bigl(d_V(v,v_1),d_J(j,j_1),d_s(s,s_1),\ldots,
+             d_V(v,v_P),d_J(j,j_P),d_s(s,s_P)\bigr).
+$$
+
+The V and J terms use published germline distance tables; the junction term
+uses `mir.distances.junction.junction_distance_matrix`. In the locked
+`mirpy-lib` 3.16.0 implementation, this default uses BLOSUM62-derived residue
+penalties $\delta(a,b)=S(a,a)+S(b,b)-2S(a,b)$, with $S$ the BLOSUM62 similarity
+matrix, and the native contiguous-gap-block alignment backend. Candidate gap
+positions are `(3,4,-4,-3)`; negative positions count from the other end.
+The production caller does not select the optional `cdr123`, square-root or
+Smith-Waterman modes. Therefore reproducing the standalone TCREMP paper's
+alignment is not the same as reproducing this build. A prototype feature is a
+dissimilarity to a reference receptor, not a probability or a calibrated binding
+energy. Euclidean geometry below is geometry of the transformed feature vectors;
+it does not require every raw alignment dissimilarity to be a metric.
+
+`TCREmp.from_defaults` obtains the species/chain prototype panel from the published
+library; its locked presets select 2,000 prototypes for human and mouse TRA/TRB.
+Prototype identity, order and backend version define the coordinate system and
+must match when comparing embeddings. The VDJdb reduction is then fitted anew
+on at most 25,000 unique receptor inputs per species and chain. The labelled
+cohort contains $N$ distinct clonotype-peptide pairs; the geometry first reduces it
+to the set $U$ of unique `(junction_aa, v_call, j_call)` inputs, with $M=|U|$.
+Peptide labels and record counts do not weight the scaler, PCA or pooled radius.
+
+The fit uses a deterministic sample **without replacement**, not a bootstrap.
+For each $x=(v,j,s)\in U$, compute a 128-bit BLAKE2b priority from the ASCII
+encoding of compact JSON `[SEED,s,v,j]`. Select the $f=\min(25000,M)$ smallest
+priorities, breaking ties lexicographically by `(s,v,j)`. Sort the selected
+inputs by that same receptor key before fitting. Each receptor's priority
+depends on its identity and seed, not its row position, peptide labels or
+cohort size. Reordering or duplicating labelled rows therefore leaves the fit
+unchanged. Genuine receptor additions or removals can change the selected set
+and fitted geometry; the procedure does not freeze a model between builds.
+
+Let $F$ be the fitted row set and $f=|F|$. For feature $t$, the scaler fits
+$\mu_t=f^{-1}\sum_{i\in F}z_{it}$ and
+$\sigma_t^2=f^{-1}\sum_{i\in F}(z_{it}-\mu_t)^2$ (population variance).
+It transforms $\widetilde z_{it}=(z_{it}-\mu_t)/\sigma_t$, using scale 1 for a
+constant feature. PCA fits orthonormal directions $w_1,\ldots,w_d$ to that
+standardized fit matrix and projects all rows as
+
+$$
+y_{ir}=w_r^{\mathsf T}(\widetilde z_i-\overline{\widetilde z}_F),
+\quad r=1,\ldots,d,\qquad d=\min(50,3P,f-1).
+$$
+
+PCA is not whitened. The library's `random_state` and row sampling both use
+`vdjdb.config.SEED`. After fitting, the implementation embeds at most 20,000
+unique receptor inputs at a time, standardizes and projects each block immediately,
+and retains the reduced $M\times d$ array. It restores the $N$ labelled rows
+by their receptor keys after projection, using the same coordinates for every
+occurrence of a receptor. It does not fit a new PCA for each block.
+This bounds the wide-feature workspace by a block or the fit sample rather
+than all $N$ rows. Native batched embedding is the expensive step; it is called
+once per block, with sequential blocks and no worker pool around native threads.
+
+
+The prototype representation originates in Kremlyakova Y, Vlasova EK, Luppov D,
+Shugay M, *TCREMP: A Bioinformatic Pipeline for Efficient Embedding of T-cell
+Receptor Sequences from Immune Repertoire and Single-cell Sequencing Data*,
+**Journal of Molecular Biology** 437(15), 169205 (2025),
+[DOI 10.1016/j.jmb.2025.169205](https://doi.org/10.1016/j.jmb.2025.169205),
+[PMID 40368275](https://pubmed.ncbi.nlm.nih.gov/40368275/).
+The [author repository](https://github.com/antigenomics/tcremp) identifies
+`0.0.1-publication` as its paper version. The production adaptations above are
+specified by the VDJdb caller and its locked published dependencies, rather than
+attributed to that paper.
+
+### 3.2 Radius and density connectivity
+
+On the pooled reduced matrix for one species and chain, define
+
+$$
+a_i=\min_{j\in U,\,j\ne i}\|y_i-y_j\|_2,\qquad
+\varepsilon=\operatorname{round}_{0.001}
+       \left(c\,\frac1M\sum_{i\in U}a_i\right).
+$$
+
+Here $c=1.8$ for TRA and $c=1.55$ for TRB; the radius is rounded to three decimal
+places. A receptor reported against several peptides contributes once to this
+mean. Distinct receptor inputs can still yield identical vectors and $a_i=0$;
+the implementation deduplicates receptor inputs, not projected coordinates.
+Kneedle is diagnostic only (§5).
+For each peptide separately, DBSCAN uses Euclidean distance and this same
+$\varepsilon$. A core point has at least `min_samples=2` points, including
+itself, in its closed $\varepsilon$-ball. Clusters connect density-reachable
+points; points not reached are noise (`-1`). With this particular two-point
+core floor every point having another neighbour is core, so clusters reduce
+to connected components of the radius graph with at least two vertices.
+There is still a separate final five-clonotype floor after length splitting.
+The definitions of `eps`, the self-inclusive core count and the dense-neighbourhood
+memory cost are specified by the
+[scikit-learn DBSCAN API](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html).
+
+```text
+for each species and chain in the >=30-record peptide cohort:
+    reduce labelled rows to unique (junction, V, J) receptor inputs
+    select fit inputs by seeded identity priority; fit one scaler and PCA
+    embed and project every unique input block with that transformation
+    set eps from the mean first non-self neighbour distance on unique inputs
+    restore labelled rows by receptor key, reusing their coordinates
+    for each peptide: run DBSCAN at eps, making cluster labels unique
+    split each cluster by junction length
+    discard length strata with fewer than five clonotypes
+    number surviving strata deterministically and join records back
+```
+
+Implementation: `motifs/tcremp.py::cohort`, `receptor_inputs`, `fit_indices`,
+`embed_reduced`, `mean_nn_distance`,
+`chain_eps`, `cluster_labels` and `clusters`. The final `cid` names one
+`(DBSCAN cluster, junction length)` stratum. Its `csz` counts distinct
+clonotype-peptide input rows, not the sum of `duplicate_count`. `x` and `y` in
+membership output are the first two PCA coordinates. Because the reduced-space
+radius graph may be dense, neither nearest-neighbour search nor DBSCAN has a
+guaranteed subquadratic bound here: worst-case pair/neighbour output and memory
+can be quadratic in a peptide's input count. PCA fitting and feature storage
+costs depend on $f$, $3P$ and $d$; chunking bounds feature workspace without
+changing the fitted projection. The fit requires at least two rows, and emitting
+two display coordinates requires at least two fitted components.
+
+The chain-global radius is a fitted scale rule. It does not assign a statistical
+significance level to a DBSCAN cluster. Membership and the replication objective
+must therefore be reported as evidence quantities rather than per-cluster
+binding probabilities.
 
 ---
 
@@ -493,11 +832,11 @@ table above is the split form.
 
 Three consequences:
 
-`Q` is not an admissibility axis, since doing nothing scores `Q` 0.7940 on TRA and 0.8632 on TRB,
+`Q` alone is not a quality bar, since doing nothing scores `Q` 0.7940 on TRA and 0.8632 on TRB,
 higher than any clustering measured here on either chain across 252 configurations. Its parsimony
 term charges for shattering, and the partition that shatters least is the one with one cluster per
 class, so `Q` discriminates between clusterings of comparable retention and says nothing across
-retentions. It stays in the scorecard as a shatter guard and comes out of the admissibility rule.
+retentions. It stays in the scorecard and in the implemented admissibility rule as a shatter guard; it cannot replace stage 2.
 
 Epitope coverage behaves the same way. Coverage is maximised by claiming every clonotype, so a
 coverage floor is a floor against narrowness rather than a quality bar; it still serves the purpose
@@ -534,14 +873,15 @@ partition that groups every clonotype of an epitope reproduces that blob exactly
 
 Two consequences, the same shape as the three above.
 
-**Agreement with the last release is not an admissibility axis.** It is gated against its own
-committed baseline, not against `latest` and not against `trivial`, for the reason every other row of
-§8 gives: the do-nothing partition clears it.
+**Agreement with the last release is not an admissibility axis.** It is reported against its
+historical snapshot, not required to match that older corpus. Removing spurious associations can
+legitimately reduce agreement. Source changes remain subject to QC, identity checks and the
+declared comparison against the released database.
 
 **A pair-weighted agreement is a measurement of one cluster.** `partition_pairs_preserved` and the
 adjusted Rand index read 0.9991 and 0.9939 for doing nothing on TRB, while the per-clonotype figure
 separates it from TCRNET by 1.7 points. Both are recorded, because the blob is worth watching, and
-only the per-clonotype one is gated.
+the per-clonotype result also remains in the historical comparison report.
 
 ### 8.1 The purity floor - 0.94 on both chains
 

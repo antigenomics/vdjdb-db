@@ -18,6 +18,7 @@ the local execution record; retain material questions on the publication issue.
 | Which anchor residue should this junction end in | the germline of the segment the record names | `vdjdb submission` prints it per chain |
 | What score will these method fields earn | [`docs/standards/confidence-score.md`](../docs/standards/confidence-score.md) | `vdjdb submission` computes it |
 | Which method vocabulary is recognised | `docs/standards/chunk-format.md`, method columns | - |
+| How a 10x dextramer matrix becomes specificity calls | [`processing/dcode_chain_graph.py`](../processing/dcode_chain_graph.py) | [Process a 10x dextramer assay](../docs/tenx-dextramer.md) |
 
 ## Submission invariants
 

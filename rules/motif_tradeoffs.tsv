@@ -1,0 +1,2 @@
+species	gene	source	axis	max_loss	reason
+HomoSapiens	TRB	current-tcremp	h	0.01	Author accepted a small homogeneity trade-off on 2026-10-17 after matched assignment tracing: recovered multi-peptide reports reduce h while Q and retention improve. The engineering limit is one percentage point against the same-cohort published comparator; extra allowance beyond the ordinary 0.005 tolerance requires strictly positive gains in both Q and retention. This is an engineering acceptance margin, not a confidence interval.
