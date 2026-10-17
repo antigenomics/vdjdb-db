@@ -31,7 +31,8 @@ Start at [VDJdb documentation](https://docs.isalgo.dev/vdjdb-db/):
 
 - **Tutorial:** [explore your first records](docs/getting-started.md).
 - **How-to guides:** [submit records](docs/submission.md),
-  [process a 10x dextramer assay](docs/tenx-dextramer.md), [build a release](docs/builds.md),
+  [process a 10x dextramer assay](docs/tenx-dextramer.md) with the standalone
+  [dCODE caller](processing/dcode_chain_graph.py), [build a release](docs/builds.md),
   [check experimental provenance](docs/submission.md#check-experimental-provenance-through-repertoire-overlap)
   and [validation evidence](docs/submission.md#classify-validation-evidence),
   or [verify build integrity](docs/build-integrity.md).
@@ -39,7 +40,8 @@ Start at [VDJdb documentation](https://docs.isalgo.dev/vdjdb-db/):
   [columns](docs/standards/columns.md), [scoring](docs/standards/confidence-score.md) and
   [output files](docs/outputs.md).
 - **Explanation:** [sequence repair](docs/standards/cdr3-fixing.md),
-  [motifs and denoising](docs/denoising.md), and [the dashboard](docs/dashboard.md).
+  [motif statistics and denoising](docs/denoising.md),
+  [embeddings, clustering and evaluation formulas](docs/clustering.md), and [the dashboard](docs/dashboard.md).
 
 Column tables, vocabularies and score rules are generated from the package declarations when the
 site builds. The [summary dashboard](https://docs.isalgo.dev/vdjdb-db/dashboard.html) follows the

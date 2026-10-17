@@ -62,7 +62,14 @@ behind `chunks/ISSUE_289.tsv`. Deposited ITRAP matrices use `processing/itrap_re
 `itrap1_tables` then `run_frames` for `chunks/PMID_37133356.tsv`, and `viral_tables` then
 `run_frames` for `chunks/DOI_10.64898_2025.12.19.695506.tsv`. The procedure, the filenames and
 which committed file is the published table are in
-[Process a 10x dextramer assay](../../docs/tenx-dextramer.md). Barcode pairing and clonotype
+[Process a 10x dextramer assay](../../docs/tenx-dextramer.md). The standalone script reads numeric UMIs, never `_binder` flags, and writes five sorted
+tab-separated tables. Fit donors separately: a barcode is unique only within its donor.
+Validate finite nonnegative integer counts and preserve measured zeros; missing measurements
+are not zero. Inspect chain posteriors, retained shapes and doublet decisions before exporting
+calls to the chunk schema. `score` is a fitted-model posterior, not a p-value or an FDR bound;
+keep it separate from the VDJdb confidence score. Follow the linked formulas for the
+negative-binomial background/shared-elevation/single-hot-cell model and its numerical limits.
+Barcode pairing and clonotype
 aggregation have different meanings; keep a published assignment when that published table is
 the chunk.
 

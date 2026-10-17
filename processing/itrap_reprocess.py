@@ -1,6 +1,6 @@
 # 2026-10-16
 # Reprocess deposited ITRAP count tables with the dCODE chain-graph caller.
-# The negative-binomial model is not refit or retuned. These loaders only
+# The model specification is unchanged; each donor is fitted afresh. These loaders only
 # reshape deposited GEM or 10x matrices into the frames that caller expects.
 # ITRAP1 raw.csv has no empty droplets and no negative-control dextramer.
 # The viral matrix uses the deposited barcode-to-peptide key. Unmapped

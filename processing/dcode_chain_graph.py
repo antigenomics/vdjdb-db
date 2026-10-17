@@ -24,7 +24,7 @@ the measured count. The clone id is only a label after that.
 
 Three counts are not interchangeable. Cells per label are the sample size of
 the within-label likelihood. TCR contig UMI is the chain-graph weight only.
-Dextramer UMI is the number of pMHC multimers bound.
+Dextramer UMI counts captured reagent barcode molecules, a proxy for binding signal.
 
 Specificity is a per-peptide negative-binomial mixture. A cell's mean is a
 peptide baseline times a capture scale. The scale is the posterior mean of a

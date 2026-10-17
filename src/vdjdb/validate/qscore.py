@@ -6,8 +6,8 @@ whether clusters predict the epitope; parsimony ``p`` asks whether they do it wi
 each epitope into singletons. Both are normalised by the maximum attainable for the given label
 partition, so a chain's epitope count and sizes divide out.
 
-It replaces the purity/retention pair this repo used through sections 31-34, because those are two
-numbers that trade against each other and ``Q`` is one that cannot be gamed from either end:
+Read it alongside purity and retention. Its two degenerate endpoint scores are zero,
+but that alone does not make it a denoising objective or replace the independent-study check:
 
 =========================  ===  ===  =====
 clustering                 h    p    Q
