@@ -486,8 +486,8 @@ ggplot(df.vhla, aes(x=gsub("HLA-", "", paste(mhc.a.split, mhc.b.split, sep = " /
   xlab("") + ylab("") +
   facet_grid(gene~mhc.class, scales="free", space="free") +
   theme_classic() + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), 
-        axis.text.y = element_text(size = 8),
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 5),
+        axis.text.y = element_text(size = 5),
         panel.grid.major = element_blank(),
         legend.position = "right",
         legend.title = element_text(size = 9),
