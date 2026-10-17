@@ -176,9 +176,8 @@ cumulative = dt.vdjdb.s %>%
   mutate(total = cumsum(added)) %>%
   ungroup()
 
-# Callouts carry no coordinates (#460). The segment ends at the series value in that year and the
-# label floats a fixed fraction of the panel maximum above it, so they stay correct as the database
-# grows -- the hardcoded y positions they replace were right for a 2022 database and wrong since.
+# Event segments end at the series value in their publication year. Label offsets
+# are measured in years and fractions of the panel maximum.
 dt.ann = fread(params$annotations, sep = "\t", header = TRUE) %>%
   mutate(label = gsub("\\\\n", "\n", label))
 LABEL_FLOAT = 0.05
@@ -194,8 +193,9 @@ callouts = function(metric_name) {
   })
   list(annotate("segment", x = a$year, xend = a$year, y = 0, yend = a$value,
                 linetype = "solid", colour = "grey25", linewidth = 0.3),
-       annotate("text", x = a$year, y = a$value + LABEL_FLOAT * top, label = a$label,
-                hjust = a$hjust, vjust = a$vjust))
+       annotate("text", x = a$year + a$label_x_offset,
+                y = a$value + (LABEL_FLOAT + a$label_y_offset) * top, label = a$label,
+                hjust = a$hjust, vjust = a$vjust, size = 2.5))
 }
 
 panel = function(metric_name, title, legend_title = NULL) {

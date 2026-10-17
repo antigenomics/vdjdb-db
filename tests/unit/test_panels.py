@@ -75,7 +75,8 @@ def test_totals_are_cumulative_and_never_decrease(tmp_path, years):
 def test_by_year_draws_four_panels_with_the_callouts(tmp_path, years):
     cum = panels.cumulative(_legacy(tmp_path), years)
     ann = pl.DataFrame({"panel": ["tcr"], "year": [2021], "label": ["a mark"],
-                        "hjust": [1], "vjust": [1]})
+                        "hjust": [1], "vjust": [0],
+                        "label_x_offset": [-1], "label_y_offset": [0.25]})
     fig = panels.by_year(cum, ann)
     assert len(fig.axes) == 4
     for ax in fig.axes:
@@ -83,6 +84,11 @@ def test_by_year_draws_four_panels_with_the_callouts(tmp_path, years):
         assert {1988, 2028}.issubset(ax.get_xticks())
     texts = [t.get_text() for ax in fig.axes for t in ax.texts]
     assert "a mark" in texts
+    label = next(t for t in fig.axes[0].texts if t.get_text() == "a mark")
+    assert label.get_position()[0] == 2020
+    assert label.get_verticalalignment() == "bottom"
+    assert label.get_fontsize() == 5
+    assert list(fig.axes[0].lines[-1].get_xdata()) == [2021, 2021]
 
 
 def test_the_rcparams_are_the_manuscripts():

@@ -1,5 +1,5 @@
-panel	year	label	hjust	vjust
-tcr	2017	AIRR-seq for tet+	1	1
-tcr	2019	10X & dCODE	1	1
-tcr	2025	phage\ndisplays	1	1
-epi	2021	COVID-19 studies	1	1
+panel	year	label	hjust	vjust	label_x_offset	label_y_offset
+tcr	2017	AIRR-seq for tet+	1	0	-4	0.20
+tcr	2019	10X & dCODE	1	0	-1	0.35
+tcr	2025	phage\ndisplays	1	0	-1	0.12
+epi	2021	COVID-19 studies	1	0	-1	0.15

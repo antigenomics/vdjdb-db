@@ -151,11 +151,7 @@ def by_year(cum: pl.DataFrame, annotations: pl.DataFrame | None = None):
 
 
 def _callouts(ax, panel_data: pl.DataFrame, marks: pl.DataFrame, float_frac: float = 0.05):
-    """Segment to the series value in that year, label a fixed fraction of the panel above it.
-
-    No coordinates in the table -- the same rule the R document uses, for the same reason (#460):
-    the hardcoded positions it replaced were right for a 2022 database and wrong ever since.
-    """
+    """Keep event guides at their series values and apply reviewed offsets to their labels."""
     if not marks.height or not panel_data.height:
         return
     top = panel_data["total"].max()
@@ -163,8 +159,11 @@ def _callouts(ax, panel_data: pl.DataFrame, marks: pl.DataFrame, float_frac: flo
         at = panel_data.filter(pl.col("year") == row["year"])["total"]
         value = at.max() if at.len() else 0
         ax.plot([row["year"], row["year"]], [0, value], color="0.25", lw=0.3)
-        ax.annotate(row["label"].replace("\\n", "\n"), (row["year"], value + float_frac * top),
-                    ha="right", va="top", fontsize=6)
+        ax.annotate(row["label"].replace("\\n", "\n"),
+                    (row["year"] + row.get("label_x_offset", 0),
+                     value + (float_frac + row.get("label_y_offset", 0)) * top),
+                    ha={0: "left", 0.5: "center", 1: "right"}[row["hjust"]],
+                    va={0: "bottom", 0.5: "center", 1: "top"}[row["vjust"]], fontsize=5)
 
 
 def scores(cohort_df: pl.DataFrame):
