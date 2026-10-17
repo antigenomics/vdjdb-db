@@ -129,7 +129,8 @@ def by_year(cum: pl.DataFrame):
                 legendgroup=chains, showlegend=col == 1, mode="lines",
                 line={"width": 2, "color": CHAIN_COLOUR.get(chains)},
                 hovertemplate=f"{chains}: %{{y:,}}<extra></extra>"), row=1, col=col)
-        fig.update_xaxes(title_text="Year", row=1, col=col)
+        fig.update_xaxes(title_text="Year", range=[1988, 2028],
+                         tickvals=list(range(1988, 2029, 2)), row=1, col=col)
     fig.update_yaxes(title_text="Cumulative records", row=1, col=1)
     # No figure title: the section heading above the panel already carries it, and a centred title
     # over a subplot grid lands on top of the facet strip.

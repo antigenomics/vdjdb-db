@@ -205,7 +205,7 @@ panel = function(metric_name, title, legend_title = NULL) {
     geom_line() +
     geom_point() +
     ylab("") +
-    scale_x_continuous("", breaks = seq(1995, max(years), by = 2)) +
+    scale_x_continuous("", limits = c(1988, 2028), breaks = seq(1988, 2028, by = 4)) +
     theme_classic() + ggtitle(title) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
           axis.line = element_line(linewidth = 0.3))
@@ -255,8 +255,11 @@ df.a = df %>%
 
 colnames(df.a) = c("Parent species", #"Parent gene",
                    "Records", "Unique epitopes", "Studies")
-kable(format = "html", df.a)
+kable(format = "html", df.a %>%
+        mutate(`Parent species` = ifelse(`Parent species` == "", "Not reported", `Parent species`)))
 ```
+
+Missing parent-species metadata is shown as "Not reported".
 
 ---
 
@@ -321,7 +324,7 @@ kable(format = "html",
 
 Summary of T-cell receptors recognizing self-antigens, including antigens linked to utoimmune diseases and potential neoantigen targets for cancer immunotherapy. Number of records for self-antigens grouped by (mutated) human gene and corresponding HLAs are plotted using alluvium plot. Only self-antigens with at least 10 records are shown.
 
-```{r message=FALSE, warning=FALSE, fig.width=12, fig.height=10}
+```{r message=FALSE, warning=FALSE, fig.width=12, fig.height=20}
 df %>% 
   filter(species == "HomoSapiens", 
          startsWith(as.character(antigen.species), "HomoSapiens")) %>%
@@ -347,7 +350,7 @@ ggplot(df.n %>%
   geom_alluvium(aes(fill = substr(Epitope,1,3) %>% as.factor %>% as.integer), 
                 color = "white", alpha = 0.8, curve_type = "sigmoid") +
   geom_stratum(fill = "grey95", color = "white", linewidth =1.0) +
-  geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
+  geom_text(stat = "stratum", aes(label = after_stat(stratum)), size = 1.8) +
   scale_fill_distiller(palette = "Accent", guide="none", "") +
   #scale_fill_hue(guide="none", "") +
   ylab("") + scale_x_discrete(limits = c("Gene", "HLA", "Epitope", "TCR chain"),
@@ -477,7 +480,9 @@ ggplot(df.vhla, aes(x=gsub("HLA-", "", paste(mhc.a.split, mhc.b.split, sep = " /
                       fct_reorder(records), fill = pmin(records, 1000))) +
   geom_tile() +
   scale_fill_gradientn("Records", colors=colorRampPalette(brewer.pal(9, 'PuBuGn'))(32), 
-                       trans="log", breaks = c(1, 10, 100, 1000)) +
+                       trans="log", breaks = c(1, 10, 100, 1000),
+                       guide = guide_colorbar(barwidth = grid::unit(2, "mm"),
+                                              barheight = grid::unit(30, "mm"))) +
   xlab("") + ylab("") +
   facet_grid(gene~mhc.class, scales="free", space="free") +
   theme_classic() + 
@@ -485,6 +490,10 @@ ggplot(df.vhla, aes(x=gsub("HLA-", "", paste(mhc.a.split, mhc.b.split, sep = " /
         axis.text.y = element_text(size = 8),
         panel.grid.major = element_blank(),
         legend.position = "right",
+        legend.title = element_text(size = 9),
+        legend.text = element_text(size = 8),
+        legend.margin = margin(0, 0, 0, 0),
+        legend.box.spacing = grid::unit(2, "mm"),
         axis.line = element_line(linewidth = 0.3),
         strip.background = element_blank())
 ```

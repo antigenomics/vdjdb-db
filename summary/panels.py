@@ -134,9 +134,9 @@ def by_year(cum: pl.DataFrame, annotations: pl.DataFrame | None = None):
             ax.plot(c["year"], c["total"], "-o", color=colour, ms=2.5, lw=0.8, label=chain)
         ax.set_title(titles[metric], fontsize=7)
         ax.spines[["top", "right"]].set_visible(False)
-        # Every two years, as `scale_x_continuous(breaks = seq(1995, max, by = 2))` does. A denser
-        # axis than matplotlib picks, and the one readers of this figure expect.
-        ax.set_xticks(range(1995, int(cum["year"].max()) + 1, 2))
+        # Match the release dashboard, including both requested endpoint years.
+        ax.set_xlim(1988, 2028)
+        ax.set_xticks(range(1988, 2029, 2))
         ax.tick_params(axis="x", rotation=90)
         if annotations is not None:
             _callouts(ax, d, annotations.filter(pl.col("panel") == metric))

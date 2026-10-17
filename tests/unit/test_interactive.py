@@ -125,3 +125,6 @@ def test_a_chain_keeps_one_colour_and_one_legend_entry_across_the_metrics(tmp_pa
         assert trace.legendgroup == trace.name
         assert trace.line.color == interactive.CHAIN_COLOUR[trace.name]
     assert fig.layout.hovermode == "x unified"
+    for axis in fig.select_xaxes():
+        assert axis.range == (1988, 2028)
+        assert {1988, 2028}.issubset(axis.tickvals)

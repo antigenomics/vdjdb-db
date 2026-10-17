@@ -78,6 +78,9 @@ def test_by_year_draws_four_panels_with_the_callouts(tmp_path, years):
                         "hjust": [1], "vjust": [1]})
     fig = panels.by_year(cum, ann)
     assert len(fig.axes) == 4
+    for ax in fig.axes:
+        assert ax.get_xlim() == (1988, 2028)
+        assert {1988, 2028}.issubset(ax.get_xticks())
     texts = [t.get_text() for ax in fig.axes for t in ax.texts]
     assert "a mark" in texts
 
