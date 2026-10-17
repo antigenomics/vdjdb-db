@@ -27,13 +27,13 @@ MIN_OCCURRENCES = 50
 #: Measured on the combined import using human TRB observations joined by record_id.
 #: Publication retrieval is tested separately; it cannot establish receptor specificity.
 EXPECTED = {
-    "documents": 844,
-    "kmers_scored": 349,
+    "documents": 845,
+    "kmers_scored": 354,
     "top_kmer": "k:IRS",
-    "top_lift": 13.402948,
-    "median_lift": 0.848065,
-    "motif_kmers": 18,
-    "motif_above_median": 18,
+    "top_lift": 13.343725,
+    "median_lift": 0.826202,
+    "motif_kmers": 19,
+    "motif_above_median": 19,
 }
 
 #: ``k:CAS`` is the germline-encoded start of nearly every beta CDR3: present in 614 of 661 documents.
@@ -77,8 +77,10 @@ def scored(tables: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
     # PMID42759506 adds3264 human TRB candidate observations from source clonotypes.
     # ERTransformer adds10 TRB observations, four against GILGFVFTL.
     # Source review1352 withholds unsupported contigs/restrictions; three GIL rows removed.
-    assert result["units"][0] == 249605
-    assert result["given_units"][0] == 18165
+    # PR1358 replaces the vendor set and adds the viral study. IRS remains first,
+    # and all19 eligible RS-containing k-mers remain above the cohort median.
+    assert result["units"][0] == 258081
+    assert result["given_units"][0] == 18589
     return [(row["lift"], row["term"]) for row in result.iter_rows(named=True)]
 
 
