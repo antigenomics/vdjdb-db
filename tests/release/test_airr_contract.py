@@ -62,8 +62,9 @@ pytestmark = pytest.mark.release
 # ERTransformer retains seven designed receptors with14 unreported-V chains in tables/AIRR.
 # Source review1352 corrects an unreported-V beta chain formerly misassigned as alpha.
 # The corrected chain remains in tables/AIRR and lacks a reported V for legacy export.
-LEGACY_DROPS_CHAINS = 2579
-LEGACY_DROPS_RECORDS = 1756
+# #1362 recovers the primary CMV#1 J call, admitting one additional legacy observation.
+LEGACY_DROPS_CHAINS = 2578
+LEGACY_DROPS_RECORDS = 1755
 
 
 @pytest.fixture(scope="module")

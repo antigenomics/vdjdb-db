@@ -79,7 +79,10 @@ def scored(tables: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
     # Source review1352 withholds unsupported contigs/restrictions; three GIL rows removed.
     # PR1358 replaces the vendor set and adds the viral study. IRS remains first,
     # and all19 eligible RS-containing k-mers remain above the cohort median.
-    assert result["units"][0] == 258081
+    # #1362 removes 32 redundant H3 beta projections, restores 11 patent beta chains
+    # to their reported mouse species and merges one completed beta restriction duplicate.
+    # All 18589 GILGFVFTL observations and the quality tolerances remain unchanged.
+    assert result["units"][0] == 258037
     assert result["given_units"][0] == 18589
     return [(row["lift"], row["term"]) for row in result.iter_rows(named=True)]
 
