@@ -174,11 +174,11 @@ def test_the_harness_reproduces_the_recorded_legacy_bar(gene: str, released: pl.
 def measured(tables, ours, released) -> pl.DataFrame:
     """The metric table: read from the build's own report when there is a fresh one, else computed.
 
-    `vdjdb motif-metrics` already writes this on every build and already runs both gates, so
+    `vdjdb motif-metrics` writes this on every build, gates same-cohort quality and reports drift, so
     recomputing it here cost 24 s of a 186 s suite to assert what the CLI had just exited 1 on
     (ROADMAP_local section 57.1). One fixture, shared by both tests, reusing the artifact.
 
-    **Reused only when it is newer than both inputs.** A report from an earlier build scored on this
+    **Reused only when newer than records, chains and both membership files.** A report scored on this
     build's cohort is the exact mistake the `motifs` fixture above documents happening on 2026-09-27,
     and it reads as a metric change rather than as a stale file.
     """

@@ -112,7 +112,7 @@ SOURCES = ("legacy", "latest", "current-tcrnet", "current-tcremp", "trivial")
 #: whole file replaced - which is why the CI comparison names its five members with ``--only`` and
 #: skips the motif files entirely.
 #:
-#: Only ``partition_neighbours_preserved`` is gated, and the reason is measured: 19,971 of the
+#: ``partition_neighbours_preserved`` is the historical per-clonotype comparison: 19,971 of the
 #: released TRB clustering's 36,906 clonotypes sit in one cluster, which holds 94.7 % of the file's
 #: co-clustered pairs, so ``partition_pairs_preserved`` and ``partition_ari`` are measurements of
 #: whether that one blob was reproduced - the do-nothing partition scores 0.9991 and 0.9939 on them.
@@ -263,7 +263,7 @@ def _worse(now: pl.Expr, was: pl.Expr, direction: pl.Expr, tol: pl.Expr) -> pl.E
 
 def regressions_against_baseline(measured: pl.DataFrame,
                                  baseline: pl.DataFrame) -> pl.DataFrame:
-    """Gated axes that moved outside tolerance since the baseline was recorded, any source.
+    """Historical axes that moved outside tolerance since the snapshot, for reporting only.
 
     A source in the baseline but missing from ``measured`` counts as a regression: a clustering that
     stopped being produced scores nothing rather than scoring badly, and a left join would hide it.
@@ -288,7 +288,8 @@ def regressions_against_latest(measured: pl.DataFrame,
     A trade is declared by a non-empty ``reason`` on the baseline row for that exact axis, and the
     declared ``value`` caps it -- our TRA TCREMP percolates more than the release and buys retention,
     purity and two epitopes for it, which is a trade; the same axis drifting further is not, and
-    fails. Without ``baseline`` nothing is declared and every regression is reported.
+    fails. Additional bounded relative trades are read from :data:`TRADEOFFS`; their extra
+    allowance requires positive Q and retention gains on this same cohort.
     """
     validate_measurements(measured)
     latest = (measured.filter(pl.col("source") == "latest")
