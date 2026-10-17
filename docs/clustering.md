@@ -22,8 +22,9 @@ to 0.8641 and its precision from 0.8567 to 0.8548, and TRB's `Q` from 0.4433 to 
 here are not restated for that**, because every configuration in the scorecard was scored against the
 same bar in the same run and re-stating one column would break the comparison the document exists to
 make. The current values of every axis for the released files, the latest release and the build are
-measured on every build and recorded in `rules/motif_metrics.tsv`, which is what a regression is gated
-against (`vdjdb motif-metrics`).
+measured on every build by `vdjdb motif-metrics`. Its report compares methods on that same cohort
+and also shows changes from the historical `rules/motif_metrics.tsv` snapshot; historical corpus
+drift alone does not fail acceptance.
 
 **Percolation is recorded there and not gated, and it is not a score.** Per epitope it is the share
 of the epitope's clustered clonotypes that sit in its largest cluster, so it describes the shape of
@@ -211,6 +212,57 @@ The gate still includes $Q$ as a floor, consistent with `denoising.md` §7.1;
 §8 below explains why it cannot rank quality across retentions. Percolation
 levels are recorded rather than gated. None of these scores estimates a binding
 false-positive rate without the additional evidence assumptions in `denoising.md`.
+
+### Corpus changes, acceptance margins and confidence intervals
+
+For metric $m$, evaluate the candidate and published partition on exactly the
+same current cohort $D$, and report
+$\Delta_m=m(\mathrm{candidate};D)-m(\mathrm{published};D)$.
+The default rate tolerance is 0.005. Historical values on another cohort are
+reported separately: their changes mix corpus composition with method changes.
+They are not an acceptance test of the current implementation. Required source
+and axis coverage, unique measurement keys and finite values remain mandatory.
+
+The explicit relative policy in `rules/motif_tradeoffs.tsv` permits human TRB
+TCREmp homogeneity to decrease by at most **0.01**. The extra allowance beyond
+the ordinary 0.005 tolerance applies only when both
+$\Delta_Q>0$ and $\Delta_{\mathrm{retention}}>0$. Equality or a missing improvement
+axis does not qualify. After the author authorized a small trade-off on 17 October 2026, this implementation
+selected a one-percentage-point engineering limit. It is not a statistical
+confidence bound or a change to the definition of homogeneity. Other quality
+checks remain active. Previously accepted absolute exception caps remain in
+`rules/motif_metrics.tsv`; `--record` preserves those caps instead of silently
+replacing them with the latest measurement.
+
+Matched-cohort checks distinguish an implementation change from a corpus change.
+In the 138,449-observation TRB comparison, the stable, deduplicated TCREmp method
+improves Q from 0.510419 for the original parent partition to 0.525942, and
+retains 62,869 rather than 58,981 distinct clonotype-peptide observations.
+Homogeneity changes from 0.989535 to 0.988791. Of its net decrease 0.000744,
+newly assigned observations contribute -0.000800; lost assignments contribute
++0.000102 and observations retained or unassigned by both partitions contribute
+-0.000046. These are additive entropy contributions, not significance tests.
+The largest negative epitope contributions are LPRRSGAAGA (-0.000107; 2,130
+observations), TPRVTGGGAM (-0.000102; 2,564) and LLLDRLNQL (-0.000092; 1,719).
+The assignments involve junction/V/J identities already reported against several
+peptides. Recovering their motif membership can lower h without introducing a
+new peptide label. Removing recovered observations merely to increase h would
+sacrifice coverage; the report therefore retains all assignments and scores.
+Between the two fixed parent/candidate runs, matched h actually increases from
+0.988528 to 0.988791, while Q differs by -0.000741. The original Q/retention gains
+are preserved rather than hidden by an exception.
+
+These metrics are exact summaries of a specified finite corpus and fitted
+partition. Sampling confidence intervals require a defined target population
+and sampling design; they do not describe computational uncertainty in an exact
+corpus statistic. The [US Census Bureau's quality guidance](https://www.census.gov/about/policies/quality/guidelines/objectivity.html)
+distinguishes sampling error from measurement and processing errors. In this
+setting, receptor rows and peptide labels are dependent. If the target becomes
+performance on future studies, paired resampling would need independently
+recruited study or participant units, resolving reused cohorts across papers.
+Holding fitted geometry and clusters fixed would quantify only conditional
+scoring variability; pipeline uncertainty would require refitting within each
+replicate. No such interval or bootstrap is used as an acceptance gate here.
 
 ---
 
@@ -821,14 +873,15 @@ partition that groups every clonotype of an epitope reproduces that blob exactly
 
 Two consequences, the same shape as the three above.
 
-**Agreement with the last release is not an admissibility axis.** It is gated against its own
-committed baseline, not against `latest` and not against `trivial`, for the reason every other row of
-§8 gives: the do-nothing partition clears it.
+**Agreement with the last release is not an admissibility axis.** It is reported against its
+historical snapshot, not required to match that older corpus. Removing spurious associations can
+legitimately reduce agreement. Source changes remain subject to QC, identity checks and the
+declared comparison against the released database.
 
 **A pair-weighted agreement is a measurement of one cluster.** `partition_pairs_preserved` and the
 adjusted Rand index read 0.9991 and 0.9939 for doing nothing on TRB, while the per-clonotype figure
 separates it from TCRNET by 1.7 points. Both are recorded, because the blob is worth watching, and
-only the per-clonotype one is gated.
+the per-clonotype result also remains in the historical comparison report.
 
 ### 8.1 The purity floor - 0.94 on both chains
 

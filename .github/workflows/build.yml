@@ -247,8 +247,9 @@ jobs:
             --json out/reports/release-diff.json
 
       # Three sources, one cohort, one code path: the last legacy release, the latest release
-      # (the same file until one ships after 2026-06-03) and what this build produced. Both gates run
-      # -- `current-*` against `latest`, and every source against rules/motif_metrics.tsv.
+      # (the same file until one ships after 2026-06-03) and what this build produced. Acceptance
+      # compares `current-*` with `latest` on this cohort. Historical corpus drift is reported;
+      # bounded relative trades are explicit in rules/motif_tradeoffs.tsv.
       #
       # This step exists because the motif metrics used to be computed inside test assertions and
       # thrown away, so the three chunk merges of 2026-09-28 moved the comparator's Q by 0.0042 and
@@ -330,6 +331,8 @@ jobs:
             out/reports/ci-stage-timings.tsv
             out/reports/motif-timings.tsv
             out/reports/motifs_per_epitope.tsv
+            out/motifs/cluster_members.txt
+            out/motifs/cluster_members_tcremp.txt
             out/reports/release-diff.json
             out/reports/release-diff.md
             out/reports/qc.tsv
