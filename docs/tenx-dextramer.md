@@ -46,6 +46,8 @@ maximum a posteriori hypothesis. A tie stays background. The module docstring of
 
 These matrices already use the AIRR junction, with both anchors included. A non-functional J
 call and a non-canonical anchor are advisory findings. Leave the source sequence as reported.
+Assembly keeps a submitted `TRAJ58` or `TRAJ25` when the junction's 3' end matches that ORF
+germline and no functional TRAJ matches it as well.
 
 ## Corresponding chunks
 
@@ -57,8 +59,10 @@ call and a non-canonical anchor are advisory findings. Leave the source sequence
 
 The four-donor `reference.id` and `meta.study.id` are the application note
 `https://www.10xgenomics.com/resources/application-notes/a-new-way-of-exploring-immunity-linking-highly-multiplexed-antigen-recognition-to-immune-repertoire-and-phenotype/#`.
-The viral chunk's `meta.study.id` is `E-MTAB-13758`. Its `antigen.gene` and `antigen.species`
-are blank on all 2468 rows, because the published table does not assign them.
+The viral chunk's `meta.study.id` is `E-MTAB-13758`. The published table leaves `antigen.gene`
+and `antigen.species` blank. Those cells are filled as provenance aliases: the epitope dictionary
+where it has the peptide, otherwise the IEDB parent protein and source organism, using the gene
+symbol VDJdb already records for that epitope when it is the same protein.
 
 `itrap1_tables` reads a deposited GEM table. `viral_tables` reads the deposited contig lists,
 the 10x antibody matrix and the barcode-to-peptide key. Both return a contig frame and a

@@ -43,9 +43,14 @@ not all transcription errors. Preserve literal cores/flanks when the build resol
 edit a source sequence merely to make a canonical flag true. A proposed V is inferred, not reported.
 A 10x dextramer chunk is produced by the caller in
 [Process a 10x dextramer assay](../../docs/tenx-dextramer.md). On
-`chunks/DOI_10.64898_2025.12.19.695506.tsv`, blank `antigen.gene` and `antigen.species` are the
-published table (2468 rows). A `non-functional j.alpha` finding on `chunks/ISSUE_289.tsv` or that
-viral chunk is the source J call.
+`chunks/DOI_10.64898_2025.12.19.695506.tsv`, `antigen.gene` and `antigen.species` are provenance
+aliases for the published peptides: the epitope dictionary where it names the epitope, otherwise
+the IEDB parent through `proofreading/gene_aliases.tsv` and the organism through
+`proofreading/species_aliases.tsv`. Where VDJdb already labels that epitope, use that symbol when
+it names the same protein. A `non-functional j.alpha` finding on `chunks/ISSUE_289.tsv` or that
+viral chunk is the submitted call. Assembly resolves it to `TRAJ58*01` or `TRAJ25*01` and keeps
+it: the junction's 3' end matches that ORF germline for 3 or more residues, and no functional
+TRAJ does. Do not replace the call or edit the junction to clear the flag.
 
 ## Review metadata and repeats
 

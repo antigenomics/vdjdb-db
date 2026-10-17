@@ -204,6 +204,7 @@ tables; 1,973 lines out. Gated by 64 tests so the claims cannot go stale again.
 | 2026-05-26 | `imgt_alleles.tsv.gz` is allele-level (one row per allele), not gene-level | User requested that all alleles (TRBV7-9*01, *02, etc.) be recorded; sourced from FASTA not GeneList |
 | 2026-05-26 | Both reference TSVs compressed with gzip; all queries use `zcat` | User requested compression; reduces storage from 2.5 MB to 351 KB total |
 | 2026-10-17 | 10x dextramer matrices are called by `processing/dcode_chain_graph.py` | `process_donor` and `--dcode --donors --out` write `chains`, `edges`, `clones`, `calls`, `checks`. The four-donor chunk is `chunks/ISSUE_289.tsv`. ITRAP deposited matrices use `processing/itrap_reprocess.py` (`itrap1_tables` / `viral_tables`, then `run_frames`). Published ITRAP chunks stay the published tables. `docs/tenx-dextramer.md` is the procedure. |
+| 2026-10-17 | Viral-chunk `antigen.gene` is a provenance alias, not a blank | `chunks/DOI_10.64898_2025.12.19.695506.tsv`: dictionary last row where the epitope is listed, otherwise IEDB parent via `proofreading/gene_aliases.tsv` and organism via `proofreading/species_aliases.tsv`. `Epstein-Barr nuclear antigen 3` maps to `EBNA3A` (FLRGRAYGL, RPPIFIRRL), not `EBNA3B`. `TRAJ58`/`TRAJ25` stay after assembly: the junction matches the ORF germline and no functional TRAJ reaches a run of 3. |
 
 ---
 
