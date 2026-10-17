@@ -159,7 +159,7 @@ None of the three is part of the rewrite.
 | Fix | Blocks |
 |---|---|
 | The `vdjmatch` patch above | "three zips per release" |
-| Correct `latest-version.txt` line 1; delete the stale `database/` copy | every client that still reads it. **Done**: line 1 names `2026-06-03/vdjdb-2026-06-03.zip`, which is the published latest release's asset, and `database/latest-version.txt` is untracked - only `dummy` and the two `*.meta.txt` files are. `release.yml` writes line 1 before the build and commits it after the release exists, then fetches it and fails on anything but 200 |
+| Correct `latest-version.txt` line 1; delete the stale `database/` copy | every client that still reads it. **Done**: line 1 names `2026-06-03/vdjdb-2026-06-03.zip`, which is the published latest release's asset, and `database/` contains generated output only; stale tracked metadata was removed in the 2026-10-17 cleanup. `release.yml` writes line 1 before the build and commits it after the release exists, then fetches it and fails on anything but 200 |
 | Replace the seven `.T.apply` calls and the `ScoreFactory` `iterrows` | "runs on 16 GB GitHub-hosted runners" |
 
 ### 3.3 Backgrounds
