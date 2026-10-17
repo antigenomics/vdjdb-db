@@ -157,7 +157,7 @@ def run(which: str) -> None:
                 t = time.time()
                 if which == "dbscan":
                     (coef,) = cell
-                    eps = cl.tcremp.chain_eps(ctx["X"], coef)
+                    eps = round(ctx["nn"] * coef, 3)
                     labels = cl.tcremp.cluster_labels(ctx["X"], ctx["epi"], eps)
                     tag, extra = f"dbscan coef{coef}", {"algo": "dbscan", "coef": coef}
                 elif which == "hdbscan":

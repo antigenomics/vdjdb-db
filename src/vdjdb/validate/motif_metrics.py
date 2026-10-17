@@ -24,15 +24,16 @@ plus ``trivial``, the do-nothing partition, because it clears three of the four 
 on TRA and a bar it passes is not a bar (``docs/clustering.md`` 8).
 
 All four are scored **on this build's cohort**, through one code path, so no two rows can be
-measured by different code. Two gates follow, and they answer different questions:
+measured by different code. Acceptance and historical reporting answer different questions:
 
 * :func:`regressions_against_latest` -- did *this build* get worse than what is published? This is
   the build gate, and a failure is a defect in the code that just changed.
 * :func:`regressions_against_baseline` -- did any source drift from its last recorded value? A
-  fixed released file scored on a changed cohort moves, so this catches a *corpus* change: rewriting
+  fixed released file scored on a changed cohort moves, so this reports a *corpus* change: rewriting
   a ``v.segm`` cell or adding records gives the released clustering a key it has never seen. That is
-  explainable and sometimes expected, which is why :data:`BASELINE` is editable -- but moving it is
-  a reviewed diff whose commit message says why.
+  explainable and sometimes expected, and does not fail acceptance. Refreshing :data:`BASELINE` remains
+  a reviewed diff whose commit message says why. Relative trades are explicit in
+  ``rules/motif_tradeoffs.tsv``.
 
 :data:`BASELINE` is a committed, reviewed input and is never written by a build (hard rule 9).
 """
@@ -48,6 +49,7 @@ from . import qscore
 
 #: The committed baseline: one row per source per gated axis, so it is greppable and diffable.
 BASELINE = Path("rules/motif_metrics.tsv")
+TRADEOFFS = Path("rules/motif_tradeoffs.tsv")
 
 #: The three fixed comparison points, plus the partition that clusters nothing. ``current`` expands
 #: to one row per method the build produced.
@@ -110,13 +112,13 @@ SOURCES = ("legacy", "latest", "current-tcrnet", "current-tcremp", "trivial")
 #: whole file replaced - which is why the CI comparison names its five members with ``--only`` and
 #: skips the motif files entirely.
 #:
-#: Only ``partition_neighbours_preserved`` is gated, and the reason is measured: 19,971 of the
+#: ``partition_neighbours_preserved`` is the historical per-clonotype comparison: 19,971 of the
 #: released TRB clustering's 36,906 clonotypes sit in one cluster, which holds 94.7 % of the file's
 #: co-clustered pairs, so ``partition_pairs_preserved`` and ``partition_ari`` are measurements of
 #: whether that one blob was reproduced - the do-nothing partition scores 0.9991 and 0.9939 on them.
 #: They are recorded because they are the exact quantity and because the blob is worth watching.
 #:
-#: Direction ``baseline``: gated against the committed baseline only, never against ``latest``. These
+#: Direction ``baseline``: historical snapshot comparison only, never against ``latest``. These
 #: are agreement *with* ``latest``, so ``latest``'s own value is 1.0 by construction and comparing a
 #: candidate to it would fail every candidate that is not byte-identical.
 AXES: dict[str, tuple[str, float]] = {
@@ -231,6 +233,26 @@ def load_baseline(path: Path = BASELINE) -> pl.DataFrame:
         else pl.DataFrame(schema=COLUMNS)
 
 
+def validate_measurements(measured: pl.DataFrame, expected: pl.DataFrame | None = None) -> None:
+    """Refuse missing, duplicate or non-finite metrics before any acceptance comparison."""
+    if measured.select(pl.struct(KEY).is_duplicated().any()).item():
+        raise ValueError("duplicate motif measurement keys")
+    if measured.filter(pl.col("value").is_null() | ~pl.col("value").is_finite()).height:
+        raise ValueError("motif measurements must be finite")
+    if expected is not None and expected.select(KEY).join(
+            measured.select(KEY), on=list(KEY), how="anti").height:
+        raise ValueError("missing motif measurements required by the reference schema")
+
+
+def record_measurements(measured: pl.DataFrame, baseline: pl.DataFrame) -> pl.DataFrame:
+    """Refresh descriptive measurements without moving an accepted absolute exception cap."""
+    kept = baseline.select(*KEY, pl.col("value").alias("__cap"), "reason")
+    return (measured.drop("reason", strict=False).join(kept, on=list(KEY), how="left")
+            .with_columns(pl.when(pl.col("reason").is_not_null() & (pl.col("reason") != ""))
+                          .then(pl.col("__cap")).otherwise(pl.col("value")).alias("value"))
+            .select(*COLUMNS))
+
+
 def _worse(now: pl.Expr, was: pl.Expr, direction: pl.Expr, tol: pl.Expr) -> pl.Expr:
     """``baseline`` behaves like ``up`` here and is excluded from the ``latest`` comparison."""
     return (pl.when(now.is_null()).then(pl.lit(True))
@@ -241,7 +263,7 @@ def _worse(now: pl.Expr, was: pl.Expr, direction: pl.Expr, tol: pl.Expr) -> pl.E
 
 def regressions_against_baseline(measured: pl.DataFrame,
                                  baseline: pl.DataFrame) -> pl.DataFrame:
-    """Gated axes that moved outside tolerance since the baseline was recorded, any source.
+    """Historical axes that moved outside tolerance since the snapshot, for reporting only.
 
     A source in the baseline but missing from ``measured`` counts as a regression: a clustering that
     stopped being produced scores nothing rather than scoring badly, and a left join would hide it.
@@ -266,18 +288,43 @@ def regressions_against_latest(measured: pl.DataFrame,
     A trade is declared by a non-empty ``reason`` on the baseline row for that exact axis, and the
     declared ``value`` caps it -- our TRA TCREMP percolates more than the release and buys retention,
     purity and two epitopes for it, which is a trade; the same axis drifting further is not, and
-    fails. Without ``baseline`` nothing is declared and every regression is reported.
+    fails. Additional bounded relative trades are read from :data:`TRADEOFFS`; their extra
+    allowance requires positive Q and retention gains on this same cohort.
     """
+    validate_measurements(measured)
     latest = (measured.filter(pl.col("source") == "latest")
               .select("species", "gene", "axis", pl.col("value").alias("latest")))
     # `baseline`-direction axes are agreement *with* `latest`, so its own value is 1.0 by
     # construction and this comparison would fail every candidate that is not byte-identical to it.
     cur = measured.filter(pl.col("source").str.starts_with("current-")
                           & (pl.col("direction") != "baseline"))
-    j = cur.join(latest, on=["species", "gene", "axis"], how="inner")
+    if cur.select("species", "gene", "axis").join(
+            latest, on=["species", "gene", "axis"], how="anti").height:
+        raise ValueError("missing latest comparator measurements")
+    j = cur.join(latest, on=["species", "gene", "axis"], how="left")
     bad = (j.filter(_worse(pl.col("value"), pl.col("latest"), pl.col("direction"),
                            pl.col("tolerance")))
            .with_columns((pl.col("value") - pl.col("latest")).alias("delta")))
+    # A bounded relative trade follows the current comparator rather than an old corpus value.
+    # Both gains are strict for this extra allowance beyond the ordinary 0.005 tolerance:
+    # equality or a missing axis cannot buy the additional homogeneity exception.
+    if TRADEOFFS.exists():
+        trades = pl.read_csv(TRADEOFFS, separator="\t")
+        if (trades.filter((pl.col("axis") != "h") | pl.col("max_loss").is_null()
+                          | ~pl.col("max_loss").is_finite()
+                          | ~pl.col("max_loss").is_between(0.0, 1.0)
+                          | pl.col("reason").is_null() | (pl.col("reason") == "")).height
+                or trades.select(pl.struct(KEY).is_duplicated().any()).item()):
+            raise ValueError("invalid homogeneity trade-off policy")
+        gains = (j.filter(pl.col("axis").is_in(["q", "retention"]))
+                 .group_by("species", "gene", "source")
+                 .agg(pl.len().alias("__axes"),
+                      (pl.col("value") > pl.col("latest")).all().alias("__gains")))
+        bad = (bad.join(trades.select(*KEY, "max_loss"), on=list(KEY), how="left")
+               .join(gains, on=["species", "gene", "source"], how="left")
+               .filter(~((pl.col("max_loss").is_not_null())
+                         & (pl.col("delta") >= -pl.col("max_loss"))
+                         & (pl.col("__axes") == 2) & pl.col("__gains")).fill_null(False)))
     if baseline is not None and baseline.height:
         dec = (baseline.filter(pl.col("reason").is_not_null() & (pl.col("reason") != ""))
                .select(*KEY, pl.col("value").alias("declared"), "reason"))
@@ -312,8 +359,21 @@ def report(measured: pl.DataFrame, baseline: pl.DataFrame) -> str:
         was = "-" if r["was"] is None else f"{r['was']:.4f}"
         db = "-" if r["d_base"] is None else f"{r['d_base']:+.4f}"
         dl = "-" if r["d_latest"] is None or r["source"] == "latest" else f"{r['d_latest']:+.4f}"
-        gate = "recorded" if r["direction"] == "record" \
-            else f"{r['direction']}, tol {r['tolerance']:g}"
+        gate = ("recorded" if r["direction"] == "record" else
+                "historical only" if r["direction"] == "baseline" else
+                f"same-cohort {r['direction']}, tol {r['tolerance']:g}")
         out.append(f"| {r['gene']} | {r['source']} | `{r['axis']}` | {r['value']:.4f} | {was} | "
                    f"{db} | {dl} | {gate} |")
+    if TRADEOFFS.exists():
+        trades = pl.read_csv(TRADEOFFS, separator="\t").join(
+            measured.select(KEY), on=list(KEY), how="semi")
+        for r in trades.iter_rows(named=True):
+            out.extend(["", f"Relative {r['gene']} {r['source']} `{r['axis']}` trade: "
+                        f"maximum loss {r['max_loss']:g}; extra allowance beyond the ordinary "
+                        "tolerance requires positive Q and retention gains "
+                        f"on the same cohort. {r['reason']}"])
+    if measured.height and baseline.height:
+        out.extend(["", "Historical snapshot differences are reported, not acceptance failures. "
+                    "Acceptance compares methods on the current cohort; missing and non-finite "
+                    "measurements fail."])
     return "\n".join(out)

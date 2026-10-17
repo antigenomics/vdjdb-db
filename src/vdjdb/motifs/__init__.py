@@ -78,8 +78,8 @@ def run_tcremp(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
     """TCREMP: chunked embedding, a chain-global radius, per-epitope DBSCAN.
 
     One embedding pass per ``(species, gene)``; the radius is estimated on that chain's pooled
-    geometry and then DBSCAN runs per epitope, so it is never re-estimated on an n of 30-300
-    (ROADMAP section 8.4).
+    unique-receptor geometry and then DBSCAN runs per epitope, so it is never re-estimated on
+    an n of 30-300 (ROADMAP section 8.4).
     """
     from ..timing import stage
 
@@ -94,7 +94,7 @@ def run_tcremp(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
             X = tcremp.embed_reduced(grp, species, gene,
                                      n_components=tuned.get("n_components", tcremp.N_COMPONENTS))
         with stage(f"motifs.tcremp.dbscan.{species}.{gene}"):
-            eps = tcremp.chain_eps(X, (coef or tcremp.COEF)[gene])
+            eps = tcremp.chain_eps(X, (coef or tcremp.COEF)[gene], clonotypes=grp)
             parts.append(tcremp.clusters(grp, X, eps, min_cluster=(
                 min_cluster if min_cluster is not None else tuned.get("min_cluster", 5))))
     members = pl.concat([p for p in parts if p.height], how="vertical")

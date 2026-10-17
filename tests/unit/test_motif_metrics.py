@@ -44,6 +44,57 @@ def test_a_fall_inside_tolerance_is_not_a_regression() -> None:
     assert mm.regressions_against_latest(m).height == 0
 
 
+def test_small_homogeneity_trade_requires_both_q_and_retention_gains():
+    m = frame(latest={"h": 0.992, "q": 0.40, "retention": 0.30},
+              **{"current-tcremp": {"h": 0.985, "q": 0.49, "retention": 0.54}})
+    assert mm.regressions_against_latest(m).height == 0
+    for axis in ("q", "retention"):
+        worse = m.with_columns(pl.when((pl.col("source") == "current-tcremp")
+                                       & (pl.col("axis") == axis))
+                               .then(pl.lit(0.1)).otherwise(pl.col("value")).alias("value"))
+        assert "h" in mm.regressions_against_latest(worse)["axis"].to_list()
+        equal = m.with_columns(pl.when((pl.col("source") == "current-tcremp")
+                                       & (pl.col("axis") == axis))
+                               .then(pl.lit(0.40 if axis == "q" else 0.30))
+                               .otherwise(pl.col("value")).alias("value"))
+        assert "h" in mm.regressions_against_latest(equal)["axis"].to_list()
+    too_far = m.with_columns(pl.when((pl.col("source") == "current-tcremp")
+                                     & (pl.col("axis") == "h"))
+                             .then(pl.lit(0.981)).otherwise(pl.col("value")).alias("value"))
+    assert mm.regressions_against_latest(too_far)["axis"].to_list() == ["h"]
+
+
+def test_ordinary_homogeneity_tolerance_does_not_require_the_extra_trade():
+    m = frame(latest={"h": 0.992, "q": 0.40, "retention": 0.30},
+              **{"current-tcremp": {"h": 0.988, "q": 0.40, "retention": 0.30}})
+    assert mm.regressions_against_latest(m).height == 0
+
+
+def test_missing_comparator_and_nonfinite_measurements_fail_explicitly():
+    with pytest.raises(ValueError, match="comparator"):
+        mm.regressions_against_latest(frame(**{"current-tcremp": {"q": 0.5}}))
+    for value in (float("nan"), float("inf"), None):
+        with pytest.raises(ValueError, match="finite"):
+            mm.validate_measurements(frame(latest={"q": value}))
+
+
+def test_measurement_validation_checks_missing_and_duplicate_axes():
+    wanted = frame(latest={"q": 0.5, "h": 0.9})
+    with pytest.raises(ValueError, match="missing"):
+        mm.validate_measurements(frame(latest={"q": 0.5}), wanted)
+    with pytest.raises(ValueError, match="duplicate"):
+        mm.validate_measurements(pl.concat([wanted, wanted]))
+
+
+def test_recording_does_not_move_an_accepted_absolute_exception_cap():
+    base = frame(**{"current-tcremp": {"retention": 0.2}}).with_columns(
+        pl.lit("accepted trade").alias("reason"))
+    measured = frame(**{"current-tcremp": {"retention": 0.1}})
+    recorded = mm.record_measurements(measured, base)
+    assert recorded["value"][0] == 0.2
+    assert recorded["reason"][0] == "accepted trade"
+
+
 def test_percolation_is_recorded_and_never_gated() -> None:
     """Percolation is an epitope's largest-cluster share, and what is right depends on the epitope:
     one prominent motif (A*02 GIL) should percolate, a featureless one (A*02 NLV) should not. So
@@ -95,7 +146,7 @@ def test_the_report_names_every_axis_and_both_comparisons() -> None:
     text = mm.report(m, frame(latest={"purity": 0.9790}))
     assert "`purity`" in text and "current-tcrnet" in text
     assert "+0.0010" in text          # vs latest
-    assert text.count("\n") == 3      # header, rule, two rows
+    assert "Historical snapshot differences" in text
 
 
 @pytest.mark.skipif(not mm.BASELINE.exists(), reason="baseline not recorded yet")

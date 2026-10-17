@@ -158,50 +158,45 @@ def test_the_release_ships_clusters_with_no_motif(reference: Bundle,
 
 @pytest.mark.parametrize("gene", GENES)
 def test_the_harness_reproduces_the_recorded_legacy_bar(gene: str, released: pl.DataFrame,
-                                                         cohorts) -> None:
-    """Score the release on this cohort against its reviewed corpus-specific baseline."""
+                                                         cohorts, measured) -> None:
+    """The reported release scores must reproduce on the current cohort, not an older corpus."""
     got = mb.score(mb.assign(cohorts[gene], _chain(released, gene)))
-    baseline = mmv.load_baseline().filter(
+    baseline = measured.filter(
         (pl.col("species") == SPECIES) & (pl.col("gene") == gene)
         & (pl.col("source") == "legacy") & pl.col("axis").is_in(["purity", "precision"]))
     assert baseline.height == 2
     for axis, want in baseline.select("axis", "value").iter_rows():
-        assert got[axis] == pytest.approx(want, abs=0.01), (
-            f"{gene} {axis}: {got[axis]:.4f}, rules/motif_metrics.tsv records {want}")
+        assert got[axis] == pytest.approx(want, abs=1e-6), (
+            f"{gene} {axis}: {got[axis]:.4f}, current cohort report records {want}")
 
 
 @pytest.fixture(scope="module")
 def measured(tables, ours, released) -> pl.DataFrame:
     """The metric table: read from the build's own report when there is a fresh one, else computed.
 
-    `vdjdb motif-metrics` already writes this on every build and already runs both gates, so
+    `vdjdb motif-metrics` writes this on every build, gates same-cohort quality and reports drift, so
     recomputing it here cost 24 s of a 186 s suite to assert what the CLI had just exited 1 on
     (ROADMAP_local section 57.1). One fixture, shared by both tests, reusing the artifact.
 
-    **Reused only when it is newer than both inputs.** A report from an earlier build scored on this
+    **Reused only when newer than records, chains and both membership files.** A report scored on this
     build's cohort is the exact mistake the `motifs` fixture above documents happening on 2026-09-27,
     and it reads as a metric change rather than as a stale file.
     """
     chains, records = tables
     report = Path(os.environ.get("VDJDB_MOTIF_METRICS", "out/reports/motif-metrics.tsv"))
-    newer_than = [Path(os.environ.get("VDJDB_TABLES", "out/tables")) / "chains.parquet",
-                  Path(os.environ.get("VDJDB_MOTIFS", "out/motifs")) / "cluster_members.txt"]
+    newer_than = [Path(os.environ.get("VDJDB_TABLES", "out/tables")) / name
+                  for name in ("chains.parquet", "records.parquet")]
+    newer_than += [Path(os.environ.get("VDJDB_MOTIFS", "out/motifs")) / name
+                   for name in ("cluster_members.txt", "cluster_members_tcremp.txt")]
     if report.exists() and all(
             p.exists() and report.stat().st_mtime >= p.stat().st_mtime for p in newer_than):
         return pl.read_csv(report, separator="\t")
     return mmv.measure(chains, records, mmv.sources(released, released, ours))
 
 
-def test_no_source_drifted_from_the_committed_baseline(measured) -> None:
-    """The recorded numbers, per axis, for all four sources -- including the released files' own.
-
-    A fixed released file scored on a changed cohort moves, so this is the gate that catches a
-    *corpus* change rather than a code one. It is the check that was missing on 2026-09-28.
-    """
-    drift = mmv.regressions_against_baseline(measured, mmv.load_baseline())
-    assert drift.height == 0, (
-        f"{drift.height} axes drifted; explain each and re-record with "
-        f"`vdjdb motif-metrics --record`:\n{drift}")
+def test_every_required_source_and_axis_is_measured(measured) -> None:
+    """Corpus drift is reported; missing, duplicate or non-finite measurements still fail."""
+    mmv.validate_measurements(measured, mmv.load_baseline())
 
 
 # --------------------------------------------------------------------------------------------

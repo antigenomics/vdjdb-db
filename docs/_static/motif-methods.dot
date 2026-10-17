@@ -1,0 +1,27 @@
+digraph motif_methods {
+  graph [rankdir=TB, bgcolor="white", pad="0.15", nodesep="0.35", ranksep="0.28"];
+  node [shape=box, style="rounded,filled", fillcolor="#f4f6f8", color="#465362", fontname="Arial", fontsize=12, margin="0.12,0.08"];
+  edge [color="#465362", arrowsize=0.7];
+  input [label="Assembled junctions, V/J calls, species, chain and reported peptide"];
+  subgraph cluster_net {
+    label=""; fontname="Arial"; color="#bac2ca";
+    n1 [label="TCRNET: one peptide group\n+ matched background"];
+    n2 [label="Batched edit-scope search\nsample and control degrees"];
+    n3 [label="Conditional binomial tail\nraw p + minimum degree"];
+    n4 [label="One-step recruitment\ninto enriched-seed graph"];
+    n5 [label="Connected components\nlength split and size floor"];
+    n1 -> n2 -> n3 -> n4 -> n5;
+  }
+  subgraph cluster_emp {
+    label=""; fontname="Arial"; color="#bac2ca";
+    e1 [label="TCREmp: unique receptor inputs\nseeded identity-priority fit sample"];
+    e2 [label="Prototype distances\nfit one scaler and PCA"];
+    e3 [label="Project unique receptor blocks\nwith the fitted transformation"];
+    e4 [label="Radius on unique receptors\nrestore labels; DBSCAN per peptide"];
+    e5 [label="Length split\nand final size floor"];
+    e1 -> e2 -> e3 -> e4 -> e5;
+  }
+  input -> n1; input -> e1;
+  out [label="Separate membership/PWM outputs per method\nEvaluate purity + retention, h/p/Q and independent-study lift"];
+  n5 -> out; e5 -> out;
+}

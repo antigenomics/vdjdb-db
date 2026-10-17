@@ -64,7 +64,7 @@ def context(db: dict, gene: str, *, n_components: int = tcremp.N_COMPONENTS) -> 
     ctx = {"gene": gene, "grp": grp, "bench": bench, "X": X,
            "epi": grp["antigen.epitope"].to_numpy(), "lab_df": lab_df, "keep": keep,
            "is_rep": lab_df["replicated"].to_numpy(),
-           "nn": tcremp.mean_nn_distance(X), "embed_secs": secs,
+           "nn": tcremp.mean_nn_distance(X, clonotypes=grp), "embed_secs": secs,
            "bench_epitopes": bench["antigen.epitope"].n_unique()}
     ctx["legacy"] = _measure(ctx, leg)
     return ctx

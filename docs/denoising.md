@@ -8,8 +8,8 @@ this document and a measurement disagree, the measurement is reported and this d
 Two papers define the method.
 
 1. **Shugay M, Luppov DV, Vlasova EK, Chudakov DM.** *Towards high-quality large-scale T cell
-   receptor antigen specificity data: challenges and promises.* **Nature Methods**, 3 September 2026.
-   [10.1038/s41592-026-03227-2](https://doi.org/10.1038/s41592-026-03227-2) · PMID 42693187.
+   receptor antigen specificity data: challenges and promises.* **Nature Methods** 23(10), 1932-1937 (2026; published online 3 September).
+   [10.1038/s41592-026-03227-2](https://doi.org/10.1038/s41592-026-03227-2) · [PMID 42693187](https://pubmed.ncbi.nlm.nih.gov/42693187/).
    *(Record verified against PubMed.)*
 2. **Luppov DV, Koneva AE, Bagaev DV, Alexandrova AV, Vlasova EK, Chudakov DM, Motozono C,
    Sewell AK, Shugay M.** *VDJdb in 2026: boosting T-cell receptor recognition evidence using
@@ -21,6 +21,148 @@ Two further documents are cited where they are used: the IMMREP25 audit
 manuscript (`~/vcs/manuscripts/2026-vdjdb-db-validation`) for the held-out check.
 
 ---
+
+
+## Mathematical specification of motif evidence
+
+![TCRNET and TCREmp processing and evaluation scheme](_static/motif-methods.svg)
+
+Editable diagram: [Graphviz source](_static/motif-methods.dot).
+
+This section defines the implemented statistic before the tuning interpretation below.
+VDJdb's `cdr3` strings are amino-acid **junctions**, including Cys104 and Phe/Trp118.
+The grouping used here is `(species, chain, antigen.epitope)`; restricting MHC alleles
+are not part of this grouping. These are peptide-conditioned motif annotations.
+The pMHC distinction in [the terminology standard](standards/terminology.md) still
+applies when interpreting recognition.
+
+### TCRNET neighbourhood test
+
+For one group, let $x_i$ be junction $i$ among $N$ distinct scored junctions, and
+let $B$ be the species- and chain-matched background of $M$ indexed junctions.
+Define $A_\theta(x,y)$ to be 1 if the sequences match the edit scope $\theta$,
+and 0 otherwise. At the shipped scope `1,0,0,1`, equal-length strings differing
+at at most one amino acid match. There is no V/J constraint in this search.
+The counts and pseudocounted neighbour probability are
+
+$$
+d_i=\sum_{j\ne i}A_\theta(x_i,x_j),\qquad
+b_i=\sum_{y\in B}A_\theta(x_i,y),\qquad
+\widehat\pi_i=\frac{b_i+1}{M+1}.
+$$
+
+The within-sample self-hit is removed; an exact hit in the independent background
+is retained. The background size is read from the index, rather than assumed to
+be the requested maximum of 1,000,000. The initial VDJdb sample is deduplicated on
+`(junction,V,J)`, but the published `vdjtools.overlap.tcrnet` counter collapses it
+again to junction alone and retains one representative V/J call. Thus $N$ here
+is the returned counter's row count, not the initial `(junction,V,J)` count.
+
+For $d_i\ge1$, `tcrnet.legacy_pvalue` computes
+
+$$
+p_i=\Pr\{Z_i\ge d_i\mid Z_i\ge1\}
+=\frac{\displaystyle\sum_{k=d_i}^{N}\binom Nk
+       \widehat\pi_i^k(1-\widehat\pi_i)^{N-k}}
+       {1-(1-\widehat\pi_i)^N},\qquad
+Z_i\sim\operatorname{Binomial}(N,\widehat\pi_i).
+$$
+
+Conditioning divides out the probability of entering a nonzero neighbourhood.
+The `+1` prevents a zero background count from forcing every positive degree to
+$p_i=0$. The use of $N$ trials is the historical implementation; the sample
+actually offers $N-1$ other junctions. The degree-only sensitivity calculation
+in §5.1 deliberately uses $N-1$ and is a different calculation. At $d_i=0$ the
+function still evaluates the displayed ratio; that value is not a conditional
+tail probability, and the separate degree floor excludes the row from enrichment.
+
+Both chains ship the decision $d_i\ge2$ and $p_i\le0.01$, with at least 10
+initial distinct `(junction,V,J)` rows required to score a group. The raw
+`p.legacy` sets that decision. The Poisson `p_enrichment` and diagnostic
+`q.legacy` columns do not set membership. In particular, a per-junction raw
+threshold is not an FDR guarantee over all tested junctions or over final motifs.
+
+
+For diagnostic multiple-testing adjustment, write $p_{(1)}\le\cdots\le p_{(m)}$
+for the ordered diagnostic probabilities from one peptide group ($m=N$ returned junctions).
+Degree-zero rows enter this family as probability 1; their raw legacy ratio is preserved
+separately. Standard
+Benjamini-Hochberg adjustment is
+
+$$
+q_{(i)}=\min\left(1,\min_{j\ge i}\frac{m p_{(j)}}{j}\right),
+$$
+
+followed by restoring the input order. Hence $q_i\ge p_i$: at an identical
+threshold, standard BH cannot call more junctions than the raw threshold.
+Earlier reversed-count interpretations of `q.legacy` were invalid because that
+diagnostic helper accumulated minima in input order rather than sorted-tail
+order. They do not describe standard BH, and neither diagnostic version sets
+the shipped raw-tail decision.
+
+The binomial model assumes independent background-like opportunities at a fixed
+query-specific probability. Recombination biases are represented by the matched
+background, but dependencies between related receptors and uncertainty in
+$\widehat\pi_i$ are not integrated out. The test is an enrichment model, not a
+posterior probability that a reported specificity is correct.
+
+### From tested junctions to a motif
+
+Let $E=\{i:d_i\ge2,\ p_i\le0.01\}$ be the enriched indices. The graph's vertex
+set is the one-step recruitment
+
+$$
+U=E\cup\{j:\exists i\in E,\ A_\theta(x_i,x_j)=1\}.
+$$
+
+An undirected edge joins every pair of distinct vertices in $U$ matching the same
+scope. Connected components of at least five scored vertices become motifs.
+Recruitment does not iterate outward until convergence: it takes one neighbourhood
+around enriched seeds, then computes all edges within that recruited set.
+Consequently a recruited member need not pass its own enrichment test, and two
+members of one component need not be within scope of each other.
+
+```text
+for each species and chain:
+    load one matched background index
+    for each eligible peptide group:
+        count sample and background neighbours in one batched search
+        compute conditional binomial tails and enriched seeds
+        recruit the seeds and their one-step neighbours
+        build all within-scope edges among recruited junctions
+        keep connected components with at least five vertices
+join retained members back to the records; emit evidence and logos
+```
+
+Implementation: `motifs/tcrnet.py::_samples`, `enrich`, `legacy_pvalue` and
+`enriched_clonotypes`; `motifs/cluster.py::_recruited`, `_edges`, `_components`
+and `clusters`. Native batched searches suffice for neighbour discovery; no
+Python all-pairs sequence comparison is used. Union-find computes components
+in near-linear time in the number of returned edges and vertices. Dense graphs
+can still have quadratic edge output.
+
+### Replication-prediction objective
+
+On the stated scoring cohort of $n$ distinct clonotype-peptide pairs, let
+$m_i$ indicate membership after final export and $r_i$ indicate more than one
+distinct reporting publication. Define
+
+$$
+\mathrm{TP}=\sum_i m_i r_i,\quad
+\mathrm{FP}=\sum_i m_i(1-r_i),\quad
+\mathrm{FN}=\sum_i(1-m_i)r_i,\quad
+\rho=\frac{\sum_i r_i}{n}.
+$$
+
+Then precision $P_R=\mathrm{TP}/(\mathrm{TP}+\mathrm{FP})$, recall
+$R_R=\mathrm{TP}/(\mathrm{TP}+\mathrm{FN})$,
+$F_{1,R}=2P_RR_R/(P_R+R_R)$ and $\mathrm{lift}=P_R/\rho$.
+A zero denominator produces zero in `motifs/tcremp.py::_objective`.
+These are predictions of **independent reporting**, whose interpretation as
+binding evidence uses the assumptions in §5.2. They are distinct from the
+majority-epitope assignment precision, recall and F1 defined in
+[the clustering metric specification](clustering.md#metric-definitions-and-denominators).
+The non-display denominator in §6.1 must be named when quoting lift.
 
 ## 1. False positives in assay-derived records
 
@@ -205,6 +347,33 @@ assumption ($r_0\ll r_1$ in particular), and the scored cohort is not the databa
 Both are computed by `vdjdb.validate.noise.controlled_lift`, with `pgen_stratum` supplying the
 strata from the `cdr3nt.pgen` column the build already generates. Report the raw lift and the
 controlled lift together, never the raw one alone.
+
+
+For completeness, `controlled_lift` implements this conditional null without
+materialising permutations. In generation-probability stratum $g$, let $n_g$ be
+the number of scored pairs, $k_g$ the replicated count and $c_g$ the clustered
+count. Under label exchangeability within each stratum,
+
+$$
+X_g\sim\operatorname{Hypergeometric}(n_g,k_g,c_g),\quad
+L_0=\frac{\sum_g X_g}{(\sum_g c_g)\rho},\quad
+\mathbb E[L_0]=
+\frac{\sum_g c_g k_g/n_g}{(\sum_g c_g)\rho}.
+$$
+
+Draws are independent across strata. $X_g$ counts replicated labels among the
+fixed clustered positions; preserving each $k_g$ keeps the global base rate
+$\rho=\sum_g k_g/\sum_g n_g$ unchanged. The implementation uses seeded
+hypergeometric draws and their sample mean for the denominator of
+$\mathrm{lift}_{\mathrm{ctrl}}$, rather than the analytic expectation above.
+Its empirical one-sided tail is the fraction of $B$ draws satisfying
+$L_0\ge\mathrm{lift}$, without a plus-one correction; a reported zero therefore
+means zero exceedances in $B$ draws, not a zero population tail probability.
+`pgen_stratum` uses ten equal-count bins of log-generation-probability, allowing
+duplicate cut points, and assigns missing or nonfinite values their own stratum.
+This conditional interpretation requires exchangeability within those bins;
+it does not remove unmeasured covariates. These formulas reconstruct the
+existing calculation and do not add a new control or rerun the recorded test.
 
 ## 6. The three tuning instruments
 

@@ -126,9 +126,42 @@ method.verification | ``tetramer-stain``, ``dextramer-stain``, ``pelimer-stain``
 
 > **Notes:**
 
-> If ``method.identification`` is left blank, the record is assigned the lowest confidence score possible.
+> Missing ``method.identification`` contributes no identification points. Verification or a
+> reported structure can still support the score; see {doc}`confidence-score`.
 
 > For special cases such as CD8-null tetramers, which use HLA with mutated residues that abrogate CD8 binding, specify ``cd8null-tetramer`` in ``method.identification`` rather than using the ``mhc.a`` field.
+
+### Linking immunomonitoring assays to a receptor
+
+The [supplement to the 2026 immunomonitoring review](https://media.springernature.com/original/springer-static/esm/art%3A10.1038%2Fs41596-026-01453-8/MediaObjects/41596_2026_1453_MOESM1_ESM.pdf)
+distinguishes clinical assay combinations (Supplementary Table 1), tissue sampling
+(Table 2) and assay capabilities (Table 3, printed pages 7-10). VDJdb records the
+sequence-to-pMHC assignment established by those assays:
+
+| Source evidence | Representation in VDJdb |
+|---|---|
+| pMHC-multimer staining linked to sequenced cells | Record the multimer's peptide and MHC and the identification method. Binding alone does not establish cytokine production or killing. |
+| AIM, cytokine capture, ICS, ELISpot/FluoroSpot, proliferation or killing | Record the reported stimulus and readout. A population response supports a receptor assignment only when the source links the responding cells or tested construct to that sequence. |
+| Bulk TCR sequencing | Record sequenced chains and the source's specificity-assignment evidence. Sequencing alone establishes neither specificity nor alpha-beta pairing. |
+| Single-cell TCR sequencing with phenotype or transcriptome | Record reported chain associations and `method.singlecell`. Phenotype, expansion or a transcriptomic prediction alone does not establish a pMHC assignment. |
+
+Use `method.identification` for the evidence that selected or assigned the receptor;
+use `method.verification` for a subsequent test of that receptor. Describe stimulation
+and its readout separately: a cytokine assay is not a direct affinity measurement.
+Use existing method terms where they describe the experiment, retain additional source
+detail in the comment and review issue, and check QC advisories for unfamiliar terms.
+The presence of an assay elsewhere in a paper does not verify every receptor in it.
+
+For pooled or overlapping-peptide stimulation, retain the pool assignment in the source
+review until an individual peptide is resolved. Do not assign each pool member to every
+responding receptor. Record a measured CD4/CD8 phenotype in `meta.cell.subset`; peptide
+length alone establishes neither subset nor MHC restriction.
+
+Keep anatomical material in `meta.tissue`, phenotype in `meta.cell.subset`, and distinct
+sampling times or experiments in `meta.replica.id`. Record culture or expansion in
+`method.identification`; if `meta.tissue` is `TCL`, retain the original anatomical source
+in the comment or review issue. Distinguish ex vivo from post-expansion frequencies and
+state whether support counts enumerate cells, reads or UMIs in the source review.
 
 ### Count-only records: a suggested denominator review
 
