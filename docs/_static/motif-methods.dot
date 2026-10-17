@@ -14,10 +14,10 @@ digraph motif_methods {
   }
   subgraph cluster_emp {
     label=""; fontname="Arial"; color="#bac2ca";
-    e1 [label="TCREmp: eligible peptide cohort\nseeded fit-row sample"];
+    e1 [label="TCREmp: unique receptor inputs\nseeded identity-priority fit sample"];
     e2 [label="Prototype distances\nfit one scaler and PCA"];
-    e3 [label="Project all input blocks\nwith the fitted transformation"];
-    e4 [label="Pooled nearest-neighbour radius\nDBSCAN within each peptide"];
+    e3 [label="Project unique receptor blocks\nwith the fitted transformation"];
+    e4 [label="Radius on unique receptors\nrestore labels; DBSCAN per peptide"];
     e5 [label="Length split\nand final size floor"];
     e1 -> e2 -> e3 -> e4 -> e5;
   }

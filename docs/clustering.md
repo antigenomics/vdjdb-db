@@ -399,9 +399,20 @@ it does not require every raw alignment dissimilarity to be a metric.
 library; its locked presets select 2,000 prototypes for human and mouse TRA/TRB.
 Prototype identity, order and backend version define the coordinate system and
 must match when comparing embeddings. The VDJdb reduction is then fitted anew
-on at most 25,000 seeded, uniformly selected input rows per species and chain.
-The input rows are distinct clonotype-peptide pairs, so one clonotype reported
-against multiple peptides may occupy several rows in this fit and pooled radius.
+on at most 25,000 unique receptor inputs per species and chain. The labelled
+cohort contains $N$ distinct clonotype-peptide pairs; the geometry first reduces it
+to the set $U$ of unique `(junction_aa, v_call, j_call)` inputs, with $M=|U|$.
+Peptide labels and record counts do not weight the scaler, PCA or pooled radius.
+
+The fit uses a deterministic sample **without replacement**, not a bootstrap.
+For each $x=(v,j,s)\in U$, compute a 128-bit BLAKE2b priority from the ASCII
+encoding of compact JSON `[SEED,s,v,j]`. Select the $f=\min(25000,M)$ smallest
+priorities, breaking ties lexicographically by `(s,v,j)`. Sort the selected
+inputs by that same receptor key before fitting. Each receptor's priority
+depends on its identity and seed, not its row position, peptide labels or
+cohort size. Reordering or duplicating labelled rows therefore leaves the fit
+unchanged. Genuine receptor additions or removals can change the selected set
+and fitted geometry; the procedure does not freeze a model between builds.
 
 Let $F$ be the fitted row set and $f=|F|$. For feature $t$, the scaler fits
 $\mu_t=f^{-1}\sum_{i\in F}z_{it}$ and
@@ -417,8 +428,10 @@ $$
 
 PCA is not whitened. The library's `random_state` and row sampling both use
 `vdjdb.config.SEED`. After fitting, the implementation embeds at most 20,000
-rows at a time, standardizes and projects each block immediately, and retains
-only the reduced $N\times d$ array. It does not fit a new PCA for each block.
+unique receptor inputs at a time, standardizes and projects each block immediately,
+and retains the reduced $M\times d$ array. It restores the $N$ labelled rows
+by their receptor keys after projection, using the same coordinates for every
+occurrence of a receptor. It does not fit a new PCA for each block.
 This bounds the wide-feature workspace by a block or the fit sample rather
 than all $N$ rows. Native batched embedding is the expensive step; it is called
 once per block, with sequential blocks and no worker pool around native threads.
@@ -440,13 +453,16 @@ attributed to that paper.
 On the pooled reduced matrix for one species and chain, define
 
 $$
-a_i=\min_{j\ne i}\|y_i-y_j\|_2,\qquad
+a_i=\min_{j\in U,\,j\ne i}\|y_i-y_j\|_2,\qquad
 \varepsilon=\operatorname{round}_{0.001}
-       \left(c\,\frac1N\sum_{i=1}^{N}a_i\right).
+       \left(c\,\frac1M\sum_{i\in U}a_i\right).
 $$
 
 Here $c=1.8$ for TRA and $c=1.55$ for TRB; the radius is rounded to three decimal
-places. Duplicate vectors can have $a_i=0$. Kneedle is diagnostic only (§5).
+places. A receptor reported against several peptides contributes once to this
+mean. Distinct receptor inputs can still yield identical vectors and $a_i=0$;
+the implementation deduplicates receptor inputs, not projected coordinates.
+Kneedle is diagnostic only (§5).
 For each peptide separately, DBSCAN uses Euclidean distance and this same
 $\varepsilon$. A core point has at least `min_samples=2` points, including
 itself, in its closed $\varepsilon$-ball. Clusters connect density-reachable
@@ -460,16 +476,19 @@ memory cost are specified by the
 
 ```text
 for each species and chain in the >=30-record peptide cohort:
-    select a seeded fit sample; embed it; fit one scaler and PCA
-    embed and project every input block with that fitted transformation
-    set eps from the pooled mean first non-self neighbour distance
+    reduce labelled rows to unique (junction, V, J) receptor inputs
+    select fit inputs by seeded identity priority; fit one scaler and PCA
+    embed and project every unique input block with that transformation
+    set eps from the mean first non-self neighbour distance on unique inputs
+    restore labelled rows by receptor key, reusing their coordinates
     for each peptide: run DBSCAN at eps, making cluster labels unique
     split each cluster by junction length
     discard length strata with fewer than five clonotypes
     number surviving strata deterministically and join records back
 ```
 
-Implementation: `motifs/tcremp.py::cohort`, `embed_reduced`, `mean_nn_distance`,
+Implementation: `motifs/tcremp.py::cohort`, `receptor_inputs`, `fit_indices`,
+`embed_reduced`, `mean_nn_distance`,
 `chain_eps`, `cluster_labels` and `clusters`. The final `cid` names one
 `(DBSCAN cluster, junction length)` stratum. Its `csz` counts distinct
 clonotype-peptide input rows, not the sum of `duplicate_count`. `x` and `y` in
