@@ -546,7 +546,7 @@ circos.clear()
 
 #### Detailed summary for HLA
 
-Representative data for Homo Sapiens MHC class I and II
+Representative data for Homo Sapiens MHC class I and II. Missing class-II partners are completed with the most commonly used compatible allele; imputed partners are marked in the source curation comments.
 
 ```{r message=FALSE, warning=FALSE}
 df.m = df %>% 

@@ -24,9 +24,12 @@ fatal. Do not maintain a second list of rules or copy historical finding counts 
 Inspect header shape and content together to catch a field shift that preserves row width.
 
 Every positive observation needs a reported junction and literal epitope. Class I requires its
-valid first chain and `B2M`. A partially reported class-II restriction may retain an unknown
-partner blank. Both MHC chains absent, contradictory class, invalid names and unsupported
-positive assignments block the affected records. Missing V/J or optional peptide provenance does
+valid first chain and `B2M`. Complete a partially reported class-II restriction from the source first, then use the most
+commonly used compatible partner, following the [metadata completion rule](../../docs/standards/columns.md#representative-parents-and-completed-mhc-pairs).
+Mark imputed partners and the submitted pair in `comment`. Correct known source errors before
+counting pair frequencies. Contradictory class, invalid names and unsupported positive assignments
+block the affected records. A source missing both chains needs a source-supported restriction
+or an explicitly recorded modal imputation before admission. Missing V/J or optional peptide provenance does
 not justify discarding a sequence-bearing observation.
 
 ## Inspect sequence repair
