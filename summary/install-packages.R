@@ -45,7 +45,7 @@ if (file.exists(rmd)) {
     regmatches(text, gregexpr("[A-Za-z][A-Za-z0-9.]*(?=::)", text, perl = TRUE))[[1]]
   ))
   # `dplyr` arrives inside tidyverse; base namespaces need no install.
-  undeclared <- setdiff(referenced, c(PACKAGES, "dplyr", "base", "stats", "utils", "grDevices"))
+  undeclared <- setdiff(referenced, c(PACKAGES, "dplyr", "base", "stats", "utils", "grDevices", "grid"))
   if (length(undeclared)) {
     stop("vdjdb_summary.Rmd references packages this script does not install: ",
          paste(undeclared, collapse = ", "))
