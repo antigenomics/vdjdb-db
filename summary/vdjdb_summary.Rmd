@@ -14,12 +14,12 @@ params:
 <!--
 The release dashboard. Its published fragment -- everything between `!summary_embed_start!` and
 `!summary_embed_end!` -- is extracted by `vdjdb.summary.render` and injected into vdjdb-web's
-`/overview`, so three properties of the output are load-bearing and asserted by
+`/overview`, so three properties of the output are asserted by
 `summary/check_summary.py`: the base64 images are single unbroken lines, there are no `<div>`
 wrappers, and the filename does not change.
 
-The paper figures live in `vdjdb_paper_figures.Rmd`, split off at the marker below. That is what
-keeps `maps`, `scatterpie` and `ggrepel` out of this render path.
+The historical paper figures are excluded; this render does not need `maps`, `scatterpie` or
+`ggrepel`.
 
 Every input is a parameter, so the render reads the build under `out/` rather than the stale 2024
 copy in `database/`, and it makes no network call:
