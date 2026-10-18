@@ -33,6 +33,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Optional evidence classifier; never loaded by database assembly.
+confidence = ["pgmpy==1.0.0", "scikit-learn>=1.4"]
 # Motif inference only. mirpy pulls kneed/matplotlib/seaborn/lifelines via its own [bench] extra,
 # which the data build has no use for -- keep them out of the assembly container.
 # pandas is here for exactly two call sites, both under `validate/`: `metrics_lib.py`, vendored from

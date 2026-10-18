@@ -68,3 +68,46 @@ The table below is rendered from `vdjdb.score.confidence` while this page builds
 
 ```{vdjdb-score-rules}
 ```
+
+## Optional evidence classifier
+
+The `confidence` extra provides an experimental classifier separate from the build's
+existing score. It uses nine features from completed build tables: the existing legacy
+score, TRA/TRB publication totals, the integrated donor total, four TRA/TRB motif flags
+(TCRNET and TCREmp), and mean predicted ipTM. It does not reconstruct assays from chunks
+or model allele-specific effects. Fitted models and outcomes are caller-supplied inputs.
+
+```python
+from vdjdb.score.evidence import FEATURES, categorical, integrate
+from vdjdb.score.bayes import fit, predict_marginals
+
+features = integrate(records, chains, evidence, queries)
+x = categorical(features.select(FEATURES))
+model = fit(x.to_dicts(), outcomes)  # independently supplied binary outcomes
+probabilities = predict_marginals(model, x.to_dicts())
+```
+
+Frames use the internal names returned by `vdjdb.emit.vdjdb3.read_table`.
+Queries supply `species`, `antigen.epitope`, `mhc.a`, `mhc.b`, `mhc.class`,
+`a_junction`, `a_v`, `a_j`, `b_junction`, `b_v`, `b_j`. Junctions include both
+conserved anchors; an absent chain is empty. V/J calls are grouped at gene resolution.
+
+The legacy score is used as built, taking the maximum across the integrated set.
+Publication totals count distinct references per chain/peptide/V-gene key. Donors
+count distinct nonempty publication/donor contexts for the integrated receptor:pMHC.
+Motif membership means a matching built entry belongs to a motif; explicit nonmembers
+are zero, while missing annotations remain unknown. The existing structure links supply
+ipTM, averaged over distinct linked models.
+
+Counts use bins `0`, `1`, `2`, `3+`; ipTM uses below 0.5, 0.5 to below 0.8, and
+at least 0.8. The legacy score keeps 0-3. The Bayesian model learns a tree over the
+categorical evidence conditional on the outcome, with Dirichlet smoothing. Missing
+fields and states absent from training are marginalized; all missing evidence returns
+the fitted prior. The returned model serializes to JSON. The caller owns grouped
+validation and the interpretation of the outcome; assay validation is not an affinity.
+
+`predict_marginals` returns `paired`, `TRA` and `TRB` probabilities from the same fitted
+network. The chain marginals condition only on that chain's publication and motif evidence;
+the other chain and paired legacy/donor/structure evidence are integrated out. Each predicts
+validation of the full interaction. It does not reinterpret a paired assay as a single-chain
+binding experiment. No extra model or imputed partner is needed.
