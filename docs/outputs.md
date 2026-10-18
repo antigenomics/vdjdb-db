@@ -263,7 +263,7 @@ gain a column per producer.
 | `motif_tcrnet_nonmember` | release tag | empty | 0 |
 | `motif_tcremp_nonmember` | release tag | empty | 0 |
 | `structure_native` | PDB | one PDB id | absent |
-| `structure_model` | exact complex/model hash | metric name | metric value |
+| `structure_model` | source model hash | metric name | metric value |
 
 Independent publication support is scoped to `(clonotype_id, antigen_epitope)`, not an exact
 paired receptor or MHC restriction. Each other publication is a separate value; the numeric score
@@ -283,10 +283,69 @@ method replaces both its positive and nonmember rows and refreshes `vdjdb.parque
 Pass `vdjdb build --structure-metadata <input.tsv.gz>` to attach the auxiliary structure metadata.
 The input requires `tcr_pmhc_hash` and Boolean `is_native`, and native rows require one valid
 `meta.structure.id` PDB identifier. Exact existing `chains.TCR_hash` links propagate across all
-records of that complex, not to single-chain matches. The build prints exact matched and unmatched hash counts. Unmatched hashes do not become evidence;
-no permissive gene or sequence repair is attempted at this boundary. A structure row has empty
-`gene`, so it applies to its complete record. Identical repeated model annotations are deduplicated;
-conflicting values for one hash and metric fail instead of selecting the best value.
+records of that complex, not to single-chain matches. Species and MHC class are checked against
+metadata when supplied, because the historical hash omits them. The build prints exact matched
+and unmatched hash counts. A structure row has empty `gene`, so it applies to its complete record.
+Identical repeated model annotations are deduplicated; conflicting values for one hash and metric
+fail instead of selecting the best value. Native evidence identifiers retain the source hash as
+well as the PDB accession.
+
+When metadata also provides both anchor-inclusive junctions (`cdr3.alpha`, `cdr3.beta`) and
+`antigen.epitope`, the build associates unmatched predicted models with that three-field key.
+Each chain must have one unique nonmissing current V gene known to the species-specific
+nomenclature authority across all candidate records before
+context filtering. Missing calls do not create competing genes and remain missing; multi-call
+and unresolved nonmissing annotations are rejected, while allele-only variation is allowed. Source
+V/J annotations need not match current annotations. Provided source species, MHC components and
+class restrict propagation to compatible records; current record context is preserved. Documented
+`H-2`/`H2-` prefix spelling and later numeric synonymous HLA fields may agree; expression suffixes
+remain distinct. This model association does not prove identical complete receptor constructs.
+The build reports additional predicted and native source hashes and record links.
+
+Native evidence additionally requires a compatible fully specified source pMHC context, or the
+same PDB ID on a current record with both junctions and peptide matching. The latter provenance
+route requires one current species/pMHC context for that source hash and PDB ID. Conflicting
+curated restrictions remain unlinked by provenance recovery. A recovered PDB association applies
+only to its matching PDB ID, even when another PDB ID shares the source hash. Hash-only metadata
+keeps the existing exact-hash API. No record annotation is rewritten by either association route.
+
+Optional `--structure-coordinates <coordinates_aa.tgz>` adds molecular proof for unmatched source
+hashes independently of three-field association. It requires the complete identity columns from
+`vdjdb.assemble.master.HASH_FIELDS`,
+`species` and `mhc.class` in the metadata. Reviewed gene spelling synonyms may match the complete
+receptor and pMHC identity. Otherwise the producer reads the archive once and requires exact
+alpha and beta mature variable-domain sequences, rebuilt from explicit known V/J alleles and
+the recorded anchor-inclusive junctions. Gene-only or ambiguous allele calls do not establish
+a domain. The modeled beta domain may also have one extra terminal E after the exact reference
+domain; the exact untrimmed domain is always checked. The coordinate peptide must equal the
+recorded peptide, and species, both MHC components and MHC class must agree. Later synonymous
+HLA fields can be compared at protein resolution; expression suffixes are preserved. One matching
+chain does not establish a molecular link.
+
+Archive members are `<source-hash>_aa_coordinates.tsv`, with one amino acid per `Chain`, `ResNum`
+pair and `Residue` containing its one-letter code. The required chain roles are `TCR_alpha`,
+`TCR_beta` and `peptide`. Each required chain must have contiguous residue numbers starting at 1.
+Members with a missing chain, an internal numbering gap or a different start are skipped rather
+than concatenated into molecular proof. The archive is an explicit input, never downloaded or
+extracted by the build. Recovery adds evidence to the existing table and retains the original source hash; it
+changes neither record identities nor `TCR_hash`. Hashes with no accepted association or molecular
+proof remain unlinked.
+
+By default the domain proof uses the bundled reference models already used for AIRR contigs.
+`--structure-full-germline` can supplement missing explicit allele keys through the published
+`vdjtools.model.reference.arda_full_germline` API. Set `ARDA_HOME` to a pinned local reference
+root **before starting the process**, for example:
+
+```bash
+ARDA_HOME=/path/to/reference vdjdb build --structure-metadata input.tsv.gz \
+  --structure-coordinates coordinates_aa.tgz --structure-full-germline --out out/
+```
+
+The root must already contain `database/vdj/<organism>/alleles.fasta`, `markup.tsv` and
+`cdr3_anchors.tsv`. This option neither downloads a reference nor changes the process environment
+or reference caches. Existing bundled flanks retain priority; absent explicit alleles remain
+unavailable. Preserve these raw inputs with the build recipe and their checksums.
+
 
 Predicted metrics are separate flat values: `num_contacts`, `ranking_confidence`, `plddt`, `ptm`,
 `iptm`, `tcr_pmhc_iptm`, `scanning_angle` and `pitch_angle`, when supplied. Absent metrics have no row.

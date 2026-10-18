@@ -19,6 +19,8 @@ the end to validate -- never to tune, never to annotate (`docs/outputs.md` §7).
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 import polars as pl
 
 from ..schema import EVIDENCE_TABLE_COLUMNS
@@ -100,15 +102,22 @@ def empty() -> pl.DataFrame:
 
 
 def build_evidence(records: pl.DataFrame, chains: pl.DataFrame,
-                   *, release: str = "dev", structure_metadata: pl.DataFrame | None = None) -> pl.DataFrame:
+                   *, release: str = "dev", structure_metadata: pl.DataFrame | None = None,
+                   structure_coordinates: Path | None = None,
+                   structure_full_germline: bool = False) -> pl.DataFrame:
     """Every producer's rows, concatenated.
 
     Publication support and optional structure metadata are assembled here. The motif stage
     appends its freshly inferred rows to the same table.
     """
+    if structure_coordinates is not None and structure_metadata is None:
+        raise ValueError("structure coordinates require structure metadata")
+    if structure_full_germline and structure_coordinates is None:
+        raise ValueError("full structure germline requires structure coordinates")
     parts = [independent_study(records, chains, release=release)]
     if structure_metadata is not None:
-        parts.append(structures(chains, structure_metadata, release=release))
+        parts.append(structures(chains, structure_metadata, release=release, records=records,
+                                coordinates=structure_coordinates, full_germline=structure_full_germline))
     return (pl.concat([p for p in parts if not p.is_empty()] or [empty()], how="vertical")
             .select(EVIDENCE_TABLE_COLUMNS)
             .sort("record_id", "evidence_id"))
@@ -118,22 +127,50 @@ STRUCTURE_METRICS = ("num_contacts", "ranking_confidence", "plddt", "ptm", "iptm
                      "tcr_pmhc_iptm", "scanning_angle", "pitch_angle")
 
 
-def structures(chains: pl.DataFrame, metadata: pl.DataFrame, *, release: str = "dev") -> pl.DataFrame:
-    """Link structure metadata by exact historical complex hash; never by a shared chain.
+def structures(chains: pl.DataFrame, metadata: pl.DataFrame, *, release: str = "dev",
+               records: pl.DataFrame | None = None, coordinates: Path | None = None,
+               full_germline: bool = False) -> pl.DataFrame:
+    """Link historical hashes and paired-junction/peptide model associations.
 
     Repeated metadata observations of one model must agree. Each predicted metric is a separate
-    value, and native metrics are excluded. Absent metrics produce no row.
+    value, and native metrics are excluded. Absent metrics produce no row. Supplying
+    ``records`` enables context-preserving paired-junction/peptide association. Coordinates
+    additionally enable complete-domain proof using explicit alleles.
     """
+    if full_germline and coordinates is None:
+        raise ValueError("full structure germline requires structure coordinates")
     required = {"tcr_pmhc_hash", "is_native"}
     if not required.issubset(metadata.columns):
         raise ValueError(f"structure metadata requires {sorted(required)}")
     m = metadata.with_columns(pl.col("is_native").cast(pl.String).str.to_lowercase())
     if m.filter(~pl.col("is_native").is_in(["true", "false"]) | pl.col("is_native").is_null()).height:
         raise ValueError("is_native must be true or false")
-    keys = chains.select("record_id", pl.col("TCR_hash").alias("tcr_pmhc_hash")).unique()
+    keys = chains.select(pl.col("TCR_hash").alias("tcr_pmhc_hash"), "record_id").unique()
     keys = keys.filter(pl.col("tcr_pmhc_hash").is_not_null() & (pl.col("tcr_pmhc_hash") != ""))
     if keys.group_by("record_id").len().filter(pl.col("len") > 1).height:
         raise ValueError("one record cannot identify different structural complexes")
+    if records is not None:
+        for column in ('species', 'mhc.class'):
+            if column in metadata.columns:
+                context = keys.join(metadata.select('tcr_pmhc_hash', column).unique(),
+                    on='tcr_pmhc_hash', how='inner').join(records.select('record_id', column),
+                    on='record_id', suffix='_current', validate='m:1')
+                if context.filter(pl.col(column).is_null() |
+                                  (pl.col(column) != pl.col(column + '_current'))).height:
+                    raise ValueError(f'structure hash disagrees on {column}')
+    predicted_keys = keys
+    native_keys = None
+    if records is not None:
+        from .structures import associate_links
+        predicted_extra, native_extra = associate_links(records, chains, m, keys)
+        predicted_keys = pl.concat([keys, predicted_extra]).unique()
+        native_keys = native_extra
+    if coordinates is not None:
+        if records is None:
+            raise ValueError('coordinate recovery requires records')
+        from .structures import recover_links
+        keys = recover_links(records, chains, metadata, coordinates, keys, full_germline=full_germline)
+        predicted_keys = pl.concat([keys, predicted_keys]).unique()
     parts = []
     native = m.filter(pl.col("is_native") == "true")
     if native.height:
@@ -141,11 +178,16 @@ def structures(chains: pl.DataFrame, metadata: pl.DataFrame, *, release: str = "
             ~pl.col("meta.structure.id").fill_null("").str.contains(r"^[0-9][A-Za-z0-9]{3}$")
         ).height:
             raise ValueError("native metadata requires one PDB id per row")
-        parts.append(native.select("tcr_pmhc_hash",
+        native_parts = native.select("tcr_pmhc_hash",
             pl.lit("structure_native").alias("evidence_type"),
             pl.lit("PDB").alias("evidence_source"),
             pl.col("meta.structure.id").str.to_lowercase().alias("evidence_value"),
-            pl.lit(None, dtype=pl.Float64).alias("evidence_score")))
+            pl.lit(None, dtype=pl.Float64).alias("evidence_score"))
+        native_linked = native_parts.join(keys, on="tcr_pmhc_hash", how="inner")
+        if native_keys is not None:
+            native_linked = pl.concat([native_linked, native_parts.join(native_keys.rename(
+                {"pdb_id": "evidence_value"}), on=["tcr_pmhc_hash", "evidence_value"], how="inner")])
+        parts.append(native_linked)
     metrics = [c for c in STRUCTURE_METRICS if c in m.columns]
     if metrics:
         predicted = (m.filter(pl.col("is_native") == "false")
@@ -161,13 +203,17 @@ def structures(chains: pl.DataFrame, metadata: pl.DataFrame, *, release: str = "
             raise ValueError("conflicting metrics for one structure hash; supply distinct model identities")
         parts.append(predicted.select("tcr_pmhc_hash",
             pl.lit("structure_model").alias("evidence_type"),
-            pl.col("tcr_pmhc_hash").alias("evidence_source"), "evidence_value", "evidence_score"))
+            pl.col("tcr_pmhc_hash").alias("evidence_source"), "evidence_value", "evidence_score")
+            .join(predicted_keys, on="tcr_pmhc_hash", how="inner"))
     if not parts:
         return empty()
-    return (pl.concat(parts).unique().join(keys, on="tcr_pmhc_hash", how="inner", validate="m:m")
+    return (pl.concat(parts).unique()
         .with_columns(pl.lit("").alias("gene"), pl.lit(release).alias("first_seen_release"),
-            pl.concat_str("evidence_type", "evidence_source", "evidence_value", separator=":")
-              .alias("evidence_id"))
+            pl.when(pl.col("evidence_type") == "structure_native").then(
+                pl.concat_str("evidence_type", "evidence_source", "evidence_value",
+                              "tcr_pmhc_hash", separator=":"))
+            .otherwise(pl.concat_str("evidence_type", "evidence_source", "evidence_value", separator=":"))
+            .alias("evidence_id"))
         .select(EVIDENCE_TABLE_COLUMNS).unique().sort("record_id", "evidence_id"))
 
 
