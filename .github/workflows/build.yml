@@ -127,10 +127,21 @@ jobs:
       - name: Presentation reference input
         run: uv run vdjdb epitope-reference --out out/inputs
 
+      - name: Structure metadata input
+        run: |
+          mkdir -p out/inputs
+          curl -fsSL --retry 5 --retry-connrefused --retry-delay 5 \
+            -o out/inputs/vdjdb_structures_metadata.tsv.gz \
+            https://huggingface.co/datasets/isalgo/vdjdb_structure_models/resolve/337b7e4336ef4c8cd12a4173b4fdce331d9b2a35/vdjdb_structures_metadata.tsv.gz
+          printf '%s  %s\n' \
+            86bbfefd3a59229842504da546bef16e41de366db7ee0d08d339c6e2904fc409 \
+            out/inputs/vdjdb_structures_metadata.tsv.gz | sha256sum -c -
+
       - name: Assemble
         run: |
           . .github/stage-timing.sh
-          stage assemble uv run vdjdb build --out out/ --pmhc-reference out/inputs/pmhc/pmhc_full.tsv.gz --epitope-jobs 4
+          stage assemble uv run vdjdb build --out out/ --pmhc-reference out/inputs/pmhc/pmhc_full.tsv.gz --epitope-jobs 4 \
+            --structure-metadata out/inputs/vdjdb_structures_metadata.tsv.gz
           stage emit-legacy uv run vdjdb make legacy --tables out/tables --out out/legacy
           stage emit-airr uv run vdjdb convert airr --tables out/tables --out out/airr
 
