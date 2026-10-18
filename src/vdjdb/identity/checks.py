@@ -130,9 +130,15 @@ def _referential(tables: dict[str, pl.DataFrame]) -> list[Finding]:
             if not blank.is_empty():
                 out.append(Finding(6, f"{level.column} is empty on a record",
                                    blank.height, _sample(blank.select("record_id"))))
+    if evidence is not None and records is not None:
+        record_ev = evidence.filter(pl.col("gene") == "")
+        orphan = record_ev.join(records.select("record_id"), on="record_id", how="anti")
+        if not orphan.is_empty():
+            out.append(Finding(6, "an evidence row names a record that does not exist",
+                               orphan.height, _sample(orphan.select("record_id").unique())))
     if evidence is not None and chains is not None and "gene" in evidence.columns:
-        orphan = evidence.join(chains.select("record_id", "gene"), on=["record_id", "gene"],
-                               how="anti")
+        orphan = evidence.filter(pl.col("gene") != "").join(
+            chains.select("record_id", "gene"), on=["record_id", "gene"], how="anti")
         if not orphan.is_empty():
             out.append(Finding(6, "an evidence row names a chain that does not exist",
                                orphan.height, _sample(orphan.select("record_id", "gene").unique())))

@@ -164,6 +164,9 @@ def build(
         None, help="Pinned pMHC input from epitope-reference; no download."),
     epitope_jobs: int = typer.Option(
         1, min=1, help="Processes for epitope assessment; one native thread each."),
+    structure_metadata: Path | None = typer.Option(
+        None, exists=True, dir_okay=False,
+        help="Pinned structure metadata TSV or TSV.gz; exact complex-hash links."),
 ) -> None:
     """Assemble the database: the definitive tables, and every format projected from them."""
     import polars as pl
@@ -192,7 +195,8 @@ def build(
     paths = chunk_files(chunks) if chunks else None
     with stage("assemble.master.build_master"):
         master = build_master(paths, write_report=out / "reports" / "harmonisation.tsv")
-    built = build_tables(master, release=release, pmhc_reference=pmhc_reference, epitope_jobs=epitope_jobs)
+    built = build_tables(master, release=release, pmhc_reference=pmhc_reference,
+                         epitope_jobs=epitope_jobs, structure_metadata=structure_metadata)
     out.mkdir(parents=True, exist_ok=True)
 
     # Advisory, and deliberately not a gate: a value one character from another may be a typo or may
@@ -460,11 +464,12 @@ def motifs(
     tables: Path = typer.Option(Path("out/tables"), help="The definitive tables to infer from."),
     p: float = typer.Option(None, help="Enrichment p threshold (default: per-chain tcrnet.TUNED)."),
     methods: str = typer.Option("tcrnet,tcremp", help="Which methods to run."),
+    release: str = typer.Option("dev", help="Release tag for linked motif evidence."),
 ) -> None:
     """Infer TCRNET and TCREMP motifs: cluster_members*.txt and motif_pwms*.txt."""
     from .motifs import run
     written = run(tables, out, reports, p=p,
-                  methods=tuple(m.strip() for m in methods.split(",")))
+                  methods=tuple(m.strip() for m in methods.split(",")), release=release)
     for name, rows in written.items():
         typer.echo(f"{name:24} {rows:>9,} rows")
 

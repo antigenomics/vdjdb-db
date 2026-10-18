@@ -69,13 +69,13 @@ def _root() -> Path:
 def chains() -> pl.DataFrame:
     """The shipped chains with their species, which is what both legacy checks read."""
     tables = Path(os.environ.get("VDJDB_TABLES", "out/tables"))
-    missing = [n for n in ("chains.tsv", "records.tsv") if not (tables / n).exists()]
+    missing = [n for n in ("chains.tsv.gz", "records.tsv.gz") if not (tables / n).exists()]
     if missing:
         pytest.skip(f"no built tables: {', '.join(missing)}")
     # The TSV, not the parquet: these checks assert on what shipped as text. `to_internal` puts the
     # shipped `underscore_case` header back under the names the rest of this file uses.
-    ch = to_internal(pl.read_csv(tables / "chains.tsv", separator="\t", infer_schema_length=0))
-    rec = to_internal(pl.read_csv(tables / "records.tsv", separator="\t", infer_schema_length=0))
+    ch = to_internal(pl.read_csv(tables / "chains.tsv.gz", separator="\t", infer_schema_length=0))
+    rec = to_internal(pl.read_csv(tables / "records.tsv.gz", separator="\t", infer_schema_length=0))
     return ch.join(rec.select("record_id", "species"), on="record_id", how="left")
 
 

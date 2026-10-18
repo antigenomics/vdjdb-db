@@ -74,3 +74,48 @@ def test_no_producer_yields_an_empty_table_with_the_right_schema():
     ev = build_evidence(*tables(("r1", "c", "GIL", "PMID:1")))
     assert ev.is_empty()
     assert tuple(ev.columns) == EVIDENCE_TABLE_COLUMNS
+
+
+def test_support_references_are_individual_values():
+    records, chains = tables(('r1','c','GIL','PMID:1'),('r2','c','GIL','PMID:2'),
+                             ('r3','c','GIL','PMID:3'))
+    ev = independent_study(records, chains)
+    assert ev.height == 6
+    assert ev.filter(pl.col('record_id')=='r1')['evidence_value'].to_list() == ['PMID:2','PMID:3']
+    assert ev.select('record_id','evidence_id').n_unique() == 6
+    assert ev['evidence_score'].unique().to_list() == [3.]
+
+
+def test_structures_link_exact_complexes_and_keep_metrics_separate():
+    from vdjdb.assemble.evidence import structures
+    chains = pl.DataFrame({'record_id':['r1','r1','r2','r3'], 'gene':['TRA','TRB','TRA','TRA'],
+                           'TCR_hash':['h1','h1','h1','h2']})
+    metadata = pl.DataFrame({'tcr_pmhc_hash':['h1','h1','h1','unmatched'],
+        'is_native':['False','False','True','False'], 'meta.structure.id':['','','1abc',''],
+        'iptm':['0.7','0.7','1.0','0.9'], 'num_contacts':['10','10','12','15']})
+    ev = structures(chains,metadata,release='v1')
+    assert ev['record_id'].unique().sort().to_list() == ['r1','r2']
+    assert ev['gene'].unique().to_list() == ['']
+    assert ev.height == 6  # native + two model metrics, once per record, never per chain
+    scores = ev.filter(pl.col('evidence_type')=='structure_model')['evidence_score'].sort().to_list()
+    assert scores == [.7,.7,10.,10.]
+    assert ev.select('record_id','evidence_id').n_unique() == ev.height
+    import pytest
+    with pytest.raises(ValueError,match='conflicting'):
+        structures(chains,pl.concat([metadata, metadata.head(1).with_columns(pl.lit('0.8').alias('iptm'))]))
+
+
+def test_motif_evidence_distinguishes_nonmembership_from_unavailable():
+    from vdjdb.assemble.evidence import motifs
+    records = pl.DataFrame({'record_id':['r1','r2','r3','r4'], 'species':['HomoSapiens']*4,
+                            'antigen.epitope':['P','P','Q','P']})
+    chains = pl.DataFrame({'record_id':['r1','r2','r3','r4'],'gene':['TRA']*4,
+        'cdr3':['CASF','CATF','CASF','CASF'],'v.segm':['V1','V1','V1','V2'],'j.segm':['J1']*4})
+    cohort = pl.DataFrame({'species':['HomoSapiens']*2,'gene':['TRA']*2,
+        'antigen.epitope':['P']*2,'junction_aa':['CASF','CATF'],'v_call':['V1']*2,'j_call':['J1']*2})
+    members = cohort.head(1).with_columns(pl.lit('cluster1').alias('cid'),pl.lit(5).alias('csz'))
+    ev = motifs(records,chains,cohort,members,method='tcrnet',release='v1')
+    assert dict(zip(ev['record_id'],ev['evidence_score'], strict=True)) == {'r1':5.,'r2':0.,'r4':5.}
+    assert ev.filter(pl.col('record_id')=='r2')['evidence_type'].item() == 'motif_tcrnet_nonmember'
+    emp = motifs(records,chains,cohort,members,method='tcremp')
+    assert emp['record_id'].to_list() == ['r1','r2']

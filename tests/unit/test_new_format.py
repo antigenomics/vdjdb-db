@@ -1,6 +1,7 @@
 """The new format: the joined view, the parquet round-trip, and the generated schema."""
 from __future__ import annotations
 
+import gzip
 import json
 
 import polars as pl
@@ -74,11 +75,14 @@ def test_the_view_is_one_row_per_chain_and_carries_the_evidence_it_has(tables):
     assert view["evidence.validation.independent"].to_list() == [True, True]
 
 
-def test_record_level_evidence_is_refused_rather_than_silently_dropped(tables):
-    """Structure evidence covers a receptor, not a chain. When it lands it needs a second join."""
-    tables["evidence"] = tables["evidence"].with_columns(pl.lit("").alias("gene"))
-    with pytest.raises(NotImplementedError, match="record_id"):
-        vdjdb3.joined(tables)
+def test_record_level_evidence_reaches_both_chains_and_zero_motifs_stay_false(tables):
+    tables['evidence'] = tables['evidence'].with_columns(
+        pl.lit('').alias('gene'), pl.lit('structure_model').alias('evidence_type'))
+    assert vdjdb3.joined(tables)['evidence.structure.model'].to_list() == [True, True]
+    tables['evidence'] = tables['evidence'].with_columns(
+        pl.lit('TRB').alias('gene'), pl.lit('motif_tcrnet').alias('evidence_type'),
+        pl.lit(0.).alias('evidence_score'))
+    assert vdjdb3.joined(tables)['evidence.motif.tcrnet'].to_list() == [False, False]
 
 
 def test_tables_round_trip_through_parquet_unchanged(tmp_path, tables):
@@ -90,7 +94,7 @@ def test_tables_round_trip_through_parquet_unchanged(tmp_path, tables):
 
 def test_older_tables_without_assessment_still_project_to_legacy(tmp_path, tables):
     vdjdb3.write_all(tables, tmp_path / "tables")
-    for suffix in ("parquet", "tsv"):
+    for suffix in ("parquet", "tsv.gz"):
         (tmp_path / "tables" / f"epitope_assessment.{suffix}").unlink()
     old = vdjdb3.read_tables(tmp_path / "tables")
     assert "epitope_assessment" not in old
@@ -136,9 +140,9 @@ def test_the_tidy_tables_ship_underscore_names_and_the_legacy_ones_do_not(tmp_pa
     """
     written = vdjdb3.write_all(tables, tmp_path / "new")
     for name in written:
-        if not name.endswith(".tsv"):
+        if not name.endswith(".tsv.gz"):
             continue
-        header = (tmp_path / "new" / name).read_text().split("\n", 1)[0].split("\t")
+        header = gzip.decompress((tmp_path / "new" / name).read_bytes()).decode().splitlines()[0].split("\t")
         assert not [c for c in header if "." in c], (name, [c for c in header if "." in c])
 
     legacy_files = legacy.write_all(tables, tmp_path / "legacy")
@@ -162,3 +166,35 @@ def test_reading_a_tidy_table_back_restores_every_internal_name(tmp_path, tables
     # and a projection asks in internal names, not shipped ones
     got = vdjdb3.read_table(tmp_path, "records", ["record_id", "antigen.epitope"])
     assert got.columns == ["record_id", "antigen.epitope"]
+
+
+def test_compressed_text_is_deterministic_and_matches_parquet(tmp_path, tables):
+    import io
+    for folder in ('a', 'b'):
+        vdjdb3.write_all(tables, tmp_path/folder)
+    for name in tables:
+        a = tmp_path/'a'/f'{name}.tsv.gz'
+        assert a.read_bytes() == (tmp_path/'b'/a.name).read_bytes()
+        text = pl.read_csv(io.BytesIO(gzip.decompress(a.read_bytes())), separator='\t')
+        assert text.height == tables[name].height
+    assert not (tmp_path/'a'/'vdjdb.tsv.gz').exists()
+
+
+def test_motif_run_replaces_its_evidence_and_refreshes_view(tmp_path, tables, monkeypatch):
+    from vdjdb import motifs
+    from vdjdb.assemble.evidence import empty
+    vdjdb3.write_all(tables, tmp_path/'tables')
+    ev = empty().vstack(pl.DataFrame({
+        'record_id':['VDJDB0000000001'], 'gene':['TRB'], 'evidence_id':['motif_tcrnet:TRB'],
+        'evidence_type':['motif_tcrnet'], 'evidence_source':['v1'], 'evidence_value':['cid'],
+        'evidence_score':[5.], 'first_seen_release':['v1']}))
+    monkeypatch.setattr(motifs, 'run_tcrnet', lambda *a,**k: ({}, ev))
+    monkeypatch.setattr(motifs, 'per_epitope_report', lambda *a,**k: 0)
+    for _ in range(2):
+        motifs.run(tmp_path/'tables', tmp_path/'motifs', tmp_path/'reports', methods=('tcrnet',))
+    evidence = vdjdb3.read_table(tmp_path/'tables','evidence')
+    assert evidence.height == tables['evidence'].height + 1
+    assert vdjdb3.read_table(tmp_path/'tables','vdjdb')['evidence.motif.tcrnet'].to_list() == [True,False]
+    ev = ev.head(0)
+    motifs.run(tmp_path/'tables', tmp_path/'motifs', tmp_path/'reports', methods=('tcrnet',))
+    assert not vdjdb3.read_table(tmp_path/'tables','vdjdb')['evidence.motif.tcrnet'].any()

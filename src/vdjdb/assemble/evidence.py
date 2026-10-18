@@ -56,9 +56,9 @@ def support_counts(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
 
 def independent_study(records: pl.DataFrame, chains: pl.DataFrame,
                       *, release: str = "dev") -> pl.DataFrame:
-    """One evidence row per chain whose clonotype-epitope pair more than one publication reports.
+    """One row per other reporting publication for each replicated chain-epitope observation.
 
-    ``evidence_value`` is the other references, so a reader gets "who else saw this" rather than a
+    ``evidence_value`` is one other reference, so a reader gets "who else saw this" rather than a
     list containing the paper they are already reading. ``evidence_score`` is the number of distinct
     references, the pair's total.
     """
@@ -70,17 +70,19 @@ def independent_study(records: pl.DataFrame, chains: pl.DataFrame,
         .join(records.select("record_id", "antigen.epitope", "reference.id"),
               on="record_id", how="left")
         .join(supported, on=SUPPORT_KEY, how="inner")
+        .with_columns(pl.col("references").list.set_difference(pl.concat_list("reference.id"))
+                      .list.sort().alias("__reference"))
+        .explode("__reference", empty_as_null=True)
         .select(
             "record_id", "gene",
             # `(record_id, evidence_id)` is the key, so the id only has to separate a record's own
             # evidence. A readable natural value beats a hash nobody can trace back.
-            pl.concat_str(pl.lit(INDEPENDENT_STUDY), pl.col("gene"), separator=":")
+            pl.concat_str(pl.lit(INDEPENDENT_STUDY), pl.col("gene"), pl.col("__reference"), separator=":")
               .alias("evidence_id"),
             pl.lit(INDEPENDENT_STUDY).alias("evidence_type"),
-            # The corpus itself is the source; there is no external database to name.
-            pl.lit("").alias("evidence_source"),
-            pl.col("references").list.set_difference(pl.concat_list("reference.id"))
-              .list.sort().list.join(",").alias("evidence_value"),
+            # Each source citation is an individual value, never a joined list.
+            pl.col("__reference").alias("evidence_source"),
+            pl.col("__reference").alias("evidence_value"),
             pl.col("studies").cast(pl.Float64).alias("evidence_score"),
             pl.lit(release).alias("first_seen_release"),
         )
@@ -98,13 +100,106 @@ def empty() -> pl.DataFrame:
 
 
 def build_evidence(records: pl.DataFrame, chains: pl.DataFrame,
-                   *, release: str = "dev") -> pl.DataFrame:
+                   *, release: str = "dev", structure_metadata: pl.DataFrame | None = None) -> pl.DataFrame:
     """Every producer's rows, concatenated.
 
-    One producer today. Motif clusters (phases 10-11) and structures (phase 8) append rows here
-    rather than adding a column anywhere; that is what the long shape is for.
+    Publication support and optional structure metadata are assembled here. The motif stage
+    appends its freshly inferred rows to the same table.
     """
     parts = [independent_study(records, chains, release=release)]
+    if structure_metadata is not None:
+        parts.append(structures(chains, structure_metadata, release=release))
     return (pl.concat([p for p in parts if not p.is_empty()] or [empty()], how="vertical")
             .select(EVIDENCE_TABLE_COLUMNS)
             .sort("record_id", "evidence_id"))
+
+
+STRUCTURE_METRICS = ("num_contacts", "ranking_confidence", "plddt", "ptm", "iptm",
+                     "tcr_pmhc_iptm", "scanning_angle", "pitch_angle")
+
+
+def structures(chains: pl.DataFrame, metadata: pl.DataFrame, *, release: str = "dev") -> pl.DataFrame:
+    """Link structure metadata by exact historical complex hash; never by a shared chain.
+
+    Repeated metadata observations of one model must agree. Each predicted metric is a separate
+    value, and native metrics are excluded. Absent metrics produce no row.
+    """
+    required = {"tcr_pmhc_hash", "is_native"}
+    if not required.issubset(metadata.columns):
+        raise ValueError(f"structure metadata requires {sorted(required)}")
+    m = metadata.with_columns(pl.col("is_native").cast(pl.String).str.to_lowercase())
+    if m.filter(~pl.col("is_native").is_in(["true", "false"]) | pl.col("is_native").is_null()).height:
+        raise ValueError("is_native must be true or false")
+    keys = chains.select("record_id", pl.col("TCR_hash").alias("tcr_pmhc_hash")).unique()
+    keys = keys.filter(pl.col("tcr_pmhc_hash").is_not_null() & (pl.col("tcr_pmhc_hash") != ""))
+    if keys.group_by("record_id").len().filter(pl.col("len") > 1).height:
+        raise ValueError("one record cannot identify different structural complexes")
+    parts = []
+    native = m.filter(pl.col("is_native") == "true")
+    if native.height:
+        if "meta.structure.id" not in native.columns or native.filter(
+            ~pl.col("meta.structure.id").fill_null("").str.contains(r"^[0-9][A-Za-z0-9]{3}$")
+        ).height:
+            raise ValueError("native metadata requires one PDB id per row")
+        parts.append(native.select("tcr_pmhc_hash",
+            pl.lit("structure_native").alias("evidence_type"),
+            pl.lit("PDB").alias("evidence_source"),
+            pl.col("meta.structure.id").str.to_lowercase().alias("evidence_value"),
+            pl.lit(None, dtype=pl.Float64).alias("evidence_score")))
+    metrics = [c for c in STRUCTURE_METRICS if c in m.columns]
+    if metrics:
+        predicted = (m.filter(pl.col("is_native") == "false")
+            .select("tcr_pmhc_hash", *metrics)
+            .unpivot(index="tcr_pmhc_hash", variable_name="evidence_value", value_name="__value")
+            .with_columns(pl.col("__value").cast(pl.String).replace(["", "NA", "NaN", "nan"], None)
+                          .cast(pl.Float64).alias("evidence_score"))
+            .drop_nulls("evidence_score"))
+        if predicted.filter(~pl.col("evidence_score").is_finite()).height:
+            raise ValueError("structure metrics must be finite or absent")
+        if predicted.group_by("tcr_pmhc_hash", "evidence_value").agg(
+            pl.col("evidence_score").n_unique().alias("n")).filter(pl.col("n") > 1).height:
+            raise ValueError("conflicting metrics for one structure hash; supply distinct model identities")
+        parts.append(predicted.select("tcr_pmhc_hash",
+            pl.lit("structure_model").alias("evidence_type"),
+            pl.col("tcr_pmhc_hash").alias("evidence_source"), "evidence_value", "evidence_score"))
+    if not parts:
+        return empty()
+    return (pl.concat(parts).unique().join(keys, on="tcr_pmhc_hash", how="inner", validate="m:m")
+        .with_columns(pl.lit("").alias("gene"), pl.lit(release).alias("first_seen_release"),
+            pl.concat_str("evidence_type", "evidence_source", "evidence_value", separator=":")
+              .alias("evidence_id"))
+        .select(EVIDENCE_TABLE_COLUMNS).unique().sort("record_id", "evidence_id"))
+
+
+def motifs(records: pl.DataFrame, chains: pl.DataFrame, cohort: pl.DataFrame,
+           members: pl.DataFrame, *, method: str, release: str = "dev") -> pl.DataFrame:
+    """Producer-scored membership: positive cluster size, zero nonmember, absent unscored.
+
+    TCRNET evidence follows junction identity without V/J restrictions; TCREmp uses its complete
+    embedding input. Both are conditioned on species, chain and peptide, not an inferred MHC.
+    """
+    if method not in ("tcrnet", "tcremp"):
+        raise ValueError(f"unknown motif method: {method}")
+    key = ["species", "gene", "antigen.epitope", "junction_aa"]
+    if method == "tcremp":
+        key += ["v_call", "j_call"]
+    eligible = cohort.select(key).unique()
+    hits = members.select(*key, "cid", "csz").unique()
+    if hits.group_by(key).len().filter(pl.col("len") > 1).height:
+        raise ValueError("conflicting motif membership for one producer input")
+    if hits.join(eligible, on=key, how="anti").height:
+        raise ValueError("motif member absent from producer cohort")
+    query = (chains.select("record_id", "gene", pl.col("cdr3").alias("junction_aa"),
+                           pl.col("v.segm").alias("v_call"), pl.col("j.segm").alias("j_call"))
+        .join(records.select("record_id", "species", "antigen.epitope"), on="record_id", validate="m:1"))
+    return (query.join(eligible.join(hits, on=key, how="left", validate="1:1"),
+                       on=key, how="inner", validate="m:1")
+        .select("record_id", "gene",
+            pl.concat_str(pl.lit(f"motif_{method}"), "gene", separator=":").alias("evidence_id"),
+            pl.when(pl.col("csz").is_not_null()).then(pl.lit(f"motif_{method}"))
+              .otherwise(pl.lit(f"motif_{method}_nonmember")).alias("evidence_type"),
+            pl.lit(release).alias("evidence_source"),
+            pl.col("cid").fill_null("").alias("evidence_value"),
+            pl.col("csz").fill_null(0).cast(pl.Float64).alias("evidence_score"),
+            pl.lit(release).alias("first_seen_release"))
+        .sort("record_id", "evidence_id"))

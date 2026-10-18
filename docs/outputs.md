@@ -84,7 +84,10 @@ not a convention.
 ## 3. New VDJdb format - `vdjdb-<version>.zip`
 
 A normalised star schema rather than one denormalised table. Three fact tables plus the joined view.
-Parquet, with a TSV projection of each for users without a parquet reader.
+Parquet, with deterministic gzip TSV projections of the normalized tables for text readers.
+The joined convenience view is Parquet only. A rebuild removes obsolete uncompressed table
+projections. Legacy and AIRR text layouts remain unchanged. Use the primary ZIP or Parquet
+files with vdjmatch; its text-only linked-table loader does not discover `.tsv.gz` files.
 
 **Column names here are `underscore_case`**, not the dotted names the legacy tables use: `mhc_a`,
 `antigen_epitope`, `v_segm`, `cdr3nt_pgen`. A dot is a table qualifier in SQL and blocks attribute
@@ -254,18 +257,43 @@ gain a column per producer.
 
 | `evidence_type` | `evidence_source` | `evidence_value` | `evidence_score` |
 |---|---|---|---|
-| `independent_study` | - | the other `reference.id`s, sorted | count of distinct references |
-| `motif_tcrnet` | release tag | cluster id | cluster size |
-| `motif_tcremp` | release tag | cluster id | cluster size |
-| `structure_native` | PDB | PDB id | - |
-| `structure_model` | model set id | structure hash | model confidence |
+| `independent_study` | one other reporting reference | the same reference | total distinct reference count |
+| `motif_tcrnet` | release tag | cluster id | cluster size, positive |
+| `motif_tcremp` | release tag | cluster id | cluster size, positive |
+| `motif_tcrnet_nonmember` | release tag | empty | 0 |
+| `motif_tcremp_nonmember` | release tag | empty | 0 |
+| `structure_native` | PDB | one PDB id | absent |
+| `structure_model` | exact complex/model hash | metric name | metric value |
 
-`independent_study` is the only producer today: 53,913 rows over 48,893 records, scores 2 to 41. It is
-the same computation as the ROADMAP §11.1 tuning objective, in one implementation, so the shipped
-column and the objective cannot disagree.
+Independent publication support is scoped to `(clonotype_id, antigen_epitope)`, not an exact
+paired receptor or MHC restriction. Each other publication is a separate value; the numeric score
+remains the total number of distinct references, not the number of evidence rows. The original
+`records` and `chains` tables retain every publication's observations, methods and metadata. Join
+these on the required receptor and pMHC identity to aggregate evidence at another resolution. A
+method reported for one partner is not transferred through a shared chain.
 
-Structure evidence is keyed on the legacy `TCR_hash` today and moves to `record_id` when the structure
-store is re-keyed.
+The existing motif run now writes evidence for its producer-owned scored cohort as well as its
+positive members. TCRNET joins species, chain, peptide and anchor-inclusive junction; TCREmp also
+requires the embedding input V/J calls. Both describe peptide-conditioned neighborhoods, not an
+MHC restriction. `_nonmember` rows mean the method scored that input but did not retain it in a
+motif. No row means unscored or unavailable. Nonmembership is not a nonbinding label. Keeping a
+separate type preserves positive-only motif filters in downstream consumers. Rerunning a selected
+method replaces both its positive and nonmember rows and refreshes `vdjdb.parquet`.
+
+Pass `vdjdb build --structure-metadata <input.tsv.gz>` to attach the auxiliary structure metadata.
+The input requires `tcr_pmhc_hash` and Boolean `is_native`, and native rows require one valid
+`meta.structure.id` PDB identifier. Exact existing `chains.TCR_hash` links propagate across all
+records of that complex, not to single-chain matches. The build prints exact matched and unmatched hash counts. Unmatched hashes do not become evidence;
+no permissive gene or sequence repair is attempted at this boundary. A structure row has empty
+`gene`, so it applies to its complete record. Identical repeated model annotations are deduplicated;
+conflicting values for one hash and metric fail instead of selecting the best value.
+
+Predicted metrics are separate flat values: `num_contacts`, `ranking_confidence`, `plddt`, `ptm`,
+`iptm`, `tcr_pmhc_iptm`, `scanning_angle` and `pitch_angle`, when supplied. Absent metrics have no row.
+Native rows contribute their PDB identifier only, never the corresponding predicted metric values.
+The joined view displays availability badges; analysis should read the numeric long table and keep
+native evidence separate when it defines validation labels. No coordinates, backgrounds, labels or
+fitted classifier parameters are added to the bundle.
 
 **No held-out validation data is ever an evidence row.** See §7.
 
@@ -392,7 +420,7 @@ panel is named at two fields and there is no deeper groove.
 
 ### 3.3b `epitope_assessment.parquet` - reported peptides and predicted binding cores
 
-Also shipped as `epitope_assessment.tsv` in the primary bundle. This extends the presentation
+Also shipped as `epitope_assessment.tsv.gz` in the primary bundle. This extends the presentation
 annotation in section 3.3a and ROADMAP section 10.6 (#1315). It records predictions separately from
 the `epitopes` provenance catalogue and the reported MHC pairs in `restriction`.
 
@@ -491,6 +519,8 @@ files as the legacy bundle (§2), plus their optional TCREmp counterparts. It do
 `clusters.parquet` or `motifs.parquet`.
 
 Run `vdjdb motifs --tables out/tables` to produce these files under `out/motifs`.
+The motif stage also replaces its linked evidence rows and refreshes the joined Parquet view in
+`out/tables`. Use the same `--release` value for build and motif commands.
 The column orders in §2 apply to both bundles. Background data are inputs; only derived
 counts and statistics ship. The per-epitope diagnostic is
 `reports/motifs_per_epitope.tsv` (§5).
