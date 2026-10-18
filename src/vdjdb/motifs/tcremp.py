@@ -37,11 +37,19 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import numpy as np
 import polars as pl
 
 from ..config import SEED
+
+if TYPE_CHECKING:
+    from mir.embedding import TCREmp
+    from sklearn.decomposition import PCA
+    from sklearn.neighbors import NearestNeighbors
+    from sklearn.preprocessing import StandardScaler
 
 #: Clonotypes embedded per call. One internally-threaded ``embed()`` each, run in sequence.
 CHUNK = 20_000
@@ -106,7 +114,7 @@ def cohort(chains: pl.DataFrame, records: pl.DataFrame, *,
 
 def receptor_inputs(clonotypes: pl.DataFrame) -> tuple[pl.DataFrame, np.ndarray]:
     """Sorted unique receptor inputs and their indices for restoring the labelled rows."""
-    keys = clonotypes.select(INPUT_KEY)
+    keys = clonotypes.select(INPUT_KEY).with_columns(pl.col("v_call", "j_call").fill_null(""))
     inputs = keys.unique().sort(INPUT_KEY)
     inverse = keys.join(inputs.with_row_index("__input"), on=INPUT_KEY, how="left",
                         validate="m:1", maintain_order="left")["__input"].to_numpy()
@@ -127,23 +135,53 @@ def fit_indices(inputs: pl.DataFrame, *, size: int = FIT_SAMPLE,
             .sort("__priority", *INPUT_KEY).head(size).sort(INPUT_KEY)["__index"].to_numpy())
 
 
-def embed_reduced(clonotypes: pl.DataFrame, species: str, locus: str, *,
-                  chunk: int = CHUNK, fit_sample: int = FIT_SAMPLE,
-                  n_components: int = N_COMPONENTS, seed: int = SEED) -> np.ndarray:
-    """Embed and reduce in one pass. ``(n_clonotypes, n_components)`` float64.
+@dataclass(frozen=True)
+class ReducedEmbedding:
+    """In-memory reference prototypes, scaler and PCA; queries only transform.
 
-    Fit and project unique receptor inputs, then restore the labelled input rows. Peptide
-    duplication and input order cannot change the fitted geometry. The fit sample follows
-    receptor identities rather than row positions; genuine cohort changes can still change it.
+    No fitted state is stored between builds. Missing V/J calls use the embedding
+    producer's allele fallback. Optional species/gene columns must match this fit.
+    """
+
+    prototype: TCREmp
+    scaler: StandardScaler
+    pca: PCA
+    species: str
+    locus: str
+
+    def transform(self, clonotypes: pl.DataFrame, *, chunk: int = CHUNK) -> np.ndarray:
+        """Deduplicate, embed in bounded batches, and restore the original row order."""
+        if chunk < 1:
+            raise ValueError("chunk must be positive")
+        if clonotypes["junction_aa"].is_null().any() or clonotypes["junction_aa"].eq("").any():
+            raise ValueError("query junction_aa must not contain null or empty values")
+        for column, expected in (("species", self.species), ("gene", self.locus)):
+            if column in clonotypes.columns and not clonotypes[column].eq(expected).fill_null(False).all():
+                raise ValueError(f"query {column} must match the frozen reference {expected}")
+        cols, inverse = receptor_inputs(clonotypes)
+        out = np.empty((cols.height, self.pca.n_components_), dtype=np.float64)
+        for start in range(0, cols.height, chunk):
+            block = cols[start:start + chunk]
+            out[start:start + block.height] = self.pca.transform(
+                self.scaler.transform(self.prototype.embed(block)))
+        return out[inverse]
+
+
+def fit_embedding(clonotypes: pl.DataFrame, species: str, locus: str, *,
+                  chunk: int = CHUNK, fit_sample: int = FIT_SAMPLE,
+                  n_components: int = N_COMPONENTS,
+                  seed: int = SEED) -> tuple[np.ndarray, ReducedEmbedding]:
+    """Fit once on reference receptors, returning their coordinates and reusable transform.
+
+    Peptide duplication and input order cannot change the identity-priority reference
+    sample. Queries never enter that sample, the scaler or the PCA fit.
     """
     from mir.embedding import TCREmp
     from sklearn.decomposition import PCA
     from sklearn.preprocessing import StandardScaler
 
-    cols, inverse = receptor_inputs(clonotypes)
+    cols, _ = receptor_inputs(clonotypes)
     model = TCREmp.from_defaults(SPECIES[species], locus)
-
-    n = cols.height
     idx = fit_indices(cols, size=fit_sample, seed=seed)
     if len(idx) < 2:
         raise ValueError("TCREmp reduction requires at least two unique receptor inputs")
@@ -152,12 +190,19 @@ def embed_reduced(clonotypes: pl.DataFrame, species: str, locus: str, *,
     pca = PCA(n_components=min(n_components, fit.shape[1], len(idx) - 1),
               random_state=seed).fit(scaler.transform(fit))
     del fit
+    frozen = ReducedEmbedding(model, scaler, pca, species, locus)
+    return frozen.transform(clonotypes, chunk=chunk), frozen
 
-    out = np.empty((n, pca.n_components_), dtype=np.float64)
-    for start in range(0, n, chunk):
-        block = cols[start:start + chunk]
-        out[start:start + block.height] = pca.transform(scaler.transform(model.embed(block)))
-    return out[inverse]
+
+def embed_reduced(clonotypes: pl.DataFrame, species: str, locus: str, *,
+                  chunk: int = CHUNK, fit_sample: int = FIT_SAMPLE,
+                  n_components: int = N_COMPONENTS, seed: int = SEED) -> np.ndarray:
+    """Embed reference rows with the unchanged scaler/PCA operation order.
+
+    Use :func:`fit_embedding` when subsequent queries need the same frozen geometry.
+    """
+    return fit_embedding(clonotypes, species, locus, chunk=chunk, fit_sample=fit_sample,
+                         n_components=n_components, seed=seed)[0]
 
 
 def mean_nn_distance(X: np.ndarray, *, clonotypes: pl.DataFrame | None = None) -> float:
@@ -262,6 +307,24 @@ def knee(curve: np.ndarray, *, concave: bool = True, grid: int = 1000,
             "degenerate": bool(reason), "reason": reason}
 
 
+def _dbscan(X: np.ndarray, epitopes: np.ndarray, eps: float,
+            min_samples: int) -> tuple[np.ndarray, np.ndarray]:
+    from sklearn.cluster import DBSCAN
+
+    out = np.full(len(X), -1, dtype=np.int64)
+    core = np.zeros(len(X), dtype=bool)
+    offset = 0
+    for ep in np.unique(epitopes):
+        rows = np.flatnonzero(epitopes == ep)
+        fitted = DBSCAN(eps=eps, min_samples=min_samples).fit(X[rows])
+        lab = fitted.labels_
+        hit = lab >= 0
+        out[rows[hit]] = lab[hit] + offset
+        core[rows[fitted.core_sample_indices_]] = True
+        offset += int(lab.max()) + 1 if hit.any() else 0
+    return out, core
+
+
 def cluster_labels(X: np.ndarray, epitopes: np.ndarray, eps: float, *,
                    min_samples: int = MIN_SAMPLES) -> np.ndarray:
     """DBSCAN per epitope at one shared ``eps``. ``-1`` is noise, as DBSCAN means it.
@@ -269,18 +332,132 @@ def cluster_labels(X: np.ndarray, epitopes: np.ndarray, eps: float, *,
     Labels are made unique across epitopes by offsetting, so a label identifies a cluster and not
     just a cluster-within-an-epitope.
     """
-    from sklearn.cluster import DBSCAN
+    return _dbscan(X, epitopes, eps, min_samples)[0]
 
-    out = np.full(len(X), -1, dtype=np.int64)
-    offset = 0
-    for ep in np.unique(epitopes):               # np.unique sorts: the offset must not vary
-        m = epitopes == ep
-        lab = DBSCAN(eps=eps, min_samples=min_samples).fit_predict(X[m])
-        hit = lab >= 0
-        out[np.flatnonzero(m)[hit]] = lab[hit] + offset
-        offset += int(lab.max()) + 1 if hit.any() else 0
-    return out
 
+@dataclass(frozen=True)
+class ClusterReference:
+    """Frozen reference membership and per-peptide indexes of retained cluster cores.
+
+    A retained geometric cluster has at least one native length stratum that passes
+    ``clusters``' existing min_cluster filter. Its core points can support a query of
+    another length without inventing a legacy PWM/display cid for that length.
+    """
+
+    members: pl.DataFrame
+    labels: np.ndarray
+    indexes: dict[str, tuple[NearestNeighbors, np.ndarray]]
+    strata: pl.DataFrame
+    cluster_names: pl.DataFrame
+    eligible_epitopes: tuple[str, ...]
+    dimensions: int
+    scope: tuple[tuple[str, str], ...]
+
+    def assign(self, queries: pl.DataFrame, X: np.ndarray) -> pl.DataFrame:
+        """Return ordered queries with geometric support, ambiguity and legacy cid.
+
+        Queries never fit or extend a cluster. Search only their peptide's reference
+        cores; nearest core wins, with the native cluster's smallest cid breaking ties.
+        ``matched_clusters`` counts distinct geometric clusters before that choice.
+        ``eligible`` marks reference-cohort peptides, including scored nonmembers.
+        """
+        X = np.asarray(X)
+        if X.ndim != 2 or X.shape != (queries.height, self.dimensions):
+            raise ValueError("query coordinates must match the row count and reference dimensions")
+        if not np.isfinite(X).all():
+            raise ValueError("query coordinates must be finite")
+        for column, expected in self.scope:
+            if column in queries.columns and not queries[column].eq(expected).fill_null(False).all():
+                raise ValueError(f"query {column} must match the frozen reference {expected}")
+        key = ["antigen.epitope", *INPUT_KEY]
+        keys = queries.select(key).with_columns(
+            pl.col("v_call", "j_call", "antigen.epitope").fill_null(""))
+        if keys["junction_aa"].is_null().any() or keys["junction_aa"].eq("").any():
+            raise ValueError("query junction_aa must not contain null or empty values")
+        inputs = keys.with_row_index("__row").unique(subset=key, keep="first").sort(key)
+        inverse = keys.join(inputs.select(key).with_row_index("__query"), on=key,
+                            how="left", validate="m:1", maintain_order="left")["__query"].to_numpy()
+        coords = X[inputs["__row"].to_numpy()]
+        parts = []
+        peptides = inputs["antigen.epitope"].to_numpy()
+        for ep in np.unique(peptides):
+            if ep not in self.indexes:
+                continue
+            index, labels = self.indexes[ep]
+            rows = np.flatnonzero(peptides == ep)
+            edges = index.radius_neighbors_graph(coords[rows], mode="distance").tocoo()
+            if edges.nnz:
+                parts.append(pl.DataFrame({"__query": rows[edges.row],
+                    "__label": labels[edges.col], "__distance": edges.data}))
+        result = inputs.with_row_index("__query").with_columns(
+            pl.col("antigen.epitope").is_in(self.eligible_epitopes).alias("eligible"),
+            pl.col("junction_aa").str.len_chars().alias("__len"))
+        if parts:
+            matches = (pl.concat(parts).group_by("__query", "__label")
+                       .agg(pl.col("__distance").min())
+                       .join(self.cluster_names, on="__label", validate="m:1")
+                       .sort("__query", "__distance", "__first_cid", "__label"))
+            counts = matches.group_by("__query").len(name="matched_clusters")
+            chosen = matches.unique(subset="__query", keep="first", maintain_order=True)
+            result = (result.join(chosen.select("__query", "__label"), on="__query", how="left")
+                      .join(counts, on="__query", how="left")
+                      .join(self.strata, on=["antigen.epitope", "__label", "__len"],
+                            how="left", validate="m:1"))
+        else:
+            result = result.with_columns(pl.lit(None, dtype=pl.Int64).alias("__label"),
+                pl.lit(None, dtype=pl.UInt32).alias("matched_clusters"),
+                pl.lit(None, dtype=pl.String).alias("cid"))
+        result = result.sort("__query").with_columns(
+            pl.col("__label").fill_null(-1).alias("geometric_label"),
+            pl.col("matched_clusters").fill_null(0), pl.col("cid").fill_null(""))
+        result = result.with_columns((pl.col("geometric_label") >= 0).alias("geometric_support"),
+                                     (pl.col("matched_clusters") > 1).alias("ambiguous"))
+        return queries.with_columns([pl.Series(c, result[c].to_numpy()[inverse]) for c in
+            ["eligible", "geometric_label", "geometric_support", "matched_clusters", "ambiguous", "cid"]])
+
+
+def fit_clusters(cohort_chain: pl.DataFrame, X: np.ndarray, eps: float, *,
+                 min_samples: int = MIN_SAMPLES, min_cluster: int = 5) -> ClusterReference:
+    """Fit reference DBSCAN once and retain its original members and query core indexes.
+
+    Pass one eligible species/chain cohort, as returned by :func:`cohort`, and its
+    frozen reference coordinates. Query peptide labels never affect this fit.
+    """
+    from sklearn.neighbors import NearestNeighbors
+
+    X = np.asarray(X)
+    if (X.ndim != 2 or len(X) != cohort_chain.height or not len(X)
+            or X.shape[1] < 2 or not np.isfinite(X).all()):
+        raise ValueError("reference coordinates must be finite, nonempty, match the rows "
+                         "and have at least two dimensions")
+    scope = tuple((c, cohort_chain[c].item(0)) for c in ("species", "gene")
+                  if c in cohort_chain.columns and cohort_chain.height)
+    if any(not cohort_chain[c].eq(value).fill_null(False).all() for c, value in scope):
+        raise ValueError("fit_clusters requires one species and chain")
+    epitopes = cohort_chain["antigen.epitope"].to_numpy()
+    labels, core = _dbscan(X, epitopes, eps, min_samples)
+    members = clusters(cohort_chain, X, labels=labels, min_cluster=min_cluster)
+    key = ["antigen.epitope", *INPUT_KEY]
+    member_ids = (members.select(*key, "cid") if "cid" in members.columns else
+                  members.select(key).with_columns(pl.lit("", dtype=pl.String).alias("cid")))
+    strata = (cohort_chain.select(key).with_columns(pl.Series("__label", labels),
+                pl.col("junction_aa").str.len_chars().alias("__len"))
+              .join(member_ids.unique(), on=key, how="inner", validate="m:1")
+              .select("antigen.epitope", "__label", "__len", "cid").unique())
+    names = strata.group_by("__label").agg(pl.col("cid").min().alias("__first_cid"))
+    retained = names["__label"].to_numpy()
+    indexes = {}
+    for ep in np.unique(epitopes):
+        pick = (epitopes == ep) & core & np.isin(labels, retained)
+        if pick.any():
+            points = np.ascontiguousarray(X[pick])
+            points.setflags(write=False)
+            core_labels = labels[pick].copy()
+            core_labels.setflags(write=False)
+            indexes[ep] = (NearestNeighbors(radius=eps, n_jobs=1).fit(points), core_labels)
+    labels.setflags(write=False)
+    return ClusterReference(members, labels, indexes, strata, names,
+                            tuple(np.unique(epitopes)), X.shape[1], scope)
 
 
 def hdbscan_labels(X: np.ndarray, epitopes: np.ndarray, min_cluster_size: int = 5, *,

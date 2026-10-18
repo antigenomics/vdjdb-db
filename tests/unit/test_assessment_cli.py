@@ -35,7 +35,7 @@ def test_selected_chunks_write_only_assessment_and_pass_resource_options(tmp_pat
     assert result.exit_code == 0, result.output
     assert calls == [[Path('chunks/PMID_1.tsv')]]
     assert {p.name for p in tmp_path.iterdir()} == {
-        'epitope_assessment.parquet', 'epitope_assessment.tsv', 'assessment-timings.tsv'}
+        'epitope_assessment.parquet', 'epitope_assessment.tsv.gz', 'assessment-timings.tsv'}
     got = read_table(tmp_path, 'epitope_assessment')
     assert got['assessment.status'].to_list() == ['reference_not_supplied']
     assert got['records'].to_list() == [1]

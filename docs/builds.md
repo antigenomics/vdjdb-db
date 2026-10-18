@@ -26,6 +26,21 @@ VDJDB_REFERENCE_ZIP=reference.zip uv run pytest -q
 
 Output goes to `out/`, not `build/`: `build/` is gitignored as a Python packaging convention.
 
+`build` already writes legacy and AIRR projections by default; the `make` and `convert` commands
+above show how to regenerate them from explicitly selected definitive tables, rather than steps
+that need repeating in every build. For a compact primary-only build, pass `--no-legacy --no-airr`.
+See [build directories and storage](outputs.md#build-directories-and-storage) for the exact files
+and [structure cross-links](outputs.md#structure-files-and-current-record-cross-links) for the
+separate coordinate dataset and its current record IDs.
+
+The hosted `build.yml` workflow fetches the structure metadata separately from dataset revision
+`337b7e4336ef4c8cd12a4173b4fdce331d9b2a35` and verifies SHA256
+`86bbfefd3a59229842504da546bef16e41de366db7ee0d08d339c6e2904fc409` before passing
+`--structure-metadata out/inputs/vdjdb_structures_metadata.tsv.gz` to assembly. Local builds
+include those external evidence rows only when the same option is supplied. Assembly does not
+download structures or metadata. Updating this reviewed input is an explicit workflow change;
+the hosted build does not follow a moving dataset branch.
+
 `vdjdb release` writes tracked `latest-version.txt`. Use `--dry-run` to inspect bundles without
 changing the repository's download URL. Supply an intended release tag when publishing.
 
@@ -58,7 +73,7 @@ uv run vdjdb assess-epitopes chunks/PMID_<id>.tsv --out out/assessment \
   --pmhc-reference out/inputs/pmhc/pmhc_full.tsv.gz --jobs 4
 ```
 
-This writes only `epitope_assessment.parquet`, `epitope_assessment.tsv` and
+This writes only `epitope_assessment.parquet`, `epitope_assessment.tsv.gz` and
 `assessment-timings.tsv`. Without a reference, reported pairs remain visible with
 `reference_not_supplied`. Files are harmonised and deduplicated through the existing master
 assembly; support counts describe the selected input only. For corpus-relative scores and

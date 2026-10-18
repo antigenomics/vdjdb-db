@@ -557,6 +557,36 @@ significance level to a DBSCAN cluster. Membership and the replication objective
 must therefore be reported as evidence quantities rather than per-cluster
 binding probabilities.
 
+### 3.3 Frozen reference queries
+
+`fit_embedding(reference, species, locus)` returns the reference coordinates and
+an in-memory `ReducedEmbedding`. Its `transform(queries)` reuses the same TCREmp
+prototypes, scaler and PCA, deduplicates receptor inputs, and embeds bounded
+batches. It never fits on queries. Null or empty junctions are rejected; missing
+V/J calls use the embedding producer's allele fallback. The existing
+`embed_reduced` entry point returns the same reference coordinates.
+
+`fit_clusters(reference, coordinates, eps, min_samples=..., min_cluster=...)` retains the
+reference DBSCAN core points and the unchanged legacy membership table in
+`ClusterReference.members`. All clustering parameters are fixed from the
+reference policy before querying. `ClusterReference.assign(queries,
+embedding.transform(queries))` searches only the requested peptide's retained
+reference cores. A query receives geometric support only within `eps` of a core
+from a cluster with at least one retained native length stratum. Queries cannot
+extend clusters through border points, link to other queries, or merge reference
+clusters. These fitted objects remain in memory and are rebuilt with the
+reference; they are not stored between builds.
+
+The returned `geometric_support` and `geometric_label` describe that core support.
+The legacy `cid` additionally requires a retained native stratum of the query's
+junction length. Thus a new length can receive geometric support while its `cid`
+remains empty. `eligible` identifies peptides represented in the reference cohort;
+it does not imply membership. `matched_clusters` counts distinct supported
+geometric clusters, and `ambiguous` marks support for more than one. The nearest
+core determines the selected label, with the native cluster's smallest `cid`
+breaking ties; ambiguity is retained and no cluster is merged. These outputs are
+evidence indicators, not binding probabilities.
+
 ---
 
 ## 4. HDBSCAN - rejected

@@ -53,7 +53,7 @@ def _pwms(members: pl.DataFrame) -> pl.DataFrame:
 
 def run_tcrnet(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
                p: float | None = None, min_sample: int = tcrnet.MIN_SAMPLE,
-               min_cluster: int | None = None) -> dict[str, int]:
+               min_cluster: int | None = None, release: str = "dev") -> tuple[dict[str, int], pl.DataFrame]:
     """TCRNET: enrichment, the two-stage neighbourhood graph, connected components.
 
     ``p``, the scope, the Leiden ``resolution`` and ``min_cluster`` all default to
@@ -61,6 +61,7 @@ def run_tcrnet(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
     configuration: the per-chain split from section 34 did not rank above it on the corrected
     objective.
     """
+    from ..assemble.evidence import motifs as motif_evidence
     from ..timing import stage
 
     with stage("motifs.tcrnet.enrichment"):
@@ -68,19 +69,21 @@ def run_tcrnet(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
     with stage("motifs.tcrnet.cluster"):
         members = cluster.clusters(scored, min_cluster=min_cluster)
     with stage("motifs.tcrnet.pwm_and_emit"):
-        return emit.write(emit.cluster_members(members, chains, records),
-                          emit.motif_pwms(_pwms(members), records), out)
+        written = emit.write(emit.cluster_members(members, chains, records),
+                             emit.motif_pwms(_pwms(members), records), out)
+    return written, motif_evidence(records, chains, scored, members, method="tcrnet", release=release)
 
 
 def run_tcremp(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
                coef: dict[str, float] | None = None,
-               min_cluster: int | None = None) -> dict[str, int]:
+               min_cluster: int | None = None, release: str = "dev") -> tuple[dict[str, int], pl.DataFrame]:
     """TCREMP: chunked embedding, a chain-global radius, per-epitope DBSCAN.
 
     One embedding pass per ``(species, gene)``; the radius is estimated on that chain's pooled
     unique-receptor geometry and then DBSCAN runs per epitope, so it is never re-estimated on
     an n of 30-300 (ROADMAP section 8.4).
     """
+    from ..assemble.evidence import motifs as motif_evidence
     from ..timing import stage
 
     cohort = tcremp.cohort(chains, records)
@@ -99,8 +102,9 @@ def run_tcremp(chains: pl.DataFrame, records: pl.DataFrame, out: Path, *,
                 min_cluster if min_cluster is not None else tuned.get("min_cluster", 5))))
     members = pl.concat([p for p in parts if p.height], how="vertical")
     with stage("motifs.tcremp.pwm_and_emit"):
-        return emit.write(emit.cluster_members(members, chains, records),
-                          emit.motif_pwms(_pwms(members), records), out, suffix="_tcremp")
+        written = emit.write(emit.cluster_members(members, chains, records),
+                             emit.motif_pwms(_pwms(members), records), out, suffix="_tcremp")
+    return written, motif_evidence(records, chains, cohort, members, method="tcremp", release=release)
 
 
 def per_epitope_report(chains: pl.DataFrame, records: pl.DataFrame, out: Path, reports: Path,
@@ -155,7 +159,7 @@ def per_epitope_report(chains: pl.DataFrame, records: pl.DataFrame, out: Path, r
 def run(tables: Path, out: Path, reports: Path, *, p: float | None = None,
         min_sample: int = tcrnet.MIN_SAMPLE,
         min_cluster: int | None = None,
-        methods: tuple[str, ...] = ("tcrnet", "tcremp")) -> dict[str, int]:
+        methods: tuple[str, ...] = ("tcrnet", "tcremp"), release: str = "dev") -> dict[str, int]:
     """Both methods from the definitive tables. Returns ``{filename: rows}``.
 
     ``out`` takes the motif files the release bundles, ``reports`` the two diagnostics. They are
@@ -167,18 +171,30 @@ def run(tables: Path, out: Path, reports: Path, *, p: float | None = None,
     laptop and not on the runner.
     """
     from .. import timing
-    from ..emit.vdjdb3 import read_table
+    from ..emit.vdjdb3 import joined, read_tables, write_table
 
     timing.reset()
-    chains = read_table(tables, "chains")
-    records = read_table(tables, "records")
+    if not methods or set(methods) - {"tcrnet", "tcremp"} or len(set(methods)) != len(methods):
+        raise ValueError("choose tcrnet and/or tcremp, once each")
+    frames = read_tables(tables)
+    chains, records = frames["chains"], frames["records"]
 
     written: dict[str, int] = {}
+    replaced = [kind for m in methods for kind in (f"motif_{m}", f"motif_{m}_nonmember")]
+    evidence = [frames["evidence"].filter(~pl.col("evidence_type").is_in(replaced))]
     if "tcrnet" in methods:
-        written |= run_tcrnet(chains, records, out, p=p, min_sample=min_sample,
-                              min_cluster=min_cluster)
+        files, rows = run_tcrnet(chains, records, out, p=p, min_sample=min_sample,
+                                 min_cluster=min_cluster, release=release)
+        written.update(files)
+        evidence.append(rows)
     if "tcremp" in methods:
-        written |= run_tcremp(chains, records, out, min_cluster=min_cluster)
+        files, rows = run_tcremp(chains, records, out, min_cluster=min_cluster, release=release)
+        written.update(files)
+        evidence.append(rows)
+    with timing.stage("motifs.link_evidence"):
+        frames["evidence"] = pl.concat(evidence).sort("record_id", "evidence_id")
+        write_table(frames["evidence"], "evidence", tables)
+        write_table(joined(frames), "vdjdb", tables)
 
     with timing.stage("motifs.per_epitope_report"):
         rows = per_epitope_report(chains, records, out, reports, written)

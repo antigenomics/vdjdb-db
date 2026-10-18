@@ -177,13 +177,25 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
 
 
 def build_tables(master: pl.DataFrame, *, release: str = "dev", pmhc_reference: Path | None = None,
-                 epitope_jobs: int = 1) -> dict[str, pl.DataFrame]:
+                 epitope_jobs: int = 1, structure_metadata: Path | None = None,
+                 structure_coordinates: Path | None = None,
+                 structure_full_germline: bool = False) -> dict[str, pl.DataFrame]:
     """The definitive tables, keyed by name."""
     from ..annotate.junction import add_junction_nt
     from ..timing import stage
     from .assessment import build_assessment
     from .epitopes import build_epitopes, build_restriction
     from .evidence import build_evidence
+
+    if structure_coordinates is not None and structure_metadata is None:
+        raise ValueError("structure coordinates require structure metadata")
+
+    if structure_full_germline and structure_coordinates is None:
+        raise ValueError("full structure germline requires structure coordinates")
+
+    if structure_full_germline:
+        from .structures import full_reference_root
+        full_reference_root()
 
     # Timed so the profile is an output of the build rather than something someone reconstructs with
     # an ad-hoc script afterwards. The stage names match ROADMAP_local section 49 so the numbers stay
@@ -199,7 +211,17 @@ def build_tables(master: pl.DataFrame, *, release: str = "dev", pmhc_reference: 
         chains = add_junction_nt(chains, records)
     chains = chains.select(CHAIN_COLUMNS)
     with stage("build_evidence"):
-        evidence = build_evidence(records, chains, release=release)
+        metadata = (pl.read_csv(structure_metadata, separator="\t", infer_schema=False)
+                    if structure_metadata is not None else None)
+        evidence = build_evidence(records, chains, release=release, structure_metadata=metadata,
+                                  structure_coordinates=structure_coordinates,
+                                  structure_full_germline=structure_full_germline)
+        if metadata is not None:
+            hashes = metadata.select(pl.col("tcr_pmhc_hash").unique())
+            matched = hashes.join(chains.select(pl.col("TCR_hash").unique()),
+                                  left_on="tcr_pmhc_hash", right_on="TCR_hash", how="semi").height
+            print(f"structure metadata: {matched:,}/{hashes.height:,} exact complex hashes linked; "
+                  f"{hashes.height - matched:,} unmatched", flush=True)
     with stage("build_epitopes"):
         epitopes = build_epitopes(records, chains)
     with stage("build_restriction"):

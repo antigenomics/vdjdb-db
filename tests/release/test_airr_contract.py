@@ -63,8 +63,10 @@ pytestmark = pytest.mark.release
 # Source review1352 corrects an unreported-V beta chain formerly misassigned as alpha.
 # The corrected chain remains in tables/AIRR and lacks a reported V for legacy export.
 # #1362 recovers the primary CMV#1 J call, admitting one additional legacy observation.
-LEGACY_DROPS_CHAINS = 2578
-LEGACY_DROPS_RECORDS = 1755
+# PDB9GV6 adds one record and two chains with unreported V/J calls (#1133).
+# Tables and AIRR retain them; the unchanged legacy filter excludes them.
+LEGACY_DROPS_CHAINS = 2580
+LEGACY_DROPS_RECORDS = 1756
 
 
 @pytest.fixture(scope="module")

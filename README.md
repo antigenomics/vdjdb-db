@@ -61,6 +61,11 @@ Download the latest release zip from
 repertoires. It selects release bundles by their manifest role; see the vdjmatch repository for
 annotation commands.
 
+The [structure dataset](https://huggingface.co/datasets/isalgo/vdjdb_structure_models) supplies
+predicted and native coordinates, current record-ID links, and explicit dispositions for withdrawn
+assignments and modified ligands. See [build contents and structure cross-links](docs/outputs.md)
+for the compact Parquet/gzip tables, compatibility exports, match flags and archive-member joins.
+
 ## Building it
 
 ```bash

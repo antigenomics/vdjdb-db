@@ -494,17 +494,17 @@ FIELDS: dict[str, Field] = dict([
        comment="vdjdb.config.SEED used for the calibration background, recorded as text."),
 
     _f("evidence_id", searchable=0, autocomplete=0, title="Evidence id",
-       comment="Identifies one piece of evidence within a record: a hash of its type, chain, "
-               "source and value, so the same evidence keeps the same id across releases."),
+       comment="Identifies one piece of evidence within a record using its type, chain and source."),
     _f("evidence_type", title="Evidence type",
-       comment="independent_study, motif_tcrnet, motif_tcremp, structure_native or "
-               "structure_model."),
+       comment="independent_study, motif_tcrnet, motif_tcremp, their _nonmember assessments, "
+               "structure_native or structure_model."),
     _f("evidence_source", title="Evidence source",
        comment="Where the evidence came from: a release tag, PDB, or a model set identifier."),
     _f("evidence_value", searchable=0, title="Evidence value",
-       comment="The evidence itself: the other reference ids, a cluster id, or a PDB id."),
+       comment="One supporting reference, a cluster id, a PDB id, or a predicted structure metric name."),
     _f("evidence_score", searchable=0, autocomplete=0, data_type="float", title="Evidence score",
-       comment="Its strength: distinct supporting references, cluster size, or model confidence."),
+       comment="Distinct supporting references, cluster size (zero for assessed nonmembers), "
+               "or a predicted structure metric. Native structure scores are absent."),
     _f("first_seen_release", title="First seen release",
        comment="The release in which this piece of evidence first appeared."),
 

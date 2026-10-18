@@ -1,6 +1,6 @@
 """The new VDJdb format: the definitive tables as they ship, plus the joined convenience view.
 
-Three fact tables and one view, parquet with a TSV projection of each (`docs/outputs.md` §3):
+Three fact tables and one view, Parquet with gzip TSV projections of normalized tables (`docs/outputs.md` §3):
 
 =====================  =========================================================================
 ``records``            one row per curated record, PK ``record_id``
@@ -19,6 +19,7 @@ corrupt the row), and no JSON blobs at all.
 """
 from __future__ import annotations
 
+import gzip
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -78,12 +79,13 @@ def joined(tables: dict[str, pl.DataFrame]) -> pl.DataFrame:
     ev = evidence.with_columns(
         pl.col("evidence_type").replace_strict(EVIDENCE_VIEW, default=None).alias("__col")
     ).drop_nulls("__col")
-    if ev.select(pl.col("gene").fill_null("").eq("").any()).item():
-        # Record-level evidence (a structure covers the receptor, not one chain) needs a second
-        # join on `record_id` alone. Nothing produces it yet; raise rather than drop the rows.
-        raise NotImplementedError(
-            "record-level evidence rows (empty `gene`) need a join on record_id; "
-            "add it here when the first producer lands")
+    # A structure supports the complete record; expand it onto that record's chain rows only.
+    record_ev = ev.filter(pl.col("gene") == "").drop("gene").join(
+        chains.select("record_id", "gene"), on="record_id", how="inner", validate="m:m")
+    ev = pl.concat([ev.filter(pl.col("gene") != ""), record_ev.select(ev.columns)])
+    # A scored motif nonmember is observed zero, not a positive evidence badge.
+    ev = ev.filter(~pl.col("evidence_type").is_in(["motif_tcrnet", "motif_tcremp"])
+                   | (pl.col("evidence_score") > 0))
     if not ev.is_empty():
         wide = (ev.select("record_id", "gene", "__col").unique()
                 .with_columns(pl.lit(True).alias("__v"))
@@ -134,7 +136,7 @@ def read_tables(d: Path) -> dict[str, pl.DataFrame]:
 
 
 def write_table(frame: pl.DataFrame, name: str, out: Path) -> dict[str, Path]:
-    """Write one declared table with the same names and formats as the primary bundle."""
+    """Write a declared table as Parquet and deterministic gzip TSV; the joined view is Parquet only."""
     out.mkdir(parents=True, exist_ok=True)
     if name in _TABLE_ORDER:
         frame = frame.select(_TABLE_ORDER[name])
@@ -142,8 +144,16 @@ def write_table(frame: pl.DataFrame, name: str, out: Path) -> dict[str, Path]:
         raise ValueError(f"undeclared table: {name}")
     frame = frame.rename({c: _TIDY[c] for c in frame.columns})
     frame.write_parquet(out / f"{name}.parquet")
-    frame.write_csv(out / f"{name}.tsv", separator="\t", line_terminator="\n")
-    return {f"{name}.{suffix}": out / f"{name}.{suffix}" for suffix in ("parquet", "tsv")}
+    written = {f"{name}.parquet": out / f"{name}.parquet"}
+    # The joined view already duplicates the facts; Parquet is its only projection.
+    if name != "vdjdb":
+        target = out / f"{name}.tsv.gz"
+        with target.open("wb") as raw, gzip.GzipFile(filename="", fileobj=raw, mode="wb", mtime=0) as zipped:
+            frame.write_csv(zipped, separator="\t", line_terminator="\n")
+        written[target.name] = target
+    # Do not leave obsolete uncompressed projections when rebuilding in the same directory.
+    (out / f"{name}.tsv").unlink(missing_ok=True)
+    return written
 
 
 def write_all(tables: dict[str, pl.DataFrame], out: Path) -> dict[str, Path]:

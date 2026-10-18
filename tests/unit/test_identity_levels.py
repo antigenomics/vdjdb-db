@@ -425,3 +425,11 @@ def test_the_report_renders_a_table_naming_every_level() -> None:
     for level in LEVELS:
         assert f"| {level.name} |" in text
     assert "| clonotype | 1 | 0 | 0 |" in text
+
+
+def test_record_evidence_resolves_against_records_without_a_chain_gene():
+    tables = _consistent()
+    evidence = pl.DataFrame({'record_id':[tables['records']['record_id'][0]], 'gene':['']})
+    assert not [f for f in checks.check({**tables, 'evidence':evidence}) if f.invariant == 6]
+    evidence = evidence.with_columns(pl.lit('VDJDB0000000404').alias('record_id'))
+    assert any('evidence row names a record' in f.what for f in checks.check({**tables, 'evidence':evidence}))

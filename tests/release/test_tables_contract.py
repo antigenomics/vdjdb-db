@@ -82,7 +82,8 @@ pytestmark = pytest.mark.release
 # PR1358 replaces20,358 vendor observations with28,040 caller rows and adds2,468 viral rows.
 # #1362 retires 64 redundant H3 projections, restores 11 patent pairs and merges two
 # completed restriction duplicates under the existing within-publication rule.
-EXPECTED_RECORDS = 308_825
+# PMID40154610 / PDB9GV6 adds one paired structural binding observation (#1133).
+EXPECTED_RECORDS = 308_826
 
 
 @pytest.fixture(scope="module")
@@ -124,9 +125,17 @@ def test_clonotype_id_neither_collides_nor_splits(tables):
 def test_evidence_is_keyed_and_resolves_to_a_chain(tables):
     ev, chains = tables["evidence"], tables["chains"]
     assert ev.select("record_id", "evidence_id").n_unique() == ev.height
-    assert ev.join(chains.select("record_id", "gene"), on=["record_id", "gene"],
-                   how="anti").is_empty()
-    assert (ev["evidence_score"] >= 2).all(), "independent support means at least two studies"
+    assert ev.join(tables['records'].select('record_id'), on='record_id', how='anti').is_empty()
+    assert ev.filter(pl.col('gene') != '').join(
+        chains.select('record_id', 'gene'), on=['record_id','gene'], how='anti').is_empty()
+    rep = ev.filter(pl.col('evidence_type') == 'independent_study')
+    assert (rep['evidence_score'] >= 2).all(), 'independent support means at least two studies'
+    motifs = ev.filter(pl.col('evidence_type').is_in(['motif_tcrnet','motif_tcremp']))
+    assert (motifs['evidence_score'] > 0).all()
+    nonmembers = ev.filter(pl.col('evidence_type').str.ends_with('_nonmember'))
+    assert (nonmembers['evidence_score'] == 0).all()
+    models = ev.filter(pl.col('evidence_type') == 'structure_model')
+    assert models['evidence_score'].is_finite().all()
 
 
 def test_the_d_geometry_indexes_the_nucleotide_sequence_beside_it(tables):

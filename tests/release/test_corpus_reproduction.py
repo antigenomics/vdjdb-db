@@ -82,7 +82,8 @@ def scored(tables: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
     # #1362 removes 32 redundant H3 beta projections, restores 11 patent beta chains
     # to their reported mouse species and merges one completed beta restriction duplicate.
     # All 18589 GILGFVFTL observations and the quality tolerances remain unchanged.
-    assert result["units"][0] == 258037
+    # PDB9GV6 adds one human TRB observation outside the unchanged GILGFVFTL cohort (#1133).
+    assert result["units"][0] == 258038
     assert result["given_units"][0] == 18589
     return [(row["lift"], row["term"]) for row in result.iter_rows(named=True)]
 
