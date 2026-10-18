@@ -1,4 +1,4 @@
-"""Optional structure recovery preserves complete molecular identity."""
+"""Structure association preserves context; optional domain proof checks complete sequences."""
 from __future__ import annotations
 
 import io
@@ -15,7 +15,7 @@ BETA = ('GAVVSQHPSWVICKSGTSVKIECRSLDFQATTMFWYRQFPKQSLMLMATSNEGSKATYEQGVEKDKFLINH
         'TLSTLTVTSAHPEDSSFYICASSLGQETQYFGPGTRLTVT')
 
 
-def inputs():
+def inputs(*, association=False):
     records = pl.DataFrame({'record_id':['r1'], 'species':['HomoSapiens'],
         'antigen.epitope':['PEPTIDE'], 'mhc.a':['HLA-A*02:01'], 'mhc.b':['B2M'],
         'mhc.class':['MHCI']})
@@ -25,7 +25,8 @@ def inputs():
         'TCR_hash':['current','current']})
     metadata = records.drop('record_id').with_columns(
         pl.lit('source').alias('tcr_pmhc_hash'), pl.lit('False').alias('is_native'),
-        pl.lit('CAVRDSNYQLIW').alias('cdr3.alpha'), pl.lit('CASSLGQETQYF').alias('cdr3.beta'),
+        pl.lit('CAVRDSNYQLIW' if association else 'UNMATCHED').alias('cdr3.alpha'),
+        pl.lit('CASSLGQETQYF').alias('cdr3.beta'),
         pl.lit('UNKNOWN').alias('v.alpha'), pl.lit('TRAJ33*01').alias('j.alpha'),
         pl.lit('TRBV20-1*01').alias('v.beta'), pl.lit('TRBJ2-7*01').alias('j.beta'),
         pl.lit('0.8').alias('iptm'))
@@ -89,13 +90,15 @@ def test_domain_proof_requires_explicit_known_alleles(tmp_path):
 
 
 def test_reviewed_spelling_alias_never_resolves_ambiguous_gene(tmp_path):
-    records,chains,metadata=inputs()
+    from vdjdb.assemble.structures import recover_links
+    records,chains,metadata=inputs(association=True)
+    exact=pl.DataFrame(schema={'tcr_pmhc_hash':pl.String,'record_id':pl.String})
     path=archive(tmp_path/'empty.tgz',alpha='NN',beta='NN')
     metadata=metadata.with_columns(pl.lit('TRAV1-2*01').alias('v.alpha'),
         pl.lit('TRBJ2.7*01').alias('j.beta'))
-    assert structures(chains,metadata,records=records,coordinates=path)['record_id'].to_list()==['r1']
+    assert recover_links(records,chains,metadata,path,exact)['record_id'].to_list()==['r1']
     metadata=metadata.with_columns(pl.lit('TRBV8').alias('v.beta'))
-    assert structures(chains,metadata,records=records,coordinates=path).is_empty()
+    assert recover_links(records,chains,metadata,path,exact).is_empty()
 
 
 def test_exact_hash_cannot_override_species_or_mhc_class():
@@ -177,3 +180,74 @@ def test_gapped_or_offset_residues_cannot_collapse_to_a_complete_domain(tmp_path
     evidence=structures(chains,metadata,records=records,
         coordinates=archive(tmp_path/'gapped.tgz',gap=gap))
     assert evidence.is_empty()
+
+
+def test_pair_association_ignores_source_vj_annotations_and_keeps_source_hash():
+    records,chains,metadata=inputs(association=True)
+    metadata=metadata.with_columns(pl.lit('TRBV7-9*06').alias('v.beta'),pl.lit('').alias('j.alpha'))
+    result=structures(chains,metadata,records=records)
+    assert result['record_id'].to_list()==['r1']
+    assert result['evidence_source'].to_list()==['source']
+
+
+@pytest.mark.parametrize('call',['','TRAV1-2*01,TRAV1-2*02','TRAV1-2*01;TRAV2*01'])
+def test_pair_association_rejects_missing_and_multicall_current_v(call):
+    records,chains,metadata=inputs(association=True)
+    chains=chains.with_columns(pl.when(pl.col('gene')=='TRA').then(pl.lit(call)).otherwise(pl.col('v.segm')).alias('v.segm'))
+    assert structures(chains,metadata,records=records).is_empty()
+
+
+@pytest.mark.parametrize('second_v,expected',[('TRAV1-2*02',1),('',1),('TRAV2*01',0)])
+def test_pair_association_counts_v_genes_before_context_filter(second_v,expected):
+    records,chains,metadata=inputs(association=True)
+    records=pl.concat([records,records.with_columns(pl.lit('r2').alias('record_id'),pl.lit('HLA-A*02:02').alias('mhc.a'))])
+    other=chains.with_columns(pl.lit('r2').alias('record_id'),pl.lit('other').alias('TCR_hash'),
+        pl.when(pl.col('gene')=='TRA').then(pl.lit(second_v)).otherwise(pl.col('v.segm')).alias('v.segm'))
+    assert structures(pl.concat([chains,other]),metadata,records=records).height==expected
+
+
+@pytest.mark.parametrize('field,value',[('mhc.a','HLA-A*02:02'),('mhc.a','HLA-A*02:01N'),
+    ('mhc.b','OTHER'),('species','MusMusculus'),('mhc.class','MHCII')])
+def test_pair_association_preserves_provided_context(field,value):
+    records,chains,metadata=inputs(association=True)
+    assert structures(chains,metadata.with_columns(pl.lit(value).alias(field)),records=records).is_empty()
+
+
+def test_native_association_provenance_is_pdb_specific_and_rejects_context_conflicts():
+    records,chains,metadata=inputs(association=True)
+    records=records.with_columns(pl.lit('1abc').alias('meta.structure.id'))
+    metadata=metadata.with_columns(pl.lit('true').alias('is_native'),pl.lit('HLA-A*02:792N').alias('mhc.a'),
+        pl.lit('1abc').alias('meta.structure.id'))
+    unrelated=metadata.with_columns(pl.lit('2abc').alias('meta.structure.id'))
+    result=structures(chains,pl.concat([metadata,unrelated]),records=records)
+    assert result['evidence_value'].to_list()==['1abc']
+    assert 'source' in result['evidence_id'].item()
+    records=pl.concat([records,records.with_columns(pl.lit('r2').alias('record_id'),pl.lit('HLA-A*02:02').alias('mhc.a'))])
+    chains=pl.concat([chains,chains.with_columns(pl.lit('r2').alias('record_id'),pl.lit('other').alias('TCR_hash'))])
+    assert structures(chains,metadata,records=records).is_empty()
+
+
+def test_native_association_compares_documented_h2_prefix_and_hla_synonymous_fields():
+    records,chains,metadata=inputs(association=True)
+    metadata=metadata.with_columns(pl.lit('true').alias('is_native'),pl.lit('1abc').alias('meta.structure.id'),
+        pl.lit('HLA-A*02:01:01').alias('mhc.a'))
+    assert structures(chains,metadata,records=records)['evidence_value'].to_list()==['1abc']
+    records=records.with_columns(pl.lit('MusMusculus').alias('species'),pl.lit('H2-Db').alias('mhc.a'))
+    metadata=metadata.with_columns(pl.lit('MusMusculus').alias('species'),pl.lit('H-2Db').alias('mhc.a'))
+    assert structures(chains,metadata,records=records)['evidence_value'].to_list()==['1abc']
+
+
+def test_pair_association_accepts_one_shared_delta_v_label_on_current_alpha():
+    records,chains,metadata=inputs(association=True)
+    chains=chains.with_columns(pl.when(pl.col('gene')=='TRA').then(pl.lit('TRDV1*01')).otherwise(pl.col('v.segm')).alias('v.segm'))
+    assert structures(chains,metadata,records=records)['record_id'].to_list()==['r1']
+
+
+def test_pair_association_preserves_missing_current_v_when_other_candidate_has_unique_gene():
+    records,chains,metadata=inputs(association=True)
+    records=pl.concat([records,records.with_columns(pl.lit('r2').alias('record_id'))])
+    other=chains.with_columns(pl.lit('r2').alias('record_id'),pl.lit('other').alias('TCR_hash'),
+        pl.lit('').alias('v.segm'))
+    combined=pl.concat([chains,other])
+    assert structures(combined,metadata,records=records)['record_id'].to_list()==['r1','r2']
+    assert other['v.segm'].to_list()==['','']

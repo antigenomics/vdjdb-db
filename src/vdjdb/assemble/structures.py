@@ -1,4 +1,4 @@
-"""Optional structure links proved by complete identity or modeled variable domains."""
+"""Paired-junction model associations and optional complete variable-domain proof."""
 from __future__ import annotations
 
 import os
@@ -123,6 +123,81 @@ def _protein_context(frame: pl.DataFrame) -> pl.DataFrame:
     # Later HLA fields refine synonymous coding or noncoding sequence; expression suffixes stay.
     return frame.with_columns([pl.col(c).str.replace(
         r'^(HLA-[A-Z0-9]+\*\d+:\d+)(?::\d+)*$', '${1}').alias(c) for c in ('mhc.a', 'mhc.b')])
+
+
+def associate_links(records: pl.DataFrame, chains: pl.DataFrame, metadata: pl.DataFrame,
+                    exact: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFrame]:
+    """Associate paired junction/peptide models, preserving current record context and source IDs."""
+    from ..curate.nomenclature import harmonise_segments
+
+    key = ['cdr3.alpha', 'cdr3.beta', 'antigen.epitope']
+    empty = exact.select('tcr_pmhc_hash', 'record_id').head(0)
+    native_empty = empty.with_columns(pl.lit('', pl.String).alias('pdb_id'))
+    if not set(key).issubset(metadata.columns) or not {'cdr3', 'v.segm'}.issubset(chains.columns):
+        return empty, native_empty
+    source = metadata.with_columns(pl.col(pl.String).fill_null('')).join(
+        exact.select('tcr_pmhc_hash').unique(), on='tcr_pmhc_hash', how='anti')
+    source = source.filter(pl.all_horizontal([pl.col(c) != '' for c in key]))
+    if source.is_empty():
+        return empty, native_empty
+    current = records.select('record_id', *CONTEXT,
+        *(['meta.structure.id'] if 'meta.structure.id' in records.columns else []))
+    for gene, suffix in [('TRA', 'alpha'), ('TRB', 'beta')]:
+        side = chains.filter(pl.col('gene') == gene).select('record_id',
+            pl.col('cdr3').alias('cdr3.' + suffix), pl.col('v.segm').alias('v.' + suffix))
+        current = current.join(side, on='record_id', how='inner', validate='1:1')
+    # Count current V genes across the complete candidate key before filtering pMHC or species.
+    vcols = ['v.alpha', 'v.beta']
+    valid_call = r'^TR[ABDG]V[A-Za-z0-9/\-]+(?:\*[0-9]+)?$'
+    current = current.with_columns([
+        ((pl.col(c).fill_null('') == '') | pl.col(c).str.contains(valid_call)).alias(c + '_single')
+        for c in vcols])
+    reviewed, _ = harmonise_segments(current)
+    eligible = reviewed.group_by(key).agg(*[
+        (pl.col(c + '_single').all() &
+         ((pl.col(c).fill_null('') == '') | pl.col(c).str.contains(valid_call)).all() &
+         (pl.col(c).filter(pl.col(c).fill_null('') != '').str.replace(r'\*.*$', '').n_unique() == 1)
+         ).alias(c + '_unique')
+        for c in vcols]).filter(pl.all_horizontal([pl.col(c + '_unique') for c in vcols]))
+    current = current.join(eligible.select(key), on=key, how='semi')
+    candidates = source.join(current, on=key, how='inner', suffix='_current')
+    known_context = [c for c in CONTEXT if c not in key and c in source.columns]
+    comparisons = []
+    for c in known_context:
+        left = pl.col(c)
+        right = pl.col(c + '_current')
+        if c in ('mhc.a', 'mhc.b'):
+            left = left.str.replace(r'^H-2-?', 'H2-').str.replace(
+                r'^(HLA-[A-Z0-9]+\*\d+:\d+)(?::\d+)*$', '${1}')
+            right = right.str.replace(r'^H-2-?', 'H2-').str.replace(
+                r'^(HLA-[A-Z0-9]+\*\d+:\d+)(?::\d+)*$', '${1}')
+        comparisons.append((pl.col(c) == '') | (left == right))
+    compatible = candidates.filter(pl.all_horizontal(comparisons)) if comparisons else candidates
+    predicted = compatible.filter(pl.col('is_native').cast(pl.String).str.to_lowercase() == 'false')
+    predicted = predicted.select('tcr_pmhc_hash', 'record_id').unique()
+    native = native_empty
+    if set(CONTEXT).issubset(source.columns) and 'meta.structure.id' in source.columns:
+        native = compatible.filter((pl.col('is_native').cast(pl.String).str.to_lowercase() == 'true') &
+            pl.all_horizontal([pl.col(c) != '' for c in CONTEXT])).select(
+                'tcr_pmhc_hash', 'record_id', pl.col('meta.structure.id').str.to_lowercase().alias('pdb_id'))
+        if 'meta.structure.id' in records.columns:
+            provenance = candidates.filter(
+                (pl.col('is_native').cast(pl.String).str.to_lowercase() == 'true') &
+                (pl.col('meta.structure.id').str.to_lowercase() ==
+                 pl.col('meta.structure.id_current').str.to_lowercase()))
+            for c in ('species', 'mhc.class'):
+                provenance = provenance.filter((pl.col(c) == '') | (pl.col(c) == pl.col(c + '_current')))
+            unambiguous = provenance.group_by('tcr_pmhc_hash', 'meta.structure.id').agg(
+                pl.struct([c + '_current' for c in CONTEXT if c not in key]).n_unique().alias('contexts')
+            ).filter(pl.col('contexts') == 1).drop('contexts')
+            provenance = provenance.join(unambiguous,
+                on=['tcr_pmhc_hash', 'meta.structure.id'], how='semi').select(
+                'tcr_pmhc_hash', 'record_id', pl.col('meta.structure.id').str.to_lowercase().alias('pdb_id'))
+            native = pl.concat([native, provenance]).unique()
+    print(f"structure association: {predicted['tcr_pmhc_hash'].n_unique():,} predicted source hashes "
+          f"({predicted.height:,} record links), {native['tcr_pmhc_hash'].n_unique():,} native source hashes "
+          f"({native.height:,} PDB-record links)", flush=True)
+    return predicted.sort('tcr_pmhc_hash', 'record_id'), native.sort('tcr_pmhc_hash', 'pdb_id', 'record_id')
 
 
 def recover_links(records: pl.DataFrame, chains: pl.DataFrame, metadata: pl.DataFrame,
