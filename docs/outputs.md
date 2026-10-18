@@ -292,9 +292,10 @@ well as the PDB accession.
 
 When metadata also provides both anchor-inclusive junctions (`cdr3.alpha`, `cdr3.beta`) and
 `antigen.epitope`, the build associates unmatched predicted models with that three-field key.
-Each chain must have one unique nonmissing current V gene across all candidate records before
+Each chain must have one unique nonmissing current V gene known to the species-specific
+nomenclature authority across all candidate records before
 context filtering. Missing calls do not create competing genes and remain missing; multi-call
-annotations are ambiguous, while allele-only variation is allowed. Source
+and unresolved nonmissing annotations are rejected, while allele-only variation is allowed. Source
 V/J annotations need not match current annotations. Provided source species, MHC components and
 class restrict propagation to compatible records; current record context is preserved. Documented
 `H-2`/`H2-` prefix spelling and later numeric synonymous HLA fields may agree; expression suffixes

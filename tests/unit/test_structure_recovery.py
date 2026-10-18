@@ -190,14 +190,15 @@ def test_pair_association_ignores_source_vj_annotations_and_keeps_source_hash():
     assert result['evidence_source'].to_list()==['source']
 
 
-@pytest.mark.parametrize('call',['','TRAV1-2*01,TRAV1-2*02','TRAV1-2*01;TRAV2*01'])
+@pytest.mark.parametrize('call',['','TRAVNOTKNOWN*01','TRAV1-2*01,TRAV1-2*02',
+    'TRAV1-2*01;TRAV2*01'])
 def test_pair_association_rejects_missing_and_multicall_current_v(call):
     records,chains,metadata=inputs(association=True)
     chains=chains.with_columns(pl.when(pl.col('gene')=='TRA').then(pl.lit(call)).otherwise(pl.col('v.segm')).alias('v.segm'))
     assert structures(chains,metadata,records=records).is_empty()
 
 
-@pytest.mark.parametrize('second_v,expected',[('TRAV1-2*02',1),('',1),('TRAV2*01',0)])
+@pytest.mark.parametrize('second_v,expected',[('TRAV1-2*02',1),('',1),('TRAV2*01',0),('TRAVNOTKNOWN*01',0)])
 def test_pair_association_counts_v_genes_before_context_filter(second_v,expected):
     records,chains,metadata=inputs(association=True)
     records=pl.concat([records,records.with_columns(pl.lit('r2').alias('record_id'),pl.lit('HLA-A*02:02').alias('mhc.a'))])
@@ -233,6 +234,8 @@ def test_native_association_compares_documented_h2_prefix_and_hla_synonymous_fie
         pl.lit('HLA-A*02:01:01').alias('mhc.a'))
     assert structures(chains,metadata,records=records)['evidence_value'].to_list()==['1abc']
     records=records.with_columns(pl.lit('MusMusculus').alias('species'),pl.lit('H2-Db').alias('mhc.a'))
+    chains=chains.with_columns(pl.when(pl.col('gene')=='TRA').then(pl.lit('TRAV1*01'))
+        .otherwise(pl.lit('TRBV13-2*01')).alias('v.segm'))
     metadata=metadata.with_columns(pl.lit('MusMusculus').alias('species'),pl.lit('H-2Db').alias('mhc.a'))
     assert structures(chains,metadata,records=records)['evidence_value'].to_list()==['1abc']
 
@@ -251,3 +254,18 @@ def test_pair_association_preserves_missing_current_v_when_other_candidate_has_u
     combined=pl.concat([chains,other])
     assert structures(combined,metadata,records=records)['record_id'].to_list()==['r1','r2']
     assert other['v.segm'].to_list()==['','']
+
+
+def test_native_pdb_provenance_does_not_require_source_mhc_columns():
+    records,chains,metadata=inputs(association=True)
+    records=records.with_columns(pl.lit('1abc').alias('meta.structure.id'))
+    metadata=metadata.with_columns(pl.lit('true').alias('is_native'),pl.lit('1abc').alias('meta.structure.id'))
+    metadata=metadata.select('tcr_pmhc_hash','is_native','cdr3.alpha','cdr3.beta','antigen.epitope','meta.structure.id')
+    assert structures(chains,metadata,records=records)['evidence_value'].to_list()==['1abc']
+
+
+def test_pair_association_requires_species_specific_v_authority():
+    records,chains,metadata=inputs(association=True)
+    records=records.with_columns(pl.lit('UnknownSpecies').alias('species'))
+    metadata=metadata.with_columns(pl.lit('UnknownSpecies').alias('species'))
+    assert structures(chains,metadata,records=records).is_empty()

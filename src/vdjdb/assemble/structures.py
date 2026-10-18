@@ -128,7 +128,7 @@ def _protein_context(frame: pl.DataFrame) -> pl.DataFrame:
 def associate_links(records: pl.DataFrame, chains: pl.DataFrame, metadata: pl.DataFrame,
                     exact: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFrame]:
     """Associate paired junction/peptide models, preserving current record context and source IDs."""
-    from ..curate.nomenclature import harmonise_segments
+    from ..curate.nomenclature import IMGT_SPECIES, harmonise_segments, unresolved
 
     key = ['cdr3.alpha', 'cdr3.beta', 'antigen.epitope']
     empty = exact.select('tcr_pmhc_hash', 'record_id').head(0)
@@ -153,8 +153,16 @@ def associate_links(records: pl.DataFrame, chains: pl.DataFrame, metadata: pl.Da
         ((pl.col(c).fill_null('') == '') | pl.col(c).str.contains(valid_call)).alias(c + '_single')
         for c in vcols])
     reviewed, _ = harmonise_segments(current)
+    unknown = unresolved(reviewed)
+    for c in vcols:
+        invalid = unknown.filter(pl.col('column') == c).select(
+            'species', pl.col('call').alias(c)).unique().with_columns(pl.lit(True).alias('__unknown'))
+        reviewed = reviewed.join(invalid, on=['species', c], how='left').with_columns(
+            ((pl.col(c).fill_null('') == '') |
+             (pl.col('species').is_in(list(IMGT_SPECIES)) & ~pl.col('__unknown').fill_null(False)))
+            .alias(c + '_known')).drop('__unknown')
     eligible = reviewed.group_by(key).agg(*[
-        (pl.col(c + '_single').all() &
+        (pl.col(c + '_single').all() & pl.col(c + '_known').all() &
          ((pl.col(c).fill_null('') == '') | pl.col(c).str.contains(valid_call)).all() &
          (pl.col(c).filter(pl.col(c).fill_null('') != '').str.replace(r'\*.*$', '').n_unique() == 1)
          ).alias(c + '_unique')
@@ -176,19 +184,23 @@ def associate_links(records: pl.DataFrame, chains: pl.DataFrame, metadata: pl.Da
     predicted = compatible.filter(pl.col('is_native').cast(pl.String).str.to_lowercase() == 'false')
     predicted = predicted.select('tcr_pmhc_hash', 'record_id').unique()
     native = native_empty
-    if set(CONTEXT).issubset(source.columns) and 'meta.structure.id' in source.columns:
-        native = compatible.filter((pl.col('is_native').cast(pl.String).str.to_lowercase() == 'true') &
-            pl.all_horizontal([pl.col(c) != '' for c in CONTEXT])).select(
-                'tcr_pmhc_hash', 'record_id', pl.col('meta.structure.id').str.to_lowercase().alias('pdb_id'))
+    if 'meta.structure.id' in source.columns:
+        if set(CONTEXT).issubset(source.columns):
+            native = compatible.filter((pl.col('is_native').cast(pl.String).str.to_lowercase() == 'true') &
+                pl.all_horizontal([pl.col(c) != '' for c in CONTEXT])).select(
+                    'tcr_pmhc_hash', 'record_id',
+                    pl.col('meta.structure.id').str.to_lowercase().alias('pdb_id'))
         if 'meta.structure.id' in records.columns:
             provenance = candidates.filter(
                 (pl.col('is_native').cast(pl.String).str.to_lowercase() == 'true') &
                 (pl.col('meta.structure.id').str.to_lowercase() ==
                  pl.col('meta.structure.id_current').str.to_lowercase()))
             for c in ('species', 'mhc.class'):
-                provenance = provenance.filter((pl.col(c) == '') | (pl.col(c) == pl.col(c + '_current')))
+                if c in source.columns:
+                    provenance = provenance.filter((pl.col(c) == '') | (pl.col(c) == pl.col(c + '_current')))
             unambiguous = provenance.group_by('tcr_pmhc_hash', 'meta.structure.id').agg(
-                pl.struct([c + '_current' for c in CONTEXT if c not in key]).n_unique().alias('contexts')
+                pl.struct([c + '_current' if c in source.columns else c
+                           for c in CONTEXT if c not in key]).n_unique().alias('contexts')
             ).filter(pl.col('contexts') == 1).drop('contexts')
             provenance = provenance.join(unambiguous,
                 on=['tcr_pmhc_hash', 'meta.structure.id'], how='semi').select(
