@@ -82,7 +82,8 @@ pytestmark = pytest.mark.release
 # PR1358 replaces20,358 vendor observations with28,040 caller rows and adds2,468 viral rows.
 # #1362 retires 64 redundant H3 projections, restores 11 patent pairs and merges two
 # completed restriction duplicates under the existing within-publication rule.
-EXPECTED_RECORDS = 308_825
+# PMID40154610 / PDB9GV6 adds one paired structural binding observation (#1133).
+EXPECTED_RECORDS = 308_826
 
 
 @pytest.fixture(scope="module")
