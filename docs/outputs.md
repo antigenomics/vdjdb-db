@@ -670,7 +670,7 @@ counts and statistics ship. The per-epitope diagnostic is
 
 ## 4. AIRR bundle - `vdjdb-airr-<version>.zip`
 
-| File | Level | Rows (current corpus) |
+| File | Level | Rows (2026-06-03 reference corpus) |
 |---|---|---|
 | `vdjdb.rearrangement.tsv` | one row per chain; AIRR Rearrangement | 286,047 |
 | `vdjdb.receptor.tsv` | one row per paired record; AIRR Receptor | 81,003 |
@@ -690,9 +690,11 @@ spec asks of a non-physical assay: *"for inferred and annotated methods this sho
 confidence/quality level"*. `reactivity_method` is `MHC_peptide_multimer`, `native_protein` or
 `annotated`; ROADMAP §18 gives the classification and its counts.
 
-Nucleotide fields are present and empty until phase 8 (#461): `sequence`, `junction`, the two
-alignments and the three cigars. The schema requires the column, not a value, and
-`airr.validate_rearrangement` passes on the full table today.
+`junction` contains the inferred nucleotide junction when available in the definitive chains
+table. `sequence`, the two alignments and the three cigars remain empty: inferred junctions do
+not establish a measured full nucleotide sequence. The schema requires those columns, not a
+value, and CI validates the complete Rearrangement table. The row counts above describe the
+reference corpus, not a count assertion for later builds.
 
 `Receptor` requires `receptor_variable_domain_{1,2}_aa`, the complete mature variable domain and
 non-nullable, so both are rebuilt by stitching germline V and J around the inferred nucleotide
