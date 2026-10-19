@@ -103,11 +103,14 @@ Inspect `structure_files.parquet`, `native_structure_files.parquet`,
 in the report directory. Keep original/repaired sequence matches, exact receptor:pMHC matches
 and historical lineage links distinct. A historical association is not sequence proof.
 The [supplemental catalogue](https://huggingface.co/datasets/isalgo/vdjdb_structure_models/tree/main/metadata/supplemental)
-contains 11,802 distinct coordinate contents, with 11,279 new and 523 existing contents. Its
-16,110 sequence-state links connect 4,773 structures to 7,288 current records; they do not count
+contains 11,911 distinct coordinate contents, with 11,388 new and 523 existing contents. Its
+16,118 sequence-state links connect 4,777 structures to 7,292 current records; they do not count
 independent experiments. Use its README and verification report for dispositions and input identity.
-Audit supplemental raw assets and their current links separately. Keep reported assignments,
-synthetic swapped pairs and mutants distinguishable; no assay outcomes belong in the public deposit.
+Audit supplemental raw assets and their current links separately. Ignore input positive/negative,
+pairing and validation flags for linkage. These inputs identify receptor/pMHC sequences and files,
+not binding outcomes. Outcome labels come only from curated negative chunks or reviewed 10x
+removals where applicable. Require literal coordinate/sequence/context agreement regardless of flags;
+keep native/predicted coordinate provenance separate from experimental validation.
 Optional `vdjdb build --structure-supplemental <metadata.tsv.gz>` merges their raw metadata within
 one build. Leave it off in default hosted assembly/scoring until matched-cohort extraction is validated.
 CI uploads these reports separately from the release bundles. See

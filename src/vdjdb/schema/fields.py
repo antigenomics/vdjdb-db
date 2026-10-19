@@ -357,9 +357,7 @@ FIELDS: dict[str, Field] = dict([
     # junction, filter it if you want only canonical ones". Submitted false says "the chunk cell is
     # wrong and the next export of that data will be wrong again". Measured 2026-09-29: the V anchor
     # is absent on 413 submitted chains and 161 shipped ones, the J anchor on 4,701 and 864 - so
-    # 4,089 repairs are invisible in the shipped pair alone. A chain with no CDR3 at all (34 rows, a
-    # D call and nothing else) reads `true`: an absent sequence has no anchor to be missing, which is
-    # `no.cdr3` and a different finding.
+    # 4,089 repairs are invisible in the shipped pair alone. A chain requires a reported junction.
     _f("v.canonical.submitted", searchable=0, autocomplete=0, data_type="bool",
        title="V anchor canonical as submitted",
        comment="Whether the submitted CDR3 began with Cys104, before any repair."),

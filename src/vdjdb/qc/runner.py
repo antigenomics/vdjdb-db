@@ -68,10 +68,6 @@ ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form",
                       # rule cannot tell donor typing written into `mhc.a` from a paper that reports
                       # two restrictions (`PMID_34793243` does), and only the paper settles it.
                       "one epitope under two HLA genes in one chunk",
-                      # A named V or J whose chain has no CDR3. The call is information and the row
-                      # is kept; the chain cannot reach an output, which is what this tells the
-                      # submitter while they can still supply the sequence.
-                      "segment call with no cdr3",
                       # A Cys after the one the junction opens with. Kept and flagged rather than
                       # gated: the Jurkat receptor carries one, so it is rare and not impossible, and
                       # 4,325 corpus rows over 108 chunks would fail a gate for a defect a curator has

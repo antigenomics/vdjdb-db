@@ -84,8 +84,9 @@ def scored(tables: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
     # All 18589 GILGFVFTL observations and the quality tolerances remain unchanged.
     # PDB9GV6 adds one human TRB observation outside the unchanged GILGFVFTL cohort (#1133).
     # #1369 restores 7107 template-labelled TRB observations; the GIL cohort is unchanged.
-    assert result["units"][0] == 265145
-    assert result["given_units"][0] == 18589
+    assert result["units"][0] == 265136
+    # #1371 consolidates one redundant GIL observation; motif acceptance is unchanged.
+    assert result["given_units"][0] == 18588
     return [(row["lift"], row["term"]) for row in result.iter_rows(named=True)]
 
 
