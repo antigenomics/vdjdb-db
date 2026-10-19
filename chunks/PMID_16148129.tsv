@@ -39,7 +39,6 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 38				CASRPPGANVLTF	TRBV28		TRBJ2-6	HomoSapiens	HLA-B*35:01	B2M	MHCI	EPLPQGQLTAY	BZLF1	EBV	PMID:16148129	tetramer-sort	2/33		sanger			CD8+	healthy	DY				CTL culture	HLA-B*35:01	sequencing	
 39				CASRTPGVSTEAFF	TRBV28		TRBJ1-1	HomoSapiens	HLA-B*35:01	B2M	MHCI	EPLPQGQLTAY	BZLF1	EBV	PMID:16148129	tetramer-sort	4/10		sanger			CD8+	healthy	EL				CTL culture	HLA-B*35:01	sequencing	
 40				CASSLPGGAQGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-B*35:01	B2M	MHCI	EPLPQGQLTAY	BZLF1	EBV	PMID:16148129	tetramer-sort	2/10		sanger			CD8+	healthy	EL				CTL culture	HLA-B*35:01	sequencing	
-41				CASRLPGGYNEQFF	TRBV28		TRBJ2-1	HomoSapiens	HLA-B*35:01	B2M	MHCI	EPLPQGQLTAY	BZLF1	EBV	PMID:16148129	tetramer-sort	10/33		sanger			CD8+	healthy	DY				CTL culture	HLA-B*35:01	sequencing	
 42				CASSLPGRDEQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-B*35:01	B2M	MHCI	EPLPQGQLTAY	BZLF1	EBV	PMID:16148129	tetramer-sort	5/10		sanger			CD8+	healthy	MW				PBMC	HLA-B*35:01	sequencing	
 43	CAVHASGGSYIPTF	TRAV1-1	TRAJ6					HomoSapiens	HLA-B*35:01	B2M	MHCI	EPLPQGQLTAY	BZLF1	EBV	PMID:16148129	tetramer-sort	29/30		sanger			CD8+	healthy	DY				CTL culture	HLA-B*35:01	sequencing	
 44	CAVHASGGSYIPTF	TRAV1-1	TRAJ6					HomoSapiens	HLA-B*35:01	B2M	MHCI	EPLPQGQLTAY	BZLF1	EBV	PMID:16148129	tetramer-sort	3/30		sanger			CD8+	healthy	DY				CTL culture	HLA-B*35:01	sequencing	
