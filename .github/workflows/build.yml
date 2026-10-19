@@ -178,6 +178,16 @@ jobs:
           . .github/stage-timing.sh
           stage score-records uv run vdjdb score-records --tables out/tables
 
+      - name: Record confidence artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: record-confidence-v3
+          path: |
+            out/tables/record_scores.parquet
+            out/tables/record_scores.tsv.gz
+          retention-days: 90
+          if-no-files-found: error
+
       - name: Structure-file audit
         run: |
           . .github/stage-timing.sh

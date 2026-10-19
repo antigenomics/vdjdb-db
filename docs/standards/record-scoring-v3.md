@@ -36,6 +36,7 @@ cells. Parquet retains typed nulls. No column is appended to a legacy positional
 The primary bundle includes both score files when that stage has run; the hosted build
 requires their production and verifies their cardinality. The model SHA256 is recorded
 on every row. No stored feature or prediction rows are reused between builds.
+Normal hosted builds retain both files in the `record-confidence-v3` artifact for 90 days.
 
 | Columns | Type / interpretation |
 |---|---|
