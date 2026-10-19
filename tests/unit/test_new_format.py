@@ -198,3 +198,23 @@ def test_motif_run_replaces_its_evidence_and_refreshes_view(tmp_path, tables, mo
     ev = ev.head(0)
     motifs.run(tmp_path/'tables', tmp_path/'motifs', tmp_path/'reports', methods=('tcrnet',))
     assert not vdjdb3.read_table(tmp_path/'tables','vdjdb')['evidence.motif.tcrnet'].any()
+
+
+def test_chain_assembly_discards_segment_only_partners():
+    from vdjdb.assemble.master import CALL_FIELDS, FIX_FIELDS
+    from vdjdb.assemble.tables import build_chains
+    from vdjdb.schema import ALL_COLUMNS
+
+    row = dict.fromkeys(ALL_COLUMNS, "")
+    row.update(record_id="r1", species="HomoSapiens", TCR_hash="", **{
+        "cdr3.alpha": "CAVRDSNYQLIW", "v.beta": "TRBV10-3*01",
+        "d.beta": "TRBD1*01", "j.beta": "TRBJ2-7*01"})
+    for gene in ("alpha", "beta"):
+        for _, name, kind in FIX_FIELDS:
+            row[f"{name}.{gene}"] = {str: "", bool: False, int: -1}[kind]
+        for name, _ in CALL_FIELDS:
+            row[f"{name}.{gene}"] = ""
+        for segment in ("v", "j", "d"):
+            row[f"__sub.{segment}.{gene}"] = ""
+    chains = build_chains(pl.DataFrame([row]))
+    assert chains.select("gene", "cdr3").rows() == [("TRA", "CAVRDSNYQLIW")]

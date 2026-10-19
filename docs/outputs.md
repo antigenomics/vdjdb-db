@@ -451,11 +451,12 @@ audit checks all 367 native accessions declared across the current records. The 
 IDs and literal chemistry; they are not interchangeable with the historical canonical-frame PDBs.
 
 The [supplemental structure catalogue](https://huggingface.co/datasets/isalgo/vdjdb_structure_models/tree/main/metadata/supplemental)
-preserves 11,802 distinct coordinate contents: 11,279 new contents and 523 already present in the
-historical archive. Its 16,110 structure/record/sequence-state links connect 4,773 structures to
-7,288 current records. Original and repaired sequence states can each contribute a link, so these
-links are not counts of independent experiments. Reported assignments remain distinct from
-constructed pairs and mutants. The catalogue documents metadata dispositions and verification;
+preserves 11,911 distinct coordinate contents: 11,388 new contents and 523 already present in the
+historical archive. Its 16,118 structure/record/sequence-state links connect 4,777 structures to
+7,292 current records. Original and repaired sequence states can each contribute a link, so these
+links are not counts of independent experiments. Input positive/negative and pairing flags are
+ignored: the catalogue maps literal receptor/pMHC sequences to coordinate files and supplies no
+binding outcomes. Native/predicted construction provenance does not gate these links;
 default hosted assembly and scoring do not use its optional supplemental build input.
 
 The independent `processing/proofread_structure_files.py` audit reads the pinned raw-input

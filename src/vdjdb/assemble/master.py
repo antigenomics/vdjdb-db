@@ -117,12 +117,7 @@ def fix_cdr3(df: pl.DataFrame) -> pl.DataFrame:
         df = (
             df.join(lookup, on=["species", cdr3, v, j], how="left")
             .with_columns(
-                # A chain with no CDR3 loses its V and J too. The legacy assigns the fixer result
-                # unconditionally -- `x.vId if x else None` -- so a record annotated `v.alpha =
-                # TRAV2` but with no alpha CDR3 has that annotation wiped. It is a data loss, and
-                # the new format keeps those calls; but it must stay here, because the score
-                # signature includes v.alpha, so wiping it merges records the released scores are
-                # computed over as one group.
+                # Only sequence-bearing chains reach assembly; absent partners stay blank.
                 pl.col("__cdr3").fill_null("").alias(cdr3),
                 pl.col("__v").fill_null("").alias(v),
                 pl.col("__j").fill_null("").alias(j),

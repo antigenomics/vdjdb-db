@@ -62,7 +62,10 @@ def test_links_recompute_source_identity_and_context_flags():
             check_links(records, chains, pl.DataFrame([{**link, name: value}]), pl.DataFrame([source]))
 
 
-def test_supplemental_coordinates_and_record_proof(tmp_path):
+@pytest.mark.parametrize("pairing,disposition", [("reported_assignment", "predicted"),
+                                               ("constructed_mismatch", "mock"),
+                                               ("unknown", "native")])
+def test_supplemental_coordinates_and_record_proof(tmp_path, pairing, disposition):
     base = tmp_path / 'metadata/supplemental'
     base.mkdir(parents=True)
     (tmp_path / 'data').mkdir()
@@ -78,8 +81,8 @@ def test_supplemental_coordinates_and_record_proof(tmp_path):
                          'link_basis': ['literal_sequence_context']})
     record = {'record_id': 'r1', 'species': 'HomoSapiens', 'antigen.epitope': 'PEP',
               'mhc.a': 'HLA-A*02:01', 'mhc.b': 'B2M', 'mhc.class': 'MHCI'}
-    models = pl.DataFrame([{'structure_id': digest, 'pairing_status': 'reported_assignment',
-        'source_disposition': 'predicted', **{k: v for k, v in record.items() if k != 'record_id'},
+    models = pl.DataFrame([{'structure_id': digest, 'pairing_status': pairing,
+        'source_disposition': disposition, **{k: v for k, v in record.items() if k != 'record_id'},
         'coordinate_alpha': 'AACAVFAA', 'coordinate_beta': 'AACASSFAA', 'coordinate_peptide': 'PEP'}])
     for name, frame in [('structures', assets), ('models', models), ('record_links', links)]:
         with gzip.open(base / (name + '.tsv.gz'), 'wb') as stream:
@@ -89,3 +92,9 @@ def test_supplemental_coordinates_and_record_proof(tmp_path):
     assert check_supplemental(tmp_path, pl.DataFrame([record]), chains, tmp_path)['supplemental_links'] == 1
     with pytest.raises(ValueError, match='literal'):
         check_supplemental(tmp_path, pl.DataFrame([{**record, 'mhc.a': 'HLA-A*01:01'}]), chains, tmp_path)
+    for side, junction in [('alpha', 'CAVF'), ('beta', 'CASSF')]:
+        with gzip.open(base / 'models.tsv.gz', 'wb') as stream:
+            models.with_columns(pl.lit(junction * 2).alias('coordinate_' + side)).write_csv(
+                stream, separator='\t')
+        with pytest.raises(ValueError, match='literal'):
+            check_supplemental(tmp_path, pl.DataFrame([record]), chains, tmp_path)

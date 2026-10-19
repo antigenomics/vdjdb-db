@@ -72,6 +72,10 @@ submitter | Name of submitting person/organization
 
 > If a record represents a clonotype whose alpha or beta sequence is unknown, leave the missing CDR3/V/(D)/J fields blank.
 
+> A chain exists only when its own CDR3 is reported. Segment usage without that junction belongs
+> in the curation comment, not the chain columns. Strict QC and direct assembly reject such
+> incomplete chain annotations; the chain-table projection also excludes them.
+
 > Leave unreported V/(D)/J fields blank. The build preserves submitted calls, attempts junction
 > annotation where supported and distinguishes inferred calls from reported ones. An inferred V
 > is reported separately; it does not replace a missing submitted V call.

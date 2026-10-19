@@ -32,6 +32,11 @@ block the affected records. A source missing both chains needs a source-supporte
 or an explicitly recorded modal imputation before admission. Missing V/J or optional peptide provenance does
 not justify discarding a sequence-bearing observation.
 
+Each described chain needs its own reported junction. Recover a missing junction only from the
+same source observation. If it remains unreported, keep the sequence-bearing partner and record
+the omitted chain's source-reported V/D/J usage in the curation comment; leave its chain columns
+blank. Segment-only partners fail strict QC and direct assembly and never become chain-table rows.
+
 ## Inspect sequence repair
 
 Build from the supplied source values. Compare `cdr3.original`, `v.segm.submitted` and

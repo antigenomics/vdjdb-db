@@ -98,11 +98,8 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
     for gene, tag in _GENES:
         d = f"d.{gene}" if f"d.{gene}" in master.columns else None
         parts.append(
-            # A chain row exists when the curator described a chain at all. A D call with no
-            # CDR3 is poor curation, not absence, and dropping it would lose 34 values the legacy
-            # still ships.
-            master.filter((pl.col(f"cdr3.{gene}") != "")
-                          | (pl.col(d) != "" if d else pl.lit(False))).select(
+            # Segment usage without a junction does not identify a receptor chain (#1371).
+            master.filter(pl.col(f"cdr3.{gene}") != "").select(
                 pl.col("record_id"),
                 pl.lit(tag).alias("gene"),
                 pl.col(f"cdr3.{gene}").alias("cdr3"),
@@ -152,11 +149,7 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
                 if c not in (*NT_COLUMNS, "clone_id")]
     # Sorted by the key, so the table has one order and it is the key's.
     chains = (pl.concat(parts, how="vertical")
-            # 34 rows are a D call with no CDR3, so the fixer was never handed anything and left no
-            # result. Empty string is the only missing marker (CLAUDE.md rule 6), `false` is what
-            # "nothing was repaired" means, and -1 is what this coordinate space already reads as
-            # "not mapped". The legacy export gates every one of these on `cdr3 != ""`, so nothing
-            # shipped moves; a null in a shipped table is the pandas three-way ambiguity returning.
+            # Keep missing annotations consistent for chains without a supported germline model.
             .with_columns(
                 pl.col("v.end", "j.start").fill_null(-1),
                 pl.col("cdr3.original", "v.fix.type", "j.fix.type").fill_null(""),

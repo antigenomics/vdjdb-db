@@ -145,29 +145,22 @@ def test_every_advisory_code_is_one_something_can_emit(code):
 
 # --- a named segment whose chain has no CDR3 ----------------------------------------------------
 
-def test_a_segment_call_with_no_cdr3_is_reported_and_is_advisory():
-    """The call is information, the row is kept, but the chain cannot reach any output.
+@pytest.mark.parametrize("segment,chain", [("v", "alpha"), ("j", "alpha"),
+                                             ("v", "beta"), ("j", "beta"), ("d", "beta")])
+def test_a_segment_call_without_its_junction_fails_qc_and_direct_build(tmp_path, segment, chain):
+    from vdjdb.assemble.master import build_master
 
-    Every shipped table is keyed on the CDR3, so a V or J named without one is carried in `chunks/`
-    and dropped by the build. A submitter should hear that while they can still supply the sequence.
-    """
-    from vdjdb.qc.rules import RULES
-
-    rows = pl.DataFrame({
-        "chunk.file": ["c.txt"] * 4,
-        "chunk.row": [0, 1, 2, 3],
-        # a V named with no alpha CDR3; a J likewise; a complete chain; a chain absent entirely
-        "cdr3.alpha": ["", "", "CAVRDSNYQLIW", ""],
-        "v.alpha": ["TRAV12-2*01", "", "TRAV12-2*01", ""],
-        "j.alpha": ["", "TRAJ33*01", "TRAJ33*01", ""],
-        "cdr3.beta": ["CASSIRSSYEQYF"] * 4,
-        "v.beta": ["TRBV10-3*01"] * 4,
-        "j.beta": ["TRBJ2-7*01"] * 4,
-    })
-    # one rule, not `check`, so the fixture does not have to carry every column every rule reads
-    failed = rows.filter(~RULES["segment call with no cdr3"])
-    assert sorted(failed["chunk.row"].to_list()) == [0, 1], "only the two incomplete alpha chains"
-    assert "segment call with no cdr3" in ADVISORY, "a chain that cannot ship is not a broken row"
+    values = {"cdr3.beta": "", "v.beta": "", "j.beta": "",
+              f"cdr3.{'beta' if chain == 'alpha' else 'alpha'}": "CASSIRSSYEQYF",
+              f"{segment}.{chain}": {"v": "TRAV12-2*01" if chain == "alpha" else "TRBV10-3*01",
+                                     "j": "TRAJ33*01" if chain == "alpha" else "TRBJ2-7*01",
+                                     "d": "TRBD1*01"}[segment]}
+    path = chunk(tmp_path, rows=[clean_row(**values)])
+    rule = "segment call with no cdr3"
+    assert rule not in ADVISORY
+    assert run_qc([path], strict=True) == 1
+    with pytest.raises(ValueError, match=rule):
+        build_master([path])
 
 
 # --- a structure id that is not a PDB entry id ---------------------------------------------------
