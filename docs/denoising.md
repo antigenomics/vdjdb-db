@@ -409,8 +409,8 @@ Measured on human TRB, 2026-09-26:
 
 | Cohort | Clonotype-epitope pairs | Replicated | Base rate |
 |---|---:|---:|---:|
-| all | 116,053 | 2,771 | 2.3877 % |
-| excluding display | 86,361 | 2,771 | 3.2086 % |
+| all | 116,053 | 2,771 | 2.39 % |
+| excluding display | 86,361 | 2,771 | 3.21 % |
 
 The replicated count is identical in both rows: all 2,771 replicated pairs sit outside the display
 set, and display contributes 29,692 pairs that can only ever be false positives for this objective.

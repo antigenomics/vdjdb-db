@@ -187,8 +187,8 @@ repeated source observations retained and no fitting on these rows:
 
 | Scope | Source observations | Nominal positive | Confident positive | Confident negative | Unknown |
 |---|---:|---:|---:|---:|---:|
-| All files | 6,062,284 | 2,155,249 (35.5518%) | 3,747 (0.0618%) | 16 | 6,058,521 |
-| Human class I with specified context | 5,015,831 | 1,116,387 (22.2573%) | 3,740 (0.0746%) | 6 | 5,012,085 |
+| All files | 6,062,284 | 2,155,249 (35.6%) | 3,747 (0.0618%) | 16 | 6,058,521 |
+| Human class I with specified context | 5,015,831 | 1,116,387 (22.3%) | 3,740 (0.0746%) | 6 | 5,012,085 |
 
 Percentages divide by the observation count in the same row. Confident calls use the
 envelope, while nominal calls threshold `record_score`. The source-negative positive
