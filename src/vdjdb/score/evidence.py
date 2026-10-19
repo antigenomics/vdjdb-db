@@ -146,6 +146,22 @@ def soft_motifs(features: pl.DataFrame, records: pl.DataFrame, chains: pl.DataFr
     return output.sort('interaction_key')
 
 
+def separated_motifs(features: pl.DataFrame, records: pl.DataFrame, chains: pl.DataFrame,
+                     evidence: pl.DataFrame) -> pl.DataFrame:
+    """Optional hard-order-preserving neighbour support for improved scoring.
+
+    Keep original assignments in *_hard. Values are experimental interpolation
+    weights for the existing soft inference, not calibrated membership probabilities.
+    Only the original producer-eligible rows receive a continuous index.
+    """
+    names = [f'{p}_{m}' for p in ('a', 'b') for m in ('tcrnet', 'tcremp')]
+    categorical(features.select(names))  # The preserved assignments must be binary.
+    hard = features.select('interaction_key', *(pl.col(n).alias(n + '_hard') for n in names))
+    near = soft_motifs(features, records, chains, evidence).join(
+        hard, on='interaction_key', validate='1:1')
+    return near.with_columns(((2*pl.col(n + '_hard') + pl.col(n))/3).alias(n) for n in names)
+
+
 def categorical(frame: pl.DataFrame, *, iptm_bounds: tuple[float, float] = (.5, .8)) -> pl.DataFrame:
     """Count bins 0/1/2/3+ and three ipTM grades at supplied bounds; '?' is unknown."""
     low, high = iptm_bounds

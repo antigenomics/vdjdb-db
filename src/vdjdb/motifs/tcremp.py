@@ -353,6 +353,35 @@ class ClusterReference:
     dimensions: int
     scope: tuple[tuple[str, str], ...]
 
+    def support(self, queries: pl.DataFrame, X: np.ndarray) -> pl.DataFrame:
+        """Bounded nearest-core and second-core support in the frozen embedding.
+
+        One native nearest-neighbour batch per peptide uses existing core indexes.
+        For distance d and the fitted radius e, support is e/(e+d). The second
+        neighbour distinguishes member density when an exact core self-hit has d=0.
+        Eligible peptides without retained cores have zero support; others are missing.
+        These indices are not calibrated binding probabilities.
+        """
+        assigned = self.assign(queries, X)  # Shared scope/shape/finite validation.
+        X = np.asarray(X)
+        near = np.full(queries.height, np.nan)
+        density = near.copy()
+        peptides = queries['antigen.epitope'].fill_null('').to_numpy()
+        for ep in np.unique(peptides):
+            rows = np.flatnonzero(peptides == ep)
+            if ep not in self.eligible_epitopes:
+                continue
+            near[rows] = density[rows] = 0.
+            if ep not in self.indexes:
+                continue
+            index, labels = self.indexes[ep]
+            distances = index.kneighbors(X[rows], n_neighbors=min(2, len(labels)),
+                                         return_distance=True)[0]
+            near[rows] = index.radius / (index.radius + distances[:, 0])
+            density[rows] = index.radius / (index.radius + distances[:, -1])
+        return assigned.with_columns(pl.Series('core_support', near).fill_nan(None),
+                                     pl.Series('core_density', density).fill_nan(None))
+
     def assign(self, queries: pl.DataFrame, X: np.ndarray) -> pl.DataFrame:
         """Return ordered queries with geometric support, ambiguity and legacy cid.
 

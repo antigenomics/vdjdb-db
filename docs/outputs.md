@@ -483,6 +483,11 @@ missing evidence is marginalized. Held-out metrics use the complete original ass
 inputs and do not estimate universal production-record accuracy. Hard motif membership is the
 default; opt-in `--soft-membership` adds four Hamming-1 fractions and integer `*_members` /
 `*_neighbours` columns within each producer's scope.
+The alternative `--continuous-membership` uses the separated index $(2b+u)/3$,
+retains `*_hard` assignments and records `continuous_membership` and
+`motif_score_version`. It is experimental and off by default; the
+[v3 specification](standards/record-scoring-v3.md#optional-separated-motif-indices)
+defines the ordering guarantee and interpolation semantics.
 
 ### 3.3a `epitopes.parquet` and `restriction.parquet` - the antigen catalogue
 
