@@ -46,6 +46,7 @@ complete a task, reference pages define the data, and explanations describe the 
    standards/chunk-format
    standards/columns
    standards/confidence-score
+   standards/record-scoring-v3
    standards/identity
    standards/airr-mapping
    standards/corpus

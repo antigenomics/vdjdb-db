@@ -35,11 +35,42 @@ is not proof of a full database build. Check artifact provenance by exact commit
 | Deduplication or identity | Pre-repair identity, retained record IDs, within-publication decisions and preserved independent reports |
 | Sampling, clustering or parallelism | Repeated digests in separate processes, seed/hash/worker-count checks, relevant motif metrics |
 | CI, packaging or publication | Event/selector cases, all three bundle layouts, exact tested artifact and live consumer/publication checks |
+| Record confidence v3 | Frozen-model identity, completed motif evidence, deterministic score files and exactly one row per current record ID |
+| Structure-file audit | Pinned raw-file checksums, all archive members, current sequence flags and every native accession |
 
 Use focused tests for the changed behavior, then run release-aware checks for any measured corpus
 value. A plain test run can skip release markers. Build fresh tables and projections, run strict
 QC, identity and corpus invariants, the complete release comparison, motif metrics and the offline
-summary checks. Validate documentation with Sphinx warnings treated as errors.
+summary checks. Run `vdjdb score-records --tables out/tables` after motifs with the `confidence`
+extra installed. Its default packaged frozen model is an input; `--model` selects another reviewed
+frozen JSON and `--out` selects the score directory. No fitting or prediction reuse occurs.
+Require `record_scores.parquet` and `record_scores.tsv.gz` in hosted builds and compare their
+unique record IDs to `records.parquet`. PRIMARY keeps them optional only for historical builds.
+Assembly writes fourteen table files; the completed score stage brings that count to sixteen.
+Default scores use the same frozen parameters with the evidence available in that build.
+Held-out metrics use complete original assay structural inputs; do not transfer them to every
+production record. Hard membership remains default. Explicit `--soft-membership` runs one
+batched seqtree Hamming-1 search within each producer's scope and emits four membership
+fractions plus integer `*_members` / `*_neighbours` columns.
+Read [record confidence v3](../../docs/standards/record-scoring-v3.md) before interpreting scores.
+
+Run the independent raw-structure audit with:
+
+```bash
+uv run python processing/proofread_structure_files.py --structures out/inputs/structures \
+  --tables out/tables --out out/reports/structures --fetch
+```
+
+Inspect the current manifest sizes and available disk before fetching pinned raw inputs. Omit `--fetch` for an existing mirror. Downloads are inputs; all computed audit tables
+are regenerated. Verify streamed archives, current model links against reviewed coordinate-sequence
+metadata and all 367 current native accessions, rather than only the historical 360-accession PDB
+aggregate. CI hashes the coordinate contents but does not independently re-extract chain sequences. Keep lineage
+associations separate from sequence matches. Upload the Parquet/JSON reports as build artifacts;
+no source chunk is changed by this check. Audit supplemental assets and current links separately.
+Optional `build --structure-supplemental <metadata.tsv.gz>` merges raw metadata within one build;
+keep it off in default hosted assembly/scoring pending explicit matched-cohort extraction
+validation. Keep reported assignments distinct from synthetic swapped pairs and mutants.
+No assay outcomes belong in the public raw deposit. Validate documentation with Sphinx warnings treated as errors.
 
 Re-measure declared differences and explain each affected bucket. Keep source/behavior corrections
 separate from baseline counts; do not regenerate expectations automatically or widen tolerances
@@ -104,5 +135,5 @@ partner, merge records or assign motif groups from these predictions. Structure 
 full appropriate ligand and source evidence.
 
 Partial checks accelerate review. Full integration still recomputes junction annotation, corpus,
-motifs, dashboard and release measurements on the combined candidate; a partial artifact does not
+motifs, record confidence v3, the independent structural audit, dashboard and release measurements on the combined candidate; a partial artifact does not
 establish those contracts. Record the scope, selected inputs and revision with each result.

@@ -15,6 +15,7 @@ police prose in general.
 """
 from __future__ import annotations
 
+import ast
 import re
 import tomllib
 from pathlib import Path
@@ -47,18 +48,23 @@ def test_every_declared_pytest_marker_is_used_by_some_test() -> None:
 def test_pandas_stays_out_of_the_build() -> None:
     """Every stage from `chunks/` to the three shipped formats is polars.
 
-    pandas is confined to `validate/`, where `metrics_lib.py` is vendored from TCREMP for benchmark
-    comparability and one `to_pandas()` feeds it. It is in the `motifs` extra, not the core
-    dependencies, and `pyproject.toml` says the build must not acquire one. This is that sentence, as
-    a check.
+    Benchmark validation and optional Bayesian fitting may use pandas. Assembly,
+    projections and frozen-model inference may not import it directly.
     """
-    offenders = sorted(
-        str(p.relative_to(SRC)) for p in SRC.rglob("*.py")
-        if p.parts[-2] != "validate"
-        and re.search(r"^\s*import pandas|^\s*from pandas|\.to_pandas\(", p.read_text(), re.M))
+    offenders = []
+    for path in SRC.rglob("*.py"):
+        if path.parts[-2] == "validate":
+            continue
+        tree = ast.parse(path.read_text())
+        if path.relative_to(SRC) == Path('score/bayes.py'):
+            # Only training is optional; inference is still checked below.
+            tree.body = [node for node in tree.body
+                         if not isinstance(node, ast.FunctionDef) or node.name != 'fit']
+        if re.search(r"^\s*import pandas|^\s*from pandas|\.to_pandas\(", ast.unparse(tree), re.M):
+            offenders.append(str(path.relative_to(SRC)))
     assert not offenders, (
-        f"pandas outside validate/: {offenders}. The build is polars; see the note beside the "
-        f"`motifs` extra in pyproject.toml.")
+        f"pandas outside validation/fitting: {sorted(offenders)}. The build is polars; "
+        f"see the `motifs` extra in pyproject.toml.")
 
 
 def test_pandas_is_not_a_core_dependency() -> None:

@@ -79,3 +79,44 @@ representations help resolve a comparison. Follow the
 [assessment guidance](../vdjdb-build-integrity/SKILL.md#choose-assessment-scope). Predictions
 do not supply a missing experimental epitope or establish equivalent recognition. A predicted
 core can omit required flanks or insertions and does not replace a structure's full ligand.
+
+## Audit hosted coordinate files against current records
+
+Use the independent audit after current tables have been assembled:
+
+```bash
+uv run python processing/proofread_structure_files.py --structures out/inputs/structures \
+  --tables out/tables --out out/reports/structures --fetch
+```
+
+`proofreading/structure_inputs.tsv` pins the hosted raw files by revision, size and SHA256.
+Check its current download sizes and available disk first.
+`--fetch` stages those inputs separately; omit it when checking an existing local mirror.
+The audit verifies every digest and streams all declared archives without extraction. It checks
+current links against reviewed coordinate-sequence metadata and verifies coverage for every native
+accession in current records. CI does not independently re-extract chain sequences.
+The current scope is 367 native accessions across all chunks; the older 360-accession count
+covers only the PDB aggregate chunk. No chunk or coordinate is edited.
+
+Inspect `structure_files.parquet`, `native_structure_files.parquet`,
+`supplemental_structure_files.parquet` and `structure_files.json`
+in the report directory. Keep original/repaired sequence matches, exact receptor:pMHC matches
+and historical lineage links distinct. A historical association is not sequence proof.
+The [supplemental catalogue](https://huggingface.co/datasets/isalgo/vdjdb_structure_models/tree/main/metadata/supplemental)
+contains 11,802 distinct coordinate contents, with 11,279 new and 523 existing contents. Its
+16,110 sequence-state links connect 4,773 structures to 7,288 current records; they do not count
+independent experiments. Use its README and verification report for dispositions and input identity.
+Audit supplemental raw assets and their current links separately. Keep reported assignments,
+synthetic swapped pairs and mutants distinguishable; no assay outcomes belong in the public deposit.
+Optional `vdjdb build --structure-supplemental <metadata.tsv.gz>` merges their raw metadata within
+one build. Leave it off in default hosted assembly/scoring until matched-cohort extraction is validated.
+CI uploads these reports separately from the release bundles. See
+[structure cross-links](../../docs/outputs.md#structure-files-and-current-record-cross-links).
+
+For record confidence v3, complete motifs and run `vdjdb score-records --tables out/tables`
+with the `confidence` extra. The frozen model uses accepted predicted-structure metrics;
+native coordinates remain separate evidence. Parameters stay frozen as available evidence changes;
+held-out assay metrics use the complete original structural inputs. Default membership is hard;
+exploratory `--soft-membership` and its batched search/count fields are documented in the
+specification. See
+[record confidence v3](../../docs/standards/record-scoring-v3.md) for its precise inputs and outputs.

@@ -1,0 +1,12 @@
+{
+  "model_sha256": "10d70dad57f5e00153f315e138e135a3e33893435375bb2ddcc722148f129d53",
+  "grouped_folds": 5,
+  "seed": 20260925,
+  "labelled_interactions": 614,
+  "score_cutoff": 0.5,
+  "endpoint": "padj < 1e-5 assay validation",
+  "evaluation": "recorded grouped held-out forecasts; no refit or cutoff selection",
+  "assay_rows_published": false,
+  "metrics.tsv_sha256": "f5cc54a2920bc53347b72dac50cbdbc84ac8b23196c5d70e6b6a3658518678cb",
+  "record_v3.json_sha256": "10d70dad57f5e00153f315e138e135a3e33893435375bb2ddcc722148f129d53"
+}

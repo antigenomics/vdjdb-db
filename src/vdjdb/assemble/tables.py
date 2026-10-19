@@ -178,6 +178,7 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
 
 def build_tables(master: pl.DataFrame, *, release: str = "dev", pmhc_reference: Path | None = None,
                  epitope_jobs: int = 1, structure_metadata: Path | None = None,
+                 structure_supplemental: Path | None = None,
                  structure_coordinates: Path | None = None,
                  structure_full_germline: bool = False) -> dict[str, pl.DataFrame]:
     """The definitive tables, keyed by name."""
@@ -187,7 +188,7 @@ def build_tables(master: pl.DataFrame, *, release: str = "dev", pmhc_reference: 
     from .epitopes import build_epitopes, build_restriction
     from .evidence import build_evidence
 
-    if structure_coordinates is not None and structure_metadata is None:
+    if structure_coordinates is not None and structure_metadata is None and structure_supplemental is None:
         raise ValueError("structure coordinates require structure metadata")
 
     if structure_full_germline and structure_coordinates is None:
@@ -213,6 +214,10 @@ def build_tables(master: pl.DataFrame, *, release: str = "dev", pmhc_reference: 
     with stage("build_evidence"):
         metadata = (pl.read_csv(structure_metadata, separator="\t", infer_schema=False)
                     if structure_metadata is not None else None)
+        if structure_supplemental is not None:
+            supplemental = pl.read_csv(structure_supplemental, separator="\t", infer_schema=False)
+            metadata = (pl.concat([metadata, supplemental], how="diagonal_relaxed")
+                        if metadata is not None else supplemental)
         evidence = build_evidence(records, chains, release=release, structure_metadata=metadata,
                                   structure_coordinates=structure_coordinates,
                                   structure_full_germline=structure_full_germline)
