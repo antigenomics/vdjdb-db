@@ -95,6 +95,11 @@ focused issues. A waived gate is a limitation, not a successful test.
 
 Before every PR merge, check both CI results and code review. Inspect the final diff and all
 available review summaries, inline comments and unresolved threads; resolve substantive findings.
+Read the `chunk-check` comment, QC artifact and full-build reports, including advisory findings,
+on the final head. Green status alone is insufficient. Fix supported defects before merging;
+record source-supported dispositions or linked unresolved questions for retained findings.
+Require zero exact within-file duplicate observations, preserving genuine construct and experiment
+distinctions. Repeat this inspection for dev-to-master promotion.
 Record the review outcome together with CI evidence in the local execution record. An empty review
 list does not replace reviewing the diff. Reviews must cover the final head or a proven-identical
 tree; after a material revision, review the changed diff again and obtain fresh applicable checks.

@@ -344,10 +344,22 @@ def reconcile(
         # component did nothing for. The chunk does the localising.
         by_bucket: dict[str, list[_Entry]] = defaultdict(list)
         by_position: dict[tuple[str, int], list[_Entry]] = defaultdict(list)
+        by_signature: dict[tuple[str, int, tuple[str, ...]], list[_Entry]] = defaultdict(list)
+        previous_keys: dict[str, tuple[str, ...]] = {}
+        # A one-field amendment agrees on at least two of three contiguous key parts.
+        # The supported two-field donor move also stays inside the final part (fields 28/29).
+        # ponytail: common two-part signatures can still scan a large bucket; index each omitted
+        # field separately if profiling identifies that workload.
+        part = len(NATURAL_KEY) // 3
         for e in leftovers:
-            if _unpack_note(e.note) is not None:
+            previous = _unpack_note(e.note)
+            if previous is not None:
+                previous_keys[e.record_id] = previous
                 by_bucket[e.chunk_file].append(e)
                 by_position[e.chunk_file, e.chunk_row].append(e)
+                for start in (0, part, part * 2):
+                    end = start + part if start < part * 2 else len(NATURAL_KEY)
+                    by_signature[e.chunk_file, start, previous[:start] + previous[end:]].append(e)
 
         # The registry does not store the raw key, only its hash, so amendment matching needs the
         # previous build's key fields. They are recorded in `note` as the reference id plus the
@@ -364,28 +376,29 @@ def reconcile(
         for i in unmatched_rows:
             row, key = rows[i], keys[i]
             chunk = str(row.get("chunk.file") or "")
-            bucket = by_bucket.get(chunk, [])
+            bucket: list[_Entry] = []
             candidates: list[tuple[_Entry, int]] = []
             # When every old position remains, the existing ambiguity rule below selects the
             # same-row candidate. Resolve that case directly instead of scanning a large chunk.
             if chunk in intact_chunks:
                 for e in by_position.get((chunk, int(row.get("chunk.row") or 0)), []):
                     if e.record_id not in matched_entries:
-                        prev = _unpack_note(e.note)
-                        assert prev is not None
+                        prev = previous_keys[e.record_id]
                         d = _amendment_difference(key, prev)
                         if d is not None:
                             candidates.append((e, d))
-            if len(candidates) == 1:
-                bucket = []
-            else:
+            if len(candidates) != 1:
                 candidates = []
+                indexed: dict[str, _Entry] = {}
+                for start in (0, part, part * 2):
+                    end = start + part if start < part * 2 else len(NATURAL_KEY)
+                    for e in by_signature.get((chunk, start, key[:start] + key[end:]), []):
+                        indexed[e.record_id] = e
+                bucket = list(indexed.values())
             for e in bucket:
                 if e.record_id in matched_entries:
                     continue
-                prev = _unpack_note(e.note)
-                if prev is None:
-                    continue
+                prev = previous_keys[e.record_id]
                 d = _amendment_difference(key, prev)
                 if d is not None:
                     candidates.append((e, d))
@@ -415,8 +428,7 @@ def reconcile(
                                   if c[0].chunk_row == int(row.get("chunk.row") or 0)]
             if len(candidates) == 1:
                 e, d = candidates[0]
-                prev = _unpack_note(e.note)
-                assert prev is not None
+                prev = previous_keys[e.record_id]
                 assigned[i] = e.record_id
                 matched_entries.add(e.record_id)
                 report.amended.extend(

@@ -229,3 +229,9 @@ def test_one_junction_and_missing_segment_calls_are_allowed(tmp_path, chain):
     path = chunk(tmp_path, rows=[clean_row(**values)])
     assert run_qc([path], strict=True) == 0
     assert_complete(read_chunk(path))
+
+
+def test_exact_duplicate_observations_block_submission(tmp_path):
+    path = chunk(tmp_path, rows=[clean_row(), clean_row()])
+    assert run_qc([path], strict=True) == 1
+    assert run_qc([path], strict=False) == 0

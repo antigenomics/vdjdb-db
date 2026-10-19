@@ -321,8 +321,8 @@ def check(df: pl.DataFrame) -> pl.DataFrame:
     """One row per (chunk file, chunk row, failing rule).
 
     ``duplicate`` marks the second and later rows sharing a :data:`CHUNK_DEDUP_KEY` within one
-    chunk. Those are removed by the reader's per-chunk deduplication, so they are reported as a
-    curation signal rather than an error that blocks the build.
+    chunk. The reader also removes them defensively, but strict QC blocks the submission until
+    their source distinctions have been reviewed and confirmed repeated observations removed.
     """
     flagged = df.with_columns(
         *(expr.not_().alias(f"__{rule}") for rule, expr in RULES.items()),

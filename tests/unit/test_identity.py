@@ -644,3 +644,37 @@ def test_ambiguous_genotype_move_is_refused_when_positions_changed():
     after, _, report = reconcile(corrected, registry, release='v2')
     assert after['record_id'][0] not in before['record_id'].to_list()
     assert report.added and report.retired
+
+
+def test_bulk_amendment_with_recovered_observations_uses_indexed_candidates(monkeypatch):
+    from vdjdb.identity import ids
+
+    source = frame(*({'cdr3.beta': f'CASS{i}F'} for i in range(100)))
+    original, registry, _ = reconcile(source, IdentityRegistry(), release='v1')
+    changed = pl.concat([
+        source.head(50).with_columns(pl.lit('template-a').alias('meta.study.id')),
+        source.head(50).with_columns(pl.lit('template-b').alias('meta.study.id'),
+                                     (pl.col('chunk.row') + 100).alias('chunk.row')),
+        source.tail(50).with_columns(pl.lit('template-a').alias('meta.study.id')),
+    ])
+    comparisons = 0
+    difference = ids._amendment_difference
+
+    def counted(a, b):
+        nonlocal comparisons
+        comparisons += 1
+        return difference(a, b)
+
+    monkeypatch.setattr(ids, '_amendment_difference', counted)
+    result, _, report = reconcile(changed, registry, release='v2')
+    assert result['record_id'][:50].to_list() == original['record_id'][:50].to_list()
+    assert result['record_id'][100:].to_list() == original['record_id'][50:].to_list()
+    assert len(report.added) == 50 and len(report.amended) == 100 and not report.retired
+    assert comparisons <= 200
+
+
+def test_amendment_index_keeps_the_lossless_donor_move_in_one_part():
+    from vdjdb.identity.ids import NATURAL_KEY
+
+    part = len(NATURAL_KEY) // 3
+    assert NATURAL_KEY.index('meta.donor.MHC') // part == NATURAL_KEY.index('meta.donor.MHC.method') // part

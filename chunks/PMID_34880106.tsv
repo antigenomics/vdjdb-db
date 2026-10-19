@@ -54,14 +54,10 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 54				CASSVEGLAKNEQFF	TRBV9		TRBJ2-1	HomoSapiens	HLA-B*57	B2M	MHCI	IVLPEDKSW	RT	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 55				CASGGAVTEAFF	TRBV7-9		TRBJ1-1	HomoSapiens	HLA-B*57	B2M	MHCI	IVLPEDKSW	RT	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 56				CASSVEGLAKNEQYF	TRBV9		TRBJ2-7	HomoSapiens	HLA-B*57	B2M	MHCI	IVLPEDKSW	RT	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
-57				CASRNRSSGANVLTF	TRBV19		TRBJ2-6	HomoSapiens	HLA-B*57	B2M	MHCI	IVLPEDKSW	RT	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 58				CASSQSPVANYEQYF	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-B*57	B2M	MHCI	IVLPEDKSW	RT	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
-59				CASSQDPTANQPQHF	TRBV4-1		TRBJ1-5	HomoSapiens	HLA-B*57	B2M	MHCI	IVLPEDKSW	RT	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 60				CASSGRDSHNEKLFF	TRBV9		TRBJ1-4	HomoSapiens	HLA-B*57	B2M	MHCI	IVLPEDKSW	RT	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 61				CASSLYRSYEQYF	TRBV7-3		TRBJ2-7	HomoSapiens	HLA-B*57	B2M	MHCI	IVLPEDKSW	RT	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 62				CASSTGNSLSSYNSPLHF	TRBV10-2		TRBJ1-6	HomoSapiens	HLA-B*57	B2M	MHCI	IVLPEDKSW	RT	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
-63				CASGGGISEAFF	TRBV7-9		TRBJ1-1	HomoSapiens	HLA-B*57	B2M	MHCI	IVLPEDKSW	RT	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
-64				CASRNPYTVNTEAFF	TRBV28		TRBJ1-1	HomoSapiens	HLA-B*57	B2M	MHCI	IVLPEDKSW	RT	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 65				CASGGTVTEAFF	TRBV7-9		TRBJ1-1	HomoSapiens	HLA-B*57	B2M	MHCI	IVLPEDKSW	RT	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 66				CASSQEGTAIYGYTF	TRBV4-1		TRBJ1-2	HomoSapiens	HLA-B*57	B2M	MHCI	IVLPEDKSW	RT	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 67				CASSVEGLAAHEQFF	TRBV9		TRBJ2-1	HomoSapiens	HLA-B*57	B2M	MHCI	IVLPEDKSW	RT	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
@@ -110,12 +106,8 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 110				CASSSRLSYGYTF	TRBV7-2		TRBJ1-2	HomoSapiens	HLA-B*57	B2M	MHCI	KAFSPEVIPMF	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 111				CATTGGGHGYTF	TRBV19		TRBJ1-2	HomoSapiens	HLA-B*57	B2M	MHCI	KAFSPEVIPMF	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 112				CASSYLGGSDTQYF	TRBV7-6		TRBJ2-3	HomoSapiens	HLA-B*57	B2M	MHCI	KAFSPEVIPMF	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
-113				CASTGAAYGYTF	TRBV19		TRBJ1-2	HomoSapiens	HLA-B*57	B2M	MHCI	KAFSPEVIPMF	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
-114				CAWTGGSYGYTF	TRBV30		TRBJ1-2	HomoSapiens	HLA-B*57	B2M	MHCI	KAFSPEVIPMF	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 115				CASTGQLYGYTF	TRBV19		TRBJ1-2	HomoSapiens	HLA-B*57	B2M	MHCI	KAFSPEVIPMF	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 116				CASSGQLYGYTF	TRBV19		TRBJ1-2	HomoSapiens	HLA-B*57	B2M	MHCI	KAFSPEVIPMF	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
-117				CASSLSYEQYF	TRBV11-2		TRBJ2-7	HomoSapiens	HLA-B*57	B2M	MHCI	KAFSPEVIPMF	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
-118				CASTGGSYGYTF	TRBV19		TRBJ1-2	HomoSapiens	HLA-B*57	B2M	MHCI	KAFSPEVIPMF	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 119				CASSHLGDGTDTQYF	TRBV7-6		TRBJ2-3	HomoSapiens	HLA-B*57	B2M	MHCI	KAFSPEVIPMF	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 120				CASSGASYGYTF	TRBV19		TRBJ1-2	HomoSapiens	HLA-B*57	B2M	MHCI	KAFSPEVIPMF	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 121				CAISEAGANVLTF	TRBV10-3		TRBJ2-6	HomoSapiens	HLA-B*57	B2M	MHCI	KAFSPEVIPMF	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
@@ -143,11 +135,8 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 143				CASSLKDGFSYEQYF	TRBV4-3		TRBJ2-7	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 144				CASRSRDSLTSTDTQYF	TRBV7-9		TRBJ2-3	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 145				CASSLGLAGTDTQYF	TRBV11-3		TRBJ2-3	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
-146				CASSQKDGVSYGYTF	TRBV4-3		TRBJ1-2	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 147				CASSLKDGNYGYTF	TRBV4-1		TRBJ1-2	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 148				CASSLKAGGSYEQYF	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
-149				CASSQKDGSSYEQYF	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
-150				CSATHVTRKQWGYTF	TRBV20-1		TRBJ1-2	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 151				CASSLKDGSSYEQYF	TRBV4-3		TRBJ2-7	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 152				CASSQKDGGAYEQYF	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 153				CASSQKDGSGYEQYF	TRBV4-3		TRBJ2-7	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
@@ -164,7 +153,6 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 164				CASSQKGGDAYEQYF	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 165				CASSYSIQQGANYGYTF	TRBV6-6		TRBJ1-2	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 166				CASSPKGGEGYEQYF	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
-167				CASSVDTSGSNTGELFF	TRBV9		TRBJ2-2	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 168				CASSQKTGFSYEQYF	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 169				CASRPRGALSSTDTQYF	TRBV7-9		TRBJ2-3	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 170				CASSQKSGDNYEQYF	TRBV4-1		TRBJ2-7	HomoSapiens	HLA-B*57	B2M	MHCI	HTQGYFPD	Nef	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
@@ -200,7 +188,6 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 200				CATAERTGELFF	TRBV27		TRBJ2-2	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 201				CASSVVSDNEQFF	TRBV9		TRBJ2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 202				CASSVGRDGNNEQFF	TRBV9		TRBJ2-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
-203				CASSTGLAGGKEQYF	TRBV4-3		TRBJ2-7	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 204				CASSQVRTWELFF	TRBV3-1		TRBJ2-2	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 205				CASSLYFPNTEAFF	TRBV5-5		TRBJ1-1	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			
 206				CASRPGQGALEQYF	TRBV6-5		TRBJ2-7	HomoSapiens	HLA-B*27	B2M	MHCI	KRWIILGLNK	Gag	HIV-1	PMID:34880106	tetramer-sort		yes	amplicon-seq			CD8+							PBMC			

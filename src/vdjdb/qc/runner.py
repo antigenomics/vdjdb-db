@@ -12,8 +12,8 @@ findings are errors and fail under ``--strict``, restoring the behaviour the Gro
 Python port replaced with ``warnings.warn``. Measured: 230 of 230 chunks pass today, so there is no
 quarantine list to grandfather.
 
-``duplicate`` is neither: it is a curation signal. Per-chunk deduplication removes those rows on
-the way in, and their count is the gap between the 203,308 raw rows and the released 192,753.
+Exact duplicate observations fail strict QC. Resolve source construct and experiment distinctions
+before removing repeated rows; the reader's defensive deduplication does not excuse a submission.
 """
 from __future__ import annotations
 
@@ -42,7 +42,7 @@ from .rules import check, summarise
 #: name, so both are ignored, and both files read with every field in the right column
 #: (`cdr3.beta`, `v.beta`, `species`, `antigen.epitope` and `reference.id` all check out). A header
 #: the reader cannot map is a different matter and still fails.
-ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form", "duplicate",
+ADVISORY = frozenset({"crlf", "unknown-column", "reference-id-form",
                       # Missing provenance and single-chain class-II typing remain explicit.
                       "bad antigen.gene", "partial class-II restriction",
                       # A named path that is gone: the caller passed a stale list, which is worth
