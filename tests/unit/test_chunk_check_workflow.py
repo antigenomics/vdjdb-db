@@ -9,7 +9,9 @@ WORKFLOW = Path(__file__).parents[2] / '.github/workflows/chunk-check.yml'
 
 @pytest.mark.parametrize('report,selected', [(None, False), (None, True),
                                              ('', True), ('a.tsv\t2\tduplicate\t\n', True)])
-def test_pr_comment_distinguishes_missing_clean_and_failed_qc(tmp_path, monkeypatch, capsys, report, selected):
+def test_pr_comment_distinguishes_missing_clean_and_failed_qc(
+    tmp_path, monkeypatch, capsys, report, selected,
+):
     workflow = yaml.load(WORKFLOW.read_text(), Loader=yaml.BaseLoader)
     step = next(s for s in workflow['jobs']['check']['steps']
                 if s.get('name') == 'Summarise for the pull request')
