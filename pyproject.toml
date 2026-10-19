@@ -33,10 +33,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# Record confidence v3 classifier, loaded only by post-assembly score-records.
+confidence = ["pgmpy==1.0.0", "scikit-learn>=1.4", "torch; sys_platform == 'linux'"]
 # Motif inference only. mirpy pulls kneed/matplotlib/seaborn/lifelines via its own [bench] extra,
 # which the data build has no use for -- keep them out of the assembly container.
-# pandas is here for exactly two call sites, both under `validate/`: `metrics_lib.py`, vendored from
-# TCREMP, and the single `motif_bench.to_pandas()` that feeds it. **The build itself has no pandas
+# pandas is used by `validate/` for the vendored TCREMP benchmark and its input conversion.
+# The optional Bayesian training API also uses it; frozen inference does not import it directly.
+# **The assembly build itself has no pandas
 # dependency and must not acquire one** -- every stage from `chunks/` to the three shipped formats is
 # polars.
 #
@@ -74,6 +77,15 @@ vdjdb = "vdjdb.cli:app"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/vdjdb"]
+
+# The optional Bayesian dependency uses NumPy inference; Linux needs no CUDA runtime.
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
 [tool.ruff]
 line-length = 110

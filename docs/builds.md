@@ -10,12 +10,13 @@ writes everything else. Nothing computed is stored between builds: every output 
 ## Local build
 
 ```bash
-uv sync --extra motifs --extra summary --extra test
+uv sync --extra motifs --extra confidence --extra summary --extra test
 uv run vdjdb qc                               # chunk validation, fail-fast
 uv run vdjdb build --out out/                 # the definitive tables, then every projection
 uv run vdjdb make legacy --tables out/tables  # the legacy files, from the tables that shipped
 uv run vdjdb convert airr --tables out/tables # AIRR Rearrangement + Reactivity
 uv run vdjdb motifs --tables out/tables       # TCRNET + TCREMP
+uv run vdjdb score-records --tables out/tables # frozen record confidence v3
 uv run vdjdb summary --legacy out/legacy      # the dashboard, rendered offline and checked
 uv run vdjdb identity check --tables out/tables # the identifier invariants
 uv run vdjdb corpus build --tables out/tables # the reference corpus: tf-idf over 12 token families
@@ -41,6 +42,42 @@ include those external evidence rows only when the same option is supplied. Asse
 download structures or metadata. Updating this reviewed input is an explicit workflow change;
 the hosted build does not follow a moving dataset branch.
 
+Optional `vdjdb build --structure-supplemental <metadata.tsv.gz>` merges reviewed additional
+raw model metadata within that build. It is off unless supplied. The hosted assembly and scoring
+currently omit it pending matched-cohort extraction validation. The raw supplemental catalogue
+keeps reported assignments separate from synthetic swapped pairs and mutants; depositing a
+coordinate or a record link does not establish an experimental assignment. Public deposits
+contain no assay outcomes.
+
+After motifs, `vdjdb score-records --tables out/tables` loads the packaged frozen v3 model
+and writes `record_scores.parquet` and `record_scores.tsv.gz`, one row per current `record_id`.
+Use `--model <model.json>` for an explicit frozen model and `--out <directory>` for another
+output directory. Scoring recomputes features and predictions from the completed tables;
+it does not fit a model or change the legacy score. See [record confidence v3](standards/record-scoring-v3.md).
+The same frozen parameters apply to whichever evidence is available; held-out metrics use the
+complete original assay structural inputs and do not establish universal accuracy for production
+records. Hard membership is the default. `--soft-membership` selects exploratory Hamming-1
+fractions with integer member/neighbour counts; see the v3 specification for producer scope.
+The hosted full build requires both outputs and checks their record IDs against `records.parquet`.
+
+The independent structure-file audit verifies the checksum-pinned raw inputs declared in
+`proofreading/structure_inputs.tsv` and streams every declared archive. Its fetch step stages
+raw inputs, not computed results. Check the current manifest sizes and free space before fetching:
+
+```bash
+uv run python processing/proofread_structure_files.py --structures out/inputs/structures \
+  --tables out/tables --out out/reports/structures --fetch
+```
+
+Omit `--fetch` to verify an existing local input mirror. The audit checks current model links
+against reviewed coordinate-sequence metadata and checks coverage of every native accession.
+It streams and hash-checks the coordinate files; it does not independently re-extract their chains. It keeps sequence matches distinct from
+historical lineage associations, writes compact Parquet/JSON reports, and changes no chunk.
+The hosted build runs it separately from assembly and uploads the reports in `build-reports`.
+Supplemental archives and current links are audited separately even while their metadata remains
+disabled in default assembly and scoring.
+See [structure cross-links](outputs.md#structure-files-and-current-record-cross-links) for their meaning.
+
 `vdjdb release` writes tracked `latest-version.txt`. Use `--dry-run` to inspect bundles without
 changing the repository's download URL. Supply an intended release tag when publishing.
 
@@ -48,7 +85,8 @@ Download the 2026-06-03 release as `reference.zip` before running the comparison
 A plain `pytest -q` skips the reference checks when `VDJDB_REFERENCE_ZIP` is unset. See
 [dashboard requirements](dashboard.md#rendering-it) for R and pandoc installation.
 
-Optional dependency groups: `motifs` for the motif stage, `docs` for this site, `test` for the
+Optional dependency groups: `motifs` for the motif stage, `confidence` for post-assembly record
+scoring, `docs` for this site, `test` for the
 suite, `tuning` for the clustering bake-off under `docs/tuning/`.
 
 ## Choose the scope of a check
@@ -63,7 +101,9 @@ results; partial assessment is not a stored intermediate for a later release bui
 | What does mhcmatch predict for these reported peptides? | `vdjdb assess-epitopes <chunk>` / `assessment.yml` | Selected-pair assessment, independent of junction inference, motifs and dashboard |
 | Recompute assessment for a built corpus | `vdjdb assess-epitopes --tables out/tables` | Fresh assessment from the records table, without reading previous predictions |
 | Re-emit a format | `vdjdb make legacy` / `vdjdb convert airr` | A projection from the explicitly selected built tables |
-| Assess corpus-wide consequences and integrate | `build.yml` | Full assembly, corpus, motifs, dashboard, release comparison and release tests |
+| Score completed records | `vdjdb score-records --tables out/tables` | Fresh v3 predictions from completed motif and structural evidence with a frozen model |
+| Audit coordinate files | `processing/proofread_structure_files.py` | Raw archive integrity, current model-link sequence flags and all native-accession coverage |
+| Assess corpus-wide consequences and integrate | `build.yml` | Full assembly, corpus, motifs, record scoring, structural audit, dashboard, release comparison and release tests |
 
 For selected-chunk predictions:
 

@@ -37,7 +37,8 @@ Start at [VDJdb documentation](https://docs.isalgo.dev/vdjdb-db/):
   and [validation evidence](docs/submission.md#classify-validation-evidence),
   or [verify build integrity](docs/build-integrity.md).
 - **Reference:** [chunk format](docs/standards/chunk-format.md),
-  [columns](docs/standards/columns.md), [scoring](docs/standards/confidence-score.md) and
+  [columns](docs/standards/columns.md), [legacy scoring](docs/standards/confidence-score.md),
+  [record confidence v3](docs/standards/record-scoring-v3.md) and
   [output files](docs/outputs.md).
 - **Explanation:** [sequence repair](docs/standards/cdr3-fixing.md),
   [motif statistics and denoising](docs/denoising.md),
@@ -69,12 +70,13 @@ for the compact Parquet/gzip tables, compatibility exports, match flags and arch
 ## Building it
 
 ```bash
-uv sync --extra motifs --extra summary --extra test
+uv sync --extra motifs --extra confidence --extra summary --extra test
 uv run vdjdb qc                               # chunk validation, fail-fast
 uv run vdjdb build --out out/                 # the definitive tables, then every projection
 uv run vdjdb make legacy --tables out/tables  # the legacy files
 uv run vdjdb convert airr --tables out/tables # AIRR tables
 uv run vdjdb motifs --tables out/tables       # TCRNET + TCREMP
+uv run vdjdb score-records --tables out/tables # frozen record confidence v3
 uv run vdjdb summary --legacy out/legacy      # the dashboard, offline
 uv run vdjdb identity check --tables out/tables # the identifier invariants
 uv run vdjdb corpus build --tables out/tables # the reference corpus: tf-idf over 12 token families
@@ -84,6 +86,8 @@ VDJDB_REFERENCE_ZIP=reference.zip uv run pytest -q
 
 Use the 2026-06-03 release as `reference.zip` for the release comparison and tests. The static
 summary also requires R and pandoc; see [build requirements](docs/builds.md).
+Optional supplemental structure inputs and exploratory `--soft-membership` scoring are described
+in [record confidence v3](docs/standards/record-scoring-v3.md).
 
 ## 10x dextramer assays
 

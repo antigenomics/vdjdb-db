@@ -18,6 +18,39 @@ app = typer.Typer(
     add_completion=False,
 )
 
+
+@app.command(name="score-records")
+def score_records_command(
+    tables: Path = typer.Option(Path("out/tables"), help="Completed tables, after vdjdb motifs."),
+    out: Path | None = typer.Option(None, help="Separate score table directory; default: --tables."),
+    model: Path | None = typer.Option(None, help="Frozen JSON model; default: packaged v3 fit."),
+    soft_membership: bool = typer.Option(False, help="Exploratory Hamming-1 motif fractions; default off."),
+) -> None:
+    """Write record confidence v3, retaining legacy scores and current record IDs."""
+    from .score.pipeline import run
+
+    frame = run(tables, out or tables, model, soft_membership=soft_membership)
+    typer.echo(f"{frame.height:,} record scores -> {out or tables}")
+
+
+@app.command(name="score-metrics")
+def score_metrics(
+    predictions: Path = typer.Argument(..., help="Matched held-out forecast Parquet."),
+    out: Path = typer.Option(Path("out/reports/record-score-metrics.tsv")),
+    check: bool = typer.Option(True, help="Fail if v3 regresses a supplied baseline."),
+) -> None:
+    """Compare recorded continuous, discrete and binary forecasts without tuning cutoffs."""
+    import polars as pl
+
+    from .validate.confidence import check_nonregression, metrics
+
+    table = metrics(pl.read_parquet(predictions))
+    out.parent.mkdir(parents=True, exist_ok=True)
+    table.write_csv(out, separator="\t")
+    if check:
+        check_nonregression(table)
+    typer.echo(f"{table.height} comparisons -> {out}")
+
 @app.command()
 def version() -> None:
     """Print the package version and the resolved repo root."""
@@ -167,6 +200,8 @@ def build(
     structure_metadata: Path | None = typer.Option(
         None, exists=True, dir_okay=False,
         help="Pinned structure metadata TSV or TSV.gz; exact complex-hash links."),
+    structure_supplemental: Path | None = typer.Option(
+        None, help="Reviewed supplemental model metadata TSV.gz; joined within this build."),
     structure_coordinates: Path | None = typer.Option(
         None, exists=True, dir_okay=False,
         help="Optional amino-acid coordinate tar.gz for complete-identity structure recovery."),
@@ -196,7 +231,7 @@ def build(
     from .timing import stage
     from .timing import write as timing_write
 
-    if structure_coordinates is not None and structure_metadata is None:
+    if structure_coordinates is not None and structure_metadata is None and structure_supplemental is None:
         raise typer.BadParameter("--structure-coordinates requires --structure-metadata")
     if structure_full_germline and structure_coordinates is None:
         raise typer.BadParameter("--structure-full-germline requires --structure-coordinates")
@@ -212,6 +247,7 @@ def build(
         master = build_master(paths, write_report=out / "reports" / "harmonisation.tsv")
     built = build_tables(master, release=release, pmhc_reference=pmhc_reference,
                          epitope_jobs=epitope_jobs, structure_metadata=structure_metadata,
+                         structure_supplemental=structure_supplemental,
                          structure_coordinates=structure_coordinates,
                          structure_full_germline=structure_full_germline)
     out.mkdir(parents=True, exist_ok=True)

@@ -42,6 +42,7 @@ on:
       - 'chunks/**'
       - 'patches/**'
       - 'proofreading/**'
+      - 'processing/proofread_structure_files.py'
       - 'src/vdjdb/**'
       - 'summary/**'
       - 'pyproject.toml'
@@ -111,7 +112,7 @@ jobs:
         run: Rscript summary/install-packages.R
 
       - name: Install
-        run: uv sync --extra motifs --extra test --extra summary
+        run: uv sync --extra motifs --extra confidence --extra test --extra summary
 
       # `--report` so the per-rule advisory counts are written, not only printed. The gate on them is
       # in tests/unit/test_qc_advisories.py and runs in the Tests step below.
@@ -172,6 +173,18 @@ jobs:
           . .github/stage-timing.sh
           stage motifs uv run vdjdb motifs --tables out/tables --out out/motifs
 
+      - name: Record confidence v3
+        run: |
+          . .github/stage-timing.sh
+          stage score-records uv run vdjdb score-records --tables out/tables
+
+      - name: Structure-file audit
+        run: |
+          . .github/stage-timing.sh
+          stage structure-files uv run python processing/proofread_structure_files.py \
+            --structures out/inputs/structures --tables out/tables \
+            --out out/reports/structures --fetch
+
       - name: Dashboard
         run: |
           . .github/stage-timing.sh
@@ -198,7 +211,15 @@ jobs:
           . .github/stage-timing.sh
           stage release-layout uv run python -c "
           from pathlib import Path
+          import polars as pl
           from vdjdb.release import bundle, manifest
+          records = pl.read_parquet('out/tables/records.parquet').select('record_id').sort('record_id')
+          for name in ('record_scores.parquet', 'record_scores.tsv.gz'):
+              path = Path('out/tables') / name
+              scores = (pl.read_parquet(path) if path.suffix == '.parquet' else
+                        pl.read_csv(path, separator='\t')).select('record_id').sort('record_id')
+              assert scores['record_id'].n_unique() == scores.height, name
+              assert scores.equals(records), name
           bundle.stage(Path('out'))
           for b in manifest.BUNDLES:
               print(b.role, len(manifest.resolve(b, Path('out'), '0.0.0')), 'members')
@@ -357,6 +378,8 @@ jobs:
             out/reports/presentation.tsv
             out/reports/presentation-summary.tsv
             out/reports/lookalikes.tsv
+            out/reports/structures/*.parquet
+            out/reports/structures/*.json
           retention-days: 90
 
       - name: Release assets

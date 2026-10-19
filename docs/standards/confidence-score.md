@@ -68,3 +68,11 @@ The table below is rendered from `vdjdb.score.confidence` while this page builds
 
 ```{vdjdb-score-rules}
 ```
+
+## Record confidence score v3
+
+The separate [record confidence v3 specification](record-scoring-v3.md) defines the
+Bayesian evidence pipeline, frozen model, parameter defaults, compressed record-ID
+linked outputs, validation comparisons and false-positive denominators. It combines
+motif, publication, donor and predicted-structure evidence while retaining the legacy
+score above. The dedicated page includes the Python API and optional inference modes.

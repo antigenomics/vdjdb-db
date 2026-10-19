@@ -7,13 +7,14 @@ Layout mirrors the pipeline stages; see ``ROADMAP.md`` for which are implemented
     qc/        chunk validation
     curate/    nomenclature and antigen harmonisation
     annotate/  cdr3fix, V/J guessing, D inference, junction-nt generation
-    score/     the VDJdb confidence score
+    score/     legacy confidence rules, frozen v3 evidence inference and compressed score outputs
     assemble/  master table, complex pairing, slim collapse
     emit/      the legacy / new-VDJdb / AIRR writers
     convert/   coordinate-space and format conversions
     motifs/    TCRNET and TCREMP motif inference
     compare/   the comparison against a released bundle
     release/   manifest, zips, changelog
+    validate/  corpus metrics, matched score comparisons and independent structure-file proofreading
 """
 
 __version__ = "0.1.0"
