@@ -291,7 +291,8 @@ def score_records(artifact: dict, frame, *, soft_membership: bool = False
     def value(name):
         return pl.col(name).cast(pl.Float64).fill_nan(None) if name in frame.columns else pl.lit(None)
 
-    chains = [pl.any_horizontal((value(name) > 0 if name.endswith('studies') else value(name) == 1)
+    chains = [pl.any_horizontal((value(name) > 0 if name.endswith('studies') else
+                               value(name + '_hard' if name + '_hard' in frame.columns else name) == 1)
                                for name in FEATURES if name.startswith(prefix))
               for prefix in ('a_', 'b_')]
     direct = (value('legacy_score').is_not_null() | (value('donors') > 0) |

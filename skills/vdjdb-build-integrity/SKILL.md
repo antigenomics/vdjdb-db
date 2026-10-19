@@ -52,6 +52,12 @@ Held-out metrics use complete original assay structural inputs; do not transfer 
 production record. Hard membership remains default. Explicit `--soft-membership` runs one
 batched seqtree Hamming-1 search within each producer's scope and emits four membership
 fractions plus integer `*_members` / `*_neighbours` columns.
+The mutually exclusive `--continuous-membership` option maps those fractions into
+disjoint intervals using `(2*b+u)/3`, retaining the original `*_hard` assignments.
+It uses experimental soft interpolation and remains non-default. Verify exact
+binary recovery at 0.5, original eligibility and pair support, default-output parity,
+and the optional mode/version columns. Standalone motif metrics and training-selected
+thresholds do not establish improved combined-model performance.
 Read [record confidence v3](../../docs/standards/record-scoring-v3.md) before interpreting scores.
 
 Run the independent raw-structure audit with:

@@ -11,7 +11,7 @@ import polars as pl
 
 from ..emit.vdjdb3 import read_table
 from .bayes import score_records
-from .evidence import KEY, integrate, interactions, soft_motifs
+from .evidence import KEY, integrate, interactions, separated_motifs, soft_motifs
 
 SCORE_SCHEMA = {
     'paired': pl.Float64, 'TRA': pl.Float64, 'TRB': pl.Float64,
@@ -28,23 +28,33 @@ def load_model(path: Path | None = None) -> tuple[dict, str]:
 
 
 def record_scores(records: pl.DataFrame, chains: pl.DataFrame, evidence: pl.DataFrame,
-                  model: dict, *, model_sha256: str, soft_membership: bool = False) -> pl.DataFrame:
+                  model: dict, *, model_sha256: str, soft_membership: bool = False,
+                  continuous_membership: bool = False) -> pl.DataFrame:
     """Score distinct interactions once and join to every current record ID.
 
     Hard producer memberships are used. Identical gene-level receptor:pMHC records
     share integrated evidence, while every observational record keeps its own row.
     """
+    if soft_membership and continuous_membership:
+        raise ValueError('Choose soft_membership or continuous_membership, not both')
     features = integrate(records, chains, evidence)
     if soft_membership:
         features = soft_motifs(features, records, chains, evidence)
-    scores = pl.DataFrame(score_records(model, features, soft_membership=soft_membership),
+    if continuous_membership:
+        features = separated_motifs(features, records, chains, evidence)
+    scores = pl.DataFrame(score_records(model, features,
+                          soft_membership=soft_membership or continuous_membership),
                           schema=SCORE_SCHEMA)
     values = features.drop(KEY).hstack(scores)
     ids = interactions(records, chains).select('record_id', 'interaction_key')
-    return ids.join(values, on='interaction_key', how='left', validate='m:1').drop(
+    result = ids.join(values, on='interaction_key', how='left', validate='m:1').drop(
         'interaction_key').with_columns(pl.lit('3').alias('score_version'),
         pl.lit(model_sha256).alias('model_sha256'),
-        pl.lit(soft_membership).alias('soft_membership')).sort('record_id')
+        pl.lit(soft_membership or continuous_membership).alias('soft_membership')).sort('record_id')
+    if continuous_membership:
+        result = result.with_columns(pl.lit(True).alias('continuous_membership'),
+                                     pl.lit('separated-neighbours-v1').alias('motif_score_version'))
+    return result
 
 
 def write_scores(frame: pl.DataFrame, out: Path) -> None:
@@ -61,7 +71,7 @@ def write_scores(frame: pl.DataFrame, out: Path) -> None:
 
 
 def run(tables: Path, out: Path, model_path: Path | None = None, *,
-        soft_membership: bool = False) -> pl.DataFrame:
+        soft_membership: bool = False, continuous_membership: bool = False) -> pl.DataFrame:
     """Recompute scores from this build's records, chains and completed motif evidence."""
     from threadpoolctl import threadpool_limits
 
@@ -73,6 +83,6 @@ def run(tables: Path, out: Path, model_path: Path | None = None, *,
         raise ValueError('Run vdjdb motifs on these tables before score-records')
     with threadpool_limits(limits=1):
         frame = record_scores(records, chains, evidence, model, model_sha256=digest,
-                              soft_membership=soft_membership)
+                              soft_membership=soft_membership, continuous_membership=continuous_membership)
     write_scores(frame, out)
     return frame
