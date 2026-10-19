@@ -95,8 +95,33 @@ def fit(rows: Sequence[Mapping[str, str]], labels: Sequence[int], *,
             'missing_fit': 'unreported category', 'missing_predict': 'exact marginalization'}
 
 
-def predict(artifact: dict, rows: Sequence[Mapping[str, str | None]]) -> list[float]:
-    """Score categorical evidence, deduplicating identical observed patterns within this call."""
+def predict(artifact: dict, rows: Sequence[Mapping[str, str | float | None]]) -> list[float]:
+    """Score categorical evidence or uncertain binary motif membership.
+
+    A numeric motif value q mixes hard nonmember/member posteriors with weights
+    (1-q, q). Multiple uncertain memberships use an independent mixing distribution.
+    These are caller-supplied membership probabilities, not binding probabilities.
+    """
+    if any(isinstance(value, (int, float)) for row in rows for name, value in row.items()
+           if name in FEATURES and name.endswith(('tcrnet', 'tcremp'))):
+        expanded, weights = [], []
+        for row in rows:
+            mixtures = [(dict(row), 1.)]
+            for name, value in row.items():
+                if name not in FEATURES or not name.endswith(('tcrnet', 'tcremp')):
+                    continue
+                if not isinstance(value, (int, float)):
+                    continue
+                if not math.isfinite(value) or not 0 <= value <= 1:
+                    raise ValueError(f'Invalid membership probability for {name}')
+                mixtures = [({**r, name: str(state)}, weight * probability)
+                            for r, weight in mixtures
+                            for state, probability in ((0, 1-value), (1, value)) if probability > 0]
+            expanded.extend(r for r, _ in mixtures)
+            weights.append([weight for _, weight in mixtures])
+        probabilities = iter(predict(artifact, expanded))
+        return [math.fsum(weight * next(probabilities) for weight in group) for group in weights]
+
     from pgmpy.factors.discrete import TabularCPD
     from pgmpy.inference import VariableElimination
     from pgmpy.models import DiscreteBayesianNetwork
@@ -137,7 +162,8 @@ def predict(artifact: dict, rows: Sequence[Mapping[str, str | None]]) -> list[fl
     return [values[p] for p in patterns]
 
 
-def predict_marginals(artifact: dict, rows: Sequence[Mapping[str, str | None]]) -> list[dict[str, float]]:
+def predict_marginals(artifact: dict, rows: Sequence[Mapping[str, str | float | None]]
+                      ) -> list[dict[str, float]]:
     """Full-interaction validation from paired, TRA-only and TRB-only evidence.
 
     Single-chain views omit paired legacy score, donor total and structure confidence.
@@ -156,7 +182,41 @@ def predict_evidence(artifact: dict, frame) -> list[dict[str, float]]:
     Missing feature columns are unobserved. Extra columns, such as receptor identifiers,
     are preserved by the caller and are not predictors. No epitope name enters inference.
     """
-    names = [name for name in FEATURES if name in frame.columns]
+    motifs = [name for name in FEATURES if name.endswith(('tcrnet', 'tcremp'))
+              and name in frame.columns]
+    names = [name for name in FEATURES if name in frame.columns and name not in motifs]
     rows = categorical(frame.select(names), iptm_bounds=tuple(
         artifact.get('iptm_bounds', (.5, .8)))).to_dicts() if names else [{}] * frame.height
+    if motifs:
+        import polars as pl
+
+        membership = frame.select(pl.col(motifs).cast(pl.Float64).fill_nan(None)).to_dicts()
+        rows = [{**row, **soft} for row, soft in zip(rows, membership, strict=True)]
     return predict_marginals(artifact, rows)
+
+
+def score_records(artifact: dict, frame) -> list[dict[str, float | bool]]:
+    """Record acceptance score, retaining the unchanged assay and chain probabilities.
+
+    Positive support must concern both chains, or the exact pair (legacy annotation,
+    donor support or a matching predicted structure). Unsupported pairs score zero;
+    this is an evidence requirement, not a claim of zero binding probability.
+    Use one global threshold, 0.5. Missing evidence cannot establish pair support.
+    """
+    import polars as pl
+
+    probabilities = predict_evidence(artifact, frame)
+    def value(name):
+        return pl.col(name).cast(pl.Float64).fill_nan(None) if name in frame.columns else pl.lit(None)
+
+    chains = [pl.any_horizontal((value(name) > 0 if name.endswith('studies') else value(name) == 1)
+                               for name in FEATURES if name.startswith(prefix))
+              for prefix in ('a_', 'b_')]
+    direct = (value('legacy_score').is_not_null() | (value('donors') > 0) |
+              value('iptm').is_not_null())
+    supported = frame.with_columns((direct | (chains[0] & chains[1])).fill_null(False)
+                                   .alias('_pair_supported'))['_pair_supported']
+    return [{**p, 'pair_supported': bool(support),
+             'record_score': p['paired'] if support else 0.,
+             'positive': bool(support and p['paired'] >= .5)}
+            for p, support in zip(probabilities, supported, strict=True)]

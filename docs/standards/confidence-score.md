@@ -141,3 +141,43 @@ and returns paired, TRA and TRB probabilities from that one fitted network. Omit
 feature columns are unobserved; extra identity columns are not predictors. The model
 does not take an epitope name as an input. Keep the input evidence definitions identical
 to training; application to an unmeasured epitope does not establish its validation accuracy.
+
+`score_records(model, numeric_frame)` adds `record_score`, `pair_supported` and `positive`
+to those probabilities. Acceptance requires evidence concerning both chains, or direct
+pair evidence: an exact positive-reference annotation (`legacy_score` present), a positive
+pair donor count, or a matching predicted structure (`iptm` present). Chain support means
+a positive publication count or confirmed membership in either motif method. Without
+direct record evidence, a missing partner is unsupported. The score equals `paired` when this requirement is met and zero
+otherwise. The single acceptance threshold is 0.5 for every record. A withheld call means
+insufficient pair evidence; zero here does not assert zero binding probability. The fitted
+network and its TRA/TRB probabilities are unchanged. Caller-supplied numeric features
+must follow the identity and linkage rules above. Direct evidence for a single-chain
+record cannot be reused as exact-pair evidence for that chain with a new partner; an
+unrelated model cannot supply ipTM.
+
+Motif inputs to `predict`, `predict_marginals` and numeric `predict_evidence` may also be
+probabilities on [0,1]. A supplied membership probability `q` mixes the predictions
+conditional on nonmembership and membership, with weights `1-q` and `q`. Values 0 and 1
+recover the hard predictions; missing remains marginalized. With several uncertain motif
+inputs, the mixing distribution assumes their uncertainty is independent. This assumption
+concerns the supplied memberships; the fitted BN still models its learned dependencies.
+A fractional membership alone does not satisfy the record acceptance requirement.
+
+For example, an uncertain TRA membership can be evaluated without refitting:
+
+```python
+from vdjdb.score.bayes import predict_marginals, score_records
+
+soft = predict_marginals(model, [{"a_tcrnet": 0.7, "b_studies": "1"}])
+scored = score_records(model, features.select(FEATURES))
+```
+
+A Hamming-1 neighbourhood can supply an exploratory local membership fraction. Keep
+species, chain and pMHC context fixed, retain the producer's V/J matching convention,
+count distinct annotated neighbours once, and report both member and total counts.
+Use one batched sequence search with substitutions only; include the exact match and
+all one-substitution neighbours. An empty annotated neighbourhood is unknown. This
+fraction is not a calibrated binding probability. Preserve exact record identity and
+publication counts: a neighbouring junction is sequence support, not an independent
+report of the same receptor. Validate any such feature change on held-out groups before
+replacing the hard-membership inputs of an accepted model.

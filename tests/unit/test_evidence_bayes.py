@@ -109,3 +109,51 @@ def test_numeric_scoring_uses_saved_bounds_and_missing_columns():
     assert actual == predict_marginals(model, [{'iptm': 'mid'}, {}])
     assert predict_evidence(model, pl.DataFrame({'id': ['z']})) == predict_marginals(model, [{}])
     assert predict_evidence(model, pl.DataFrame({'iptm': []})) == []
+
+
+def test_soft_motif_membership_is_a_mixture_with_unchanged_hard_endpoints():
+    import polars as pl
+
+    from vdjdb.score.bayes import predict_evidence
+
+    rows = [{'a_tcrnet': str(i % 2), 'b_tcremp': str(int(i % 3 == 0))}
+            for i in range(36)]
+    model = fit(rows, [i % 2 for i in range(36)], structure='naive')
+    hard = predict(model, [{'a_tcrnet': '0'}, {'a_tcrnet': '1'}])
+    assert predict(model, [{'a_tcrnet': .25}])[0] == pytest.approx(.75 * hard[0] + .25 * hard[1])
+    assert predict(model, [{'a_tcrnet': 0.}, {'a_tcrnet': 1.}]) == pytest.approx(hard)
+    both = predict(model, [{'a_tcrnet': str(a), 'b_tcremp': str(b)}
+                           for a in (0, 1) for b in (0, 1)])
+    assert predict(model, [{'a_tcrnet': .25, 'b_tcremp': .6}])[0] == pytest.approx(
+        sum(w * p for w, p in zip([.3, .45, .1, .15], both, strict=True)))
+    marginal = predict_marginals(model, [{'a_tcrnet': .25, 'b_tcremp': .6}])[0]
+    assert marginal['TRA'] == pytest.approx(.75 * hard[0] + .25 * hard[1])
+    assert predict_evidence(model, pl.DataFrame({'a_tcrnet': [.25]}))[0]['paired'] == pytest.approx(
+        .75 * hard[0] + .25 * hard[1])
+    for value in [-.1, 1.1, float('nan'), float('inf')]:
+        with pytest.raises(ValueError):
+            predict(model, [{'a_tcrnet': value}])
+
+
+def test_record_score_requires_pair_or_both_chain_support_without_changing_marginals():
+    import polars as pl
+
+    from vdjdb.score.bayes import predict_evidence, score_records
+
+    rows = [{'a_tcrnet': str(i % 2)} for i in range(36)]
+    model = fit(rows, [i % 2 for i in range(36)], structure='naive')
+    evidence = pl.DataFrame({'a_tcrnet': [1] * 6, 'b_studies': [0, 1, 0, 0, None, 0],
+                             'iptm': [None, None, .8, None, None, None],
+                             'legacy_score': [None, None, None, 0, None, None],
+                             'b_tcremp': [None, None, None, None, None, 1]})
+    old = predict_evidence(model, evidence)
+    scored = score_records(model, evidence)
+    assert all(z['paired'] > .5 for z in old)
+    assert [z['pair_supported'] for z in scored] == [False, True, True, True, False, True]
+    for before, after in zip(old, scored, strict=True):
+        assert {n: after[n] for n in before} == before
+        assert after['record_score'] == (before['paired'] if after['pair_supported'] else 0.)
+        assert after['positive'] == (after['record_score'] >= .5)
+    unknown = score_records(model, pl.DataFrame({'id': ['x', 'y']}))
+    assert len(unknown) == 2 and all(z['record_score'] == 0 and not z['positive'] for z in unknown)
+    assert score_records(model, pl.DataFrame({'id': []})) == []
