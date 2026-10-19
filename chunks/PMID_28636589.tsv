@@ -1195,7 +1195,6 @@ CAVTYSGAGSYQLTF	TRAV27		CASSIRSTDTQYF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	
 CAGADGGSQGNLIF	TRAV27		CASSIRSTGELFF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	1/184	yes	amplicon-seq		davis-single-cell			subject.0275				PBMC				1194						
 CAGAGGGSQGNLIF	TRAV27		CASSIRSTGELFF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	1/184	yes	amplicon-seq		davis-single-cell			subject.0275				PBMC				1195						
 			CASSISSINEQFF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	1/184	yes	amplicon-seq		davis-single-cell			subject.0275				PBMC				1196						
-			CASSISSINEQFF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	1/184	yes	amplicon-seq		davis-single-cell			subject.0275				PBMC				1197						
 CILPLAGGTSYGKLTF	TRAV26-2		CASSISSINEQFF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	1/184	yes	amplicon-seq		davis-single-cell			subject.0275				PBMC				1198						
 CAGQLAGGSQGNLIF	TRAV35		CASSISSINEQFF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	3/184	yes	amplicon-seq		davis-single-cell			subject.0275				PBMC				1199						
 CAPYTSGSSNTGKLIF	TRAV1-2		CASSMGQGTYEQYF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	1/184	yes	amplicon-seq		davis-single-cell			subject.0275				PBMC				1200						
@@ -1253,11 +1252,9 @@ CAGSYGGSQGNLIF	TRAV25		CASSIRSMDIQYF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	G
 			CASSIRSSAEAFF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	2/321	yes	amplicon-seq		davis-single-cell			subject.0276				PBMC				1252						
 CAGAHGGSQGNLIF	TRAV35		CASSIRSSDTQYF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	1/321	yes	amplicon-seq		davis-single-cell			subject.0276				PBMC				1253						
 			CASSIRSSYEQYF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	1/321	yes	amplicon-seq		davis-single-cell			subject.0276				PBMC				1254						
-			CASSIRSSYEQYF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	1/321	yes	amplicon-seq		davis-single-cell			subject.0276				PBMC				1255						
 CTDNARLMF	TRAV26-1		CASSIRSSYEQYF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	4/321	yes	amplicon-seq		davis-single-cell			subject.0276				PBMC				1256						
 CTDNARLMFT	TRAV26-1		CASSIRSSYEQYF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	1/321	yes	amplicon-seq		davis-single-cell			subject.0276				PBMC				1257						
 CILDLMEYGNKLVF	TRAV26-2		CASSIRSSYEQYF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	1/321	yes	amplicon-seq		davis-single-cell			subject.0276				PBMC				1258						
-			CASSIRSSYEQYF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	1/321	yes	amplicon-seq		davis-single-cell			subject.0276				PBMC				1259						
 CAAGGSQGNLIF	TRAV27		CASSIRSSYEQYF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	7/321	yes	amplicon-seq		davis-single-cell			subject.0276				PBMC				1260						
 CAGAFGSSNTGKLIF	TRAV27		CASSIRSSYEQYF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	1/321	yes	amplicon-seq		davis-single-cell			subject.0276				PBMC				1261						
 CAGEGGGSQGNLIF	TRAV27		CASSIRSSYEQYF	TRBV19			HomoSapiens	HLA-A*02:01	B2M	MHCI	GILGFVFTL	M	InfluenzaA	PMID:28636589	tetramer-sort	2/321	yes	amplicon-seq		davis-single-cell			subject.0276				PBMC				1262						
@@ -1461,10 +1458,7 @@ CAVNTGNQFYF	TRAV12-2		CASSQDEPYEQYF	TRBV4-1			HomoSapiens	HLA-A*02:01	B2M	MHCI	G
 			CASSLGDRGLEQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/22	yes	amplicon-seq		davis-single-cell			c125				PBMC				1460						
 			CASSLGGRPEAFF	TRBV28		TRBJ1-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/22	yes	amplicon-seq		davis-single-cell			c125				PBMC				1461						
 			CASLVGGGDTGELFF	TRBV28		TRBJ2-2	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/22	yes	amplicon-seq		davis-single-cell			c125				PBMC				1462						
-			CASSLGGRPEAFF	TRBV28		TRBJ1-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/22	yes	amplicon-seq		davis-single-cell			c125				PBMC				1463						
 			CASSFQGWETQYF	TRBV28		TRBJ2-5	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/22	yes	amplicon-seq		davis-single-cell			c125				PBMC				1464						
-			CASSLGGRPEAFF	TRBV28		TRBJ1-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/22	yes	amplicon-seq		davis-single-cell			c125				PBMC				1465						
-			CASRTDMNSPLHF	TRBV28		TRBJ1-6	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/22	yes	amplicon-seq		davis-single-cell			c125				PBMC				1466						
 			CASSLQGTNEKLFF	TRBV28		TRBJ1-4	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/22	yes	amplicon-seq		davis-single-cell			c125				PBMC				1467						
 			CASSTTGTAFYEQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/22	yes	amplicon-seq		davis-single-cell			c125				PBMC				1468						
 			CAWSKASWGAEAFF	TRBV30		TRBJ1-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/22	yes	amplicon-seq		davis-single-cell			c125				PBMC				1469						
@@ -1480,7 +1474,6 @@ CAVNTGNQFYF	TRAV12-2		CASSQDEPYEQYF	TRBV4-1			HomoSapiens	HLA-A*02:01	B2M	MHCI	G
 			CASTPSPGVSSIGYEQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/16	yes	amplicon-seq		davis-single-cell			c159				PBMC				1479						
 			CASSQEEGGQPQHF	TRBV4-1		TRBJ1-5	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/16	yes	amplicon-seq		davis-single-cell			c159				PBMC				1480						
 			CASRPEKETGELFF	TRBV6-5		TRBJ2-2	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/16	yes	amplicon-seq		davis-single-cell			c159				PBMC				1481						
-			CASRPEKETGELFF	TRBV6-5		TRBJ2-2	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/16	yes	amplicon-seq		davis-single-cell			c159				PBMC				1482						
 			CASSYVGQGLGETQYF	TRBV6-5		TRBJ2-5	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/16	yes	amplicon-seq		davis-single-cell			c159				PBMC				1483						
 			CASSLEGQDYEQYF	TRBV7-8		TRBJ2-7	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/16	yes	amplicon-seq		davis-single-cell			c159				PBMC				1484						
 			CASSLEGQDYEPVL	TRBV7-8		TRBJ2-7	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/16	yes	amplicon-seq		davis-single-cell			c159				PBMC				1485						
@@ -1490,7 +1483,6 @@ CAVNTGNQFYF	TRAV12-2		CASSQDEPYEQYF	TRBV4-1			HomoSapiens	HLA-A*02:01	B2M	MHCI	G
 			CASSQDPTGYSGANVLTF	TRBV4-2		TRBJ2-6	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/5	yes	amplicon-seq		davis-single-cell			c259				PBMC				1489						
 			CASSVGRNTEAFF	TRBV6-1		TRBJ1-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/5	yes	amplicon-seq		davis-single-cell			c259				PBMC				1490						
 			CASSQSLHGATNEKLFF	TRBV14		TRBJ1-4	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1491						
-			CASSQSLHGATNEKLFF	TRBV14		TRBJ1-4	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1492						
 			CASRGGGNIQYF	TRBV19		TRBJ2-4	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1493						
 			CSADGGDIWSDEQFF	TRBV20-1		TRBJ2-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1494						
 			CATSDFGEGTDTQYF	TRBV24-1		TRBJ2-3	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	3/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1495						
@@ -1498,7 +1490,6 @@ CAVNTGNQFYF	TRAV12-2		CASSQDEPYEQYF	TRBV4-1			HomoSapiens	HLA-A*02:01	B2M	MHCI	G
 			CATSDPTSGREDEQYF	TRBV24-1		TRBJ2-7	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1497						
 			CATRPGTSDYNEQFF	TRBV24-1		TRBJ2-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1498						
 			CATSDFGEGTDTQYF	TRBV24-1		TRBJ2-3	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	2/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1499						
-			CATSDFGEGTDTQYF	TRBV24-1		TRBJ2-3	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	3/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1500						
 			CATSDFGEGTDTQYF	TRBV24-1		TRBJ2-3	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1501						
 			CASSFPPGQGVQGAFF	TRBV28		TRBJ1-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1502						
 			CASSSHGGGSYGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1503						
@@ -1509,8 +1500,6 @@ CAVNTGNQFYF	TRAV12-2		CASSQDEPYEQYF	TRBV4-1			HomoSapiens	HLA-A*02:01	B2M	MHCI	G
 			CASIPSAGTSGKEVTDTQYF	TRBV28		TRBJ2-3	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1508						
 			CASSSSGGGTDTQYF	TRBV28		TRBJ2-3	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1509						
 			CASSGIAGGPSYEQYF	TRBV28		TRBJ2-7	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1510						
-			CASSSHGGGSYGYTF	TRBV28		TRBJ1-2	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1511						
-			CASSTPGTGSSPLHF	TRBV28		TRBJ1-6	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1512						
 			CASRDSGSSTDTQYF	TRBV28		TRBJ2-3	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1513						
 			CASSYTDNGNTIYF	TRBV6-5		TRBJ1-3	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1514						
 			CASKPGQLLNYGYTF	TRBV6-5		TRBJ1-2	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/30	yes	amplicon-seq		davis-single-cell			c362				PBMC				1515						
@@ -1642,7 +1631,6 @@ CILRRGGSNYKLTF	TRAV26-2		CASSPLAGPLYEQYF	TRBV7-3		TRBJ2-7	HomoSapiens	HLA-DRA*01
 CAVVNSGYSTLTF	TRAV12-2		CASSLGGTYSNQPQHF	TRBV7-6		TRBJ1-5	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/133	yes	amplicon-seq		davis-single-cell			tonsil				tonsil				1641						
 			CASSSSGQDANEQFF	TRBV7-6		TRBJ2-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/133	yes	amplicon-seq		davis-single-cell			tonsil				tonsil				1642						
 CAMRSSGTYKYIF	TRAV12-3		CASSSSGQDANEQFF	TRBV7-6		TRBJ2-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/133	yes	amplicon-seq		davis-single-cell			tonsil				tonsil				1643						
-			CASSSSGQDANEQFF	TRBV7-6		TRBJ2-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/133	yes	amplicon-seq		davis-single-cell			tonsil				tonsil				1644						
 			CASRRPQEGTEAFF	TRBV7-9		TRBJ1-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/133	yes	amplicon-seq		davis-single-cell			tonsil				tonsil				1645						
 			CASSLAGGSDNEQFF	TRBV7-9		TRBJ2-1	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/133	yes	amplicon-seq		davis-single-cell			tonsil				tonsil				1646						
 CAVGGNQFYF	TRAV41		CASSFSGVSGANVLTF	TRBV7-9		TRBJ2-6	HomoSapiens	HLA-DRA*01:01	HLA-DRB1*04:01	MHCII	PKYVKQNTLKLAT	HA	InfluenzaA	PMID:28636589	tetramer-sort	1/133	yes	amplicon-seq		davis-single-cell			tonsil				tonsil				1647						
