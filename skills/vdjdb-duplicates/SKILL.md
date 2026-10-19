@@ -28,6 +28,14 @@ Within species, group both chains together using `cdr3.alpha`, `v.alpha`, `j.alp
 Compare submitted values first, then harmonised values. Sharing a beta chain does not establish
 that paired receptors match.
 
+Trace repeated groups to their source table before applying `unique` on the complete observation
+key. Repeated cells of one clonotype are abundance, not additional independent clonotypes; preserve
+the reported count/frequency on the surviving observation. A repeated table or import block is
+one observation. Preserve source construct/template labels in existing experiment metadata when
+different constructs share stored junctions and V/J calls. Differences outside those junctions,
+including engineered framework or CDR1/2 changes, can distinguish receptors. Never manufacture
+per-row identifiers to make a duplicate check pass. Strict QC rejects exact within-file duplicates.
+
 For each repeated group, compare the reference and every `method.*` and `meta.*` field,
 including donor, clone, replica, tissue, subset, pairing and frequency fields. Distinct reported
 experiments remain separate. Submitter, comment and curation serial alone do not distinguish

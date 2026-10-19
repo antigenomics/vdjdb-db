@@ -324,5 +324,10 @@ and its own chunk. Merge only confirmed duplicates, preserving complementary inf
 recording the decision. Review both submitted and harmonised values without silently replacing
 the source values.
 
+Strict QC rejects exact within-file duplicate observations. Check the primary table before
+removing repeats. Preserve reported abundance when repeated cells describe one clonotype, and
+retain source template/construct labels in experiment metadata when receptors differ outside
+the stored junctions. Do not assign artificial per-row IDs to distinguish identical observations.
+
 Large chunk files may use `.tsv.gz`; validation reads the same TSV contents after decompression.
 Negative observations remain in `chunks_negative/` and are excluded from the positive build.

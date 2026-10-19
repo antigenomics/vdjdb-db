@@ -55,6 +55,7 @@ def test_links_recompute_source_identity_and_context_flags():
             'exact_tcr_pmhc_match': 'true'}
     check_links(records, chains, pl.DataFrame([link]), pl.DataFrame([source]))
     for name, value in [('tcr_pmhc_hash', 'broken'), ('is_native', 'True'),
+                        ('current_chunk_row', '2'),
                         ('exact_tcr_pmhc_match', 'not-a-boolean'), ('matches_context', 'false'),
                         ('matches_original', 'invalid')]:
         with pytest.raises(ValueError):

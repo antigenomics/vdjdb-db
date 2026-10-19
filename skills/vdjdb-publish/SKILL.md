@@ -86,6 +86,10 @@ Distinguish that from a current-versus-release regression on the same cohort. Ke
 acceptance criteria unchanged unless the curator explicitly approves a different criterion.
 Keep one reviewed baseline instead of duplicating corpus-dependent constants in tests.
 
+After removing source rows, reconcile pinned structure-link source coordinates by stable record
+ID and run the strict structure-file audit. Preserve all other link cells and scientific proofs;
+publish reviewed snapshot changes through the local dataset mirror, then update the pinned input.
+
 Run required PR checks and full CI on the combined data-plus-validation candidate. Fix failures;
 never merge a red candidate. If legacy compatibility was requested, test the new chunk with the
 specified legacy checkout and retain the result in the local execution record.
@@ -99,6 +103,12 @@ Do not promote to `master` unless requested.
 
 Before every PR merge, check both CI results and code review. Inspect the final diff and all
 available review summaries, inline comments and unresolved threads; resolve substantive findings.
+Read the complete `chunk-check` comment, QC artifact and full-build reports even when every check
+is green. Fix supported data/header defects before merging. Advisory means source review is
+required, not permission to ignore it: record the source-supported disposition or a linked unresolved
+question for each remaining finding class. Never erase reported calls or invent missing sequences
+to clear warnings. Require zero exact duplicate observations. Recheck the reports on the final head
+for both the data PR and the dev-to-master promotion.
 Record the review outcome and CI evidence in the local execution record. An empty review list
 does not replace reviewing the diff. Checks and reviews must cover the final head or a
 proven-identical tree; after a material revision, review the changed diff again and obtain fresh
