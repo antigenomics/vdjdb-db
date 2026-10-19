@@ -14,7 +14,14 @@ missing chain and structural evidence also defines a sensitivity envelope. The r
 is joined back to every observational record ID, including independent reports of the
 same interaction. Model parameters are inputs; no fitting occurs during a build.
 
-## Run the pipeline
+## Use the score
+
+Choose `paired` for the available combined evidence, or `TRA` / `TRB` for a chain-only
+view of the same paired assay endpoint. Use the sensitivity envelope and `positive`
+together when a definite call is needed. See [missing evidence and decisions](#missing-evidence-and-decisions)
+before filtering records.
+
+### Run the pipeline
 
 ```bash
 uv sync --extra motifs --extra confidence --extra test
@@ -78,7 +85,7 @@ The endpoint is the measured assay validation criterion `padj < 1e-5`.
 | Dependence graph | `tan_independent_iptm` | Generic `fit()` supports `tan`, `tan_leaf`, `naive`; these do not replace the packaged fit |
 | Dirichlet equivalent sample size | 10 for every node | `fit()` accepts a positive scalar or complete node map; stronger smoothing was not promoted |
 | Count encoding | 0, 1, 2, 3+ | Fixed encoding; no build-time bin fitting |
-| ipTM encoding | Low <0.737694501876831; mid below 0.8368270099163055; high otherwise | Boundaries saved with this fit; generic `categorical()` defaults to 0.5/0.8 unless supplied |
+| ipTM encoding | Low below ≈0.74; mid below ≈0.84; high otherwise | Exact boundaries are saved in the [packaged model](https://github.com/antigenomics/vdjdb-db/blob/master/src/vdjdb/score/record_v3.json); generic `categorical()` defaults to 0.5/0.8 unless supplied |
 | Motif membership | Hard, producer-owned membership | `soft_membership=False` throughout the inference API; fractional memberships require explicit `True` |
 | Missing evidence | Exact marginalization, including legal states absent from training | No zero imputation or complete-case exclusion |
 | Decision threshold | 0.5, fixed | No per-epitope threshold tuning during deployment |
@@ -92,8 +99,8 @@ new fitted settings require their own grouped validation before selection.
 Soft membership mixes the nonmember/member posteriors with supplied weights `1-q` and
 `q`. Several uncertain memberships use an independent mixing distribution, while the
 BN retains its fitted feature dependencies. Hard endpoints are unchanged. Direct
-Hamming-1 membership-fraction substitution reduced paired AP from 0.911197 to 0.909023
-for GLC and from 0.869028 to 0.867734 for YLQ, and lost two correct GLC TRB calls.
+Hamming-1 membership-fraction substitution reduced paired AP from 0.911 to 0.909
+for GLC and from 0.869 to 0.868 for YLQ, and lost two correct GLC TRB calls.
 It remains off. `score-records --soft-membership` explicitly selects this exploratory
 variant. It performs one substitutions-only batched native search, includes exact
 neighbours, retains each producer's species/chain/peptide and V/J scope, and adds
@@ -137,12 +144,12 @@ correlation coefficient, FP/(FP+TN) and FP/(TP+FP).
 
 | Epitope | Interactions (validated / nonvalidated) | Predictor | AP | Correct calls / interactions | Balanced accuracy |
 |---|---:|---|---:|---:|---:|
-| GLC | 193 (134 / 59) | ipTM | 0.882286 | 146 / 193 | 0.720276 |
-| GLC | 193 (134 / 59) | TRA TCREmp | 0.824280 | 137 / 193 | 0.738869 |
-| GLC | 193 (134 / 59) | V3 paired | **0.911197** | **149 / 193** | **0.745699** |
-| YLQ | 421 (172 / 249) | ipTM | 0.682605 | 300 / 421 | 0.690506 |
-| YLQ | 421 (172 / 249) | TRA TCREmp | 0.762786 | 362 / 421 | 0.848265 |
-| YLQ | 421 (172 / 249) | V3 paired | **0.869028** | **367 / 421** | **0.872688** |
+| GLC | 193 (134 / 59) | ipTM | 0.882 | 146 / 193 | 0.720 |
+| GLC | 193 (134 / 59) | TRA TCREmp | 0.824 | 137 / 193 | 0.739 |
+| GLC | 193 (134 / 59) | V3 paired | **0.911** | **149 / 193** | **0.746** |
+| YLQ | 421 (172 / 249) | ipTM | 0.683 | 300 / 421 | 0.691 |
+| YLQ | 421 (172 / 249) | TRA TCREmp | 0.763 | 362 / 421 | 0.848 |
+| YLQ | 421 (172 / 249) | V3 paired | **0.869** | **367 / 421** | **0.873** |
 
 TRA TCREmp is the strongest individual motif baseline on these three metrics in each
 epitope. [The complete 28-row comparison](../_static/record-score-v3/metrics.tsv) includes
@@ -180,8 +187,8 @@ repeated source observations retained and no fitting on these rows:
 
 | Scope | Source observations | Nominal positive | Confident positive | Confident negative | Unknown |
 |---|---:|---:|---:|---:|---:|
-| All files | 6,062,284 | 2,155,249 (35.5518%) | 3,747 (0.0618%) | 16 | 6,058,521 |
-| Human class I with specified context | 5,015,831 | 1,116,387 (22.2573%) | 3,740 (0.0746%) | 6 | 5,012,085 |
+| All files | 6,062,284 | 2,155,249 (35.6%) | 3,747 (0.0618%) | 16 | 6,058,521 |
+| Human class I with specified context | 5,015,831 | 1,116,387 (22.3%) | 3,740 (0.0746%) | 6 | 5,012,085 |
 
 Percentages divide by the observation count in the same row. Confident calls use the
 envelope, while nominal calls threshold `record_score`. The source-negative positive
@@ -228,7 +235,7 @@ assay validation discrimination, not affinity, function or clinical response. Na
 experimental structures are excluded. CIN/NLV have scored examples without measured
 validation endpoints, so accuracy there is unmeasured. Cross-epitope calibration is
 not established. The chosen fit preserves accepted TRA/TRB/no-ipTM marginals; its YLQ
-paired AP is 0.001975 below an earlier paired-only candidate whose marginal regressions
+paired AP is 0.00198 below an earlier paired-only candidate whose marginal regressions
 prevented selection. Confidence envelopes describe sensitivity to unavailable evidence
 and do not guarantee frequentist coverage. Source-negative labels and withdrawn 10X
 assignments are distinct; a discarded assignment is not an experimentally negative TCR.

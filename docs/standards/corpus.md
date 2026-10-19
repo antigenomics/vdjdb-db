@@ -175,7 +175,7 @@ The combined import has 15,865 human beta-chain observations assigned to GILGFVF
 175,364 human beta-chain observations overall. IRS occurs in 4,281 and 4,408 observations,
 respectively, giving 10.735-fold enrichment. It ranks first among the 355 k-mers present in at
 least 50 assigned observations. All 19 eligible RS-containing k-mers exceed the median lift
-of 0.791402. `tests/release/test_corpus_reproduction.py` pins these record-level measurements.
+of 0.791. `tests/release/test_corpus_reproduction.py` pins these record-level measurements.
 Publication retrieval and document-level co-occurrence have separate tests.
 
 ## PubMed records and abstracts

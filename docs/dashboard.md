@@ -31,7 +31,7 @@ reported sequences and calls without borrowing another species' annotation.
 
 ```{raw} html
 <iframe src="_static/dashboard.html" title="VDJdb summary dashboard"
-        style="width:100%;height:70vh;border:1px solid #d4d4d5;border-radius:4px"></iframe>
+        class="proj-dashboard"></iframe>
 ```
 
 ## Rendering it

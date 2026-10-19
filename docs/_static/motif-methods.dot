@@ -1,5 +1,5 @@
 digraph motif_methods {
-  graph [rankdir=TB, bgcolor="white", pad="0.15", nodesep="0.35", ranksep="0.28"];
+  graph [rankdir=TB, bgcolor="transparent", pad="0.15", nodesep="0.35", ranksep="0.28"];
   node [shape=box, style="rounded,filled", fillcolor="#f4f6f8", color="#465362", fontname="Arial", fontsize=12, margin="0.12,0.08"];
   edge [color="#465362", arrowsize=0.7];
   input [label="Assembled junctions, V/J calls, species, chain and reported peptide"];
