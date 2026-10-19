@@ -48,11 +48,12 @@ def record_scores(records: pl.DataFrame, chains: pl.DataFrame, evidence: pl.Data
 
 
 def write_scores(frame: pl.DataFrame, out: Path) -> None:
-    """Write the separate record-ID keyed table as Parquet and deterministic gzip TSV."""
+    """Write probabilities at 12 significant figures, preserving full-precision decisions."""
     if frame['record_id'].null_count() or frame['record_id'].n_unique() != frame.height:
         raise ValueError('Score output requires unique nonmissing record IDs')
     out.mkdir(parents=True, exist_ok=True)
-    frame = frame.sort('record_id')
+    probabilities = [name for name, kind in SCORE_SCHEMA.items() if kind == pl.Float64]
+    frame = frame.sort('record_id').with_columns(pl.col(probabilities).round_sig_figs(12))
     frame.write_parquet(out / 'record_scores.parquet')
     with (out / 'record_scores.tsv.gz').open('wb') as raw, gzip.GzipFile(
             filename='', fileobj=raw, mode='wb', mtime=0) as zipped:

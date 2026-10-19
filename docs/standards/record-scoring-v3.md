@@ -33,6 +33,9 @@ directory. Default output is the input table directory.
 `record_scores.parquet` and `record_scores.tsv.gz` contain exactly one row per current
 `record_id`, sorted by ID. TSV has a deterministic gzip header; unknown values are empty
 cells. Parquet retains typed nulls. No column is appended to a legacy positional file.
+The six probability/envelope columns use 12 significant figures in both formats.
+Decisions use full-precision inference;
+input evidence and fitted parameters are unchanged.
 The primary bundle includes both score files when that stage has run; the hosted build
 requires their production and verifies their cardinality. The model SHA256 is recorded
 on every row. No stored feature or prediction rows are reused between builds.
