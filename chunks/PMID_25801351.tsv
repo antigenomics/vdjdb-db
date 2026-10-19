@@ -16,7 +16,6 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 15	CAVNNARLMF	TRAV12-2	TRAJ31					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult5			ELA	PBMC			
 16	CAVNNARLMF	TRAV12-2	TRAJ31					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult6			ELA	PBMC			
 17	CAVNNARLMF	TRAV12-2	TRAJ31					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult7			ELA	PBMC			
-18	CAVNNARLMF	TRAV12-2	TRAJ31					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult6			ELA	PBMC			
 19	CAVNSNTGNQFY	TRAV12-2	TRAJ49					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	cord1			ELA	UBC			
 20	CAVPPNTGNQFY	TRAV12-2	TRAJ49					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult7			ELA	PBMC			
 21	CAVNGGFGNVLH	TRAV12-2	TRAJ35					HomoSapiens	HLA-A*02:01	B2M	MHCI	ELAGIGLTV	MLANA	HomoSapiens	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	cord2			ELA	UBC			
@@ -67,7 +66,6 @@ chunk.id	cdr3.alpha	v.alpha	j.alpha	cdr3.beta	v.beta	d.beta	j.beta	species	mhc.a
 66				CASSLFGGGTEAFF	TRBV12-3,TRBV12-4		TRBJ1-1	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	cord12			NLV	UBC			
 67				CASSPTGGGTGELFF	TRBV27		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	cord12			NLV	UBC			
 68				CASSLGGGSYEQYF	TRBV13		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	cord16			NLV	UBC			
-69				CASSLGGGSYEQYF	TRBV13		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	cord16			NLV	UBC			
 70				CASSLGGGGFYEQY	TRBV7-8		TRBJ2-7	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult26			NLV	PBMC			
 71				CASSYGGGEDYGYTF	TRBV13		TRBJ1-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	adult27			NLV	PBMC			
 72				CSGGTGELFF	TRBV29-1		TRBJ2-2	HomoSapiens	HLA-A*02:01	B2M	MHCI	NLVPMVATV	pp65	CMV	PMID:25801351	dextramer-sort			sanger			CD8+		healthy	cord3			NLV	UBC			
