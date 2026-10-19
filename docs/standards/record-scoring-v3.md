@@ -107,6 +107,58 @@ neighbours, retains each producer's species/chain/peptide and V/J scope, and add
 `*_members` / `*_neighbours` integer columns for each motif fraction. Publication
 counts and record identity stay unchanged. Ordinary scoring runs no neighbourhood search.
 
+### Optional separated motif indices
+
+`score-records --continuous-membership` selects an experimental alternative to
+`--soft-membership`. The two options cannot be combined. If $b$ is the original
+producer membership (0 or 1) and $u$ is the Hamming-1 annotated-neighbour member
+fraction, the index is
+
+$$s=(2b+u)/3.$$
+
+Nonmembers score in $[0,1/3]$ and members in $[2/3,1]$, so the minimum member
+score exceeds the maximum nonmember score by at least $1/3$. Thresholding at 0.5
+recovers the original binary assignment exactly. Unscored inputs remain missing.
+The optional output retains the four original assignments in `*_hard`, the
+neighbour counts, `continuous_membership=True`, and
+`motif_score_version=separated-neighbours-v1`. Both fractional options set
+`soft_membership=True` in the output because both use the soft inference API.
+Pair-support flags use the retained hard assignments.
+
+The combined model uses these indices as experimental interpolation weights for
+its existing hard-state posteriors. They are not calibrated probabilities of
+membership or binding. Their strict ordering does not guarantee improved assay
+ranking, calibration or classification. Hard membership remains the default.
+
+For standalone research, `score.membership.separated` applies the same map to
+other bounded support measures. `motifs.tcremp.ClusterReference.support` returns
+nearest-core and second-core support in a frozen embedding: $e/(e+d)$, where
+$e>0$ is the reference DBSCAN radius and $d\ge0$ the corresponding core distance.
+The second core provides variation when an exact self-hit has zero distance.
+No query updates the reference embedding or clusters. Reference-eligible peptides
+without retained cores have support zero; unsupported peptides remain missing.
+
+`validate.membership` provides training-only F1 cutoff selection, a monotone paired
+formula, and ranking metrics without reading an assay. Its paired formula is
+$\operatorname{sigmoid}(c+w_a s_a+w_b s_b+w_{ab}s_a s_b)$, with nonnegative
+weights, an optional interaction and a fixed L2 penalty of 0.001 on the weights.
+Here $s_a,s_b$ are the TRA/TRB indices, $c$ is the fitted intercept, and
+$\operatorname{sigmoid}(z)=1/(1+\exp(-z))$. Coefficients and cutoffs require
+grouped training data; they are not packaged production parameters.
+
+AP uses step integration and PR-AUC uses trapezoids, reported separately.
+Normalized partial AP at recall $R$ is
+$R^{-1}\int_0^R P(r)\,dr$, using AP's constant precision over each tied score
+group's recall increment. Precision at recall $R$ uses the first attainable
+threshold reaching that recall, keeping ties together. ROC-AUC and standardized
+partial ROC-AUC at FPR 0.1 are separate metrics. Macro averages give each peptide
+equal weight. A global or peptide-specific decision threshold changes F1 and
+confusion counts but does not change these ranking metrics. Cutoffs and candidate
+selection must use training folds, with shared receptor groups kept together.
+`fit_thresholds` fits peptide cutoffs only where training rows include both
+outcomes. `apply_thresholds` uses the learned global cutoff for an unseen peptide
+or one with a single training outcome. The research runner records fallback use.
+
 ## Missing evidence and decisions
 
 TRA and TRB condition on the respective chain's three predictors. They predict the
@@ -226,6 +278,32 @@ soft_membership=True)` or the same keyword on `predict`, `predict_marginals` and
 `predict_evidence`. Fractions are rejected by default. Omitted evidence columns are
 unobserved, and extra identity columns are ignored by numeric inference. Count and
 ipTM validation reject invalid ranges and noninteger counts.
+
+For the separated-neighbour option, the pipeline preserves the original hard
+assignments as well as the experimental continuous features:
+
+```python
+from vdjdb.score.pipeline import record_scores
+
+optional = record_scores(
+    records, chains, evidence, model,
+    model_sha256=model_sha256, continuous_membership=True,
+)
+```
+
+Standalone research cutoffs use a separate training-only policy:
+
+```python
+from vdjdb.validate.membership import fit_thresholds, apply_thresholds
+
+policy = fit_thresholds(training_labels, training_scores, training_peptides)
+cutoffs = apply_thresholds(policy, test_peptides)
+predicted = test_scores >= cutoffs
+```
+
+The training scores must be out-of-fold predictions if their model was fitted
+on these labels. Keep related receptor observations in the same fold. These
+cutoffs do not change the production model's fixed 0.5 envelope decision.
 
 ## Limits of the evidence
 

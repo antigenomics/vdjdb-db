@@ -25,11 +25,14 @@ def score_records_command(
     out: Path | None = typer.Option(None, help="Separate score table directory; default: --tables."),
     model: Path | None = typer.Option(None, help="Frozen JSON model; default: packaged v3 fit."),
     soft_membership: bool = typer.Option(False, help="Exploratory Hamming-1 motif fractions; default off."),
+    continuous_membership: bool = typer.Option(False,
+        help="Experimental separated motif indices; preserves hard order; default off."),
 ) -> None:
     """Write record confidence v3, retaining legacy scores and current record IDs."""
     from .score.pipeline import run
 
-    frame = run(tables, out or tables, model, soft_membership=soft_membership)
+    frame = run(tables, out or tables, model, soft_membership=soft_membership,
+                continuous_membership=continuous_membership)
     typer.echo(f"{frame.height:,} record scores -> {out or tables}")
 
 
