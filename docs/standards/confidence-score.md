@@ -111,3 +111,10 @@ network. The chain marginals condition only on that chain's publication and moti
 the other chain and paired legacy/donor/structure evidence are integrated out. Each predicts
 validation of the full interaction. It does not reinterpret a paired assay as a single-chain
 binding experiment. No extra model or imputed partner is needed.
+
+For a simpler comparator, `fit(..., structure="naive")` retains the class-to-feature
+edges and omits the feature-dependence tree. `categorical(..., iptm_bounds=(low, high))`
+accepts two ordered cutoffs for the three ipTM grades; the defaults remain `(0.5, 0.8)`.
+Store any selected cutoffs with the fitted model and use the same encoding at inference.
+Choose smoothing, structure and cutoffs inside training groups; assess the selected
+procedure on held-out groups, including inputs with missing structural or motif evidence.

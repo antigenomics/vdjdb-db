@@ -30,3 +30,27 @@ def test_unobserved_legal_evidence_states_do_not_create_support():
     rows = [{'a_studies': '2' if i % 2 else '0'} for i in range(24)]
     model = fit(rows, [int(i % 4 == 0) for i in range(24)])
     assert predict(model, [{'iptm': 'high', 'donors': '3+'}])[0] == pytest.approx(predict(model, [{}])[0])
+
+
+def test_naive_network_keeps_exact_missing_inference_with_fewer_edges():
+    rows = [{'a_studies': str(i % 2), 'b_tcrnet': str(int(i % 3 == 0))}
+            for i in range(36)]
+    model = fit(rows, [i % 2 for i in range(36)], structure='naive')
+    assert len(model['edges']) == 9
+    assert all(parent == 'validated' for parent, _ in model['edges'])
+    assert predict(model, [{}, {'a_studies': None}]) == pytest.approx([.5, .5])
+    assert predict(model, [{'a_studies': '1'}])[0] > .5
+    with pytest.raises(ValueError):
+        fit(rows, [i % 2 for i in range(36)], structure='unknown')
+
+
+def test_unpredicted_structure_is_marginalized_in_observed_chain_context():
+    rows = [{'a_studies': '1', 'iptm': 'high' if i % 2 else 'low'} for i in range(24)]
+    for structure in ['tan', 'naive']:
+        model = fit(rows, [i % 2 for i in range(24)], structure=structure)
+        scores = predict(model, [
+            {'a_studies': '1'}, {'a_studies': '1', 'iptm': None},
+            {'a_studies': '1', 'iptm': '?'}, {'a_studies': '1', 'iptm': 'high'},
+        ])
+        assert scores[:3] == pytest.approx([scores[0]] * 3)
+        assert scores[3] > scores[0]

@@ -52,3 +52,11 @@ def test_nan_is_unknown_and_fractional_counts_are_rejected():
     assert categorical(pl.DataFrame({'iptm': [float('nan')]}))['iptm'][0] == '?'
     with pytest.raises(ValueError):
         categorical(pl.DataFrame({'a_studies': [1.5]}))
+
+
+def test_training_selected_iptm_bounds_preserve_missing_and_validate_order():
+    frame = pl.DataFrame({'iptm': [None, .6, .8, .85, .9]})
+    assert categorical(frame, iptm_bounds=(.8, .9))['iptm'].to_list() == ['?', 'low', 'mid', 'mid', 'high']
+    for bounds in [(.9, .8), (.5, .5), (float('nan'), .8), (-.1, .8), (.5, 1.1)]:
+        with pytest.raises(ValueError):
+            categorical(frame, iptm_bounds=bounds)

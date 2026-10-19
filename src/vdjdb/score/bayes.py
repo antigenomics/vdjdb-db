@@ -17,9 +17,10 @@ STATES = {name: (['?', '0', '1', '2', '3+'] if name in COUNT_FEATURES else
 
 
 def fit(rows: Sequence[Mapping[str, str]], labels: Sequence[int], *,
-        equivalent_sample_size: float = 10.) -> dict:
+        equivalent_sample_size: float = 10., structure: str = 'tan') -> dict:
     """Learn a discrete Bayesian graph and Dirichlet-smoothed conditional tables.
 
+    ``structure='tan'`` learns one feature-dependence tree; ``'naive'`` omits those edges.
     Training uses explicit unreported states, avoiding complete-case exclusion. These states
     describe reporting, not nonbinding. At inference, unknown features are unobserved rather
     than evidence for a class. The resulting probabilities target the training assay endpoint.
@@ -29,6 +30,8 @@ def fit(rows: Sequence[Mapping[str, str]], labels: Sequence[int], *,
     from pgmpy.models import DiscreteBayesianNetwork
     from sklearn.metrics import mutual_info_score
 
+    if structure not in ('tan', 'naive'):
+        raise ValueError('Structure must be tan or naive')
     if len(rows) != len(labels) or set(labels) != {0, 1}:
         raise ValueError('Training requires aligned observations and both classes')
     if not math.isfinite(equivalent_sample_size) or equivalent_sample_size <= 0:
@@ -43,9 +46,13 @@ def fit(rows: Sequence[Mapping[str, str]], labels: Sequence[int], *,
     data = data.astype('category')
     # Explicit lexical tie break makes constant/tied features deterministic.
     root = min(FEATURES, key=lambda n: (-mutual_info_score(data[n], data['validated']), n))
-    graph = TreeSearch(data, root_node=root, n_jobs=1).estimate(
-        estimator_type='tan', class_node='validated', show_progress=False)
-    model = DiscreteBayesianNetwork(sorted(graph.edges()))
+    if structure == 'tan':
+        graph = TreeSearch(data, root_node=root, n_jobs=1).estimate(
+            estimator_type='tan', class_node='validated', show_progress=False)
+        edges = sorted(graph.edges())
+    else:
+        edges = [('validated', n) for n in FEATURES]
+    model = DiscreteBayesianNetwork(edges)
     states = {**STATES, 'validated': ['0', '1']}
     model.fit(data, estimator=BayesianEstimator, prior_type='BDeu',
               equivalent_sample_size=equivalent_sample_size, state_names=states, n_jobs=1)
@@ -59,7 +66,7 @@ def fit(rows: Sequence[Mapping[str, str]], labels: Sequence[int], *,
                      'states': cpd.state_names})
     return {'format': 'vdjdb-evidence-tan-1', 'features': FEATURES, 'edges': sorted(map(list, model.edges())),
             'cpds': cpds, 'observed_states': {n: data[n].value_counts().to_dict() for n in FEATURES},
-            'root': root, 'n_training': len(labels),
+            'structure': structure, 'root': root, 'n_training': len(labels),
             'equivalent_sample_size': equivalent_sample_size,
             'missing_fit': 'unreported category', 'missing_predict': 'exact marginalization'}
 

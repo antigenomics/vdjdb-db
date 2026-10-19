@@ -5,6 +5,8 @@ No chunk reconstruction, assay taxonomy, experiment tracing or allele-specific m
 """
 from __future__ import annotations
 
+import math
+
 import polars as pl
 
 from ..identity.levels import SEP
@@ -92,8 +94,11 @@ def integrate(records: pl.DataFrame, chains: pl.DataFrame, evidence: pl.DataFram
     return units.join(models, on='interaction_key', how='left', validate='1:1').sort('interaction_key')
 
 
-def categorical(frame: pl.DataFrame) -> pl.DataFrame:
-    """Fixed count bins 0/1/2/3+ and ipTM bins <0.5/0.5-0.8/>=0.8; '?' is unknown."""
+def categorical(frame: pl.DataFrame, *, iptm_bounds: tuple[float, float] = (.5, .8)) -> pl.DataFrame:
+    """Count bins 0/1/2/3+ and three ipTM grades at supplied bounds; '?' is unknown."""
+    low, high = iptm_bounds
+    if not all(math.isfinite(x) for x in iptm_bounds) or not 0 <= low < high <= 1:
+        raise ValueError('ipTM bounds must be finite and ordered within zero to one')
     columns = []
     for name in frame.columns:
         value = pl.col(name).cast(pl.Float64, strict=True).fill_nan(None)
@@ -106,7 +111,7 @@ def categorical(frame: pl.DataFrame) -> pl.DataFrame:
         elif name == 'iptm':
             if frame.filter(value.is_not_null() & ~value.is_between(0, 1)).height:
                 raise ValueError('ipTM must be between zero and one')
-            expr = pl.when(value < .5).then(pl.lit('low')).when(value < .8).then(
+            expr = pl.when(value < low).then(pl.lit('low')).when(value < high).then(
                 pl.lit('mid')).otherwise(pl.lit('high'))
         else:
             allowed = [0, 1, 2, 3] if name == 'legacy_score' else [0, 1]
