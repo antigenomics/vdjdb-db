@@ -5,8 +5,6 @@ do, and what each one measures at. `docs/denoising.md` defines what to optimise 
 catalogues what is available to optimise over, so read `docs/denoising.md` first: a scorecard here is
 read against its §7.1 two-stage rule.
 
-Rendered on the documentation site from this file by `myst-parser`. It stays Markdown rather than becoming `.rst`, because it is cited by section number from `ROADMAP.md`, from the package docstrings and from `docs/tuning/`, and converting it would break those references.
-
 Status key: **shipped** - the default in `TUNED` · **wired** - implemented, tested, measured, not
 default · **rejected** - measured and ruled out, kept so the ruling stays checkable ·
 **measured** - scored on the same instruments from a script under `docs/tuning/`, not in the package.
@@ -236,20 +234,20 @@ replacing them with the latest measurement.
 
 Matched-cohort checks distinguish an implementation change from a corpus change.
 In the 138,449-observation TRB comparison, the stable, deduplicated TCREmp method
-improves Q from 0.510419 for the original parent partition to 0.525942, and
+improves Q from 0.510 for the original parent partition to 0.526, and
 retains 62,869 rather than 58,981 distinct clonotype-peptide observations.
-Homogeneity changes from 0.989535 to 0.988791. Of its net decrease 0.000744,
-newly assigned observations contribute -0.000800; lost assignments contribute
-+0.000102 and observations retained or unassigned by both partitions contribute
--0.000046. These are additive entropy contributions, not significance tests.
-The largest negative epitope contributions are LPRRSGAAGA (-0.000107; 2,130
-observations), TPRVTGGGAM (-0.000102; 2,564) and LLLDRLNQL (-0.000092; 1,719).
+Homogeneity changes from 0.98954 to 0.98879. Of its net decrease 7.44e-4,
+newly assigned observations contribute -8.00e-4; lost assignments contribute
++1.02e-4 and observations retained or unassigned by both partitions contribute
+-4.60e-5. These are additive entropy contributions, not significance tests.
+The largest negative epitope contributions are LPRRSGAAGA (-1.07e-4; 2,130
+observations), TPRVTGGGAM (-1.02e-4; 2,564) and LLLDRLNQL (-9.20e-5; 1,719).
 The assignments involve junction/V/J identities already reported against several
 peptides. Recovering their motif membership can lower h without introducing a
 new peptide label. Removing recovered observations merely to increase h would
 sacrifice coverage; the report therefore retains all assignments and scores.
 Between the two fixed parent/candidate runs, matched h actually increases from
-0.988528 to 0.988791, while Q differs by -0.000741. The original Q/retention gains
+0.98853 to 0.98879, while Q differs by -7.41e-4. The original Q/retention gains
 are preserved rather than hidden by an exception.
 
 These metrics are exact summaries of a specified finite corpus and fitted

@@ -125,3 +125,35 @@ def test_the_study_count_reads_every_reference_and_not_only_the_first():
     rmd = (Path(__file__).resolve().parents[2] / "summary" / "vdjdb_summary.Rmd").read_text()
     assert 'str_split_fixed(reference.id, ",", n = Inf)[,1]' not in rmd
     assert rmd.count('length(unique(unlist(strsplit(reference.id, ","))))') == 5
+
+
+def test_transparent_dashboard_keeps_white_reference_checks(tmp_path):
+    """Alpha must not turn empty background into apparent black ink or an SSIM defect."""
+    import base64
+    import io
+
+    Image = pytest.importorskip("PIL.Image")
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("check_summary", Path("summary/check_summary.py"))
+    checker = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(checker)
+
+    transparent = Image.new("RGBA", (20, 20), (0, 0, 0, 0))
+    opaque = Image.new("RGB", (20, 20), "white")
+    for image in (transparent, opaque):
+        image.paste("black", (2, 2, 5, 5))
+        image.paste("#e41a1c", (10, 10, 13, 13))
+
+    def payload(image):
+        buffer = io.BytesIO()
+        image.save(buffer, format="PNG")
+        return base64.b64encode(buffer.getvalue()).decode()
+
+    encoded = payload(transparent)
+    html = f'<img src="data:image/png;base64,{encoded}">'
+    reference = tmp_path / "opaque.html"
+    reference.write_text(f'<img src="data:image/png;base64,{payload(opaque)}">')
+    assert checker._image(encoded).tobytes() == opaque.tobytes()
+    assert checker.style(html) == []
+    assert checker.perceptual(html, reference) == []

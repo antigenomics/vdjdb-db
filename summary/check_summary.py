@@ -33,6 +33,7 @@ import json
 import re
 import struct
 import sys
+from importlib import import_module
 from pathlib import Path
 
 FRAGMENT = Path("summary/vdjdb_summary_embed.html")
@@ -135,6 +136,14 @@ def _hits(colours: list[tuple[int, int, int]], anchors: list[str]) -> int:
     return n
 
 
+def _image(payload: str):
+    """Read a PNG as it appears on white, retaining ink and palette checks for alpha."""
+    from PIL import Image
+
+    image = Image.open(io.BytesIO(base64.b64decode(payload))).convert("RGBA")
+    return Image.alpha_composite(Image.new("RGBA", image.size, "white"), image).convert("RGB")
+
+
 def style(html: str, *, allow_skip: bool = False) -> list[str]:
     """Palette and ink-fraction checks.
 
@@ -144,7 +153,7 @@ def style(html: str, *, allow_skip: bool = False) -> list[str]:
     """
     try:
         import numpy as np
-        from PIL import Image
+        import_module("PIL.Image")
     except ImportError:
         msg = "style layer needs Pillow and numpy: uv sync --extra summary"
         if allow_skip:
@@ -153,7 +162,7 @@ def style(html: str, *, allow_skip: bool = False) -> list[str]:
         return [msg]
     bad = []
     for n, payload in enumerate(_IMG.findall(html)):
-        img = Image.open(io.BytesIO(base64.b64decode(payload))).convert("RGB")
+        img = _image(payload)
         arr = np.asarray(img)
         ink = float((arr.reshape(-1, 3).min(axis=1) < 240).mean())
         if not INK_BAND[0] <= ink <= INK_BAND[1]:
@@ -185,7 +194,7 @@ def perceptual(html: str, reference: Path) -> list[str]:
     """SSIM per panel against a previous fragment. Loose and asymmetric, because the database grows."""
     try:
         import numpy as np
-        from PIL import Image
+        import_module("PIL.Image")
     except ImportError:
         return ["perceptual layer needs Pillow and numpy: uv sync --extra summary"]
     ref = _IMG.findall(reference.read_text())
@@ -194,8 +203,8 @@ def perceptual(html: str, reference: Path) -> list[str]:
         return [f"perceptual layer skipped: {len(ref)} reference panels, {len(cur)} current"]
     bad = []
     for n, (a, b) in enumerate(zip(ref, cur, strict=True)):
-        ia = Image.open(io.BytesIO(base64.b64decode(a))).convert("L")
-        ib = Image.open(io.BytesIO(base64.b64decode(b))).convert("L").resize(ia.size)
+        ia = _image(a).convert("L")
+        ib = _image(b).convert("L").resize(ia.size)
         s = ssim(np.asarray(ia), np.asarray(ib))
         if s < SSIM_FAIL:
             bad.append(f"panel {n}: SSIM {s:.3f} against the reference, below {SSIM_FAIL}")

@@ -4,7 +4,13 @@
  viewBox="0 0 840 340"
  xmlns="http://www.w3.org/2000/svg"
  xmlns:xlink="http://www.w3.org/1999/xlink"
->
+><style id="figure-theme">
+:root { fill: var(--ink); --ink: #253444; --line: #526375; --panel: #f4f6f8;
+        --grid: #d0d7de; --blue: #0072b2; }
+@media (prefers-color-scheme: dark) {
+  :root { --ink: #e5e9ef; --line: #a8b5c5; --panel: #252d38; --grid: #465362; --blue: #56b4e9; }
+}
+</style>
 
 <title>Gnuplot</title>
 <desc>Produced by GNUPLOT 6.0 patchlevel 4 </desc>
@@ -15,20 +21,20 @@
 <defs>
 
 	<circle id='gpDot' r='0.5' stroke-width='0.5' stroke='currentColor'/>
-	<path id='gpPt0' stroke-width='0.222' stroke='currentColor' d='M-1,0 h2 M0,-1 v2'/>
-	<path id='gpPt1' stroke-width='0.222' stroke='currentColor' d='M-1,-1 L1,1 M1,-1 L-1,1'/>
-	<path id='gpPt2' stroke-width='0.222' stroke='currentColor' d='M-1,0 L1,0 M0,-1 L0,1 M-1,-1 L1,1 M-1,1 L1,-1'/>
-	<rect id='gpPt3' stroke-width='0.222' stroke='currentColor' x='-1' y='-1' width='2' height='2'/>
-	<rect id='gpPt4' stroke-width='0.222' stroke='currentColor' fill='currentColor' x='-1' y='-1' width='2' height='2'/>
-	<circle id='gpPt5' stroke-width='0.222' stroke='currentColor' cx='0' cy='0' r='1'/>
+	<path id='gpPt0' stroke-width='0.167' stroke='currentColor' d='M-1,0 h2 M0,-1 v2'/>
+	<path id='gpPt1' stroke-width='0.167' stroke='currentColor' d='M-1,-1 L1,1 M1,-1 L-1,1'/>
+	<path id='gpPt2' stroke-width='0.167' stroke='currentColor' d='M-1,0 L1,0 M0,-1 L0,1 M-1,-1 L1,1 M-1,1 L1,-1'/>
+	<rect id='gpPt3' stroke-width='0.167' stroke='currentColor' x='-1' y='-1' width='2' height='2'/>
+	<rect id='gpPt4' stroke-width='0.167' stroke='currentColor' fill='currentColor' x='-1' y='-1' width='2' height='2'/>
+	<circle id='gpPt5' stroke-width='0.167' stroke='currentColor' cx='0' cy='0' r='1'/>
 	<use xlink:href='#gpPt5' id='gpPt6' fill='currentColor' stroke='none'/>
-	<path id='gpPt7' stroke-width='0.222' stroke='currentColor' d='M0,-1.33 L-1.33,0.67 L1.33,0.67 z'/>
+	<path id='gpPt7' stroke-width='0.167' stroke='currentColor' d='M0,-1.33 L-1.33,0.67 L1.33,0.67 z'/>
 	<use xlink:href='#gpPt7' id='gpPt8' fill='currentColor' stroke='none'/>
 	<use xlink:href='#gpPt7' id='gpPt9' stroke='currentColor' transform='rotate(180)'/>
 	<use xlink:href='#gpPt9' id='gpPt10' fill='currentColor' stroke='none'/>
 	<use xlink:href='#gpPt3' id='gpPt11' stroke='currentColor' transform='rotate(45)'/>
 	<use xlink:href='#gpPt11' id='gpPt12' fill='currentColor' stroke='none'/>
-	<path id='gpPt13' stroke-width='0.222' stroke='currentColor' d='M0,1.330 L1.265,0.411 L0.782,-1.067 L-0.782,-1.076 L-1.265,0.411 z'/>
+	<path id='gpPt13' stroke-width='0.167' stroke='currentColor' d='M0,1.330 L1.265,0.411 L0.782,-1.067 L-0.782,-1.076 L-1.265,0.411 z'/>
 	<use xlink:href='#gpPt13' id='gpPt14' fill='currentColor' stroke='none'/>
 	<filter id='textbox' filterUnits='objectBoundingBox' x='0' y='0' height='1' width='1'>
 	  <feFlood flood-color='white' flood-opacity='1' result='bgnd'/>
@@ -43,271 +49,282 @@
 </g>
 <g fill="none" color="white" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="var(--ink)" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='rgb(221, 221, 221)' stroke-dasharray='2,4' class="gridline"  d='M67.20,272.00 L403.19,272.00  '/></g>
-<g fill="none" color="gray" stroke="rgb(221, 221, 221)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--grid)' stroke-dasharray='2,4' class="gridline"  d='M109.20,258.40 L424.19,258.40  '/></g>
+<g fill="none" color="gray" stroke="var(--grid)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M67.20,272.00 L58.20,272.00  '/>	<g transform="translate(49.81,275.90)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M109.20,258.40 L97.20,258.40  '/>	<g transform="translate(86.00,263.60)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="end">
 		<text> 0</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="var(--ink)" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='rgb(221, 221, 221)' stroke-dasharray='2,4' class="gridline"  d='M67.20,218.45 L403.19,218.45  '/></g>
-<g fill="none" color="gray" stroke="rgb(221, 221, 221)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--grid)' stroke-dasharray='2,4' class="gridline"  d='M109.20,208.25 L120.40,208.25 M334.00,208.25 L424.19,208.25  '/></g>
+<g fill="none" color="gray" stroke="var(--grid)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M67.20,218.45 L58.20,218.45  '/>	<g transform="translate(49.81,222.35)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M109.20,208.25 L97.20,208.25  '/>	<g transform="translate(86.00,213.45)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="end">
 		<text> 0.25</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="var(--ink)" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='rgb(221, 221, 221)' stroke-dasharray='2,4' class="gridline"  d='M67.20,164.90 L403.19,164.90  '/></g>
-<g fill="none" color="gray" stroke="rgb(221, 221, 221)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--grid)' stroke-dasharray='2,4' class="gridline"  d='M109.20,158.10 L424.19,158.10  '/></g>
+<g fill="none" color="gray" stroke="var(--grid)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M67.20,164.90 L58.20,164.90  '/>	<g transform="translate(49.81,168.80)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M109.20,158.10 L97.20,158.10  '/>	<g transform="translate(86.00,163.30)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="end">
 		<text> 0.5</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="var(--ink)" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='rgb(221, 221, 221)' stroke-dasharray='2,4' class="gridline"  d='M67.20,111.36 L403.19,111.36  '/></g>
-<g fill="none" color="gray" stroke="rgb(221, 221, 221)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--grid)' stroke-dasharray='2,4' class="gridline"  d='M109.20,107.96 L424.19,107.96  '/></g>
+<g fill="none" color="gray" stroke="var(--grid)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M67.20,111.36 L58.20,111.36  '/>	<g transform="translate(49.81,115.26)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M109.20,107.96 L97.20,107.96  '/>	<g transform="translate(86.00,113.16)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="end">
 		<text> 0.75</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="var(--ink)" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='rgb(221, 221, 221)' stroke-dasharray='2,4' class="gridline"  d='M67.20,57.81 L403.19,57.81  '/></g>
-<g fill="none" color="gray" stroke="rgb(221, 221, 221)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--grid)' stroke-dasharray='2,4' class="gridline"  d='M109.20,57.81 L424.19,57.81  '/></g>
+<g fill="none" color="gray" stroke="var(--grid)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M67.20,57.81 L58.20,57.81  '/>	<g transform="translate(49.81,61.71)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M109.20,57.81 L97.20,57.81  '/>	<g transform="translate(86.00,63.01)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="end">
 		<text> 1</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M123.20,272.00 L123.20,281.00  '/>	<g transform="translate(123.20,302.90)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M161.70,258.40 L161.70,270.40  '/>	<g transform="translate(161.70,299.60)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="middle">
 		<text>AP</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M235.20,272.00 L235.20,281.00  '/>	<g transform="translate(235.20,302.90)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M266.70,258.40 L266.70,270.40  '/>	<g transform="translate(266.70,299.60)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="middle">
 		<text>Accuracy</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M347.19,272.00 L347.19,281.00  '/>	<g transform="translate(347.19,302.90)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M371.69,258.40 L371.69,270.40  '/>	<g transform="translate(371.69,299.60)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="middle">
 		<text>Balanced</text>
 	</g>
-	<g transform="translate(347.19,320.90)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+	<g transform="translate(371.69,323.60)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="middle">
 		<text>accuracy</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M67.20,57.81 L67.20,272.00 L403.19,272.00 M403.19,57.81 M67.20,57.81  '/></g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M109.20,57.81 L109.20,258.40 L424.19,258.40 M424.19,57.81 M109.20,57.81  '/></g>
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 	<g id="gnuplot_plot_1a" ><title>Balanced\naccuracy</title>
-<g fill="none" color="white" stroke="black" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="white" stroke="var(--ink)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(288.40,185.60)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="end">
+		<text>ipTM</text>
+	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<use xlink:href='#gpPt5' transform='translate(108.64,83.02) scale(4.95)' color='rgb(230, 159,   0)'/>
-	<use xlink:href='#gpPt5' transform='translate(220.64,109.97) scale(4.95)' color='rgb(230, 159,   0)'/>
-	<use xlink:href='#gpPt5' transform='translate(332.63,117.72) scale(4.95)' color='rgb(230, 159,   0)'/>
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<use xlink:href='#gpPt5' transform='translate(148.05,81.42) scale(6.60)' color='rgb(230, 159,   0)'/>
+	<use xlink:href='#gpPt5' transform='translate(253.05,106.66) scale(6.60)' color='rgb(230, 159,   0)'/>
+	<use xlink:href='#gpPt5' transform='translate(358.04,113.92) scale(6.60)' color='rgb(230, 159,   0)'/>
+	<use xlink:href='#gpPt5' transform='translate(311.20,180.40) scale(6.60)' color='rgb(230, 159,   0)'/>
 </g>
 	</g>
 	<g id="gnuplot_plot_2a" ><title>Balanced\naccuracy</title>
-<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<g transform="translate(385.83,20.61)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(288.40,212.00)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="end">
 		<text>TRA TCREmp</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<use xlink:href='#gpPt3' transform='translate(123.20,95.45) scale(4.95)' color='rgb(  0, 158, 115)'/>
-	<use xlink:href='#gpPt3' transform='translate(235.20,119.96) scale(4.95)' color='rgb(  0, 158, 115)'/>
-	<use xlink:href='#gpPt3' transform='translate(347.19,113.74) scale(4.95)' color='rgb(  0, 158, 115)'/>
-	<use xlink:href='#gpPt3' transform='translate(402.91,16.71) scale(4.95)' color='rgb(  0, 158, 115)'/>
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<use xlink:href='#gpPt3' transform='translate(161.70,93.06) scale(6.60)' color='rgb(  0, 158, 115)'/>
+	<use xlink:href='#gpPt3' transform='translate(266.70,116.01) scale(6.60)' color='rgb(  0, 158, 115)'/>
+	<use xlink:href='#gpPt3' transform='translate(371.69,110.19) scale(6.60)' color='rgb(  0, 158, 115)'/>
+	<use xlink:href='#gpPt3' transform='translate(311.20,206.80) scale(6.60)' color='rgb(  0, 158, 115)'/>
 </g>
 	</g>
 	<g id="gnuplot_plot_3a" ><title>Balanced\naccuracy</title>
-<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(288.40,238.40)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="end">
+		<text>Record score v3</text>
+	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<use xlink:href='#gpPt6' transform='translate(137.76,76.83) scale(4.95)' color='rgb(  0, 114, 178)'/>
-	<use xlink:href='#gpPt6' transform='translate(249.75,106.64) scale(4.95)' color='rgb(  0, 114, 178)'/>
-	<use xlink:href='#gpPt6' transform='translate(361.75,112.28) scale(4.95)' color='rgb(  0, 114, 178)'/>
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<use xlink:href='#gpPt6' transform='translate(175.35,75.62) scale(6.60)' color='var(--blue)'/>
+	<use xlink:href='#gpPt6' transform='translate(280.34,103.54) scale(6.60)' color='var(--blue)'/>
+	<use xlink:href='#gpPt6' transform='translate(385.34,108.82) scale(6.60)' color='var(--blue)'/>
+	<use xlink:href='#gpPt6' transform='translate(311.20,233.20) scale(6.60)' color='var(--blue)'/>
 </g>
 	</g>
-<g fill="none" color="white" stroke="rgb(  0, 114, 178)" stroke-width="2.00" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="white" stroke="var(--blue)" stroke-width="2.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="2.00" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="2.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="black" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="var(--ink)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M67.20,57.81 L67.20,272.00 L403.19,272.00 M403.19,57.81 M67.20,57.81  '/></g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M109.20,57.81 L109.20,258.40 L424.19,258.40 M424.19,57.81 M109.20,57.81  '/>	<g transform="translate(26.00,158.11) rotate(270.00)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="middle">
+		<text>Held-out performance</text>
+	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<g transform="translate(235.19,31.11)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+</g>
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(266.69,22.21)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="middle">
 		<text xml:space="preserve">a  GLC (193 interactions)</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="var(--ink)" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='rgb(221, 221, 221)' stroke-dasharray='2,4' class="gridline"  d='M487.20,272.00 L823.19,272.00  '/></g>
-<g fill="none" color="gray" stroke="rgb(221, 221, 221)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--grid)' stroke-dasharray='2,4' class="gridline"  d='M508.20,258.40 L823.19,258.40  '/></g>
+<g fill="none" color="gray" stroke="var(--grid)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M487.20,272.00 L478.20,272.00  '/>	<g transform="translate(469.81,275.90)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M508.20,258.40 L496.20,258.40  '/>	<g transform="translate(485.00,263.60)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="end">
 		<text> 0</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="var(--ink)" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='rgb(221, 221, 221)' stroke-dasharray='2,4' class="gridline"  d='M487.20,218.45 L823.19,218.45  '/></g>
-<g fill="none" color="gray" stroke="rgb(221, 221, 221)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--grid)' stroke-dasharray='2,4' class="gridline"  d='M508.20,208.25 L823.19,208.25  '/></g>
+<g fill="none" color="gray" stroke="var(--grid)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M487.20,218.45 L478.20,218.45  '/>	<g transform="translate(469.81,222.35)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M508.20,208.25 L496.20,208.25  '/>	<g transform="translate(485.00,213.45)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="end">
 		<text> 0.25</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="var(--ink)" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='rgb(221, 221, 221)' stroke-dasharray='2,4' class="gridline"  d='M487.20,164.90 L823.19,164.90  '/></g>
-<g fill="none" color="gray" stroke="rgb(221, 221, 221)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--grid)' stroke-dasharray='2,4' class="gridline"  d='M508.20,158.10 L823.19,158.10  '/></g>
+<g fill="none" color="gray" stroke="var(--grid)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M487.20,164.90 L478.20,164.90  '/>	<g transform="translate(469.81,168.80)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M508.20,158.10 L496.20,158.10  '/>	<g transform="translate(485.00,163.30)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="end">
 		<text> 0.5</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="var(--ink)" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='rgb(221, 221, 221)' stroke-dasharray='2,4' class="gridline"  d='M487.20,111.36 L823.19,111.36  '/></g>
-<g fill="none" color="gray" stroke="rgb(221, 221, 221)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--grid)' stroke-dasharray='2,4' class="gridline"  d='M508.20,107.96 L823.19,107.96  '/></g>
+<g fill="none" color="gray" stroke="var(--grid)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M487.20,111.36 L478.20,111.36  '/>	<g transform="translate(469.81,115.26)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M508.20,107.96 L496.20,107.96  '/>	<g transform="translate(485.00,113.16)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="end">
 		<text> 0.75</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="black" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="var(--ink)" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 <g fill="none" color="gray" stroke="currentColor" stroke-width="0.50" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='rgb(221, 221, 221)' stroke-dasharray='2,4' class="gridline"  d='M487.20,57.81 L823.19,57.81  '/></g>
-<g fill="none" color="gray" stroke="rgb(221, 221, 221)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--grid)' stroke-dasharray='2,4' class="gridline"  d='M508.20,57.81 L823.19,57.81  '/></g>
+<g fill="none" color="gray" stroke="var(--grid)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M487.20,57.81 L478.20,57.81  '/>	<g transform="translate(469.81,61.71)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="end">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M508.20,57.81 L496.20,57.81  '/>	<g transform="translate(485.00,63.01)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="end">
 		<text> 1</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M543.20,272.00 L543.20,281.00  '/>	<g transform="translate(543.20,302.90)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M560.70,258.40 L560.70,270.40  '/>	<g transform="translate(560.70,299.60)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="middle">
 		<text>AP</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M655.20,272.00 L655.20,281.00  '/>	<g transform="translate(655.20,302.90)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M665.70,258.40 L665.70,270.40  '/>	<g transform="translate(665.70,299.60)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="middle">
 		<text>Accuracy</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M767.19,272.00 L767.19,281.00  '/>	<g transform="translate(767.19,302.90)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M770.69,258.40 L770.69,270.40  '/>	<g transform="translate(770.69,299.60)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="middle">
 		<text>Balanced</text>
 	</g>
-	<g transform="translate(767.19,320.90)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+	<g transform="translate(770.69,323.60)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="middle">
 		<text>accuracy</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M487.20,57.81 L487.20,272.00 L823.19,272.00 M823.19,57.81 M487.20,57.81  '/></g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M508.20,57.81 L508.20,258.40 L823.19,258.40 M823.19,57.81 M508.20,57.81  '/></g>
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 	<g id="gnuplot_plot_1b" ><title>Balanced\naccuracy</title>
-<g fill="none" color="white" stroke="black" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="white" stroke="var(--ink)" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<use xlink:href='#gpPt5' transform='translate(528.64,125.79) scale(4.95)' color='rgb(230, 159,   0)'/>
-	<use xlink:href='#gpPt5' transform='translate(640.64,119.37) scale(4.95)' color='rgb(230, 159,   0)'/>
-	<use xlink:href='#gpPt5' transform='translate(752.63,124.10) scale(4.95)' color='rgb(230, 159,   0)'/>
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<use xlink:href='#gpPt5' transform='translate(547.05,121.48) scale(6.60)' color='rgb(230, 159,   0)'/>
+	<use xlink:href='#gpPt5' transform='translate(652.05,115.46) scale(6.60)' color='rgb(230, 159,   0)'/>
+	<use xlink:href='#gpPt5' transform='translate(757.04,119.89) scale(6.60)' color='rgb(230, 159,   0)'/>
 </g>
 	</g>
 	<g id="gnuplot_plot_2b" ><title>Balanced\naccuracy</title>
-<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<use xlink:href='#gpPt3' transform='translate(543.20,108.62) scale(4.95)' color='rgb(  0, 158, 115)'/>
-	<use xlink:href='#gpPt3' transform='translate(655.20,87.83) scale(4.95)' color='rgb(  0, 158, 115)'/>
-	<use xlink:href='#gpPt3' transform='translate(767.19,90.31) scale(4.95)' color='rgb(  0, 158, 115)'/>
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<use xlink:href='#gpPt3' transform='translate(560.70,105.39) scale(6.60)' color='rgb(  0, 158, 115)'/>
+	<use xlink:href='#gpPt3' transform='translate(665.70,85.92) scale(6.60)' color='rgb(  0, 158, 115)'/>
+	<use xlink:href='#gpPt3' transform='translate(770.69,88.25) scale(6.60)' color='rgb(  0, 158, 115)'/>
 </g>
 	</g>
 	<g id="gnuplot_plot_3b" ><title>Balanced\naccuracy</title>
-<g fill="none" color="black" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
-	<use xlink:href='#gpPt6' transform='translate(557.76,85.86) scale(4.95)' color='rgb(  0, 114, 178)'/>
-	<use xlink:href='#gpPt6' transform='translate(669.75,85.28) scale(4.95)' color='rgb(  0, 114, 178)'/>
-	<use xlink:href='#gpPt6' transform='translate(781.75,85.08) scale(4.95)' color='rgb(  0, 114, 178)'/>
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="1.00" stroke-linecap="butt" stroke-linejoin="miter">
+	<use xlink:href='#gpPt6' transform='translate(574.35,84.08) scale(6.60)' color='var(--blue)'/>
+	<use xlink:href='#gpPt6' transform='translate(679.34,83.54) scale(6.60)' color='var(--blue)'/>
+	<use xlink:href='#gpPt6' transform='translate(784.34,83.35) scale(6.60)' color='var(--blue)'/>
 </g>
 	</g>
-<g fill="none" color="white" stroke="rgb(  0, 114, 178)" stroke-width="2.00" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="white" stroke="var(--blue)" stroke-width="2.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="2.00" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="2.00" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="black" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="var(--ink)" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<path stroke='black'  d='M487.20,57.81 L487.20,272.00 L823.19,272.00 M823.19,57.81 M487.20,57.81  '/></g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
-	<g transform="translate(655.19,31.11)" stroke="none" fill="black" font-family="Arial" font-size="12.00"  text-anchor="middle">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<path stroke='var(--ink)'  d='M508.20,57.81 L508.20,258.40 L823.19,258.40 M823.19,57.81 M508.20,57.81  '/></g>
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+	<g transform="translate(665.69,22.21)" stroke="none" fill="var(--ink)" font-family="Arial" font-size="16.00"  text-anchor="middle">
 		<text xml:space="preserve">b  YLQ (421 interactions)</text>
 	</g>
 </g>
-<g fill="none" color="black" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
+<g fill="none" color="var(--ink)" stroke="currentColor" stroke-width="0.70" stroke-linecap="butt" stroke-linejoin="miter">
 </g>
 </g>
 </svg>

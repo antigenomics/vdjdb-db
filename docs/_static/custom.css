@@ -1,17 +1,9 @@
-/* arda docs - namespaced (proj-) styles over pydata-sphinx-theme variables. Shared house
-   style with seqtree and mhcmatch: hero, card grid, feature grid, full-tree sidebar. */
+/* VDJdb task navigation over the shared PyData theme. */
 
 .proj-intro {
-  display: flex;
-  gap: 1.5rem;
-  align-items: center;
-  margin: 1rem 0 2rem;
-}
-.proj-intro__eyebrow {
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
-  color: var(--pst-color-primary);
-  margin: 0 0 0.4rem;
+  border-left: 3px solid var(--pst-color-primary);
+  padding-left: 1.25rem;
+  margin: 1.5rem 0 2rem;
 }
 .proj-intro__lead {
   font-size: 1.1rem;
@@ -24,9 +16,7 @@
 
 .proj-card-grid {
   display: grid;
-  /* auto-fit, not a fixed column count: five cards in `repeat(4, 1fr)` left the fifth
-     stranded alone on a second row. */
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
   margin: 1.5rem 0;
 }
@@ -44,35 +34,22 @@
   padding: 1rem 1.1rem;
   text-decoration: none;
   color: var(--pst-color-text-base);
-  transition: border-color 0.15s ease, transform 0.15s ease;
+  transition: border-color 0.15s ease;
 }
 .proj-card:hover,
 .proj-card:focus {
   border-color: var(--pst-color-primary);
-  transform: translateY(-2px);
+  outline: 2px solid var(--pst-color-primary);
+  outline-offset: 2px;
 }
 .proj-card h3,
 .proj-card:visited h3 { margin: 0 0 0.3rem; font-size: 1rem; color: var(--pst-color-text-base); }
 .proj-card p,
 .proj-card:visited p { margin: 0; font-size: 0.9rem; color: var(--pst-color-text-muted); }
 
-.proj-feature-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.25rem;
-  margin: 2rem 0;
-}
-.proj-feature {
-  border-left: 3px solid var(--pst-color-primary);
-  padding: 0.2rem 0 0.2rem 1rem;
-}
-.proj-feature h3 { margin: 0 0 0.4rem; font-size: 1.05rem; }
-.proj-feature p { margin: 0; line-height: 1.55; }
 
 @media (max-width: 900px) {
-  .proj-intro { flex-direction: column; align-items: flex-start; }
   .proj-card-grid { grid-template-columns: 1fr 1fr; }
-  .proj-feature-grid { grid-template-columns: 1fr; }
 }
 
 /* Left sidebar: the full site tree (see docs/_templates/site-nav.html). The stock component
@@ -98,8 +75,19 @@
 .bd-links--full a:hover { color: var(--pst-color-primary); }
 .bd-links--full li.current > a { color: var(--pst-color-primary); font-weight: 600; }
 
-/* arda-specific */
-.arda-lead {
-  font-size: 1.1rem;
-  color: var(--pst-color-text-base);
+/* External SVGs use this inherited scheme for their own media queries. */
+html[data-theme="light"] .bd-article img, html[data-theme="light"] .proj-dashboard { color-scheme: light; }
+html[data-theme="dark"] .bd-article img, html[data-theme="dark"] .proj-dashboard { color-scheme: dark; }
+.bd-article img { max-width: 100%; height: auto; }
+.proj-dashboard { width: 100%; height: 70vh; border: 1px solid var(--pst-color-border); border-radius: 4px; }
+@media (max-width: 540px) {
+  .proj-card-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .proj-card { transition: none; }
+}
+/* PyData brightens image backgrounds by default; these SVGs already theme themselves. */
+html[data-theme] .bd-article img[src$=".svg"] {
+  background: transparent;
+  filter: none;
 }

@@ -33,7 +33,7 @@ knitr::opts_chunk$set(echo = TRUE,
                       # Pinned, or the visual fingerprint is noise: the shipped PNGs decode to
                       # 1344x960, 2304x1920, 1152x1920 and 1536x1536, i.e. dpi 96 at retina 2.
                       # Cairo explicitly -- ragg renders fonts differently and would break parity.
-                      dev = "png", dev.args = list(type = "cairo"),
+                      dev = "png", dev.args = list(type = "cairo", bg = "transparent"),
                       dpi = 96, fig.retina = 2)
 # Every deprecation is reported every time, not once per session, so the upgrade that introduces
 # the next one shows it in the render log -- this is what would have surfaced `guide = F`, `size =`
@@ -84,6 +84,14 @@ library(stringr)
 library(gridExtra)
 library(cowplot)
 select = dplyr::select
+
+# Transparent presentation backgrounds; values, palettes and panel geometry are unchanged.
+theme_classic <- function(...) {
+  ggplot2::theme_classic(...) + theme(
+    plot.background = element_rect(fill = "transparent", colour = NA),
+    panel.background = element_rect(fill = "transparent", colour = NA),
+    legend.background = element_rect(fill = "transparent", colour = NA))
+}
 
 df = fread(file.path(params$legacy, "vdjdb.slim.txt"), header=T, sep="\t")
 ```

@@ -1,3 +1,7 @@
+---
+orphan: true
+---
+
 # Build history
 
 These are historical implementation notes from September 2026, retained for maintainers.

@@ -1,5 +1,5 @@
 digraph scoring {
-  graph [rankdir=TB, bgcolor="white", pad=0.08, nodesep=0.22, ranksep=0.32];
+  graph [rankdir=TB, bgcolor="transparent", pad=0.08, nodesep=0.22, ranksep=0.32];
   node [shape=box, style=rounded, fontname="Helvetica", fontsize=11,
         color="#555555", penwidth=0.8, margin="0.12,0.10"];
   edge [color="#666666", arrowsize=0.6];

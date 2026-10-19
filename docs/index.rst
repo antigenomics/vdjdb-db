@@ -2,27 +2,62 @@ VDJdb documentation
 ===================
 
 VDJdb records published observations of T-cell receptors recognising peptide-MHC complexes.
-Use the database online, download a release, or contribute records from a publication.
+
+.. raw:: html
+
+   <div class="proj-intro">
+     <p class="proj-intro__lead">From a published observation to a traceable receptor:pMHC record.
+     Sequences, restriction, experimental evidence and source reports stay linked.</p>
+     <p class="proj-intro__links"><a href="https://vdjdb.com">Search VDJdb</a>
+     <span aria-hidden="true">·</span>
+     <a href="https://github.com/antigenomics/vdjdb-db/releases">Download a release</a></p>
+   </div>
+
+Explore and use the data
+------------------------
 
 .. raw:: html
 
    <div class="proj-card-grid">
-     <a class="proj-card" href="getting-started.html">
-       <h3>Tutorials</h3><p>Download the database and inspect your first records.</p>
-     </a>
-     <a class="proj-card" href="submission.html">
-       <h3>How-to guides</h3><p>Submit a paper, review a chunk, or build a release.</p>
-     </a>
-     <a class="proj-card" href="standards/columns.html">
-       <h3>Reference</h3><p>Look up file formats, columns, identifiers and scoring rules.</p>
-     </a>
-     <a class="proj-card" href="denoising.html">
-       <h3>Explanation</h3><p>Understand sequence repair, evidence and motif annotation.</p>
-     </a>
+     <a class="proj-card" href="getting-started.html"><h3>First records</h3>
+       <p>Download a release and read observations with Python.</p></a>
+     <a class="proj-card" href="outputs.html"><h3>Choose a format</h3>
+       <p>Compare primary tables, legacy files and AIRR exports.</p></a>
+     <a class="proj-card" href="dashboard.html"><h3>Database overview</h3>
+       <p>Read current counts, publication growth and repertoire summaries.</p></a>
    </div>
 
-Choose a section by what you need: tutorials teach through a worked example, how-to guides
-complete a task, reference pages define the data, and explanations describe the reasoning.
+Interpret a record
+------------------
+
+.. raw:: html
+
+   <div class="proj-card-grid">
+     <a class="proj-card" href="standards/columns.html"><h3>Columns and identifiers</h3>
+       <p>Look up fields, controlled vocabularies and linked tables.</p></a>
+     <a class="proj-card" href="standards/record-scoring-v3.html"><h3>Confidence and evidence</h3>
+       <p>Understand v3 forecasts, missing evidence and validation.</p></a>
+     <a class="proj-card" href="denoising.html"><h3>Sequence motifs</h3>
+       <p>Follow TCRNET and TCREmp annotations and their quality criteria.</p></a>
+   </div>
+
+Contribute and maintain
+-----------------------
+
+.. raw:: html
+
+   <div class="proj-card-grid">
+     <a class="proj-card" href="submission.html"><h3>Submit a publication</h3>
+       <p>Prepare a chunk, preserve source observations and review QC.</p></a>
+     <a class="proj-card" href="tenx-dextramer.html"><h3>Process a 10x assay</h3>
+       <p>Turn contigs and reagent counts into reviewed specificity calls.</p></a>
+     <a class="proj-card" href="builds.html"><h3>Build and release</h3>
+       <p>Assemble the database, verify outputs and prepare a release.</p></a>
+   </div>
+
+Start with :doc:`standards/terminology` for the distinction between peptide provenance and
+recognition of a peptide-MHC complex. The :doc:`standards/confidence-score` page defines the
+legacy 0-3 score; :doc:`standards/record-scoring-v3` describes the separate v3 forecasts.
 
 .. toctree::
    :hidden:
@@ -61,4 +96,3 @@ complete a task, reference pages define the data, and explanations describe the 
    denoising
    clustering
    dashboard
-   builds/library-pipeline-migration
