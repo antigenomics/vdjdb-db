@@ -135,7 +135,7 @@ def test_soft_motif_membership_is_a_mixture_with_unchanged_hard_endpoints():
             predict(model, [{'a_tcrnet': value}])
 
 
-def test_record_score_requires_pair_or_both_chain_support_without_changing_marginals():
+def test_record_score_retains_forecast_and_describes_support_without_changing_marginals():
     import polars as pl
 
     from vdjdb.score.bayes import predict_evidence, score_records
@@ -152,8 +152,38 @@ def test_record_score_requires_pair_or_both_chain_support_without_changing_margi
     assert [z['pair_supported'] for z in scored] == [False, True, True, True, False, True]
     for before, after in zip(old, scored, strict=True):
         assert {n: after[n] for n in before} == before
-        assert after['record_score'] == (before['paired'] if after['pair_supported'] else 0.)
-        assert after['positive'] == (after['record_score'] >= .5)
+        assert after['record_score'] == before['paired']
+        assert after['paired_lower'] <= after['record_score'] <= after['paired_upper']
+        assert after['positive'] == (True if after['paired_lower'] >= .5 else
+                                     False if after['paired_upper'] < .5 else None)
     unknown = score_records(model, pl.DataFrame({'id': ['x', 'y']}))
-    assert len(unknown) == 2 and all(z['record_score'] == 0 and not z['positive'] for z in unknown)
+    assert len(unknown) == 2 and all(z['record_score'] == z['paired'] and
+                                   z['positive'] is None for z in unknown)
     assert score_records(model, pl.DataFrame({'id': []})) == []
+
+
+def test_missing_partner_retains_prediction_and_exposes_cross_threshold_range():
+    import polars as pl
+
+    from vdjdb.score.bayes import score_records
+
+    rows, labels = [], []
+    for rep in range(30):
+        for a in (0, 1):
+            for b in (0, 1):
+                y = int(a + b + (rep % 3 == 0) >= 2)
+                rows.append({'a_tcrnet': str(a), 'b_tcrnet': str(b),
+                             'iptm': 'high' if y else 'low'})
+                labels.append(y)
+    model = fit(rows, labels, structure='naive')
+    evidence = pl.DataFrame({'a_tcrnet': [1, 1], 'b_tcrnet': [None, 1],
+                             'iptm': [None, .9]})
+    z = score_records(model, evidence)
+    assert z[0]['record_score'] == z[0]['paired'] > .5
+    assert z[0]['paired_lower'] < .5 < z[0]['paired_upper']
+    assert z[0]['positive'] is None
+    assert z[1]['paired_lower'] == z[1]['paired'] == z[1]['paired_upper']
+    assert z[1]['positive'] is True
+    assert not z[0]['direct_pair_evidence'] and z[1]['direct_pair_evidence']
+    assert z[0]['paired_lower'] <= min(z[0]['TRA'], z[0]['TRB'])
+    assert z[0]['paired_upper'] >= max(z[0]['TRA'], z[0]['TRB'])

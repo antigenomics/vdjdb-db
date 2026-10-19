@@ -142,18 +142,30 @@ feature columns are unobserved; extra identity columns are not predictors. The m
 does not take an epitope name as an input. Keep the input evidence definitions identical
 to training; application to an unmeasured epitope does not establish its validation accuracy.
 
-`score_records(model, numeric_frame)` adds `record_score`, `pair_supported` and `positive`
-to those probabilities. Acceptance requires evidence concerning both chains, or direct
-pair evidence: an exact positive-reference annotation (`legacy_score` present), a positive
-pair donor count, or a matching predicted structure (`iptm` present). Chain support means
-a positive publication count or confirmed membership in either motif method. Without
-direct record evidence, a missing partner is unsupported. The score equals `paired` when this requirement is met and zero
-otherwise. The single acceptance threshold is 0.5 for every record. A withheld call means
-insufficient pair evidence; zero here does not assert zero binding probability. The fitted
-network and its TRA/TRB probabilities are unchanged. Caller-supplied numeric features
-must follow the identity and linkage rules above. Direct evidence for a single-chain
-record cannot be reused as exact-pair evidence for that chain with a new partner; an
-unrelated model cannot supply ipTM.
+`score_records(model, numeric_frame)` retains all three forecasts and adds
+`record_score` (equal to `paired`), `paired_lower`, `paired_upper`, `pair_supported`,
+`direct_pair_evidence` and nullable `positive`. Missing pair evidence never forces the score to zero.
+The existing BN already combines the chain features jointly; TRA and TRB are
+correlated views of the same assay endpoint, so do not multiply their probabilities.
+
+The range varies missing chain features and missing ipTM over their observed training
+states, including every joint completion. Unreported metadata stays marginalized and
+the nominal forecast is included. Without direct pair evidence, the range also includes
+the TRA-only and TRB-only forecasts, requiring their agreement for a confident call.
+States absent from training supply no fitted evidence
+and are treated as missing, as in ordinary prediction. This is a sensitivity envelope,
+not a posterior credible interval or calibrated coverage guarantee. It identifies
+forecasts that depend on unavailable chain or structure evidence. It can be broad
+without an ipTM or a supported partner, while keeping the paired point forecast usable.
+
+One threshold, 0.5, applies throughout. `positive` is true if the lower limit is at least
+0.5, false if the upper limit is below 0.5, and unknown otherwise. Report unknown calls
+and their count; do not turn them into negatives or drop them from evaluation.
+`pair_supported` describes positive support for both chains or direct pair evidence
+(an exact-reference annotation, donor support or matching predicted structure). It no
+longer gates the forecast or forces the decision. The fitted network and TRA/TRB probabilities
+are unchanged. Direct evidence for a single-chain record cannot be reused as exact-pair
+evidence for that chain with a new partner; an unrelated model cannot supply ipTM.
 
 Motif inputs to `predict`, `predict_marginals` and numeric `predict_evidence` may also be
 probabilities on [0,1]. A supplied membership probability `q` mixes the predictions
@@ -161,7 +173,7 @@ conditional on nonmembership and membership, with weights `1-q` and `q`. Values 
 recover the hard predictions; missing remains marginalized. With several uncertain motif
 inputs, the mixing distribution assumes their uncertainty is independent. This assumption
 concerns the supplied memberships; the fitted BN still models its learned dependencies.
-A fractional membership alone does not satisfy the record acceptance requirement.
+A supplied soft membership is retained as a mixture while unavailable evidence is varied.
 
 For example, an uncertain TRA membership can be evaluated without refitting:
 

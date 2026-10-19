@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Mapping, Sequence
+from itertools import product
 
 from .evidence import COUNT_FEATURES, FEATURES, categorical
 
@@ -176,12 +177,8 @@ def predict_marginals(artifact: dict, rows: Sequence[Mapping[str, str | float | 
             for i in range(len(rows))]
 
 
-def predict_evidence(artifact: dict, frame) -> list[dict[str, float]]:
-    """Score numeric evidence using the saved grades and one network for all three views.
-
-    Missing feature columns are unobserved. Extra columns, such as receptor identifiers,
-    are preserved by the caller and are not predictors. No epitope name enters inference.
-    """
+def _numeric_rows(artifact: dict, frame) -> list[dict]:
+    """Encode numeric evidence consistently for forecasts and missing-evidence ranges."""
     motifs = [name for name in FEATURES if name.endswith(('tcrnet', 'tcremp'))
               and name in frame.columns]
     names = [name for name in FEATURES if name in frame.columns and name not in motifs]
@@ -192,20 +189,72 @@ def predict_evidence(artifact: dict, frame) -> list[dict[str, float]]:
 
         membership = frame.select(pl.col(motifs).cast(pl.Float64).fill_nan(None)).to_dicts()
         rows = [{**row, **soft} for row, soft in zip(rows, membership, strict=True)]
-    return predict_marginals(artifact, rows)
+    return rows
 
 
-def score_records(artifact: dict, frame) -> list[dict[str, float | bool]]:
-    """Record acceptance score, retaining the unchanged assay and chain probabilities.
+def predict_evidence(artifact: dict, frame) -> list[dict[str, float]]:
+    """Score numeric evidence using saved grades and one network for all three views.
 
-    Positive support must concern both chains, or the exact pair (legacy annotation,
-    donor support or a matching predicted structure). Unsupported pairs score zero;
-    this is an evidence requirement, not a claim of zero binding probability.
-    Use one global threshold, 0.5. Missing evidence cannot establish pair support.
+    Missing columns are unobserved; extra identity columns are not predictors.
+    """
+    return predict_marginals(artifact, _numeric_rows(artifact, frame))
+
+
+def _paired_ranges(artifact: dict, rows: list[dict]) -> list[tuple[float, float]]:
+    """Sensitivity to missing chain/ipTM evidence, not statistical confidence limits.
+
+    Complete missing chain features and ipTM using states observed in training. Metadata
+    remains marginalized. Include the nominal forecast, since explicit unreported states
+    in the fitted network can put it outside the observed-state completion envelope.
+    """
+    patterns = [tuple(row.get(name) for name in FEATURES) for row in rows]
+    unique = dict(zip(patterns, rows, strict=True))
+    expanded, sizes = [], []
+    for row in unique.values():
+        missing = {}
+        for name in FEATURES:
+            if not (name.startswith(('a_', 'b_')) or name == 'iptm'):
+                continue
+            support = artifact.get('observed_states', {}).get(name)
+            value = row.get(name)
+            if isinstance(value, (int, float)) and 0 < value < 1:
+                continue
+            state = str(int(value)) if isinstance(value, (int, float)) else value
+            if state not in (None, '', '?') and (support is None or support.get(state, 0) > 0):
+                continue
+            choices = [state for state in STATES[name] if state != '?' and
+                       (support is None or support.get(state, 0) > 0)]
+            if choices:
+                missing[name] = choices
+        completions = [dict(row)]
+        if missing:
+            completions.extend({**row, **dict(zip(missing, values, strict=True))}
+                               for values in product(*missing.values()))
+        sizes.append(len(completions))
+        expanded.extend(completions)
+    values = predict(artifact, expanded)
+    bounds, offset = {}, 0
+    for pattern, size in zip(unique, sizes, strict=True):
+        probabilities = values[offset:offset + size]
+        bounds[pattern] = (min(probabilities), max(probabilities))
+        offset += size
+    return [bounds[pattern] for pattern in patterns]
+
+
+def score_records(artifact: dict, frame) -> list[dict[str, float | bool | None]]:
+    """TRA/TRB/paired forecasts and a range for missing chain or structural evidence.
+
+    Record score retains the paired forecast even without direct pair evidence.
+    Without direct pair evidence, include the chain-only forecasts in the range too.
+    A call is positive only when the range is entirely >=0.5, negative when entirely
+    <0.5, and otherwise unknown (None). This range is not a credible interval.
+    Pair support is descriptive and never forces a score to zero.
     """
     import polars as pl
 
-    probabilities = predict_evidence(artifact, frame)
+    rows = _numeric_rows(artifact, frame)
+    probabilities = predict_marginals(artifact, rows)
+    ranges = _paired_ranges(artifact, rows)
     def value(name):
         return pl.col(name).cast(pl.Float64).fill_nan(None) if name in frame.columns else pl.lit(None)
 
@@ -214,9 +263,15 @@ def score_records(artifact: dict, frame) -> list[dict[str, float | bool]]:
               for prefix in ('a_', 'b_')]
     direct = (value('legacy_score').is_not_null() | (value('donors') > 0) |
               value('iptm').is_not_null())
-    supported = frame.with_columns((direct | (chains[0] & chains[1])).fill_null(False)
-                                   .alias('_pair_supported'))['_pair_supported']
-    return [{**p, 'pair_supported': bool(support),
-             'record_score': p['paired'] if support else 0.,
-             'positive': bool(support and p['paired'] >= .5)}
-            for p, support in zip(probabilities, supported, strict=True)]
+    support = frame.with_columns((direct | (chains[0] & chains[1])).fill_null(False)
+                                 .alias('_pair_supported'), direct.fill_null(False).alias('_direct_pair'))
+    result = []
+    for p, supported, paired, (lower, upper) in zip(
+            probabilities, support['_pair_supported'], support['_direct_pair'], ranges, strict=True):
+        if not paired:
+            lower = min(lower, p['TRA'], p['TRB'])
+            upper = max(upper, p['TRA'], p['TRB'])
+        result.append({**p, 'pair_supported': bool(supported), 'direct_pair_evidence': bool(paired),
+                       'record_score': p['paired'], 'paired_lower': lower, 'paired_upper': upper,
+                       'positive': True if lower >= .5 else False if upper < .5 else None})
+    return result
