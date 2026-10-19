@@ -17,7 +17,7 @@ import polars as pl
 
 from ..emit.vdjdb3 import read_table
 
-REVISION = '05aaa3241cb4c2fb327f55d794f3dbf118956c94'
+REVISION = 'eb3dd781b8dbeaa4ce347e3761f7bdb1be44cb57'
 BASE_URL = f'https://huggingface.co/datasets/isalgo/vdjdb_structure_models/resolve/{REVISION}/'
 
 
@@ -174,18 +174,16 @@ def check_supplemental(root: Path, records: pl.DataFrame, chains: pl.DataFrame,
                 'record_id', pl.col(column).alias('current_' + side)),
                 on='record_id', how='left', validate='1:1')
         states.append(frame.with_columns(pl.lit(state).alias('sequence_state')))
-    eligible = models.filter((pl.col('pairing_status') == 'reported_assignment') &
-                             (pl.col('source_disposition') == 'predicted'))
     proof = links.join(pl.concat(states), on=['record_id', 'sequence_state'],
-                       how='left', validate='m:1').join(eligible, on='structure_id', validate='m:m')
+                       how='left', validate='m:1').join(models, on='structure_id', validate='m:m')
     def protein(name):
         return pl.col(name).str.replace(r'^H-2-?', 'H2-').str.replace(
             r'^(HLA-[A-Z0-9]+\*\d+:\d+)(?::\d+)*$', '${1}')
 
     valid = pl.all_horizontal([
         pl.col('current_alpha').fill_null('') != '', pl.col('current_beta').fill_null('') != '',
-        pl.col('coordinate_alpha').str.contains(pl.col('current_alpha'), literal=True),
-        pl.col('coordinate_beta').str.contains(pl.col('current_beta'), literal=True),
+        pl.col('coordinate_alpha').str.count_matches(pl.col('current_alpha'), literal=True) == 1,
+        pl.col('coordinate_beta').str.count_matches(pl.col('current_beta'), literal=True) == 1,
         pl.col('coordinate_peptide') == pl.col('current_antigen.epitope'),
         *[pl.col(name) == pl.col('current_' + name) for name in
           ['species', 'antigen.epitope', 'mhc.class']],
