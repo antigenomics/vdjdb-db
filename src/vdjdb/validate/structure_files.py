@@ -17,7 +17,7 @@ import polars as pl
 
 from ..emit.vdjdb3 import read_table
 
-REVISION = '3ac8086ad3323acc38498e97ba0c2786545f5f35'
+REVISION = '05aaa3241cb4c2fb327f55d794f3dbf118956c94'
 BASE_URL = f'https://huggingface.co/datasets/isalgo/vdjdb_structure_models/resolve/{REVISION}/'
 
 

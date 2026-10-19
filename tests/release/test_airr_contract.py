@@ -19,7 +19,7 @@ from vdjdb.emit.vdjdb3 import read_tables
 pytestmark = pytest.mark.release
 
 #: Chains the legacy build drops: the ones whose chain carried a CDR3 with no V or J (it drops the
-#: record whole, both chains), plus 34 D-only chains with no CDR3 at all.
+#: record whole, both chains), excluding partners without their own junction.
 #:
 #: **Both numbers falling is the outcome to want**, and they have fallen twice. The tables path always
 #: carried these records; what changes is that legacy carries them too.
@@ -65,7 +65,8 @@ pytestmark = pytest.mark.release
 # #1362 recovers the primary CMV#1 J call, admitting one additional legacy observation.
 # PDB9GV6 adds one record and two chains with unreported V/J calls (#1133).
 # Tables and AIRR retain them; the unchanged legacy filter excludes them.
-LEGACY_DROPS_CHAINS = 2580
+# #1371 removes34 D-only partners from definitive chains; sequence-bearing records remain.
+LEGACY_DROPS_CHAINS = 2546
 LEGACY_DROPS_RECORDS = 1756
 
 

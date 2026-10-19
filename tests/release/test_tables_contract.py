@@ -84,7 +84,8 @@ pytestmark = pytest.mark.release
 # completed restriction duplicates under the existing within-publication rule.
 # PMID40154610 / PDB9GV6 adds one paired structural binding observation (#1133).
 # #1369 restores 7107 source-distinct library constructs after recovering omitted template labels.
-EXPECTED_RECORDS = 315_933
+# #1371 consolidates13 source projections and restores one distinct beta-only clone.
+EXPECTED_RECORDS = 315_921
 
 
 @pytest.fixture(scope="module")
@@ -112,6 +113,7 @@ def test_record_id_is_a_key_and_there_is_one_per_curated_line(tables):
 def test_chains_are_keyed_on_record_and_gene_and_every_one_has_a_record(tables):
     chains, records = tables["chains"], tables["records"]
     assert chains.select("record_id", "gene").n_unique() == chains.height
+    assert chains.filter(pl.col("cdr3") == "").is_empty(), "every chain needs its own junction"
     assert set(chains["gene"].unique()) == {"TRA", "TRB"}
     assert chains.join(records.select("record_id"), on="record_id", how="anti").is_empty()
 
