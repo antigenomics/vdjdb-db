@@ -1,3 +1,7 @@
+---
+orphan: true
+---
+
 # Build history
 
 These are historical implementation notes from September 2026, retained for maintainers.
@@ -61,7 +65,7 @@ explain is present with nulls - never dropped, never an exception. Deduplicate t
 writes it to `out/reports/anchors.tsv`; 261 of 1,037 flagged chains carry a germline-supported repair
 and every one ships unrepaired. `cdr3_repaired` is the repair, already gated: measured over all
 187,488 keys of the 2026-06-03 release, arda agrees with that release's shipped junction on
-**99.8352 %**, reproduces 4,331 of its 4,499 repairs, and ships **677** non-canonical junctions
+**99.8 %**, reproduces 4,331 of its 4,499 repairs, and ships **677** non-canonical junctions
 against the release's 715. Applying `cdr3_repaired` is not the ungated "apply the proposal" that
 #711 warns against - the 2,842 rewrites the release never ships are down to 141, of which 35 touch an
 already-canonical junction.

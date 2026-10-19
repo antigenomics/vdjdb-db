@@ -1,5 +1,5 @@
 digraph dcode_method {
-  graph [rankdir=TB, bgcolor="white", pad="0.15", ranksep="0.28"];
+  graph [rankdir=TB, bgcolor="transparent", pad="0.15", ranksep="0.28"];
   node [shape=box, style="rounded,filled", fillcolor="#f4f6f8", color="#465362", fontname="Arial", fontsize=12, margin="0.15,0.08"];
   edge [color="#465362", arrowsize=0.7];
   input [label="One donor: productive contigs + numeric reagent UMI matrix\nKey cells by donor and barcode; validate counts and joins"];
