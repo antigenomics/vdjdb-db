@@ -118,3 +118,26 @@ accepts two ordered cutoffs for the three ipTM grades; the defaults remain `(0.5
 Store any selected cutoffs with the fitted model and use the same encoding at inference.
 Choose smoothing, structure and cutoffs inside training groups; assess the selected
 procedure on held-out groups, including inputs with missing structural or motif evidence.
+
+`equivalent_sample_size` also accepts a map with every feature name and `validated` as
+keys. This permits stronger smoothing of one sparse conditional table while retaining
+the other priors. If ipTM is a leaf, changing only its conditional table leaves every
+prediction without observed ipTM unchanged: marginalizing that table sums it to one.
+The supplied model must retain its grade boundaries and all fitted tables together;
+paired and chain-only predictions use that same network.
+
+`structure="tan_leaf"` learns the nonstructural tree first and attaches ipTM to the
+feature with greatest conditional mutual information given validation. Lexical ties
+are deterministic. This uses at most seventeen edges while preventing structural grading
+from changing the remaining graph. ipTM has no children, so missing structural evidence
+is marginalized without altering the nonstructural network.
+
+`structure="tan_independent_iptm"` removes the additional feature parent of ipTM.
+It retains the nonstructural dependence tree, with at most sixteen edges, and models
+structural evidence as conditionally independent of those features given validation.
+
+For deployment, `predict_evidence(model, numeric_frame)` uses the saved `iptm_bounds`
+and returns paired, TRA and TRB probabilities from that one fitted network. Omitted
+feature columns are unobserved; extra identity columns are not predictors. The model
+does not take an epitope name as an input. Keep the input evidence definitions identical
+to training; application to an unmeasured epitope does not establish its validation accuracy.

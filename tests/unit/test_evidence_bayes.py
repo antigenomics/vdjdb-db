@@ -54,3 +54,58 @@ def test_unpredicted_structure_is_marginalized_in_observed_chain_context():
         ])
         assert scores[:3] == pytest.approx([scores[0]] * 3)
         assert scores[3] > scores[0]
+
+
+def test_leaf_smoothing_preserves_predictions_without_leaf_evidence():
+    from vdjdb.score.evidence import FEATURES
+
+    rows = [{'a_studies': str(i % 2), 'iptm': 'high' if i % 3 else 'low'}
+            for i in range(36)]
+    labels = [i % 2 for i in range(36)]
+    sizes = {name: 10. for name in [*FEATURES, 'validated']}
+    sizes['iptm'] = 50.
+    baseline = fit(rows, labels, structure='naive')
+    refined = fit(rows, labels, structure='naive', equivalent_sample_size=sizes)
+    queries = [{}, {'a_studies': '0'}, {'a_studies': '1'}]
+    assert predict(refined, queries) == pytest.approx(predict(baseline, queries))
+    assert refined['edges'] == baseline['edges']
+    for invalid in [{'iptm': 50.}, {**sizes, 'iptm': float('nan')}]:
+        with pytest.raises(ValueError):
+            fit(rows, labels, equivalent_sample_size=invalid)
+
+
+def test_structural_leaf_keeps_backbone_independent_of_grading():
+    rows = [{'a_studies': str(i % 2), 'b_tcrnet': str(int(i % 3 == 0)),
+             'iptm': 'high' if i % 4 else 'low'} for i in range(48)]
+    labels = [i % 2 for i in range(48)]
+    original = fit(rows, labels, structure='tan_leaf')
+    regraded = fit([{**row, 'iptm': 'mid' if i % 3 else 'low'}
+                    for i, row in enumerate(rows)], labels, structure='tan_leaf')
+    assert len(original['edges']) == len(regraded['edges']) <= 17
+    assert not any(parent == 'iptm' for parent, _ in original['edges'])
+    assert [e for e in original['edges'] if e[1] != 'iptm'] == [
+        e for e in regraded['edges'] if e[1] != 'iptm']
+    assert predict(original, [{'a_studies': '1'}, {'b_tcrnet': '0'}]) == pytest.approx(
+        predict(regraded, [{'a_studies': '1'}, {'b_tcrnet': '0'}]))
+
+
+def test_independent_structure_leaf_has_only_class_parent():
+    rows = [{'a_studies': str(i % 2), 'iptm': 'high' if i % 3 else 'low'}
+            for i in range(36)]
+    model = fit(rows, [i % 2 for i in range(36)], structure='tan_independent_iptm')
+    assert [e for e in model['edges'] if 'iptm' in e] == [['validated', 'iptm']]
+    assert model == fit(rows, [i % 2 for i in range(36)], structure='tan_independent_iptm')
+
+
+def test_numeric_scoring_uses_saved_bounds_and_missing_columns():
+    import polars as pl
+
+    from vdjdb.score.bayes import predict_evidence, predict_marginals
+
+    rows = [{'iptm': 'high' if i % 2 else 'mid'} for i in range(24)]
+    model = fit(rows, [i % 2 for i in range(24)], structure='tan_independent_iptm')
+    model['iptm_bounds'] = [.7, .9]
+    actual = predict_evidence(model, pl.DataFrame({'iptm': [.85, None], 'id': ['x', 'y']}))
+    assert actual == predict_marginals(model, [{'iptm': 'mid'}, {}])
+    assert predict_evidence(model, pl.DataFrame({'id': ['z']})) == predict_marginals(model, [{}])
+    assert predict_evidence(model, pl.DataFrame({'iptm': []})) == []

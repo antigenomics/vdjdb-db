@@ -8,7 +8,7 @@ from __future__ import annotations
 import math
 from collections.abc import Mapping, Sequence
 
-from .evidence import COUNT_FEATURES, FEATURES
+from .evidence import COUNT_FEATURES, FEATURES, categorical
 
 STATES = {name: (['?', '0', '1', '2', '3+'] if name in COUNT_FEATURES else
                  ['?', 'low', 'mid', 'high'] if name == 'iptm' else
@@ -17,10 +17,14 @@ STATES = {name: (['?', '0', '1', '2', '3+'] if name in COUNT_FEATURES else
 
 
 def fit(rows: Sequence[Mapping[str, str]], labels: Sequence[int], *,
-        equivalent_sample_size: float = 10., structure: str = 'tan') -> dict:
+        equivalent_sample_size: float | Mapping[str, float] = 10., structure: str = 'tan') -> dict:
     """Learn a discrete Bayesian graph and Dirichlet-smoothed conditional tables.
 
     ``structure='tan'`` learns one feature-dependence tree; ``'naive'`` omits those edges.
+    ``'tan_leaf'`` learns the other features first, attaching ipTM as a leaf by conditional
+    mutual information. ``'tan_independent_iptm'`` gives ipTM only the validation parent.
+    Both keep the nonstructural graph independent of ipTM grading.
+    A smoothing map specifies one prior size per node without changing the graph.
     Training uses explicit unreported states, avoiding complete-case exclusion. These states
     describe reporting, not nonbinding. At inference, unknown features are unobserved rather
     than evidence for a class. The resulting probabilities target the training assay endpoint.
@@ -30,11 +34,18 @@ def fit(rows: Sequence[Mapping[str, str]], labels: Sequence[int], *,
     from pgmpy.models import DiscreteBayesianNetwork
     from sklearn.metrics import mutual_info_score
 
-    if structure not in ('tan', 'naive'):
-        raise ValueError('Structure must be tan or naive')
+    if structure not in ('tan', 'tan_leaf', 'tan_independent_iptm', 'naive'):
+        raise ValueError('Unsupported Bayesian structure')
     if len(rows) != len(labels) or set(labels) != {0, 1}:
         raise ValueError('Training requires aligned observations and both classes')
-    if not math.isfinite(equivalent_sample_size) or equivalent_sample_size <= 0:
+    if isinstance(equivalent_sample_size, Mapping):
+        if set(equivalent_sample_size) != {*FEATURES, 'validated'}:
+            raise ValueError('Smoothing map requires every feature and validated')
+        equivalent_sample_size = dict(equivalent_sample_size)
+        sizes = equivalent_sample_size.values()
+    else:
+        sizes = [equivalent_sample_size]
+    if any(not math.isfinite(size) or size <= 0 for size in sizes):
         raise ValueError('Positive finite equivalent sample size required')
     if any(set(row) - set(FEATURES) for row in rows):
         raise ValueError('Unknown training predictor fields')
@@ -45,11 +56,24 @@ def fit(rows: Sequence[Mapping[str, str]], labels: Sequence[int], *,
     data['validated'] = [str(int(y)) for y in labels]
     data = data.astype('category')
     # Explicit lexical tie break makes constant/tied features deterministic.
-    root = min(FEATURES, key=lambda n: (-mutual_info_score(data[n], data['validated']), n))
-    if structure == 'tan':
-        graph = TreeSearch(data, root_node=root, n_jobs=1).estimate(
+    tree_features = [n for n in FEATURES
+                     if structure not in ('tan_leaf', 'tan_independent_iptm') or n != 'iptm']
+    root = min(tree_features, key=lambda n: (-mutual_info_score(data[n], data['validated']), n))
+    if structure in ('tan', 'tan_leaf', 'tan_independent_iptm'):
+        graph = TreeSearch(data if structure == 'tan' else data.drop(columns=['iptm']),
+                           root_node=root, n_jobs=1).estimate(
             estimator_type='tan', class_node='validated', show_progress=False)
         edges = sorted(graph.edges())
+        if structure == 'tan_leaf':
+            def conditional_information(name):
+                return sum((data['validated'] == cls).mean() * mutual_info_score(
+                    data.loc[data['validated'] == cls, name],
+                    data.loc[data['validated'] == cls, 'iptm']) for cls in ('0', '1'))
+
+            parent = min(tree_features, key=lambda n: (-conditional_information(n), n))
+            edges.extend([(parent, 'iptm'), ('validated', 'iptm')])
+        elif structure == 'tan_independent_iptm':
+            edges.append(('validated', 'iptm'))
     else:
         edges = [('validated', n) for n in FEATURES]
     model = DiscreteBayesianNetwork(edges)
@@ -124,3 +148,15 @@ def predict_marginals(artifact: dict, rows: Sequence[Mapping[str, str | None]]) 
     values = predict(artifact, [row for view in views for row in view])
     return [{name: values[j * len(rows) + i] for j, name in enumerate(('paired', 'TRA', 'TRB'))}
             for i in range(len(rows))]
+
+
+def predict_evidence(artifact: dict, frame) -> list[dict[str, float]]:
+    """Score numeric evidence using the saved grades and one network for all three views.
+
+    Missing feature columns are unobserved. Extra columns, such as receptor identifiers,
+    are preserved by the caller and are not predictors. No epitope name enters inference.
+    """
+    names = [name for name in FEATURES if name in frame.columns]
+    rows = categorical(frame.select(names), iptm_bounds=tuple(
+        artifact.get('iptm_bounds', (.5, .8)))).to_dicts() if names else [{}] * frame.height
+    return predict_marginals(artifact, rows)
