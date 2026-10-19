@@ -279,6 +279,32 @@ soft_membership=True)` or the same keyword on `predict`, `predict_marginals` and
 unobserved, and extra identity columns are ignored by numeric inference. Count and
 ipTM validation reject invalid ranges and noninteger counts.
 
+For the separated-neighbour option, the pipeline preserves the original hard
+assignments as well as the experimental continuous features:
+
+```python
+from vdjdb.score.pipeline import record_scores
+
+optional = record_scores(
+    records, chains, evidence, model,
+    model_sha256=model_sha256, continuous_membership=True,
+)
+```
+
+Standalone research cutoffs use a separate training-only policy:
+
+```python
+from vdjdb.validate.membership import fit_thresholds, apply_thresholds
+
+policy = fit_thresholds(training_labels, training_scores, training_peptides)
+cutoffs = apply_thresholds(policy, test_peptides)
+predicted = test_scores >= cutoffs
+```
+
+The training scores must be out-of-fold predictions if their model was fitted
+on these labels. Keep related receptor observations in the same fold. These
+cutoffs do not change the production model's fixed 0.5 envelope decision.
+
 ## Limits of the evidence
 
 These two-epitope results are grouped development evidence after model refinement,

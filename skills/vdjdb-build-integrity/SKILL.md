@@ -58,6 +58,14 @@ It uses experimental soft interpolation and remains non-default. Verify exact
 binary recovery at 0.5, original eligibility and pair support, default-output parity,
 and the optional mode/version columns. Standalone motif metrics and training-selected
 thresholds do not establish improved combined-model performance.
+Use `pipeline.record_scores(..., continuous_membership=True)` for the same optional
+pipeline in Python. For standalone research, `score.membership.separated` preserves
+hard ordering and `motifs.tcremp.ClusterReference.support` scores frozen core distances.
+`validate.membership.fit_thresholds` fits global and supported peptide cutoffs on
+training predictions; `apply_thresholds` supplies the global fallback for unseen or
+single-class training peptides. Keep this research policy separate from the combined
+model's fixed 0.5 envelope decision, and verify grouped held-out selection, coverage,
+tied-score metrics and standalone versus combined-model results separately.
 Read [record confidence v3](../../docs/standards/record-scoring-v3.md) before interpreting scores.
 
 Run the independent raw-structure audit with:
