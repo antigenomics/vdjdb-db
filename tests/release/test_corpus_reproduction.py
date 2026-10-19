@@ -30,8 +30,8 @@ EXPECTED = {
     "documents": 845,
     "kmers_scored": 354,
     "top_kmer": "k:IRS",
-    "top_lift": 13.343725,
-    "median_lift": 0.826202,
+    "top_lift": 13.708959,
+    "median_lift": 0.846265,
     "motif_kmers": 19,
     "motif_above_median": 19,
 }
@@ -83,7 +83,8 @@ def scored(tables: dict[str, pl.DataFrame]) -> list[tuple[float, str]]:
     # to their reported mouse species and merges one completed beta restriction duplicate.
     # All 18589 GILGFVFTL observations and the quality tolerances remain unchanged.
     # PDB9GV6 adds one human TRB observation outside the unchanged GILGFVFTL cohort (#1133).
-    assert result["units"][0] == 258038
+    # #1369 restores 7107 template-labelled TRB observations; the GIL cohort is unchanged.
+    assert result["units"][0] == 265145
     assert result["given_units"][0] == 18589
     return [(row["lift"], row["term"]) for row in result.iter_rows(named=True)]
 
