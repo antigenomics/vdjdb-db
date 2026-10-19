@@ -201,7 +201,7 @@ jobs:
                   print(f"| `{p.name}` | {n:,} |")
               print()
           else:
-              print("No chunk files changed; the whole corpus was validated instead.\n")
+              print("No chunk files changed; QC targets the full corpus.\n")
           if not report.exists():
               print("**QC did not complete; inspect the failed CI steps.**")
           elif rows:
