@@ -64,7 +64,8 @@ jobs:
         # pulls sklearn at module level. Without it those skip, and a check that quietly downgrades
         # itself is worse than no check -- the reasoning `pyproject.toml` already applies to the
         # `summary` extra. Measured: 628 of 629 unit tests, 27 s.
-        run: uv sync --frozen --extra dev --extra test --extra motifs
+        # confidence ensures pgmpy-backed score tests run instead of skipping.
+        run: uv sync --frozen --extra dev --extra test --extra motifs --extra confidence
 
       # `ruff check .`, not `src/`: `tests/` is a third of the Python in the repository and was
       # unlinted, so an unsorted import block in a test passed CI and was caught only by someone

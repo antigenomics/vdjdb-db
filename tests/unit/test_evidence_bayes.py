@@ -111,7 +111,7 @@ def test_numeric_scoring_uses_saved_bounds_and_missing_columns():
     assert predict_evidence(model, pl.DataFrame({'iptm': []})) == []
 
 
-def test_soft_motif_membership_is_a_mixture_with_unchanged_hard_endpoints():
+def test_soft_motif_membership_is_a_mixture_with_unchanged_hard_endpoints(monkeypatch):
     import polars as pl
 
     from vdjdb.score.bayes import predict_evidence
@@ -120,16 +120,29 @@ def test_soft_motif_membership_is_a_mixture_with_unchanged_hard_endpoints():
             for i in range(36)]
     model = fit(rows, [i % 2 for i in range(36)], structure='naive')
     hard = predict(model, [{'a_tcrnet': '0'}, {'a_tcrnet': '1'}])
-    assert predict(model, [{'a_tcrnet': .25}])[0] == pytest.approx(.75 * hard[0] + .25 * hard[1])
+    with pytest.raises(ValueError):
+        predict(model, [{'a_tcrnet': .25}])
+    assert predict(model, [{'a_tcrnet': .25}], soft_membership=True)[0] == pytest.approx(
+        .75 * hard[0] + .25 * hard[1])
     assert predict(model, [{'a_tcrnet': 0.}, {'a_tcrnet': 1.}]) == pytest.approx(hard)
     both = predict(model, [{'a_tcrnet': str(a), 'b_tcremp': str(b)}
                            for a in (0, 1) for b in (0, 1)])
-    assert predict(model, [{'a_tcrnet': .25, 'b_tcremp': .6}])[0] == pytest.approx(
+    assert predict(model, [{'a_tcrnet': .25, 'b_tcremp': .6}], soft_membership=True)[0] == pytest.approx(
         sum(w * p for w, p in zip([.3, .45, .1, .15], both, strict=True)))
-    marginal = predict_marginals(model, [{'a_tcrnet': .25, 'b_tcremp': .6}])[0]
+    marginal = predict_marginals(model, [{'a_tcrnet': .25, 'b_tcremp': .6}], soft_membership=True)[0]
     assert marginal['TRA'] == pytest.approx(.75 * hard[0] + .25 * hard[1])
-    assert predict_evidence(model, pl.DataFrame({'a_tcrnet': [.25]}))[0]['paired'] == pytest.approx(
-        .75 * hard[0] + .25 * hard[1])
+    with pytest.raises(ValueError):
+        predict_evidence(model, pl.DataFrame({'a_tcrnet': [.25]}))
+    numeric = predict_evidence(model, pl.DataFrame({'a_tcrnet': [.25]}), soft_membership=True)
+    assert numeric[0]['paired'] == pytest.approx(.75 * hard[0] + .25 * hard[1])
+    from vdjdb.score import bayes
+
+    batch = [{'a_tcrnet': (i + 1) / 40, 'b_tcremp': .6} for i in range(30)]
+    expected = predict_marginals(model, batch, soft_membership=True)
+    monkeypatch.setattr(bayes, '_ASSIGNMENT_BATCH', 16)
+    actual = predict_marginals(model, batch, soft_membership=True)
+    for before, after in zip(expected, actual, strict=True):
+        assert after == pytest.approx(before)
     for value in [-.1, 1.1, float('nan'), float('inf')]:
         with pytest.raises(ValueError):
             predict(model, [{'a_tcrnet': value}])

@@ -20,13 +20,12 @@ Three behaviours are preserved exactly because the released scores depend on the
 * every method term matches a **substring** of the method field, never a token -- see
   :func:`_contains_any`, which records what that costs and why it stays.
 
-The structure term at the top of this docstring is where the score's one live defect sits.
-``meta.structure.id`` is read as "a solved structure is attached" by testing that the field is
-non-empty, and 2,765 chunk rows hold a figure or table reference there rather than a PDB id.
-Measured 2026-09-28 (vdjdb-db#402): **4,817 of the 6,007 records that score 3 owe it to one of
-those values** - 3,752 would fall to 0 and 1,065 to 1 - so four of every five top-confidence
-records rest on a reference a reader cannot check. The guard is the ``structure id is not a PDB
-id`` QC rule; the repair is a curation decision, so nothing here changes.
+The structure term uses a nonempty ``meta.structure.id``; source QC requires a PDB identifier.
+A historical audit on 2026-09-28 (vdjdb-db#402) found 2,765 source rows with figure/table
+references instead. Of 6,007 score-3 records then, 4,817 depended on those values:
+3,752 would have scored 0 and 1,065 would have scored 1. Those measurements describe
+that historical corpus, not current source validity. This module retains the legacy formula;
+record confidence v3 is implemented separately in ``score.bayes`` and ``score.pipeline``.
 """
 from __future__ import annotations
 

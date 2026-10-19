@@ -1,0 +1,12 @@
+digraph scoring {
+  graph [rankdir=TB, bgcolor="white", pad=0.08, nodesep=0.22, ranksep=0.32];
+  node [shape=box, style=rounded, fontname="Helvetica", fontsize=11,
+        color="#555555", penwidth=0.8, margin="0.12,0.10"];
+  edge [color="#666666", arrowsize=0.6];
+  tables [label="Current records + chains\nCompleted motif / structure evidence"];
+  features [label="Integrate exact receptor:pMHC\n9 evidence variables"];
+  model [label="One frozen Bayesian network\nMissing evidence marginalized", color="#0072B2"];
+  scores [label="Paired, TRA and TRB forecasts\nMissing-evidence sensitivity range"];
+  output [label="record_id + scores + model hash\nParquet / gzip TSV", color="#0072B2"];
+  tables -> features -> model -> scores -> output;
+}

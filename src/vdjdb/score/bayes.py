@@ -16,6 +16,9 @@ STATES = {name: (['?', '0', '1', '2', '3+'] if name in COUNT_FEATURES else
                  ['?', '0', '1', '2', '3'] if name == 'legacy_score' else ['?', '0', '1'])
           for name in FEATURES}
 
+# Bound simultaneous nine-feature assignment dictionaries in mixtures and envelopes.
+_ASSIGNMENT_BATCH = 4096
+
 
 def fit(rows: Sequence[Mapping[str, str]], labels: Sequence[int], *,
         equivalent_sample_size: float | Mapping[str, float] = 10., structure: str = 'tan') -> dict:
@@ -96,7 +99,8 @@ def fit(rows: Sequence[Mapping[str, str]], labels: Sequence[int], *,
             'missing_fit': 'unreported category', 'missing_predict': 'exact marginalization'}
 
 
-def predict(artifact: dict, rows: Sequence[Mapping[str, str | float | None]]) -> list[float]:
+def predict(artifact: dict, rows: Sequence[Mapping[str, str | float | None]], *,
+            soft_membership: bool = False) -> list[float]:
     """Score categorical evidence or uncertain binary motif membership.
 
     A numeric motif value q mixes hard nonmember/member posteriors with weights
@@ -105,8 +109,18 @@ def predict(artifact: dict, rows: Sequence[Mapping[str, str | float | None]]) ->
     """
     if any(isinstance(value, (int, float)) for row in rows for name, value in row.items()
            if name in FEATURES and name.endswith(('tcrnet', 'tcremp'))):
-        expanded, weights = [], []
-        for row in rows:
+        patterns = [tuple(sorted(row.items())) for row in rows]
+        unique = dict(zip(patterns, rows, strict=True))
+        expanded, groups, values = [], [], {}
+
+        def flush():
+            probabilities = iter(predict(artifact, expanded))
+            for pattern, weights in groups:
+                values[pattern] = math.fsum(weight * next(probabilities) for weight in weights)
+            expanded.clear()
+            groups.clear()
+
+        for pattern, row in unique.items():
             mixtures = [(dict(row), 1.)]
             for name, value in row.items():
                 if name not in FEATURES or not name.endswith(('tcrnet', 'tcremp')):
@@ -115,13 +129,18 @@ def predict(artifact: dict, rows: Sequence[Mapping[str, str | float | None]]) ->
                     continue
                 if not math.isfinite(value) or not 0 <= value <= 1:
                     raise ValueError(f'Invalid membership probability for {name}')
+                if value not in (0, 1) and not soft_membership:
+                    raise ValueError('Fractional motif evidence requires soft_membership=True')
                 mixtures = [({**r, name: str(state)}, weight * probability)
                             for r, weight in mixtures
                             for state, probability in ((0, 1-value), (1, value)) if probability > 0]
+            if len(expanded) + len(mixtures) > _ASSIGNMENT_BATCH:
+                flush()
             expanded.extend(r for r, _ in mixtures)
-            weights.append([weight for _, weight in mixtures])
-        probabilities = iter(predict(artifact, expanded))
-        return [math.fsum(weight * next(probabilities) for weight in group) for group in weights]
+            groups.append((pattern, [weight for _, weight in mixtures]))
+        if expanded:
+            flush()
+        return [values[pattern] for pattern in patterns]
 
     from pgmpy.factors.discrete import TabularCPD
     from pgmpy.inference import VariableElimination
@@ -163,7 +182,8 @@ def predict(artifact: dict, rows: Sequence[Mapping[str, str | float | None]]) ->
     return [values[p] for p in patterns]
 
 
-def predict_marginals(artifact: dict, rows: Sequence[Mapping[str, str | float | None]]
+def predict_marginals(artifact: dict, rows: Sequence[Mapping[str, str | float | None]], *,
+                      soft_membership: bool = False
                       ) -> list[dict[str, float]]:
     """Full-interaction validation from paired, TRA-only and TRB-only evidence.
 
@@ -172,12 +192,12 @@ def predict_marginals(artifact: dict, rows: Sequence[Mapping[str, str | float | 
     """
     views = [list(rows), [{k: v for k, v in row.items() if k.startswith('a_')} for row in rows],
              [{k: v for k, v in row.items() if k.startswith('b_')} for row in rows]]
-    values = predict(artifact, [row for view in views for row in view])
+    values = predict(artifact, [row for view in views for row in view], soft_membership=soft_membership)
     return [{name: values[j * len(rows) + i] for j, name in enumerate(('paired', 'TRA', 'TRB'))}
             for i in range(len(rows))]
 
 
-def _numeric_rows(artifact: dict, frame) -> list[dict]:
+def _numeric_rows(artifact: dict, frame, *, soft_membership: bool = False) -> list[dict]:
     """Encode numeric evidence consistently for forecasts and missing-evidence ranges."""
     motifs = [name for name in FEATURES if name.endswith(('tcrnet', 'tcremp'))
               and name in frame.columns]
@@ -187,17 +207,20 @@ def _numeric_rows(artifact: dict, frame) -> list[dict]:
     if motifs:
         import polars as pl
 
+        if not soft_membership:
+            categorical(frame.select(motifs))  # Reject fractional membership by default.
         membership = frame.select(pl.col(motifs).cast(pl.Float64).fill_nan(None)).to_dicts()
         rows = [{**row, **soft} for row, soft in zip(rows, membership, strict=True)]
     return rows
 
 
-def predict_evidence(artifact: dict, frame) -> list[dict[str, float]]:
+def predict_evidence(artifact: dict, frame, *, soft_membership: bool = False) -> list[dict[str, float]]:
     """Score numeric evidence using saved grades and one network for all three views.
 
     Missing columns are unobserved; extra identity columns are not predictors.
     """
-    return predict_marginals(artifact, _numeric_rows(artifact, frame))
+    return predict_marginals(artifact, _numeric_rows(artifact, frame, soft_membership=soft_membership),
+                             soft_membership=soft_membership)
 
 
 def _paired_ranges(artifact: dict, rows: list[dict]) -> list[tuple[float, float]]:
@@ -209,8 +232,19 @@ def _paired_ranges(artifact: dict, rows: list[dict]) -> list[tuple[float, float]
     """
     patterns = [tuple(row.get(name) for name in FEATURES) for row in rows]
     unique = dict(zip(patterns, rows, strict=True))
-    expanded, sizes = [], []
-    for row in unique.values():
+    expanded, groups, bounds = [], [], {}
+
+    def flush():
+        values = predict(artifact, expanded, soft_membership=True)
+        offset = 0
+        for pattern, size in groups:
+            probabilities = values[offset:offset + size]
+            bounds[pattern] = (min(probabilities), max(probabilities))
+            offset += size
+        expanded.clear()
+        groups.clear()
+
+    for pattern, row in unique.items():
         missing = {}
         for name in FEATURES:
             if not (name.startswith(('a_', 'b_')) or name == 'iptm'):
@@ -230,18 +264,17 @@ def _paired_ranges(artifact: dict, rows: list[dict]) -> list[tuple[float, float]
         if missing:
             completions.extend({**row, **dict(zip(missing, values, strict=True))}
                                for values in product(*missing.values()))
-        sizes.append(len(completions))
+        if len(expanded) + len(completions) > _ASSIGNMENT_BATCH:
+            flush()
+        groups.append((pattern, len(completions)))
         expanded.extend(completions)
-    values = predict(artifact, expanded)
-    bounds, offset = {}, 0
-    for pattern, size in zip(unique, sizes, strict=True):
-        probabilities = values[offset:offset + size]
-        bounds[pattern] = (min(probabilities), max(probabilities))
-        offset += size
+    if expanded:
+        flush()
     return [bounds[pattern] for pattern in patterns]
 
 
-def score_records(artifact: dict, frame) -> list[dict[str, float | bool | None]]:
+def score_records(artifact: dict, frame, *, soft_membership: bool = False
+                  ) -> list[dict[str, float | bool | None]]:
     """TRA/TRB/paired forecasts and a range for missing chain or structural evidence.
 
     Record score retains the paired forecast even without direct pair evidence.
@@ -252,8 +285,8 @@ def score_records(artifact: dict, frame) -> list[dict[str, float | bool | None]]
     """
     import polars as pl
 
-    rows = _numeric_rows(artifact, frame)
-    probabilities = predict_marginals(artifact, rows)
+    rows = _numeric_rows(artifact, frame, soft_membership=soft_membership)
+    probabilities = predict_marginals(artifact, rows, soft_membership=soft_membership)
     ranges = _paired_ranges(artifact, rows)
     def value(name):
         return pl.col(name).cast(pl.Float64).fill_nan(None) if name in frame.columns else pl.lit(None)
@@ -263,7 +296,10 @@ def score_records(artifact: dict, frame) -> list[dict[str, float | bool | None]]
               for prefix in ('a_', 'b_')]
     direct = (value('legacy_score').is_not_null() | (value('donors') > 0) |
               value('iptm').is_not_null())
-    support = frame.with_columns((direct | (chains[0] & chains[1])).fill_null(False)
+    pair = (pl.all_horizontal(pl.col('a_junction', 'b_junction').fill_null('') != '')
+            if {'a_junction', 'b_junction'} <= set(frame.columns) else pl.lit(True))
+    direct = direct & pair
+    support = frame.with_columns((pair & (direct | (chains[0] & chains[1]))).fill_null(False)
                                  .alias('_pair_supported'), direct.fill_null(False).alias('_direct_pair'))
     result = []
     for p, supported, paired, (lower, upper) in zip(

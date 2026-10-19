@@ -91,6 +91,9 @@ PRIMARY = Bundle(
         Member("tables/restriction.tsv.gz"),
         Member("tables/epitope_assessment.tsv.gz"),
         Member("tables/vdjdb.schema.json"),
+        # Historic builds predate the separate post-motif score stage.
+        Member("tables/record_scores.parquet", optional=True),
+        Member("tables/record_scores.tsv.gz", optional=True),
         # `motifs/`, the directory `vdjdb motifs` writes. It said `motifs_new/` until 2026-09-28,
         # which is the output directory of the clustering sweeps under `docs/tuning/`, so resolving
         # this bundle against a pipeline build raised on two required members and the primary zip

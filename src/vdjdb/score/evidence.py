@@ -19,6 +19,13 @@ FEATURES = ['a_studies', 'b_studies', 'donors', 'a_tcrnet', 'b_tcrnet',
 COUNT_FEATURES = {'a_studies', 'b_studies', 'donors'}
 
 
+def _motifs(records: pl.DataFrame, chains: pl.DataFrame, evidence: pl.DataFrame) -> pl.DataFrame:
+    return evidence.filter(pl.col('evidence_type').str.starts_with('motif_')).join(
+        chains.select('record_id', 'gene', 'cdr3', 'v.segm', 'j.segm'),
+        on=['record_id', 'gene'], validate='m:1').join(
+        records.select('record_id', 'species', 'antigen.epitope'), on='record_id', validate='m:1')
+
+
 def canonical(frame: pl.DataFrame) -> pl.DataFrame:
     """Gene-level receptor:pMHC keys; both junction anchors are retained."""
     if missing := sorted(set(KEY) - set(frame.columns)):
@@ -30,15 +37,8 @@ def canonical(frame: pl.DataFrame) -> pl.DataFrame:
         pl.concat_str(KEY, separator=SEP).alias('interaction_key'))
 
 
-def integrate(records: pl.DataFrame, chains: pl.DataFrame, evidence: pl.DataFrame,
-              queries: pl.DataFrame | None = None) -> pl.DataFrame:
-    """Summarize completed build tables, without reinterpreting their annotations.
-
-    Publication totals use the manuscript's chain/peptide/V-gene key. Donor totals count
-    distinct nonempty publication/donor contexts for the integrated pair:pMHC. Motif
-    flags mean membership exists among its gene-level build entries. Only explicit
-    producer nonmembers yield zero; absent evidence remains unknown.
-    """
+def interactions(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
+    """Attach canonical paired identities to records, retaining both junction anchors."""
     if records['record_id'].n_unique() != records.height:
         raise ValueError('Repeated record_id')
     if chains.select('record_id', 'gene').unique().height != chains.height:
@@ -49,7 +49,19 @@ def integrate(records: pl.DataFrame, chains: pl.DataFrame, evidence: pl.DataFram
             'record_id', pl.col('cdr3').alias(prefix + '_junction'),
             pl.col('v.segm').alias(prefix + '_v'), pl.col('j.segm').alias(prefix + '_j'))
         full = full.join(part, on='record_id', how='left', validate='1:1')
-    full = canonical(full)
+    return canonical(full)
+
+
+def integrate(records: pl.DataFrame, chains: pl.DataFrame, evidence: pl.DataFrame,
+              queries: pl.DataFrame | None = None) -> pl.DataFrame:
+    """Summarize completed build tables, without reinterpreting their annotations.
+
+    Publication totals use the manuscript's chain/peptide/V-gene key. Donor totals count
+    distinct nonempty publication/donor contexts for the integrated pair:pMHC. Motif
+    flags mean membership exists among its gene-level build entries. Only explicit
+    producer nonmembers yield zero; absent evidence remains unknown.
+    """
+    full = interactions(records, chains)
     units = canonical(queries).select(*KEY, 'interaction_key') if queries is not None else full.select(
         *KEY, 'interaction_key').unique()
     if units['interaction_key'].n_unique() != units.height:
@@ -67,10 +79,7 @@ def integrate(records: pl.DataFrame, chains: pl.DataFrame, evidence: pl.DataFram
         units = units.join(support, on=key, how='left', validate='m:1').with_columns(
             pl.when((pl.col(prefix + '_junction') != '') & (pl.col(prefix + '_v') != ''))
             .then(pl.col(prefix + '_studies').fill_null(0)).otherwise(None).alias(prefix + '_studies'))
-    motif = evidence.filter(pl.col('evidence_type').str.starts_with('motif_')).join(
-        chains.select('record_id', 'gene', 'cdr3', 'v.segm', 'j.segm'),
-        on=['record_id', 'gene'], validate='m:1').join(
-        records.select('record_id', 'species', 'antigen.epitope'), on='record_id', validate='m:1')
+    motif = _motifs(records, chains, evidence)
     for prefix, gene in [('a', 'TRA'), ('b', 'TRB')]:
         for method in ['tcrnet', 'tcremp']:
             key = ['species', 'antigen.epitope', prefix + '_junction']
@@ -92,6 +101,49 @@ def integrate(records: pl.DataFrame, chains: pl.DataFrame, evidence: pl.DataFram
         raise ValueError('Conflicting ipTM for one model')
     models = models.group_by('interaction_key').agg(pl.col('evidence_score').mean().alias('iptm'))
     return units.join(models, on='interaction_key', how='left', validate='1:1').sort('interaction_key')
+
+
+def soft_motifs(features: pl.DataFrame, records: pl.DataFrame, chains: pl.DataFrame,
+                evidence: pl.DataFrame) -> pl.DataFrame:
+    """Optional Hamming-1 annotated-neighbour fractions, within each producer's scope.
+
+    One batched native search uses substitutions only, including exact matches. Distinct
+    annotated neighbours contribute once; unannotated neighbourhoods stay missing.
+    Counts accompany each fraction. These are not calibrated binding probabilities.
+    """
+    import seqtree
+
+    ref = _motifs(records, chains, evidence).with_columns(
+        pl.col('v.segm', 'j.segm').str.split('*').list.first())
+    queries = pl.concat([features.select('interaction_key', 'species', 'antigen.epitope',
+        pl.lit(gene).alias('gene'), pl.col(prefix + '_junction').alias('query'),
+        pl.col(prefix + '_v').alias('v.segm'), pl.col(prefix + '_j').alias('j.segm'))
+        for prefix, gene in [('a', 'TRA'), ('b', 'TRB')]]).filter(pl.col('query') != '')
+    refs = ref['cdr3'].unique().sort().to_list()
+    qs = queries['query'].unique().sort().to_list()
+    hits = (seqtree.Index.build(refs).search_batch(qs, seqtree.SearchParams(
+        max_subs=1, max_ins=0, max_dels=0, max_total_edits=1), threads=1) if refs and qs else [])
+    edges = pl.DataFrame([(q, refs[h.ref_id]) for q, group in zip(qs, hits, strict=bool(hits))
+                          for h in group], schema={'query': pl.String, 'cdr3': pl.String}, orient='row')
+    output = features
+    for method in ['tcrnet', 'tcremp']:
+        key = ['species', 'gene', 'antigen.epitope', 'cdr3']
+        if method == 'tcremp':
+            key += ['v.segm', 'j.segm']
+        annotated = ref.filter(pl.col('evidence_type').is_in(
+            ['motif_' + method, 'motif_' + method + '_nonmember'])).group_by(key).agg(
+                (pl.col('evidence_type') == 'motif_' + method).any().alias('member'))
+        totals = queries.join(edges, on='query', validate='m:m').join(
+            annotated, on=key, how='inner', validate='m:1').group_by('interaction_key', 'gene').agg(
+                pl.len().alias('neighbours'), pl.col('member').sum().alias('members'))
+        for prefix, gene in [('a', 'TRA'), ('b', 'TRB')]:
+            name = prefix + '_' + method
+            part = totals.filter(pl.col('gene') == gene).select('interaction_key',
+                (pl.col('members') / pl.col('neighbours')).alias(name),
+                pl.col('members').alias(name + '_members'),
+                pl.col('neighbours').alias(name + '_neighbours'))
+            output = output.drop(name).join(part, on='interaction_key', how='left', validate='1:1')
+    return output.sort('interaction_key')
 
 
 def categorical(frame: pl.DataFrame, *, iptm_bounds: tuple[float, float] = (.5, .8)) -> pl.DataFrame:

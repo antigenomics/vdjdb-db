@@ -23,14 +23,14 @@ Alongside them, as release assets rather than zip members: `manifest.json`, `SHA
 ### Build directories and storage
 
 `vdjdb build --out out/` writes `tables/`, `legacy/`, `airr/` and assembly `reports/`.
-Motifs, the corpus index, the dashboard and release archives are separate stages, described in
+Motifs, record confidence v3, the corpus index, the dashboard and release archives are separate stages, described in
 [Build and release](builds.md). A build directory is not itself a download bundle. Release
 members are selected explicitly by `src/vdjdb/release/manifest.py`; reports, raw inputs and old
 candidate directories cannot enter a ZIP through a wildcard.
 
 | Directory | Contents | Publication |
 |---|---|---|
-| `tables/` | Six normalized tables, joined view, generated schema | Primary bundle |
+| `tables/` | Six normalized tables, joined view, generated schema and post-motif record scores | Primary bundle |
 | `legacy/` | Full paired, chain and slim text projections plus metadata | Legacy bundle |
 | `airr/` | Rearrangement, Receptor and Reactivity text tables | AIRR bundle |
 | `motifs/` | TCRNET and optional TCREmp positional tables | Primary and legacy bundles |
@@ -39,8 +39,11 @@ candidate directories cannot enter a ZIP through a wildcard.
 | `reports/` | QC, identity, annotation, timing and comparison reports | CI artifacts, outside the three bundles |
 | `release/` | Three ZIPs, manifest, checksums and identity lifecycle | Release assets |
 
-The primary table directory has fourteen files: six `.parquet`, six `.tsv.gz`,
-`vdjdb.parquet` and `vdjdb.schema.json`. Gzip TSV is the portable text alternative to Parquet;
+Assembly alone writes fourteen files: six `.parquet`, six `.tsv.gz`, `vdjdb.parquet` and
+`vdjdb.schema.json`. After `vdjdb score-records`, the primary table directory has sixteen files,
+including `record_scores.parquet` and `record_scores.tsv.gz`. These score files are optional bundle
+members for compatibility with historical builds; the hosted pipeline requires both.
+Gzip TSV is the portable text alternative to Parquet;
 there is no uncompressed normalized TSV and no joined TSV copy. Rebuilding removes obsolete
 uncompressed projections. The joined view repeats record attributes once per chain for convenience;
 the normalized tables remain the authoritative facts. Do not sum rows across these projections as
@@ -317,6 +320,12 @@ separate type preserves positive-only motif filters in downstream consumers. Rer
 method replaces both its positive and nonmember rows and refreshes `vdjdb.parquet`.
 
 Pass `vdjdb build --structure-metadata <input.tsv.gz>` to attach the auxiliary structure metadata.
+Optional `--structure-supplemental <metadata.tsv.gz>` adds reviewed raw model metadata to
+this input within one build. It is off by default and remains off in hosted assembly/scoring
+pending matched-cohort extraction validation. Supplemental raw catalogues distinguish reported
+assignments from synthetic swapped pairs and mutants; public deposits contain no assay outcomes.
+The independent file audit checks those assets and links separately from the production evidence.
+
 The input requires `tcr_pmhc_hash` and Boolean `is_native`, and native rows require one valid
 `meta.structure.id` PDB identifier. Exact existing `chains.TCR_hash` links propagate across all
 records of that complex, not to single-chain matches. Species and MHC class are checked against
@@ -388,7 +397,9 @@ Predicted metrics are separate flat values: `num_contacts`, `ranking_confidence`
 Native rows contribute their PDB identifier only, never the corresponding predicted metric values.
 The joined view displays availability badges; analysis should read the numeric long table and keep
 native evidence separate when it defines validation labels. No coordinates, backgrounds, labels or
-fitted classifier parameters are added to the bundle.
+fitted classifier parameters are added to the bundle. The separate post-motif
+[record confidence v3](standards/record-scoring-v3.md) stage reads a packaged frozen model and
+records its digest in the score table; database assembly does not load the classifier.
 
 **No held-out validation data is ever an evidence row.** See §7.
 
@@ -435,8 +446,42 @@ describe the thirteen exclusions and the recovered 9GV6 observation, `VDJDB00003
 The latter appears in the definitive tables and full paired export; its unreported V/J calls
 remain blank, so the unchanged default legacy chain/slim filter excludes it. Coordinates are
 available for all 360 declared PDB_Database accessions after eighteen missing accessions were
-downloaded. The supplemental `data/pdb_sources/` mmCIF files retain deposited coordinates, chain
+downloaded. That historical count covers the PDB aggregate chunk only; the current independent
+audit checks all 367 native accessions declared across the current records. The supplemental `data/pdb_sources/` mmCIF files retain deposited coordinates, chain
 IDs and literal chemistry; they are not interchangeable with the historical canonical-frame PDBs.
+
+The [supplemental structure catalogue](https://huggingface.co/datasets/isalgo/vdjdb_structure_models/tree/main/metadata/supplemental)
+preserves 11,802 distinct coordinate contents: 11,279 new contents and 523 already present in the
+historical archive. Its 16,110 structure/record/sequence-state links connect 4,773 structures to
+7,288 current records. Original and repaired sequence states can each contribute a link, so these
+links are not counts of independent experiments. Reported assignments remain distinct from
+constructed pairs and mutants. The catalogue documents metadata dispositions and verification;
+default hosted assembly and scoring do not use its optional supplemental build input.
+
+The independent `processing/proofread_structure_files.py` audit reads the pinned raw-input
+manifest `proofreading/structure_inputs.tsv`, checks every file digest, and streams all declared
+archives without extracting them. It validates current model links against reviewed
+coordinate-sequence metadata; chain sequences are not independently re-extracted during CI.
+It also verifies coordinate coverage for all native accessions, including those outside the PDB
+aggregate chunk. Sequence equality and historical lineage associations remain separate findings.
+It writes `structure_files.parquet`, `native_structure_files.parquet`,
+`supplemental_structure_files.parquet` and `structure_files.json` under `out/reports/structures/`;
+these are CI artifacts, not bundle members. See
+[the audit command](builds.md#local-build) for the separate input-fetch and verification steps.
+
+### Record confidence v3 outputs
+
+`vdjdb score-records --tables out/tables` runs after motifs and writes `record_scores.parquet`
+and `record_scores.tsv.gz` in that table directory by default. Each has exactly one row per
+current `record_id`, sorted by ID. The files report paired and chain-only probabilities,
+missing-evidence bounds, integrated evidence features, score version and frozen-model SHA256.
+The [v3 specification](standards/record-scoring-v3.md) defines their columns and interpretation.
+The existing legacy 0-3 score and positional exports remain unchanged. No stored feature or
+prediction rows are reused across builds. The frozen parameters are the same for every record;
+missing evidence is marginalized. Held-out metrics use the complete original assay structural
+inputs and do not estimate universal production-record accuracy. Hard motif membership is the
+default; opt-in `--soft-membership` adds four Hamming-1 fractions and integer `*_members` /
+`*_neighbours` columns within each producer's scope.
 
 ### 3.3a `epitopes.parquet` and `restriction.parquet` - the antigen catalogue
 

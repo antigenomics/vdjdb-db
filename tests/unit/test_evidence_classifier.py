@@ -60,3 +60,29 @@ def test_training_selected_iptm_bounds_preserve_missing_and_validate_order():
     for bounds in [(.9, .8), (.5, .5), (float('nan'), .8), (-.1, .8), (.5, 1.1)]:
         with pytest.raises(ValueError):
             categorical(frame, iptm_bounds=bounds)
+
+
+def test_soft_neighbourhood_preserves_producer_scope_and_ignores_indels():
+    from vdjdb.score.evidence import soft_motifs
+
+    records = pl.DataFrame({'record_id': ['r1', 'r2', 'r3'], 'species': ['HomoSapiens'] * 3,
+        'antigen.epitope': ['PEP'] * 3, 'mhc.a': ['HLA-A*02:01'] * 3, 'mhc.b': ['B2M'] * 3,
+        'mhc.class': ['MHCI'] * 3, 'reference.id': ['P1', 'P2', 'P3'],
+        'meta.subject.id': ['', '', ''], 'vdjdb.score': [0, 0, 0]})
+    chains = pl.DataFrame({'record_id': ['r1', 'r2', 'r3'], 'gene': ['TRB'] * 3,
+        'cdr3': ['CASSF', 'CASTF', 'CASSSF'], 'v.segm': ['TRBV1', 'TRBV2', 'TRBV1'],
+        'j.segm': ['TRBJ1'] * 3})
+    evidence = pl.DataFrame({'record_id': ['r1', 'r2', 'r3'] * 2, 'gene': ['TRB'] * 6,
+        'evidence_type': ['motif_tcrnet', 'motif_tcrnet_nonmember', 'motif_tcrnet_nonmember',
+                          'motif_tcremp', 'motif_tcremp_nonmember', 'motif_tcremp_nonmember'],
+        'evidence_value': [''] * 6, 'evidence_score': [1., 0., 0.] * 2,
+        'evidence_source': [''] * 6})
+    hard = integrate(records, chains, evidence)
+    soft = soft_motifs(hard, records, chains, evidence)
+    row = soft.filter(pl.col('b_junction') == 'CASSF').row(0, named=True)
+    assert row['b_tcrnet'] == .5 and row['b_tcrnet_neighbours'] == 2
+    assert row['b_tcrnet_members'] == 1
+    assert row['b_tcremp'] == 1 and row['b_tcremp_neighbours'] == 1
+    assert row['a_tcrnet'] is None
+    assert soft.select('a_studies', 'b_studies', 'legacy_score').equals(
+        hard.select('a_studies', 'b_studies', 'legacy_score'))
