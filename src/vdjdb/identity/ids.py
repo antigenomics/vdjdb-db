@@ -428,8 +428,7 @@ def reconcile(
                                   if c[0].chunk_row == int(row.get("chunk.row") or 0)]
             if len(candidates) == 1:
                 e, d = candidates[0]
-                prev = _unpack_note(e.note)
-                assert prev is not None
+                prev = previous_keys[e.record_id]
                 assigned[i] = e.record_id
                 matched_entries.add(e.record_id)
                 report.amended.extend(

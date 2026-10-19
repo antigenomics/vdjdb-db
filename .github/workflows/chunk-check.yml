@@ -186,10 +186,12 @@ jobs:
           # failure there used to add a second red step with a traceback and post an empty comment.
           _c = pathlib.Path("changed.txt")
           changed = [l.strip() for l in _c.read_text().splitlines() if l.strip()] if _c.exists() else []
-          rows = list(csv.DictReader(open("qc-report.tsv"), delimiter="\t")) \
-              if pathlib.Path("qc-report.tsv").exists() else []
+          report = pathlib.Path("qc-report.tsv")
+          rows = list(csv.DictReader(report.open(), delimiter="\t")) if report.exists() else []
           print("## chunk-check\n")
-          if changed:
+          if not _c.exists():
+              print("Changed-chunk selection did not complete.\n")
+          elif changed:
               print(f"**{len(changed)} chunk file(s) changed.**\n")
               print("| Chunk | Rows |")
               print("|---|---:|")
@@ -200,7 +202,9 @@ jobs:
               print()
           else:
               print("No chunk files changed; the whole corpus was validated instead.\n")
-          if rows:
+          if not report.exists():
+              print("**QC did not complete; inspect the failed CI steps.**")
+          elif rows:
               by = collections.Counter(r["code"] for r in rows)
               print(f"### {len(rows)} QC finding(s)\n")
               print("| Rule | Count | First example |")
