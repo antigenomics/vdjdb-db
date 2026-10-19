@@ -4,7 +4,6 @@ row	internal cysteine in cdr3.alpha	2367	91	true	400
 row	non-functional v.beta	1022	74	true	300
 row	non-functional j.alpha	1624	88	true	300
 row	non-functional j.beta	338	18	true	150
-row	segment call with no cdr3	209	12	true	50
 row	non-functional v.alpha	38	5	true	50
 row	one epitope under two HLA genes in one chunk	28	2	true	10
 row	partial class-II restriction	0	0	true	0
