@@ -54,10 +54,28 @@ def test_record_join_and_deterministic_compressed_export(tmp_path):
     before = (tmp_path / 'record_scores.tsv.gz').read_bytes()
     write_scores(scored.reverse(), tmp_path)
     assert (tmp_path / 'record_scores.tsv.gz').read_bytes() == before
-    assert pl.read_parquet(tmp_path / 'record_scores.parquet').equals(scored)
+    exported = pl.read_parquet(tmp_path / 'record_scores.parquet')
+    probabilities = ['paired', 'TRA', 'TRB', 'record_score', 'paired_lower', 'paired_upper']
+    assert exported.drop(probabilities).equals(scored.drop(probabilities))
+    for name in probabilities:
+        assert exported[name].to_list() == pytest.approx(scored[name].to_list(), rel=1e-11, abs=0)
     assert gzip.decompress(before).decode().splitlines()[0].startswith('record_id\t')
     with pytest.raises(ValueError):
         write_scores(pl.concat([scored, scored]), tmp_path)
+
+
+def test_export_precision_ignores_machine_roundoff_and_preserves_small_probabilities(tmp_path):
+    frame = pl.DataFrame({'record_id': ['r1'], 'paired': [.123456789012341],
+        'record_score': [.123456789012341], 'TRA': [1.23456789012345e-18], 'TRB': [.4],
+        'paired_lower': [.1], 'paired_upper': [.9], 'iptm': [.81234567890123456]})
+    write_scores(frame, tmp_path)
+    before = {p.name: p.read_bytes() for p in tmp_path.iterdir()}
+    write_scores(frame.with_columns(pl.col('paired', 'record_score') + 2e-16), tmp_path)
+    assert {p.name: p.read_bytes() for p in tmp_path.iterdir()} == before
+    exported = pl.read_parquet(tmp_path / 'record_scores.parquet')
+    assert exported['paired'][0] == .123456789012
+    assert exported['TRA'][0] == pytest.approx(1.23456789012e-18, rel=1e-15, abs=0)
+    assert exported['iptm'][0] == frame['iptm'][0]
 
 
 def test_binary_metrics_count_ties_and_reject_unmatched_cases():
