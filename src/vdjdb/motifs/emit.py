@@ -64,7 +64,8 @@ def cluster_members(members: pl.DataFrame, chains: pl.DataFrame,
     reported the clonotype; where several did and they disagree, the first by sorted record order.
     """
     geometry = (
-        chains.join(records.select("record_id", "species", "antigen.epitope"), on="record_id")
+        chains.select("record_id", "gene", "cdr3", "v.segm", "j.segm", "v.end", "j.start")
+        .join(records.select("record_id", "species", "antigen.epitope"), on="record_id")
         .select("species", "antigen.epitope", "gene",
                 pl.col("cdr3").alias("cdr3aa"), pl.col("v.segm"), pl.col("j.segm"),
                 pl.col("v.end"), pl.col("j.start"), pl.col("record_id"))
