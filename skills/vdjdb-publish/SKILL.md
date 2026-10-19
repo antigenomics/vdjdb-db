@@ -86,6 +86,10 @@ Distinguish that from a current-versus-release regression on the same cohort. Ke
 acceptance criteria unchanged unless the curator explicitly approves a different criterion.
 Keep one reviewed baseline instead of duplicating corpus-dependent constants in tests.
 
+After removing source rows, reconcile pinned structure-link source coordinates by stable record
+ID and run the strict structure-file audit. Preserve all other link cells and scientific proofs;
+publish reviewed snapshot changes through the local dataset mirror, then update the pinned input.
+
 Run required PR checks and full CI on the combined data-plus-validation candidate. Fix failures;
 never merge a red candidate. If legacy compatibility was requested, test the new chunk with the
 specified legacy checkout and retain the result in the local execution record.
