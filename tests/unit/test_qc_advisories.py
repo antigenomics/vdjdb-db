@@ -9,9 +9,9 @@ The repo's own rule already asks a chunk commit to state "what the build shows".
 mechanical: the counts are an artifact, and a rise beyond its declared tolerance fails until somebody
 moves `rules/qc_advisories.tsv` in a commit that says why.
 
-**Tolerances differ by rule on purpose.** `duplicate` counts within-chunk duplicate rows and grows with
-the corpus, so its band is wide; a malformed column name is a one-line repair in the submission and its
-band is zero. A single number for both would either wave through a real jump or fail every curation PR.
+Tolerances differ by rule. Exact duplicate observations fail strict QC; repaired header and
+provenance findings have no remaining allowance. Retained source-dependent advisories keep their
+reviewed bands until their publication evidence supports a correction.
 
 Unit-marked, not release-marked: it needs `chunks/` and the QC report, which every chunk pull request
 already produces, and this is the tier that runs there.

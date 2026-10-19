@@ -123,7 +123,7 @@ jobs:
       # Strict: a failing chunk exits non-zero, restoring the behaviour the Groovy build had and
       # the Python port replaced with warnings.warn. Measured after the header normalisation of
       # phase 3: 230 of 230 chunks and 203,308 of 203,308 rows are clean, so there is no quarantine
-      # list to grandfather. CRLF, unknown columns, non-PMID references and within-chunk duplicates
+      # list to grandfather. CRLF, unknown columns and non-PMID references
       # stay advisory -- they are reported, and do not block an unrelated submission.
       - name: Chunk QC
         run: |
