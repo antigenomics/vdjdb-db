@@ -37,6 +37,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sys
+from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -135,6 +137,33 @@ def fit_indices(inputs: pl.DataFrame, *, size: int = FIT_SAMPLE,
             .sort("__priority", *INPUT_KEY).head(size).sort(INPUT_KEY)["__index"].to_numpy())
 
 
+@contextmanager
+def _single_threaded_blas():
+    """Fix PCA's reduction order and restore the caller's numerical thread limits.
+
+    Randomized PCA changes float32 components with BLAS thread count. Accelerate
+    needs its native per-thread API because threadpoolctl does not control it.
+    """
+    from threadpoolctl import threadpool_limits
+
+    accelerate = None
+    if sys.platform == "darwin":
+        import ctypes
+
+        accelerate = ctypes.CDLL("/System/Library/Frameworks/Accelerate.framework/Accelerate")
+        accelerate.BLASGetThreading.restype = ctypes.c_uint
+        accelerate.BLASSetThreading.argtypes = [ctypes.c_uint]
+        previous = accelerate.BLASGetThreading()
+        if accelerate.BLASSetThreading(1) != 0:
+            raise RuntimeError("Accelerate cannot provide single-threaded PCA")
+    try:
+        with threadpool_limits(limits=1, user_api="blas"):
+            yield
+    finally:
+        if accelerate is not None:
+            accelerate.BLASSetThreading(previous)
+
+
 @dataclass(frozen=True)
 class ReducedEmbedding:
     """In-memory reference prototypes, scaler and PCA; queries only transform.
@@ -162,8 +191,10 @@ class ReducedEmbedding:
         out = np.empty((cols.height, self.pca.n_components_), dtype=np.float64)
         for start in range(0, cols.height, chunk):
             block = cols[start:start + chunk]
-            out[start:start + block.height] = self.pca.transform(
-                self.scaler.transform(self.prototype.embed(block)))
+            embedded = self.prototype.embed(block)
+            with _single_threaded_blas():
+                out[start:start + block.height] = self.pca.transform(
+                    self.scaler.transform(embedded))
         return out[inverse]
 
 
@@ -186,9 +217,10 @@ def fit_embedding(clonotypes: pl.DataFrame, species: str, locus: str, *,
     if len(idx) < 2:
         raise ValueError("TCREmp reduction requires at least two unique receptor inputs")
     fit = model.embed(cols[idx])
-    scaler = StandardScaler().fit(fit)
-    pca = PCA(n_components=min(n_components, fit.shape[1], len(idx) - 1),
-              random_state=seed).fit(scaler.transform(fit))
+    with _single_threaded_blas():
+        scaler = StandardScaler().fit(fit)
+        pca = PCA(n_components=min(n_components, fit.shape[1], len(idx) - 1),
+                  random_state=seed).fit(scaler.transform(fit))
     del fit
     frozen = ReducedEmbedding(model, scaler, pca, species, locus)
     return frozen.transform(clonotypes, chunk=chunk), frozen
