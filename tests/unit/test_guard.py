@@ -47,6 +47,20 @@ def test_released_outcome_header_is_caught_after_renaming(tmp_path):
     assert len(scan_paths([p], root=tmp_path)) == 1
 
 
+@pytest.mark.parametrize('delimiter', [',', '\t'])
+@pytest.mark.parametrize('columns', [
+    ['clonotype_aa', 'epitope_aa', 'hla_short', 'baseMean', 'padj'],
+    ['tcr_id', 'pos', 'neg', 'ambiguous', 'clonotype_aa_screened', 'epitope_aa'],
+])
+def test_quoted_fingerprint_headers_are_caught(tmp_path, delimiter, columns):
+    import csv
+
+    p = tmp_path / 'renamed.txt'
+    with p.open('w', encoding='utf-8-sig', newline='') as stream:
+        csv.writer(stream, delimiter=delimiter, quoting=csv.QUOTE_ALL).writerow(columns)
+    assert len(scan_paths([p], root=tmp_path)) == 1
+
+
 def test_tcrvdb_path_refuses_to_guess(monkeypatch):
     monkeypatch.delenv(ENV_VAR, raising=False)
     with pytest.raises(RuntimeError, match="proprietary"):

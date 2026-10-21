@@ -3360,6 +3360,7 @@ dependencies = [
 
 [package.optional-dependencies]
 confidence = [
+    { name = "mirpy-lib" },
     { name = "pgmpy" },
     { name = "scikit-learn" },
     { name = "torch", version = "2.14.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "python_version < '0'" },
@@ -3412,6 +3413,7 @@ requires-dist = [
     { name = "lumbermark", marker = "extra == 'tuning'", specifier = ">=0.9" },
     { name = "matplotlib", marker = "extra == 'summary'", specifier = ">=3.8" },
     { name = "mhcmatch", specifier = "==1.20.2" },
+    { name = "mirpy-lib", marker = "extra == 'confidence'", specifier = ">=3.0" },
     { name = "mirpy-lib", extras = ["bench"], marker = "extra == 'motifs'", specifier = ">=3.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.11" },
     { name = "myst-parser", marker = "extra == 'docs'", specifier = ">=3" },

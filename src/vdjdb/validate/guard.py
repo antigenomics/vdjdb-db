@@ -18,6 +18,7 @@ This module is the enforcement, not the reminder:
 """
 from __future__ import annotations
 
+import csv
 import os
 import re
 from dataclasses import dataclass
@@ -74,12 +75,15 @@ def _header_is_tcrvdb(path: Path) -> bool:
     if path.suffix.lower() not in {".tsv", ".csv", ".txt"}:
         return False
     try:
-        with path.open("r", encoding="utf-8", errors="ignore") as fh:
+        with path.open("r", encoding="utf-8-sig", errors="ignore") as fh:
             header = fh.readline()
     except OSError:
         return False
-    fields = set(re.split(r"[,\t]", header.strip()))
-    return fields >= _FINGERPRINT_COLUMNS or fields >= _RELEASED_COLUMNS
+    for delimiter in (",", "\t"):
+        fields = set(next(csv.reader([header], delimiter=delimiter)))
+        if fields >= _FINGERPRINT_COLUMNS or fields >= _RELEASED_COLUMNS:
+            return True
+    return False
 
 
 def scan_paths(paths: list[Path], *, root: Path | None = None) -> list[ProprietaryLeak]:
