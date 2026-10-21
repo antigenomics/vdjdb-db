@@ -41,10 +41,10 @@ def test_frozen_embedding_preserves_original_fit_and_batches_queries(monkeypatch
     # The existing operation order, independently of the new wrapper.
     unique, inverse = TE.receptor_inputs(reference)
     sample = TE.fit_indices(unique, size=4)
-    fit = Prototype().embed(unique[sample])
+    fit = Prototype().embed(unique[sample]).astype(np.float64)
     scaler = StandardScaler().fit(fit)
     pca = PCA(n_components=2, random_state=TE.SEED).fit(scaler.transform(fit))
-    want = np.vstack([pca.transform(scaler.transform(Prototype().embed(unique[i:i + 2])))
+    want = np.vstack([pca.transform(scaler.transform(Prototype().embed(unique[i:i + 2]).astype(np.float64)))
                       for i in range(0, unique.height, 2)])[inverse]
     calls.clear()
     X, frozen = TE.fit_embedding(reference, "HomoSapiens", "TRB", fit_sample=4, n_components=2, chunk=2)

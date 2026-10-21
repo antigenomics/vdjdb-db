@@ -60,7 +60,7 @@ Contribute and maintain
 
 Start with :doc:`standards/terminology` for the distinction between peptide provenance and
 recognition of a peptide-MHC complex. The :doc:`standards/confidence-score` page defines the
-legacy 0-3 score; :doc:`standards/record-scoring-v3` describes the separate v3 forecasts.
+legacy 0-3 score; :doc:`standards/record-scoring-v3` describes the separate v3.1 forecasts and legacy v3 option.
 
 .. toctree::
    :hidden:

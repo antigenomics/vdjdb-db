@@ -18,6 +18,7 @@ This module is the enforcement, not the reminder:
 """
 from __future__ import annotations
 
+import csv
 import os
 import re
 from dataclasses import dataclass
@@ -36,6 +37,8 @@ PROPRIETARY_PATTERNS: tuple[re.Pattern[str], ...] = (
 #: Column names that only appear together in the TCRvdb distribution. A file with all of these
 #: is a copy of it whatever it is called.
 _FINGERPRINT_COLUMNS = frozenset({"clonotype_aa", "epitope_aa", "hla_short", "padj", "baseMean"})
+_RELEASED_COLUMNS = frozenset({"tcr_id", "pos", "neg", "ambiguous",
+                               "clonotype_aa_screened", "epitope_aa"})
 
 #: Files we read to check, but never large binaries.
 _TEXT_SUFFIXES = frozenset({".tsv", ".csv", ".txt", ".json", ".md", ".parquet"})
@@ -72,12 +75,15 @@ def _header_is_tcrvdb(path: Path) -> bool:
     if path.suffix.lower() not in {".tsv", ".csv", ".txt"}:
         return False
     try:
-        with path.open("r", encoding="utf-8", errors="ignore") as fh:
+        with path.open("r", encoding="utf-8-sig", errors="ignore") as fh:
             header = fh.readline()
     except OSError:
         return False
-    fields = set(re.split(r"[,\t]", header.strip()))
-    return fields >= _FINGERPRINT_COLUMNS
+    for delimiter in (",", "\t"):
+        fields = set(next(csv.reader([header], delimiter=delimiter)))
+        if fields >= _FINGERPRINT_COLUMNS or fields >= _RELEASED_COLUMNS:
+            return True
+    return False
 
 
 def scan_paths(paths: list[Path], *, root: Path | None = None) -> list[ProprietaryLeak]:

@@ -23,16 +23,23 @@ app = typer.Typer(
 def score_records_command(
     tables: Path = typer.Option(Path("out/tables"), help="Completed tables, after vdjdb motifs."),
     out: Path | None = typer.Option(None, help="Separate score table directory; default: --tables."),
-    model: Path | None = typer.Option(None, help="Frozen JSON model; default: packaged v3 fit."),
+    model: Path | None = typer.Option(None, help="Frozen JSON model; default: packaged v3.1 fit."),
+    legacy_v3: bool = typer.Option(False, help="Use the original GLC/YLQ v3 model and hard evidence."),
+    hard_membership: bool = typer.Option(False, help="Use hard motif evidence with the selected model."),
+    threshold: float | None = typer.Option(None, min=0., max=1.,
+        help="Override the model's decision cutoff. Probabilities are unchanged."),
     soft_membership: bool = typer.Option(False, help="Exploratory Hamming-1 motif fractions; default off."),
     continuous_membership: bool = typer.Option(False,
-        help="Experimental separated motif indices; preserves hard order; default off."),
+        help="Use separated producer indices; default for v3.1, optional for legacy v3."),
 ) -> None:
     """Write record confidence v3, retaining legacy scores and current record IDs."""
     from .score.pipeline import run
 
+    if hard_membership and (soft_membership or continuous_membership):
+        raise typer.BadParameter('Choose hard, soft or continuous membership')
     frame = run(tables, out or tables, model, soft_membership=soft_membership,
-                continuous_membership=continuous_membership)
+                continuous_membership=False if hard_membership else True if continuous_membership else None,
+                legacy=legacy_v3, threshold=threshold)
     typer.echo(f"{frame.height:,} record scores -> {out or tables}")
 
 

@@ -81,6 +81,12 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ${{ fromJSON(inputs.runner || '"ubuntu-latest"') }}
     timeout-minutes: 300
+    # Use the same AVX OpenBLAS kernel across hosted runner CPU generations.
+    env:
+      # The locked NumPy wheel's Haswell DGEMM crashes on AMD EPYC 9V45 (#1385).
+      OPENBLAS_CORETYPE: Sandybridge
+      # Cache-based blocking also changes reduction order on AMD Zen 4/5.
+      OPENBLAS_L2_SIZE: '256'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -185,6 +191,19 @@ jobs:
           path: |
             out/tables/record_scores.parquet
             out/tables/record_scores.tsv.gz
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Legacy record confidence
+        run: |
+          . .github/stage-timing.sh
+          stage score-records-legacy uv run vdjdb score-records --tables out/tables --legacy-v3 --out out/legacy-scores
+
+      - name: Legacy record confidence artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: record-confidence-legacy-v3
+          path: out/legacy-scores/record_scores.*
           retention-days: 90
           if-no-files-found: error
 
