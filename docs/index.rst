@@ -41,6 +41,9 @@ Interpret a record
        <p>Follow TCRNET and TCREmp annotations and their quality criteria.</p></a>
    </div>
 
+For junction repairs, V/D/J boundaries and nucleotide reconstruction, read
+:doc:`standards/cdr3-fixing`.
+
 Contribute and maintain
 -----------------------
 
