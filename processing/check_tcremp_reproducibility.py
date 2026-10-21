@@ -76,6 +76,9 @@ def main() -> None:
         return matrix
 
     TCREmp.embed = recording_embed
+    print(json.dumps({'before_fit_pools': threadpool_info(),
+                      'cpu': Path('/proc/cpuinfo').read_text().split('\n\n')[0]
+                      if platform.system() == 'Linux' else platform.processor()}), flush=True)
     X, frozen = TE.fit_embedding(inputs, 'HomoSapiens', 'TRB', fit_sample=1024, chunk=512)
     eps = TE.chain_eps(X, TE.COEF['TRB'], clonotypes=inputs)
     labels = TE.cluster_labels(X, np.array(['PEPTIDE'] * len(X)), eps)

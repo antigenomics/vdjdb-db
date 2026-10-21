@@ -29,7 +29,11 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --frozen --extra motifs
       - name: Probe production embedding stages
-        run: uv run python processing/check_tcremp_reproducibility.py --threads ${{ matrix.threads }} --out out/probe-${{ matrix.threads }}-${{ matrix.replica }}.json
+        run: |
+          gdb --quiet --batch --return-child-result \
+            -ex 'set disable-randomization off' -ex run -ex 'thread apply all bt 12' \
+            --args .venv/bin/python processing/check_tcremp_reproducibility.py \
+            --threads ${{ matrix.threads }} --out out/probe-${{ matrix.threads }}-${{ matrix.replica }}.json
       - uses: actions/upload-artifact@v4
         with:
           name: tcremp-probe-${{ matrix.threads }}-${{ matrix.replica }}
