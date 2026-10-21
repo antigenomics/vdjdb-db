@@ -487,7 +487,9 @@ PCA is not whitened. The library's `random_state` and row sampling both use
 `vdjdb.config.SEED`. Fit and projection use one BLAS thread, restoring the caller's
 limits afterwards; native sequence embedding retains its existing batch parallelism.
 The supported Linux release environment also sets `OPENBLAS_CORETYPE=Sandybridge`
-before NumPy or SciPy is imported. Both settings are needed: a fixed seed alone
+and `OPENBLAS_L2_SIZE=256` before NumPy or SciPy is imported. The cache-size input
+fixes matrix blocking, which otherwise changes with AMD Zen 4/5 cache topology
+even under a fixed core selection. These settings are needed: a fixed seed alone
 leaves PCA sensitive to BLAS reduction order and CPU kernel dispatch.
 The reproducibility workflow checks exact stage hashes on separate hosted runners
 with caller thread allocations of 1, 2 and 4. This contract uses the locked Linux

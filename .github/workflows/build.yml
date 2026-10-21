@@ -85,6 +85,8 @@ jobs:
     env:
       # The locked NumPy wheel's Haswell DGEMM crashes on AMD EPYC 9V45 (#1385).
       OPENBLAS_CORETYPE: Sandybridge
+      # Cache-based blocking also changes reduction order on AMD Zen 4/5.
+      OPENBLAS_L2_SIZE: '256'
     steps:
       - uses: actions/checkout@v4
         with:

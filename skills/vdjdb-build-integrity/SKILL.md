@@ -39,7 +39,7 @@ is not proof of a full database build. Check artifact provenance by exact commit
 | Structure-file audit | Pinned raw-file checksums, all archive members, current sequence flags and every native accession |
 
 For exact TCREmp coordinates on the supported Linux release runtime, set
-`OPENBLAS_CORETYPE=Sandybridge` before importing NumPy or SciPy, as the build and numerical
+`OPENBLAS_CORETYPE=Sandybridge` and `OPENBLAS_L2_SIZE=256` before importing NumPy or SciPy, as the build and numerical
 reproducibility workflows do. Production fit/projection convert bounded prototype-feature matrices to float64,
 limit BLAS to one thread and restore caller limits. Double precision avoids the
 CPU-selected direct SGEMM path that bypasses OpenBLAS core selection; sequence embedding keeps its existing native batch parallelism.

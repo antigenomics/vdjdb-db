@@ -109,6 +109,7 @@ def main() -> None:
         'solver': frozen.pca._fit_svd_solver, 'shape': list(X.shape),
         'prototype_features': int(frozen.pca.n_features_in_),
         'pca_dtype': str(frozen.pca.components_.dtype),
+        'openblas_l2_size_kib': os.environ.get('OPENBLAS_L2_SIZE', ''),
         'clustered': int((labels >= 0).sum()),
         'clusters': int(len(np.unique(labels[labels >= 0]))),
         'stages': {'raw': raw, 'numerical': numerical,
