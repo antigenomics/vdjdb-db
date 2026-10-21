@@ -27,6 +27,8 @@ def main() -> None:
     import polars as pl
     from mir.embedding import TCREmp
     from threadpoolctl import threadpool_info
+    from scipy import linalg
+    from sklearn.preprocessing import StandardScaler
     from vdjdb.motifs import tcremp as TE
 
     def digest(array):
@@ -40,7 +42,27 @@ def main() -> None:
                            'v_call': ['TRBV5-1*01'] * len(junctions),
                            'j_call': ['TRBJ1-1*01'] * len(junctions)})
     raw = []
+    numerical = []
     original = TCREmp.embed
+
+    # Record boundaries inside randomized PCA without replacing its calculations.
+    def record_function(owner, name):
+        function = getattr(owner, name)
+
+        def wrapped(*positional, **keywords):
+            array = positional[-1] if name == 'transform' else positional[0]
+            before = digest(array)
+            result = function(*positional, **keywords)
+            arrays = result if isinstance(result, tuple) else (result,)
+            numerical.append({'operation': name, 'input': before,
+                              'outputs': [digest(a) for a in arrays]})
+            return result
+
+        setattr(owner, name, wrapped)
+
+    for name in ('lu', 'qr', 'svd'):
+        record_function(linalg, name)
+    record_function(StandardScaler, 'transform')
 
     def recording_embed(self, frame):
         matrix = original(self, frame)
@@ -58,12 +80,16 @@ def main() -> None:
     result = {
         'threads': args.threads, 'machine': platform.machine(),
         'processor': platform.processor(), 'platform': platform.platform(),
+        'libc': platform.libc_ver(),
+        'numpy_cpu_features': np._core._multiarray_umath.__cpu_features__,
         'numpy': np.__version__, 'pools': pools,
         'solver': frozen.pca._fit_svd_solver, 'shape': list(X.shape),
         'prototype_features': int(frozen.pca.n_features_in_),
         'clustered': int((labels >= 0).sum()),
         'clusters': int(len(np.unique(labels[labels >= 0]))),
-        'stages': {'raw': raw, 'scale_mean': digest(frozen.scaler.mean_),
+        'stages': {'raw': raw, 'numerical': numerical,
+                   'random_projection': digest(np.random.RandomState(TE.SEED).normal(
+                       size=(1024, TE.N_COMPONENTS + 10)).astype(np.float32)), 'scale_mean': digest(frozen.scaler.mean_),
                    'scale_variance': digest(frozen.scaler.var_),
                    'pca_mean': digest(frozen.pca.mean_),
                    'pca_components': digest(frozen.pca.components_),
