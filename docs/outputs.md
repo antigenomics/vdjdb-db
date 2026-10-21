@@ -188,7 +188,8 @@ Primary key `(record_id, gene)`. This is the level `vdjdb.txt` is written at. Ch
 table so that record fields are not duplicated per chain, as in `vdjdb.txt`, and not folded into
 paired alpha/beta columns, as in `vdjdb_full.txt`.
 
-The [generated column reference](standards/columns.md) lists every chain field. Submitted
+The [generated column reference](standards/columns.md) lists every chain field. The [CDR3 markup guide](standards/cdr3-fixing.md) explains
+repair reports, segment calls, coordinate slicing and their interpretation. Submitted
 sequences and V/D/J calls remain available beside repaired junctions, canonical calls and
 inferred segments, so consumers can distinguish the source observation from the build result.
 
@@ -204,10 +205,12 @@ ships (#681; `vdjdb.curate.jcalls.recall`).
 `cdr3nt` is inferred, not observed (#461): it is the most plausible nucleotide junction behind the
 amino-acid one, from the recombination model. 261,097 of 286,047 chains have one and each
 back-translates to its junction, but two models agree on only 7.2 % of the sequences, so the column is
-a representative history rather than evidence. `cdr3nt.pgen` is its generation probability and
-`cdr3nt.margin` its margin over the runner-up; 9.4 % of those chains have a margin below 1.1, where
-the choice was near-arbitrary. Filter on the margin rather than treating the sequence as observed
-(ROADMAP §19).
+a representative history rather than evidence. `cdr3nt.pgen` is the reconstruction-stage model
+score and `cdr3nt.margin` its ratio to the runner-up score; 9.4 % of those chains have a margin
+below 1.1, indicating a close choice at that stage (ROADMAP §19). Germline-flank replacement
+can follow without rescoring, so these values are not calibrated probabilities or uncertainty
+estimates for the final nucleotide string. The [markup guide](standards/cdr3-fixing.md) explains
+the scoring and coordinate conventions.
 
 `cdr3fix` is not a column here. Every member of the legacy JSON blob is its own variable:
 `cdr3.original` is the sequence as submitted, the four `fix.*` / `*.fix.type` columns say what was
