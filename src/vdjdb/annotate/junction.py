@@ -94,13 +94,14 @@ def _resolver(model: object, table: str, column: str) -> dict[str, str | None]:
                            on="gene", how="inner").select("gene", column).iter_rows())
     return {"": None, **{g: a for g, a in sole.items() if g not in alleles}, **alleles}
 
-#: The columns this stage adds to ``chains``. ``d.posterior`` belongs here rather than in a module of
-#: its own because it comes from the same scenario that produced ``d.inferred``: the number beside a
-#: call has to be the probability of *that* call, and taking it from a second estimator is what the
-#: retired `annotate/dgene.py` did (78.5 % agreement with the call it annotated).
+#: Explicit coordinate units, all in 0-based half-open junction space.
+COORD_COLUMNS: tuple[str, ...] = ("v.end.nt", "v.end.aa", "j.start.nt", "j.start.aa",
+                                  "d.start.nt", "d.start.aa", "d.end.nt", "d.end.aa")
+
+#: Final annotation columns, completed by add_junction_nt after TRA D masking.
 NT_COLUMNS: tuple[str, ...] = ("cdr3nt", "cdr3nt.pgen", "cdr3nt.margin",
                                "d.inferred", "d.start", "d.end", "d.posterior",
-                               "v.end.inferred", "j.start.inferred")
+                               "v.end.inferred", "j.start.inferred", *COORD_COLUMNS)
 
 #: ``annotate_junctions`` takes what it calls ``junction_aas``, and means it - Cys104..Phe/Trp118
 #: inclusive, which is what VDJdb's ``cdr3`` column holds. Passing true CDR3s would infer junctions
@@ -125,11 +126,12 @@ def blank_columns(keys: pl.DataFrame) -> pl.DataFrame:
                              pl.lit(None, pl.Int64).alias("d.end"),
                              pl.lit(None, pl.Float64).alias("d.posterior"),
                              pl.lit(UNMAPPED, pl.Int64).alias("v.end.inferred"),
-                             pl.lit(UNMAPPED, pl.Int64).alias("j.start.inferred"))
+                             pl.lit(UNMAPPED, pl.Int64).alias("j.start.inferred"),
+                             *[pl.lit(None, pl.Int64).alias(c) for c in COORD_COLUMNS])
 
 
 def infer(keys: pl.DataFrame) -> pl.DataFrame:
-    """``(species, cdr3, v.segm, j.segm)`` -> the same frame plus :data:`NT_COLUMNS`.
+    """Annotate distinct keys; :func:`add_junction_nt` completes the explicit coordinate variants.
 
     ``keys`` must already be distinct and sorted. One row comes back per row in, in input order,
     with nulls where the model cannot explain a junction, so the result is joined **positionally**
@@ -184,6 +186,11 @@ def infer(keys: pl.DataFrame) -> pl.DataFrame:
         # every consumer of the shipped table working; `convert.coords` records the four spaces.
         keep(got["d_start_nt"].cast(pl.Int64) - 1).alias("d.start"),
         keep(got["d_end_nt"].cast(pl.Int64)).alias("d.end"),
+        # Exact offsets from the same annotation, before any rounding to residues.
+        *[keep(pl.when(got[source] >= 0).then(got[source].cast(pl.Int64)))
+            .alias(target)
+          for source, target in (("v_end_nt", "v.end.nt"),
+                                 ("j_start_nt", "j.start.nt"))],
         # The probability of the gene `d.inferred` names, from the same scenario weights that named
         # it. Null where the locus has no D, which is an answer rather than a gap.
         keep(got["d_posterior"]).alias("d.posterior"),
@@ -258,6 +265,8 @@ def _fallback_boundaries(keys: pl.DataFrame, got: pl.DataFrame) -> list[pl.Expr]
 
 def add_junction_nt(chains: pl.DataFrame, records: pl.DataFrame) -> pl.DataFrame:
     """Add :data:`NT_COLUMNS` to ``chains``. One batched call over the distinct key set."""
+    from ..convert.coords import nt_to_aa_span_expr
+
     species = records.select("record_id", "species")
     keyed = chains.join(species, on="record_id", how="left")
     # **A blank V or J is passed through, not filtered out.** `arda.cdr3fix` proposes a call for a
@@ -291,5 +300,13 @@ def add_junction_nt(chains: pl.DataFrame, records: pl.DataFrame) -> pl.DataFrame
                   .otherwise(pl.lit(UNMAPPED, pl.Int64)).alias(fallback)
                 for shipped, fallback in (("v.end", "v.end.inferred"),
                                           ("j.start", "j.start.inferred"))])
+            .with_columns(pl.col("d.start").alias("d.start.nt"),
+                          pl.col("d.end").alias("d.end.nt"),
+                          *[pl.when(pl.col(c) >= 0).then(pl.col(c)).alias(c)
+                            for c in ("v.end.nt", "j.start.nt")])
+            .with_columns(*[nt_to_aa_span_expr(pl.col(f"{boundary}.nt"),
+                                               start=boundary.endswith("start"))
+                              .alias(f"{boundary}.aa")
+                            for boundary in ("v.end", "j.start", "d.start", "d.end")])
             .drop("species")
             .sort("record_id", "gene"))

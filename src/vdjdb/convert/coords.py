@@ -135,3 +135,13 @@ def to_sequence(pos: int, junction_start: int) -> int:
 
 def from_sequence(pos: int, junction_start: int) -> int:
     return pos - junction_start
+
+
+def nt_to_aa_span_expr(nt: pl.Expr, *, start: bool) -> pl.Expr:
+    """0-based half-open nt span endpoint -> the codons touched, with null for unmapped.
+
+    Starts round down; exclusive ends round up. Adjacent segments can touch the same
+    residue when their nucleotide boundary falls inside a codon.
+    """
+    return (pl.when(nt >= 0)
+            .then(((nt + (0 if start else CODON - 1)) // CODON).cast(pl.Int64)))

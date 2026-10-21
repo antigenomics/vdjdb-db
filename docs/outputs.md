@@ -226,6 +226,35 @@ the database either. `records.pmhc_id` and `records.epitope_id` are the antigen-
 [Identifiers](standards/identity.md) is the reference: the five levels, the two mechanisms, the
 lifecycle fields and the seven invariants `vdjdb identity check` asserts.
 
+The explicit coordinate fields in `chains` and the joined view are:
+
+| Nucleotide field | Amino-acid field | Meaning |
+|---|---|---|
+| `v_end_nt` | `v_end_aa` | Exclusive end of V |
+| `j_start_nt` | `j_start_aa` | First included position of J |
+| `d_start_nt` | `d_start_aa` | First included position of D |
+| `d_end_nt` | `d_end_aa` | Exclusive end of D |
+
+All eight use **0-based, half-open junction space**, including both conserved anchors.
+The nucleotide coordinates index `cdr3nt`. V/J offsets come directly from
+`vdjtools.model.annotate_junctions`, preserving boundaries inside codons. D placement
+comes from that same call, converted from its 1-based closed interval.
+For a nucleotide span `[s, e)`, the amino-acid span is `[s // 3, (e + 2) // 3)`:
+every codon touched is included, so two segments can overlap in amino-acid space.
+For example, D nucleotides `[5, 7)` touch residues `[1, 3)`.
+V starts at zero; J ends at the junction length in the chosen unit.
+Unavailable coordinates are null, including all D coordinates on TRA chains.
+Coordinates are also null when the inferred sequence is absent or fails to translate
+to the shipped junction. These are annotation-derived boundaries, not observed
+nucleotide measurements.
+
+The unsuffixed fields remain for compatibility. `v_end` and `j_start` retain the
+historical protein-alignment values and `-1` sentinel; they need not equal the new
+amino-acid endpoints derived from nucleotide spans. `d_start` and `d_end` remain
+aliases of `d_start_nt` and `d_end_nt`. Legacy files, positional motif columns and
+`cdr3fix` JSON retain their existing names and values. Internal table names use dots
+(`v.end.nt`); exported tidy tables use underscores (`v_end_nt`).
+
 `d.segm` is the curated D call, as the publication reported it. `d.inferred`, `d.start` and `d.end`
 describe the D of the recombination scenario that produced `cdr3nt`, so the coordinates index that
 sequence (0-based, half-open). They agree with the curated call at gene level on 78.4 % of the 40,892

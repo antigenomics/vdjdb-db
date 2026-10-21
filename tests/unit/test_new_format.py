@@ -15,7 +15,9 @@ from vdjdb.schema import CHAIN_COLUMNS, RECORD_COLUMNS, TABLES
 _CHAIN_DTYPES = {"v.end": pl.Int64, "j.start": pl.Int64,
                  "fix.needed": pl.Boolean, "fix.good": pl.Boolean,
                  "v.canonical": pl.Boolean, "j.canonical": pl.Boolean,
-                 "cdr3nt.pgen": pl.Float64, "cdr3nt.margin": pl.Float64}
+                 "cdr3nt.pgen": pl.Float64, "cdr3nt.margin": pl.Float64,
+                 **{f"{b}.{u}": pl.Int64 for b in ("v.end", "j.start", "d.start", "d.end")
+                    for u in ("nt", "aa")}}
 
 RECORDS = [
     {"record_id": "VDJDB0000000001", "species": "HomoSapiens", "mhc.a": "HLA-A*02:01",
@@ -218,3 +220,23 @@ def test_chain_assembly_discards_segment_only_partners():
             row[f"__sub.{segment}.{gene}"] = ""
     chains = build_chains(pl.DataFrame([row]))
     assert chains.select("gene", "cdr3").rows() == [("TRA", "CAVRDSNYQLIW")]
+
+
+def test_explicit_coordinate_units_reach_both_export_formats(tmp_path, tables):
+    values = {'v.end.nt': 4, 'v.end.aa': 2, 'j.start.nt': 8, 'j.start.aa': 2,
+              'd.start.nt': 5, 'd.start.aa': 1, 'd.end.nt': 7, 'd.end.aa': 3}
+    tables['chains'] = tables['chains'].with_columns(
+        *[pl.lit(v, pl.Int64).alias(c) for c, v in values.items()])
+    vdjdb3.write_all(tables, tmp_path)
+    for name in ('chains', 'vdjdb'):
+        disk = pl.read_parquet(tmp_path / f'{name}.parquet')
+        for c, v in values.items():
+            assert disk[c.replace('.', '_')].to_list() == [v, v]
+    import io
+    text = pl.read_csv(io.BytesIO(gzip.decompress((tmp_path / 'chains.tsv.gz').read_bytes())),
+                       separator='\t')
+    for c, v in values.items():
+        assert text[c.replace('.', '_')].to_list() == [v, v]
+    fields = {f['name']: f for f in json.loads((tmp_path / 'vdjdb.schema.json').read_text())['fields']}
+    for c in values:
+        assert fields[c]['dtype'] == 'Int64'

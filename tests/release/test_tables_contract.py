@@ -328,3 +328,18 @@ def test_a_filled_boundary_is_inside_the_junction_it_describes(tables):
         assert bad.height == 0, \
             f"{bad.height} chains put {col} outside their junction:\n{bad.head(5)}"
         assert chains[col].null_count() == 0, f"{col} must use -1, never null (rule 6)"
+
+
+def test_explicit_coordinate_units_preserve_nucleotides_and_touching_codons(tables):
+    chains = tables['chains']
+    for boundary in ('v.end', 'j.start', 'd.start', 'd.end'):
+        nt, aa = pl.col(f'{boundary}.nt'), pl.col(f'{boundary}.aa')
+        expected = nt // 3 if boundary.endswith('start') else (nt + 2) // 3
+        assert chains.filter(nt.is_null() != aa.is_null()).is_empty()
+        assert chains.filter(nt.is_not_null() & (
+            (nt < 0) | (nt > pl.col('cdr3nt').str.len_chars()) | (aa != expected))).is_empty()
+        assert chains.filter((pl.col('cdr3nt') == '') & nt.is_not_null()).is_empty()
+    for bound in ('start', 'end'):
+        assert chains[f'd.{bound}'].equals(chains[f'd.{bound}.nt'])
+        assert chains.filter(pl.col('gene') == 'TRA')[f'd.{bound}.nt'].null_count() == (
+            chains.filter(pl.col('gene') == 'TRA').height)

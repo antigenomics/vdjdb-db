@@ -296,6 +296,38 @@ FIELDS: dict[str, Field] = dict([
        comment="First nucleotide of the D segment in cdr3nt, 0-based, half-open with d.end."),
     _f("d.end", searchable=0, autocomplete=0, data_type="uint", title="D end",
        comment="One past the last nucleotide of the D segment in cdr3nt."),
+    _f("v.end.nt", searchable=0, autocomplete=0, data_type="int",
+       title="V END (nt)",
+       comment="Exclusive end nucleotide offset in cdr3nt; 0-based half-open junction space. Null when "
+               "unavailable. V/J markup boundary; nucleotide sequence is inferred."),
+    _f("v.end.aa", searchable=0, autocomplete=0, data_type="int",
+       title="V END (aa)",
+       comment="Exclusive end residue offset of the codons touched; 0-based half-open junction space. "
+               "Null when unavailable. V/J markup boundary; nucleotide sequence is inferred."),
+    _f("j.start.nt", searchable=0, autocomplete=0, data_type="int",
+       title="J START (nt)",
+       comment="First included nucleotide offset in cdr3nt; 0-based half-open junction space. Null when "
+               "unavailable. V/J markup boundary; nucleotide sequence is inferred."),
+    _f("j.start.aa", searchable=0, autocomplete=0, data_type="int",
+       title="J START (aa)",
+       comment="First included residue offset of the codons touched; 0-based half-open junction space. "
+               "Null when unavailable. V/J markup boundary; nucleotide sequence is inferred."),
+    _f("d.start.nt", searchable=0, autocomplete=0, data_type="int",
+       title="D START (nt)",
+       comment="First included nucleotide offset in cdr3nt; 0-based half-open junction space. Null when "
+               "unavailable. D placement on the inferred nucleotide junction; null for TRA."),
+    _f("d.start.aa", searchable=0, autocomplete=0, data_type="int",
+       title="D START (aa)",
+       comment="First included residue offset of the codons touched; 0-based half-open junction space. "
+               "Null when unavailable. D placement on the inferred nucleotide junction; null for TRA."),
+    _f("d.end.nt", searchable=0, autocomplete=0, data_type="int",
+       title="D END (nt)",
+       comment="Exclusive end nucleotide offset in cdr3nt; 0-based half-open junction space. Null when "
+               "unavailable. D placement on the inferred nucleotide junction; null for TRA."),
+    _f("d.end.aa", searchable=0, autocomplete=0, data_type="int",
+       title="D END (aa)",
+       comment="Exclusive end residue offset of the codons touched; 0-based half-open junction space. "
+               "Null when unavailable. D placement on the inferred nucleotide junction; null for TRA."),
     _f("v.inferred", searchable=0, title="V inferred",
        comment="V call proposed by the recombination model, filled only where the curator named "
                "none. Recovers the curated V on 23.8 % of human TRB and 50.1 % of TRA when it is "
@@ -599,6 +631,8 @@ CHAIN_COLUMNS: tuple[str, ...] = (
     "record_id", "gene", "clonotype_id", "clone_id",
     "cdr3", "v.segm", "d.segm", "j.segm",
     "v.end", "j.start",
+    "v.end.nt", "v.end.aa", "j.start.nt", "j.start.aa",
+    "d.start.nt", "d.start.aa", "d.end.nt", "d.end.aa",
     "cdr3nt", "cdr3nt.pgen", "cdr3nt.margin",
     "v.inferred", "j.inferred",
     "d.inferred", "d.start", "d.end", "d.posterior",
