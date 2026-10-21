@@ -14,8 +14,10 @@ Chunking is required, not an optimisation. A single-shot ``embed`` -> ``Standard
 that OOMs a 16 GB runner alongside the rest of the build. The scaler and the PCA are fitted on an
 identity-priority :data:`FIT_SAMPLE` sample of unique receptor inputs; every chunk is reduced
 to 50 dimensions as it is embedded,
-so the wide ``(n, 3 * n_prototypes)`` matrix is never materialised in full: peak is one chunk,
-~480 MB at 2,000 prototypes, against 22 MB for the reduced result. Chunks run sequentially, one
+so the wide ``(n, 3 * n_prototypes)`` matrix is never materialised in full. At 2,000
+prototypes a 20,000-row raw float32 block is 480 MB; its float64 reduction matrix is
+960 MB. Scaling temporarily needs a second 960 MB matrix, released before the next
+block. Chunks run sequentially, one
 internally threaded ``embed()`` each -- never a worker pool (CLAUDE.md hard rule 3, ROADMAP
 section 8.8).
 

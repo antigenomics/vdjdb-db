@@ -6,6 +6,7 @@ invocation re-embeds and refits through the production entry point.
 from __future__ import annotations
 
 import argparse
+import faulthandler
 import hashlib
 import json
 import os
@@ -14,6 +15,7 @@ from pathlib import Path
 
 
 def main() -> None:
+    faulthandler.enable()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--threads', type=int, required=True, choices=(1, 2, 4))
     parser.add_argument('--out', type=Path, required=True)
@@ -55,6 +57,7 @@ def main() -> None:
                 active_pools.extend(threadpool_info())
             array = positional[-1] if name == 'transform' else positional[0]
             before = digest(array)
+            print(f"TCREmp probe {name}: input {array.shape} {array.dtype}", flush=True)
             result = function(*positional, **keywords)
             arrays = result if isinstance(result, tuple) else (result,)
             numerical.append({'operation': name, 'input': before,

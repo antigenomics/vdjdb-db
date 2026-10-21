@@ -20,6 +20,7 @@ jobs:
     env:
       OPENBLAS_CORETYPE: Haswell
     strategy:
+      fail-fast: false
       matrix:
         threads: [1, 2, 4]
         replica: [1, 2]
