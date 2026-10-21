@@ -141,7 +141,7 @@ def fit_indices(inputs: pl.DataFrame, *, size: int = FIT_SAMPLE,
 def _single_threaded_blas():
     """Fix PCA's reduction order and restore the caller's numerical thread limits.
 
-    Randomized PCA changes float32 components with BLAS thread count. Accelerate
+    Randomized PCA changes components with BLAS thread count. Accelerate
     needs its native per-thread API because threadpoolctl does not control it.
     """
     from threadpoolctl import threadpool_limits
@@ -193,7 +193,9 @@ class ReducedEmbedding:
         out = np.empty((cols.height, self.pca.n_components_), dtype=np.float64)
         for start in range(0, cols.height, chunk):
             block = cols[start:start + chunk]
-            embedded = self.prototype.embed(block)
+            # OpenBLAS CBLAS SGEMM has a CPU-selected direct path outside
+            # OPENBLAS_CORETYPE. Float64 keeps PCA on the pinned DGEMM path.
+            embedded = self.prototype.embed(block).astype(np.float64)
             with _single_threaded_blas():
                 out[start:start + block.height] = self.pca.transform(
                     self.scaler.transform(embedded))
@@ -219,7 +221,7 @@ def fit_embedding(clonotypes: pl.DataFrame, species: str, locus: str, *,
     idx = fit_indices(cols, size=fit_sample, seed=seed)
     if len(idx) < 2:
         raise ValueError("TCREmp reduction requires at least two unique receptor inputs")
-    fit = model.embed(cols[idx])
+    fit = model.embed(cols[idx]).astype(np.float64)
     with _single_threaded_blas():
         scaler = StandardScaler().fit(fit)
         pca = PCA(n_components=min(n_components, fit.shape[1], len(idx) - 1),

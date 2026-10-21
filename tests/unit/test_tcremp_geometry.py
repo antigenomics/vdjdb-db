@@ -89,6 +89,7 @@ inputs = pl.DataFrame({'junction_aa': [f'C{i}F' for i in range(len(matrix))],
                        'j_call': ['TRBJ1-1*01'] * len(matrix)})
 X, frozen = TE.fit_embedding(inputs, 'HomoSapiens', 'TRB', fit_sample=1024, chunk=512)
 assert frozen.pca._fit_svd_solver == 'randomized'
+assert frozen.pca.components_.dtype == np.float64
 print(hashlib.sha256(X.tobytes()).hexdigest())
 """
     outputs = [subprocess.check_output([sys.executable, '-c', code], env={

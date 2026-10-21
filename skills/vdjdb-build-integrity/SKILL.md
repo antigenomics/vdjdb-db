@@ -40,8 +40,9 @@ is not proof of a full database build. Check artifact provenance by exact commit
 
 For exact TCREmp coordinates on the supported Linux release runtime, set
 `OPENBLAS_CORETYPE=Haswell` before importing NumPy or SciPy, as the build and numerical
-reproducibility workflows do. Production fit/projection limit BLAS to one thread and
-restore caller limits; sequence embedding keeps its existing native batch parallelism.
+reproducibility workflows do. Production fit/projection convert bounded prototype-feature matrices to float64,
+limit BLAS to one thread and restore caller limits. Double precision avoids the
+CPU-selected direct SGEMM path that bypasses OpenBLAS core selection; sequence embedding keeps its existing native batch parallelism.
 Verify raw embeddings, scaler statistics, PCA components, coordinates, radius and
 memberships across separate runners and caller thread allocations. Pinning only the
 seed or thread count does not fix CPU kernel dispatch. Exact coordinates across

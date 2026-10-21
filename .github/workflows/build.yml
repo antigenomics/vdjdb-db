@@ -84,7 +84,6 @@ jobs:
     # Fix the OpenBLAS kernel across Haswell and AVX-512 hosted runner CPUs.
     env:
       OPENBLAS_CORETYPE: Haswell
-      NPY_DISABLE_CPU_FEATURES: AVX512F
     steps:
       - uses: actions/checkout@v4
         with:

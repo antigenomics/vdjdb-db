@@ -80,8 +80,6 @@ def main() -> None:
     if platform.system() == 'Linux' and os.environ.get('OPENBLAS_CORETYPE') == 'Haswell':
         blas = [pool for pool in pools if pool['internal_api'] == 'openblas']
         assert blas and all(pool['architecture'] == 'Haswell' for pool in blas), pools
-    if 'AVX512F' in os.environ.get('NPY_DISABLE_CPU_FEATURES', '').split(','):
-        assert not np._core._multiarray_umath.__cpu_features__['AVX512F']
     result = {
         'threads': args.threads, 'machine': platform.machine(),
         'processor': platform.processor(), 'platform': platform.platform(),
@@ -90,11 +88,12 @@ def main() -> None:
         'numpy': np.__version__, 'pools': pools, 'active_pools': active_pools,
         'solver': frozen.pca._fit_svd_solver, 'shape': list(X.shape),
         'prototype_features': int(frozen.pca.n_features_in_),
+        'pca_dtype': str(frozen.pca.components_.dtype),
         'clustered': int((labels >= 0).sum()),
         'clusters': int(len(np.unique(labels[labels >= 0]))),
         'stages': {'raw': raw, 'numerical': numerical,
                    'random_projection': digest(np.random.RandomState(TE.SEED).normal(
-                       size=(1024, TE.N_COMPONENTS + 10)).astype(np.float32)), 'scale_mean': digest(frozen.scaler.mean_),
+                       size=(1024, TE.N_COMPONENTS + 10)).astype(frozen.pca.components_.dtype)), 'scale_mean': digest(frozen.scaler.mean_),
                    'scale_variance': digest(frozen.scaler.var_),
                    'pca_mean': digest(frozen.pca.mean_),
                    'pca_components': digest(frozen.pca.components_),

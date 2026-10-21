@@ -476,12 +476,17 @@ y_{ir}=w_r^{\mathsf T}(\widetilde z_i-\overline{\widetilde z}_F),
 \quad r=1,\ldots,d,\qquad d=\min(50,3P,f-1).
 $$
 
+The prototype producer returns float32 features. The bounded fit sample and each
+projection block are converted to float64 before scaling and PCA. OpenBLAS's
+single-precision CBLAS matrix product can select a CPU-specific direct AVX-512
+kernel independently of `OPENBLAS_CORETYPE`; double precision avoids that path.
+This doubles the wide reduction matrix's storage while retaining bounded batches.
 PCA is not whitened. The library's `random_state` and row sampling both use
 `vdjdb.config.SEED`. Fit and projection use one BLAS thread, restoring the caller's
 limits afterwards; native sequence embedding retains its existing batch parallelism.
 The supported Linux release environment also sets `OPENBLAS_CORETYPE=Haswell`
 before NumPy or SciPy is imported. Both settings are needed: a fixed seed alone
-leaves float32 PCA sensitive to BLAS reduction order and CPU kernel dispatch.
+leaves PCA sensitive to BLAS reduction order and CPU kernel dispatch.
 The reproducibility workflow checks exact stage hashes on separate hosted runners
 with caller thread allocations of 1, 2 and 4. This contract uses the locked Linux
 dependencies and fixed OpenBLAS kernel; it does not assert identical coordinates
