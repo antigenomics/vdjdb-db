@@ -96,9 +96,10 @@ def main() -> None:
     eps = TE.chain_eps(X, TE.COEF['TRB'], clonotypes=inputs)
     labels = TE.cluster_labels(X, np.array(['PEPTIDE'] * len(X)), eps)
     pools = threadpool_info()
-    if platform.system() == 'Linux' and os.environ.get('OPENBLAS_CORETYPE') == 'Haswell':
+    expected_core = os.environ.get('OPENBLAS_CORETYPE')
+    if platform.system() == 'Linux' and expected_core:
         blas = [pool for pool in pools if pool['internal_api'] == 'openblas']
-        assert blas and all(pool['architecture'] == 'Haswell' for pool in blas), pools
+        assert blas and all(pool['architecture'].lower() == expected_core.lower() for pool in blas), pools
     result = {
         'threads': args.threads, 'machine': platform.machine(),
         'processor': platform.processor(), 'platform': platform.platform(),

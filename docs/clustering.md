@@ -486,7 +486,7 @@ input matrix is shared with those disposable buffers.
 PCA is not whitened. The library's `random_state` and row sampling both use
 `vdjdb.config.SEED`. Fit and projection use one BLAS thread, restoring the caller's
 limits afterwards; native sequence embedding retains its existing batch parallelism.
-The supported Linux release environment also sets `OPENBLAS_CORETYPE=Haswell`
+The supported Linux release environment also sets `OPENBLAS_CORETYPE=Sandybridge`
 before NumPy or SciPy is imported. Both settings are needed: a fixed seed alone
 leaves PCA sensitive to BLAS reduction order and CPU kernel dispatch.
 The reproducibility workflow checks exact stage hashes on separate hosted runners

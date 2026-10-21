@@ -16,9 +16,10 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # The same OpenBLAS kernel on Haswell and AVX-512 hosted runner CPUs.
+    # Use the same AVX OpenBLAS kernel across hosted runner CPU generations.
     env:
-      OPENBLAS_CORETYPE: Haswell
+      # The locked NumPy wheel's Haswell DGEMM crashes on AMD EPYC 9V45 (#1385).
+      OPENBLAS_CORETYPE: Sandybridge
     strategy:
       fail-fast: false
       matrix:
