@@ -116,3 +116,16 @@ def test_deterministic_pca_restores_initialized_blas_limits():
         assert threadpool_info() == before
         if sys.platform == 'darwin':
             assert accelerate.BLASGetThreading() == previous
+
+
+
+def test_release_and_reproducibility_use_the_same_blas_environment():
+    from pathlib import Path
+
+    import yaml
+
+    root = Path(__file__).resolve().parents[2] / '.github' / 'workflows'
+    release = yaml.safe_load((root / 'build.yml').read_text())['jobs']['build']['env']
+    probe = yaml.safe_load((root / 'tcremp-reproducibility.yml').read_text())['jobs']['probe']['env']
+    for name in ('OPENBLAS_CORETYPE', 'OPENBLAS_L2_SIZE'):
+        assert release[name] == probe[name]
