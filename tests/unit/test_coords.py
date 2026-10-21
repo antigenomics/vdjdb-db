@@ -101,3 +101,12 @@ def test_an_unmapped_boundary_stays_unmapped(bad) -> None:
     got = (pl.DataFrame({"nt": [bad]}, schema={"nt": pl.Int64})
            .select(coords.nt_to_aa_boundary_expr(pl.col("nt"))).item())
     assert got == -1
+
+
+@pytest.mark.parametrize("nt", [None, -1, 0, 1, 2, 3, 4, 5, 6])
+def test_half_open_span_rounds_outward_to_every_touched_codon(nt):
+    frame = pl.DataFrame({'nt': [nt]}, schema={'nt': pl.Int64})
+    got = frame.select(coords.nt_to_aa_span_expr(pl.col('nt'), start=True).alias('s'),
+                       coords.nt_to_aa_span_expr(pl.col('nt'), start=False).alias('e')).row(0)
+    expected = (None, None) if nt is None or nt < 0 else (nt // 3, (nt + 2) // 3)
+    assert got == expected

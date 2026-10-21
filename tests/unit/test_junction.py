@@ -235,3 +235,37 @@ def test_a_boundary_is_never_null_whatever_the_species():
     for col in ("v.end.inferred", "j.start.inferred"):
         assert got[col].null_count() == 0, f"{col} must be UNMAPPED, never null"
         assert got[col].dtype == pl.Int64
+
+
+def test_explicit_coordinates_keep_partial_codons_and_mask_unusable_sequences(monkeypatch):
+    import vdjtools.model
+
+    chains = pl.concat([KEYS.head(1)] * 5).drop('species').with_columns(
+        pl.Series('record_id', ['r1', 'r2', 'r3', 'r4', 'r5']),
+        pl.Series('gene', ['TRB', 'TRA', 'TRB', 'TRB', 'TRB']),
+        pl.Series('v.segm', [f'V{i}' for i in range(5)]),
+        pl.lit(4).alias('v.end'), pl.lit(8).alias('j.start'))
+    nt = 'TGTGCTTCTTCTATTCGTTCTTCTTATGAACAATATTTT'
+    # No sequence, incorrect translation and unmapped bounds must not become coordinate zero.
+    raw = pl.DataFrame({
+        'cdr3_nt': [nt, nt, '', 'TGT', nt],
+        'pgen': [1.] * 5, 'runner_up_pgen': [None] * 5,
+        'd_call': ['TRBD1*01'] * 5, 'd_posterior': [1.] * 5,
+        'v_end_nt': [4, 4, -1, 4, -1], 'j_start_nt': [8, 8, -1, 8, -1],
+        'd_start_nt': [6, 6, None, 6, None], 'd_end_nt': [7, 7, None, 7, None],
+    }, schema_overrides={'runner_up_pgen': pl.Float64})
+    monkeypatch.setattr(vdjtools.model, 'annotate_junctions', lambda *a, **k: raw)
+    monkeypatch.setattr(junction, '_fallback_boundaries', lambda keys, got: [
+        pl.lit(-1).alias('v.end.inferred'), pl.lit(-1).alias('j.start.inferred')])
+    records = pl.DataFrame({'record_id': chains['record_id'], 'species': ['HomoSapiens'] * 5})
+    got = junction.add_junction_nt(chains, records)
+    assert got.select('v.end.nt', 'v.end.aa', 'j.start.nt', 'j.start.aa').rows() == [
+        (4, 2, 8, 2), (4, 2, 8, 2), (None, None, None, None),
+        (None, None, None, None), (None, None, None, None)]
+    assert got.select('d.start.nt', 'd.end.nt', 'd.start.aa', 'd.end.aa').rows() == [
+        (5, 7, 1, 3), (None, None, None, None), (None, None, None, None),
+        (None, None, None, None), (None, None, None, None)]
+    assert got['v.end'].to_list() == [4] * 5
+    assert got['j.start'].to_list() == [8] * 5
+    assert got['d.start'].to_list() == got['d.start.nt'].to_list()
+    assert got['d.end'].to_list() == got['d.end.nt'].to_list()
