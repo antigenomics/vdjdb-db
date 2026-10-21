@@ -512,13 +512,15 @@ The [v3 specification](standards/record-scoring-v3.md) defines their columns and
 The existing legacy 0-3 score and positional exports remain unchanged. No stored feature or
 prediction rows are reused across builds. The frozen parameters are the same for every record;
 missing evidence is marginalized. Held-out metrics use the complete original assay structural
-inputs and do not estimate universal production-record accuracy. Hard motif membership is the
-default; opt-in `--soft-membership` adds four Hamming-1 fractions and integer `*_members` /
+inputs and do not estimate universal production-record accuracy. V3.1 is the default, with producer-separated motif
+indices and one global decision cutoff. `--legacy-v3` selects the original model
+and hard evidence. Explicit `--soft-membership` adds four Hamming-1 fractions and integer `*_members` /
 `*_neighbours` columns within each producer's scope.
-The alternative `--continuous-membership` uses the separated index $(2b+u)/3$,
+V3.1 and explicit `--continuous-membership` use $(1-w)b+wu$ with $w=1/12$,
 retains `*_hard` assignments and records `continuous_membership` and
-`motif_score_version`. It is experimental and off by default; the
-[v3 specification](standards/record-scoring-v3.md#optional-separated-motif-indices)
+`motif_score_version=separated-producer-v2`, `motif_score_width` and `*_support`.
+V3.1 records `score_version=3.1` and its `decision_threshold`; the
+[v3 specification](standards/record-scoring-v3.md)
 defines the ordering guarantee and interpolation semantics.
 
 ### 3.3a `epitopes.parquet` and `restriction.parquet` - the antigen catalogue

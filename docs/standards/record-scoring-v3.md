@@ -1,6 +1,11 @@
-# Record confidence score v3
+# Record confidence v3.1 and legacy v3
 
-Record confidence v3 combines publication, donor, motif and predicted-structure evidence
+Record confidence v3.1 is the default. Its frozen model is fitted on the released
+positive/negative outcomes for five epitopes, with 1,782 labelled interactions.
+The 252 ambiguous outcomes receive scores and are excluded from binary metrics.
+The original 614-interaction GLC/YLQ model remains available as `--legacy-v3`.
+
+The model combines publication, donor, motif and predicted-structure evidence
 in one frozen Bayesian network. It returns a paired forecast and two chain-only views
 of validation of the same receptor:pMHC interaction. The existing `vdjdb.score` remains
 the legacy 0-3 score; v3 is a separate table linked by `record_id`.
@@ -33,14 +38,25 @@ uv run vdjdb score-records --tables out/tables
 The metadata argument supplies the reviewed structural input described in
 [build instructions](../builds.md). A build without it can still be scored; unavailable
 ipTM is marginalized. Scoring requires the completed motif stage and refuses a table
-with no motif evidence. CI runs scoring after motifs with the packaged model. `--model`
-selects an explicitly supplied frozen JSON artifact; `--out` selects a separate output
+with no motif evidence. CI runs scoring after motifs with packaged v3.1. `--legacy-v3` selects the unchanged
+original model and hard motif evidence. `--hard-membership` selects hard evidence
+with the chosen model; `--threshold` overrides its decision cutoff without changing
+probabilities. For example:
+
+```bash
+uv run vdjdb score-records --tables out/tables --legacy-v3 --out out/legacy-v3
+uv run vdjdb score-records --tables out/tables --hard-membership --out out/v31-hard
+```
+
+`--model` selects an explicitly supplied frozen JSON artifact; `--out` selects a separate output
 directory. Default output is the input table directory.
 
 `record_scores.parquet` and `record_scores.tsv.gz` contain exactly one row per current
 `record_id`, sorted by ID. TSV has a deterministic gzip header; unknown values are empty
 cells. Parquet retains typed nulls. No column is appended to a legacy positional file.
 The six probability/envelope columns use 12 significant figures in both formats.
+Inference preserves the fitted network's node and factor order after pruning, so
+Python hash seeds cannot change tensor contraction order.
 Decisions use full-precision inference;
 input evidence and fitted parameters are unchanged.
 The primary bundle includes both score files when that stage has run; the hosted build
@@ -53,7 +69,8 @@ Normal hosted builds retain both files in the `record-confidence-v3` artifact fo
 | `record_id` | Current observation identifier; unique primary key |
 | `a_studies`, `b_studies` | Distinct publication counts for the TRA/TRB chain, peptide and V gene |
 | `donors` | Distinct nonempty publication/donor contexts for the exact integrated receptor:pMHC |
-| `a_tcrnet`, `b_tcrnet`, `a_tcremp`, `b_tcremp` | Hard membership: 1 member, 0 explicitly scored nonmember, missing if unannotated |
+| `a_tcrnet`, `b_tcrnet`, `a_tcremp`, `b_tcremp` | Separated producer indices in v3.1; hard membership in legacy mode; missing if unannotated |
+| `*_hard`, `*_support` | Original binary assignments and bounded producer support in continuous mode |
 | `iptm` | Mean ipTM on [0,1] over distinct accepted predicted models of that interaction |
 | `legacy_score` | Maximum built legacy score over the integrated interaction |
 | `paired`, `record_score` | Identical probabilities from all available evidence, on [0,1] |
@@ -61,8 +78,9 @@ Normal hosted builds retain both files in the `record-confidence-v3` artifact fo
 | `paired_lower`, `paired_upper` | Sensitivity envelope on [0,1], including the nominal paired forecast |
 | `direct_pair_evidence` | An exact-pair reference annotation, donor support or accepted predicted structure |
 | `pair_supported` | Direct pair evidence or positive support for both chains; descriptive |
-| `positive` | True if lower limit ≥0.5, false if upper limit <0.5, missing otherwise |
-| `score_version`, `model_sha256`, `soft_membership` | Version `3`, exact frozen model identity and the inference mode |
+| `positive` | True if lower limit ≥ the decision cutoff, false if upper limit is below it, missing otherwise |
+| `decision_threshold` | Global cutoff used by v3.1; 0.26 in the packaged model |
+| `score_version`, `model_sha256`, `soft_membership` | Version `3.1` by default or `3` for legacy, exact frozen model identity and the inference mode |
 
 Publication counts use the established chain/peptide/V-gene grouping, not a count of
 independent experiments on the paired construct. Donor labels are scoped to their
@@ -72,7 +90,22 @@ model fitting and evaluation. The source feature definitions match the accepted 
 
 ## Model and parameter defaults
 
-The deployment fit uses 614 labelled interactions, nine predictors and sixteen directed
+V3.1 uses `vdjdb.score/record_v3_1.json`: the same independent-ipTM-leaf network
+architecture, fitted on the five-epitope labelled cohort. Equivalent sample size is
+10. Training-only three-grade ipTM boundaries are 0.83 and 0.87. Original producer memberships define the fitted binary states;
+separated indices provide narrow interpolation at inference. No epitope identity
+is a predictor. Missing evidence remains marginalized.
+
+The global decision cutoff is **0.26**, rounded to two significant digits from
+the F1 optimum on all grouped out-of-fold forecasts. The nested evaluation below learns its global
+cutoff separately within each outer training fold. Per-epitope F1 policies are
+research outputs; production uses one scalar cutoff. `--threshold 0.5` is an
+explicit override. The cutoff changes decisions and leaves probabilities, AP
+and ROC-AUC unchanged.
+
+### Legacy model and defaults
+
+The legacy deployment fit uses 614 labelled interactions, nine predictors and sixteen directed
 edges. Validation is a parent of every predictor. The nonstructural predictors also
 form a conditional dependence tree; ipTM has only validation as its parent and no
 children. Removing unavailable ipTM therefore preserves the fitted chain-evidence
@@ -96,7 +129,7 @@ The endpoint is the measured assay validation criterion `padj < 1e-5`.
 production pipeline. Production reads the accepted parameters without fitting. Any
 new fitted settings require their own grouped validation before selection.
 
-Soft membership mixes the nonmember/member posteriors with supplied weights `1-q` and
+Explicit soft membership mixes the nonmember/member posteriors with supplied weights `1-q` and
 `q`. Several uncertain memberships use an independent mixing distribution, while the
 BN retains its fitted feature dependencies. Hard endpoints are unchanged. Direct
 Hamming-1 membership-fraction substitution reduced paired AP from 0.911 to 0.909
@@ -105,38 +138,46 @@ It remains off. `score-records --soft-membership` explicitly selects this explor
 variant. It performs one substitutions-only batched native search, includes exact
 neighbours, retains each producer's species/chain/peptide and V/J scope, and adds
 `*_members` / `*_neighbours` integer columns for each motif fraction. Publication
-counts and record identity stay unchanged. Ordinary scoring runs no neighbourhood search.
+counts and record identity stay unchanged. Legacy hard scoring runs no neighbourhood search.
 
-### Optional separated motif indices
+### Separated producer indices
 
-`score-records --continuous-membership` selects an experimental alternative to
-`--soft-membership`. The two options cannot be combined. If $b$ is the original
-producer membership (0 or 1) and $u$ is the Hamming-1 annotated-neighbour member
-fraction, the index is
+V3.1 uses separated producer indices by default. `--continuous-membership`
+explicitly selects the same mode for another model, including legacy v3.
+It cannot be combined with `--soft-membership`. For hard membership $b\in\{0,1\}$,
+bounded support $u\in[0,1]$ and width $w=1/12$, the index is
 
-$$s=(2b+u)/3.$$
+$$s=(1-w)b+wu.$$
 
-Nonmembers score in $[0,1/3]$ and members in $[2/3,1]$, so the minimum member
-score exceeds the maximum nonmember score by at least $1/3$. Thresholding at 0.5
-recovers the original binary assignment exactly. Unscored inputs remain missing.
-The optional output retains the four original assignments in `*_hard`, the
-neighbour counts, `continuous_membership=True`, and
-`motif_score_version=separated-neighbours-v1`. Both fractional options set
-`soft_membership=True` in the output because both use the soft inference API.
-Pair-support flags use the retained hard assignments.
+Nonmembers score in $[0,1/12]$ and members in $[11/12,1]$, with a minimum
+between-class gap of $5/6$. Thresholding a chain index at 0.5 exactly recovers
+its original binary assignment. Unannotated inputs stay missing. Original
+`*_hard` assignments determine pair-support flags.
 
-The combined model uses these indices as experimental interpolation weights for
-its existing hard-state posteriors. They are not calibrated probabilities of
-membership or binding. Their strict ordering does not guarantee improved assay
-ranking, calibration or classification. Hard membership remains the default.
+TCRNET support is $u=d/(d+1)$, where $d$ counts other distinct annotated
+Hamming-1 junctions in the producer's species/chain/peptide scope. The native
+search includes the exact reference hit, which is removed from this degree.
+TCREmp support is $u=e/(e+d_2)$, where $e>0$ is its pooled reference DBSCAN
+radius and $d_2$ is distance to the second retained core. This supplies density
+variation for an exact self-hit. Geometry is rebuilt from the reference;
+query outcomes never alter it. Eligible groups without retained cores have
+support zero. The original hard-assignment eligibility remains authoritative.
 
-For standalone research, `score.membership.separated` applies the same map to
-other bounded support measures. `motifs.tcremp.ClusterReference.support` returns
-nearest-core and second-core support in a frozen embedding: $e/(e+d)$, where
-$e>0$ is the reference DBSCAN radius and $d\ge0$ the corresponding core distance.
-The second core provides variation when an exact self-hit has zero distance.
-No query updates the reference embedding or clusters. Reference-eligible peptides
-without retained cores have support zero; unsupported peptides remain missing.
+Continuous output records `continuous_membership=True`,
+`motif_score_version=separated-producer-v2`, `motif_score_width`, `*_support`,
+`*_hard` and neighbourhood counts. `soft_membership=True` identifies the
+posterior-mixture inference used by both fractional modes. These indices are
+interpolation weights, with no claim of calibrated membership probabilities.
+The chain-index cutoff of 0.5 is separate from the final forecast's decision cutoff.
+
+`score.evidence.producer_motifs` implements this integration. The earlier
+Hamming-1 member-fraction index remains available through `separated_motifs`.
+`score.membership.separated(binary, support, width=...)` accepts any finite
+$0\le w<0.5$; its default width remains 1/3 for earlier research callers.
+Zero width recovers hard evidence wherever both inputs are present.
+`motifs.tcremp.ClusterReference.support` supplies bounded core geometry for
+standalone research. Numerical reproduction follows the
+[clustering runtime contract](../clustering.md).
 
 `validate.membership` provides training-only F1 cutoff selection, a monotone paired
 formula, and ranking metrics without reading an assay. Its paired formula is
@@ -173,12 +214,45 @@ states do not create positive evidence. The envelope is not a credible interval.
 
 Missing pair evidence never sets `record_score` to zero. Neither support flag gates
 the forecast. `positive` is a separate conservative decision: an envelope crossing
-0.5 yields unknown. Report the unknown count alongside definite calls. An absent
+the selected global cutoff yields unknown. Report the unknown count alongside definite calls. An absent
 partner or an unrelated structural model cannot supply direct evidence for a new pair.
 
-## Performance with continuous and binary scores
+## Five-epitope assessment
 
-The accepted comparison uses five shared-junction grouped held-out folds, with all
+The new endpoint uses the released positive/negative labels. Transitive groups
+keep every shared TRA or TRB junction in one outer fold. Five outer and three
+inner grouped folds separate fitting, candidate selection and threshold selection.
+Reference geometry is fixed and transductive. The single-chain views predict the
+paired assay endpoint. Scores are retained for all 2,034 rows, including 252
+ambiguous outcomes; binary metrics use 1,782 labelled rows.
+
+| Epitope | Labelled interactions | AP | ROC-AUC | F1 with training-selected global cutoff |
+|---|---:|---:|---:|---:|
+| GILGFVFTL | 575 | 0.937955 | 0.895412 | 0.873536 |
+| GLCTLVAML | 166 | 0.884662 | 0.787500 | 0.788136 |
+| NLVPMVATV | 317 | 0.759791 | 0.898036 | 0.717949 |
+| TTDPSFLGRY | 342 | 0.837451 | 0.807832 | 0.637993 |
+| YLQPRTFLL | 382 | 0.857628 | 0.903735 | 0.802198 |
+| Equal-epitope macro mean | 1,782 across 5 epitopes | 0.855498 | 0.858503 | 0.763962 |
+
+Producer interpolation was selected in each outer training fold. Matched hard
+refits give macro AP 0.851150 and macro ROC-AUC 0.856594. Macro F1 is 0.739737
+at a fixed 0.5 cutoff, 0.763962 with training-selected global cutoffs and 0.793708
+with training-selected per-epitope cutoffs. Threshold policies leave ranking
+metrics unchanged. The final deployment cutoff uses all out-of-fold forecasts;
+the table reports the nested training-policy assessment.
+
+The original measured cohort and endpoint remain a separate legacy comparison.
+On those 193 GLC and 421 YLQ cases, the new grouped forecasts have AP 0.880402
+and 0.871931, respectively, versus legacy 0.911197 and 0.869028. The GLC reduction
+is retained explicitly; the original model and its historical results remain
+available. Released labels and the original adjusted-P endpoint use different
+outcome definitions and denominators. Full predictions, source hashes, coverage,
+cutoff policies and TRA/TRB/paired assessments remain private.
+
+## Legacy performance with continuous and binary scores
+
+The accepted legacy comparison uses five shared-junction grouped held-out folds, with all
 193 GLC and 421 YLQ interactions retained for each predictor. AP is step-integrated
 average precision, including tied scores. Accuracy uses the recorded classification
 rules; ipTM decisions use the original training-fold cutoff, and motif decisions use
@@ -303,7 +377,7 @@ predicted = test_scores >= cutoffs
 
 The training scores must be out-of-fold predictions if their model was fitted
 on these labels. Keep related receptor observations in the same fold. These
-cutoffs do not change the production model's fixed 0.5 envelope decision.
+cutoffs do not change the production model's envelope decision at its cutoff (v3.1: 0.26; legacy: 0.5).
 
 ## Limits of the evidence
 

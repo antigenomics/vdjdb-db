@@ -100,13 +100,15 @@ def fit(rows: Sequence[Mapping[str, str]], labels: Sequence[int], *,
 
 
 def predict(artifact: dict, rows: Sequence[Mapping[str, str | float | None]], *,
-            soft_membership: bool = False) -> list[float]:
+            soft_membership: bool = False, _state: dict | None = None) -> list[float]:
     """Score categorical evidence or uncertain binary motif membership.
 
     A numeric motif value q mixes hard nonmember/member posteriors with weights
     (1-q, q). Multiple uncertain memberships use an independent mixing distribution.
     These are caller-supplied membership probabilities, not binding probabilities.
     """
+    if _state is None:
+        _state = {}
     if any(isinstance(value, (int, float)) for row in rows for name, value in row.items()
            if name in FEATURES and name.endswith(('tcrnet', 'tcremp'))):
         patterns = [tuple(sorted(row.items())) for row in rows]
@@ -114,7 +116,7 @@ def predict(artifact: dict, rows: Sequence[Mapping[str, str | float | None]], *,
         expanded, groups, values = [], [], {}
 
         def flush():
-            probabilities = iter(predict(artifact, expanded))
+            probabilities = iter(predict(artifact, expanded, _state=_state))
             for pattern, weights in groups:
                 values[pattern] = math.fsum(weight * next(probabilities) for weight in weights)
             expanded.clear()
@@ -146,16 +148,29 @@ def predict(artifact: dict, rows: Sequence[Mapping[str, str | float | None]], *,
     from pgmpy.inference import VariableElimination
     from pgmpy.models import DiscreteBayesianNetwork
 
+    class OrderedInference(VariableElimination):
+        def _prune_bayesian_model(self, variables, evidence):
+            reduced, evidence = super()._prune_bayesian_model(variables, evidence)
+            # NetworkX subgraph views can iterate a small node set in hash order.
+            # Preserve model order so greedy tensor contractions have fixed inputs.
+            ordered = DiscreteBayesianNetwork()
+            ordered.add_nodes_from(n for n in self.model.nodes if n in reduced)
+            ordered.add_edges_from(reduced.edges())
+            ordered.add_cpds(*(reduced.get_cpds(n) for n in ordered.nodes))
+            return ordered, evidence
+
     if artifact.get('format') != 'vdjdb-evidence-tan-1' or artifact.get('features') != FEATURES:
         raise ValueError('Unsupported classifier artifact')
-    model = DiscreteBayesianNetwork(artifact['edges'])
-    model.add_nodes_from(cpd['variable'] for cpd in artifact['cpds'])
-    for cpd in artifact['cpds']:
-        variables, card = cpd['variables'], cpd['cardinality']
-        model.add_cpds(TabularCPD(cpd['variable'], card[0], cpd['values'],
-                                 evidence=variables[1:] or None,
-                                 evidence_card=card[1:] or None, state_names=cpd['states']))
-    model.check_model()
+    if 'infer' not in _state:
+        model = DiscreteBayesianNetwork(artifact['edges'])
+        model.add_nodes_from(cpd['variable'] for cpd in artifact['cpds'])
+        for cpd in artifact['cpds']:
+            variables, card = cpd['variables'], cpd['cardinality']
+            model.add_cpds(TabularCPD(cpd['variable'], card[0], cpd['values'],
+                                     evidence=variables[1:] or None,
+                                     evidence_card=card[1:] or None, state_names=cpd['states']))
+        model.check_model()
+        _state['infer'] = OrderedInference(model)
     patterns = []
     for row in rows:
         unknown = set(row) - set(FEATURES)
@@ -173,10 +188,10 @@ def predict(artifact: dict, rows: Sequence[Mapping[str, str | float | None]], *,
                 continue
             observed.append((name, state))
         patterns.append(tuple(observed))
-    infer = VariableElimination(model)
-    # Within-call deduplication is not a persisted feature or inference cache.
-    values = {}
-    for pattern in sorted(set(patterns)):
+    infer = _state['infer']
+    # Reuse categorical results across bounded batches within this inference call.
+    values = _state.setdefault('values', {})
+    for pattern in sorted(set(patterns) - values.keys()):
         result = infer.query(['validated'], evidence=dict(pattern), show_progress=False)
         values[pattern] = float(result.get_value(validated='1'))
     return [values[p] for p in patterns]
@@ -233,9 +248,10 @@ def _paired_ranges(artifact: dict, rows: list[dict]) -> list[tuple[float, float]
     patterns = [tuple(row.get(name) for name in FEATURES) for row in rows]
     unique = dict(zip(patterns, rows, strict=True))
     expanded, groups, bounds = [], [], {}
+    inference_state = {}
 
     def flush():
-        values = predict(artifact, expanded, soft_membership=True)
+        values = predict(artifact, expanded, soft_membership=True, _state=inference_state)
         offset = 0
         for pattern, size in groups:
             probabilities = values[offset:offset + size]
@@ -279,12 +295,16 @@ def score_records(artifact: dict, frame, *, soft_membership: bool = False
 
     Record score retains the paired forecast even without direct pair evidence.
     Without direct pair evidence, include the chain-only forecasts in the range too.
-    A call is positive only when the range is entirely >=0.5, negative when entirely
-    <0.5, and otherwise unknown (None). This range is not a credible interval.
+    A call is positive only when the range is entirely above the model's decision
+    threshold (default 0.5), negative when below, and otherwise unknown (None).
+    The lower endpoint includes equality. This range is not a credible interval.
     Pair support is descriptive and never forces a score to zero.
     """
     import polars as pl
 
+    threshold = artifact.get('decision_threshold', .5)
+    if not isinstance(threshold, (int, float)) or not math.isfinite(threshold) or not 0 <= threshold <= 1:
+        raise ValueError('Decision threshold must be finite and in [0,1]')
     rows = _numeric_rows(artifact, frame, soft_membership=soft_membership)
     probabilities = predict_marginals(artifact, rows, soft_membership=soft_membership)
     ranges = _paired_ranges(artifact, rows)
@@ -310,5 +330,5 @@ def score_records(artifact: dict, frame, *, soft_membership: bool = False
             upper = max(upper, p['TRA'], p['TRB'])
         result.append({**p, 'pair_supported': bool(supported), 'direct_pair_evidence': bool(paired),
                        'record_score': p['paired'], 'paired_lower': lower, 'paired_upper': upper,
-                       'positive': True if lower >= .5 else False if upper < .5 else None})
+                       'positive': True if lower >= threshold else False if upper < threshold else None})
     return result

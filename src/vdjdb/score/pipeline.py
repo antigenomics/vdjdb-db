@@ -11,7 +11,7 @@ import polars as pl
 
 from ..emit.vdjdb3 import read_table
 from .bayes import score_records
-from .evidence import KEY, integrate, interactions, separated_motifs, soft_motifs
+from .evidence import KEY, integrate, interactions, producer_motifs, soft_motifs
 
 SCORE_SCHEMA = {
     'paired': pl.Float64, 'TRA': pl.Float64, 'TRB': pl.Float64,
@@ -21,15 +21,18 @@ SCORE_SCHEMA = {
 }
 
 
-def load_model(path: Path | None = None) -> tuple[dict, str]:
+def load_model(path: Path | None = None, *, legacy: bool = False) -> tuple[dict, str]:
     """Read frozen parameters; inference never fits or downloads a model."""
-    raw = path.read_bytes() if path else files('vdjdb.score').joinpath('record_v3.json').read_bytes()
+    if path is not None and legacy:
+        raise ValueError('Choose a custom model or legacy v3, not both')
+    name = 'record_v3.json' if legacy else 'record_v3_1.json'
+    raw = path.read_bytes() if path else files('vdjdb.score').joinpath(name).read_bytes()
     return json.loads(raw), hashlib.sha256(raw).hexdigest()
 
 
 def record_scores(records: pl.DataFrame, chains: pl.DataFrame, evidence: pl.DataFrame,
                   model: dict, *, model_sha256: str, soft_membership: bool = False,
-                  continuous_membership: bool = False) -> pl.DataFrame:
+                  continuous_membership: bool | None = None) -> pl.DataFrame:
     """Score distinct interactions once and join to every current record ID.
 
     Hard producer memberships are used. Identical gene-level receptor:pMHC records
@@ -37,23 +40,29 @@ def record_scores(records: pl.DataFrame, chains: pl.DataFrame, evidence: pl.Data
     """
     if soft_membership and continuous_membership:
         raise ValueError('Choose soft_membership or continuous_membership, not both')
+    if continuous_membership is None:
+        continuous_membership = not soft_membership and model.get('membership_mode') == 'producer'
     features = integrate(records, chains, evidence)
     if soft_membership:
         features = soft_motifs(features, records, chains, evidence)
     if continuous_membership:
-        features = separated_motifs(features, records, chains, evidence)
+        features = producer_motifs(features, records, chains, evidence,
+                                   width=model.get('membership_width', 1/12))
     scores = pl.DataFrame(score_records(model, features,
                           soft_membership=soft_membership or continuous_membership),
                           schema=SCORE_SCHEMA)
     values = features.drop(KEY).hstack(scores)
     ids = interactions(records, chains).select('record_id', 'interaction_key')
     result = ids.join(values, on='interaction_key', how='left', validate='m:1').drop(
-        'interaction_key').with_columns(pl.lit('3').alias('score_version'),
+        'interaction_key').with_columns(pl.lit(model.get('score_version', '3')).alias('score_version'),
         pl.lit(model_sha256).alias('model_sha256'),
         pl.lit(soft_membership or continuous_membership).alias('soft_membership')).sort('record_id')
     if continuous_membership:
         result = result.with_columns(pl.lit(True).alias('continuous_membership'),
-                                     pl.lit('separated-neighbours-v1').alias('motif_score_version'))
+                                     pl.lit('separated-producer-v2').alias('motif_score_version'),
+                                     pl.lit(model.get('membership_width', 1/12)).alias('motif_score_width'))
+    if model.get('score_version') == '3.1' or model.get('decision_threshold', .5) != .5:
+        result = result.with_columns(pl.lit(model.get('decision_threshold', .5)).alias('decision_threshold'))
     return result
 
 
@@ -71,11 +80,14 @@ def write_scores(frame: pl.DataFrame, out: Path) -> None:
 
 
 def run(tables: Path, out: Path, model_path: Path | None = None, *,
-        soft_membership: bool = False, continuous_membership: bool = False) -> pl.DataFrame:
+        soft_membership: bool = False, continuous_membership: bool | None = None,
+        legacy: bool = False, threshold: float | None = None) -> pl.DataFrame:
     """Recompute scores from this build's records, chains and completed motif evidence."""
     from threadpoolctl import threadpool_limits
 
-    model, digest = load_model(model_path)
+    model, digest = load_model(model_path, legacy=legacy)
+    if threshold is not None:
+        model = {**model, 'decision_threshold': threshold}
     records = read_table(tables, 'records')
     chains = read_table(tables, 'chains')
     evidence = read_table(tables, 'evidence')

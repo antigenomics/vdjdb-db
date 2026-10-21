@@ -162,6 +162,66 @@ def separated_motifs(features: pl.DataFrame, records: pl.DataFrame, chains: pl.D
     return near.with_columns(((2*pl.col(n + '_hard') + pl.col(n))/3).alias(n) for n in names)
 
 
+def producer_motifs(features: pl.DataFrame, records: pl.DataFrame, chains: pl.DataFrame,
+                    evidence: pl.DataFrame, *, width: float = 1/12) -> pl.DataFrame:
+    """Optional narrow separated indices from each producer's density support.
+
+    TCRNET uses d/(d+1), where d counts other annotated Hamming-1 junctions.
+    TCREmp uses second-core support in freshly rebuilt, fixed reference geometry.
+    Original eligibility and assignments remain authoritative. Width 1/12 limits
+    probability interpolation while preserving exact hard recovery at 0.5.
+    """
+    import numpy as np
+
+    from ..motifs import tcremp
+    from .membership import separated
+
+    separated(np.array([0.]), np.array([0.]), width=width)  # Validate before fitting geometry.
+    names = [f'{p}_{m}' for p in ('a', 'b') for m in ('tcrnet', 'tcremp')]
+    categorical(features.select(names))
+    output = soft_motifs(features, records, chains, evidence).join(features.select(
+        'interaction_key', *(pl.col(n).alias(n + '_hard') for n in names)),
+        on='interaction_key', validate='1:1')
+    for prefix in ['a', 'b']:
+        name = prefix + '_tcrnet'
+        count = pl.col(name + '_neighbours')
+        output = output.with_columns(((count-1).clip(lower_bound=0)/count).alias(name + '_support'))
+
+    reference = None
+    for prefix, gene in [('a', 'TRA'), ('b', 'TRB')]:
+        name = prefix + '_tcremp'
+        values = []
+        for species in sorted(tcremp.SPECIES):
+            queries = output.filter((pl.col('species') == species) &
+                                    pl.col(name + '_hard').is_not_null()).select(
+                'interaction_key', 'species', 'antigen.epitope', pl.lit(gene).alias('gene'),
+                pl.col(prefix + '_junction').alias('junction_aa'),
+                pl.col(prefix + '_v').alias('v_call'), pl.col(prefix + '_j').alias('j_call'))
+            if queries.is_empty():
+                continue
+            if reference is None:
+                reference = tcremp.cohort(chains, records)
+            cohort = reference.filter((pl.col('species') == species) & (pl.col('gene') == gene))
+            coordinates, embedding = tcremp.fit_embedding(cohort, species, gene,
+                n_components=tcremp.TUNED[gene]['n_components'])
+            eps = tcremp.chain_eps(coordinates, tcremp.COEF[gene], clonotypes=cohort)
+            clusters = tcremp.fit_clusters(cohort, coordinates, eps,
+                min_cluster=tcremp.TUNED[gene]['min_cluster'])
+            support = clusters.support(queries, embedding.transform(queries))
+            values.append(support.select('interaction_key', pl.col('core_density').alias(name + '_support')))
+            del coordinates, embedding, clusters, support
+        support = pl.concat(values) if values else pl.DataFrame(schema={
+            'interaction_key': pl.String, name + '_support': pl.Float64})
+        output = output.join(support, on='interaction_key', how='left', validate='1:1')
+    for name in names:
+        score = separated(output[name + '_hard'].cast(pl.Float64).to_numpy(),
+                          output[name + '_support'].cast(pl.Float64).to_numpy(), width=width)
+        output = output.with_columns(pl.Series(name, np.asarray(score)).fill_nan(None))
+        if not output.select((pl.col(name).is_null() == pl.col(name + '_hard').is_null()).all()).item():
+            raise ValueError(f'Producer support must preserve {name} eligibility')
+    return output
+
+
 def categorical(frame: pl.DataFrame, *, iptm_bounds: tuple[float, float] = (.5, .8)) -> pl.DataFrame:
     """Count bins 0/1/2/3+ and three ipTM grades at supplied bounds; '?' is unknown."""
     low, high = iptm_bounds

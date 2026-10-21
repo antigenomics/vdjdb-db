@@ -476,8 +476,28 @@ y_{ir}=w_r^{\mathsf T}(\widetilde z_i-\overline{\widetilde z}_F),
 \quad r=1,\ldots,d,\qquad d=\min(50,3P,f-1).
 $$
 
+The prototype producer returns float32 features. The bounded fit sample and each
+projection block are converted to float64 before scaling and PCA. OpenBLAS's
+single-precision CBLAS matrix product can select a CPU-specific direct AVX-512
+kernel independently of `OPENBLAS_CORETYPE`; double precision avoids that path.
+This doubles the wide reduction matrix's storage while retaining bounded batches.
+The scaler and PCA modify their owned fit/projection buffers in place; no caller
+input matrix is shared with those disposable buffers.
 PCA is not whitened. The library's `random_state` and row sampling both use
-`vdjdb.config.SEED`. After fitting, the implementation embeds at most 20,000
+`vdjdb.config.SEED`. Fit and projection use one BLAS thread, restoring the caller's
+limits afterwards; native sequence embedding retains its existing batch parallelism.
+The supported Linux release environment also sets `OPENBLAS_CORETYPE=Sandybridge`
+and `OPENBLAS_L2_SIZE=256` before NumPy or SciPy is imported. The cache-size input
+fixes matrix blocking, which otherwise changes with AMD Zen 4/5 cache topology
+even under a fixed core selection. These settings are needed: a fixed seed alone
+leaves PCA sensitive to BLAS reduction order and CPU kernel dispatch.
+The reproducibility workflow checks exact stage hashes on separate hosted runners
+with caller thread allocations of 1, 2 and 4. This contract uses the locked Linux
+dependencies and fixed OpenBLAS kernel; it does not assert identical coordinates
+between operating systems or BLAS implementations. On macOS, the native Accelerate
+thread control requires macOS 15 or newer.
+
+After fitting, the implementation embeds at most 20,000
 unique receptor inputs at a time, standardizes and projects each block immediately,
 and retains the reduced $M\times d$ array. It restores the $N$ labelled rows
 by their receptor keys after projection, using the same coordinates for every
