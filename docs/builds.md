@@ -49,15 +49,16 @@ keeps reported assignments separate from synthetic swapped pairs and mutants; de
 coordinate or a record link does not establish an experimental assignment. Public deposits
 contain no assay outcomes.
 
-After motifs, `vdjdb score-records --tables out/tables` loads the packaged frozen v3 model
+After motifs, `vdjdb score-records --tables out/tables` loads the packaged frozen v3.1 model
 and writes `record_scores.parquet` and `record_scores.tsv.gz`, one row per current `record_id`.
 Use `--model <model.json>` for an explicit frozen model and `--out <directory>` for another
 output directory. Scoring recomputes features and predictions from the completed tables;
 it does not fit a model or change the legacy score. See [record confidence v3](standards/record-scoring-v3.md).
 The same frozen parameters apply to whichever evidence is available; held-out metrics use the
 complete original assay structural inputs and do not establish universal accuracy for production
-records. Hard membership is the default. `--soft-membership` selects exploratory Hamming-1
-fractions with integer member/neighbour counts; see the v3 specification for producer scope.
+records. V3.1 uses separated continuous producer indices while preserving the hard memberships.
+`--legacy-v3` selects the original hard-membership model. `--soft-membership` selects exploratory
+Hamming-1 fractions with integer member/neighbour counts; see the v3 specification for producer scope.
 The hosted full build requires both outputs and checks their record IDs against `records.parquet`.
 
 The independent structure-file audit verifies the checksum-pinned raw inputs declared in
