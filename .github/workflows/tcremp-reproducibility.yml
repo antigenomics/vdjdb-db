@@ -1,0 +1,60 @@
+name: TCREmp numerical reproducibility
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/five-epitope-v3-reproducibility]
+    paths:
+      - 'src/vdjdb/motifs/tcremp.py'
+      - 'processing/check_tcremp_reproducibility.py'
+      - '.github/workflows/tcremp-reproducibility.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        threads: [1, 2, 4]
+        replica: [1, 2]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --frozen --extra motifs
+      - name: Probe production embedding stages
+        run: uv run python processing/check_tcremp_reproducibility.py --threads ${{ matrix.threads }} --out out/probe-${{ matrix.threads }}-${{ matrix.replica }}.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tcremp-probe-${{ matrix.threads }}-${{ matrix.replica }}
+          path: out/probe-*.json
+          if-no-files-found: error
+          retention-days: 7
+
+  compare:
+    needs: probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: tcremp-probe-*
+          path: probes
+          merge-multiple: true
+      - name: Require byte-identical numerical stages
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          probes = [(p.name, json.loads(p.read_text())) for p in sorted(Path('probes').glob('*.json'))]
+          assert len(probes) == 6, len(probes)
+          differences = {}
+          for stage in probes[0][1]['stages']:
+              values = {name: result['stages'][stage] for name, result in probes}
+              if len({json.dumps(value, sort_keys=True) for value in values.values()}) != 1:
+                  differences[stage] = values
+          print(json.dumps({'probes': [name for name, _ in probes], 'differences': differences}, indent=2))
+          assert not differences, 'TCREmp numerical stages differ across runners or CPU allocations'
+          PY
