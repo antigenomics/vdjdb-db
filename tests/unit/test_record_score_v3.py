@@ -9,11 +9,40 @@ from vdjdb.score.pipeline import load_model, record_scores, write_scores
 from vdjdb.validate.confidence import check_nonregression, metrics
 
 
+def test_v31_default_and_explicit_legacy_model():
+    model, digest = load_model()
+    legacy, legacy_digest = load_model(legacy=True)
+    assert model['score_version'] == '3.1'
+    assert model['n_training'] == 1782 and len(model['training_epitopes']) == 5
+    assert model['membership_mode'] == 'producer' and model['membership_width'] == 1/12
+    assert model['decision_threshold'] == .26
+    assert digest != legacy_digest and legacy['n_training'] == 614
+    with pytest.raises(ValueError, match='Choose'):
+        load_model(Path('unused.json'), legacy=True)
+
+
+def test_decision_cutoff_changes_calls_without_changing_probabilities():
+    pytest.importorskip('pgmpy')
+    from vdjdb.score.bayes import score_records
+
+    model, _ = load_model()
+    frame = pl.DataFrame({'a_studies': [3], 'b_studies': [3], 'donors': [3],
+        'a_tcrnet': [1], 'b_tcrnet': [1], 'a_tcremp': [1], 'b_tcremp': [1],
+        'iptm': [.95], 'legacy_score': [3]})
+    low = score_records({**model, 'decision_threshold': 0.}, frame)[0]
+    high = score_records({**model, 'decision_threshold': 1.}, frame)[0]
+    assert low['positive'] and not high['positive']
+    assert {k: v for k, v in low.items() if k != 'positive'} == {
+        k: v for k, v in high.items() if k != 'positive'}
+    with pytest.raises(ValueError, match='threshold'):
+        score_records({**model, 'decision_threshold': float('nan')}, frame)
+
+
 def test_frozen_forecasts_and_missing_evidence():
     pytest.importorskip('pgmpy')
     from vdjdb.score.bayes import predict_evidence, score_records
 
-    model, digest = load_model()
+    model, digest = load_model(legacy=True)
     assert digest == '10d70dad57f5e00153f315e138e135a3e33893435375bb2ddcc722148f129d53'
     assert model['n_training'] == 614 and model['structure'] == 'tan_independent_iptm'
     # Synthetic profiles, independent of assay identities or observed feature rows.
@@ -45,6 +74,9 @@ def test_record_join_and_deterministic_compressed_export(tmp_path):
         'evidence_source': pl.String})
     model, digest = load_model()
     scored = record_scores(records, chains, evidence, model, model_sha256=digest)
+    assert scored['score_version'].unique().to_list() == ['3.1']
+    assert scored['continuous_membership'].all()
+    assert scored['motif_score_version'].unique().to_list() == ['separated-producer-v2']
     assert scored['record_id'].to_list() == ['r1', 'r2']
     assert scored['record_score'][0] == scored['record_score'][1]
     assert scored['b_studies'].to_list() == [2, 2]

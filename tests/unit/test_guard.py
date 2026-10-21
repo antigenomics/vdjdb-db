@@ -41,6 +41,12 @@ def test_a_file_with_only_some_fingerprint_columns_is_not_flagged(tmp_path):
     assert scan_paths([p], root=tmp_path) == []
 
 
+def test_released_outcome_header_is_caught_after_renaming(tmp_path):
+    p = tmp_path / "renamed.csv"
+    p.write_text("tcr_id,pos,neg,ambiguous,clonotype_aa_screened,epitope_aa\n")
+    assert len(scan_paths([p], root=tmp_path)) == 1
+
+
 def test_tcrvdb_path_refuses_to_guess(monkeypatch):
     monkeypatch.delenv(ENV_VAR, raising=False)
     with pytest.raises(RuntimeError, match="proprietary"):

@@ -200,3 +200,41 @@ def test_missing_partner_retains_prediction_and_exposes_cross_threshold_range():
     assert not z[0]['direct_pair_evidence'] and z[1]['direct_pair_evidence']
     assert z[0]['paired_lower'] <= min(z[0]['TRA'], z[0]['TRB'])
     assert z[0]['paired_upper'] >= max(z[0]['TRA'], z[0]['TRB'])
+
+
+def test_missing_evidence_batches_reuse_queries_only_within_the_call(monkeypatch):
+    from collections import Counter
+
+    from pgmpy.inference import VariableElimination
+
+    from vdjdb.score import bayes
+    from vdjdb.score.pipeline import load_model
+
+    artifact, _ = load_model(legacy=True)
+    rows = [{'a_studies': None, 'b_studies': '1', 'donors': '1',
+             'a_tcrnet': q, 'b_tcrnet': 1-q, 'a_tcremp': q/2,
+             'b_tcremp': 1-q/2, 'iptm': None, 'legacy_score': '0'}
+            for q in (.25, .5, .75)]
+    expected = bayes._paired_ranges(artifact, rows)
+    original_init = VariableElimination.__init__
+    original_query = VariableElimination.query
+    counts = Counter()
+    patterns = Counter()
+
+    def init(self, *args, **kwargs):
+        counts['models'] += 1
+        return original_init(self, *args, **kwargs)
+
+    def query(self, variables, evidence=None, **kwargs):
+        patterns[tuple(sorted((evidence or {}).items()))] += 1
+        return original_query(self, variables, evidence=evidence, **kwargs)
+
+    monkeypatch.setattr(VariableElimination, '__init__', init)
+    monkeypatch.setattr(VariableElimination, 'query', query)
+    monkeypatch.setattr(bayes, '_ASSIGNMENT_BATCH', 32)
+    for _ in range(2):
+        counts.clear()
+        patterns.clear()
+        assert bayes._paired_ranges(artifact, rows) == expected
+        assert counts['models'] == 1
+        assert patterns and max(patterns.values()) == 1

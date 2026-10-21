@@ -19,6 +19,19 @@ def test_separation_missingness_and_binary_recovery():
         separated(np.array([1]), np.array([1.1]))
 
 
+def test_separation_width_controls_interpolation_without_changing_calls():
+    b = np.array([0., 0., 1., 1.])
+    u = np.array([0., 1., 0., 1.])
+    for width in [0., 1/12, 1/3, .49]:
+        s = separated(b, u, width=width)
+        assert np.array_equal(s >= .5, b)
+        assert s[b == 1].min() > s[b == 0].max()
+        assert s == pytest.approx((1-width)*b+width*u)
+    for width in [-.1, .5, np.inf, np.nan]:
+        with pytest.raises(ValueError, match='width'):
+            separated(b, u, width=width)
+
+
 def test_tied_thresholds_and_early_recall_metrics():
     pytest.importorskip('sklearn')
     y = np.array([1, 0, 1, 0])
@@ -60,6 +73,39 @@ def test_geometry_support_does_not_change_labels():
     assert got['core_density'][0] > got['core_density'][-1]
 
 
+def test_producer_integration_uses_frozen_tcremp_density(monkeypatch):
+    from vdjdb.motifs import tcremp
+    from vdjdb.score.evidence import integrate, producer_motifs
+
+    junctions = ['CAAAF', 'CACAF', 'CADAF', 'CAEAF', 'CAGAF', 'CAHAF']
+    ids = [f'r{i}' for i in range(30)]
+    r = pl.DataFrame({'record_id': ids, 'species': ['HomoSapiens']*30,
+        'antigen.epitope': ['PEP']*30, 'mhc.a': ['HLA-A*02:01']*30, 'mhc.b': ['B2M']*30,
+        'mhc.class': ['MHCI']*30, 'reference.id': ['P']*30, 'meta.subject.id': ['']*30,
+        'vdjdb.score': [1]*30})
+    c = pl.DataFrame({'record_id': ids, 'gene': ['TRA']*30, 'cdr3': junctions*5,
+        'v.segm': ['TRAV1*01']*30, 'j.segm': ['TRAJ1*01']*30,
+        'clonotype_id': [str(i % 6) for i in range(30)]})
+    e = pl.DataFrame({'record_id': ids, 'gene': ['TRA']*30,
+        'evidence_type': ['motif_tcremp' if i % 6 < 5 else 'motif_tcremp_nonmember' for i in range(30)],
+        'evidence_value': ['']*30, 'evidence_source': ['']*30, 'evidence_score': [1.]*30})
+    coordinates = np.c_[np.arange(6)/10, np.zeros(6)]
+    coordinates[5, 0] = 5.
+
+    class Frozen:
+        def transform(self, queries):
+            return coordinates[[junctions.index(s) for s in queries['junction_aa']]]
+
+    monkeypatch.setattr(tcremp, 'fit_embedding', lambda q, *args, **kwargs: (Frozen().transform(q), Frozen()))
+    monkeypatch.setattr(tcremp, 'chain_eps', lambda *args, **kwargs: .5)
+    before = integrate(r, c, e)
+    after = producer_motifs(before, r, c, e)
+    assert after['a_tcremp_hard'].equals(before['a_tcremp'])
+    assert (after['a_tcremp'] >= .5).cast(pl.Int64).equals(before['a_tcremp'])
+    assert after['b_tcremp'].null_count() == after.height
+    assert after['a_tcremp_support'].to_list() == pytest.approx([5/6]*5 + [.5/5.2])
+
+
 def test_optional_integration_preserves_default_and_hard_assignments():
     pytest.importorskip('pgmpy')
     from vdjdb.score.evidence import separated_motifs
@@ -79,7 +125,7 @@ def test_optional_integration_preserves_default_and_hard_assignments():
     assert near['a_tcrnet_hard'].to_list()==hard['a_tcrnet'].to_list()
     assert near['a_tcrnet'].to_list()==pytest.approx([5/6,1/6])
     assert near['b_tcrnet'].null_count()==2
-    model,digest=load_model()
+    model,digest=load_model(legacy=True)
     default=record_scores(r,c,e,model,model_sha256=digest)
     explicit=record_scores(r,c,e,model,model_sha256=digest,continuous_membership=False)
     assert default.equals(explicit)

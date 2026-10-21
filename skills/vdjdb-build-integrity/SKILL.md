@@ -58,26 +58,36 @@ frozen JSON and `--out` selects the score directory. No fitting or prediction re
 Require `record_scores.parquet` and `record_scores.tsv.gz` in hosted builds and compare their
 unique record IDs to `records.parquet`. PRIMARY keeps them optional only for historical builds.
 Assembly writes fourteen table files; the completed score stage brings that count to sixteen.
-Default scores use the same frozen parameters with the evidence available in that build.
-Held-out metrics use complete original assay structural inputs; do not transfer them to every
-production record. Hard membership remains default. Explicit `--soft-membership` runs one
-batched seqtree Hamming-1 search within each producer's scope and emits four membership
-fractions plus integer `*_members` / `*_neighbours` columns.
-The mutually exclusive `--continuous-membership` option maps those fractions into
-disjoint intervals using `(2*b+u)/3`, retaining the original `*_hard` assignments.
-It uses experimental soft interpolation and remains non-default. Verify exact
-binary recovery at 0.5, original eligibility and pair support, default-output parity,
-and the optional mode/version columns. Standalone motif metrics and training-selected
-thresholds do not establish improved combined-model performance.
-Use `pipeline.record_scores(..., continuous_membership=True)` for the same optional
-pipeline in Python. For standalone research, `score.membership.separated` preserves
-hard ordering and `motifs.tcremp.ClusterReference.support` scores frozen core distances.
-`validate.membership.fit_thresholds` fits global and supported peptide cutoffs on
-training predictions; `apply_thresholds` supplies the global fallback for unseen or
-single-class training peptides. Keep this research policy separate from the combined
-model's fixed 0.5 envelope decision, and verify grouped held-out selection, coverage,
-tied-score metrics and standalone versus combined-model results separately.
-Read [record confidence v3](../../docs/standards/record-scoring-v3.md) before interpreting scores.
+Default v3.1 uses the five-epitope frozen model, separated producer support and
+one learned global F1 decision cutoff. `--legacy-v3` selects the unchanged original
+GLC/YLQ model and hard evidence. Verify its model digest and original forecasts.
+`--hard-membership` selects hard evidence with the chosen model; `--threshold`
+changes calls without changing probability forecasts. Confirm exported score version,
+model SHA, decision cutoff and membership mode. Default promotion changes score
+outputs deliberately; producer memberships, record IDs and legacy 0-3 scores stay fixed.
+Held-out metrics use complete original assay structural inputs and their declared endpoint.
+
+V3.1 uses `(1-w)*b+w*u` with width 1/12, retaining `*_hard` assignments. TCRNET support
+is other annotated-neighbour density d/(d+1); TCREmp uses second-core support in
+fresh fixed reference geometry. The core geometry remains independent of assay labels.
+Verify exact hard recovery at 0.5, original missingness/eligibility and pair support,
+all-row coverage, scalar threshold behavior and bounded deterministic exports.
+The forecast cutoff is separate from the chain index's hard-recovery cutoff.
+`--continuous-membership` explicitly selects this mode for a chosen model;
+`--soft-membership` is mutually exclusive and retains the earlier Hamming-1 fraction.
+
+For research, `score.membership.separated` accepts width in [0,0.5); its historical
+default stays 1/3. `validate.membership.fit_thresholds` fits global and supported
+peptide cutoffs on training forecasts; `apply_thresholds` supplies the global
+fallback for unseen/single-class peptides. Compare fixed, global and per-peptide
+policies on shared-chain grouped held-out rows. New released positive/negative
+labels and the legacy adjusted-P endpoint are separate populations. Retain ambiguous
+rows in forecast output and exclude them from binary metrics. A frozen model's
+training-overlap assessment is descriptive. Keep raw assays, identifier mappings,
+full private study recipes and predictions under ignored output paths; extend the
+data guard for newly released table schemas. Publish only reviewed aggregate metrics
+and fitted parameters. Preserve the old model/metrics when promoting a new version.
+Read [record confidence v3.1 and legacy v3](../../docs/standards/record-scoring-v3.md) before interpreting scores.
 
 Run the independent raw-structure audit with:
 

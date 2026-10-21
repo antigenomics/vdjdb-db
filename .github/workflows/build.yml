@@ -194,6 +194,19 @@ jobs:
           retention-days: 90
           if-no-files-found: error
 
+      - name: Legacy record confidence
+        run: |
+          . .github/stage-timing.sh
+          stage score-records-legacy uv run vdjdb score-records --tables out/tables --legacy-v3 --out out/legacy-scores
+
+      - name: Legacy record confidence artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: record-confidence-legacy-v3
+          path: out/legacy-scores/record_scores.*
+          retention-days: 90
+          if-no-files-found: error
+
       - name: Structure-file audit
         run: |
           . .github/stage-timing.sh

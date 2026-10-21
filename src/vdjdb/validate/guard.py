@@ -36,6 +36,8 @@ PROPRIETARY_PATTERNS: tuple[re.Pattern[str], ...] = (
 #: Column names that only appear together in the TCRvdb distribution. A file with all of these
 #: is a copy of it whatever it is called.
 _FINGERPRINT_COLUMNS = frozenset({"clonotype_aa", "epitope_aa", "hla_short", "padj", "baseMean"})
+_RELEASED_COLUMNS = frozenset({"tcr_id", "pos", "neg", "ambiguous",
+                               "clonotype_aa_screened", "epitope_aa"})
 
 #: Files we read to check, but never large binaries.
 _TEXT_SUFFIXES = frozenset({".tsv", ".csv", ".txt", ".json", ".md", ".parquet"})
@@ -77,7 +79,7 @@ def _header_is_tcrvdb(path: Path) -> bool:
     except OSError:
         return False
     fields = set(re.split(r"[,\t]", header.strip()))
-    return fields >= _FINGERPRINT_COLUMNS
+    return fields >= _FINGERPRINT_COLUMNS or fields >= _RELEASED_COLUMNS
 
 
 def scan_paths(paths: list[Path], *, root: Path | None = None) -> list[ProprietaryLeak]:
