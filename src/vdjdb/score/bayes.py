@@ -148,6 +148,17 @@ def predict(artifact: dict, rows: Sequence[Mapping[str, str | float | None]], *,
     from pgmpy.inference import VariableElimination
     from pgmpy.models import DiscreteBayesianNetwork
 
+    class OrderedInference(VariableElimination):
+        def _prune_bayesian_model(self, variables, evidence):
+            reduced, evidence = super()._prune_bayesian_model(variables, evidence)
+            # NetworkX subgraph views can iterate a small node set in hash order.
+            # Preserve model order so greedy tensor contractions have fixed inputs.
+            ordered = DiscreteBayesianNetwork()
+            ordered.add_nodes_from(n for n in self.model.nodes if n in reduced)
+            ordered.add_edges_from(reduced.edges())
+            ordered.add_cpds(*(reduced.get_cpds(n) for n in ordered.nodes))
+            return ordered, evidence
+
     if artifact.get('format') != 'vdjdb-evidence-tan-1' or artifact.get('features') != FEATURES:
         raise ValueError('Unsupported classifier artifact')
     if 'infer' not in _state:
@@ -159,7 +170,7 @@ def predict(artifact: dict, rows: Sequence[Mapping[str, str | float | None]], *,
                                      evidence=variables[1:] or None,
                                      evidence_card=card[1:] or None, state_names=cpd['states']))
         model.check_model()
-        _state['infer'] = VariableElimination(model)
+        _state['infer'] = OrderedInference(model)
     patterns = []
     for row in rows:
         unknown = set(row) - set(FEATURES)

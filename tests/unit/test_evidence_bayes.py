@@ -238,3 +238,23 @@ def test_missing_evidence_batches_reuse_queries_only_within_the_call(monkeypatch
         assert bayes._paired_ranges(artifact, rows) == expected
         assert counts['models'] == 1
         assert patterns and max(patterns.values()) == 1
+
+
+def test_frozen_inference_is_exact_across_hash_seeds():
+    import os
+    import subprocess
+    import sys
+
+    code = """import json
+from vdjdb.score.bayes import predict
+from vdjdb.score.pipeline import load_model
+model, _ = load_model()
+rows = [{'a_studies': '1', 'a_tcrnet': str(a), 'a_tcremp': str(b)}
+        for a in (0, 1) for b in (0, 1)]
+print(json.dumps(predict(model, rows)))
+"""
+    outputs = [subprocess.run([sys.executable, '-c', code], check=True, capture_output=True,
+                             text=True, timeout=60,
+                             env={**os.environ, 'PYTHONHASHSEED': seed}).stdout
+               for seed in ('1', '4')]
+    assert outputs[0] == outputs[1]
