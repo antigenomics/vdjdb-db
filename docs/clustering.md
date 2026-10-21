@@ -481,6 +481,8 @@ projection block are converted to float64 before scaling and PCA. OpenBLAS's
 single-precision CBLAS matrix product can select a CPU-specific direct AVX-512
 kernel independently of `OPENBLAS_CORETYPE`; double precision avoids that path.
 This doubles the wide reduction matrix's storage while retaining bounded batches.
+The scaler and PCA modify their owned fit/projection buffers in place; no caller
+input matrix is shared with those disposable buffers.
 PCA is not whitened. The library's `random_state` and row sampling both use
 `vdjdb.config.SEED`. Fit and projection use one BLAS thread, restoring the caller's
 limits afterwards; native sequence embedding retains its existing batch parallelism.

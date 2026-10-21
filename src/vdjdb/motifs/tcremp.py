@@ -16,7 +16,7 @@ identity-priority :data:`FIT_SAMPLE` sample of unique receptor inputs; every chu
 to 50 dimensions as it is embedded,
 so the wide ``(n, 3 * n_prototypes)`` matrix is never materialised in full. At 2,000
 prototypes a 20,000-row raw float32 block is 480 MB; its float64 reduction matrix is
-960 MB. Scaling temporarily needs a second 960 MB matrix, released before the next
+960 MB. Scaling and PCA use these owned buffers in place, released before the next
 block. Chunks run sequentially, one
 internally threaded ``embed()`` each -- never a worker pool (CLAUDE.md hard rule 3, ROADMAP
 section 8.8).
@@ -225,9 +225,9 @@ def fit_embedding(clonotypes: pl.DataFrame, species: str, locus: str, *,
         raise ValueError("TCREmp reduction requires at least two unique receptor inputs")
     fit = model.embed(cols[idx]).astype(np.float64)
     with _single_threaded_blas():
-        scaler = StandardScaler().fit(fit)
+        scaler = StandardScaler(copy=False).fit(fit)
         pca = PCA(n_components=min(n_components, fit.shape[1], len(idx) - 1),
-                  random_state=seed).fit(scaler.transform(fit))
+                  random_state=seed, copy=False).fit(scaler.transform(fit))
     del fit
     frozen = ReducedEmbedding(model, scaler, pca, species, locus)
     return frozen.transform(clonotypes, chunk=chunk), frozen
