@@ -19,6 +19,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--threads', type=int, required=True, choices=(1, 2, 4))
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--primitive-only', action='store_true')
     args = parser.parse_args()
     # Set before importing either BLAS provider; the probe varies the caller's allocation.
     for name in ('OPENBLAS_NUM_THREADS', 'OMP_NUM_THREADS', 'MKL_NUM_THREADS',
@@ -35,6 +36,18 @@ def main() -> None:
 
     def digest(array):
         return hashlib.sha256(np.ascontiguousarray(array).tobytes()).hexdigest()
+
+    if args.primitive_only:
+        print(json.dumps({'pools': threadpool_info(), 'cpu':
+              Path('/proc/cpuinfo').read_text().split('\n\n')[0]
+              if platform.system() == 'Linux' else platform.processor()}), flush=True)
+        A = np.random.RandomState(TE.SEED).normal(size=(1024, 6000)).T
+        Q = np.random.RandomState(TE.SEED).normal(size=(1024, 60))
+        with TE._single_threaded_blas():
+            for repeat in range(2):
+                print(f'GEMM {repeat}: {A.shape} @ {Q.shape}', flush=True)
+                print(digest(A @ Q), flush=True)
+        return
 
     # Larger than sklearn's randomized-PCA switch, as in the production 25k fit.
     rng = np.random.default_rng(TE.SEED)

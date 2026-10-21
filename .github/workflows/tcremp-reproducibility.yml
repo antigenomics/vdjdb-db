@@ -28,6 +28,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --frozen --extra motifs
+      - name: Reproduce the first PCA matrix product in isolation
+        run: |
+          gdb --quiet --batch --return-child-result \
+            -ex 'set disable-randomization off' -ex run -ex 'thread apply all bt 12' \
+            --args .venv/bin/python processing/check_tcremp_reproducibility.py \
+            --threads ${{ matrix.threads }} --out /tmp/unused.json --primitive-only
       - name: Probe production embedding stages
         run: |
           gdb --quiet --batch --return-child-result \
