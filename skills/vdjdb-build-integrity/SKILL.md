@@ -38,6 +38,16 @@ is not proof of a full database build. Check artifact provenance by exact commit
 | Record confidence v3 | Frozen-model identity, completed motif evidence, deterministic score files and exactly one row per current record ID |
 | Structure-file audit | Pinned raw-file checksums, all archive members, current sequence flags and every native accession |
 
+For exact TCREmp coordinates on the supported Linux release runtime, set
+`OPENBLAS_CORETYPE=Haswell` before importing NumPy or SciPy, as the build and numerical
+reproducibility workflows do. Production fit/projection limit BLAS to one thread and
+restore caller limits; sequence embedding keeps its existing native batch parallelism.
+Verify raw embeddings, scaler statistics, PCA components, coordinates, radius and
+memberships across separate runners and caller thread allocations. Pinning only the
+seed or thread count does not fix CPU kernel dispatch. Exact coordinates across
+operating systems or BLAS implementations are not claimed. A numerical fix still
+requires exact full-corpus binary-membership comparison with the accepted build.
+
 Use focused tests for the changed behavior, then run release-aware checks for any measured corpus
 value. A plain test run can skip release markers. Build fresh tables and projections, run strict
 QC, identity and corpus invariants, the complete release comparison, motif metrics and the offline

@@ -16,6 +16,9 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # The same OpenBLAS kernel on Haswell and AVX-512 hosted runner CPUs.
+    env:
+      OPENBLAS_CORETYPE: Haswell
     strategy:
       matrix:
         threads: [1, 2, 4]

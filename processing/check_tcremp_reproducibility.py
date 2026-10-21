@@ -51,10 +51,14 @@ def main() -> None:
     X, frozen = TE.fit_embedding(inputs, 'HomoSapiens', 'TRB', fit_sample=1024, chunk=512)
     eps = TE.chain_eps(X, TE.COEF['TRB'], clonotypes=inputs)
     labels = TE.cluster_labels(X, np.array(['PEPTIDE'] * len(X)), eps)
+    pools = threadpool_info()
+    if platform.system() == 'Linux' and os.environ.get('OPENBLAS_CORETYPE') == 'Haswell':
+        blas = [pool for pool in pools if pool['internal_api'] == 'openblas']
+        assert blas and all(pool['architecture'] == 'Haswell' for pool in blas), pools
     result = {
         'threads': args.threads, 'machine': platform.machine(),
         'processor': platform.processor(), 'platform': platform.platform(),
-        'numpy': np.__version__, 'pools': threadpool_info(),
+        'numpy': np.__version__, 'pools': pools,
         'solver': frozen.pca._fit_svd_solver, 'shape': list(X.shape),
         'prototype_features': int(frozen.pca.n_features_in_),
         'clustered': int((labels >= 0).sum()),

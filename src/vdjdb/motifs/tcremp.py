@@ -151,6 +151,8 @@ def _single_threaded_blas():
         import ctypes
 
         accelerate = ctypes.CDLL("/System/Library/Frameworks/Accelerate.framework/Accelerate")
+        if not all(hasattr(accelerate, name) for name in ("BLASGetThreading", "BLASSetThreading")):
+            raise RuntimeError("Reproducible TCREmp PCA with Accelerate requires macOS 15 or newer")
         accelerate.BLASGetThreading.restype = ctypes.c_uint
         accelerate.BLASSetThreading.argtypes = [ctypes.c_uint]
         previous = accelerate.BLASGetThreading()
@@ -195,6 +197,7 @@ class ReducedEmbedding:
             with _single_threaded_blas():
                 out[start:start + block.height] = self.pca.transform(
                     self.scaler.transform(embedded))
+            del embedded
         return out[inverse]
 
 

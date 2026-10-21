@@ -81,6 +81,9 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ${{ fromJSON(inputs.runner || '"ubuntu-latest"') }}
     timeout-minutes: 300
+    # Fix the OpenBLAS kernel across Haswell and AVX-512 hosted runner CPUs.
+    env:
+      OPENBLAS_CORETYPE: Haswell
     steps:
       - uses: actions/checkout@v4
         with:
