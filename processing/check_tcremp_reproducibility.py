@@ -43,6 +43,7 @@ def main() -> None:
                            'j_call': ['TRBJ1-1*01'] * len(junctions)})
     raw = []
     numerical = []
+    active_pools = []
     original = TCREmp.embed
 
     # Record boundaries inside randomized PCA without replacing its calculations.
@@ -50,6 +51,8 @@ def main() -> None:
         function = getattr(owner, name)
 
         def wrapped(*positional, **keywords):
+            if not active_pools:
+                active_pools.extend(threadpool_info())
             array = positional[-1] if name == 'transform' else positional[0]
             before = digest(array)
             result = function(*positional, **keywords)
@@ -77,12 +80,14 @@ def main() -> None:
     if platform.system() == 'Linux' and os.environ.get('OPENBLAS_CORETYPE') == 'Haswell':
         blas = [pool for pool in pools if pool['internal_api'] == 'openblas']
         assert blas and all(pool['architecture'] == 'Haswell' for pool in blas), pools
+    if 'AVX512F' in os.environ.get('NPY_DISABLE_CPU_FEATURES', '').split(','):
+        assert not np._core._multiarray_umath.__cpu_features__['AVX512F']
     result = {
         'threads': args.threads, 'machine': platform.machine(),
         'processor': platform.processor(), 'platform': platform.platform(),
         'libc': platform.libc_ver(),
         'numpy_cpu_features': np._core._multiarray_umath.__cpu_features__,
-        'numpy': np.__version__, 'pools': pools,
+        'numpy': np.__version__, 'pools': pools, 'active_pools': active_pools,
         'solver': frozen.pca._fit_svd_solver, 'shape': list(X.shape),
         'prototype_features': int(frozen.pca.n_features_in_),
         'clustered': int((labels >= 0).sum()),
