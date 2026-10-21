@@ -55,6 +55,8 @@ directory. Default output is the input table directory.
 `record_id`, sorted by ID. TSV has a deterministic gzip header; unknown values are empty
 cells. Parquet retains typed nulls. No column is appended to a legacy positional file.
 The six probability/envelope columns use 12 significant figures in both formats.
+Inference preserves the fitted network's node and factor order after pruning, so
+Python hash seeds cannot change tensor contraction order.
 Decisions use full-precision inference;
 input evidence and fitted parameters are unchanged.
 The primary bundle includes both score files when that stage has run; the hosted build
