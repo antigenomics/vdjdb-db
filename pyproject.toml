@@ -132,6 +132,7 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 markers = [
     # Not deselected anywhere: `build.yml`'s Tests step is a bare `uv run pytest -q`, so these run
     # on every push to dev/master and every pull request into master. They skip on a laptop, where
