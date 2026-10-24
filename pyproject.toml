@@ -34,7 +34,10 @@ dependencies = [
 
 [project.optional-dependencies]
 # Record confidence v3 classifier, loaded only by post-assembly score-records.
-confidence = ["pgmpy==1.0.0", "scikit-learn>=1.4", "mirpy-lib>=3.0", "torch; sys_platform == 'linux'"]
+confidence = ["numpy>=1.26", "pgmpy==1.0.0", "scikit-learn>=1.4", "mirpy-lib>=3.0", "torch; sys_platform == 'linux'"]
+# Offline v3.2 graph learning; private inputs are supplied by the caller.
+score-training = ["pgmpy==1.0.0", "pandas>=2.0", "numpy>=1.26", "scipy>=1.11",
+                  "networkx>=3", "scikit-learn>=1.4"]
 # Motif inference only. mirpy pulls kneed/matplotlib/seaborn/lifelines via its own [bench] extra,
 # which the data build has no use for -- keep them out of the assembly container.
 # pandas is used by `validate/` for the vendored TCREMP benchmark and its input conversion.

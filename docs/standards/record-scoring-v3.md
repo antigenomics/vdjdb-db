@@ -1,4 +1,185 @@
-# Record confidence v3.1 and legacy v3
+# Record confidence v3.2a and v3.2b
+
+The default scorer exports two separate probabilities for each record:
+
+- **v3.2a, `validation_score`**: TCRvdb assay-validation probability from integrated receptor:pMHC evidence. `record_score` and `paired` remain aliases of this forecast.
+- **v3.2b, `independent_validation_score`**: probability that either reported chain is also reported by another publication at the same pMHC, from focal-record evidence.
+
+The legacy `vdjdb.score` remains the original 0-3 annotation score. These probabilities
+are separate columns in the record-score tables; they do not change legacy positional files.
+
+## Run v3.2
+
+```bash
+uv sync --extra motifs --extra confidence
+uv run vdjdb score-records --tables out/tables
+```
+
+A new build uses its completed motif evidence and the existing separated producer
+indices on its full cohort. No training occurs during scoring. To use declared fixed
+continuous motif evidence unchanged, select it explicitly and write to another directory:
+
+```bash
+uv run vdjdb score-records --tables /path/to/fixed/tables \
+  --motif-scores /path/to/fixed/record_scores.parquet --out out/v32-scores
+```
+
+The fixed input contains `record_id` and `a_tcrnet`, `b_tcrnet`, `a_tcremp`,
+`b_tcremp`. Conflicting values within an interaction fail. Unmatched interactions
+retain the available hard evidence. This input is an explicitly declared reference,
+not a feature cache. The command refuses to overwrite that input. It does not rebuild
+geometry or motifs when `--motif-scores` is supplied.
+
+Use `--legacy-v31` for the original v3.1 artifact or `--legacy-v3` for original v3.
+Both preserve their previous encodings and inference. `--hard-membership` and
+`--soft-membership` remain legacy-model options; v3.2a requires the evidence encoding
+on which its parameters were fitted. `--threshold` changes the v3.2a envelope decision,
+not either probability. Its default is 0.5, with no new threshold optimization.
+The independent-study probability has no binary decision column.
+
+## Output and model identities
+
+`record_scores.parquet` and deterministic `record_scores.tsv.gz` contain one row per
+current `record_id`. All records are scored; the fitting subsample does not remove
+database records from exports.
+
+| Column | Meaning |
+|---|---|
+| `validation_score` | v3.2a assay-validation probability, [0,1] |
+| `record_score`, `paired` | Aliases of `validation_score` |
+| `validation_score_version` | `3.2a` |
+| `model_sha256` | Exact assay-model bytes |
+| `independent_validation_score` | v3.2b additional-publication probability, [0,1] |
+| `independent_validation_score_version` | `3.2b` |
+| `independent_model_sha256` | Exact independent-study-model bytes |
+| `score_version` | `3.2`, identifying the paired score-table release |
+| `TRA`, `TRB` | v3.2a conditioned only on that chain's study/motif evidence |
+| `paired_lower`, `paired_upper` | v3.2a sensitivity range over legal completions of missing predictors |
+| `positive` | True when lower bound >= threshold, false when upper bound < threshold; otherwise missing |
+
+The envelope includes the nominal probability and, without direct pair evidence,
+the two chain forecasts. It is a sensitivity range, not a statistical confidence
+interval. `direct_pair_evidence` and `pair_supported` remain descriptive.
+Both score columns use 12 significant figures on export; decisions use full precision.
+
+## Fitted models
+
+The frozen artifacts are `src/vdjdb/score/record_v3_2.json` and
+`src/vdjdb/score/record_v3_2b.json`. The production implementation uses NumPy/Polars
+inference; graph learning and EM run only in `processing/`.
+
+For v3.2a, integrated legacy confidence is encoded as 0, 1, 2+.
+An experimentally known structure sets that confidence to 2+ and ipTM to 1.0.
+A predicted structure alone does not trigger this override. Count bins remain
+0/1/2/3+. Exact ipTM boundaries and continuous-motif bins are frozen in the artifact.
+Four motif states divide each side of the producer membership boundary at 0.5.
+No bin fitting occurs in a build. Missing predictors are marginalized exactly.
+
+Graph candidates were HC-BIC, HC-AIC, conditional-MI ARACNE-style graphs and refitted
+legacy structures. The accepted model uses AIC graph proposals and explicit epitope
+contexts: GLC, YLQ and TTD use local parameters; GIL uses the labeled-only global fit;
+other epitopes use the selected-unlabeled global fit. Unrecognized epitopes use that
+global fit. Epitope identity selects a parameter context and is required at inference.
+
+The latent outcome is binary. Observed outcomes are clamped during Dirichlet-smoothed
+MAP EM; unknown outcomes remain latent. Unknown records are never assigned manual
+positive labels. The smoothing mass is 10 per node. All known labels are used for
+fitting and fine-tuning, without folds. AIC/BIC diagnostics use observed-data
+likelihood, marginalizing unknown outcomes. Search ties are resolved lexically.
+
+Selected ambiguous outcomes and selected records from three additional epitopes enter
+the accepted global fit with unknown outcomes. Adding all retained database records
+at unit weight failed the regression gates and is not the accepted fitting policy.
+The fixed motif evidence was used unchanged. The permanent 30-per-group study
+manifest affects fitting/prior cohorts only; it does not alter source chunks or
+rebuild the pooled motif geometry.
+
+V3.2b uses focal-record confidence and structural evidence plus fixed hard motif
+memberships. It excludes study counts, donor counts, publication IDs and
+cross-publication confidence maxima. Publication IDs construct the outcome only:
+at least one nonempty chain clonotype must occur in another publication at the same
+`pmhc_id`. Two records from one publication do not supply replication.
+“No additional report” is the other class and does not mean assay nonvalidation.
+Its native-structure override is also 2+ and ipTM=1.0.
+
+## Standalone fitting with private inputs
+
+The standalone program follows the processing-script pattern used for
+[10X assays](../tenx-dextramer.md):
+
+```bash
+uv sync --extra score-training
+TCRVDB_PATH=/path/to/private/validation.csv \
+uv run python processing/fit_record_score_v3_2.py \
+  --tables /path/to/fixed/tables \
+  --selected-records /path/to/private/selected.csv \
+  --selection-manifest /path/to/private/selection.tsv \
+  --motif-scores /path/to/fixed/record_scores.parquet \
+  --task both --out /path/to/new-fitting-results
+```
+
+`--tcrvdb-path` overrides `TCRVDB_PATH`. There is no developer-specific fallback.
+The validation CSV requires unique `tcr_id`, binary `pos` and `ambiguous`.
+Ambiguous labels remain unknown. The selected CSV requires `tcr_id`, `epitope_aa`,
+`hla_long`, `cdr3_alpha_aa`, `cdr3_beta_aa`, `TRAV_IMGT`, `TRAJ_IMGT`,
+`TRBV_IMGT`, `TRBJ_IMGT` and `vdjdb_score`. A ZIP containing `test.csv` is also
+accepted. Junctions include both conserved anchors; gene aliases are normalized
+without modifying submitted junctions.
+
+The selection TSV requires `record_id` and exactly 30 retained records from each
+of the three engineered phage-display groups. It is supplied privately; the runner
+does not redraw it. Other records, including target-cell assays, remain included.
+
+Default `--methods frozen --arms selected` refits the accepted graph/bin specification.
+This reproduces parameters without claiming to repeat earlier exploratory search
+trajectories. `--methods hc-bic hc-aic aracne` explicitly requests new graph searches.
+`--arms labeled selected all-vdjdb` requests the recorded prior alternatives.
+The accepted GIL labeled-only context is explicit in the runner.
+`--task independent` fits v3.2b without assay labels or selected-record input.
+
+Private raw data is not distributed. Run outputs include model parameters,
+predictions, metrics, convergence and a private input-hash manifest. Output directories
+must be new. Distributed parameter artifacts contain no source paths or receptor IDs.
+
+## Evaluation contract
+
+Report ROC AUC, average precision (AP) and trapezoidal precision-recall area
+(PR-AUC) separately on the same labeled rows. Unknown outcomes receive predictions
+and are excluded from metrics. An epitope without both classes has no AUC/AP/PR-AUC
+estimate. The global endpoint is the unweighted mean ROC AUC over the five labeled
+epitopes, not pooled AUC.
+
+Differences use 10,000 paired within-epitope/class-stratified bootstrap draws with
+`vdjdb.config.SEED`. Recompute macro differences within each draw. A regression is
+a candidate-minus-comparator 95% interval wholly below zero. Check every evaluable
+epitope, historical GLC/YLQ labels separately, and the five-epitope mean. Preserve
+point losses even when the interval crosses zero.
+
+Audit aligned forecasts with the separate script:
+
+```bash
+uv run python processing/audit_record_scores.py --cases /path/to/private/cases.tsv \
+  --candidate v32a --comparators v3 v31 incumbent --out /path/to/new-audit
+```
+
+The flat TSV requires `endpoint`, `epitope`, `case`, binary `label`, `predictor`
+and finite `score`. Each predictor must contain identical case/label sets.
+Use separate endpoint values for current and historical assay labels. Omit unknown
+labels explicitly. The script writes AP, PR-AUC, ROC AUC and paired difference
+intervals, including per-endpoint macro summaries; it fails if any CI upper bound
+is below zero. This input and its results remain private.
+
+These are fitted-cohort comparisons after fine-tuning on the labels. Their intervals
+condition on the fitted predictions and do not establish generalization after
+selection. V3.2b is evaluated against corpus-derived additional-report labels;
+the fixed motif parameters had previously been tuned using replication evidence.
+Its evaluation does not constitute independent assay validation.
+
+## Historical v3.1 and original v3 specification
+
+The remainder describes the preserved v3.1/v3 models and their original evaluations.
+Its default and training statements apply to those explicit legacy modes.
+
 
 Record confidence v3.1 is the default. Its frozen model is fitted on the released
 positive/negative outcomes for five epitopes, with 1,782 labelled interactions.
@@ -32,7 +213,7 @@ before filtering records.
 uv sync --extra motifs --extra confidence --extra test
 uv run vdjdb build --out out/ --structure-metadata input-metadata.tsv.gz
 uv run vdjdb motifs --tables out/tables --out out/motifs
-uv run vdjdb score-records --tables out/tables
+uv run vdjdb score-records --tables out/tables --legacy-v31
 ```
 
 The metadata argument supplies the reviewed structural input described in
@@ -45,7 +226,7 @@ probabilities. For example:
 
 ```bash
 uv run vdjdb score-records --tables out/tables --legacy-v3 --out out/legacy-v3
-uv run vdjdb score-records --tables out/tables --hard-membership --out out/v31-hard
+uv run vdjdb score-records --tables out/tables --legacy-v31 --hard-membership --out out/v31-hard
 ```
 
 `--model` selects an explicitly supplied frozen JSON artifact; `--out` selects a separate output
@@ -336,7 +517,7 @@ records = read_table(tables, "records")
 chains = read_table(tables, "chains")
 evidence = read_table(tables, "evidence")
 features = integrate(records, chains, evidence)
-model, model_sha256 = load_model()
+model, model_sha256 = load_model(version='3.1')
 forecasts = score_records(model, features)
 ```
 

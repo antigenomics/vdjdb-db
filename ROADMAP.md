@@ -265,3 +265,11 @@ retains their history and acceptance evidence. They are not an active task list.
 
 The former phase 14 item 4 remains a release constraint: do not emit `-ZENODO` twin tags or
 automate deposition. A DOI supplied by the author is a separate input.
+
+## Record scoring v3.2 release
+
+V3.2a exports assay-validation probability and v3.2b exports independent-study
+validation probability, with separate frozen artifacts and output identities.
+Offline fitting is in `processing/fit_record_score_v3_2.py`; private labels use
+`TCRVDB_PATH` or `--tcrvdb-path`. See the
+[scoring specification](docs/standards/record-scoring-v3.md).

@@ -6,8 +6,9 @@ import pytest
 pytest.importorskip('pgmpy')
 import numpy as np
 import pandas as pd
+from processing.record_score_learning import fit_network, learn_structure
 
-from vdjdb.score.learning import fit_network, learn_structure, predict_network
+from vdjdb.score.learning import predict_network
 
 
 def test_supervised_counts_and_missing_marginal():
@@ -97,7 +98,7 @@ def test_hill_climb_ties_are_stable_across_hash_seeds():
     code = """
 import json
 import pandas as pd
-from vdjdb.score.learning import learn_structure
+from processing.record_score_learning import learn_structure
 x = ['0', '0', '1', '1'] * 20
 data = pd.DataFrame({name: x for name in ['a', 'b', 'c']})
 print(json.dumps(learn_structure(data, [0, 1] * 40)))

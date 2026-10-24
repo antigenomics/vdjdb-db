@@ -1,5 +1,9 @@
 # The confidence score
 
+The separate [record confidence scores](record-scoring-v3.md) export v3.2a
+assay-validation and v3.2b independent-study probabilities. This page specifies
+the preserved legacy 0-3 annotation score.
+
 The final stage of database processing assigns a confidence score to each TCR:peptide:MHC complex, computed from the reported ``method`` entries.
 
 The score combines sequencing confidence, identification confidence and verification
