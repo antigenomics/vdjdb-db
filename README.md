@@ -16,9 +16,8 @@ between the epitope, MHC restriction and source organism.
 Routine updates keep the database current, and a validation scheme standardizes how specificity is
 reported:
 
-* All available information on the experimental setup used to identify an epitope-specific TCR
-  sequence is taken into account and reduced to a single confidence score, assigned at the database
-  generation stage, which highlights the most reliable records.
+* Experimental evidence determines the legacy 0-3 confidence score. Separate record probabilities
+  report assay validation (v3.2a) and detection in another study (v3.2b).
 * Each record is also checked automatically against a database of V/J segment germline sequences,
   which standardizes reporting of the V-J junctions and CDR3 sequences that define a T-cell clone.
 
@@ -86,7 +85,7 @@ VDJDB_REFERENCE_ZIP=reference.zip uv run pytest -q
 
 Use the 2026-06-03 release as `reference.zip` for the release comparison and tests. The static
 summary also requires R and pandoc; see [build requirements](docs/builds.md).
-Optional supplemental structure inputs and exploratory `--soft-membership` scoring are described
+Optional supplemental structure inputs and explicit legacy scoring modes are described
 in [record confidence v3.2a/v3.2b](docs/standards/record-scoring-v3.md).
 
 ## 10x dextramer assays
