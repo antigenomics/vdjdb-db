@@ -181,7 +181,8 @@ The remainder describes the preserved v3.1/v3 models and their original evaluati
 Its default and training statements apply to those explicit legacy modes.
 
 
-Record confidence v3.1 is the default. Its frozen model is fitted on the released
+Record confidence v3.1 was the previous default and is selected with `--legacy-v31`.
+Its frozen model is fitted on the released
 positive/negative outcomes for five epitopes, with 1,782 labelled interactions.
 The 252 ambiguous outcomes receive scores and are excluded from binary metrics.
 The original 614-interaction GLC/YLQ model remains available as `--legacy-v3`.
@@ -261,7 +262,7 @@ Normal hosted builds retain both files in the `record-confidence-v3` artifact fo
 | `pair_supported` | Direct pair evidence or positive support for both chains; descriptive |
 | `positive` | True if lower limit ≥ the decision cutoff, false if upper limit is below it, missing otherwise |
 | `decision_threshold` | Global cutoff used by v3.1; 0.26 in the packaged model |
-| `score_version`, `model_sha256`, `soft_membership` | Version `3.1` by default or `3` for legacy, exact frozen model identity and the inference mode |
+| `score_version`, `model_sha256`, `soft_membership` | Version `3.1` with `--legacy-v31` or `3` with `--legacy-v3`, exact frozen model identity and the inference mode |
 
 Publication counts use the established chain/peptide/V-gene grouping, not a count of
 independent experiments on the paired construct. Donor labels are scoped to their
