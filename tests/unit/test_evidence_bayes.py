@@ -248,7 +248,7 @@ def test_frozen_inference_is_exact_across_hash_seeds():
     code = """import json
 from vdjdb.score.bayes import predict
 from vdjdb.score.pipeline import load_model
-model, _ = load_model()
+model, _ = load_model(version='3.1')
 rows = [{'a_studies': '1', 'a_tcrnet': str(a), 'a_tcremp': str(b)}
         for a in (0, 1) for b in (0, 1)]
 print(json.dumps(predict(model, rows)))

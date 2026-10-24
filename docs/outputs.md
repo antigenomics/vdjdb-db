@@ -517,6 +517,16 @@ and hard evidence. Explicit `--soft-membership` adds four Hamming-1 fractions an
 V3.1 and explicit `--continuous-membership` use $(1-w)b+wu$ with $w=1/12$,
 retains `*_hard` assignments and records `continuous_membership` and
 `motif_score_version=separated-producer-v2`, `motif_score_width` and `*_support`.
+V3.2 exports `validation_score` (v3.2a assay validation) and
+`independent_validation_score` (v3.2b additional-publication detection).
+`record_score` and `paired` remain aliases of v3.2a. Each score has a separate
+version field and SHA256: `validation_score_version` / `model_sha256`, and
+`independent_validation_score_version` / `independent_model_sha256`.
+The table release is `score_version=3.2`. All records remain in the output,
+including records excluded from the fitting subsample. See the
+[scoring specification](standards/record-scoring-v3.md) for the two targets,
+fixed encodings, native-structure policy, fitting script and legacy selectors.
+
 V3.1 records `score_version=3.1` and its `decision_threshold`; the
 [v3 specification](standards/record-scoring-v3.md)
 defines the ordering guarantee and interpolation semantics.

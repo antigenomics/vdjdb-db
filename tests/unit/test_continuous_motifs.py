@@ -140,7 +140,7 @@ def test_fractional_index_keeps_hard_pair_support():
     pytest.importorskip('pgmpy')
     from vdjdb.score.bayes import score_records
     from vdjdb.score.pipeline import load_model
-    model,_=load_model()
+    model,_=load_model(version='3.1')
     frame=pl.DataFrame({'a_tcrnet':[.8], 'b_tcrnet':[.7],
                         'a_tcrnet_hard':[1], 'b_tcrnet_hard':[1]})
     got=score_records(model,frame,soft_membership=True)[0]
