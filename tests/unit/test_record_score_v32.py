@@ -39,6 +39,16 @@ def test_encoding_structure_and_bins():
         encode(model, pl.DataFrame({'a_tcremp': [1.1]}))
 
 
+def test_motif_edges_tolerate_machine_rounding_only():
+    from vdjdb.score.v32 import encode
+
+    model = {'iptm_bounds': [.4, .8], 'motif_bounds': {'a_tcremp': [.2, .8]}}
+    noise = 32 * np.finfo(np.float64).eps
+    frame = pl.DataFrame({'a_tcremp': [.2, .2 + noise, .2 + 1e-10,
+                                      .8, .8 + noise, .8 + 1e-10]})
+    assert encode(model, frame)['a_tcremp'].to_list() == ['0', '0', '1', '2', '2', '3']
+
+
 def test_standalone_help_and_missing_private_path():
     script = Path('processing/fit_record_score_v3_2.py')
     env = {k: v for k, v in os.environ.items() if k != 'TCRVDB_PATH'}

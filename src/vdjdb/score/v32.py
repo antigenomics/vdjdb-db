@@ -66,12 +66,15 @@ def encode(model, frame):
         if name not in frame.columns:
             continue
         v = pl.col(name).cast(pl.Float64).fill_nan(None)
+        # Equivalent producer results can straddle a fitted edge by a few ulps.
+        tolerance = 64 * np.finfo(np.float64).eps
         if frame.filter(v.is_not_null() & ~v.is_between(0, 1)).height:
             raise ValueError(f'Invalid motif value {name}')
-        result = result.hstack(frame.select(
-            pl.when(v.is_null()).then(pl.lit('?')).when(v <= low).then(pl.lit('0'))
-            .when(v < .5).then(pl.lit('1')).when(v <= high).then(pl.lit('2'))
-            .otherwise(pl.lit('3')).alias(name)))
+        coded = frame.select(
+            pl.when(v.is_null()).then(pl.lit('?')).when(v <= low + tolerance).then(pl.lit('0'))
+            .when(v < .5).then(pl.lit('1')).when(v <= high + tolerance).then(pl.lit('2'))
+            .otherwise(pl.lit('3')).alias(name))
+        result = result.hstack(coded) if result.width else coded
     if 'legacy_score' in result.columns:
         result = result.with_columns(pl.col('legacy_score').replace({'2': '2+'}))
     if result.width == 0:
