@@ -1,9 +1,11 @@
 """Small independent probability checks for fresh network fitting."""
 import json
 
+import pytest
+
+pytest.importorskip('pgmpy')
 import numpy as np
 import pandas as pd
-import pytest
 
 from vdjdb.score.learning import fit_network, learn_structure, predict_network
 
@@ -72,3 +74,36 @@ def test_dependent_missing_posterior_matches_enumeration():
                 sums[cls] += probability
         expected.append(sums[1] / sum(sums))
     assert predict_network(model, query) == pytest.approx(expected)
+
+
+def test_explicit_epitope_models_require_context_and_preserve_other_rows():
+    data = pd.DataFrame({'x': ['0', '0', '1', '1']})
+    edges, states = [('validated', 'x')], {'x': ['0', '1']}
+    global_model = fit_network(data, [0, 0, 1, 1], edges, states)
+    local_model = fit_network(data, [1, 1, 0, 0], edges, states)
+    model = {**global_model, 'epitope_models': {'e': local_model}}
+    with pytest.raises(ValueError, match='epitope'):
+        predict_network(model, data)
+    original = predict_network(global_model, data)
+    local = predict_network(local_model, data)
+    actual = predict_network(model, data, epitopes=['e', 'other', 'e', 'other'])
+    assert actual == pytest.approx([local[0], original[1], local[2], original[3]])
+
+
+def test_hill_climb_ties_are_stable_across_hash_seeds():
+    import os
+    import subprocess
+    import sys
+    code = """
+import json
+import pandas as pd
+from vdjdb.score.learning import learn_structure
+x = ['0', '0', '1', '1'] * 20
+data = pd.DataFrame({name: x for name in ['a', 'b', 'c']})
+print(json.dumps(learn_structure(data, [0, 1] * 40)))
+"""
+    outputs = [subprocess.check_output(
+        [sys.executable, '-c', code],
+        env={**os.environ, 'PYTHONHASHSEED': str(seed)}, text=True)
+        for seed in (1, 2, 3, 4)]
+    assert len(set(outputs)) == 1

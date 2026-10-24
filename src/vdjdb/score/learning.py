@@ -46,8 +46,13 @@ def learn_structure(data, labels, *, method='hc-bic', max_parents=3):
     if method in ('hc-bic', 'hc-aic'):
         from pgmpy.estimators import ExpertKnowledge, HillClimbSearch
 
+        class OrderedHillClimbSearch(HillClimbSearch):
+            def _legal_operations(self, *args, **kwargs):
+                return iter(sorted(super()._legal_operations(*args, **kwargs),
+                                   key=lambda item: item[0]))
+
         observed[TARGET] = y.astype(str)
-        graph = HillClimbSearch(observed, use_cache=False).estimate(
+        graph = OrderedHillClimbSearch(observed, use_cache=False).estimate(
             scoring_method='bic-d' if method == 'hc-bic' else 'aic-d',
             expert_knowledge=ExpertKnowledge(required_edges=required,
                                              forbidden_edges=[(n, TARGET) for n in names]),
@@ -180,7 +185,7 @@ def fit_network(data, labels, edges, states, *, prior_mass=10., max_iter=500, to
             'missing_fit': 'explicit reporting state', 'missing_predict': 'exact marginalization'}
 
 
-def predict_network(model, data, *, max_cells=2_000_000):
+def predict_network(model, data, *, epitopes=None, max_cells=4_000_000):
     """Exact batched posteriors, summing joint tables over missing predictors.
 
     The small evidence vocabulary permits bounded joint enumeration. max_cells
@@ -189,6 +194,17 @@ def predict_network(model, data, *, max_cells=2_000_000):
     """
     if model.get('format') != 'vdjdb-learned-bn-1':
         raise ValueError('Unsupported model format')
+    if 'epitope_models' in model:
+        context = np.asarray(epitopes)
+        if context.shape != (len(data),):
+            raise ValueError('Aligned epitope context required for epitope-specific models')
+        base = {k: v for k, v in model.items() if k != 'epitope_models'}
+        result = np.asarray(predict_network(base, data, max_cells=max_cells))
+        for epitope, local in sorted(model['epitope_models'].items()):
+            mask = context == epitope
+            if mask.any():
+                result[mask] = predict_network(local, data.loc[mask], max_cells=max_cells)
+        return result.tolist()
     states = model['states']
     names = list(states)
     if set(data.columns) - set(names):
