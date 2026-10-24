@@ -94,6 +94,9 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
     A record contributes a row per chain it has, so the blanks that fill half of ``vdjdb_full.txt``
     do not exist here.
     """
+    from .master import assert_complete_chains
+
+    assert_complete_chains(master)
     parts = []
     for gene, tag in _GENES:
         d = f"d.{gene}" if f"d.{gene}" in master.columns else None
@@ -136,7 +139,7 @@ def build_chains(master: pl.DataFrame) -> pl.DataFrame:
                 # The call proposed from the junction where the publication named none, carried out
                 # of the markup rather than recomputed, so the germline the repair ran against and
                 # the call reported here cannot disagree. `j.inferred` is also what `j.segm` carries
-                # on those chains; `v.inferred` ships nowhere else, and
+                # on those chains, as does `v.inferred` in `v.segm`, and
                 # :func:`vdjdb.annotate.cdr3fix.markup` states how far to trust each.
                 pl.col(f"__gv.{gene}").alias("v.inferred"),
                 pl.col(f"__gj.{gene}").alias("j.inferred"),

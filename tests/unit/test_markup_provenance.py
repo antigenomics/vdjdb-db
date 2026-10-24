@@ -71,3 +71,26 @@ def test_the_chain_table_declares_all_three_stages():
     for col in ("v.segm.submitted", "j.segm.submitted", "d.segm.submitted",
                 "v.segm.arda", "j.segm.arda", "v.segm", "j.segm", "d.segm"):
         assert col in CHAIN_COLUMNS, f"{col} is not a declared chain column"
+
+
+def test_proposed_v_and_j_ship_with_inferred_provenance():
+    from vdjdb.annotate.cdr3fix import markup
+
+    keys = pl.DataFrame({'species': ['HomoSapiens'], 'cdr3': ['CASSIRSSYEQYF'],
+                         'v': [''], 'j': ['TRBJ2-7*01']})
+    row = markup(keys, 'beta').row(0, named=True)
+    assert row['v'] == ''
+    assert row['__v'] == row['__gv'] == row['__varda'] != ''
+    assert row['__j'] != ''
+
+
+def test_j_only_fragments_use_the_first_proposed_v():
+    from vdjdb.annotate.cdr3fix import markup
+
+    keys = pl.DataFrame({'species': ['HomoSapiens'], 'cdr3': ['GFGNVLHC'],
+                         'v': [''], 'j': ['']})
+    row = markup(keys, 'alpha').row(0, named=True)
+    assert row['__v'] == row['__gv']
+    assert row['__v'] == 'TRAV1-1*01'
+    assert row['__j'] == 'TRAJ35*01'
+    assert row['__vfix'] == 'FailedNoAlignment'

@@ -18,56 +18,9 @@ from vdjdb.emit.vdjdb3 import read_tables
 
 pytestmark = pytest.mark.release
 
-#: Chains the legacy build drops: the ones whose chain carried a CDR3 with no V or J (it drops the
-#: record whole, both chains), excluding partners without their own junction.
-#:
-#: **Both numbers falling is the outcome to want**, and they have fallen twice. The tables path always
-#: carried these records; what changes is that legacy carries them too.
-#:
-#: ====================================  ======  =======
-#: after                                 chains  records
-#: ====================================  ======  =======
-#: `res/` retired (#658)                 1,501    1,141
-#: the k-mer J proposal replaced         1,032      845
-#: `annotate_junctions` (arda 2.36)        970      755
-#: ====================================  ======  =======
-#:
-#: The last step moved the blank-call proposal from this repository's own `annotate/segments.py` into
-#: `arda.cdr3fix`, which proposes the **locus** as well as the call (2.36) and so answers the 461 keys
-#: that named neither side and had no locus to look one up under. 62 more chains of 90 more records
-#: stop failing the legacy "a CDR3 needs a V and a J" filter.
-#: #845 restores nine additional single-chain observations with unresolved segment calls.
-#: All earlier observations remain; these nine are retained by the tables and AIRR projection.
-#: #893 adds 336 records (542 chains) whose source calls remain incomplete after assembly.
-#: All are retained in the definitive tables and AIRR; legacy requires both V and J.
-#: #934 adds 174 records (239 chains) with incomplete calls after assembly.
-#: These observations remain in the definitive tables and AIRR.
-#: PMID34290408 adds eight TRB observations with incomplete calls; tables and AIRR retain them.
-#: PMID25681349 adds 19 incomplete-call chains retained in definitive tables and AIRR.
-#: PMID36516854 adds four incomplete-call observations retained by tables and AIRR.
-#: Final publication additions retain 22 further incomplete-V chains in tables/AIRR.
-# Three new source observations retain six chains without resolvable segment calls.
-# Primary-table segment reconciliation recovers ten chain rows and nine record rows
-# for the legacy projection; the definitive tables retain every observation.
-# PMID38100526 full-protein calls recover the two previously unpaired, blank-V observations
-# through their reported pair. Two fewer chains and records fail the legacy segment filter.
-# Finalization retains 98 further single-chain observations with unresolved segments.
-# PMID38956325 audit completes six OT-I pairs and one OT-II alpha for legacy export.
-# PMID41702949 and PMID41961941 add97 observations with191 chains whose
-# source V calls are unavailable. Definitive tables and AIRR retain them;
-# the legacy segment filter remains unchanged.
-# PMID22102287 adds205 incomplete-call pairs and PMID38039963 adds24.
-# All229 observations and458 chains remain
-# in definitive tables and AIRR; legacy still requires reported V calls.
-# ERTransformer retains seven designed receptors with14 unreported-V chains in tables/AIRR.
-# Source review1352 corrects an unreported-V beta chain formerly misassigned as alpha.
-# The corrected chain remains in tables/AIRR and lacks a reported V for legacy export.
-# #1362 recovers the primary CMV#1 J call, admitting one additional legacy observation.
-# PDB9GV6 adds one record and two chains with unreported V/J calls (#1133).
-# Tables and AIRR retain them; the unchanged legacy filter excludes them.
-# #1371 removes34 D-only partners from definitive chains; sequence-bearing records remain.
-LEGACY_DROPS_CHAINS = 2546
-LEGACY_DROPS_RECORDS = 1756
+# #1400: every built chain has V, junction and J, so legacy excludes no chains or records.
+LEGACY_DROPS_CHAINS = 0
+LEGACY_DROPS_RECORDS = 0
 
 
 @pytest.fixture(scope="module")
@@ -86,7 +39,7 @@ def test_the_whole_rearrangement_table_passes_the_airr_validator(built, tmp_path
     assert A.validate_rearrangement(tmp_path / "vdjdb.rearrangement.tsv")
 
 
-def test_the_legacy_path_is_a_strict_subset_of_the_tables_path(built):
+def test_the_legacy_path_keeps_every_chain_in_the_tables_path(built):
     """`d_call` is excluded: legacy `vdjdb.txt` has no D column, so it is information the file cannot
     carry rather than a disagreement. 42,574 beta chains have a D call in the tables."""
     tables, legacy = built
@@ -101,7 +54,7 @@ def test_the_legacy_path_is_a_strict_subset_of_the_tables_path(built):
     assert excess.filter(excess > 0).sum() == LEGACY_DROPS_CHAINS
 
 
-def test_reactivity_agrees_and_the_tables_keep_the_records_legacy_drops(built):
+def test_reactivity_agrees_and_legacy_keeps_every_record(built):
     tables, legacy = built
     keys = [c for c in airr.REACTIVITY_COLUMNS if c not in ("reactivity_id", "cell_id")]
     a = airr.from_tables(tables)["reactivity"].select(keys).group_by(keys).len()

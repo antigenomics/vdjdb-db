@@ -65,7 +65,7 @@ The sequence used for markup and the evidence for a segment call must remain dis
 | `v_segm_arda`, `j_segm_arda` | Calls resolved by the markup engine. |
 | `v_segm`, `j_segm` | Calls that ship after harmonisation, allele resolution and the supported J-recall rule. If resolution fails, a reported call is retained. |
 | `d_segm` | Curated D call, separate from the inferred D. |
-| `v_inferred`, `j_inferred` | Proposals only where the submission left that segment blank. A supported J proposal also ships as `j_segm`; a V proposal leaves `v_segm` blank. |
+| `v_inferred`, `j_inferred` | Proposals only where the submission left that segment blank. Both proposals ship in `v_segm` and `j_segm`, with inferred provenance retained. |
 | `d_inferred`, `d_posterior` | D gene proposed by the recombination model and its gene posterior probability. |
 
 J recall can replace an unsupported J call using the junction's terminal germline

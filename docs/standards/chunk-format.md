@@ -74,11 +74,11 @@ submitter | Name of submitting person/organization
 
 > A chain exists only when its own CDR3 is reported. Segment usage without that junction belongs
 > in the curation comment, not the chain columns. Strict QC and direct assembly reject such
-> incomplete chain annotations; the chain-table projection also excludes them.
+> incomplete chain annotations; the chain-table projection rejects them too.
 
 > Leave unreported V/(D)/J fields blank. The build preserves submitted calls, attempts junction
 > annotation where supported and distinguishes inferred calls from reported ones. An inferred V
-> is reported separately; it does not replace a missing submitted V call.
+> ships in the final call with inferred provenance; the submitted field remains blank.
 
 > Every record must have at least one of ``cdr3.alpha`` and ``cdr3.beta`` filled.
 

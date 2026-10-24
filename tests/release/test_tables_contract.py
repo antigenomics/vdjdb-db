@@ -113,7 +113,11 @@ def test_record_id_is_a_key_and_there_is_one_per_curated_line(tables):
 def test_chains_are_keyed_on_record_and_gene_and_every_one_has_a_record(tables):
     chains, records = tables["chains"], tables["records"]
     assert chains.select("record_id", "gene").n_unique() == chains.height
-    assert chains.filter(pl.col("cdr3") == "").is_empty(), "every chain needs its own junction"
+    for column in ("cdr3", "v.segm", "j.segm", "v.fix.type", "j.fix.type"):
+        assert chains.filter(pl.col(column).fill_null("") == "").is_empty(), column
+    assert chains.select("v.end", "j.start", "fix.needed", "fix.good",
+                         "v.canonical", "j.canonical").null_count().sum_horizontal().item() == 0
+    assert records.join(chains.select("record_id").unique(), on="record_id", how="anti").is_empty()
     assert set(chains["gene"].unique()) == {"TRA", "TRB"}
     assert chains.join(records.select("record_id"), on="record_id", how="anti").is_empty()
 
@@ -164,13 +168,7 @@ def test_the_d_posterior_is_a_probability_and_is_often_low(tables):
 
 
 def test_an_inferred_segment_never_sits_beside_a_curated_one(tables):
-    """#462 fills a gap; it does not second-guess a curator.
-
-    Keyed on the **submitted** call, which is the one a curator wrote. The shipped `j.segm` is not the
-    right test any more: the J proposal reaches it, so `j.inferred` and `j.segm` are the same value on
-    3,272 chains by design (#658). `v.segm` stays blank on all 745 of its own, so there the two tests
-    coincide - which is exactly the asymmetry `vdjdb.annotate.cdr3fix.markup` measured and states.
-    """
+    """Inferred calls fill missing submitted calls and ship with their provenance."""
     chains = tables["chains"]
     for side in ("v", "j"):
         beside = chains.filter((pl.col(f"{side}.segm.submitted") != "")
@@ -180,9 +178,13 @@ def test_an_inferred_segment_never_sits_beside_a_curated_one(tables):
         assert beside.is_empty(), (
             f"{beside.height} chains carry a proposed {side} beside the one the publication "
             f"reported:\n{shown}")
-    assert chains.filter((pl.col("v.segm") == "") & (pl.col("v.inferred") != "")).height > 0
-    # The V proposal reaches no shipped column, so `v.segm` is blank wherever `v.inferred` is filled.
-    assert chains.filter((pl.col("v.segm") != "") & (pl.col("v.inferred") != "")).is_empty()
+    for side in ("v", "j"):
+        proposed = chains.filter(pl.col(f"{side}.inferred") != "")
+        assert proposed.height > 0
+        assert proposed.filter(pl.col(f"{side}.segm") == "").is_empty()
+        if side == "v":
+            assert proposed.filter(pl.col("v.segm") != pl.col("v.inferred")).is_empty()
+        # J recall may refine the initial J proposal without rewriting its provenance.
 
 
 def test_no_string_column_is_ever_null(tables):

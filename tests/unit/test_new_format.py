@@ -202,7 +202,7 @@ def test_motif_run_replaces_its_evidence_and_refreshes_view(tmp_path, tables, mo
     assert not vdjdb3.read_table(tmp_path/'tables','vdjdb')['evidence.motif.tcrnet'].any()
 
 
-def test_chain_assembly_discards_segment_only_partners():
+def test_chain_assembly_rejects_incomplete_partners():
     from vdjdb.assemble.master import CALL_FIELDS, FIX_FIELDS
     from vdjdb.assemble.tables import build_chains
     from vdjdb.schema import ALL_COLUMNS
@@ -218,8 +218,8 @@ def test_chain_assembly_discards_segment_only_partners():
             row[f"{name}.{gene}"] = ""
         for segment in ("v", "j", "d"):
             row[f"__sub.{segment}.{gene}"] = ""
-    chains = build_chains(pl.DataFrame([row]))
-    assert chains.select("gene", "cdr3").rows() == [("TRA", "CAVRDSNYQLIW")]
+    with pytest.raises(ValueError, match="incomplete"):
+        build_chains(pl.DataFrame([row]))
 
 
 def test_explicit_coordinate_units_reach_both_export_formats(tmp_path, tables):

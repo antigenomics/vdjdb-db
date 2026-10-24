@@ -129,10 +129,30 @@ def markup(keys: pl.DataFrame, gene: str | None = None, *, recall_j: bool = True
     beside it. That module is deleted: the germline a repair ran against and the call reported next
     to it could disagree while they were two computations, and now they cannot.
     """
-    from arda.cdr3fix import markup_records
+    from arda.cdr3fix import guess_alleles, load_anchors, markup_records, resolve_species
 
     ensure_reference()
-    out = _frame(keys, markup_records(keys, max_replace=MAX_REPLACE), gene)
+    prepared = keys
+    if gene in LOCI:
+        # The input column identifies the locus even when neither segment was reported.
+        # Use arda's existing proposal rule, including tied alleles, before one batch markup.
+        missing = keys.filter((pl.col("v") == "") | (pl.col("j") == ""))
+        proposals = []
+        for row in missing.iter_rows(named=True):
+            organism = resolve_species(row["species"])
+            anchors = load_anchors(organism)
+            calls = []
+            for side, name, sequence in (("V", "v", row["cdr3"]),
+                                         ("J", "j", row["cdr3"][::-1])):
+                calls.append(row[name] or ",".join(guess_alleles(
+                    sequence, side, LOCI[gene], anchors, min_gain=0, organism=organism)))
+            proposals.append((*[row[k] for k in KEY], *calls))
+        lookup = pl.DataFrame(proposals, schema={**dict(keys.schema),
+            "__input_v": pl.String, "__input_j": pl.String}, orient="row")
+        prepared = keys.join(lookup, on=list(KEY), how="left", maintain_order="left").with_columns(
+            pl.coalesce("__input_v", "v").alias("v"),
+            pl.coalesce("__input_j", "j").alias("j")).select(keys.columns)
+    out = _frame(keys, markup_records(prepared, max_replace=MAX_REPLACE), gene)
     if recall_j:
         out = _recall_j(out, gene)
     return out.sort(KEY)
@@ -147,9 +167,11 @@ def _frame(keys: pl.DataFrame, records: list, gene: str | None) -> pl.DataFrame:
     out = keys.with_columns(
         *(pl.Series(tmp, [f[key] for f in fixes], dtype=_FIX_DTYPES[ty])
           for key, tmp, ty in FIX_FIELDS),
-        pl.Series("__pv", [("V" in r.proposed) and u for r, u in zip(records, usable, strict=True)],
+        pl.Series("__pv", [not v and bool(r.v_call) and u for v, r, u in
+                   zip(keys["v"], records, usable, strict=True)],
                   dtype=pl.Boolean),
-        pl.Series("__pj", [("J" in r.proposed) and u for r, u in zip(records, usable, strict=True)],
+        pl.Series("__pj", [not j and bool(r.j_call) and u for j, r, u in
+                   zip(keys["j"], records, usable, strict=True)],
                   dtype=pl.Boolean),
         pl.Series("__locus", [r.locus or "" for r in records], dtype=pl.Utf8),
     ).with_columns(
@@ -158,14 +180,7 @@ def _frame(keys: pl.DataFrame, records: list, gene: str | None) -> pl.DataFrame:
         pl.col("__v").str.replace_all(";", ",").alias("__varda"),
         pl.col("__j").str.replace_all(";", ",").alias("__jarda"),
     ).with_columns(
-        # **Only the J proposal reaches the shipped call.** The two sides are not equally knowable
-        # from a junction and the measurement says so: a J is recovered at 93.6-97.5 % gene-level
-        # accuracy, because its germline templates a distinctive 3' motif, while a V is recovered at
-        # 23.8-50.1 %, because TRBV contributes only a few residues and most of them template the
-        # same `CAS`. So a proposed V is reported as `v.inferred` and nowhere else, `v.segm` stays
-        # blank where the curator left it blank - which is what every release has shipped - and the
-        # V boundary question is answered by `v.end.inferred`.
-        #
+        # Ship locus-compatible proposals and retain their inferred provenance.
         # **The engine's allele-resolved call ships where the record named the segment, and that is
         # not new.** The markup engine names the allele it aligned against, so a bare `TRBV12-3`
         # comes back `TRBV12-3*01`. Measured before assuming it: the 2026-06-03 release carries an
@@ -260,15 +275,11 @@ def _shipped_call(submitted: str, engine: str, *, proposed: str) -> pl.Expr:
     curator reported is kept beside it as `v.segm.submitted` / `j.segm.submitted`, and arda's own as
     `v.segm.arda` / `j.segm.arda`, so a reader can tell a markup decision from a curation one.
 
-    **A proposed V never ships**, and that is the one gate. The two sides are not equally knowable
-    from a junction: a J is recovered at 93.6-97.5 % gene-level accuracy, because its germline
-    templates a distinctive 3' motif, while a V is recovered at 23.8-50.1 %, because TRBV
-    contributes only a few residues and most of them template the same `CAS`. So a proposed V is
-    reported as `v.inferred` and nowhere else, and `v.segm` stays blank where the curator left it
-    blank - which is what every release has shipped.
+    Missing calls use locus-compatible engine proposals; submitted calls remain available
+    separately from the inferred provenance.
     """
     sub, eng = pl.col(submitted), pl.col(engine)
-    return (pl.when(pl.col(proposed) & (submitted == "v")).then(pl.lit(""))
+    return (pl.when((sub == "") & ~pl.col(proposed)).then(sub)
               .when(eng != "").then(eng).otherwise(sub))
 
 

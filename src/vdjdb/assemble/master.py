@@ -78,6 +78,28 @@ CALL_FIELDS: tuple[tuple[str, str], ...] = (("__varda", "v.segm.arda"),
 
 
 
+def assert_complete_chains(df: pl.DataFrame) -> None:
+    """Stop the build on partial chains, missing fixer fields or zero-chain records."""
+    problems = []
+    for gene in ("alpha", "beta"):
+        fields = [f"{c}.{gene}" for c in ("cdr3", "v", "j")]
+        present = pl.any_horizontal(pl.col(fields).fill_null("") != "")
+        complete = pl.all_horizontal(pl.col(fields).fill_null("") != "")
+        fixed = pl.all_horizontal(
+            *(pl.col(f"{tmp}.{gene}").is_not_null() for _, tmp, _ in FIX_FIELDS),
+            *(pl.col(f"{tmp}.{gene}").fill_null("") != ""
+              for tmp in ("__cdr3", "__v", "__j", "__vfix", "__jfix")),
+        )
+        bad = df.filter(present & ~(complete & fixed))
+        if bad.height:
+            problems.extend(f"{rid}: incomplete {gene} chain" for rid in bad["record_id"])
+    empty = df.filter(pl.all_horizontal(
+        pl.col("cdr3.alpha", "cdr3.beta").fill_null("") == ""))
+    problems.extend(f"{rid}: zero chains" for rid in empty["record_id"])
+    if problems:
+        raise ValueError("Incomplete built receptor records:\n" + "\n".join(problems))
+
+
 def fix_cdr3(df: pl.DataFrame) -> pl.DataFrame:
     """Repair the CDR3 and locate the V and J germline parts, per chain.
 
@@ -126,6 +148,7 @@ def fix_cdr3(df: pl.DataFrame) -> pl.DataFrame:
             )
             .drop(*(tmp for _, tmp, _ in FIX_FIELDS), *(tmp for tmp, _ in CALL_FIELDS))
         )
+    assert_complete_chains(df)
     return df
 
 
