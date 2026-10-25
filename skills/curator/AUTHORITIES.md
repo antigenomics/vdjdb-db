@@ -1,5 +1,8 @@
 # Curation authorities
 
+For database queries, motif retrieval, record reliability and coordinate downloads,
+use [vdjdb-use](../researcher/vdjdb-use/SKILL.md). The workflows below cover curation.
+
 Use the specification and reviewed authority tables below. Keep source evidence and decisions in
 the local execution record; retain material questions on the publication issue.
 
@@ -7,7 +10,7 @@ the local execution record; retain material questions on the publication issue.
 
 | Question | Authority | Read it with |
 |---|---|---|
-| Which columns may a chunk have, in what order | [`docs/standards/chunk-format.md`](../docs/standards/chunk-format.md) | `vdjdb schema --table records` |
+| Which columns may a chunk have, in what order | [`docs/standards/chunk-format.md`](../../docs/standards/chunk-format.md) | `vdjdb schema --table records` |
 | Is this V/D/J gene or allele a name IMGT has | `proofreading/imgt_alleles.tsv.gz` | `proofreading/imgt.md` §8 has the queries |
 | What does this older gene name convert to | `proofreading/arden.tsv`, `patches/nomenclature.conversions` | `proofreading/imgt.md` §9 |
 | Is this human HLA allele a name IPD-IMGT/HLA has | `proofreading/mhc_alleles.tsv.gz` | `proofreading/mhc.md` §10 has the queries |
@@ -16,9 +19,9 @@ the local execution record; retain material questions on the publication issue.
 | What are this epitope's `antigen.gene` and `antigen.species` | `patches/antigen_epitope_species_gene.dict` | keyed on the epitope |
 | What does this free-text antigen name normalise to | `proofreading/gene_aliases.tsv`, `proofreading/species_aliases.tsv` | species fragments are order-sensitive |
 | Which anchor residue should this junction end in | the germline of the segment the record names | `vdjdb submission` prints it per chain |
-| What score will these method fields earn | [`docs/standards/confidence-score.md`](../docs/standards/confidence-score.md) | `vdjdb submission` computes it |
+| What score will these method fields earn | [`docs/standards/confidence-score.md`](../../docs/standards/confidence-score.md) | `vdjdb submission` computes it |
 | Which method vocabulary is recognised | `docs/standards/chunk-format.md`, method columns | - |
-| How a 10x dextramer matrix becomes specificity calls | [`processing/dcode_chain_graph.py`](../processing/dcode_chain_graph.py) | [Process a 10x dextramer assay](../docs/tenx-dextramer.md) |
+| How a 10x dextramer matrix becomes specificity calls | [`processing/dcode_chain_graph.py`](../../processing/dcode_chain_graph.py) | [Process a 10x dextramer assay](../../docs/tenx-dextramer.md) |
 
 ## Submission invariants
 
@@ -50,7 +53,7 @@ uv run vdjdb schema --table records
 unresolved nomenclature, junction/germline conflicts and lookalike terms. Read them before proposing
 source edits. Unknown optional metadata does not block a supported observation. Multiple reported
 chains in the same identified clonotype follow the
-[candidate-pair convention](../docs/standards/chunk-format.md#multiple-chains-in-one-clonotype),
+[candidate-pair convention](../../docs/standards/chunk-format.md#multiple-chains-in-one-clonotype),
 retaining the original clonotype ID and marking the uncertainty. Unsupported source-chain
 association, peptide/restriction or outcome contradictions block the affected rows only.
 
@@ -60,9 +63,9 @@ frequency or another row's method.
 
 For association queries, join records and chains by `record_id`, select species/chain and condition
 on the epitope and restriction. State whether the denominator counts observations, clonotypes or
-publications. See [record-level queries](../docs/standards/corpus.md#receptor-level-motif-association).
+publications. See [record-level queries](../../docs/standards/corpus.md#receptor-level-motif-association).
 
-Use the [submission guide](../docs/submission.md) for blockers and quarantine, and
+Use the [submission guide](../../docs/submission.md) for blockers and quarantine, and
 [publish](vdjdb-publish/SKILL.md) for Gitflow, validation and issue closeout. Request a decision only
 when source evidence and existing authorization do not resolve it.
 

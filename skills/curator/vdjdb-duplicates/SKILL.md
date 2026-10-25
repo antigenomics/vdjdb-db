@@ -6,7 +6,7 @@ description: Review repeated paired receptor-pMHC observations and metadata syno
 # Review repeated observations
 
 Read [AUTHORITIES.md](../AUTHORITIES.md) and
-[observation identity](../../docs/standards/chunk-format.md#completeness-and-observation-identity).
+[observation identity](../../../docs/standards/chunk-format.md#completeness-and-observation-identity).
 Use a fresh build and read raw chunks with `read_chunks(deduplicate=False)`.
 
 ## Compare receptors and experiments
@@ -100,7 +100,7 @@ count distinct receptor/pMHC observations. Keep it separate from paired-junction
 
 ## Separate validation classes and laboratory independence
 
-Use the four classes in [validation evidence](../../docs/submission.md#classify-validation-evidence):
+Use the four classes in [validation evidence](../../../docs/submission.md#classify-validation-evidence):
 observed only; observed with receptor verification; repeated within one study; author-independent
 corroboration. Direct verification ranks above within-study repetition. Both may support one record.
 Inspect the per-record `*-categories.tsv` audit; alpha or beta support alone does not confirm a paired receptor.

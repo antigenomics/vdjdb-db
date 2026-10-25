@@ -151,5 +151,5 @@ of it.
 
 A repair is a chunk edit: its own branch, its own issue, and a message naming the files, the rows and
 the reason. Nothing applies one automatically, and neither should you in bulk -
-[`/vdjdb-proofread`](../skills/vdjdb-proofread/SKILL.md) step 3 and
-[`/vdjdb-publish`](../skills/vdjdb-publish/SKILL.md) have the procedure.
+[`/vdjdb-proofread`](../skills/curator/vdjdb-proofread/SKILL.md) step 3 and
+[`/vdjdb-publish`](../skills/curator/vdjdb-publish/SKILL.md) have the procedure.

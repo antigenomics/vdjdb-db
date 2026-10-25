@@ -82,9 +82,12 @@ def test_every_vdjdb_command_the_docs_name_exists() -> None:
               for c in g.typer_instance.registered_commands}
     known |= {g.name for g in app.registered_groups}
 
+    command = re.compile(r"(?<![\w-])vdjdb ([a-z][a-z-]*(?: [a-z][a-z-]*)?)")
+    assert command.findall("vdjmatch annotate sample.tsv --vdjdb reference.zip") == []
+    assert command.findall("uv run vdjdb build --out out/") == ["build"]
     named: dict[str, set[str]] = {}
     for page in sorted((ROOT / "docs").rglob("*.md")):
-        for m in re.findall(r"vdjdb ([a-z][a-z-]*(?: [a-z][a-z-]*)?)", page.read_text()):
+        for m in command.findall(page.read_text()):
             # Two words may be `group command` or `command <arg>`; accept either reading.
             if m in known or m.split()[0] in known:
                 continue

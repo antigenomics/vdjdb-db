@@ -6,7 +6,7 @@ description: Canonicalise antigen.gene and antigen.species in a VDJdb chunk agai
 # Review peptide provenance and aliases
 
 Read [AUTHORITIES.md](../AUTHORITIES.md) and
-[terminology](../../docs/standards/terminology.md). `antigen.gene` and `antigen.species` describe
+[terminology](../../../docs/standards/terminology.md). `antigen.gene` and `antigen.species` describe
 peptide provenance. Recognition is assigned to the peptide-MHC complex.
 
 ## Inspect existing harmonisation

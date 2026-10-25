@@ -10,7 +10,7 @@ from vdjdb.validate.confidence import check_nonregression, metrics
 
 
 def test_v31_default_and_explicit_legacy_model():
-    model, digest = load_model()
+    model, digest = load_model(version='3.1')
     legacy, legacy_digest = load_model(legacy=True)
     assert model['score_version'] == '3.1'
     assert model['n_training'] == 1782 and len(model['training_epitopes']) == 5
@@ -25,7 +25,7 @@ def test_decision_cutoff_changes_calls_without_changing_probabilities():
     pytest.importorskip('pgmpy')
     from vdjdb.score.bayes import score_records
 
-    model, _ = load_model()
+    model, _ = load_model(version='3.1')
     frame = pl.DataFrame({'a_studies': [3], 'b_studies': [3], 'donors': [3],
         'a_tcrnet': [1], 'b_tcrnet': [1], 'a_tcremp': [1], 'b_tcremp': [1],
         'iptm': [.95], 'legacy_score': [3]})
@@ -72,7 +72,7 @@ def test_record_join_and_deterministic_compressed_export(tmp_path):
     evidence = pl.DataFrame(schema={'record_id': pl.String, 'gene': pl.String,
         'evidence_type': pl.String, 'evidence_value': pl.String, 'evidence_score': pl.Float64,
         'evidence_source': pl.String})
-    model, digest = load_model()
+    model, digest = load_model(version='3.1')
     scored = record_scores(records, chains, evidence, model, model_sha256=digest)
     assert scored['score_version'].unique().to_list() == ['3.1']
     assert scored['continuous_membership'].all()

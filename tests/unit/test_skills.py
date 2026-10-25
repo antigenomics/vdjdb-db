@@ -27,7 +27,8 @@ from vdjdb.qc.rules import RULES
 
 ROOT = Path(__file__).resolve().parents[2]
 SKILLS = ROOT / "skills"
-SHARED = SKILLS / "AUTHORITIES.md"
+CURATOR = SKILLS / "curator"
+SHARED = CURATOR / "AUTHORITIES.md"
 
 #: Body length above which a skill is doing too much in one document. Not a spec limit - the format's
 #: own guidance is "a few thousand tokens" - but a ceiling that keeps a skill reviewable and forces
@@ -46,12 +47,12 @@ RETIRED = ("py_src/", "src/*.groovy", "chunks2/", "vdjdb-motifs/", "summary/pubm
 PATH_IN_BACKTICKS = re.compile(r"`([^`\s]+/[^`\s]*)`")
 MARKDOWN_LINK = re.compile(r"\]\((?!https?:)([^)#]+)")
 #: `uv run vdjdb <sub>` or `vdjdb <sub>`, capturing the subcommand.
-VDJDB_COMMAND = re.compile(r"\bvdjdb\s+([a-z][a-z-]+)")
+VDJDB_COMMAND = re.compile(r"(?<![\w-])vdjdb\s+([a-z][a-z-]+)")
 FRONTMATTER = re.compile(r"\A---\n(.*?)\n---\n", re.S)
 
 
 def _skills() -> list[Path]:
-    return sorted(SKILLS.glob("*/SKILL.md"))
+    return sorted(SKILLS.glob("*/*/SKILL.md"))
 
 
 def _frontmatter(path: Path) -> dict[str, str]:
@@ -76,7 +77,9 @@ DOCUMENTS = [*ALL, SHARED]
 def test_there_are_skills_to_check() -> None:
     """A rename or a move that emptied `skills/` would otherwise make every test below vacuous."""
     assert len(ALL) >= 6, f"found {len(ALL)} skills under {SKILLS}"
-    assert SHARED.is_file(), f"{SHARED.relative_to(ROOT)} is what every skill links to"
+    assert {p.parent.parent.name for p in ALL} == {"researcher", "curator"}
+    assert not list(SKILLS.glob("*/SKILL.md")), "keep researcher and curator skills separate"
+    assert SHARED.is_file(), f"{SHARED.relative_to(ROOT)} is what curator skills link to"
 
 
 # ---------------------------------------------------------------------------------------------
@@ -109,7 +112,8 @@ def test_the_body_is_small_enough_to_load_whole(path: Path) -> None:
         f"`proofreading/mhc.md`, `docs/standards/` - and link to it.")
 
 
-@pytest.mark.parametrize("path", ALL, ids=lambda p: p.parent.name)
+@pytest.mark.parametrize("path", [p for p in ALL if p.parent.parent == CURATOR],
+                         ids=lambda p: p.parent.name)
 def test_every_skill_links_the_shared_authorities(path: Path) -> None:
     """The invariants and the authority table are in one file so six bodies cannot disagree about
     them, which is precisely what happened on murine MHC."""
@@ -174,7 +178,7 @@ def test_every_qc_rule_name_a_skill_quotes_is_a_rule(doc: Path) -> None:
 
 def test_advisory_status_is_read_from_the_generated_report() -> None:
     """Guide curators to the current report instead of a copied rule list that can drift."""
-    body = _body(SKILLS / "vdjdb-proofread" / "SKILL.md")
+    body = _body(CURATOR / "vdjdb-proofread" / "SKILL.md")
     assert "qc-summary.tsv" in body
     assert "advisory flag" in body
     assert "**Advisory rules" not in body
@@ -231,7 +235,7 @@ def test_no_skill_tells_a_curator_to_write_the_classical_murine_prefix() -> None
 def test_the_skills_state_the_junction_definition() -> None:
     """Sequence admission guides must state both canonical anchors and junction space."""
     for name in ("vdjdb-extract", "vdjdb-proofread"):
-        body = _body(SKILLS / name / "SKILL.md")
+        body = _body(CURATOR / name / "SKILL.md")
         assert re.search(r"start(?:s)? with `?C`?", body), f"{name} does not state the V anchor"
         assert re.search(r"end(?:s)? (?:with|in) `?F`?", body), f"{name} does not state the J anchor"
     shared = SHARED.read_text()

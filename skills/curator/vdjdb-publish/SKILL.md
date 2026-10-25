@@ -6,7 +6,7 @@ description: Publish proofread VDJdb chunks through dev, reconcile publication i
 # vdjdb-publish
 
 Read [AUTHORITIES.md](../AUTHORITIES.md) and the
-[submission guide](../../docs/submission.md). Use existing batch authorization throughout;
+[submission guide](../../../docs/submission.md). Use existing batch authorization throughout;
 ask only for a new decision outside that scope.
 
 ## 1. Reconcile the submission
@@ -47,7 +47,7 @@ result instead of manually repeating the repair at import.
 A noncritical metadata question is not an import blocker when the supported assay evidence already
 determines the score and observation identity. Leave unknown fields blank and keep a focused
 follow-up issue open. Several reported chains in one source clonotype can enter as
-[candidate pairs](../../docs/standards/chunk-format.md#multiple-chains-in-one-clonotype), keeping
+[candidate pairs](../../../docs/standards/chunk-format.md#multiple-chains-in-one-clonotype), keeping
 the original `meta.clone.id`, marking pairing ambiguous and explaining it on the issue.
 Unsupported source-chain association, epitope/restriction and assay-outcome ambiguities remain
 blockers for the affected observations. Preserve unresolved material in `pending/` or `withheld/` as described

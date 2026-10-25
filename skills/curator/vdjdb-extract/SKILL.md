@@ -6,7 +6,7 @@ description: Extract TCR:pMHC specificity records from raw submission sources - 
 # Extract publication observations
 
 Read [AUTHORITIES.md](../AUTHORITIES.md) and the
-[chunk specification](../../docs/standards/chunk-format.md). Respect the requested source and
+[chunk specification](../../../docs/standards/chunk-format.md). Respect the requested source and
 technology scope. A reference already present in VDJdb does not establish complete coverage.
 
 For deposited complexes, use [structures](../vdjdb-structures/SKILL.md) and the local tcren
@@ -27,7 +27,7 @@ Inventory the supplied article, supplements and processed assignments. Record wh
 contain sequences, pairing, peptides, restrictions and assays. Join on reported clone, donor,
 well or barcode identifiers and record join cardinality. Do not assert resolved pairing from
 row order or oligoclonal coexpression. For several reported chains in one source clonotype,
-prefer the [candidate-pair convention](../../docs/standards/chunk-format.md#multiple-chains-in-one-clonotype):
+prefer the [candidate-pair convention](../../../docs/standards/chunk-format.md#multiple-chains-in-one-clonotype):
 one row per distinct alpha-beta combination, `method.pairing=ambiguous`, the original
 `meta.clone.id` on every row, and an issue comment describing the uncertainty. Retain the same
 experiment/pMHC metadata and source counts; repeated counts are one clonotype's support.
@@ -62,7 +62,7 @@ behind `chunks/ISSUE_289.tsv`. Deposited ITRAP matrices use `processing/itrap_re
 `itrap1_tables` then `run_frames` for `chunks/PMID_37133356.tsv`, and `viral_tables` then
 `run_frames` for `chunks/DOI_10.64898_2025.12.19.695506.tsv`. The procedure, the filenames and
 which committed file is the published table are in
-[Process a 10x dextramer assay](../../docs/tenx-dextramer.md). The standalone script reads numeric UMIs, never `_binder` flags, and writes five sorted
+[Process a 10x dextramer assay](../../../docs/tenx-dextramer.md). The standalone script reads numeric UMIs, never `_binder` flags, and writes five sorted
 tab-separated tables. Fit donors separately: a barcode is unique only within its donor.
 Validate finite nonnegative integer counts and preserve measured zeros; missing measurements
 are not zero. Inspect chain posteriors, retained shapes and doublet decisions before exporting

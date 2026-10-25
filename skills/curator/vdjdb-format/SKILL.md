@@ -6,7 +6,7 @@ description: Normalise the controlled-vocabulary fields of a raw VDJdb chunk TSV
 # Validate submission formatting
 
 Read [AUTHORITIES.md](../AUTHORITIES.md). Use the current
-[chunk specification](../../docs/standards/chunk-format.md) and a shipping header rather than
+[chunk specification](../../../docs/standards/chunk-format.md) and a shipping header rather than
 positional column numbers or copied column lists.
 
 Run `vdjdb qc <file>` first. Resolve malformed headers, wrong separators and shifted fields from
