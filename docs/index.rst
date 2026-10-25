@@ -21,6 +21,8 @@ Explore and use the data
    <div class="proj-card-grid">
      <a class="proj-card" href="getting-started.html"><h3>First records</h3>
        <p>Download a release and read observations with Python.</p></a>
+     <a class="proj-card" href="using-vdjdb.html"><h3>From query to evidence</h3>
+       <p>Annotate receptors, retrieve motifs, assess records and download coordinates.</p></a>
      <a class="proj-card" href="outputs.html"><h3>Choose a format</h3>
        <p>Compare primary tables, legacy files and AIRR exports.</p></a>
      <a class="proj-card" href="dashboard.html"><h3>Database overview</h3>
@@ -60,7 +62,8 @@ Contribute and maintain
 
 Start with :doc:`standards/terminology` for the distinction between peptide provenance and
 recognition of a peptide-MHC complex. The :doc:`standards/confidence-score` page defines the
-legacy 0-3 score; :doc:`standards/record-scoring-v3` describes the separate v3.1 forecasts and legacy v3 option.
+legacy 0-3 score; :doc:`standards/record-scoring-v3` describes the separate v3.2a assay-validation
+and v3.2b independent-study forecasts, plus explicit legacy modes.
 
 .. toctree::
    :hidden:
@@ -72,6 +75,7 @@ legacy 0-3 score; :doc:`standards/record-scoring-v3` describes the separate v3.1
    :hidden:
    :caption: How-to guides
 
+   using-vdjdb
    submission
    tenx-dextramer
    builds

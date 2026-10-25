@@ -12,7 +12,7 @@ Keep the release tag with your analysis so another reader can identify the data 
 
 ## 2. Choose a table
 
-For this example, use `vdjdb.txt`: it has one row per reported chain. Alpha and beta chains of a
+For this example, select the **legacy** bundle and use `vdjdb.txt`: it has one row per reported chain. Alpha and beta chains of a
 paired receptor can therefore occupy two rows. `vdjdb_full.txt` puts paired chains in one row;
 `vdjdb.slim.txt` is a reduced projection. See the [file reference](outputs.md) before treating
 rows from different formats as interchangeable observations.
@@ -39,6 +39,7 @@ assays or publications; do not discard rows on sequence alone.
 
 ## Next steps
 
+- [Query receptors, retrieve motifs, inspect reliability and fetch coordinates](using-vdjdb.md).
 - Look up [columns](standards/columns.md) and [confidence scores](standards/confidence-score.md).
 - [Submit records](submission.md) from a publication.
 - [Build the database](builds.md) from the source chunks.

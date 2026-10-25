@@ -146,7 +146,7 @@ Umbrella issues stay open until all their component submissions are accounted fo
 
 The repository's [curation skills](https://github.com/antigenomics/vdjdb-db/tree/master/skills) guide
 extraction, formatting, proofreading, publication, harmonisation and duplicate review. Use the
-[structural collection skill](https://github.com/antigenomics/vdjdb-db/tree/master/skills/vdjdb-structures)
+[structural collection skill](https://github.com/antigenomics/vdjdb-db/tree/master/skills/curator/vdjdb-structures)
 for deposited TCR-pMHC complexes and the local tcren pipeline. They use the
 same CLI and authority tables as the build. Existing authorization for a batch applies throughout;
 ask for new scientific decisions, not repeated permission for already-authorized routine actions.
