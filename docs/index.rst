@@ -13,6 +13,14 @@ VDJdb records published observations of T-cell receptors recognising peptide-MHC
      <a href="https://github.com/antigenomics/vdjdb-db/releases">Download a release</a></p>
    </div>
 
+.. image:: ../images/vdjdb-splash-light.svg
+   :class: only-light
+   :alt: VDJdb epitopes, TCREmp paratope motifs and selected CDR3 sequences coloured by inferred V/D/J boundaries.
+
+.. image:: ../images/vdjdb-splash-dark.svg
+   :class: only-dark
+   :alt: VDJdb epitopes, TCREmp paratope motifs and selected CDR3 sequences coloured by inferred V/D/J boundaries.
+
 Explore and use the data
 ------------------------
 
