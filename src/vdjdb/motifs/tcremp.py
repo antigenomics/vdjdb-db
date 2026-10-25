@@ -244,6 +244,17 @@ def embed_reduced(clonotypes: pl.DataFrame, species: str, locus: str, *,
                          n_components=n_components, seed=seed)[0]
 
 
+@contextmanager
+def _neighbour_threads():
+    """Own the OpenMP query allocation, keep BLAS serial, and restore caller limits."""
+    from threadpoolctl import threadpool_limits
+    from vdjtools.cores import kernel_threads
+
+    with _single_threaded_blas(), \
+         threadpool_limits(limits=kernel_threads(0), user_api="openmp"):
+        yield
+
+
 def mean_nn_distance(X: np.ndarray, *, clonotypes: pl.DataFrame | None = None) -> float:
     """Mean distance to the 1st non-self neighbour, over unique receptor inputs when given.
 
@@ -258,7 +269,8 @@ def mean_nn_distance(X: np.ndarray, *, clonotypes: pl.DataFrame | None = None) -
             raise ValueError("coordinates and receptor rows must have equal lengths")
         _, inverse = receptor_inputs(clonotypes)
         X = X[np.unique(inverse, return_index=True)[1]]
-    d, _ = NearestNeighbors(n_neighbors=2).fit(X).kneighbors(X)
+    with _neighbour_threads():
+        d, _ = NearestNeighbors(n_neighbors=2).fit(X).kneighbors(X)
     return float(d[:, 1].mean())
 
 
@@ -353,14 +365,15 @@ def _dbscan(X: np.ndarray, epitopes: np.ndarray, eps: float,
     out = np.full(len(X), -1, dtype=np.int64)
     core = np.zeros(len(X), dtype=bool)
     offset = 0
-    for ep in np.unique(epitopes):
-        rows = np.flatnonzero(epitopes == ep)
-        fitted = DBSCAN(eps=eps, min_samples=min_samples).fit(X[rows])
-        lab = fitted.labels_
-        hit = lab >= 0
-        out[rows[hit]] = lab[hit] + offset
-        core[rows[fitted.core_sample_indices_]] = True
-        offset += int(lab.max()) + 1 if hit.any() else 0
+    with _neighbour_threads():
+        for ep in np.unique(epitopes):
+            rows = np.flatnonzero(epitopes == ep)
+            fitted = DBSCAN(eps=eps, min_samples=min_samples).fit(X[rows])
+            lab = fitted.labels_
+            hit = lab >= 0
+            out[rows[hit]] = lab[hit] + offset
+            core[rows[fitted.core_sample_indices_]] = True
+            offset += int(lab.max()) + 1 if hit.any() else 0
     return out, core
 
 
