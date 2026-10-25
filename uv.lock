@@ -69,7 +69,7 @@ wheels = [
 
 [[package]]
 name = "arda-mapper"
-version = "2.36.0"
+version = "2.36.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "dnaio" },
@@ -78,17 +78,17 @@ dependencies = [
     { name = "seqtree" },
     { name = "typer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d5/bf/b45849cc7fd24ef0916a3eb5c5c2d5dac2e8bb3c0fdec92e3bcd525f20fb/arda_mapper-2.36.0.tar.gz", hash = "sha256:1087ffeebfa099b5ccc0dcce386b385ccc0bb76207b3e8080afef4f98c58ddad", size = 9860649, upload-time = "2026-09-30T08:10:34.442Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5a/d2/de41f5a030db2b5bd163e23ba78e836e8e745211e5744da0c25f68372fcc/arda_mapper-2.36.2.tar.gz", hash = "sha256:e95c86bedcc837d7171d6209248668bd9e3c83d93230aa70f0a058a7e62332b7", size = 9863837, upload-time = "2026-10-17T18:13:12.48Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/93/af/277ab3e72d744d07953cbae6d7f4fc029f5017c1afff71edad242968d76b/arda_mapper-2.36.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:10218713d31659f851397c01c13b41fb3c31a606fc4d0df65620779b57fc0c7d", size = 631737, upload-time = "2026-09-30T08:10:20.829Z" },
-    { url = "https://files.pythonhosted.org/packages/b5/c8/d7cf6d00521d94e8f40a4aef4b02023b03488d069fbb85a4149ffdcd3818/arda_mapper-2.36.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3b07e7517a37f4e159bf2757ab0b125db4c7b42a07b29154e5890a154d7eec1b", size = 758372, upload-time = "2026-09-30T08:10:22.232Z" },
-    { url = "https://files.pythonhosted.org/packages/75/f7/a53760935768c1b4e9bf1fb7ea219bd7ad60a1ce99f5fba1f3d3423b6002/arda_mapper-2.36.0-cp311-cp311-win_amd64.whl", hash = "sha256:247b13922c8b888d4f8aa1338875e8ef2c8961a669a2a3ae913968e1ed6a8ef2", size = 655371, upload-time = "2026-09-30T08:10:23.733Z" },
-    { url = "https://files.pythonhosted.org/packages/2d/35/4c6bc97921003d2fa6b859dae4d6a4642e78d20b48d0ce9d2c674a7d3c3d/arda_mapper-2.36.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:86c7cb8bdca19147ebb41967fc2cc246948399d8f1badb7ffc26d2307f1e5e81", size = 628026, upload-time = "2026-09-30T08:10:25.296Z" },
-    { url = "https://files.pythonhosted.org/packages/46/0b/7b7e444ccbc540d2215892f8c50f51ce1ccf319c273895e1f5e00689daf6/arda_mapper-2.36.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fad4a9277d88ca98d3a34959865dd0dd8a333d72f08f1886a017f6b554d4766a", size = 754234, upload-time = "2026-09-30T08:10:26.744Z" },
-    { url = "https://files.pythonhosted.org/packages/ba/91/836286f7648938a198693e2dea1b81805b573ecd892430f8146c79db1f00/arda_mapper-2.36.0-cp312-cp312-win_amd64.whl", hash = "sha256:71271a4ffd13f7fbcbf654fb17eb6ad3ca2e91fbf4a7525771b230d1cf6a45b8", size = 653153, upload-time = "2026-09-30T08:10:28.104Z" },
-    { url = "https://files.pythonhosted.org/packages/bd/92/c3760b36af7fcb2200985403f9ede96f8d187a4bd5ff55cdf58901c9bdb9/arda_mapper-2.36.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:edf757b4fc5ff9202379098bcc04a925c4b69afdf489b573aa17f045f4e3ebf8", size = 627995, upload-time = "2026-09-30T08:10:30.007Z" },
-    { url = "https://files.pythonhosted.org/packages/cd/04/c6bfe40729cbba9e38d78d2364e8c14e94fb7a5021aefdf3e0aecb3c1f13/arda_mapper-2.36.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:e7fe5cbc7dc55bac0399405295c3b65fcee1ac5b4c6e5fc0fd6731931b4b92b6", size = 754129, upload-time = "2026-09-30T08:10:31.39Z" },
-    { url = "https://files.pythonhosted.org/packages/95/cd/98235fd06f3c322010872b93a436a29a0fe2a897801f6a1b2ab954962177/arda_mapper-2.36.0-cp313-cp313-win_amd64.whl", hash = "sha256:eaf507950baeb2531de8f8d2c05c8adb86dd982e41a44682b6368e4367779d3b", size = 652905, upload-time = "2026-09-30T08:10:32.723Z" },
+    { url = "https://files.pythonhosted.org/packages/c8/b0/a017aa3a8d5c091d9f128c56530a091e21c136e0b4212f1d64667caa081a/arda_mapper-2.36.2-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:b3846d7ef995910f288a857bfcacaaca20807631eb0b3b05051cad32a8783091", size = 631960, upload-time = "2026-10-17T18:12:56.639Z" },
+    { url = "https://files.pythonhosted.org/packages/4b/0c/5e9060bd104ac70f571227b73678ecffa1198eb58f0650c3f142bdbd9060/arda_mapper-2.36.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:47495d58fbafaee9e87b6fc636524e6f100dc1e0a97964c2971e20db8e7e8e6b", size = 758597, upload-time = "2026-10-17T18:12:58.14Z" },
+    { url = "https://files.pythonhosted.org/packages/1e/49/cff219214e550c3f923e4b6662a661f0408827c77145f9d21096d9d0d032/arda_mapper-2.36.2-cp311-cp311-win_amd64.whl", hash = "sha256:0eb9e18c1c8f967f4320e5a20efd011e08ffb62024b3fd1887311d947ea171de", size = 655604, upload-time = "2026-10-17T18:12:59.971Z" },
+    { url = "https://files.pythonhosted.org/packages/fe/a5/d284944887afdc6ad988d53002442edba90d1bc917fc7e9fc98588dbe9a5/arda_mapper-2.36.2-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:347dc7fd1890c992d0558662bb2fac24e825d6259b51f783797f00882c92da2a", size = 628250, upload-time = "2026-10-17T18:13:01.453Z" },
+    { url = "https://files.pythonhosted.org/packages/4f/1a/0f837aa580eef478979813ace5cb2a1cee77623d62987fc7f63b29d999c2/arda_mapper-2.36.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5c680790b8290187352ba246ee6c85ea48f73e74b1a62691e784058599f3eb0d", size = 754459, upload-time = "2026-10-17T18:13:03.155Z" },
+    { url = "https://files.pythonhosted.org/packages/17/a0/1ef123b88d3462e3d27c57130cdebbdeffe63b513325db006e4d4edd0429/arda_mapper-2.36.2-cp312-cp312-win_amd64.whl", hash = "sha256:32708777493498c45805aca6fada49722918c5cc9942a5a068c0ab390e685593", size = 653380, upload-time = "2026-10-17T18:13:04.658Z" },
+    { url = "https://files.pythonhosted.org/packages/d6/e6/2520cb66a30cbedb190adae3e2440be9c915c4541a4062ec097a9437d4b4/arda_mapper-2.36.2-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:de5885fe365f611c929db6c79e0d06272b81e1f56c43611d15fd2b98de0f924f", size = 628218, upload-time = "2026-10-17T18:13:06.19Z" },
+    { url = "https://files.pythonhosted.org/packages/aa/09/95bae118c449c8c3fe72f172bec701f03b0d4b96f78bf74dffd30f215b69/arda_mapper-2.36.2-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a94a4de1656e3e0b6ae2383ad32cf44949d6a4a00413e6f5518cb6e5816615ba", size = 754355, upload-time = "2026-10-17T18:13:07.975Z" },
+    { url = "https://files.pythonhosted.org/packages/58/07/b1bce96d1e6768977dab8b5c4a84c08feb0c66efef01ca3ec9366bdce632/arda_mapper-2.36.2-cp313-cp313-win_amd64.whl", hash = "sha256:3fe656932d745984c21e9eed0e416a0093c0fdc09a8448d5a12477ca0f61d930", size = 653135, upload-time = "2026-10-17T18:13:10.433Z" },
 ]
 
 [[package]]
@@ -2912,19 +2912,19 @@ wheels = [
 
 [[package]]
 name = "seqtree"
-version = "1.0.1"
+version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/93/4f/3c269d01a25448e57c54dbeaaddd999e9010e12130e82467c06b53c6cef8/seqtree-1.0.1.tar.gz", hash = "sha256:281fd6f31984be69108aa8645e16c34c7adbd7d53c1e4a878daa94bb699dd7ba", size = 1835574, upload-time = "2026-10-09T04:43:38.109Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/73/f0/37209952409cb5b45921b2482415a7cfa40e54fbf6b0cdcc30c07ff28f79/seqtree-1.3.1.tar.gz", hash = "sha256:8a4b3e3507dcb1ddd4ed5a052018c189580313990bc72ef50c99423caf47e82d", size = 1504178, upload-time = "2026-10-19T13:03:54.037Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f1/a4/7ad9fce509c4dd47242c974d15aaad7e69ad27b145cd489d985a864375bf/seqtree-1.0.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:750e27324c4e08c2753ac680d242760dfc0740a601d8be9a1e1e56418d18749b", size = 1574110, upload-time = "2026-10-09T04:43:24.051Z" },
-    { url = "https://files.pythonhosted.org/packages/d5/a3/e14a026808f572e38fbd5076fb28a5d455692dd1b83fe436e5453135c4a1/seqtree-1.0.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:85a12f7b4c7ce410dc270491be55b0d41ab4da98357d5db313a7d62e56f0a7bc", size = 1744473, upload-time = "2026-10-09T04:43:25.522Z" },
-    { url = "https://files.pythonhosted.org/packages/f6/98/0e4e724b0f0ac3b8e79ae2b87be1a003fca00bafe01018142b21adf72cd9/seqtree-1.0.1-cp311-cp311-win_amd64.whl", hash = "sha256:af3509cb44c9efe5d4cdfc7d8ac7d9ba05069ff47abe78796ca745dd552ff5ca", size = 1610867, upload-time = "2026-10-09T04:43:26.914Z" },
-    { url = "https://files.pythonhosted.org/packages/61/c8/4ac0dc18cdc49fcac13270268f21b20504c37d2ea88c9a910081dbebb2ea/seqtree-1.0.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:87dbf46194d1908957abd32d26af36dae6ad8c68e998545909b79ef77064a8b5", size = 1573882, upload-time = "2026-10-09T04:43:28.608Z" },
-    { url = "https://files.pythonhosted.org/packages/61/8e/5aedf3bfa1a3d69b4d9481ee02f24769356a94ffd025e36bce0249288525/seqtree-1.0.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:923d5b480461f588d29586cf2f6868ae57ba7229bcc48603adbcc6b895b17e25", size = 1744637, upload-time = "2026-10-09T04:43:30.114Z" },
-    { url = "https://files.pythonhosted.org/packages/0a/c5/f2a263ec32907e0ff536ebc9c1caece659db899ba3c1f89535e3355ffd25/seqtree-1.0.1-cp312-cp312-win_amd64.whl", hash = "sha256:0964e01191e72b15d218cbde08e3361d75bac96416ca3efa1dc0c0d625caacfb", size = 1610942, upload-time = "2026-10-09T04:43:31.652Z" },
-    { url = "https://files.pythonhosted.org/packages/d7/db/bdbc873298b14a65a58ae415393b5008b1416274e7c5f220d7e761c42ad8/seqtree-1.0.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:f37ba23c465c4ef0f78b64176eb18e5401b46180f54fcc30591db990aa55e0b8", size = 1574315, upload-time = "2026-10-09T04:43:33.102Z" },
-    { url = "https://files.pythonhosted.org/packages/c0/ef/56b62b95c706a9d46f202018406ebd08a4a4aa37f0a18273a47d156311ef/seqtree-1.0.1-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:776ab78eddb1340f2558d442bf4b488fd891e66d034045121ca3e17eda026718", size = 1745235, upload-time = "2026-10-09T04:43:34.916Z" },
-    { url = "https://files.pythonhosted.org/packages/68/7c/ad963bf5e75c3fc11edae1c6a09e66ce01987d9738e3be27f05484ca0bd1/seqtree-1.0.1-cp313-cp313-win_amd64.whl", hash = "sha256:5e33234dfd1696a26040c93c247f8d0ddbd1a8df6f03a07d587ab536f0d23b59", size = 1611029, upload-time = "2026-10-09T04:43:36.586Z" },
+    { url = "https://files.pythonhosted.org/packages/b7/b0/3a50d8150c3dca8cf74a5ad65d03c0b4919bd4146cbd6cea854c6c176b3c/seqtree-1.3.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:d74ec0649b283ec66e714c17a1a0706c580a25dacbd793d1d096ff9da5055263", size = 1753665, upload-time = "2026-10-19T13:03:40.061Z" },
+    { url = "https://files.pythonhosted.org/packages/2e/2f/e3cb23b27cbe48b6c67ac876386e81879c5bef2b76d7183107f9cd087146/seqtree-1.3.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4be59697955829a22d3f0a703185eaf0a9933c6ba15d4c8e3fba6d1680b6f5b6", size = 1999227, upload-time = "2026-10-19T13:03:41.57Z" },
+    { url = "https://files.pythonhosted.org/packages/ef/6f/d3c3a04aa13fb8d946a0c8a874cd3cf8d5c961dc3d5b25918da299c846eb/seqtree-1.3.1-cp311-cp311-win_amd64.whl", hash = "sha256:ba9b5e615dc874ca5a12515ae6f5e8c5291e22fa8f91d80ec17aa7336efd628b", size = 1785978, upload-time = "2026-10-19T13:03:43.273Z" },
+    { url = "https://files.pythonhosted.org/packages/73/6c/88eb823d98141536ed151362cbd8f59f15f878f15686a420765c87f02b55/seqtree-1.3.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:e1785d2ad45f28103ba4962913a757697ee1fb36b98fd972bd8e29d7900e879e", size = 1753305, upload-time = "2026-10-19T13:03:44.944Z" },
+    { url = "https://files.pythonhosted.org/packages/f9/04/9ab5baf5b7b9d7fd4b70343421e5c952d7ec3806167bee6a07a23748a5c6/seqtree-1.3.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:95928418d4b18c6ae163108dd7e3b66df164a7cb99fdb74088f2b1a8eb580951", size = 1999753, upload-time = "2026-10-19T13:03:46.396Z" },
+    { url = "https://files.pythonhosted.org/packages/f6/23/4e5242637350a80687ea4bdd84c137e7833a836ad57bd617503c1548a5d0/seqtree-1.3.1-cp312-cp312-win_amd64.whl", hash = "sha256:01d8619f458930bfe74c35d2d34548f41da79fcdb088ddf769b4a70521a11257", size = 1786460, upload-time = "2026-10-19T13:03:48.005Z" },
+    { url = "https://files.pythonhosted.org/packages/57/6f/ca9970d5a32b9a59e4ed2104f91efb00838490663880ac67e7280f91ef29/seqtree-1.3.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:63e0f2816f3bc5a3048d90ea78dc9a9ba0301e54960f0a50966f1b7de74987bf", size = 1753835, upload-time = "2026-10-19T13:03:49.548Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/ef/fbd0455ba6a40f7a1b7d79395feb010a710903b6869925228eff6090df9a/seqtree-1.3.1-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:78210a48bd28e51a8dc7d824ba3f2be4e1ea9dec92898b7efdb9fe5968d48314", size = 2000143, upload-time = "2026-10-19T13:03:50.996Z" },
+    { url = "https://files.pythonhosted.org/packages/bf/ee/0a4bd1d73919e0d54b17a31dea1aa3113ca9c3746fe31bd689279ed6a326/seqtree-1.3.1-cp313-cp313-win_amd64.whl", hash = "sha256:174343fe4db39d34ba8110e89b93a66ff6dd1f5348d5e2dd49bee8acb6578a53", size = 1786413, upload-time = "2026-10-19T13:03:52.289Z" },
 ]
 
 [[package]]
@@ -3353,6 +3353,7 @@ dependencies = [
     { name = "psutil" },
     { name = "threadpoolctl" },
     { name = "typer" },
+    { name = "vdjmatch" },
     { name = "vdjtools" },
 ]
 
@@ -3455,26 +3456,31 @@ requires-dist = [
     { name = "threadpoolctl", specifier = ">=3.1" },
     { name = "torch", marker = "sys_platform == 'linux' and extra == 'confidence'", index = "https://download.pytorch.org/whl/cpu" },
     { name = "typer", specifier = ">=0.12" },
+    { name = "vdjmatch", specifier = ">=0.6.2" },
     { name = "vdjtools", specifier = ">=4.8.1" },
 ]
 provides-extras = ["confidence", "score-training", "motifs", "test", "summary", "tuning", "docs", "dev"]
 
 [[package]]
 name = "vdjmatch"
-version = "0.3.1"
+version = "0.6.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "polars" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "seqtree" },
+    { name = "threadpoolctl" },
+    { name = "vdjtools" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0f/e7/b63834fbcc39468debb975e827c8d784b3d66e1f52fe7b5b53d9625e0cf3/vdjmatch-0.3.1.tar.gz", hash = "sha256:658e1de8c102d35a2dd6187329a236fb5cfeae2f65c59c85a6dbad56adc128c8", size = 1641163, upload-time = "2026-08-18T03:14:28.418Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/45/ed/6ee4b144ff4436a282c1d722e0aa3291b49cb96426db17d8e21ecfc147c6/vdjmatch-0.6.2.tar.gz", hash = "sha256:158de39b8119e9ecffe6bfbb251ed1074fcc832b5fbe001c465bed3fc77bbdac", size = 1921385, upload-time = "2026-10-21T19:38:46.603Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/80/51/f6cfffbb7c36b22fc81c899f1e9dec5098b68c245838b77fdb9252fd869a/vdjmatch-0.3.1-py3-none-any.whl", hash = "sha256:71558f834c6cdf416608e21bd83e00b630d6ad8f19a039f683aeb9539628f306", size = 437350, upload-time = "2026-08-18T03:14:26.629Z" },
+    { url = "https://files.pythonhosted.org/packages/f3/55/e9c499f5316293fc01ed0b8ba71837134c12312ddad026412073a82bd602/vdjmatch-0.6.2-py3-none-any.whl", hash = "sha256:c9a958f038e124463a88aebce3ca0659dbddb3cb19be6f70057e5d550fb0af43", size = 854264, upload-time = "2026-10-21T19:38:44.568Z" },
 ]
 
 [[package]]
 name = "vdjtools"
-version = "4.8.2"
+version = "5.2.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "arda-mapper" },
@@ -3485,20 +3491,21 @@ dependencies = [
     { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "seqtree" },
+    { name = "threadpoolctl" },
     { name = "typer" },
     { name = "vdjmatch" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3d/cf/3470490d463c43dc5297c8ba00a0ac093e53d43c750a7b203be2d4e9bf97/vdjtools-4.8.2.tar.gz", hash = "sha256:535e9dccf1f2f296a0a2e25cc07fa77170da34693d790e9c68262233f8e79464", size = 1444866, upload-time = "2026-10-01T02:52:22.464Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5d/7e/d9158d45ee54841e460dfbd3cd20e21f554973f7cfae2edcd0900e49b09d/vdjtools-5.2.2.tar.gz", hash = "sha256:4db21e2d8743793281136a246f97a6ad918850427b69710add7de08ecd97d4a6", size = 1543091, upload-time = "2026-10-19T14:49:07.771Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/09/aa/f8ef28164b3848c4f873a2c6803ddc07b1736b1a941ceb8aaaa58a82f3cb/vdjtools-4.8.2-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:b3dfbc96e9630253f1d2939fbf7e380ec6de11d4adae50ae0eec8173ba799864", size = 1855775, upload-time = "2026-10-01T02:52:09.09Z" },
-    { url = "https://files.pythonhosted.org/packages/1d/00/53fa46b87d81481f6355fe931cefa361e6539650e4159bf4d4cd6061d706/vdjtools-4.8.2-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:ce2f5f2eb343c036297e8b0965794dbcf135b98e63206524a340db47b09bb908", size = 1922321, upload-time = "2026-10-01T02:52:10.725Z" },
-    { url = "https://files.pythonhosted.org/packages/f9/08/c541128124d0127accb7768c7b5abd81b91ac89be5f47fd193e72f3ca146/vdjtools-4.8.2-cp311-cp311-win_amd64.whl", hash = "sha256:42f8d11e097611c7e847bcf24122dc76efaab4db1ef1e2a1356ec6444b292d4a", size = 1850492, upload-time = "2026-10-01T02:52:12.249Z" },
-    { url = "https://files.pythonhosted.org/packages/7b/de/801afde8e97501c9edb0f094358feebfdd4662b235f3fb53cffdf1892dee/vdjtools-4.8.2-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:d471c4a5831de979b75e0ce1639332c85d2de6f1fc49d0ffacbeb5487d467d6d", size = 1857801, upload-time = "2026-10-01T02:52:13.808Z" },
-    { url = "https://files.pythonhosted.org/packages/a2/a1/7b6836e011fb02700b2d00451cd31cf0f52856d0dc5acc12f734cabf76a8/vdjtools-4.8.2-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:4f3cbbbc51f10930e644ee0beb3c07f61ce558646dc5cfdb2d1f02e9c2a4cf49", size = 1922954, upload-time = "2026-10-01T02:52:15.351Z" },
-    { url = "https://files.pythonhosted.org/packages/ba/59/7cdbccd70708c6f7801e02124a110b12d64c106060f5a640e1d995075837/vdjtools-4.8.2-cp312-cp312-win_amd64.whl", hash = "sha256:22fade02ad22fa901a7a40b7cb987e1fe582482ec80d8adf7ef166f2760693e3", size = 1852672, upload-time = "2026-10-01T02:52:16.82Z" },
-    { url = "https://files.pythonhosted.org/packages/21/b8/875537a024ee7a4f982d556b0776c27a363b53511f6d428d22de4d0b8e07/vdjtools-4.8.2-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:7712cf32b7fdc36cc48d048984f3e0eb58882e523fad710501eb6a1a7b90a712", size = 1858629, upload-time = "2026-10-01T02:52:18.343Z" },
-    { url = "https://files.pythonhosted.org/packages/ef/34/5de34843fcb738eeea9a1df711edef8407b6305cb43394c9cca8d89c5410/vdjtools-4.8.2-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:818679f2a720b1c7510e1bfd8a2ec0604d80d6e899a8276f58b25026a4e91db1", size = 1922791, upload-time = "2026-10-01T02:52:19.711Z" },
-    { url = "https://files.pythonhosted.org/packages/6a/99/7f185c022f8a2e0ac77c19130b6fde821b1e95c8ca03dff3113abdf4886c/vdjtools-4.8.2-cp313-cp313-win_amd64.whl", hash = "sha256:0b27fee5584a5725828d59df364699ed3da895c2231ddc8858509b7302556e91", size = 1852680, upload-time = "2026-10-01T02:52:21.122Z" },
+    { url = "https://files.pythonhosted.org/packages/90/44/87018cb9b7661d60f0599071013c62ffdc0223d69f1796554b2d14cfe46e/vdjtools-5.2.2-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:1f19dd1dd52a6e1460dbceec56e2ed22ff2e552ba770552eabb572fbe0226cfd", size = 1980105, upload-time = "2026-10-19T14:48:54.433Z" },
+    { url = "https://files.pythonhosted.org/packages/90/26/3848f82e2d58bb717d67bb394d1c856898a7aeee4d1918c8850b47b7461b/vdjtools-5.2.2-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:59048c3edd6431fb5d6b96377c943354190208e32645beb772a485d8e873c3f3", size = 2048378, upload-time = "2026-10-19T14:48:55.87Z" },
+    { url = "https://files.pythonhosted.org/packages/10/bc/c73ad77784f51a54a29f2a34c3f322c053eba8d2987771bfcbc14e94492a/vdjtools-5.2.2-cp311-cp311-win_amd64.whl", hash = "sha256:2e8185c0bf39c8f5a9ce762f746eb77585163a525084f4c336f2f9eebe93be8d", size = 1974613, upload-time = "2026-10-19T14:48:57.418Z" },
+    { url = "https://files.pythonhosted.org/packages/ff/d9/eb56f5f9980ba657476518d4371b8030f675967063839c1337567fab865a/vdjtools-5.2.2-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:ae30805d1d55a79b2428baf02223a01b1a4e683373fbe5949769e946ee85f1e1", size = 1981728, upload-time = "2026-10-19T14:48:58.833Z" },
+    { url = "https://files.pythonhosted.org/packages/11/7c/92cf37c83782b1105c139367aea52191f7cf69619424640caf4908e26a9b/vdjtools-5.2.2-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:b37a29bade9c697302faee0a73479fd2b2fd27a43bbfde529d4e14c4ee67b7ff", size = 2048853, upload-time = "2026-10-19T14:49:00.315Z" },
+    { url = "https://files.pythonhosted.org/packages/29/ba/9daab1188ae5f137a5916ce9173527d37b514641e99e1ecf11547a150002/vdjtools-5.2.2-cp312-cp312-win_amd64.whl", hash = "sha256:3e5f7e17b320a03164da8731bdabf1145f9bdb0e36dd5f5139ec6b65331f5425", size = 1977040, upload-time = "2026-10-19T14:49:01.969Z" },
+    { url = "https://files.pythonhosted.org/packages/f4/1d/a4a3ca60a3a03d44075b6d818adfafcc40ac00c209fedf730ffe221c8608/vdjtools-5.2.2-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:015e544c9d9ed928cfea2e1a17f5364c7f4a20737a8b8a0bc4e0054bb871391b", size = 1982469, upload-time = "2026-10-19T14:49:03.351Z" },
+    { url = "https://files.pythonhosted.org/packages/65/b4/190054c1a8035b8743adb6fc21d787186a3ef8efda3f5cf0cb4f66143bc8/vdjtools-5.2.2-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:2050c07b48ed94d12dd7173ae7067d35df0b2cb3fd9b854c18784f0677566a6b", size = 2048621, upload-time = "2026-10-19T14:49:04.732Z" },
+    { url = "https://files.pythonhosted.org/packages/9b/4f/ef5433296209cdf528be93c9797436bce3cd20b3cdff7ad826e325bc3bfa/vdjtools-5.2.2-cp313-cp313-win_amd64.whl", hash = "sha256:54b58ec40b54504fdf25696e4555c3576d6506f3dad3ba9e9e8dedc7ee743f59", size = 1977066, upload-time = "2026-10-19T14:49:06.293Z" },
 ]
 
 [[package]]
