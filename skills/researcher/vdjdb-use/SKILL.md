@@ -1,6 +1,6 @@
 ---
 name: vdjdb-use
-description: Query VDJdb with vdjmatch, inspect specificity-record evidence and confidence, retrieve released TCRNET or TCREmp motifs, and download linked native or predicted structures. Use for consuming the database, not curating submissions or rebuilding it.
+description: Use VDJdb for receptor and repertoire annotation, literature-backed specificity review, motif retrieval, structural follow-up and downstream analyses with Antigenomics tools. Use for researcher questions, not submission curation or database rebuilding.
 ---
 
 # Use VDJdb observations and evidence
@@ -8,6 +8,22 @@ description: Query VDJdb with vdjmatch, inspect specificity-record evidence and 
 Read the relevant section of [the usage guide](../../../docs/using-vdjdb.md).
 Use existing released data or the user's completed build. Do not launch a build,
 motif recomputation, model fitting or new scientific evaluation to answer a lookup.
+
+## Choose the research task
+
+| Requested result | Route |
+|---|---|
+| Candidate pMHC assignments for receptors or samples | Batch `vdjmatch annotate`, then inspect supporting records |
+| What was measured for this receptor:pMHC? | Record/evidence joins below, then [literature review](references/literature.md) |
+| Released motif members, a PWM or a logo | Retrieve the matching producer's membership/PWM tables below |
+| Enriched neighbourhoods, clone tracking or sample summaries | [Downstream workflows](references/downstream.md), using vdjtools |
+| Embeddings or joint reference/query visualization | [Downstream workflows](references/downstream.md), using mirpy/TCREmp |
+| Linked coordinates, contacts or candidate structural ranking | Coordinate retrieval below, then [structural follow-up](references/downstream.md#structures-and-candidate-ranking) |
+| Peptide presentation, source or mimic context | [Downstream workflows](references/downstream.md), using mhcmatch |
+| Published examples and methods for a research question | [Literature search](references/literature.md) and its verified starting papers |
+
+Run only the requested downstream task. A useful follow-up is a proposal, not permission
+to fit models, run enrichment tests, generate structures or benchmark predictors.
 
 ## Select inputs and tools
 
@@ -22,6 +38,10 @@ motif recomputation, model fitting or new scientific evaluation to answer a look
   State which population was searched. Batch queries once with an explicit CPU budget.
 - Require anchor-inclusive junctions. Preserve chain, species, available V/J calls,
   peptide and MHC context, and reported pairing. Do not fabricate anchors or pairs.
+- Treat specificity as peptide plus MHC restriction. Pathogen, protein and gene are
+  peptide provenance query axes; aggregate them as a union of pMHCs. Do not infer a
+  shared recognition motif from provenance alone. Keep known, inferred and missing
+  restriction distinct, especially for heterodimeric MHC-II.
 
 ## Follow the evidence
 

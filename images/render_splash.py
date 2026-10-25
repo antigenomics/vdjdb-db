@@ -32,25 +32,23 @@ P = {
         bg="#f8fafc",
         ink="#182b40",
         muted="#667789",
-        line="#c4cfda",
         panel="#edf2f6",
         V="#0072b2",
         D="#aa6200",
         J="#9960a8",
         N="#6c7c8b",
-        branch=["#0072b2", "#00836b", "#a56b08", "#925cad", "#b54e79"],
+        branch="#147d70",
     ),
     "dark": dict(
         bg="#101c2b",
         ink="#edf4fb",
         muted="#a4b6c8",
-        line="#3b5268",
         panel="#1a2e43",
         V="#63bcec",
         D="#f1bd64",
         J="#d2a3e5",
         N="#a4b6c8",
-        branch=["#63bcec", "#56c9af", "#eab460", "#c69be1", "#ed98bd"],
+        branch="#58c9b3",
     ),
 }
 C = (1000, 940)
@@ -80,38 +78,49 @@ def edge(r1, t1, r2, t2, color, width=1, opacity=1):
     )
 
 
+def symbol(x, y, kind, color, background):
+    if kind == "epitope":
+        return f'<path d="M{x},{y - 8} l8,8 -8,8 -8,-8 Z" fill="{color}"/>'
+    return (
+        f'<circle cx="{x}" cy="{y}" r="8" fill="{background}"'
+        f' stroke="{color}" stroke-width="2.5"/>'
+    )
+
+
 for theme, p in P.items():
+    assert p["branch"] not in {p[k] for k in ("V", "D", "J", "N")}
     defs = []
     parts = []
     epitope_labels = []
+    motif_labels = []
     parts.append(f'<rect width="2000" height="1900" fill="{p["bg"]}"/>')
     parts.append(label(1000, 73, "VDJdb · a map of receptor recognition", 42, p["ink"], weight=600))
     parts.append(label(1000, 116, "Epitope → paratope motif → CDR3 sequence", 24, p["muted"]))
-    # Decorative rings also expose the hierarchy without implying measured distances.
-    for r in [258, 430, 598]:
-        parts.append(
-            f'<circle cx="1000" cy="940" r="{r}" fill="none" stroke="{p["line"]}"'
-            ' stroke-width="1" opacity=".25"/>'
-        )
     for ei, ep in enumerate(peptides):
         center = -90 + ei * 72
-        color = p["branch"][ei]
+        color = p["branch"]
         parts.append(edge(91, center, 232, center, color, 3))
         x, y = xy(265, center)
         epitope_labels.append(
             f'<rect x="{x - 104}" y="{y - 23}" width="208" height="50" rx="25" fill="{p["bg"]}"'
             f' stroke="{color}" stroke-width="1.5"/>'
         )
-        epitope_labels.append(label(x, y + 7, ep, 23, color, weight=600))
+        epitope_labels.append(symbol(x - 84, y + 1, "epitope", color, p["bg"]))
+        epitope_labels.append(label(x + 12, y + 7, ep, 23, p["ink"], weight=600))
         group = [r for r in rows if r["antigen.epitope"] == ep]
         cids = list(dict.fromkeys(r["cid"] for r in group))
         for mi, cid in enumerate(cids):
             ma = center + (mi - 1) * 21
             parts.append(edge(292, center, 430, ma, color, 2, 0.8))
             mx, my = xy(430, ma)
-            parts.append(f'<circle cx="{mx}" cy="{my}" r="8" fill="{color}"/>')
-            lx, ly = xy(401, ma)
-            parts.append(label(lx, ly + 5, cid.rsplit(".", 1)[-1], 15, color))
+            motif_labels.append(symbol(mx, my, "paratope", color, p["bg"]))
+            motif_id = cid.rsplit(".", 1)[-1]
+            # Draw labels after branches, with an explicit gap around their ink.
+            motif_labels.append(
+                f'<rect x="{mx + 13}" y="{my - 15}" width="{len(motif_id) * 10 + 10}"'
+                f' height="30" rx="4" fill="{p["bg"]}"/>'
+            )
+            motif_labels.append(label(mx + 18, my + 6, motif_id, 17, p["ink"], "start"))
             sample = [r for r in group if r["cid"] == cid]
             for si, row in enumerate(sample):
                 angle = ma + (si - 3) * 2.6
@@ -160,12 +169,16 @@ for theme, p in P.items():
                 parts.append(
                     f'<g transform="translate({x},{y}) rotate({rotate})">' + "".join(letters) + "</g>"
                 )
+    parts.extend(motif_labels)
     parts.extend(epitope_labels)
     parts.append(
-        f'<circle cx="1000" cy="940" r="91" fill="{p["panel"]}" stroke="{p["V"]}" stroke-width="2.5"/>'
+        f'<circle cx="1000" cy="940" r="91" fill="{p["panel"]}" stroke="{p["branch"]}" stroke-width="2.5"/>'
     )
     parts.append(label(1000, 940, "VDJdb", 36, p["ink"], weight=600))
     parts.append(label(1000, 969, "human TRB", 15, p["muted"]))
+    for x, kind, title in [(810, "epitope", "Epitope"), (1045, "paratope", "Paratope motif (cid)")]:
+        parts.append(symbol(x, 1737, kind, p["branch"], p["bg"]))
+        parts.append(label(x + 18, 1744, title, 20, p["ink"], "start"))
     for x, k, t in [
         (610, "V", "V segment"),
         (845, "D", "D segment"),
@@ -191,7 +204,8 @@ for theme, p in P.items():
         '<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="1900" viewBox="0 0 2000 1900"'
         ' role="img"><title>VDJdb paratope motif atlas</title><desc>Five epitope groups,'
         " three existing TCREmp motifs per epitope, and seven sequences per motif, "
-        "coloured using stored nucleotide boundaries.</desc><defs>"
+        "coloured using stored nucleotide boundaries. Teal diamonds mark epitopes; "
+        "teal rings mark paratope motifs.</desc><defs>"
         + "".join(defs)
         + "</defs>"
         + "".join(parts)
