@@ -486,6 +486,8 @@ input matrix is shared with those disposable buffers.
 PCA is not whitened. The library's `random_state` and row sampling both use
 `vdjdb.config.SEED`. Fit and projection use one BLAS thread, restoring the caller's
 limits afterwards; native sequence embedding retains its existing batch parallelism.
+Nearest-neighbour radius queries and DBSCAN use the allocated OpenMP CPU budget,
+keep BLAS serial and restore the caller's limits after each query stage.
 The supported Linux release environment also sets `OPENBLAS_CORETYPE=Sandybridge`
 and `OPENBLAS_L2_SIZE=256` before NumPy or SciPy is imported. The cache-size input
 fixes matrix blocking, which otherwise changes with AMD Zen 4/5 cache topology

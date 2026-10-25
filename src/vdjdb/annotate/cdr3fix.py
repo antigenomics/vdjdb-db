@@ -90,7 +90,7 @@ def ensure_reference() -> Path:
 #: record, so the 191,447 distinct keys cost ~6 s; the join back is free.
 KEY: tuple[str, ...] = ("species", "cdr3", "v", "j")
 
-#: Residues arda may substitute to make a CDR3 conform to the germline it was handed. Zero.
+#: Replacement before a supporting alignment is disabled; supported terminal-anchor repair remains.
 #:
 #: The legacy default was 1, and arda aligns more sensitively, so keeping it would have rewritten
 #: 4,486 curated human CDR3s rather than 649 -- and the rewrites are wrong for this database.
