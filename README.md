@@ -4,7 +4,11 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22104776.svg)](https://zenodo.org/records/22104776)
 [![Build](https://github.com/antigenomics/vdjdb-db/actions/workflows/build.yml/badge.svg)](https://github.com/antigenomics/vdjdb-db/actions/workflows/build.yml)
 
-![Splash](images/vdjdb-splash.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="images/vdjdb-splash-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="images/vdjdb-splash-light.svg">
+  <img alt="VDJdb epitope groups connect to TCREmp paratope motifs and 105 CDR3 sequences coloured by inferred V/D/J boundaries." src="images/vdjdb-splash.png" width="100%">
+</picture>
 
 VDJdb aggregates published information on T-cell receptor antigen specificity - the ability to
 recognize certain epitopes in certain MHC contexts - and curates it into a single repository.

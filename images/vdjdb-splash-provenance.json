@@ -1,0 +1,12 @@
+{
+  "purpose": "Splash from completed build; no analysis recomputed",
+  "selection": "Five named epitopes; top three TCREmp clusters by distinct available junctions; seven evenly spaced lexicographic junctions per cluster with available V/D/J nt boundaries",
+  "displayed_sequences": 105,
+  "motifs": 15,
+  "epitopes": 5,
+  "inputs": {
+    "motifs/cluster_members_tcremp.txt": "e43d50268b2951087be9ba234c9359a0b9c9359f8afed2c9d2739c52714b9691",
+    "tables/chains.parquet": "58cd353f1334b4bb61e736e921136ccd1495c84363c974734615e489b3a8ee55",
+    "BUILD.json": "5ebb17a7e8b7841d3b4cfc68be9728bff6730592534215a1c7e7eaa4487f53a5"
+  }
+}
