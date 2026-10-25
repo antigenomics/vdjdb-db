@@ -3457,7 +3457,7 @@ requires-dist = [
     { name = "torch", marker = "sys_platform == 'linux' and extra == 'confidence'", index = "https://download.pytorch.org/whl/cpu" },
     { name = "typer", specifier = ">=0.12" },
     { name = "vdjmatch", specifier = ">=0.6.2" },
-    { name = "vdjtools", specifier = ">=4.8.1" },
+    { name = "vdjtools", specifier = ">=5.2.2" },
 ]
 provides-extras = ["confidence", "score-training", "motifs", "test", "summary", "tuning", "docs", "dev"]
 

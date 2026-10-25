@@ -81,3 +81,19 @@ def test_rhesus_d_posterior_allows_only_machine_rounding():
     assert row['d.inferred'] == 'TRBD1'
     assert row['d.posterior'] == pytest.approx(0.8072042852066905, rel=0, abs=2e-15)
     assert translate(row['cdr3nt']) == keys['cdr3'][0]
+
+
+def test_import_preserves_caller_openmp_capacity():
+    import os
+    import subprocess
+    import sys
+
+    env = dict(os.environ)
+    env.pop('OMP_THREAD_LIMIT', None)
+    env.pop('POLARS_MAX_THREADS', None)
+    probe = ("import os, vdjdb, vdjtools; "
+             "assert 'OMP_THREAD_LIMIT' not in os.environ; "
+             "assert 'POLARS_MAX_THREADS' not in os.environ")
+    result = subprocess.run([sys.executable, '-c', probe], env=env,
+                            capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0, result.stderr
