@@ -81,5 +81,5 @@ Release notes come from `vdjdb changelog`. Back-sync hotfixes to dev, reconcile 
 remove only integrated branches and obsolete generated output. Preserve source inputs, evidence
 and unmerged work.
 
-The repository's [build integrity skill](https://github.com/antigenomics/vdjdb-db/tree/master/skills/vdjdb-build-integrity)
+The repository's [build integrity skill](https://github.com/antigenomics/vdjdb-db/tree/master/skills/curator/vdjdb-build-integrity)
 provides the operational checks for this lifecycle.

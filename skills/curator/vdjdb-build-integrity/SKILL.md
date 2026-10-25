@@ -6,8 +6,8 @@ description: Validate VDJdb build code, CI, output contracts and release promoti
 # Verify the build and release lifecycle
 
 Read repository `AGENTS.md`, [source authorities](../AUTHORITIES.md),
-[build and release](../../docs/builds.md),
-[outputs](../../docs/outputs.md) and [build integrity](../../docs/build-integrity.md).
+[build and release](../../../docs/builds.md),
+[outputs](../../../docs/outputs.md) and [build integrity](../../../docs/build-integrity.md).
 Read `docs/denoising.md` before motif changes. Inspect the current local roadmap and worktree
 before starting; preserve existing source work and unresolved follow-ups.
 
@@ -58,36 +58,20 @@ frozen JSON and `--out` selects the score directory. No fitting or prediction re
 Require `record_scores.parquet` and `record_scores.tsv.gz` in hosted builds and compare their
 unique record IDs to `records.parquet`. PRIMARY keeps them optional only for historical builds.
 Assembly writes fourteen table files; the completed score stage brings that count to sixteen.
-Default v3.1 uses the five-epitope frozen model, separated producer support and
-one learned global F1 decision cutoff. `--legacy-v3` selects the unchanged original
-GLC/YLQ model and hard evidence. Verify its model digest and original forecasts.
-`--hard-membership` selects hard evidence with the chosen model; `--threshold`
-changes calls without changing probability forecasts. Confirm exported score version,
-model SHA, decision cutoff and membership mode. Default promotion changes score
-outputs deliberately; producer memberships, record IDs and legacy 0-3 scores stay fixed.
-Held-out metrics use complete original assay structural inputs and their declared endpoint.
+Default v3.2 exports two forecasts: `validation_score` (v3.2a assay validation)
+and `independent_validation_score` (v3.2b additional-publication detection at the same
+pMHC). Verify both version fields and model digests, one score row per record, and
+preserved producer memberships. `record_score` and `paired` alias v3.2a. Its default
+threshold is 0.5; `positive` uses the lower/upper sensitivity envelope, not only the
+nominal forecast. The independent-study forecast has no binary decision column.
 
-V3.1 uses `(1-w)*b+w*u` with width 1/12, retaining `*_hard` assignments. TCRNET support
-is other annotated-neighbour density d/(d+1); TCREmp uses second-core support in
-fresh fixed reference geometry. The core geometry remains independent of assay labels.
-Verify exact hard recovery at 0.5, original missingness/eligibility and pair support,
-all-row coverage, scalar threshold behavior and bounded deterministic exports.
-The forecast cutoff is separate from the chain index's hard-recovery cutoff.
-`--continuous-membership` explicitly selects this mode for a chosen model;
-`--soft-membership` is mutually exclusive and retains the earlier Hamming-1 fraction.
-
-For research, `score.membership.separated` accepts width in [0,0.5); its historical
-default stays 1/3. `validate.membership.fit_thresholds` fits global and supported
-peptide cutoffs on training forecasts; `apply_thresholds` supplies the global
-fallback for unseen/single-class peptides. Compare fixed, global and per-peptide
-policies on shared-chain grouped held-out rows. New released positive/negative
-labels and the legacy adjusted-P endpoint are separate populations. Retain ambiguous
-rows in forecast output and exclude them from binary metrics. A frozen model's
-training-overlap assessment is descriptive. Keep raw assays, identifier mappings,
-full private study recipes and predictions under ignored output paths; extend the
-data guard for newly released table schemas. Publish only reviewed aggregate metrics
-and fitted parameters. Preserve the old model/metrics when promoting a new version.
-Read [record confidence v3.1 and legacy v3](../../docs/standards/record-scoring-v3.md) before interpreting scores.
+Use `--legacy-v31` or `--legacy-v3` only for their explicit historical models and
+encodings. Legacy membership options are not switches for redefining v3.2 evidence.
+Read [record confidence v3.2 and legacy modes](../../../docs/standards/record-scoring-v3.md)
+for exact inputs, native-structure handling, missing-predictor treatment and fitting
+scope. Fitted-cohort measurements and held-out evaluation are different claims.
+A maintenance task does not authorize refitting, threshold selection or new scientific
+comparisons. Keep private assays, mappings and study recipes outside public exports.
 
 Run the independent raw-structure audit with:
 
@@ -151,14 +135,14 @@ and publish a tag only when requested. Keep the live-master dashboard distinct f
 snapshots. Update local execution/merge records, reconcile completed issues, back-sync hotfixes to
 dev and delete only ancestry-verified integrated branches. Retain source proofs and unmerged work.
 
-For a final corpus audit, follow [metadata and reference checks](../../docs/build-integrity.md#check-metadata-and-references).
+For a final corpus audit, follow [metadata and reference checks](../../../docs/build-integrity.md#check-metadata-and-references).
 Record source duplicate counts separately from assembled observations and retained experimental
 replications. Reopened curation issues do not invalidate a build; retain their agreed scope and
 proofreading/maintenance labels without changing supported source observations.
 
 ## Choose assessment scope
 
-Use [check scopes](../../docs/builds.md#choose-the-scope-of-a-check) to select the work needed
+Use [check scopes](../../../docs/builds.md#choose-the-scope-of-a-check) to select the work needed
 for the current decision. Start chunk triage with `vdjdb qc <chunk>` and `vdjdb submission <chunk>`.
 For a peptide/MHC question, run `vdjdb assess-epitopes <chunk>` with the separately fetched pinned
 reference, or request opt-in `assessment.yml` CI on those tracked paths when CI is authorized.
@@ -166,7 +150,7 @@ For an existing built corpus, `--tables` recomputes assessment from records; pre
 are never reused. Selected-input support counts describe that input, not the full database.
 
 Read `reported`, `assessment_status`, `allele_resolution`, predicted presenter and core fields
-with their [output contract](../../docs/outputs.md).
+with their [output contract](../../../docs/outputs.md).
 Keep receptor, MHC and parent species separate. Preserve literal assay peptides and source-supported
 parent genes/species. Predicted cores and TCR-facing sequences are advisory comparison representations,
 not measured minimal recognition epitopes or contact maps. Class-II registers depend on the molecule;

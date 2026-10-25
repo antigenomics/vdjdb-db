@@ -53,13 +53,21 @@ duplicate curation within a publication and preserves distinct experiments. See
 
 ## Using the data
 
+| Task | Start here |
+|---|---|
+| Annotate a receptor, paired clone or repertoire | [Query with vdjmatch](docs/using-vdjdb.md#annotate-a-receptor-or-repertoire-with-vdjmatch) |
+| Inspect the evidence for a reported specificity | [Methods, publications and record confidence](docs/using-vdjdb.md#check-reliability-of-a-specificity-record) |
+| Retrieve motif members and position-specific frequencies | [Released TCRNET and TCREmp motifs](docs/using-vdjdb.md#retrieve-released-sequence-motifs) |
+| Fetch matching native or predicted coordinates | [Record-to-structure lookup and download](docs/using-vdjdb.md#fetch-coordinates-for-a-record) |
+
 Download the latest release zip from
 [the releases page](https://github.com/antigenomics/vdjdb-db/releases). A web GUI is at
 [vdjdb.com](https://vdjdb.com), served by [VDJdb-web](https://github.com/antigenomics/vdjdb-web).
 
 [vdjmatch](https://github.com/antigenomics/vdjmatch) can resolve a release for you when annotating
-repertoires. It selects release bundles by their manifest role; see the vdjmatch repository for
-annotation commands.
+repertoires. It selects release bundles by their manifest role, or reads an explicit local
+build directory with `--vdjdb /path/to/build/tables`. The [usage guide](docs/using-vdjdb.md)
+provides commands, table queries and interpretation guidance.
 
 The [structure dataset](https://huggingface.co/datasets/isalgo/vdjdb_structure_models) supplies
 predicted and native coordinates, current record-ID links, and explicit dispositions for withdrawn
@@ -103,6 +111,11 @@ for the viral assay. The committed files `chunks/PMID_37133356.tsv` (1,440 rows)
 The procedure is [Process a 10x dextramer assay](docs/tenx-dextramer.md).
 
 ## Contributing
+
+Researcher skills are kept in `skills/researcher/`, separately from the submission and
+maintenance skills in `skills/curator/`. Start with the [VDJdb consumer skill](skills/researcher/vdjdb-use/SKILL.md).
+It routes queries, evidence review, motif retrieval and structure downloads to the same
+documented workflows. [Curation skills](skills/curator/AUTHORITIES.md) cover source review and submission.
 
 New records are submitted as chunks - see [the submission guide](docs/submission.md). A chunk pull
 request is checked in under three minutes by `chunk-check`, against the specification documented

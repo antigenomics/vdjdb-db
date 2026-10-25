@@ -6,8 +6,8 @@ description: Validate a VDJdb chunk with vdjdb qc and vdjdb submission, explain 
 # Proofread a submission
 
 Read [AUTHORITIES.md](../AUTHORITIES.md), the
-[chunk specification](../../docs/standards/chunk-format.md), and
-[submission guide](../../docs/submission.md). Review the extraction evidence if present.
+[chunk specification](../../../docs/standards/chunk-format.md), and
+[submission guide](../../../docs/submission.md). Review the extraction evidence if present.
 
 For structural sources, follow [structures](../vdjdb-structures/SKILL.md): check complete polymer
 sequences, unresolved coordinates, allele ties and evidence from forced or clamped complexes.
@@ -25,7 +25,7 @@ Inspect header shape and content together to catch a field shift that preserves 
 
 Every positive observation needs a reported junction and literal epitope. Class I requires its
 valid first chain and `B2M`. Complete a partially reported class-II restriction from the source first, then use the most
-commonly used compatible partner, following the [metadata completion rule](../../docs/standards/columns.md#representative-parents-and-completed-mhc-pairs).
+commonly used compatible partner, following the [metadata completion rule](../../../docs/standards/columns.md#representative-parents-and-completed-mhc-pairs).
 Mark imputed partners and the submitted pair in `comment`. Correct known source errors before
 counting pair frequencies. Contradictory class, invalid names and unsupported positive assignments
 block the affected records. A source missing both chains needs a source-supported restriction
@@ -50,7 +50,7 @@ and conflicting calls require interpretation with the source and the germline re
 not all transcription errors. Preserve literal cores/flanks when the build resolves them. Do not
 edit a source sequence merely to make a canonical flag true. A proposed V is inferred, not reported.
 A 10x dextramer chunk is produced by the caller in
-[Process a 10x dextramer assay](../../docs/tenx-dextramer.md). On
+[Process a 10x dextramer assay](../../../docs/tenx-dextramer.md). On
 `chunks/DOI_10.64898_2025.12.19.695506.tsv`, `antigen.gene` and `antigen.species` are provenance
 aliases for the published peptides: the epitope dictionary where it names the epitope, otherwise
 the IEDB parent through `proofreading/gene_aliases.tsv` and the organism through
@@ -67,7 +67,7 @@ sequencing, pairing and culture before sequencing. A low score alone does not pr
 error. Optional detail stays blank when the paper does not provide it.
 
 For multiple-chain clonotypes, verify the
-[candidate-pair convention](../../docs/standards/chunk-format.md#multiple-chains-in-one-clonotype):
+[candidate-pair convention](../../../docs/standards/chunk-format.md#multiple-chains-in-one-clonotype):
 all chains come from the same source clonotype, every candidate retains the original
 `meta.clone.id` and experiment metadata, and `method.pairing=ambiguous` plus the comment/issue
 describe unresolved pairing. Check that expansion preserves source counts without treating the

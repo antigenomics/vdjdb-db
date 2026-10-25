@@ -5,6 +5,11 @@ description: Extract and proofread deposited TCR-pMHC observations with the loca
 
 # Collect structural observations
 
+For downloading existing coordinates for a record, use
+[vdjdb-use](../../researcher/vdjdb-use/SKILL.md) and the
+[retrieval guide](../../../docs/using-vdjdb.md#fetch-coordinates-for-a-record).
+The extraction workflow below applies to curation of structural observations.
+
 Read [AUTHORITIES.md](../AUTHORITIES.md), [extract](../vdjdb-extract/SKILL.md) and
 [proofread](../vdjdb-proofread/SKILL.md). The structural aggregate is
 `chunks/PDB_Database.tsv`; retain the publication reference on each row and the accession in
@@ -114,12 +119,13 @@ keep native/predicted coordinate provenance separate from experimental validatio
 Optional `vdjdb build --structure-supplemental <metadata.tsv.gz>` merges their raw metadata within
 one build. Leave it off in default hosted assembly/scoring until matched-cohort extraction is validated.
 CI uploads these reports separately from the release bundles. See
-[structure cross-links](../../docs/outputs.md#structure-files-and-current-record-cross-links).
+[structure cross-links](../../../docs/outputs.md#structure-files-and-current-record-cross-links).
 
-For record confidence v3, complete motifs and run `vdjdb score-records --tables out/tables`
-with the `confidence` extra. The frozen model uses accepted predicted-structure metrics;
-native coordinates remain separate evidence. Parameters stay frozen as available evidence changes;
-held-out assay metrics use the complete original structural inputs. Default membership is hard;
-exploratory `--soft-membership` and its batched search/count fields are documented in the
-specification. See
-[record confidence v3](../../docs/standards/record-scoring-v3.md) for its precise inputs and outputs.
+For record confidence v3.2, complete motifs and run `vdjdb score-records --tables out/tables`
+with the `confidence` extra. Inspect the separate assay-validation and independent-study
+probabilities with their model digests. Predicted metrics and native coordinate provenance
+remain distinguishable; accepted native evidence has the explicit override defined by the
+scoring specification. Parameters stay frozen as evidence availability changes. Legacy
+membership switches apply only to their declared historical models. See
+[record confidence v3.2](../../../docs/standards/record-scoring-v3.md) for the exact inputs,
+outputs and evaluation scope.
