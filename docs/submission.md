@@ -116,8 +116,8 @@ git switch -c codex/chunk-PMID_<id> origin/dev
 uv run vdjdb identity update
 ```
 
-Fetch Git LFS inputs with `git lfs pull` before building. The identity registry and large compressed
-negative chunks use LFS. Commit the chunk and `registry/records.tsv.gz` together. Review additions, amendments and retirements;
+The identity registry and compressed negative chunks are tracked directly in Git; no Git LFS
+download is needed. Commit the chunk and `registry/records.tsv.gz` together. Review additions, amendments and retirements;
 existing record IDs must survive. The commit names the changed files, per-file row counts, source
 issue, reason, build result and curator decision where applicable.
 
