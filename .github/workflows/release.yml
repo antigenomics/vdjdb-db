@@ -38,8 +38,6 @@ jobs:
       version: ${{ steps.derive.outputs.version }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          lfs: true
 
       - id: derive
         env:
@@ -84,7 +82,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          lfs: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/download-artifact@v4
