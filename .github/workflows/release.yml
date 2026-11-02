@@ -38,7 +38,6 @@ jobs:
       version: ${{ steps.derive.outputs.version }}
     steps:
       - uses: actions/checkout@v4
-        with:
 
       - id: derive
         env:

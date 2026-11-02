@@ -89,7 +89,6 @@ jobs:
       OPENBLAS_L2_SIZE: '256'
     steps:
       - uses: actions/checkout@v4
-        with:
 
       - uses: astral-sh/setup-uv@v5
         with:
