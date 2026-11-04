@@ -32,6 +32,8 @@ One thing is still deliberately absent:
 """
 from __future__ import annotations
 
+from vdjdb.io.text import write_csv
+
 from pathlib import Path
 
 import polars as pl
@@ -248,7 +250,7 @@ def write_all(frames: dict[str, pl.DataFrame], out: Path) -> dict[str, Path]:
     written = {}
     for name, frame in frames.items():
         path = out / f"vdjdb.{name}.tsv"
-        frame.write_csv(path, **_CSV)
+        path = write_csv(frame, path, **_CSV)
         written[path.name] = path
     y = out / "airr.yaml"
     y.write_text(f'Info:\n  title: VDJdb AIRR export\n  version: {AIRR_VERSION}\n')

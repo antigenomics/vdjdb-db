@@ -19,6 +19,7 @@ measurement, and a regression that touches a declared column would pass with no 
 from __future__ import annotations
 
 import hashlib
+import gzip
 import json
 import tomllib
 import zipfile
@@ -231,10 +232,12 @@ class Bundle:
         self.path = path
         if path.is_dir():
             self._zip = None
-            self._members = {p.name: p for p in sorted(path.rglob("*")) if p.is_file()}
+            self._members = {(p.name[:-3] if p.name.endswith((".tsv.gz", ".txt.gz"))
+                              else p.name): p for p in sorted(path.rglob("*")) if p.is_file()}
         else:
             self._zip = zipfile.ZipFile(path)
-            self._members = {Path(n).name: n for n in self._zip.namelist()      # type: ignore[misc]
+            self._members = {(Path(n).name[:-3] if n.endswith((".tsv.gz", ".txt.gz"))
+                              else Path(n).name): n for n in self._zip.namelist()      # type: ignore[misc]
                              if not n.endswith("/")}
 
     @property
@@ -243,7 +246,8 @@ class Bundle:
 
     def read_bytes(self, name: str) -> bytes:
         m = self._members[name]
-        return self._zip.read(m) if self._zip else Path(m).read_bytes()   # type: ignore[arg-type]
+        data = self._zip.read(m) if self._zip else Path(m).read_bytes()   # type: ignore[arg-type]
+        return gzip.decompress(data) if str(m).endswith((".tsv.gz", ".txt.gz")) else data
 
 
 def _digests(data: bytes) -> tuple[str, str]:

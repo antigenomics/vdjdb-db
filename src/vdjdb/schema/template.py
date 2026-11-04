@@ -20,6 +20,8 @@ it had: its examples wrote ``antigen.species = HIV`` where the vocabulary now sa
 """
 from __future__ import annotations
 
+from vdjdb.io.text import write_text
+
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -189,8 +191,7 @@ def write_tsv(path: Path, examples: Sequence[dict[str, str]] = ()) -> Path:
     """The tab-separated template."""
     rows = [header_line()]
     rows += ["\t".join(row.get(c, "") for c in CHUNK_COLUMNS) for row in examples]
-    path.write_text("\n".join(rows) + "\n")
-    return path
+    return write_text(path, "\n".join(rows) + "\n")
 
 
 def write_xlsx(path: Path, examples: Sequence[dict[str, str]] = ()) -> Path:

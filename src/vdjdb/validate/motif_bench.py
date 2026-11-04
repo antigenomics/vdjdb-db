@@ -18,6 +18,8 @@ clusterings when purity is the question, and say which is which (ROADMAP section
 """
 from __future__ import annotations
 
+from vdjdb.io.text import read_csv
+
 from pathlib import Path
 
 import polars as pl
@@ -90,7 +92,7 @@ def compare(cohort_df: pl.DataFrame, clusterings: dict[str, pl.DataFrame]) -> pl
 
 def read_members(path: Path) -> pl.DataFrame:
     """A ``cluster_members``-shaped TSV, ours or legacy's, as an all-string frame."""
-    return pl.read_csv(path, separator="\t", infer_schema_length=0, quote_char=None)
+    return read_csv(path, separator="\t", infer_schema_length=0, quote_char=None)
 
 
 def trivial_members(cohort_df: pl.DataFrame, *, split_by_length: bool = True) -> pl.DataFrame:

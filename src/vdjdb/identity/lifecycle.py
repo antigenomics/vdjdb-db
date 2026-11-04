@@ -18,6 +18,8 @@ when a chunk changes.
 """
 from __future__ import annotations
 
+from vdjdb.io.text import read_csv, resolve_path, write_csv
+
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -47,17 +49,18 @@ def read(path: Path | None) -> pl.DataFrame:
     Missing is not an error. A fork and a first build have no history, and they are expected to run:
     the ids come out the same and only the history is unknown.
     """
-    if path is None or not Path(path).exists():
+    path = resolve_path(path) if path is not None else None
+    if path is None or not path.exists():
         return empty()
     # `empty_string_is_null=False`: an empty `replaced_by` means "no replacement", and a null would be
     # the pandas three-way ambiguity re-entering through the file (hard rule 6).
-    return pl.read_csv(path, separator="\t", schema=_SCHEMA, empty_string_is_null=False)
+    return read_csv(path, separator="\t", schema=_SCHEMA, empty_string_is_null=False)
 
 
 def write(df: pl.DataFrame, path: Path) -> None:
     """Sorted by ``(level, id)``, so a diff between two releases is reviewable."""
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    df.select(list(LIFECYCLE_COLUMNS)).sort("level", "id").write_csv(
+    write_csv(df.select(list(LIFECYCLE_COLUMNS)).sort("level", "id"),
         path, separator="\t", quote_style="never")
 
 

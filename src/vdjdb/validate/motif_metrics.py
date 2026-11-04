@@ -39,6 +39,8 @@ measured by different code. Acceptance and historical reporting answer different
 """
 from __future__ import annotations
 
+from vdjdb.io.text import read_csv, resolve_path
+
 from pathlib import Path
 
 import polars as pl
@@ -229,7 +231,7 @@ COLUMNS = {"species": pl.Utf8, "gene": pl.Utf8, "source": pl.Utf8, "axis": pl.Ut
 
 def load_baseline(path: Path = BASELINE) -> pl.DataFrame:
     """The committed baseline, or an empty frame shaped like one when it does not exist yet."""
-    return pl.read_csv(path, separator="\t", schema=COLUMNS) if path.exists() \
+    return read_csv(path, separator="\t", schema=COLUMNS) if resolve_path(path).exists() \
         else pl.DataFrame(schema=COLUMNS)
 
 
@@ -309,7 +311,7 @@ def regressions_against_latest(measured: pl.DataFrame,
     # Both gains are strict for this extra allowance beyond the ordinary 0.005 tolerance:
     # equality or a missing axis cannot buy the additional homogeneity exception.
     if TRADEOFFS.exists():
-        trades = pl.read_csv(TRADEOFFS, separator="\t")
+        trades = read_csv(TRADEOFFS, separator="\t")
         if (trades.filter((pl.col("axis") != "h") | pl.col("max_loss").is_null()
                           | ~pl.col("max_loss").is_finite()
                           | ~pl.col("max_loss").is_between(0.0, 1.0)
@@ -365,7 +367,7 @@ def report(measured: pl.DataFrame, baseline: pl.DataFrame) -> str:
         out.append(f"| {r['gene']} | {r['source']} | `{r['axis']}` | {r['value']:.4f} | {was} | "
                    f"{db} | {dl} | {gate} |")
     if TRADEOFFS.exists():
-        trades = pl.read_csv(TRADEOFFS, separator="\t").join(
+        trades = read_csv(TRADEOFFS, separator="\t").join(
             measured.select(KEY), on=list(KEY), how="semi")
         for r in trades.iter_rows(named=True):
             out.extend(["", f"Relative {r['gene']} {r['source']} `{r['axis']}` trade: "

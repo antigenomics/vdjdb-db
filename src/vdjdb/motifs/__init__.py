@@ -31,6 +31,8 @@ is used (``docs/denoising.md`` section 6.1).
 """
 from __future__ import annotations
 
+from vdjdb.io.text import write_csv
+
 from pathlib import Path
 
 import polars as pl
@@ -152,7 +154,7 @@ def per_epitope_report(chains: pl.DataFrame, records: pl.DataFrame, out: Path, r
           .sort("species", "gene", "method", "clonotypes", descending=[False] * 3 + [True]))
     path = reports / "motifs_per_epitope.tsv"
     path.parent.mkdir(parents=True, exist_ok=True)
-    df.write_csv(path, separator="\t")
+    write_csv(df, path, separator="\t")
     return df.height
 
 

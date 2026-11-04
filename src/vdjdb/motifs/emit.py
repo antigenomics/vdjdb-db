@@ -13,6 +13,8 @@ rather than a second pipeline (ROADMAP section 6).
 """
 from __future__ import annotations
 
+from vdjdb.io.text import write_csv
+
 from pathlib import Path
 
 import polars as pl
@@ -124,6 +126,6 @@ def write(members: pl.DataFrame, pwms: pl.DataFrame, out: Path, *,
     for name, df, cols in ((f"cluster_members{suffix}.txt", members, MEMBER_COLUMNS),
                            (f"motif_pwms{suffix}.txt", pwms, PWM_COLUMNS)):
         assert tuple(df.columns) == cols, f"{name}: column order is a contract, got {df.columns}"
-        df.write_csv(out / name, separator="\t", quote_style="never", line_terminator="\n")
+        write_csv(df, out / name, separator="\t", quote_style="never", line_terminator="\n")
         written[name] = df.height
     return written

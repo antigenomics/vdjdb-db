@@ -25,3 +25,12 @@ stage() {
   printf '%s\t%s\t%s\n' "$name" "$((ended - started))" "$status" >> "$STAGE_TIMINGS"
   [ "$status" = ok ]
 }
+
+# Reports may be plain or gzip depending on their uncompressed byte count.
+read_generated_table() {
+  if [ -f "$1" ]; then
+    cat -- "$1"
+  else
+    gzip -dc -- "$1.gz"
+  fi
+}

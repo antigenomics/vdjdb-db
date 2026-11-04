@@ -328,8 +328,9 @@ jobs:
       - name: QC advisory counts
         if: always()
         run: |
+          . .github/stage-timing.sh
           { echo '### QC findings by rule'; echo; echo '```'; \
-            cat out/reports/qc-summary.tsv 2>/dev/null || echo '(not produced)'; \
+            read_generated_table out/reports/qc-summary.tsv 2>/dev/null || echo '(not produced)'; \
             echo '```'; } >> "$GITHUB_STEP_SUMMARY"
 
       # The two reports that replaced `vdjdb_full_gene_broken.txt` and `vdjdb_full_cdr3aa_broken.txt`.
@@ -338,12 +339,13 @@ jobs:
       - name: Proofreading counts
         if: always()
         run: |
+          . .github/stage-timing.sh
           { echo '### Proofreading findings'; echo; echo '```'; \
             echo "segment calls IMGT does not carry (chain-calls):"; \
-            awk -F'\t' 'NR>1{n+=$5} END{print "  "n+0}' out/reports/nomenclature.tsv 2>/dev/null \
+            read_generated_table out/reports/nomenclature.tsv | awk -F'\t' 'NR>1{n+=$5} END{print "  "n+0}' 2>/dev/null \
               || echo '  (not produced)'; \
             echo "non-canonical junctions (chains):"; \
-            awk 'NR>1{n++} END{print "  "n+0}' out/reports/anchors.tsv 2>/dev/null \
+            read_generated_table out/reports/anchors.tsv | awk 'NR>1{n++} END{print "  "n+0}' 2>/dev/null \
               || echo '  (not produced)'; \
             echo '```'; } >> "$GITHUB_STEP_SUMMARY"
 
@@ -366,12 +368,13 @@ jobs:
       - name: Build timings report
         if: always()
         run: |
+          . .github/stage-timing.sh
           { echo '### Stage wall times'; echo; echo '```'; \
-            cat out/reports/ci-stage-timings.tsv 2>/dev/null || echo '(not produced)'; \
+            read_generated_table out/reports/ci-stage-timings.tsv 2>/dev/null || echo '(not produced)'; \
             echo '```'; echo; \
             echo '### Build timings'; echo; echo '```'; \
-            cat out/reports/build-timings.tsv 2>/dev/null || echo '(not produced)'; echo; \
-            cat out/reports/motif-timings.tsv 2>/dev/null || echo '(not produced)'; \
+            read_generated_table out/reports/build-timings.tsv 2>/dev/null || echo '(not produced)'; echo; \
+            read_generated_table out/reports/motif-timings.tsv 2>/dev/null || echo '(not produced)'; \
             echo '```'; } >> "$GITHUB_STEP_SUMMARY"
 
       # Everything the build measured, in one place. It was named `motif-metrics` and carried the
@@ -384,27 +387,27 @@ jobs:
         with:
           name: build-reports
           path: |
-            out/reports/motif-metrics.tsv
+            out/reports/motif-metrics.tsv*
             out/reports/motif-metrics.md
-            out/reports/build-timings.tsv
-            out/reports/ci-stage-timings.tsv
-            out/reports/motif-timings.tsv
-            out/reports/motifs_per_epitope.tsv
-            out/motifs/cluster_members.txt
-            out/motifs/cluster_members_tcremp.txt
+            out/reports/build-timings.tsv*
+            out/reports/ci-stage-timings.tsv*
+            out/reports/motif-timings.tsv*
+            out/reports/motifs_per_epitope.tsv*
+            out/motifs/cluster_members.txt*
+            out/motifs/cluster_members_tcremp.txt*
             out/reports/release-diff.json
             out/reports/release-diff.md
-            out/reports/qc.tsv
-            out/reports/qc-summary.tsv
-            out/reports/nomenclature.tsv
-            out/reports/harmonisation.tsv
-            out/reports/anchors.tsv
-            out/reports/j-calls.tsv
-            out/reports/functionality.tsv
-            out/reports/functionality-summary.tsv
-            out/reports/presentation.tsv
-            out/reports/presentation-summary.tsv
-            out/reports/lookalikes.tsv
+            out/reports/qc.tsv*
+            out/reports/qc-summary.tsv*
+            out/reports/nomenclature.tsv*
+            out/reports/harmonisation.tsv*
+            out/reports/anchors.tsv*
+            out/reports/j-calls.tsv*
+            out/reports/functionality.tsv*
+            out/reports/functionality-summary.tsv*
+            out/reports/presentation.tsv*
+            out/reports/presentation-summary.tsv*
+            out/reports/lookalikes.tsv*
             out/reports/structures/*.parquet
             out/reports/structures/*.json
           retention-days: 90

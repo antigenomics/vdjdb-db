@@ -18,6 +18,8 @@ Every deliberate quirk reproduced here has a comment saying why; anything withou
 """
 from __future__ import annotations
 
+from vdjdb.io.text import resolve_path, write_csv, write_text
+
 import json
 from pathlib import Path
 
@@ -111,8 +113,8 @@ def write_full(records: pl.DataFrame, chains: pl.DataFrame, out: Path) -> Path:
         *(_cdr3fix_blob(s, as_json=False).alias(f"cdr3fix.{s}") for s in _CHAIN_SUFFIX.values()),
     )
     path = out / "vdjdb_full.txt"
-    wide.select(FULL_COLUMNS).write_csv(path, **_CSV)
-    return path
+    write_csv(wide.select(FULL_COLUMNS), path, **_CSV)
+    return resolve_path(path)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -241,8 +243,8 @@ def build_slim(default_db: pl.DataFrame) -> pl.DataFrame:
 def write_meta(out: Path) -> list[Path]:
     """The two metadata files, generated rather than tracked, so they cannot drift again."""
     a, b = out / "vdjdb.meta.txt", out / "vdjdb.slim.meta.txt"
-    a.write_text(render_meta("vdjdb"))
-    b.write_text(render_slim_meta("slim"))
+    a = write_text(a, render_meta("vdjdb"))
+    b = write_text(b, render_slim_meta("slim"))
     return [a, b]
 
 
@@ -253,10 +255,10 @@ def write_all(tables: dict[str, pl.DataFrame], out: Path) -> dict[str, Path]:
     default_db = build_default(records, chains)
     slim = build_slim(default_db)
     paths = {"vdjdb_full.txt": write_full(records, chains, out)}
-    default_db.write_csv(out / "vdjdb.txt", **_CSV)
-    slim.write_csv(out / "vdjdb.slim.txt", **_CSV)
-    paths["vdjdb.txt"] = out / "vdjdb.txt"
-    paths["vdjdb.slim.txt"] = out / "vdjdb.slim.txt"
+    write_csv(default_db, out / "vdjdb.txt", **_CSV)
+    write_csv(slim, out / "vdjdb.slim.txt", **_CSV)
+    paths["vdjdb.txt"] = resolve_path(out / "vdjdb.txt")
+    paths["vdjdb.slim.txt"] = resolve_path(out / "vdjdb.slim.txt")
     for p in write_meta(out):
         paths[p.name] = p
-    return paths
+    return {p.name: p for p in paths.values()}

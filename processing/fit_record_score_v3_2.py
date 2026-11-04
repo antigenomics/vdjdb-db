@@ -6,6 +6,8 @@ are written into model parameters. Inputs are read anew on each invocation.
 """
 from __future__ import annotations
 
+from vdjdb.io.text import write_csv, read_csv
+
 import argparse
 import hashlib
 import io
@@ -101,11 +103,11 @@ def prepare(tables, selected_records, tcrvdb_path, selection_manifest, motif_sco
     records, chains, evidence = [read_table(tables, n) for n in ['records', 'chains', 'evidence']]
     if selected_records.suffix == '.zip':
         with ZipFile(selected_records) as archive:
-            test = pl.read_csv(io.BytesIO(archive.read('test.csv')), infer_schema_length=0)
+            test = read_csv(io.BytesIO(archive.read('test.csv')), infer_schema_length=0)
     else:
-        test = pl.read_csv(selected_records, infer_schema_length=0)
+        test = read_csv(selected_records, infer_schema_length=0)
     q = queries(test).with_row_index('_row')
-    truth = labels(pl.read_csv(tcrvdb_path), test)
+    truth = labels(read_csv(tcrvdb_path), test)
     if truth.join(q.select('tcr_id'), on='tcr_id', how='anti').height:
         raise ValueError('Validation IDs absent from the selected cohort')
     q = q.join(truth, on='tcr_id', how='left', validate='1:1').with_columns(pl.col('label').fill_null(-1))
@@ -119,7 +121,7 @@ def prepare(tables, selected_records, tcrvdb_path, selection_manifest, motif_sco
     selected = selected.join(source.rename({'legacy_score': '_source_score'}),
         on='tcr_id', validate='1:1').with_columns(
             pl.coalesce('legacy_score', '_source_score').alias('legacy_score')).sort('_row')
-    kept = retained(records, pl.read_csv(selection_manifest, separator='\t'))
+    kept = retained(records, read_csv(selection_manifest, separator='\t'))
     database = full.join(kept.select('record_id'), on='record_id', how='semi').join(
         features.select('interaction_key', *FEATURES), on='interaction_key', validate='m:1')
     prior = database.join(q.select('interaction_key').unique(), on='interaction_key', how='anti')
@@ -212,7 +214,7 @@ def write_fit(out, name, model, rows, prediction):
     (out / (name + '.json')).write_text(json.dumps(model, indent=2) + '\n')
     scored = rows.with_columns(pl.Series('prediction', prediction))
     scored.write_parquet(out / (name + '.parquet'), compression='zstd')
-    metrics(scored).write_csv(out / (name + '-metrics.tsv'), separator='\t')
+    write_csv(metrics(scored), out / (name + '-metrics.tsv'), separator='\t')
 
 
 def fit_independent(args):
@@ -224,7 +226,7 @@ def fit_independent(args):
     from vdjdb.score.pipeline import load_model
     from vdjdb.score.v32 import encode, independent_features
     r, c, e = [read_table(args.tables, n) for n in ['records', 'chains', 'evidence']]
-    r = retained(r, pl.read_csv(args.selection_manifest, separator='\t'))
+    r = retained(r, read_csv(args.selection_manifest, separator='\t'))
     c, e = [f.join(r.select('record_id'), on='record_id', how='semi') for f in (c, e)]
     f = independent_features(r, c, e).join(targets(r, c), on='record_id', validate='1:1').sort('record_id')
     template, _ = load_model(version='3.2b')

@@ -70,6 +70,20 @@ def test_the_view_declares_every_evidence_column_even_without_a_producer(tables)
     assert view["evidence.validation.same.study"].to_list() == [False, False]
 
 
+def test_compressed_legacy_exports_preserve_bytes_and_return_existing_paths(tmp_path, tables, monkeypatch):
+    from vdjdb.compare.diff import Bundle
+    from vdjdb.io import text
+
+    plain = legacy.write_all(tables, tmp_path / "plain")
+    monkeypatch.setattr(text, "MAX_TEXT_BYTES", 1)
+    compressed = legacy.write_all(tables, tmp_path / "compressed")
+    assert all(path.is_file() and path.suffix == ".gz" for path in compressed.values())
+    assert {path.name for path in compressed.values()} == set(compressed)
+    read = Bundle(tmp_path / "compressed")
+    for name, path in plain.items():
+        assert read.read_bytes(name) == path.read_bytes()
+
+
 def test_the_view_is_one_row_per_chain_and_carries_the_evidence_it_has(tables):
     view = vdjdb3.joined(tables)
     assert view.height == tables["chains"].height

@@ -18,10 +18,14 @@ have (``docs/outputs.md`` section 2).
 from __future__ import annotations
 
 import hashlib
+import gzip
 import json
+import shutil
 import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
+
+from ..io.text import resolve_path
 
 #: Read in blocks rather than all at once: the legacy `vdjdb.txt` is 240 MB.
 _CHUNK = 1 << 20
@@ -137,7 +141,7 @@ def resolve(bundle: Bundle, build: Path, version: str) -> list[tuple[Path, str]]
     out: list[tuple[Path, str]] = []
     missing: list[str] = []
     for m in bundle.members:
-        src = build / m.source
+        src = resolve_path(build / m.source)
         if not src.exists():
             if not m.optional:
                 missing.append(m.source)
@@ -163,8 +167,11 @@ def write_zip(bundle: Bundle, build: Path, out: Path, version: str) -> Path:
             info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.external_attr = 0o644 << 16
-            with src.open("rb") as fh:
-                zf.writestr(info, fh.read())
+            # Compatibility members retain their declared names. Decompress directly into ZIP
+            # compression; no large uncompressed table is materialised on disk or in memory.
+            opener = gzip.open if src.suffix == ".gz" and not name.endswith(".gz") else open
+            with opener(src, "rb") as fh, zf.open(info, "w", force_zip64=True) as member_out:
+                shutil.copyfileobj(fh, member_out)
     return target
 
 

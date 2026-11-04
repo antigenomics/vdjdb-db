@@ -33,6 +33,8 @@ refreshed by its own pull request through ``vdjdb promiscuity``, never written b
 
 from __future__ import annotations
 
+from vdjdb.io.text import read_csv, resolve_path
+
 from pathlib import Path
 from typing import NamedTuple
 
@@ -133,9 +135,10 @@ def _table(root: Path | None = None) -> pl.DataFrame:
     schema = {"epitope": pl.String, "mhc_a": pl.String, "percent_rank": pl.Float64,
               "p_present": pl.Float64, "band": pl.String, "recorded": pl.Int64}
     path = (root or Paths.discover().root) / "proofreading" / "epitope_promiscuity.tsv"
+    path = resolve_path(path)
     if not path.exists():
         return pl.DataFrame(schema=schema)
-    got = pl.read_csv(path, separator="\t", schema_overrides=schema)
+    got = read_csv(path, separator="\t", schema_overrides=schema)
     if VERSION_COLUMN not in got.columns:
         # Added after the table was first written. An older file carries no version rather than a
         # guessed one: a number whose model nobody can name is worse than a blank.

@@ -4,6 +4,8 @@ Every subcommand is implemented; ``vdjdb --help`` lists them all.
 """
 from __future__ import annotations
 
+from vdjdb.io.text import read_csv, resolve_path, table_writer, write_csv, write_text
+
 from pathlib import Path
 
 import typer
@@ -62,7 +64,7 @@ def score_metrics(
 
     table = metrics(pl.read_parquet(predictions))
     out.parent.mkdir(parents=True, exist_ok=True)
-    table.write_csv(out, separator="\t")
+    write_csv(table, out, separator="\t")
     if check:
         check_nonregression(table)
     typer.echo(f"{table.height} comparisons -> {out}")
@@ -105,7 +107,7 @@ def submission(
                   build_master(chunk_files(chunks) if chunks else None))
     if out:
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(text)
+        out = write_text(out, text)
     typer.echo(text, nl=False)
 
 
@@ -121,7 +123,7 @@ def refs_authors(
     records, _ = harmonise_references(read_chunks())
     authors = fetch_authors(records["reference.id"].unique().to_list())
     out.parent.mkdir(parents=True, exist_ok=True)
-    authors.write_csv(out, separator="\t")
+    write_csv(authors, out, separator="\t")
     typer.echo(f"{authors['reference.id'].n_unique():,} PubMed author lists -> {out}")
 
 
@@ -142,11 +144,11 @@ def overlap(
 
     records = build_master(chunk_files(chunks) if chunks else None)
     pairs = overlaps(records, by_sample=by_sample, submitted=submitted)
-    authors = pl.read_csv(AUTHOR_TABLE, separator="\t")
+    authors = read_csv(AUTHOR_TABLE, separator="\t")
     pairs = author_pairs(pairs, authors)
     out.parent.mkdir(parents=True, exist_ok=True)
-    pairs.write_csv(out, separator="\t")
-    categories(records, authors, pairs).write_csv(
+    write_csv(pairs, out, separator="\t")
+    write_csv(categories(records, authors, pairs),
         out.with_name(out.stem + "-categories.tsv"), separator="\t")
     typer.echo(f"{pairs.height:,} group pairs; "
                f"{pairs['review.provenance'].sum():,} provenance review candidates -> {out}")
@@ -273,7 +275,7 @@ def build(
     # curator knows which. Written every run so the count is a number that can regress.
     with stage("curate.submission.lookalikes"):
         look = lookalikes(master)
-    look.write_csv(out / "reports" / "lookalikes.tsv", separator="\t")
+    write_csv(look, out / "reports" / "lookalikes.tsv", separator="\t")
     if not look.is_empty():
         within = look.filter(pl.col("same.species"))["folded"].n_unique()
         typer.echo(f"look-alike values: {look['folded'].n_unique()} group(s) over "
@@ -285,7 +287,7 @@ def build(
     # mis-curation all look like this, and only the third is a defect (#633).
     with stage("curate.submission.epitope_sources"):
         sources = epitope_sources(master)
-    sources.write_csv(out / "reports" / "epitope-sources.tsv", separator="\t")
+    write_csv(sources, out / "reports" / "epitope-sources.tsv", separator="\t")
     if not sources.is_empty():
         two_species = sources.filter(pl.col("sources") > 1)["antigen.epitope"].n_unique()
         two_genes = sources.filter(pl.col("genes") > 1).height
@@ -301,7 +303,7 @@ def build(
     # sequence and nobody learns.
     with stage("curate.anchors.noncanonical"):
         anchors = noncanonical(master)
-    anchors.write_csv(out / "reports" / "anchors.tsv", separator="\t")
+    write_csv(anchors, out / "reports" / "anchors.tsv", separator="\t")
     if not anchors.is_empty():
         # The count of *submissions* that disagree with their own germline. `arda.cdr3fix` repairs
         # what it can on the way through, so this is not the count that still ships wrong - that is
@@ -327,7 +329,7 @@ def build(
     # What the four harmonisation passes rewrote, written by `build_master` itself because that is
     # where the reports are produced (#700). The complement of `nomenclature.tsv` below: this names
     # the values the build changed, that one the calls it could not resolve.
-    harmonised = pl.read_csv(out / "reports" / "harmonisation.tsv", separator="\t",
+    harmonised = read_csv(out / "reports" / "harmonisation.tsv", separator="\t",
                              infer_schema=False)
     if not harmonised.is_empty():
         typer.echo(f"values harmonised: {harmonised['rows'].cast(pl.Int64).sum():,} record(s) over "
@@ -336,7 +338,7 @@ def build(
 
     with stage("curate.nomenclature.unresolved"):
         calls = unresolved_calls(master)
-    calls.write_csv(out / "reports" / "nomenclature.tsv", separator="\t")
+    write_csv(calls, out / "reports" / "nomenclature.tsv", separator="\t")
     if not calls.is_empty():
         family = calls.filter(pl.col("family.members") > 0)["chains"].sum()
         typer.echo(f"segment calls IMGT does not carry: {calls['chains'].sum():,} chain-call(s) over "
@@ -350,9 +352,9 @@ def build(
     # rearrange, and IMGT reclassifies genes between releases.
     with stage("curate.functionality.report"):
         nonfunctional = functionality_report(built["chains"], built["records"])
-    nonfunctional.write_csv(out / "reports" / "functionality.tsv", separator="\t")
+    write_csv(nonfunctional, out / "reports" / "functionality.tsv", separator="\t")
     summary_rows = functionality_summary(nonfunctional)
-    summary_rows.write_csv(out / "reports" / "functionality-summary.tsv", separator="\t")
+    write_csv(summary_rows, out / "reports" / "functionality-summary.tsv", separator="\t")
     if not nonfunctional.is_empty():
         typer.echo(f"segments IMGT does not call functional: {nonfunctional.height:,} chain(s) over "
                    f"{nonfunctional['call'].n_unique()} call(s) "
@@ -370,7 +372,7 @@ def build(
     # re-calling a J from its junction is a curator's decision, and what was missing is the list.
     with stage("curate.jcalls.report"):
         contradicted = jcall_report(built["chains"], built["records"])
-    contradicted.write_csv(out / "reports" / "j-calls.tsv", separator="\t")
+    write_csv(contradicted, out / "reports" / "j-calls.tsv", separator="\t")
     if not contradicted.is_empty():
         typer.echo(f"J calls contradicted by their own junction: {contradicted.height:,} chain(s) "
                    f"over {contradicted['chunk.file'].n_unique()} chunk(s) "
@@ -378,8 +380,8 @@ def build(
 
     with stage("curate.presentation.report"):
         presented = presentation_report(built["restriction"])
-    presented.write_csv(out / "reports" / "presentation.tsv", separator="\t")
-    presentation_summary(presented).write_csv(out / "reports" / "presentation-summary.tsv",
+    write_csv(presented, out / "reports" / "presentation.tsv", separator="\t")
+    write_csv(presentation_summary(presented), out / "reports" / "presentation-summary.tsv",
                                               separator="\t")
     if not presented.is_empty():
         typer.echo(f"MHC calls with no groove or a class that disagrees: {presented.height:,} "
@@ -481,9 +483,9 @@ def rules(
                f"+ {mhc['rows'].sum():,} MHC records, written to {out}")
     if report:
         report.parent.mkdir(parents=True, exist_ok=True)
-        rep.write_csv(report, separator="\t")
-        alleles.write_csv(report.with_name("alleles.tsv"), separator="\t")
-        mhc.write_csv(report.with_name("mhc.tsv"), separator="\t")
+        write_csv(rep, report, separator="\t")
+        write_csv(alleles, report.with_name("alleles.tsv"), separator="\t")
+        write_csv(mhc, report.with_name("mhc.tsv"), separator="\t")
         typer.echo(f"reports -> {report.parent}/")
 
 
@@ -514,7 +516,7 @@ def convert(
         raise typer.Exit(2)
 
     frames = (from_tables(read_tables(tables)) if tables is not None
-              else from_legacy(pl.read_csv(legacy, separator="\t", infer_schema=False,
+              else from_legacy(read_csv(legacy, separator="\t", infer_schema=False,
                                            quote_char=None)))
     for name, path in write_all(frames, out).items():
         typer.echo(f"{name:26} {path.stat().st_size:>12,} bytes")
@@ -580,12 +582,12 @@ def motif_metrics(
         b = Bundle(path)
         dest = out / f"_{path.name}.cluster_members.txt"
         dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_bytes(b.read_bytes("cluster_members.txt"))
+        dest = write_text(dest, b.read_bytes("cluster_members.txt").decode("utf-8"))
         return mb.read_members(dest)
 
     cur = {m: mb.read_members(motifs / f"cluster_members{suffix}.txt")
            for m, suffix in (("tcrnet", ""), ("tcremp", "_tcremp"))
-           if (motifs / f"cluster_members{suffix}.txt").exists()}
+           if resolve_path(motifs / f"cluster_members{suffix}.txt").exists()}
     if not cur:
         typer.secho(f"no motif files in {motifs}; run `vdjdb motifs --out {motifs}`",
                     fg=typer.colors.RED, err=True)
@@ -594,7 +596,7 @@ def motif_metrics(
     measured = mmv.measure(chains, records,
                            mmv.sources(released(legacy), released(latest or legacy), cur))
     out.mkdir(parents=True, exist_ok=True)
-    measured.write_csv(out / "motif-metrics.tsv", separator="\t")
+    write_csv(measured, out / "motif-metrics.tsv", separator="\t")
     base = mmv.load_baseline(baseline)
     mmv.validate_measurements(measured, base)
     (out / "motif-metrics.md").write_text(mmv.report(measured, base) + "\n")
@@ -602,7 +604,7 @@ def motif_metrics(
 
     if record:
         baseline.parent.mkdir(parents=True, exist_ok=True)
-        mmv.record_measurements(measured, base).write_csv(baseline, separator="\t")
+        write_csv(mmv.record_measurements(measured, base), baseline, separator="\t")
         typer.secho(f"baseline rewritten: {baseline}. Say why in the commit message.",
                     fg=typer.colors.YELLOW)
         return
@@ -745,7 +747,7 @@ def antigens_cmd(
                                 read_table(records.parent, records.stem,
                                            ["antigen.epitope", "reference.id"])))
     out.parent.mkdir(parents=True, exist_ok=True)
-    found.write_csv(out, separator="\t", quote_style="never")
+    write_csv(found, out, separator="\t", quote_style="never")
     typer.echo(f"wrote {out} ({found.height:,} rows)")
     for row in ag.summarise(found).iter_rows(named=True):
         typer.echo(f"  {row['antigen.species']:14} {row['verdict']:17} "
@@ -850,12 +852,13 @@ def promiscuity_cmd(
 
     rows, unmatched = prom.presented(recorded, tier=tier)
     out.parent.mkdir(parents=True, exist_ok=True)
-    with out.open("w", encoding="utf-8", newline="") as fh:
+    with table_writer(out) as fh:
         w = _csv.writer(fh, delimiter="\t", lineterminator="\n")
         w.writerow(prom.COLUMNS)
         for r in rows:
             w.writerow([r.epitope, r.mhc_a, f"{r.percent_rank:.3f}", f"{r.p_present:.4f}",
                         r.band, r.recorded, r.mhcmatch_version])
+    out = resolve_path(out)
     epitopes = len({r.epitope for r in rows})
     kept = sum(r.recorded for r in rows)
     typer.echo(f"wrote {out} ({len(rows):,} rows over {epitopes:,} epitopes; "
@@ -899,7 +902,7 @@ def release_cmd(
     # `stage` copies the tracked file, which a dry run did not update, so the bundle would otherwise
     # carry the *previous* release's line 1 while every other member named this tag.
     if dry_run:
-        (build_dir / "latest-version.txt").write_text(latest)
+        write_text(build_dir / "latest-version.txt", latest)
     # The lifecycle is written here and not by a build: a curation branch that adds a clonotype and
     # removes it again has retired nothing, so only a release moves these rows (`ROADMAP.md` 10.4).
     lifecycle_path = out / "identity-lifecycle.tsv"
@@ -957,10 +960,10 @@ def diff(
     text = render(result)
     if report:
         report.parent.mkdir(parents=True, exist_ok=True)
-        report.write_text(text)
+        report = write_text(report, text)
     if json_out:
         json_out.parent.mkdir(parents=True, exist_ok=True)
-        json_out.write_text(summary_json(result) + "\n")
+        json_out = write_text(json_out, summary_json(result) + "\n")
     typer.echo(text, nl=False)
     raise typer.Exit(0 if result.ok else 1)
 
@@ -1133,8 +1136,8 @@ def corpus_build(
     if terms.is_empty():
         typer.secho("no text_terms.tsv: building without the word family "
                     "(run `vdjdb corpus refs`)", fg=typer.colors.YELLOW)
-    records = (pl.read_csv(cp.PUBMED_TABLE, separator="\t", infer_schema=False)
-               if cp.PUBMED_TABLE.exists() else None)
+    records = (read_csv(cp.PUBMED_TABLE, separator="\t", infer_schema=False)
+               if resolve_path(cp.PUBMED_TABLE).exists() else None)
     corpus = cb.build(frames["records"], frames["chains"], frames["restriction"],
                       text_terms=terms, pubmed_records=records, k=k)
     for name, path in cb.write(corpus, out).items():

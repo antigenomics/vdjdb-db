@@ -31,6 +31,7 @@ import re
 import tempfile
 from pathlib import Path
 
+from ..io.text import resolve_path, write_text
 from . import manifest
 
 #: ``v<YYYY>.<MM>.<PATCH>`` -- CalVer, because this is a dataset with no API to break, and the patch
@@ -108,7 +109,7 @@ def build(build_dir: Path, out: Path, tag: str, *,
         entries.append(manifest.describe(zip_path, b.role))
         paths.append(zip_path)
     manifest.write_manifest(entries, out, version, tag)
-    manifest.write_checksums(paths + [p for p in extras if p.exists()], out)
+    manifest.write_checksums(paths + [resolve_path(p) for p in extras if resolve_path(p).exists()], out)
     return {"version": version, "tag": tag, "bundles": entries}
 
 
@@ -123,4 +124,7 @@ def stage(build_dir: Path, repo: Path = Path()) -> None:
         src, dst = repo / name, build_dir / name
         if src.exists():
             dst.parent.mkdir(parents=True, exist_ok=True)
-            dst.write_bytes(src.read_bytes())
+            if dst.suffix == ".txt":
+                write_text(dst, src.read_text())
+            else:
+                dst.write_bytes(src.read_bytes())

@@ -57,6 +57,8 @@ this caller. The procedure for the corresponding chunks is
 
 from __future__ import annotations
 
+from vdjdb.io.text import write_csv, read_csv
+
 import argparse
 import math
 import re
@@ -1095,7 +1097,7 @@ def parse_dextramer(column: str) -> tuple[str, str]:
 
 
 def load_features(path: Path) -> pl.DataFrame:
-    frame = pl.read_csv(path)
+    frame = read_csv(path)
     # Counts are floats in the dump. Binder flags are a previous call.
     drop = [c for c in frame.columns if c.endswith("_binder")]
     return frame.drop(drop)
@@ -1104,7 +1106,7 @@ def load_features(path: Path) -> pl.DataFrame:
 def process_donor(dcode: Path, donor: int) -> dict[str, pl.DataFrame]:
     contig_path = dcode / f"vdj_v1_hs_aggregated_donor{donor}_all_contig_annotations.csv.gz"
     feature_path = dcode / f"vdj_v1_hs_aggregated_donor{donor}_binarized_matrix.csv.gz"
-    contigs = pl.read_csv(
+    contigs = read_csv(
         contig_path,
         columns=[
             "barcode", "is_cell", "chain", "v_gene", "j_gene", "productive", "cdr3", "umis",
@@ -1133,7 +1135,7 @@ def process_donor(dcode: Path, donor: int) -> dict[str, pl.DataFrame]:
 
 def _write(frame: pl.DataFrame, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    frame.write_csv(path, separator="\t")
+    write_csv(frame, path, separator="\t")
 
 
 def main() -> None:

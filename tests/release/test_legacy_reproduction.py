@@ -21,6 +21,8 @@ they already have.
 """
 from __future__ import annotations
 
+from vdjdb.io.text import read_csv, resolve_path
+
 import os
 from pathlib import Path
 
@@ -59,7 +61,7 @@ def reference() -> Path:
 @pytest.fixture(scope="module")
 def candidate() -> Path:
     d = Path(os.environ.get("VDJDB_LEGACY_DIR", "out/legacy"))
-    if not (d / "vdjdb.txt").exists():
+    if not resolve_path(d / "vdjdb.txt").exists():
         pytest.skip(f"no legacy build at {d}; run `vdjdb build --out out/`")
     return d
 
@@ -83,7 +85,7 @@ def report(reference: Path, candidate: Path) -> DiffReport:
     """
     cached = Path(os.environ.get("VDJDB_DIFF_JSON", "out/reports/release-diff.json"))
     if cached.exists():
-        newest_input = max((p.stat().st_mtime for p in [candidate / "vdjdb.txt", RULES]
+        newest_input = max((p.stat().st_mtime for p in [resolve_path(candidate / "vdjdb.txt"), RULES]
                             if p.exists()), default=0.0)
         if cached.stat().st_mtime >= newest_input:
             return summary_from_json(cached.read_text())
@@ -206,7 +208,7 @@ def test_no_declared_rename_reaches_a_species_it_does_not_name(reference: Path) 
     from vdjdb.compare.diff import load_renames
 
     b = Bundle(reference)
-    ref = pl.read_csv(b.read_bytes("vdjdb_full.txt"), separator="\t", quote_char=None,
+    ref = read_csv(b.read_bytes("vdjdb_full.txt"), separator="\t", quote_char=None,
                       infer_schema_length=0)
     unscoped = []
     for r in load_renames(RULES):

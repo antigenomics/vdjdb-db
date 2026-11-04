@@ -31,6 +31,8 @@ numbers agree on all 408 (chain, metric, year) cells.
 """
 from __future__ import annotations
 
+from vdjdb.io.text import read_csv
+
 from pathlib import Path
 
 import polars as pl
@@ -65,7 +67,7 @@ def style():
 
 def cohort(legacy: Path) -> pl.DataFrame:
     """The slim table, which is what every panel below reads. One row per CDR3-antigen pair."""
-    return pl.read_csv(legacy / "vdjdb.slim.txt", separator="\t", infer_schema_length=0,
+    return read_csv(legacy / "vdjdb.slim.txt", separator="\t", infer_schema_length=0,
                        quote_char=None)
 
 
@@ -75,9 +77,9 @@ def cumulative(legacy: Path, years: Path) -> pl.DataFrame:
     The same quantity the R document plots, by the same method: a key's first year, tabulated
     and cumulated. The form it replaced cross-joined every (year, year) pair, roughly 7M rows.
     """
-    full = pl.read_csv(legacy / "vdjdb_full.txt", separator="\t", infer_schema_length=0,
+    full = read_csv(legacy / "vdjdb_full.txt", separator="\t", infer_schema_length=0,
                        quote_char=None, truncate_ragged_lines=True)
-    pub = (pl.read_csv(years, separator="\t")
+    pub = (read_csv(years, separator="\t")
              .select("reference.id", pl.col("year").cast(pl.Int32).alias("pub_date")))
     base = (full.filter(pl.col("species") != "MacacaMulatta")
             .select(

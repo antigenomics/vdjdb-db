@@ -6,6 +6,8 @@ Network fetches are excluded from compute budgets; memory limits are absolute.
 """
 from __future__ import annotations
 
+from vdjdb.io.text import write_csv
+
 import os
 import resource
 import sys
@@ -214,7 +216,7 @@ def write(path: Path, *, rows: int | None = None) -> pl.DataFrame:
     """Write the timing table beside the other reports. Returns it, for the caller to print."""
     df = frame(rows=rows)
     path.parent.mkdir(parents=True, exist_ok=True)
-    df.write_csv(path, separator="\t")
+    write_csv(df, path, separator="\t")
     return df
 
 

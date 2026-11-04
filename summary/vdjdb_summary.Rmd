@@ -93,7 +93,16 @@ theme_classic <- function(...) {
     legend.background = element_rect(fill = "transparent", colour = NA))
 }
 
-df = fread(file.path(params$legacy, "vdjdb.slim.txt"), header=T, sep="\t")
+fread_generated <- function(path, ...) {
+  if (!file.exists(path) && file.exists(paste0(path, ".gz"))) path <- paste0(path, ".gz")
+  if (endsWith(path, ".gz")) {
+    fread(cmd = paste("gzip -dc --", shQuote(path)), ...)
+  } else {
+    fread(path, ...)
+  }
+}
+
+df = fread_generated(file.path(params$legacy, "vdjdb.slim.txt"), header=T, sep="\t")
 ```
 
 ---
@@ -128,7 +137,7 @@ kable(format = "html", df.sg)
 ```{r message=FALSE, warning=FALSE, echo=FALSE, cache=FALSE}
 # Load data 
 
-dt.vdjdb = fread(file.path(params$legacy, "vdjdb_full.txt"), sep = "\t", fill=T)
+dt.vdjdb = fread_generated(file.path(params$legacy, "vdjdb_full.txt"), sep = "\t", fill=T)
 
 dt.vdjdb.s = dt.vdjdb %>%
   filter(species != "MacacaMulatta") %>%
@@ -146,7 +155,7 @@ dt.vdjdb.s = dt.vdjdb %>%
 # arXiv preprint -- and each one dropped out of the panels below without a warning. The render is
 # now offline and deterministic; `uv run vdjdb refs` rebuilds the table by its own pull request.
 
-dt.pubdate = fread(params$reference_years, sep = "\t", header = TRUE) %>%
+dt.pubdate = fread_generated(params$reference_years, sep = "\t", header = TRUE) %>%
   transmute(reference.id, pub_date = as.integer(year))
 
 missing.refs = setdiff(unique(dt.vdjdb.s$reference.id[dt.vdjdb.s$reference.id != ""]),
@@ -186,7 +195,7 @@ cumulative = dt.vdjdb.s %>%
 
 # Event segments end at the series value in their publication year. Label offsets
 # are measured in years and fractions of the panel maximum.
-dt.ann = fread(params$annotations, sep = "\t", header = TRUE) %>%
+dt.ann = fread_generated(params$annotations, sep = "\t", header = TRUE) %>%
   mutate(label = gsub("\\\\n", "\n", label))
 LABEL_FLOAT = 0.05
 

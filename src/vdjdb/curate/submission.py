@@ -23,6 +23,8 @@ is deciding, so the report does not wait for them.
 """
 from __future__ import annotations
 
+from vdjdb.io.text import read_csv, resolve_path
+
 from pathlib import Path
 
 import polars as pl
@@ -265,7 +267,7 @@ def report(files: list[str], records: pl.DataFrame) -> str:
     from .overlap import report as overlap_report
 
     pairs = overlaps(records)
-    if AUTHOR_TABLE.exists():
-        pairs = author_pairs(pairs, pl.read_csv(AUTHOR_TABLE, separator="\t"))
+    if resolve_path(AUTHOR_TABLE).exists():
+        pairs = author_pairs(pairs, read_csv(AUTHOR_TABLE, separator="\t"))
     out += [overlap_report(pairs, names)]
     return "\n".join(out)

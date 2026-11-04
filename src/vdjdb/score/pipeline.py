@@ -1,7 +1,7 @@
 """Produce record confidence v3 from completed tables and a frozen Bayesian model."""
 from __future__ import annotations
 
-import gzip
+from vdjdb.io.text import write_csv
 import hashlib
 import json
 from importlib.resources import files
@@ -114,9 +114,7 @@ def write_scores(frame: pl.DataFrame, out: Path) -> None:
                       if name in frame.columns]
     frame = frame.sort('record_id').with_columns(pl.col(probabilities).round_sig_figs(12))
     frame.write_parquet(out / 'record_scores.parquet')
-    with (out / 'record_scores.tsv.gz').open('wb') as raw, gzip.GzipFile(
-            filename='', fileobj=raw, mode='wb', mtime=0) as zipped:
-        frame.write_csv(zipped, separator='\t', line_terminator='\n')
+    write_csv(frame, out / 'record_scores.tsv.gz', separator='\t', line_terminator='\n')
 
 
 def run(tables: Path, out: Path, model_path: Path | None = None, *,

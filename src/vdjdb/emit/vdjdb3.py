@@ -19,7 +19,7 @@ corrupt the row), and no JSON blobs at all.
 """
 from __future__ import annotations
 
-import gzip
+from vdjdb.io.text import write_csv
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -148,8 +148,7 @@ def write_table(frame: pl.DataFrame, name: str, out: Path) -> dict[str, Path]:
     # The joined view already duplicates the facts; Parquet is its only projection.
     if name != "vdjdb":
         target = out / f"{name}.tsv.gz"
-        with target.open("wb") as raw, gzip.GzipFile(filename="", fileobj=raw, mode="wb", mtime=0) as zipped:
-            frame.write_csv(zipped, separator="\t", line_terminator="\n")
+        write_csv(frame, target, separator="\t", line_terminator="\n")
         written[target.name] = target
     # Do not leave obsolete uncompressed projections when rebuilding in the same directory.
     (out / f"{name}.tsv").unlink(missing_ok=True)

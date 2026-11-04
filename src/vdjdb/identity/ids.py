@@ -36,13 +36,12 @@ records were added, amended or retired, as a reviewable diff.
 """
 from __future__ import annotations
 
-import gzip
+from vdjdb.io.text import read_csv, resolve_path, write_csv
 import hashlib
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
-from typing import IO, cast
 
 import polars as pl
 
@@ -182,11 +181,12 @@ class IdentityRegistry:
 
     @classmethod
     def load(cls, path: Path) -> IdentityRegistry:
+        path = resolve_path(path)
         if not path.exists():
             return cls()
         # Empty string is the only missing marker (CLAUDE.md), and the polars kwarg for that has
         # been renamed across versions -- normalise after the read instead.
-        df = pl.read_csv(path, separator="\t", infer_schema=False, quote_char=None).fill_null("")
+        df = read_csv(path, separator="\t", infer_schema=False, quote_char=None).fill_null("")
         missing = set(REGISTRY_COLUMNS) - set(df.columns) - {"replaced_by"}
         if missing:
             raise ValueError(f"{path} is missing registry columns: {sorted(missing)}")
@@ -205,14 +205,7 @@ class IdentityRegistry:
             {c: [str(getattr(e, c)) for e in rows] for c in REGISTRY_COLUMNS}
         ) if rows else pl.DataFrame({c: pl.Series(c, [], pl.String) for c in REGISTRY_COLUMNS})
         path.parent.mkdir(parents=True, exist_ok=True)
-        if path.suffix == ".gz":
-            # Fixed metadata makes the committed input identical across updates and filenames.
-            with (path.open("wb") as raw,
-                  gzip.GzipFile(filename="", fileobj=raw, mode="wb", mtime=0) as compressed):
-                df.write_csv(cast(IO[bytes], compressed), separator="\t", quote_style="never",
-                             line_terminator="\n")
-        else:
-            df.write_csv(path, separator="\t", quote_style="never", line_terminator="\n")
+        write_csv(df, path, separator="\t", quote_style="never", line_terminator="\n")
 
     # ---- lookup ------------------------------------------------------------
 

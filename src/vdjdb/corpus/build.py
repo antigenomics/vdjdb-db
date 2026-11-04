@@ -10,6 +10,8 @@ Postings are sorted by ``(term_id, document_id)``, which makes a term lookup one
 """
 from __future__ import annotations
 
+from vdjdb.io.text import write_csv
+
 import re
 from pathlib import Path
 
@@ -162,7 +164,7 @@ def write(corpus: dict[str, pl.DataFrame], out: Path) -> dict[str, Path]:
     for name in TABLES:
         frame = corpus[name]
         frame.write_parquet(out / f"{name}.parquet")
-        frame.write_csv(out / f"{name}.tsv", separator="\t", quote_style="necessary")
+        write_csv(frame, out / f"{name}.tsv", separator="\t", quote_style="necessary")
         written[name] = out / f"{name}.parquet"
     return written
 
