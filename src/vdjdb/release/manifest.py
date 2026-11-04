@@ -82,6 +82,9 @@ WEB = Bundle(
     filename="vdjdb-web-{version}.zip",
     prefix="vdjdb-{version}",
     members=(Member("web/vdjdb.txt"), Member("web/vdjdb.meta.txt"),
+             Member("web/motif-charts", name="motif-charts"),
+             Member("web/native_representatives.tsv"),
+             Member("web/structures_metadata.tsv", optional=True),
              *tuple(m for m in LEGACY.members if m.source.startswith("motifs/")),
              Member("summary/vdjdb_summary_embed.html"), Member("LICENSE")),
 )
@@ -157,6 +160,13 @@ def resolve(bundle: Bundle, build: Path, version: str) -> list[tuple[Path, str]]
                 missing.append(m.source)
             continue
         name = m.member_name()
+        if bundle.role == "web" and src.is_dir():
+            for chart in sorted(src.rglob("*")):
+                if chart.is_file() and chart.suffix in {".html", ".js"}:
+                    if chart.is_symlink():
+                        raise ValueError("web charts must be real generated files")
+                    out.append((chart, f"{bundle.prefix.format(version=version)}/{name}/{chart.relative_to(src)}"))
+            continue
         if bundle.role == "web" and src.suffix == ".gz" and not name.endswith(".gz"):
             name += ".gz"
         out.append((src, f"{bundle.prefix.format(version=version)}/{name}"))

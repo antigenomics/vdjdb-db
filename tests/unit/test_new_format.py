@@ -262,6 +262,8 @@ def test_web_projection_preserves_legacy_and_adds_evidence():
     from vdjdb.schema import VDJDB_COLUMNS, VDJDB_WEB_COLUMNS
 
     records = _frame(RECORDS, RECORD_COLUMNS, {'vdjdb.score': pl.Int64, 'chunk.row': pl.Int64})
+    records = records.with_columns(pl.when(pl.col('record_id') == RECORDS[0]['record_id'])
+        .then(pl.lit('antigen-loaded-targets')).otherwise(pl.lit('')).alias('method.verification'))
     chains = _frame(CHAINS, CHAIN_COLUMNS, _CHAIN_DTYPES)
     evidence = empty()
     rows = []
@@ -274,5 +276,42 @@ def test_web_projection_preserves_legacy_and_adds_evidence():
     result = web.build({'records': records, 'chains': chains, 'evidence': evidence})
     assert result.columns == list(VDJDB_WEB_COLUMNS)
     assert result.select(VDJDB_COLUMNS).equals(legacy.build_default(records, chains))
+    assert result['evidence.validation.same.study'].to_list() == [True, False]
     assert result['evidence.structure.contacts'].to_list() == [False, False]
     assert result['evidence.structure.quality'].to_list() == [True, False]
+
+
+def test_web_charts_use_shipped_coordinates_and_legacy_urls(tmp_path):
+    from vdjdb.emit.web_charts import write
+    data = pl.DataFrame({'species': ['HomoSapiens'], 'gene': ['TRB'],
+        'antigen.epitope': ['GILGFVFTL'], 'cid': ['H.B.GILGFVFTL.1'],
+        'cdr3aa': ['CASSF'], 'x': [1.5], 'y': [-2.]})
+    motifs = tmp_path / 'motifs'
+    motifs.mkdir()
+    for source in ['cluster_members.txt', 'cluster_members_tcremp.txt']:
+        data.write_csv(motifs / source, separator='\t')
+    out = tmp_path / 'charts'
+    assert write(motifs, out) == 2
+    for relative in ['tcrnet/homosapiens_trb_gilgfvftl.html', 'tcremp/homosapiens_gilgfvftl_trb.html']:
+        html = (out / relative).read_text()
+        assert '../plotly.min.js' in html and 'H.B.GILGFVFTL.1' in html
+        assert '1.5' in html and '-2.0' in html
+    assert (out / 'plotly.min.js').stat().st_size > 0
+
+
+def test_web_native_hash_recovery_prefers_the_records_cited_pdb(tables):
+    from vdjdb.emit.web import build
+    from vdjdb.assemble.evidence import empty
+    record = RECORDS[0]['record_id']
+    tables = dict(tables)
+    tables['records'] = tables['records'].with_columns(
+        pl.when(pl.col('record_id') == record).then(pl.lit('1AO7')).otherwise(pl.lit(''))
+        .alias('meta.structure.id'))
+    rows = [{'record_id': record, 'gene': '', 'evidence_id': f'structure_native:PDB:{pdb}:{key}',
+             'evidence_type': 'structure_native', 'evidence_source': 'PDB', 'evidence_value': pdb,
+             'evidence_score': None, 'first_seen_release': 'test'}
+            for pdb, key in [('1ao7', 'a' * 64), ('1bd2', 'b' * 64)]]
+    tables['evidence'] = pl.DataFrame(rows, schema=empty().schema)
+    result = build(tables)
+    assert result['TCR_hash'][0] == 'a' * 64
+    assert result['evidence.structure.native'][0]

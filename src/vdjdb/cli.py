@@ -433,7 +433,9 @@ def make(
         from .emit.web import write_all as writer
     else:
         writer = write_legacy
-    for name, path in writer(read_tables(tables), dest).items():
+    paths = (writer(read_tables(tables), dest, motifs=tables.parent / "motifs") if what == "web"
+             else writer(read_tables(tables), dest))
+    for name, path in paths.items():
         typer.echo(f"{name:22} {path.stat().st_size:>12,} bytes")
 
 
@@ -921,7 +923,8 @@ def release_cmd(
     if with_web:
         from .emit.web import write_all as write_web
         from .emit.vdjdb3 import read_tables as read_projection_tables
-        write_web(read_projection_tables(build_dir / "tables"), build_dir / "web")
+        write_web(read_projection_tables(build_dir / "tables"), build_dir / "web",
+                  motifs=build_dir / "motifs")
         bundles += (b.manifest.WEB,)
     result = b.build(build_dir, out, tag, bundles=bundles, extras=(lifecycle_path,))
     for entry in result["bundles"]:

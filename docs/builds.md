@@ -308,10 +308,11 @@ these are inputs that arrive by review.
 `vdjdb make web --tables out/tables --out out/web` projects the 27-column
 legacy web table and matching metadata from the rich tables. The ordinary legacy
 export remains 22 columns. `vdjdb release TAG --with-web` additionally packages
-`vdjdb-web-VERSION.zip` with both motif methods and the summary; existing release
-bundles are unchanged. Structure HTML/SVG and per-model metadata are separate
-assets: prepare them with the legacy web's `tools/build_structure_maps.py`
-(TCRen environment, explicit path/hash manifest) and `tools/build_structures_metadata.py`
+`vdjdb-web-VERSION.zip` with both motif methods, static scatter charts and the summary;
+existing release bundles are unchanged. Structure HTML and per-model metadata are
+prepared assets: use the legacy web's `tools/prepare_structure_assets.py`, then
+`tools/build_structure_maps.py` (TCRen environment, explicit path/hash manifest and
+source metadata identity check) and `tools/build_structures_metadata.py`
 (interface ipTM from `tcr_pmhc_iptm`), and place them beside the web tables.
 Do not run the old reconciliation script over this projection: it derives a
 second set of evidence rather than preserving the shipped rich evidence.
@@ -319,3 +320,10 @@ second set of evidence rather than preserving the shipped rich evidence.
 Reviewed ambiguous model choices are in `rules/legacy_structure_representatives.tsv`.
 They preserve exact paired junctions and epitope, then use allele agreement or the
 original source-row V gene. Unknown or changed ambiguous associations fail the export.
+Reviewed experimental PDB representatives are in `rules/legacy_native_representatives.tsv`.
+The web ZIP includes prepared `web/structures_metadata.tsv[.gz]` when present;
+structure maps/downloads are deployed separately under the web database's `structure/`.
+
+For the legacy web display, native structures require a positive metadata contact
+count and use ipTM=1 (100%) as an experimental-display convention. Predicted ipTM
+continues to come from `tcr_pmhc_iptm`; native model confidence is absent.
