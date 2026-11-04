@@ -46,7 +46,11 @@ bounds. Exact metadata junctions disambiguate legacy display chain roles before
 complex selection. Predicted interface ipTM is read from `tcr_pmhc_iptm`. By the requested
 experimental-display convention, native ipTM is 1 (100%); native model confidence
 and model percentiles are absent. Native and predicted structures both require
-positive CDR3-peptide contacts for display. Observed zero values remain observations.
+positive CDR3-peptide contacts for display. The companion contact count is derived
+from the actual TCRen map; predicted evidence flags and model scores retain their
+source meaning. Contact downloads use the same TCRen tables as rendering. This
+corrects 253 native download/map discrepancies in the old supplied contact tables.
+Observed zero values remain observations.
 
 ## Verified acceptance (2026-11-05)
 
@@ -56,14 +60,14 @@ positive CDR3-peptide contacts for display. Observed zero values remain observat
 - All 8,346 referenced metadata hashes have raw-coordinate assets and full/simplified
   maps: 16,692 HTML maps and 8,346 CRC-checked download bundles. Full/simplified
   residue positions agree for every structure. Metadata has 11,234 unique hashes.
-- The hosted API exposes exactly 7,871 positive-contact structures: 7,570 predicted
-  and 301 native. The 462 zero-contact predicted and 13 zero/missing-contact native
+- The hosted API exposes exactly 7,855 positive-contact structures: 7,551 predicted
+  and 304 native. The 481 zero-contact predicted and 10 zero-contact native
   structures are excluded. Every displayed predicted ipTM equals the companion
   metadata; all displayed native ipTM values equal 1, with no model confidence.
 - Database schema/new-format/release checks: 71 passed, 3 skipped.
 - Final Stratos backend: 338 passed, one canceled; production package built.
   The focused native-policy suites passed 27 tests.
-- Captured-browser frontend suite: 115 passed. Python adapter checks: 7 passed.
+- Captured-browser frontend suite: 115 passed. Python adapter checks: 10 passed.
 - TCRen shared-bounds/project-table checks: 13 passed.
 - Real-coordinate rendering check, 64 structures: serial 2.368 s; 12 workers
   1.620 s. Annotation ran once for that check, outside the rendering timings.
@@ -75,13 +79,12 @@ positive CDR3-peptide contacts for display. Observed zero values remain observat
 
 ## Manual audit and performance
 
-Hosted native MHC-II PKYVKQNTLKLAT loads three cards and overlaid maps, positive
+Hosted native MHC-II PKYVKQNTLKLAT loads two cards and overlaid maps, positive
 contact counts, native labels and 100% ipTM. Residue hover reports author numbering
 (`PRO 306`); contact hover reports both endpoints (`LYS 307 : GLU 94`). Zoom,
-front promotion and ZIP download work; the downloaded 343,493-byte bundle has
-three CRC-valid members. Show table opens Browse with eight matching chain rows.
+front promotion and ZIP download work; all 8,346 download bundles have CRC-valid members whose bytes match the served files. Show table opens Browse with eight matching chain rows.
 
-The hosted NLVPMVATV view renders 3,355 cards and five selected overlay maps,
+The hosted NLVPMVATV view renders 3,340 cards and five selected overlay maps,
 with no captured browser errors. Its Alpha motif link opens TCRNet cluster
 H.A.NLVPMVATV.30, size 24, with scatter and logo. Browse-to-motif deep links and
 TCREMP scatter/legend-to-logo selection were also exercised.
@@ -95,10 +98,63 @@ seconds (including transport):
 | NLV structures | 2.2068 | 0.8648 | 3,355 structures on each host |
 
 The structure response was 2,944,668 bytes live and 2,941,773 bytes on Stratos.
-The final package again returned 3,355 NLV structures in 0.8739 seconds. The
-full raw-coordinate build took 361.23 seconds with one batched search per supported
+Those timings precede the final geometry-based exclusion of 15 zero-contact
+NLV maps. The final raw-coordinate build took 360.93 seconds with one batched search per supported
 reference and the existing 12-worker rendering API. One process-tree rendering
 sample measured 26,578.6 MiB RSS and 51 threads; the host has 128 GB RAM.
+
+## Summer and new-release loading matrix
+
+The latest published asset remains `2026-06-03-ZENODO/vdjdb-2026-06-03.zip`,
+41,017,409 bytes; SHA256
+`9ae7724ab2ce9fdb09b1fb82a90c7462f75269f14f669238f8c154a80239cfc1`.
+The identical production web binary is tested with separately mounted summer and
+new-release databases and isolated runtime state. Summer tables remain unchanged;
+prepared maps and their optional companion metadata are separate additions.
+
+All counts below are chain records. Defaults exclude `web.cdr3fix.nc=yes` and
+`web.cdr3fix.unmp=yes`; epitope filters add exact sequence equality. Both the HTTP
+API and visible Browse counts were checked against the original table predicates.
+
+| Browse quantity | Summer release | New legacy web co-deliverable |
+|---|---:|---:|
+| Total records | 284,546 | 516,101 |
+| Default filtered records | 275,804 | 508,168 |
+| NLVPMVATV, default filters | 34,547 | 35,636 |
+| GILGFVFTL, default filters | 21,574 | 33,224 |
+| GLCTLVAML, default filters | 13,555 | 14,893 |
+| PKYVKQNTLKLAT, default filters | 549 | 600 |
+
+Visually inspected influenza paratope H.B.GILGFVFTL.1 in both databases:
+1,054 summer / 1,118 new members, 13 positions, TRBV19*01/TRBJ2-7*01,
+with the CASS…EQYF pattern and matching residue ordering. The new alpha NLV
+H.A.NLVPMVATV.30 has 24 members, 12 positions and TRAV12-2*01/TRAJ15*01;
+its scatter and logo load together. Its paired structure card shows
+CAENQAGTALIF/CASSAQGVVTEAFF, 15 contacts and predicted ipTM 0.74.
+Selection removal/restoration changes five overlays to four and back, with
+162 → 131 → 162 visible residue nodes and no browser errors.
+
+For the four named epitopes, every source PWM count/frequency was compared to
+the served API: the new release passes 18,267 cells across 691 TCRNet clusters
+and 34,132 cells across 1,220 TCREMP clusters. No motif analysis was rerun. The summer release passes 15,317 PWM cells across
+645 TCRNet clusters. It supplies no TCREMP tables; selecting that optional method
+shows an empty tree without a browser error.
+The summer structure-to-alpha link correctly targets H.A.NLVPMVATV.42 (25 members),
+where the new build targets H.A.NLVPMVATV.30 (24 members); both preserve the
+12-position motif sequence and TRAV12-2*01/TRAJ15*01 identity. Summer NLV displays
+3,343 model cards with five selected maps, positive contacts and source ipTM.
+
+Summer structure preparation independently covers 11,092 referenced raw structures:
+22,184 HTML maps and 11,092 checked ZIPs. Every contact download equals its map's
+edges and every ZIP member equals its served file. The runtime exposes exactly
+10,425 positive-contact structures, including 203 native; 667 zero-contact maps
+are excluded. All receptor/peptide identities pass, with 38 metadata-confirmed
+chain role corrections. This fresh build took 462.99 seconds. Neither database's
+maps, annotations or projections were reused as computed intermediates.
+
+Native PKY cards show CAVSESPFGNEKLTF/CASSSTGLPYGYTF (14 contacts) and
+CAVSEQDDKIIF/CATSDESYGYTF (15 contacts), both ipTM 100%. Native contact hover
+reports author-numbered endpoints (for example GLU 102 : THR 97).
 
 ## Reviewed deposition differences
 
@@ -121,7 +177,7 @@ and PWMs remain unchanged. All 22 ordinary legacy fields match in 516,101 rows
 except 2,320 reviewed web-only structure-hash cells.
 
 The web co-deliverable is `out/web-release/vdjdb-web-interop-audit.zip`:
-57,002,006 bytes, 467 members. Maps/downloads are separate assets on Stratos.
+57,001,726 bytes, 467 members. Maps/downloads are separate assets on Stratos.
 No generated plain TSV/TXT exceeds 1,000,000 bytes. The runbook is
 `vdjdb-web/tools/README.interop.md`. Private input hashes, recipes, API timing and
 source-sync receipts are retained under `out/interop/`; source syncing uses

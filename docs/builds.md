@@ -324,6 +324,9 @@ Reviewed experimental PDB representatives are in `rules/legacy_native_representa
 The web ZIP includes prepared `web/structures_metadata.tsv[.gz]` when present;
 structure maps/downloads are deployed separately under the web database's `structure/`.
 
-For the legacy web display, native structures require a positive metadata contact
+For the legacy web display, native structures require a positive TCRen map contact
 count and use ipTM=1 (100%) as an experimental-display convention. Predicted ipTM
 continues to come from `tcr_pmhc_iptm`; native model confidence is absent.
+
+Pass `--structure-dir` to the metadata adapter to use rendered CDR3–peptide
+contact counts. Downloads use the same TCRen contact tables as the maps.
