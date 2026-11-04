@@ -254,3 +254,25 @@ def test_explicit_coordinate_units_reach_both_export_formats(tmp_path, tables):
     fields = {f['name']: f for f in json.loads((tmp_path / 'vdjdb.schema.json').read_text())['fields']}
     for c in values:
         assert fields[c]['dtype'] == 'Int64'
+
+
+def test_web_projection_preserves_legacy_and_adds_evidence():
+    from vdjdb.emit import web
+    from vdjdb.assemble.evidence import empty
+    from vdjdb.schema import VDJDB_COLUMNS, VDJDB_WEB_COLUMNS
+
+    records = _frame(RECORDS, RECORD_COLUMNS, {'vdjdb.score': pl.Int64, 'chunk.row': pl.Int64})
+    chains = _frame(CHAINS, CHAIN_COLUMNS, _CHAIN_DTYPES)
+    evidence = empty()
+    rows = []
+    for metric, score in [('num_contacts', 0.0), ('ranking_confidence', .9)]:
+        rows.append({'record_id': RECORDS[0]['record_id'], 'gene': '',
+            'evidence_id': metric, 'evidence_type': 'structure_model',
+            'evidence_source': 'abc', 'evidence_value': metric,
+            'evidence_score': score, 'first_seen_release': 'test'})
+    evidence = pl.DataFrame(rows, schema=evidence.schema)
+    result = web.build({'records': records, 'chains': chains, 'evidence': evidence})
+    assert result.columns == list(VDJDB_WEB_COLUMNS)
+    assert result.select(VDJDB_COLUMNS).equals(legacy.build_default(records, chains))
+    assert result['evidence.structure.contacts'].to_list() == [False, False]
+    assert result['evidence.structure.quality'].to_list() == [True, False]

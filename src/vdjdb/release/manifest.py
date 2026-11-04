@@ -76,6 +76,16 @@ LEGACY = Bundle(
     ),
 )
 
+# Explicit opt-in co-deliverable; existing release roles and rich bundles stay unchanged.
+WEB = Bundle(
+    role="web",
+    filename="vdjdb-web-{version}.zip",
+    prefix="vdjdb-{version}",
+    members=(Member("web/vdjdb.txt"), Member("web/vdjdb.meta.txt"),
+             *tuple(m for m in LEGACY.members if m.source.startswith("motifs/")),
+             Member("summary/vdjdb_summary_embed.html"), Member("LICENSE")),
+)
+
 PRIMARY = Bundle(
     role="primary",
     filename="vdjdb-{version}.zip",
@@ -146,7 +156,10 @@ def resolve(bundle: Bundle, build: Path, version: str) -> list[tuple[Path, str]]
             if not m.optional:
                 missing.append(m.source)
             continue
-        out.append((src, f"{bundle.prefix.format(version=version)}/{m.member_name()}"))
+        name = m.member_name()
+        if bundle.role == "web" and src.suffix == ".gz" and not name.endswith(".gz"):
+            name += ".gz"
+        out.append((src, f"{bundle.prefix.format(version=version)}/{name}"))
     if missing:
         raise FileNotFoundError(
             f"bundle {bundle.role!r} is missing required member(s): {', '.join(missing)} "

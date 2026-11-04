@@ -412,7 +412,7 @@ def build(
 
 @app.command()
 def make(
-    what: str = typer.Argument(..., help="Which projection: legacy."),
+    what: str = typer.Argument(..., help="Which projection: legacy or web."),
     tables: Path = typer.Option(Path("out/tables"), help="A built new-format directory."),
     out: Path | None = typer.Option(None, help="Output directory; default <tables>/../<what>."),
 ) -> None:
@@ -423,13 +423,17 @@ def make(
     """
     from .emit.vdjdb3 import read_tables
 
-    if what != "legacy":
-        typer.secho(f"unknown projection {what!r}; known: legacy", fg=typer.colors.RED, err=True)
+    if what not in {"legacy", "web"}:
+        typer.secho(f"unknown projection {what!r}; known: legacy, web", fg=typer.colors.RED, err=True)
         raise typer.Exit(2)
     from .emit.legacy import write_all as write_legacy
 
     dest = out or tables.parent / what
-    for name, path in write_legacy(read_tables(tables), dest).items():
+    if what == "web":
+        from .emit.web import write_all as writer
+    else:
+        writer = write_legacy
+    for name, path in writer(read_tables(tables), dest).items():
         typer.echo(f"{name:22} {path.stat().st_size:>12,} bytes")
 
 
@@ -878,6 +882,7 @@ def release_cmd(
     previous_lifecycle: Path | None = typer.Option(None, help="Previous release's lifecycle TSV, so "
                                                              "retirements carry the release that "
                                                              "last held them."),
+    with_web: bool = typer.Option(False, "--with-web", help="Include the separate legacy web co-deliverable."),
     dry_run: bool = typer.Option(False, "--dry-run", help="Leave the tracked latest-version.txt "
                                                          "alone. For checking the bundle shape."),
 ) -> None:
@@ -912,7 +917,13 @@ def release_cmd(
         write(advance(before, now, release=tag), lifecycle_path)
         typer.echo(compare(before, now, release=tag).as_markdown())
         typer.echo(f"identity-lifecycle.tsv -> {now.height:,} active ids")
-    result = b.build(build_dir, out, tag, extras=(lifecycle_path,))
+    bundles = b.manifest.BUNDLES
+    if with_web:
+        from .emit.web import write_all as write_web
+        from .emit.vdjdb3 import read_tables as read_projection_tables
+        write_web(read_projection_tables(build_dir / "tables"), build_dir / "web")
+        bundles += (b.manifest.WEB,)
+    result = b.build(build_dir, out, tag, bundles=bundles, extras=(lifecycle_path,))
     for entry in result["bundles"]:
         typer.echo(f"{entry['role']:8} {entry['file']:34} {entry['bytes']:>13,} bytes  "
                    f"{len(entry['members']):>2} members")

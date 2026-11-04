@@ -302,3 +302,20 @@ refreshed by their own pull request and never written by a build:
 
 Neither is a cache: a cache is a stored answer to the question the build is currently asking, and
 these are inputs that arrive by review.
+
+### Legacy web co-deliverable
+
+`vdjdb make web --tables out/tables --out out/web` projects the 27-column
+legacy web table and matching metadata from the rich tables. The ordinary legacy
+export remains 22 columns. `vdjdb release TAG --with-web` additionally packages
+`vdjdb-web-VERSION.zip` with both motif methods and the summary; existing release
+bundles are unchanged. Structure HTML/SVG and per-model metadata are separate
+assets: prepare them with the legacy web's `tools/build_structure_maps.py`
+(TCRen environment, explicit path/hash manifest) and `tools/build_structures_metadata.py`
+(interface ipTM from `tcr_pmhc_iptm`), and place them beside the web tables.
+Do not run the old reconciliation script over this projection: it derives a
+second set of evidence rather than preserving the shipped rich evidence.
+
+Reviewed ambiguous model choices are in `rules/legacy_structure_representatives.tsv`.
+They preserve exact paired junctions and epitope, then use allele agreement or the
+original source-row V gene. Unknown or changed ambiguous associations fail the export.

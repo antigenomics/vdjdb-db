@@ -229,3 +229,24 @@ def test_a_dry_run_leaves_the_tracked_latest_version_alone(tmp_path) -> None:
 
     prepare_latest("v2026.09.9", path)
     assert path.read_text() == content, "a real run writes exactly what the dry run computed"
+
+
+def test_web_bundle_is_opt_in_and_preserves_motif_contract():
+    from vdjdb.release import manifest
+    assert manifest.WEB not in manifest.BUNDLES
+    sources = [m.source for m in manifest.WEB.members]
+    assert sources[:2] == ['web/vdjdb.txt', 'web/vdjdb.meta.txt']
+    assert 'motifs/motif_pwms.txt' in sources
+    assert 'motifs/cluster_members_tcremp.txt' in sources
+
+
+def test_web_bundle_retains_compression(tmp_path):
+    import gzip
+    from vdjdb.release import manifest
+    root = tmp_path / 'web'
+    root.mkdir()
+    (root / 'vdjdb.txt.gz').write_bytes(gzip.compress(b'gene\nTRB\n', mtime=0))
+    bundle = manifest.Bundle('web', 'web-{version}.zip', 'web-{version}',
+                             (manifest.Member('web/vdjdb.txt'),))
+    resolved = manifest.resolve(bundle, tmp_path, 'test')
+    assert resolved[0][1] == 'web-test/vdjdb.txt.gz'

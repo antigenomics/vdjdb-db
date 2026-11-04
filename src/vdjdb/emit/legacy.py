@@ -156,7 +156,7 @@ def _json_map(prefix: str, columns: tuple[str, ...],
     return pl.struct(**fields).map_elements(lambda d: json.dumps(dict(d)), return_dtype=pl.Utf8)
 
 
-def build_default(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
+def build_default(records: pl.DataFrame, chains: pl.DataFrame, *, identity: bool = False) -> pl.DataFrame:
     """``vdjdb.txt`` -- one row per chain, paired chains sharing a ``complex.id``.
 
     ``complex.id`` is assigned here and nowhere else: it is a positional counter with no
@@ -212,7 +212,7 @@ def build_default(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
             "samples.found": pl.col("__samples").cast(pl.Int64),
             "studies.found": pl.col("__studies").cast(pl.Int64),
         }).alias("meta"),
-    ).select(VDJDB_COLUMNS)
+    ).select(*VDJDB_COLUMNS, *(["record_id"] if identity else []))
 
 
 def build_slim(default_db: pl.DataFrame) -> pl.DataFrame:
