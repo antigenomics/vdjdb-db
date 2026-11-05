@@ -22,6 +22,8 @@ from pathlib import Path
 
 import polars as pl
 
+from vdjdb.io.text import read_csv
+
 #: The key a clustering is joined back onto -- ``cdr3|v.segm|j.segm``, the benchmark's own
 #: ``production_assign`` key, and deliberately not the epitope. Every cid is namespaced by
 #: epitope (`H.B.GILGFVFTL.1`), so joining on the epitope too would make every cluster
@@ -90,7 +92,7 @@ def compare(cohort_df: pl.DataFrame, clusterings: dict[str, pl.DataFrame]) -> pl
 
 def read_members(path: Path) -> pl.DataFrame:
     """A ``cluster_members``-shaped TSV, ours or legacy's, as an all-string frame."""
-    return pl.read_csv(path, separator="\t", infer_schema_length=0, quote_char=None)
+    return read_csv(path, separator="\t", infer_schema_length=0, quote_char=None)
 
 
 def trivial_members(cohort_df: pl.DataFrame, *, split_by_length: bool = True) -> pl.DataFrame:

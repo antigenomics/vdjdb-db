@@ -27,6 +27,8 @@ from pathlib import Path
 
 import polars as pl
 
+from vdjdb.io.text import read_csv, resolve_path
+
 #: Columns whose values are compared against the rest of the corpus. A value absent from every other
 #: chunk is reported - not as an error, since a genuinely new epitope is the usual reason a chunk is
 #: being submitted, but because a typo looks exactly like one and nothing else would catch it.
@@ -265,7 +267,7 @@ def report(files: list[str], records: pl.DataFrame) -> str:
     from .overlap import report as overlap_report
 
     pairs = overlaps(records)
-    if AUTHOR_TABLE.exists():
-        pairs = author_pairs(pairs, pl.read_csv(AUTHOR_TABLE, separator="\t"))
+    if resolve_path(AUTHOR_TABLE).exists():
+        pairs = author_pairs(pairs, read_csv(AUTHOR_TABLE, separator="\t"))
     out += [overlap_report(pairs, names)]
     return "\n".join(out)

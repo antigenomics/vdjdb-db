@@ -20,9 +20,25 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: v<YYYY>.<MM>.<PATCH>, e.g. v2026.09.1
+        description: YYYY-MM-DD[-NOTE] or vYYYY.MM.PATCH
         required: true
         type: string
+      title:
+        description: Release title (defaults to VDJdb plus version).
+        type: string
+        default: ''
+      with_web:
+        description: Include the optional legacy web bundle.
+        type: boolean
+        default: false
+      prepared_web_url:
+        description: Immutable prepared-input ZIP URL (requires with_web and SHA256).
+        type: string
+        default: ''
+      prepared_web_sha256:
+        description: SHA256 of the prepared-input ZIP physical bytes.
+        type: string
+        default: ''
       previous:
         description: Previous release tag, for the changelog.
         required: true
@@ -36,22 +52,26 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.derive.outputs.version }}
+      source_commit: ${{ steps.derive.outputs.source_commit }}
     steps:
       - uses: actions/checkout@v4
 
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
       - id: derive
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
-          [[ "$TAG" =~ ^v[0-9]{4}\.[0-9]{2}\.[0-9]+$ ]] || {
-            echo "::error::$TAG is not v<YYYY>.<MM>.<PATCH>"; exit 1; }
+          git ls-remote --tags --refs origin > remote-tags.txt
+          uv run python -c 'import os; from pathlib import Path; from vdjdb.release.bundle import validate_new_tag; validate_new_tag(os.environ["TAG"], [line.split("refs/tags/", 1)[1] for line in Path("remote-tags.txt").read_text().splitlines()])'
           if gh release view "$TAG" >/dev/null 2>&1; then
             echo "::error::release $TAG already exists"; exit 1
           fi
           [[ "${{ github.ref }}" == "refs/heads/master" ]] || {
             echo "::error::releases are cut from master only"; exit 1; }
+          echo "source_commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
 
   build:
@@ -59,6 +79,10 @@ jobs:
     uses: ./.github/workflows/build.yml
     with:
       tag: ${{ inputs.tag }}
+      source_commit: ${{ needs.plan.outputs.source_commit }}
+      with_web: ${{ inputs.with_web }}
+      prepared_web_url: ${{ inputs.prepared_web_url }}
+      prepared_web_sha256: ${{ inputs.prepared_web_sha256 }}
       # Declared `required: true` on this workflow and passed nowhere until 2026-09-28, so
       # `vdjdb release` never wrote RELEASE_NOTES.md and `gh release create --notes-file` below
       # would have failed after the approval gate and a 30-minute build.
@@ -83,6 +107,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ needs.plan.outputs.source_commit }}
 
       - uses: actions/download-artifact@v4
         with:
@@ -96,13 +121,31 @@ jobs:
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TITLE: ${{ inputs.title || format('VDJdb {0}', needs.plan.outputs.version) }}
         run: |
           set -euo pipefail
-          gh release create "${{ inputs.tag }}" \
-            --title "VDJdb ${{ needs.plan.outputs.version }}" \
+          SHA="${{ needs.plan.outputs.source_commit }}"
+          TAG="${{ inputs.tag }}"
+          jq -e --arg sha "$SHA" --arg tag "$TAG" '.schema_version == 1 and .source_commit == $sha and .tag == $tag' release/manifest.json
+          # Creating the tag explicitly makes a racing existing tag fail without overwriting it.
+          git tag "$TAG" "$SHA"
+          git push origin "refs/tags/$TAG"
+          test "$(git ls-remote origin "refs/tags/$TAG" | cut -f1)" = "$SHA"
+          gh release create "$TAG" --verify-tag --target "$SHA" \
+            --title "$RELEASE_TITLE" \
             --notes-file release/RELEASE_NOTES.md \
             release/*.zip release/manifest.json release/SHA256SUMS \
-            release/identity-lifecycle.tsv
+            release/identity-lifecycle.tsv*
+
+  finalize:
+    needs: [plan, publish]
+    runs-on: ubuntu-latest
+    # A failed pointer update can be retried without rerunning immutable publication.
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ needs.plan.outputs.source_commit }}
 
       # Step 6. `latest-version.txt` ships inside the zip it names, so it is written before the
       # build and committed only once the release exists -- committing it earlier would name a
@@ -112,20 +155,21 @@ jobs:
           enable-cache: true
 
       - name: Finalize latest-version.txt
+        env:
+          TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
           uv sync
-          uv run python -c "from vdjdb.release.bundle import prepare_latest; \
-            print(prepare_latest('${{ inputs.tag }}').splitlines()[0])"
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add latest-version.txt
-          git commit -m "latest-version.txt -> ${{ inputs.tag }}" || echo "already current"
-          git push
+          uv run python -c 'import os; from pathlib import Path; from vdjdb.release.finalize import finalize_latest; finalize_latest(Path.cwd(), os.environ["TAG"])'
 
       - name: Assert line 1 resolves
+        env:
+          TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
-          URL=$(head -1 latest-version.txt)
+          # The pinned source checkout stays unchanged; check the generated release URL.
+          URL=$(uv run python -c 'import os; from vdjdb.release.bundle import legacy_url; print(legacy_url(os.environ["TAG"]))')
           echo "checking $URL"
           curl -fsIL -o /dev/null -w '%{http_code}\n' "$URL" | grep -qx 200

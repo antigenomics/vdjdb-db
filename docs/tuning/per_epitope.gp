@@ -8,6 +8,7 @@
 # each epitope's clustered clonotypes -- which is the failure a lift figure cannot see.
 # Colours: ColorBrewer Set1.
 F = "docs/tuning/per_epitope_ecdf.tsv"
+if (system(sprintf("test -f '%s' && echo yes", F)) ne "yes") F = sprintf("< gzip -dc '%s.gz'", F)
 # 1 gene  2 method  3 stat  4 value  5 frac
 set terminal svg size 1180,780 font "Helvetica,12" background rgb "white"
 set output "out/reports/tuning/per_epitope.svg"

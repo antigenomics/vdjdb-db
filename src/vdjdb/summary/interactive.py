@@ -261,12 +261,14 @@ def scores(cohort: pl.DataFrame):
 
 
 def hla_table(cohort: pl.DataFrame, *, top: int = 40):
-    """The MHC allele table, sortable in the browser. `go.Table` and not HTML, so it needs no CSS."""
+    """The most represented MHC alleles, retaining the slim-record counting unit."""
     import plotly.graph_objects as go
 
+    if "id" not in cohort.columns:
+        cohort = cohort.with_row_index("id")
     d = (cohort.filter(pl.col("mhc.a") != "")
          .group_by("mhc.a")
-         .agg(pl.len().alias("records"),
+         .agg(pl.col("id").n_unique().alias("records"),
               pl.col("antigen.epitope").n_unique().alias("epitopes"),
               pl.col("cdr3").n_unique().alias("cdr3s"))
          .sort("records", descending=True).head(top))
@@ -289,14 +291,15 @@ SECTIONS: tuple[tuple[str, str, str], ...] = (
      "Distinct TCR chains, epitopes, MHC alleles and publications first reported at or before each "
      "year. Click a chain configuration in the legend to isolate it across all four metrics."),
     ("v-hla", "V gene and MHC allele",
-     "One heatmap per chain and MHC class, cells with at least 10 records. The colour scale is "
+     "One heatmap per chain and MHC class; V genes and MHC groups each have at least 10 records. "
+     "The colour scale is "
      "capped so a few very large cells do not flatten the rest; the hover reports the uncapped "
      "count."),
     ("spectratype", "CDR3 length", "Homo sapiens, both chains."),
     ("epitope-length", "Epitope length",
      "By MHC class. The hover carries the number of distinct CDR3 behind each bar."),
-    ("scores", "Confidence score", "Log record count, by MHC class and chain."),
-    ("hla-table", "MHC alleles", "Click a column header to sort."),
+    ("scores", "Confidence score", "Legacy 0-3 score; log record count, by MHC class and chain."),
+    ("hla-table", "MHC alleles", "The 40 most represented alleles; counts use distinct slim records."),
 )
 
 _PAGE = """<!DOCTYPE html>
@@ -332,14 +335,16 @@ def build(legacy: Path, years: Path, out: Path, *, cap: int = 1000) -> Path:
     _register_template()
     panels = _panels()
     cohort = panels.cohort(legacy)
+    references = cohort["reference.id"].fill_null("").str.split(",").explode(empty_as_null=False)
+    contexts = panels.joint_contexts(legacy, cohort)
     cum = panels.cumulative(legacy, years)
     figures = {
         "by-year": by_year(cum),
-        "v-hla": v_hla(panels.v_hla(cohort), cap=cap),
+        "v-hla": v_hla(panels.v_hla(contexts), cap=cap),
         "spectratype": spectratype(cohort),
         "epitope-length": epitope_length(cohort),
         "scores": scores(cohort),
-        "hla-table": hla_table(cohort),
+        "hla-table": hla_table(contexts),
     }
     blocks = []
     for key, heading, note in SECTIONS:
@@ -352,7 +357,7 @@ def build(legacy: Path, years: Path, out: Path, *, cap: int = 1000) -> Path:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(_PAGE.format(
         records=f"{cohort.height:,}",
-        publications=f"{cohort['reference.id'].n_unique():,}",
+        publications=f"{references.filter(references != '').n_unique():,}",
         epitopes=f"{cohort['antigen.epitope'].n_unique():,}",
         body="\n".join(blocks)))
     return out

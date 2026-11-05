@@ -28,6 +28,7 @@ def _legacy(tmp: Path) -> Path:
         "reference.id": ["PMID:1", "PMID:2"], "vdjdb.score": ["1", "2"],
         "TCR_hash": ["a", "b"], "j.start": ["7", "8"], "v.end": ["3", "4"]})
     slim.write_csv(d / "vdjdb.slim.txt", separator="\t")
+    slim.write_csv(d / "vdjdb.txt", separator="\t")
     full = pl.DataFrame({
         "reference.id": ["PMID:1", "PMID:2"], "antigen.epitope": ["GILGFVFTL", "NLVPMVATV"],
         "species": ["HomoSapiens", "HomoSapiens"],
@@ -86,8 +87,12 @@ def test_every_declared_section_reaches_the_page(tmp_path, years):
 
 def test_the_header_counts_come_from_the_cohort(tmp_path, years):
     out = tmp_path / "interactive.html"
-    html = interactive.build(_legacy(tmp_path), years, out).read_text()
-    assert "2 records over 2 publications and 2 epitopes" in html
+    legacy = _legacy(tmp_path)
+    slim = pl.read_csv(legacy / "vdjdb.slim.txt", separator="\t").with_columns(
+        pl.Series("reference.id", ["PMID:1,PMID:2", "PMID:2,PMID:3,"]))
+    slim.write_csv(legacy / "vdjdb.slim.txt", separator="\t")
+    html = interactive.build(legacy, years, out).read_text()
+    assert "2 records over 3 publications and 2 epitopes" in html
 
 
 def test_the_heatmap_hover_reports_the_uncapped_count(tmp_path, years):

@@ -16,6 +16,8 @@ from pathlib import Path
 
 import polars as pl
 
+from vdjdb.io.text import write_csv
+
 from ..config import Paths
 from ..curate.frequency import split_frequency
 from ..curate.nomenclature import (
@@ -290,21 +292,21 @@ def _write_harmonisation(path: Path, segments: pl.DataFrame, alleles: pl.DataFra
     path.parent.mkdir(parents=True, exist_ok=True)
     # `quote_style="never"`: a pass that reports no species writes an empty cell, and the default
     # renders that as a literal `""`. Hard rule 6 -- empty string is the only missing marker.
-    report.write_csv(path, separator="\t", quote_style="never")
+    write_csv(report, path, separator="\t", quote_style="never")
     return report
 
 
 def _write_repeated(path: Path, report: pl.DataFrame) -> pl.DataFrame:
     """Which publications are curated in more than one chunk file, and what was done (#390)."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    report.write_csv(path, separator="\t", quote_style="never")
+    write_csv(report, path, separator="\t", quote_style="never")
     return report
 
 
 def _write_frequency(path: Path, report: pl.DataFrame) -> pl.DataFrame:
     """What shape each `method.frequency` cell was submitted in, and how many carry a count (#696)."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    report.write_csv(path, separator="\t", quote_style="never")
+    write_csv(report, path, separator="\t", quote_style="never")
     return report
 
 

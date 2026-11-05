@@ -23,6 +23,8 @@ from pathlib import Path
 
 import polars as pl
 
+from vdjdb.io.text import resolve_path, write_csv, write_text
+
 from ..assemble.master import FIX_FIELDS
 from ..schema import FULL_COLUMNS, META_COLUMNS, METHOD_COLUMNS, SLIM_COLUMNS, VDJDB_COLUMNS
 from ..schema.fields import render_meta, render_slim_meta
@@ -111,8 +113,8 @@ def write_full(records: pl.DataFrame, chains: pl.DataFrame, out: Path) -> Path:
         *(_cdr3fix_blob(s, as_json=False).alias(f"cdr3fix.{s}") for s in _CHAIN_SUFFIX.values()),
     )
     path = out / "vdjdb_full.txt"
-    wide.select(FULL_COLUMNS).write_csv(path, **_CSV)
-    return path
+    write_csv(wide.select(FULL_COLUMNS), path, **_CSV)
+    return resolve_path(path)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -154,7 +156,7 @@ def _json_map(prefix: str, columns: tuple[str, ...],
     return pl.struct(**fields).map_elements(lambda d: json.dumps(dict(d)), return_dtype=pl.Utf8)
 
 
-def build_default(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
+def build_default(records: pl.DataFrame, chains: pl.DataFrame, *, identity: bool = False) -> pl.DataFrame:
     """``vdjdb.txt`` -- one row per chain, paired chains sharing a ``complex.id``.
 
     ``complex.id`` is assigned here and nowhere else: it is a positional counter with no
@@ -210,7 +212,7 @@ def build_default(records: pl.DataFrame, chains: pl.DataFrame) -> pl.DataFrame:
             "samples.found": pl.col("__samples").cast(pl.Int64),
             "studies.found": pl.col("__studies").cast(pl.Int64),
         }).alias("meta"),
-    ).select(VDJDB_COLUMNS)
+    ).select(*VDJDB_COLUMNS, *(["record_id"] if identity else []))
 
 
 def build_slim(default_db: pl.DataFrame) -> pl.DataFrame:
@@ -241,8 +243,8 @@ def build_slim(default_db: pl.DataFrame) -> pl.DataFrame:
 def write_meta(out: Path) -> list[Path]:
     """The two metadata files, generated rather than tracked, so they cannot drift again."""
     a, b = out / "vdjdb.meta.txt", out / "vdjdb.slim.meta.txt"
-    a.write_text(render_meta("vdjdb"))
-    b.write_text(render_slim_meta("slim"))
+    a = write_text(a, render_meta("vdjdb"))
+    b = write_text(b, render_slim_meta("slim"))
     return [a, b]
 
 
@@ -253,10 +255,10 @@ def write_all(tables: dict[str, pl.DataFrame], out: Path) -> dict[str, Path]:
     default_db = build_default(records, chains)
     slim = build_slim(default_db)
     paths = {"vdjdb_full.txt": write_full(records, chains, out)}
-    default_db.write_csv(out / "vdjdb.txt", **_CSV)
-    slim.write_csv(out / "vdjdb.slim.txt", **_CSV)
-    paths["vdjdb.txt"] = out / "vdjdb.txt"
-    paths["vdjdb.slim.txt"] = out / "vdjdb.slim.txt"
+    write_csv(default_db, out / "vdjdb.txt", **_CSV)
+    write_csv(slim, out / "vdjdb.slim.txt", **_CSV)
+    paths["vdjdb.txt"] = resolve_path(out / "vdjdb.txt")
+    paths["vdjdb.slim.txt"] = resolve_path(out / "vdjdb.slim.txt")
     for p in write_meta(out):
         paths[p.name] = p
-    return paths
+    return {p.name: p for p in paths.values()}

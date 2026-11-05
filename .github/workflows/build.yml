@@ -19,6 +19,22 @@ on:
         description: Release tag; when set, the release assets are built and uploaded.
         type: string
         default: ''
+      source_commit:
+        description: Immutable commit to build.
+        type: string
+        default: ''
+      with_web:
+        description: Include the optional legacy web bundle.
+        type: boolean
+        default: false
+      prepared_web_url:
+        description: Immutable prepared-input ZIP URL (requires with_web and SHA256).
+        type: string
+        default: ''
+      prepared_web_sha256:
+        description: SHA256 of the prepared-input ZIP physical bytes.
+        type: string
+        default: ''
       previous:
         description: Previous release tag. Without it `vdjdb release` writes no RELEASE_NOTES.md,
           and `release.yml` publishes with `--notes-file`, so the release would fail after the
@@ -30,6 +46,18 @@ on:
       runner:
         type: string
         default: '"ubuntu-latest"'
+      tag:
+        description: Optional candidate tag; retain release ZIPs without publishing.
+        type: string
+        default: ''
+      with_web:
+        description: Include the legacy web table and charts in candidate assets.
+        type: boolean
+        default: false
+      previous:
+        description: Previous release tag for candidate release notes.
+        type: string
+        default: ''
   # PRs targeting master only. `master` receives merges from `dev` (and `hotfix/*`) and nothing
   # else, so this is one build per release-ward merge -- and a required status check has to be
   # able to run on the pull request it gates, or it blocks every PR forever. That is why the
@@ -89,6 +117,8 @@ jobs:
       OPENBLAS_L2_SIZE: '256'
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_commit || github.sha }}
 
       - uses: astral-sh/setup-uv@v5
         with:
@@ -328,8 +358,9 @@ jobs:
       - name: QC advisory counts
         if: always()
         run: |
+          . .github/stage-timing.sh
           { echo '### QC findings by rule'; echo; echo '```'; \
-            cat out/reports/qc-summary.tsv 2>/dev/null || echo '(not produced)'; \
+            read_generated_table out/reports/qc-summary.tsv 2>/dev/null || echo '(not produced)'; \
             echo '```'; } >> "$GITHUB_STEP_SUMMARY"
 
       # The two reports that replaced `vdjdb_full_gene_broken.txt` and `vdjdb_full_cdr3aa_broken.txt`.
@@ -338,12 +369,13 @@ jobs:
       - name: Proofreading counts
         if: always()
         run: |
+          . .github/stage-timing.sh
           { echo '### Proofreading findings'; echo; echo '```'; \
             echo "segment calls IMGT does not carry (chain-calls):"; \
-            awk -F'\t' 'NR>1{n+=$5} END{print "  "n+0}' out/reports/nomenclature.tsv 2>/dev/null \
+            read_generated_table out/reports/nomenclature.tsv | awk -F'\t' 'NR>1{n+=$5} END{print "  "n+0}' 2>/dev/null \
               || echo '  (not produced)'; \
             echo "non-canonical junctions (chains):"; \
-            awk 'NR>1{n++} END{print "  "n+0}' out/reports/anchors.tsv 2>/dev/null \
+            read_generated_table out/reports/anchors.tsv | awk 'NR>1{n++} END{print "  "n+0}' 2>/dev/null \
               || echo '  (not produced)'; \
             echo '```'; } >> "$GITHUB_STEP_SUMMARY"
 
@@ -366,12 +398,13 @@ jobs:
       - name: Build timings report
         if: always()
         run: |
+          . .github/stage-timing.sh
           { echo '### Stage wall times'; echo; echo '```'; \
-            cat out/reports/ci-stage-timings.tsv 2>/dev/null || echo '(not produced)'; \
+            read_generated_table out/reports/ci-stage-timings.tsv 2>/dev/null || echo '(not produced)'; \
             echo '```'; echo; \
             echo '### Build timings'; echo; echo '```'; \
-            cat out/reports/build-timings.tsv 2>/dev/null || echo '(not produced)'; echo; \
-            cat out/reports/motif-timings.tsv 2>/dev/null || echo '(not produced)'; \
+            read_generated_table out/reports/build-timings.tsv 2>/dev/null || echo '(not produced)'; echo; \
+            read_generated_table out/reports/motif-timings.tsv 2>/dev/null || echo '(not produced)'; \
             echo '```'; } >> "$GITHUB_STEP_SUMMARY"
 
       # Everything the build measured, in one place. It was named `motif-metrics` and carried the
@@ -384,36 +417,71 @@ jobs:
         with:
           name: build-reports
           path: |
-            out/reports/motif-metrics.tsv
+            out/reports/motif-metrics.tsv*
             out/reports/motif-metrics.md
-            out/reports/build-timings.tsv
-            out/reports/ci-stage-timings.tsv
-            out/reports/motif-timings.tsv
-            out/reports/motifs_per_epitope.tsv
-            out/motifs/cluster_members.txt
-            out/motifs/cluster_members_tcremp.txt
+            out/reports/build-timings.tsv*
+            out/reports/ci-stage-timings.tsv*
+            out/reports/motif-timings.tsv*
+            out/reports/motifs_per_epitope.tsv*
+            out/motifs/cluster_members.txt*
+            out/motifs/cluster_members_tcremp.txt*
             out/reports/release-diff.json
             out/reports/release-diff.md
-            out/reports/qc.tsv
-            out/reports/qc-summary.tsv
-            out/reports/nomenclature.tsv
-            out/reports/harmonisation.tsv
-            out/reports/anchors.tsv
-            out/reports/j-calls.tsv
-            out/reports/functionality.tsv
-            out/reports/functionality-summary.tsv
-            out/reports/presentation.tsv
-            out/reports/presentation-summary.tsv
-            out/reports/lookalikes.tsv
+            out/reports/qc.tsv*
+            out/reports/qc-summary.tsv*
+            out/reports/nomenclature.tsv*
+            out/reports/harmonisation.tsv*
+            out/reports/anchors.tsv*
+            out/reports/j-calls.tsv*
+            out/reports/functionality.tsv*
+            out/reports/functionality-summary.tsv*
+            out/reports/presentation.tsv*
+            out/reports/presentation-summary.tsv*
+            out/reports/lookalikes.tsv*
             out/reports/structures/*.parquet
             out/reports/structures/*.json
           retention-days: 90
+
+      - name: Previous release for changelog
+        if: inputs.tag != '' && inputs.previous != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREVIOUS: ${{ inputs.previous }}
+        run: |
+          set -euo pipefail
+          mkdir -p previous-release
+          # Historical releases predate manifests and have one legacy database zip.
+          if gh release view "$PREVIOUS" --json assets --jq '.assets[].name' | grep -qx manifest.json; then
+            gh release download "$PREVIOUS" --pattern manifest.json --dir previous-release
+            ASSET=$(jq -er '[.bundles[] | select(.role == "legacy")] | if length == 1 then .[0].file else error("expected one legacy bundle") end' previous-release/manifest.json)
+          elif [[ "$PREVIOUS" =~ ^(pyvdjdb-)?[0-9]{4}-[0-9]{2}-[0-9]{2}(-[A-Za-z0-9][A-Za-z0-9._-]*)?$ ]]; then
+            ASSET=$(gh release view "$PREVIOUS" --json assets --jq '[.assets[] | select(.name | endswith(".zip"))] | if length == 1 then .[0].name else error("ambiguous historical release") end')
+          else
+            echo "::error::modern releases require manifest.json"; exit 1
+          fi
+          gh release download "$PREVIOUS" --pattern "$ASSET" --output previous-release/legacy.zip
+
+      - name: Prepared web assets input
+        if: inputs.tag != '' && (inputs.prepared_web_url != '' || inputs.prepared_web_sha256 != '')
+        env:
+          PREPARED_URL: ${{ inputs.prepared_web_url }}
+          PREPARED_SHA: ${{ inputs.prepared_web_sha256 }}
+          WITH_WEB: ${{ inputs.with_web }}
+        run: |
+          set -euo pipefail
+          [[ "$WITH_WEB" == true && -n "$PREPARED_URL" && "$PREPARED_SHA" =~ ^[0-9a-f]{64}$ ]]
+          curl -fsSL --retry 5 --retry-connrefused --retry-delay 5 -o prepared-web.zip "$PREPARED_URL"
+          printf '%s  %s\n' "$PREPARED_SHA" prepared-web.zip | sha256sum -c -
+          uv run python -c 'from pathlib import Path; from vdjdb.release.prepared import stage_archive; stage_archive(Path("prepared-web.zip"), Path("out"))'
+          rm prepared-web.zip
 
       - name: Release assets
         if: inputs.tag != ''
         run: |
           uv run vdjdb release --tag "${{ inputs.tag }}" --build out --out out/release \
-            ${{ inputs.previous && format('--previous {0}', inputs.previous) || '' }}
+            --source-commit "$(git rev-parse HEAD)" \
+            ${{ inputs.previous && '--previous previous-release/legacy.zip' || '' }} \
+            ${{ inputs.with_web && '--with-web' || '' }}
 
       - uses: actions/upload-artifact@v4
         if: inputs.tag != ''
@@ -423,6 +491,6 @@ jobs:
             out/release/*.zip
             out/release/manifest.json
             out/release/SHA256SUMS
-            out/release/identity-lifecycle.tsv
+            out/release/identity-lifecycle.tsv*
             out/release/RELEASE_NOTES.md
           retention-days: 7

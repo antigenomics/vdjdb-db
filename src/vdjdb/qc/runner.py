@@ -22,6 +22,8 @@ from pathlib import Path
 
 import polars as pl
 
+from vdjdb.io.text import write_csv
+
 from ..config import Paths
 from ..io.chunks import chunk_files, read_chunks
 from .lint import Finding, lint
@@ -163,11 +165,11 @@ def run_qc(paths: list[Path] | None, *, strict: bool = True, report: Path | None
 
     if report is not None:
         report.parent.mkdir(parents=True, exist_ok=True)
-        _report_frame(lint_findings, row_findings).write_csv(report, separator="\t")
+        write_csv(_report_frame(lint_findings, row_findings), report, separator="\t")
         # The per-rule counts beside the per-row report. They were printed and nowhere else: an
         # advisory that jumped from 209 rows to 2,000 on a chunk merge would pass every gate and show
         # up only in a log line nobody diffs. `chunks/` is the data, so this is the curation signal.
-        _summary_frame(lint_findings, row_findings).write_csv(
+        write_csv(_summary_frame(lint_findings, row_findings),
             report.with_name("qc-summary.tsv"), separator="\t")
 
     print(f"chunks checked: {len(targets)}    rows: {rows.height}")

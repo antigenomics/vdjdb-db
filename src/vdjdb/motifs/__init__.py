@@ -35,6 +35,8 @@ from pathlib import Path
 
 import polars as pl
 
+from vdjdb.io.text import write_csv
+
 from . import cluster, emit, pwm, tcremp, tcrnet
 
 __all__ = ["cluster", "emit", "per_epitope_report", "pwm", "run", "tcremp", "tcrnet"]
@@ -152,7 +154,7 @@ def per_epitope_report(chains: pl.DataFrame, records: pl.DataFrame, out: Path, r
           .sort("species", "gene", "method", "clonotypes", descending=[False] * 3 + [True]))
     path = reports / "motifs_per_epitope.tsv"
     path.parent.mkdir(parents=True, exist_ok=True)
-    df.write_csv(path, separator="\t")
+    write_csv(df, path, separator="\t")
     return df.height
 
 

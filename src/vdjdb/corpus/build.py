@@ -15,6 +15,8 @@ from pathlib import Path
 
 import polars as pl
 
+from vdjdb.io.text import write_csv
+
 from . import mhc, pubmed, tokens
 
 #: A document is a reference, and its kind is read off the identifier. Order matters: the first
@@ -162,7 +164,7 @@ def write(corpus: dict[str, pl.DataFrame], out: Path) -> dict[str, Path]:
     for name in TABLES:
         frame = corpus[name]
         frame.write_parquet(out / f"{name}.parquet")
-        frame.write_csv(out / f"{name}.tsv", separator="\t", quote_style="necessary")
+        write_csv(frame, out / f"{name}.tsv", separator="\t", quote_style="necessary")
         written[name] = out / f"{name}.parquet"
     return written
 

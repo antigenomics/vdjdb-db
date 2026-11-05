@@ -45,6 +45,7 @@ import legacy_qc as L
 from vdjdb.curate.anchors import templated
 from vdjdb.curate.nomenclature import _SPLIT, _imgt
 from vdjdb.emit.vdjdb3 import to_internal
+from vdjdb.io.text import read_csv, resolve_path
 
 pytestmark = pytest.mark.release
 
@@ -74,18 +75,18 @@ def chains() -> pl.DataFrame:
         pytest.skip(f"no built tables: {', '.join(missing)}")
     # The TSV, not the parquet: these checks assert on what shipped as text. `to_internal` puts the
     # shipped `underscore_case` header back under the names the rest of this file uses.
-    ch = to_internal(pl.read_csv(tables / "chains.tsv.gz", separator="\t", infer_schema_length=0))
-    rec = to_internal(pl.read_csv(tables / "records.tsv.gz", separator="\t", infer_schema_length=0))
+    ch = to_internal(read_csv(tables / "chains.tsv.gz", separator="\t", infer_schema_length=0))
+    rec = to_internal(read_csv(tables / "records.tsv.gz", separator="\t", infer_schema_length=0))
     return ch.join(rec.select("record_id", "species"), on="record_id", how="left")
 
 
 @pytest.fixture(scope="module")
 def reports() -> dict[str, pl.DataFrame]:
     directory = Path(os.environ.get("VDJDB_REPORTS", "out/reports"))
-    missing = [n for n in ("anchors.tsv", "nomenclature.tsv") if not (directory / n).exists()]
+    missing = [n for n in ("anchors.tsv", "nomenclature.tsv") if not resolve_path(directory / n).exists()]
     if missing:
         pytest.skip(f"no build reports: {', '.join(missing)}")
-    return {n: pl.read_csv(directory / n, separator="\t", infer_schema_length=0)
+    return {n: read_csv(directory / n, separator="\t", infer_schema_length=0)
             for n in ("anchors.tsv", "nomenclature.tsv")}
 
 

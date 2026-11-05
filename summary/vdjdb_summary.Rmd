@@ -93,7 +93,25 @@ theme_classic <- function(...) {
     legend.background = element_rect(fill = "transparent", colour = NA))
 }
 
-df = fread(file.path(params$legacy, "vdjdb.slim.txt"), header=T, sep="\t")
+fread_generated <- function(path, ...) {
+  if (!file.exists(path) && file.exists(paste0(path, ".gz"))) path <- paste0(path, ".gz")
+  if (endsWith(path, ".gz")) {
+    fread(cmd = paste("gzip -dc --", shQuote(path)), ...)
+  } else {
+    fread(path, ...)
+  }
+}
+
+df = fread_generated(file.path(params$legacy, "vdjdb.slim.txt"), header=T, sep="\t")
+# Recover joint observations before grouping. Independently collapsed slim fields
+# cannot preserve which MHC alpha/beta and V-gene calls occurred together.
+slim.keys <- c("gene", "cdr3", "species", "antigen.epitope", "antigen.gene", "antigen.species")
+df.context <- fread_generated(file.path(params$legacy, "vdjdb.txt"), header=TRUE, sep="\t",
+                             select=c(slim.keys, "mhc.a", "mhc.b", "mhc.class", "v.segm", "reference.id")) %>%
+  as_tibble() %>%
+  left_join(df %>% mutate(id=row_number()) %>% select(all_of(slim.keys), id),
+            by=slim.keys, relationship="many-to-one")
+stopifnot(!anyNA(df.context$id), n_distinct(df.context$id) == nrow(df))
 ```
 
 ---
@@ -128,7 +146,7 @@ kable(format = "html", df.sg)
 ```{r message=FALSE, warning=FALSE, echo=FALSE, cache=FALSE}
 # Load data 
 
-dt.vdjdb = fread(file.path(params$legacy, "vdjdb_full.txt"), sep = "\t", fill=T)
+dt.vdjdb = fread_generated(file.path(params$legacy, "vdjdb_full.txt"), sep = "\t", fill=T)
 
 dt.vdjdb.s = dt.vdjdb %>%
   filter(species != "MacacaMulatta") %>%
@@ -146,7 +164,7 @@ dt.vdjdb.s = dt.vdjdb %>%
 # arXiv preprint -- and each one dropped out of the panels below without a warning. The render is
 # now offline and deterministic; `uv run vdjdb refs` rebuilds the table by its own pull request.
 
-dt.pubdate = fread(params$reference_years, sep = "\t", header = TRUE) %>%
+dt.pubdate = fread_generated(params$reference_years, sep = "\t", header = TRUE) %>%
   transmute(reference.id, pub_date = as.integer(year))
 
 missing.refs = setdiff(unique(dt.vdjdb.s$reference.id[dt.vdjdb.s$reference.id != ""]),
@@ -186,7 +204,7 @@ cumulative = dt.vdjdb.s %>%
 
 # Event segments end at the series value in their publication year. Label offsets
 # are measured in years and fractions of the panel maximum.
-dt.ann = fread(params$annotations, sep = "\t", header = TRUE) %>%
+dt.ann = fread_generated(params$annotations, sep = "\t", header = TRUE) %>%
   mutate(label = gsub("\\\\n", "\n", label))
 LABEL_FLOAT = 0.05
 
@@ -267,25 +285,25 @@ kable(format = "html", df.a %>%
         mutate(`Parent species` = ifelse(`Parent species` == "", "Not reported", `Parent species`)))
 ```
 
-Missing parent-species metadata is shown as "Not reported".
+**Source nomenclature.** Antigen-source and gene labels retain the curated source nomenclature; aliases remain separate summary groups. Missing parent-species metadata is shown as "Not reported".
 
 ---
 
 #### **COVID-19** data
 
-Summary of antigens and T-cell receptors related to COVID-19 pandemic. Number of records for SARS-CoV-2 epitopes grouped by viral protein and HLA plotted using alluvium plot. Epitopes with less than 30 records in total were not counted.
+SARS-CoV-2 specificity records grouped by viral protein, HLA, full epitope sequence and TCR chain. HLA is grouped at first-field resolution. Combinations with at least 30 slim records are shown. Ribbon widths use log2(record count).
 
 ```{r message=FALSE, warning=FALSE, fig.width=12, fig.height=10}
-df %>% 
+df.context %>%
   filter(species == "HomoSapiens", 
-         startsWith(as.character(antigen.species), "SARS-CoV")) %>%
+         startsWith(as.character(antigen.species), "SARS-CoV-2")) %>%
   mutate(mhc.a = str_split_fixed(mhc.a, "[,:]", 2)[,1],
          mhc.b = str_split_fixed(mhc.b, "[,:]", 2)[,1],
-         mhc = ifelse(mhc.class == "MHCI", mhc.a, paste0(mhc.a, '/', substr(mhc.b, 7, 15)))) %>%
+         mhc = ifelse(mhc.class == "MHCI", mhc.a, paste0(mhc.a, '/', mhc.b))) %>%
   group_by(antigen.gene, mhc, antigen.epitope) %>%
   mutate(publications = length(unique(unlist(strsplit(reference.id, ","))))) %>%
   group_by(antigen.gene, mhc, antigen.epitope, gene, publications) %>%
-  summarize(records = n()) -> df.c
+  summarize(records = n_distinct(id)) -> df.c
 
 colnames(df.c) = c("Gene", "HLA", "Epitope", "TCR chain",
                    "Studies",
@@ -295,13 +313,13 @@ ggplot(df.c %>%
          ungroup %>% arrange(Records) %>% filter(Records >= 30),
        aes(axis1 = Gene,
            axis2 = gsub("HLA-", "", HLA),
-           axis3 = substr(Epitope,1,3),
+           axis3 = Epitope,
            axis4 = `TCR chain`,
            y = log2(Records))) +
-  geom_alluvium(aes(fill = substr(Epitope,1,3) %>% as.factor %>% as.integer), 
+  geom_alluvium(aes(fill = Epitope %>% as.factor %>% as.integer),
                 color = "white", alpha = 0.8, curve_type = "sigmoid") +
   geom_stratum(fill = "grey95", color = "white", linewidth =1.0) +
-  geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
+  geom_text(stat = "stratum", aes(label = after_stat(stratum)), size = 2.2) +
   scale_fill_distiller(palette = "Set3", guide="none", "") +
   #scale_fill_hue(guide="none", "") +
   ylab("") + scale_x_discrete(limits = c("Gene", "HLA", "Epitope", "TCR chain"),
@@ -321,28 +339,29 @@ Summary of SARS-CoV-2 epitopes and corresponding TCR alpha and beta chain specif
 kable(format = "html", 
       df.c %>% 
         reshape2::dcast(Gene + HLA + Epitope + Studies ~ `TCR chain`, fill = 0) %>%
-        mutate(HLA = gsub("*", ".", HLA, fixed = T)) %>%
         filter(TRA+TRB >= 10) %>%
-        arrange(-(TRB+TRA)))
+        arrange(-(TRB+TRA))) %>%
+  # Encode after kable escapes cells: pandoc must not interpret paired HLA stars as emphasis.
+  gsub("*", "&#42;", ., fixed = TRUE) %>% asis_output()
 ```
 
 ---
 
 #### **Self-antigen** data
 
-Summary of T-cell receptors recognizing self-antigens, including antigens linked to utoimmune diseases and potential neoantigen targets for cancer immunotherapy. Number of records for self-antigens grouped by (mutated) human gene and corresponding HLAs are plotted using alluvium plot. Only self-antigens with at least 10 records are shown.
+T-cell receptors recognizing self-antigens, including antigens linked to autoimmune diseases and potential neoantigen targets for cancer immunotherapy. Records are grouped by human gene, HLA, full epitope sequence and TCR chain. HLA is grouped at first-field resolution. Combinations with at least 10 slim records are shown. Ribbon widths use log2(record count).
 
-```{r message=FALSE, warning=FALSE, fig.width=12, fig.height=20}
-df %>% 
+```{r message=FALSE, warning=FALSE, fig.width=12, fig.height=40}
+df.context %>%
   filter(species == "HomoSapiens", 
          startsWith(as.character(antigen.species), "HomoSapiens")) %>%
   mutate(mhc.a = str_split_fixed(mhc.a, "[,:]", 2)[,1],
          mhc.b = str_split_fixed(mhc.b, "[,:]", 2)[,1],
-         mhc = ifelse(mhc.class == "MHCI", mhc.a, paste0(mhc.a, '/', substr(mhc.b, 7, 15)))) %>%
+         mhc = ifelse(mhc.class == "MHCI", mhc.a, paste0(mhc.a, '/', mhc.b))) %>%
   group_by(antigen.gene, mhc, antigen.epitope) %>%
   mutate(publications = length(unique(unlist(strsplit(reference.id, ","))))) %>%
   group_by(antigen.gene, mhc, antigen.epitope, gene, publications) %>%
-  summarize(records = n()) -> df.n
+  summarize(records = n_distinct(id)) -> df.n
 
 colnames(df.n) = c("Gene", "HLA", "Epitope", "TCR chain",
                    "Studies",
@@ -352,10 +371,10 @@ ggplot(df.n %>%
          ungroup %>% arrange(Records) %>% filter(Records >= 10),
        aes(axis1 = Gene,
            axis2 = gsub("HLA-", "", HLA),
-           axis3 = substr(Epitope,1,3),
+           axis3 = Epitope,
            axis4 = `TCR chain`,
            y = log2(Records))) +
-  geom_alluvium(aes(fill = substr(Epitope,1,3) %>% as.factor %>% as.integer), 
+  geom_alluvium(aes(fill = Epitope %>% as.factor %>% as.integer),
                 color = "white", alpha = 0.8, curve_type = "sigmoid") +
   geom_stratum(fill = "grey95", color = "white", linewidth =1.0) +
   geom_text(stat = "stratum", aes(label = after_stat(stratum)), size = 1.8) +
@@ -372,15 +391,16 @@ ggplot(df.n %>%
         panel.grid.major.y = element_blank())
 ```
 
-Summary of neoantigens and corresponding TCR alpha and beta chain specificity records (cases with 10+ records)
+Summary of self-antigens and corresponding TCR alpha and beta chain specificity records (cases with 10+ records)
 
 ```{r message=FALSE, warning=FALSE}
 kable(format = "html", 
       df.n %>% 
         reshape2::dcast(Gene + HLA + Epitope + Studies ~ `TCR chain`, fill = 0) %>%
-        mutate(HLA = gsub("*", ".", HLA, fixed = T)) %>%
         filter(TRA+TRB >= 10) %>%
-        arrange(-(TRB+TRA)))
+        arrange(-(TRB+TRA))) %>%
+  # Encode after kable escapes cells: pandoc must not interpret paired HLA stars as emphasis.
+  gsub("*", "&#42;", ., fixed = TRUE) %>% asis_output()
 ```
 
 ---
@@ -461,10 +481,9 @@ ggplot(df.spe %>% mutate(
 Representative data for Homo Sapiens, Variable gene. Only Variable genes and MHC alleles with at least 10 records are shown.
 
 ```{r message=FALSE, warning=FALSE, fig.height=10, fig.width=6}
-df.vhla = df %>% 
+df.vhla = df.context %>%
   as_tibble %>%
   filter(species == "HomoSapiens" ) %>%
-  mutate(id = 1:n()) %>%
   separate_rows(mhc.a, sep = ",") %>%
   separate_rows(mhc.b, sep = ",") %>%
   separate_rows(v.segm, sep = ",") %>%
@@ -506,15 +525,14 @@ ggplot(df.vhla, aes(x=gsub("HLA-", "", paste(mhc.a.split, mhc.b.split, sep = " /
         strip.background = element_blank())
 ```
 
-Circos plot for correspondence between human TRBV genes and MHC class I alleles for links supported by more than 50 records in terms of the ratio of observed to expected records. Band width and color (from red:highest to light yellow:lowest) are scaled proportional to co-occurrence matrix value divided by row (TRBV) and column (HLA) sums.
+Circos plot for correspondence between human TRBV genes and MHC class I alleles for links supported by at least 50 slim records in terms of the ratio of observed to expected records. Band width and color (from red:highest to light yellow:lowest) are scaled proportional to co-occurrence matrix value divided by row (TRBV) and column (HLA) sums.
 
 ```{r message=FALSE, warning=FALSE, fig.width=8, fig.height=8}
 #https://jokergoo.github.io/circlize_book
 df.vhla.1b <- df.vhla %>%
   filter(records >= 50) %>%
   filter(gene == "TRB", mhc.class == "MHCI") %>%
-  mutate(mhc.a.split = substr(mhc.a.split, 5, nchar(mhc.a.split)),
-         v.segm.split = paste0("Vb", substr(v.segm.split, 5, nchar(v.segm.split)))) %>%
+  mutate(mhc.a.split = substr(mhc.a.split, 5, nchar(mhc.a.split))) %>%
   reshape2::dcast(mhc.a.split ~ v.segm.split, value.var = "records", fill = 0)
 rownames(df.vhla.1b) <- df.vhla.1b$mhc.a.split
 df.vhla.1b$mhc.a.split <- NULL
@@ -534,7 +552,7 @@ chordDiagram(df.vhla.1b, annotationTrack = "grid", preAllocateTracks = 1,
              col = band.col,
              grid.col = grid.col,
              grid.border = "black",
-             big.gap = 20)
+             big.gap = 20, small.gap = 2)
 
 circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
   xlim = get.cell.meta.data("xlim")
@@ -542,7 +560,7 @@ circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
   sector.name = get.cell.meta.data("sector.index")
   circos.text(mean(xlim), ylim[1] + .1, sector.name, 
               facing = "clockwise", niceFacing = T, adj = c(0, 0.5), 
-              cex = 0.65)
+              cex = 0.5)
 }, bg.border = NA)
 
 title("TRBV ~ HLA-I")
@@ -557,10 +575,9 @@ circos.clear()
 Representative data for Homo Sapiens MHC class I and II. Missing class-II partners are completed with the most commonly used compatible allele; imputed partners are marked in the source curation comments.
 
 ```{r message=FALSE, warning=FALSE}
-df.m = df %>% 
+df.m = df.context %>%
   as_tibble %>%
   filter(species == "HomoSapiens") %>%
-  mutate(id = 1:n()) %>%
   separate_rows(mhc.a, sep = ",") %>%
   separate_rows(mhc.b, sep = ",") %>%
   mutate(mhc.a.split = str_split_fixed(mhc.a, fixed(":"), n = Inf)[,1],

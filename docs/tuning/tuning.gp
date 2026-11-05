@@ -10,6 +10,7 @@
 # Colours are ColorBrewer Set1 (qualitative, 9-class), per CLAUDE.md section 7.
 if (!exists("chain")) chain = "TRB"
 F = "docs/tuning/scorecard_plot.tsv"
+if (system(sprintf("test -f '%s' && echo yes", F)) ne "yes") F = sprintf("< gzip -dc '%s.gz'", F)
 # 1 gene  2 algo  3 config  4 retention  5 lift  6 f1  7 q  8 purity  9 precision
 # 10 epitopes  11 perc_med  12 cids  13 admissible
 ALGOS = "dbscan hdbscan-eom hdbscan-leaf lumbermark hybrid hybrid-recruited legacy trivial"

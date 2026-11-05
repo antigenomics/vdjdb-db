@@ -95,11 +95,11 @@ def main():
     args = parser.parse_args()
     if args.out.exists():
         parser.error('Use a new output directory')
-    points, differences = audit(pl.read_csv(args.cases, separator='\t',
+    points, differences = audit(read_csv(args.cases, separator='\t',
                                           schema_overrides={'case': pl.String}), args.candidate, args.comparators)
     args.out.mkdir(parents=True)
-    points.write_csv(args.out/'metric_points.tsv', separator='\t')
-    differences.write_csv(args.out/'paired_differences.tsv', separator='\t')
+    write_csv(points, args.out/'metric_points.tsv', separator='\t')
+    write_csv(differences, args.out/'paired_differences.tsv', separator='\t')
     if differences['regression'].any():
         raise SystemExit('Regression gate failed; inspect paired_differences.tsv')
     print(f'{differences.height} paired regression gates passed')

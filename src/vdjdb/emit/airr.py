@@ -36,6 +36,8 @@ from pathlib import Path
 
 import polars as pl
 
+from vdjdb.io.text import write_csv
+
 from ..convert.coords import cdr3_aa
 
 #: The AIRR schema version these files conform to. Asserted against the installed ``airr`` package
@@ -248,7 +250,7 @@ def write_all(frames: dict[str, pl.DataFrame], out: Path) -> dict[str, Path]:
     written = {}
     for name, frame in frames.items():
         path = out / f"vdjdb.{name}.tsv"
-        frame.write_csv(path, **_CSV)
+        path = write_csv(frame, path, **_CSV)
         written[path.name] = path
     y = out / "airr.yaml"
     y.write_text(f'Info:\n  title: VDJdb AIRR export\n  version: {AIRR_VERSION}\n')

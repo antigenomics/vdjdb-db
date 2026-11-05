@@ -18,6 +18,8 @@ from pathlib import Path
 import polars as pl
 import pytest
 
+from vdjdb.io.text import read_csv, resolve_path
+
 pytestmark = pytest.mark.release
 
 #: Fetch stages are excluded from both time budgets and the reference compute total.
@@ -61,6 +63,7 @@ def report(request) -> tuple[str, pl.DataFrame, pl.DataFrame, int]:
     name = request.param
     base_path, budget = REPORTS[name]
     got = Path(os.environ.get("VDJDB_REPORTS", "out/reports")) / name
+    got = resolve_path(got)
     if not got.exists():
         # Under CI a missing report is the defect, not a reason to stand down: the build ran, so the
         # report exists or the stage stopped writing it. `vdjdb motifs` wrote this one to
@@ -73,7 +76,7 @@ def report(request) -> tuple[str, pl.DataFrame, pl.DataFrame, int]:
         pytest.skip(f"no {name}; run `vdjdb build` and `vdjdb motifs`")
     if not base_path.exists():
         pytest.skip(f"no committed baseline at {base_path}")
-    return name, pl.read_csv(got, separator="\t"), pl.read_csv(base_path, separator="\t"), budget
+    return name, read_csv(got, separator="\t"), read_csv(base_path, separator="\t"), budget
 
 
 def test_every_stage_in_the_baseline_was_timed(report) -> None:

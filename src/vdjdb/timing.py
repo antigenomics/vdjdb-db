@@ -17,6 +17,8 @@ from pathlib import Path
 import polars as pl
 import psutil
 
+from vdjdb.io.text import write_csv
+
 
 def row_scaled_limits(timings: pl.DataFrame, baseline: pl.DataFrame, *,
                       exclude_prefixes: tuple[str, ...] = ()) -> pl.DataFrame:
@@ -214,7 +216,7 @@ def write(path: Path, *, rows: int | None = None) -> pl.DataFrame:
     """Write the timing table beside the other reports. Returns it, for the caller to print."""
     df = frame(rows=rows)
     path.parent.mkdir(parents=True, exist_ok=True)
-    df.write_csv(path, separator="\t")
+    write_csv(df, path, separator="\t")
     return df
 
 

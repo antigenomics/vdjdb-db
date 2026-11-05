@@ -29,6 +29,7 @@ import pytest
 
 from vdjdb.compare.diff import Bundle
 from vdjdb.emit.vdjdb3 import read_table
+from vdjdb.io.text import read_csv, resolve_path, write_text
 from vdjdb.validate import motif_bench as mb
 from vdjdb.validate import motif_metrics as mmv
 
@@ -87,7 +88,7 @@ def motifs() -> Path:
     catches the stale pair and says which; it cannot prove a matched pair came from one build.
     """
     d = Path(os.environ.get("VDJDB_MOTIFS", "out/motifs"))
-    members = d / "cluster_members.txt"
+    members = resolve_path(d / "cluster_members.txt")
     if not members.exists():
         pytest.skip(f"no built motif files at {d}; run `vdjdb motifs --out {d}`")
     chains = Path(os.environ.get("VDJDB_TABLES", "out/tables")) / "chains.parquet"
@@ -100,7 +101,7 @@ def motifs() -> Path:
 @pytest.fixture(scope="module")
 def released(reference: Bundle, tmp_path_factory) -> pl.DataFrame:
     p = tmp_path_factory.mktemp("released") / "cluster_members.txt"
-    p.write_bytes(reference.read_bytes("cluster_members.txt"))
+    p = write_text(p, reference.read_bytes("cluster_members.txt").decode("utf-8"))
     return mb.read_members(p)
 
 
@@ -148,7 +149,7 @@ def test_the_release_ships_clusters_with_no_motif(reference: Bundle,
     Asserted so the release's own shape stays on the record: this is a property of the file we
     compare against, not a target to reproduce.
     """
-    pwms = pl.read_csv(reference.read_bytes("motif_pwms.txt"), separator="\t",
+    pwms = read_csv(reference.read_bytes("motif_pwms.txt"), separator="\t",
                        infer_schema_length=0, quote_char=None)
     members, motifs = set(released["cid"].unique()), set(pwms["cid"].unique())
     assert len(motifs) == RELEASE_PWM_CIDS
@@ -188,9 +189,11 @@ def measured(tables, ours, released) -> pl.DataFrame:
                   for name in ("chains.parquet", "records.parquet")]
     newer_than += [Path(os.environ.get("VDJDB_MOTIFS", "out/motifs")) / name
                    for name in ("cluster_members.txt", "cluster_members_tcremp.txt")]
+    report = resolve_path(report)
+    newer_than = [resolve_path(p) for p in newer_than]
     if report.exists() and all(
             p.exists() and report.stat().st_mtime >= p.stat().st_mtime for p in newer_than):
-        return pl.read_csv(report, separator="\t")
+        return read_csv(report, separator="\t")
     return mmv.measure(chains, records, mmv.sources(released, released, ours))
 
 

@@ -53,7 +53,11 @@ The legacy full, chain and slim files intentionally overlap. They serve existing
 different units and filters; “slim” names a column/row projection, not a compressed file format.
 Parquet is the compact choice for new applications. For a primary-only build use
 `vdjdb build --no-legacy --no-airr --out out/`; a complete release still requires all three
-projections. ZIP compression applies to compatibility text when it is packaged.
+projections. Generated TSV and TXT files larger than 1,000,000 bytes are stored locally as
+`.tsv.gz` or `.txt.gz`, with deterministic gzip metadata and no retained plain copy. This applies
+to legacy, AIRR, corpus, motif and report outputs. Smaller files may stay plain. Readers accept
+either form. Release packaging streams gzip sources into ZIP compression under the declared
+member names, preserving compatibility without creating uncompressed staging files.
 
 Local `out/` can also contain retained candidate builds and audit evidence. Its total disk usage
 is not the release download size. Measure one candidate's table directory and its ZIPs separately,

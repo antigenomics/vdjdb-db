@@ -40,6 +40,8 @@ from pathlib import Path
 
 import polars as pl
 
+from vdjdb.io.text import read_csv, resolve_path, write_csv
+
 #: Where the resolved table goes. ``.tsv``, never ``.txt`` -- ``summary/*.txt`` is gitignored, so a
 #: ``.txt`` here would never be committed and nothing would report it.
 TABLE = Path("summary/reference_years.tsv")
@@ -179,17 +181,18 @@ def refresh(records: pl.DataFrame, out: Path = TABLE) -> pl.DataFrame:
     ids = records["reference.id"].unique().to_list()
     df = resolve(ids)
     out.parent.mkdir(parents=True, exist_ok=True)
-    df.write_csv(out, separator="\t")
+    write_csv(df, out, separator="\t")
     return df
 
 
 def load(path: Path = TABLE) -> pl.DataFrame:
     """The committed table. Raises if it is missing; a fallback table is what went four years stale."""
+    path = resolve_path(path)
     if not path.exists():
         raise FileNotFoundError(
             f"{path} is missing; run `vdjdb refs` to rebuild it. The dashboard must not fall back "
             "to a hardcoded table -- that is how it came to be four years stale.")
-    return pl.read_csv(path, separator="\t")
+    return read_csv(path, separator="\t")
 
 
 def unresolved(records: pl.DataFrame, table: pl.DataFrame) -> pl.DataFrame:
