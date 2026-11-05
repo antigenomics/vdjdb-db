@@ -16,7 +16,7 @@ motif analysis. A web rewrite belongs to a separate project.
 6. Compare large-epitope responsiveness with the live site → report measured scope,
    cohort sizes and host differences; commit only verified compatibility changes.
 
-## Comprehensive UI benchmark extension (active)
+## Comprehensive UI benchmark extension
 
 Goal: explain the summer/production count discrepancy and exercise all available
 legacy UI workflows on Stratos with both summer and current web co-deliverables.
@@ -64,33 +64,33 @@ Owning files: existing navbar, home, overview and shared responsive components.
 
 Owning files: existing search components, filters, `SearchTable`, `DatabaseAPI` and websocket actor.
 
-- [ ] Verify totals, default filters and named epitope counts for both databases against source predicates.
+- [x] Verify totals, default filters and named epitope counts for both databases against source predicates.
 - [ ] Manually exercise CDR3 exact/substring/pattern and chain; antigen sequence/list/origin/gene; MHC class/allele; metadata/confidence/evidence filters, including combinations and negatives.
-- [ ] Verify reset/refresh, every page-size option, first/previous/next/last, ascending/descending sort and paired-row expansion.
+- [x] Verify reset/refresh, every page-size option, first/previous/next/last, ascending/descending sort and paired-row expansion.
 - [ ] Follow M/S evidence badges and external references; verify sequence, gene and epitope identity at destinations.
-- [ ] Download TSV with paired export off/on; verify header, row count, sequence contents and pairing behavior against the selected records.
-- [ ] Exercise empty results and invalid patterns; verify visible recovery and a subsequent successful query.
+- [x] Download TSV with paired export off/on; verify header, row count, sequence contents and pairing behavior against the selected records.
+- [x] Exercise empty results and invalid patterns; verify visible recovery and a subsequent successful query.
 
 ### Task 4: Paratopes
 
 Owning files: existing motif service/components, SVG logos, scatter bridge and method adapters.
 
-- [ ] Inspect specific alpha/beta GIL/NLV/GLC motifs and their sequences against source members/PWMs in both releases.
+- [x] Inspect specific alpha/beta GIL/NLV/GLC motifs and their sequences against source members/PWMs in both releases.
 - [ ] Exercise all supplied methods, epitope tree, multiple selection, collapse/clear and background subtraction.
 - [ ] Exercise CDR3 exact/substring search, chain selection, rankings and no-hit recovery.
 - [ ] Exercise scatter/legend selection and deep-link/reload synchronization with the correct logo.
 - [ ] Download motif/member exports and inspect sequences, cluster IDs, counts and filenames.
-- [ ] Verify summer's missing optional method/charts do not create errors or mislabel another method's results.
+- [x] Verify summer's missing optional method/charts do not create errors or mislabel another method's results.
 
 ### Task 5: Structures
 
 Owning files: existing structure service/cards, SVG index, hover controller and download adapter.
 
 - [ ] Verify MHC/epitope selectors and CDR3 chain/substring search, including no-hit recovery.
-- [ ] Inspect predicted/native paired sequences, metadata ipTM, native 100%, positive peptide contacts and exclusion of zero-contact maps.
+- [x] Inspect predicted/native paired sequences, metadata ipTM, native 100%, positive peptide contacts and exclusion of zero-contact maps.
 - [ ] Exercise selection 0→5, deselection, sixth-selection handling, front promotion, zoom/pan/reset, hover and selected-ID reloads.
 - [ ] Follow alpha/beta motif and Show table links; inspect destination sequence and evidence filters.
-- [ ] Download PDB, contact table, CA coordinates and bundle; verify names, types, CRC, row identities and contact-map agreement.
+- [x] Download PDB, contact table, CA coordinates and bundle; verify names, types, CRC, row identities and contact-map agreement.
 
 ### Task 6: Annotation and auxiliary workflows
 
@@ -103,11 +103,36 @@ Owning files: existing guest annotation/upload/sample/summary/export components.
 
 ### Task 7: Measured regression checks, fixes and delivery
 
-- [ ] Benchmark fixed Browse, motif and NLV structure journeys with exact cohorts, elapsed times, response sizes, DOM counts and server memory; use three bounded requests per comparable API case.
-- [ ] For every reproducible defect: record steps/expected/actual; add the smallest failing check; fix the owning shared cause; rerun that check and its manual journey.
-- [ ] Run affected Scala/frontend/Python checks first, then required full suites/build once for the final code state; cap ordinary tests at 5–10 minutes and diagnose stalls before rerunning.
-- [ ] Conduct one independent final source review, reconcile important findings, and recheck corrected paths.
+- [x] Benchmark fixed Browse, motif and NLV structure journeys with exact cohorts, elapsed times, response sizes, DOM counts and server memory; use three bounded requests per comparable API case.
+- [x] For every reproducible defect: record steps/expected/actual; add the smallest failing check; fix the owning shared cause; rerun that check and its manual journey.
+- [x] Run affected Scala/frontend/Python checks first, then required full suites/build once for the final code state; cap ordinary tests at 5–10 minutes and diagnose stalls before rerunning.
+- [x] Conduct one independent final source review, reconcile important findings, and recheck corrected paths.
 - [ ] Update aggregate audit/results and limitations, commit changes, preserve the preview, and checksum-sync final sources to Stratos.
+
+### Task 8: Versioned producer/consumer handoff (author extension)
+
+Ownership: `vdjdb-db/src/vdjdb/release`, release CLI/workflows and tests;
+`vdjmatch/src/vdjmatch/db/vdjdb.py` and fetch tests; legacy web preparation tools,
+new stdlib release installer, and focused offline adapter tests.
+
+- [x] Strict canonical monthly tags `vYYYY.MM.PATCH`, starting at patch 0; historical exact date tags remain readable.
+- [x] Pin publication to a source SHA, verify immutable tags, checksum the manifest, resolve legacy assets by role and resolve `--previous` to a real downloaded ZIP.
+- [x] Preserve compressed physical table names in every release role; teach shared VDJmatch ingestion to accept gzip while retaining primary as its default role.
+- [x] Bind prepared maps and metadata to the exact web table and source metadata using schema-versioned digest records. Existing geometry and accepted outputs stay unchanged.
+- [x] Package optional complete structure assets under role `web-structures` alongside `web`; preserve default rich/legacy/AIRR release roles and latest-version's legacy URL.
+- [x] Implement a stdlib web installer: exact-tag/manifest-role selection, checksums, safe fresh staging, full validation, and immutable release-directory installation. Never overlay old plain/gzip files or silently replace existing assets in place.
+- [x] Require complete structure assets for normal installation; make table-only mode explicit for releases intentionally lacking maps. Keep charts under the same selected database root; restart/recreate after selecting a release.
+- [x] Validate prepared-asset consistency and failed-update preservation with offline fixtures, then exercise the actual prepared Stratos co-deliverable without recomputing motif/structure analyses.
+- [ ] Document exact fetch/update commands and source/version identities, review cross-repo changes, commit and final-sync changed sources.
+
+Shared prepared-asset contract: schema version 1. `structure/asset-manifest.json`
+records `web_table_sha256`, `source_metadata_sha256`, structure hashes and served
+file paths/bytes/SHA256. `prepared-assets.json` beside the web table records those
+two input digests plus `structures_metadata_sha256` and
+`structure_manifest_sha256`. The web archive includes this record; the separate
+structure archive includes `structure/asset-manifest.json`. Validate all digest
+bindings before packaging or installation. Hash actual physical gzip bytes;
+never infer asset identity from a directory name, tag spelling, or existing hash.
 
 Report each journey as pass/fixed/blocked/not applicable with exact observations.
 Previously verified evidence is retained; this extension does not authorize motif
@@ -286,3 +311,47 @@ The timing comparison traverses different hosts/networks and the Browse cohorts
 differ, so it characterizes this audited setup rather than a controlled same-host
 benchmark. The test host uses isolated runtime state and loopback access. No
 production deployment, release or push is part of this delivery.
+
+## Versioned handoff validation (2026-11-05)
+
+The complete local `v2026.11.0` candidate contains all five roles: primary,
+legacy, AIRR, web and web-structures. All six SHA256SUMS entries (including the
+manifest) pass. Packaging preserves all 32 accepted source files (254,795,745
+bytes) exactly; rich tables retain 315,921 records, 516,101 chains and 1,625,234
+evidence rows. Legacy exports retain 516,101 main rows, 307,789 slim rows and
+315,921 full rows. No scientific analysis was rerun.
+
+The actual complete web installer passes with 516,101 rows, 11,234 metric rows,
+8,346 structure hashes and 50,086 sealed files. The running isolated preview
+selects this immutable installed root, with charts and structures under that same
+root. Original archives and the prior container remain available for recovery.
+The historical summer installer passes with 284,546 rows and the exact original
+decoded table SHA256. Its historical metadata omits a hidden hash row, puts the
+score row in another position and drops a trailing comment; historical-only
+staging normalizes those descriptors without changing table bytes. Modern
+manifest releases retain strict schema and byte validation.
+
+A source preview finds no conflicting remote edits across the eight requested
+software repositories; final synchronization awaits the remaining UI fixes and
+audit documentation. Publication and production service changes remain outside
+this validation run.
+
+Final UI suite: 122 passed; final backend suite: 339 passed, with the existing
+external-input control benchmark explicitly skipped. The final binary again
+loads summer's 284,546 total / 275,804 default-filtered rows, expands the reviewed
+four-row alpha query to eight paired rows, and shows native sequence-search maps
+with 14 contacts and ipTM 1.00 without console errors. Its absent TCREMP method
+remains an empty optional tree. The current full installed root is restored after
+this sequential check.
+
+The detailed findings, measured counts, defect fixes and verification boundaries
+are in [legacy-web-ui-audit.md](legacy-web-ui-audit.md). Unchecked broad checklist
+items must not be interpreted as fully verified: the demo account forbids uploads,
+mobile viewport resizing did not take effect, and some exhaustive control/route
+combinations remain outside the recorded manual journeys. The audit reports
+these boundaries instead of claiming every possible UI state is bug-free.
+
+The popup lifecycle correction also passes its packaged manual journey: Quick
+view is absent after hiding and after navigation to the structure page. Exact-tag
+fetching of all actual Python database roles passes against the full candidate
+artifact bytes; only GitHub discovery was replaced by the local test fixture.
