@@ -1,6 +1,7 @@
 """Generated text tables obey the byte limit without changing their contents."""
 import gzip
 import zipfile
+from pathlib import Path
 
 import polars as pl
 import pytest
@@ -90,8 +91,11 @@ def test_release_streams_gzip_sources_and_keeps_member_names(tmp_path):
     assert first.read_bytes() == repeated.read_bytes()
     expected = frame.write_csv(separator="\t").encode()
     with zipfile.ZipFile(first) as archive:
-        assert archive.read("test-one/table.txt") == expected
-        assert gzip.decompress(archive.read("test-one/table.tsv.gz")) == expected
+        assert set(archive.namelist()) == {"test-one/table.txt.gz", "test-one/table.tsv.gz"}
+        for relative in ("legacy/table.txt.gz", "tables/table.tsv.gz"):
+            member = "test-one/" + Path(relative).name
+            assert archive.read(member) == (tmp_path / relative).read_bytes()
+            assert gzip.decompress(archive.read(member)) == expected
     assert Bundle(tmp_path / "legacy").read_bytes("table.txt") == expected
     assert Bundle(first).read_bytes("table.txt") == expected
     assert Bundle(first).read_bytes("table.tsv") == expected

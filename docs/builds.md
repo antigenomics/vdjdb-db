@@ -21,7 +21,7 @@ uv run vdjdb summary --legacy out/legacy      # the dashboard, rendered offline 
 uv run vdjdb identity check --tables out/tables # the identifier invariants
 uv run vdjdb corpus build --tables out/tables # the reference corpus: tf-idf over 12 token families
 uv run vdjdb diff <reference.zip> out/legacy  # compare against a released zip
-uv run vdjdb release --tag vYYYY.MM.P --dry-run  # the three bundles, without touching the tree
+uv run vdjdb release --tag vYYYY.MM.PATCH --dry-run  # the three bundles, without touching the tree
 VDJDB_REFERENCE_ZIP=reference.zip uv run pytest -q
 ```
 

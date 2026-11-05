@@ -49,9 +49,11 @@ Examples of the source differences:
 | PMID:37133356 | 2,484 | 0 |
 | PMID:36134660 | 2,414 | 0 |
 
-The summer raw table has exactly 22 fields in all 284,546 rows. Its checksum is
+The summer raw table has exactly 22 fields in all 284,546 rows. Its decoded
+SHA256 is `3f5823f01d954751567a8d40870a284e384625242bce870b6390c3222a46568a`.
+The archive SHA256 is
 `9ae7724ab2ce9fdb09b1fb82a90c7462f75269f14f669238f8c154a80239cfc1`.
-The latest GitHub asset is named `vdjdb-2026-06-03.zip` under tag
+The audited GitHub asset is named `vdjdb-2026-06-03.zip` under tag
 `2026-06-03-ZENODO`; the observed asset was uploaded on 2026-08-26. A release
 name alone therefore does not identify the deployed input.
 

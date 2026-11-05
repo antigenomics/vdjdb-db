@@ -107,7 +107,7 @@ Owning files: existing guest annotation/upload/sample/summary/export components.
 - [x] For every reproducible defect: record steps/expected/actual; add the smallest failing check; fix the owning shared cause; rerun that check and its manual journey.
 - [x] Run affected Scala/frontend/Python checks first, then required full suites/build once for the final code state; cap ordinary tests at 5–10 minutes and diagnose stalls before rerunning.
 - [x] Conduct one independent final source review, reconcile important findings, and recheck corrected paths.
-- [ ] Update aggregate audit/results and limitations, commit changes, preserve the preview, and checksum-sync final sources to Stratos.
+- [x] Update aggregate audit/results and limitations, commit changes, preserve the preview, and checksum-sync final sources to Stratos.
 
 ### Task 8: Versioned producer/consumer handoff (author extension)
 
@@ -123,7 +123,7 @@ new stdlib release installer, and focused offline adapter tests.
 - [x] Implement a stdlib web installer: exact-tag/manifest-role selection, checksums, safe fresh staging, full validation, and immutable release-directory installation. Never overlay old plain/gzip files or silently replace existing assets in place.
 - [x] Require complete structure assets for normal installation; make table-only mode explicit for releases intentionally lacking maps. Keep charts under the same selected database root; restart/recreate after selecting a release.
 - [x] Validate prepared-asset consistency and failed-update preservation with offline fixtures, then exercise the actual prepared Stratos co-deliverable without recomputing motif/structure analyses.
-- [ ] Document exact fetch/update commands and source/version identities, review cross-repo changes, commit and final-sync changed sources.
+- [x] Document exact fetch/update commands and source/version identities, review cross-repo changes, commit and final-sync changed sources.
 
 Shared prepared-asset contract: schema version 1. `structure/asset-manifest.json`
 records `web_table_sha256`, `source_metadata_sha256`, structure hashes and served
@@ -331,10 +331,10 @@ score row in another position and drops a trailing comment; historical-only
 staging normalizes those descriptors without changing table bytes. Modern
 manifest releases retain strict schema and byte validation.
 
-A source preview finds no conflicting remote edits across the eight requested
-software repositories; final synchronization awaits the remaining UI fixes and
-audit documentation. Publication and production service changes remain outside
-this validation run.
+Final synchronization verified all 4,215 selected source files across the eight
+software repositories with zero differences or conflicts. Remote Git heads and
+destination-only files were preserved. Publication and production service
+changes remain outside this validation run.
 
 Final UI suite: 124 passed; final backend suite: 339 passed, with the existing
 external-input control benchmark explicitly skipped. The final binary again
