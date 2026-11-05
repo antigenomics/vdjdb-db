@@ -360,3 +360,55 @@ basenames such as `vdjdb.txt`, `cluster_members.txt`, and
 source is gzip-compressed; readers accept either form. Packaging never inflates
 these members. Plain generated TSV/TXT inputs above 1,000,000 bytes are rejected;
 the producing writer must emit deterministic gzip first.
+
+### Paired prepared web and structure assets
+
+`vdjdb release --tag vYYYY.MM.0 --with-web --build out --out out/release`
+continues to emit the fresh web table and motif charts from the existing build.
+With no prepared metrics or structure directory it emits a table/chart web ZIP.
+For a full update, first place the accepted preparation outputs at:
+
+```
+out/web/prepared-assets.json
+out/web/structures_metadata.tsv[.gz]
+out/web/structure/asset-manifest.json
+out/web/structure/<served maps, coordinates, contacts and downloads>
+```
+
+Preparation and sealing belong to `vdjdb-web/tools/prepare_structure_assets.py`
+and `build_structures_metadata.py`; see that repository's
+`tools/README.interop.md`. They run on the prepared Stratos release cohort.
+This release step does not rerun structures, motifs, or their scientific analyses.
+The freshly emitted web table must have the exact physical-byte SHA256 recorded
+by preparation, including gzip bytes. A different projection must be prepared
+and sealed for its own cohort before packaging.
+
+Schema version 1 of `prepared-assets.json` binds `web_table_sha256` and
+`source_metadata_sha256` to `structure/asset-manifest.json`, and binds the exact
+metrics and structure manifest with `structures_metadata_sha256` and
+`structure_manifest_sha256`. The structure manifest lists sorted `hashes` and
+`files` entries (`path`, integer `bytes`, `sha256`); paths are relative to the
+structure directory. Raw source metadata stays outside the release; its digest
+cross-binds the two records. All served files must be sealed. Per hash, both HTML
+maps, aligned PDB, contacts, amino-acid coordinates and the download ZIP are
+required. Missing files, stale digests, unsealed extras or unsafe paths fail.
+
+A complete valid preparation automatically adds role `web-structures` with
+`structure/asset-manifest.json` and the sealed files under `structure/`. The web
+ZIP includes `prepared-assets.json` and metrics. Both ZIPs are selected from the
+same release manifest; existing `primary`, `legacy`, `airr` roles stay stable.
+To publish a locally assembled Stratos release, transport the complete release
+assets with their manifest and SHA256SUMS, verify them, and publish both web ZIPs
+alongside the usual rich/legacy/AIRR assets under the selected immutable tag.
+Keep the full source SHA from the same release checkout; publication must verify
+the tag points to it. No publication is performed by local packaging.
+
+For CI, produce one prepared-input ZIP containing only
+`web/prepared-assets.json`, `web/structures_metadata.tsv[.gz]` and
+`web/structure/**` (paths relative to `out/`). Supply `with_web: true`, an
+immutable `prepared_web_url` and its exact `prepared_web_sha256` to the release
+workflow. CI verifies that digest, stages into a fresh `out/web`, then emits and
+checks its own web table before making both paired ZIPs. Both URL and digest
+are required together. The prepared-input archive is an explicit external input;
+scientific generation remains the Stratos preparation stage. The ordinary CI
+rich build and its defaults remain unchanged.

@@ -114,6 +114,13 @@ def build(build_dir: Path, out: Path, tag: str, *,
     them, and :data:`manifest.BUNDLES` stays the list of downloadable databases.
     """
     version = version_of(tag)
+    if any(b.role in {"web", "web-structures"} for b in bundles):
+        from .prepared import validate
+        complete = validate(build_dir / "web")
+        if complete and not any(b.role == "web-structures" for b in bundles):
+            bundles += (manifest.WEB_STRUCTURES,)
+        if not complete and any(b.role == "web-structures" for b in bundles):
+            raise ValueError("web-structures requires complete prepared assets")
     out.mkdir(parents=True, exist_ok=True)
     entries, paths = [], []
     for b in bundles:

@@ -84,8 +84,16 @@ WEB = Bundle(
              Member("web/motif-charts", name="motif-charts"),
              Member("web/native_representatives.tsv"),
              Member("web/structures_metadata.tsv", optional=True),
+             Member("web/prepared-assets.json", optional=True),
              *tuple(m for m in LEGACY.members if m.source.startswith("motifs/")),
              Member("summary/vdjdb_summary_embed.html"), Member("LICENSE")),
+)
+
+WEB_STRUCTURES = Bundle(
+    role="web-structures",
+    filename="vdjdb-web-structures-{version}.zip",
+    prefix="structure",
+    members=(Member("web/structure", name=""),),
 )
 
 PRIMARY = Bundle(
@@ -159,6 +167,11 @@ def resolve(bundle: Bundle, build: Path, version: str) -> list[tuple[Path, str]]
                 missing.append(m.source)
             continue
         name = m.member_name()
+        if bundle.role == "web-structures" and src.is_dir():
+            for asset in sorted(src.rglob("*")):
+                if asset.is_file():
+                    out.append((asset, f"structure/{asset.relative_to(src)}"))
+            continue
         if bundle.role == "web" and src.is_dir():
             for chart in sorted(src.rglob("*")):
                 if chart.is_file() and chart.suffix in {".html", ".js"}:

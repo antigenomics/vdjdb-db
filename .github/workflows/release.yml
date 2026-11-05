@@ -27,6 +27,14 @@ on:
         description: Include the optional legacy web bundle.
         type: boolean
         default: false
+      prepared_web_url:
+        description: Immutable prepared-input ZIP URL (requires with_web and SHA256).
+        type: string
+        default: ''
+      prepared_web_sha256:
+        description: SHA256 of the prepared-input ZIP physical bytes.
+        type: string
+        default: ''
       previous:
         description: Previous release tag, for the changelog.
         required: true
@@ -69,6 +77,8 @@ jobs:
       tag: ${{ inputs.tag }}
       source_commit: ${{ needs.plan.outputs.source_commit }}
       with_web: ${{ inputs.with_web }}
+      prepared_web_url: ${{ inputs.prepared_web_url }}
+      prepared_web_sha256: ${{ inputs.prepared_web_sha256 }}
       # Declared `required: true` on this workflow and passed nowhere until 2026-09-28, so
       # `vdjdb release` never wrote RELEASE_NOTES.md and `gh release create --notes-file` below
       # would have failed after the approval gate and a 30-minute build.

@@ -27,6 +27,14 @@ on:
         description: Include the optional legacy web bundle.
         type: boolean
         default: false
+      prepared_web_url:
+        description: Immutable prepared-input ZIP URL (requires with_web and SHA256).
+        type: string
+        default: ''
+      prepared_web_sha256:
+        description: SHA256 of the prepared-input ZIP physical bytes.
+        type: string
+        default: ''
       previous:
         description: Previous release tag. Without it `vdjdb release` writes no RELEASE_NOTES.md,
           and `release.yml` publishes with `--notes-file`, so the release would fail after the
@@ -440,6 +448,20 @@ jobs:
             echo "::error::modern releases require manifest.json"; exit 1
           fi
           gh release download "$PREVIOUS" --pattern "$ASSET" --output previous-release/legacy.zip
+
+      - name: Prepared web assets input
+        if: inputs.tag != '' && (inputs.prepared_web_url != '' || inputs.prepared_web_sha256 != '')
+        env:
+          PREPARED_URL: ${{ inputs.prepared_web_url }}
+          PREPARED_SHA: ${{ inputs.prepared_web_sha256 }}
+          WITH_WEB: ${{ inputs.with_web }}
+        run: |
+          set -euo pipefail
+          [[ "$WITH_WEB" == true && -n "$PREPARED_URL" && "$PREPARED_SHA" =~ ^[0-9a-f]{64}$ ]]
+          curl -fsSL --retry 5 --retry-connrefused --retry-delay 5 -o prepared-web.zip "$PREPARED_URL"
+          printf '%s  %s\n' "$PREPARED_SHA" prepared-web.zip | sha256sum -c -
+          uv run python -c 'from pathlib import Path; from vdjdb.release.prepared import stage_archive; stage_archive(Path("prepared-web.zip"), Path("out"))'
+          rm prepared-web.zip
 
       - name: Release assets
         if: inputs.tag != ''

@@ -885,7 +885,7 @@ def release_cmd(
     previous_lifecycle: Path | None = typer.Option(None, help="Previous release's lifecycle TSV, so "
                                                              "retirements carry the release that "
                                                              "last held them."),
-    with_web: bool = typer.Option(False, "--with-web", help="Include the separate legacy web co-deliverable."),
+    with_web: bool = typer.Option(False, "--with-web", help="Include the legacy web bundle and validated prepared structures when staged in build/web."),
     dry_run: bool = typer.Option(False, "--dry-run", help="Leave the tracked latest-version.txt "
                                                          "alone. For checking the bundle shape."),
 ) -> None:
