@@ -352,3 +352,11 @@ only historical releases without manifests use the single-ZIP fallback.
 selected asset before passing its path. The optional workflow `with_web` input
 passes `--with-web`; its default is false and the full existing rich build runs
 in either case. No publishing is performed by `vdjdb release` itself.
+
+
+Every release role preserves generated table compression inside its ZIP. Logical
+basenames such as `vdjdb.txt`, `cluster_members.txt`, and
+`vdjdb.rearrangement.tsv` become `.txt.gz` or `.tsv.gz` archive members when their
+source is gzip-compressed; readers accept either form. Packaging never inflates
+these members. Plain generated TSV/TXT inputs above 1,000,000 bytes are rejected;
+the producing writer must emit deterministic gzip first.

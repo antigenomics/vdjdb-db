@@ -263,3 +263,34 @@ def test_new_month_starts_at_zero_and_existing_tags_are_immutable():
         bundle.validate_new_tag("v2026.11.1", ["v2026.10.0"])
     with pytest.raises(ValueError, match="immutable"):
         bundle.validate_new_tag("v2026.11.0", ["v2026.11.0"])
+
+
+@pytest.mark.parametrize("declared,source", [
+    (manifest.LEGACY, "legacy/vdjdb.txt"),
+    (manifest.PRIMARY, "motifs/cluster_members.txt"),
+    (manifest.AIRR, "airr/vdjdb.rearrangement.tsv"),
+    (manifest.WEB, "web/vdjdb.txt"),
+])
+def test_all_archive_roles_retain_large_generated_gzip_tables(tmp_path, declared, source):
+    import gzip
+    from vdjdb.io.text import MAX_TEXT_BYTES, write_text
+
+    contents = "a" * (MAX_TEXT_BYTES + 1)
+    original = write_text(tmp_path / source, contents)
+    selected = manifest.Bundle(declared.role, declared.filename, declared.prefix,
+                               (manifest.Member(source),))
+    archive = manifest.write_zip(selected, tmp_path, tmp_path / "release", "test")
+    with zipfile.ZipFile(archive) as zipped:
+        expected = f"{declared.prefix.format(version='test')}/{Path(source).name}.gz"
+        assert zipped.namelist() == [expected]
+        assert zipped.read(expected) == original.read_bytes()
+        assert gzip.decompress(zipped.read(expected)).decode() == contents
+
+
+def test_packaging_rejects_oversized_plain_generated_tables(tmp_path):
+    from vdjdb.io.text import MAX_TEXT_BYTES
+
+    (tmp_path / "table.tsv").write_bytes(b"a" * (MAX_TEXT_BYTES + 1))
+    selected = manifest.Bundle("airr", "test.zip", "test", (manifest.Member("table.tsv"),))
+    with pytest.raises(ValueError, match="gzip it before packaging"):
+        manifest.write_zip(selected, tmp_path, tmp_path / "release", "test")
