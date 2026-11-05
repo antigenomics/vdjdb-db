@@ -132,6 +132,16 @@ jobs:
             release/*.zip release/manifest.json release/SHA256SUMS \
             release/identity-lifecycle.tsv
 
+  finalize:
+    needs: [plan, publish]
+    runs-on: ubuntu-latest
+    # A failed pointer update can be retried without rerunning immutable publication.
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ needs.plan.outputs.source_commit }}
+
       # Step 6. `latest-version.txt` ships inside the zip it names, so it is written before the
       # build and committed only once the release exists -- committing it earlier would name a
       # release that might never be published, which is how it came to name the previous one.
@@ -140,20 +150,21 @@ jobs:
           enable-cache: true
 
       - name: Finalize latest-version.txt
+        env:
+          TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
           uv sync
-          uv run python -c "from vdjdb.release.bundle import prepare_latest; \
-            print(prepare_latest('${{ inputs.tag }}').splitlines()[0])"
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add latest-version.txt
-          git commit -m "latest-version.txt -> ${{ inputs.tag }}" || echo "already current"
-          git push origin HEAD:master
+          uv run python -c 'import os; from pathlib import Path; from vdjdb.release.finalize import finalize_latest; finalize_latest(Path.cwd(), os.environ["TAG"])'
 
       - name: Assert line 1 resolves
+        env:
+          TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
-          URL=$(head -1 latest-version.txt)
+          # The pinned source checkout stays unchanged; check the generated release URL.
+          URL=$(uv run python -c 'import os; from vdjdb.release.bundle import legacy_url; print(legacy_url(os.environ["TAG"]))')
           echo "checking $URL"
           curl -fsIL -o /dev/null -w '%{http_code}\n' "$URL" | grep -qx 200

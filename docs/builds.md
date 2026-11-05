@@ -412,3 +412,18 @@ checks its own web table before making both paired ZIPs. Both URL and digest
 are required together. The prepared-input archive is an explicit external input;
 scientific generation remains the Stratos preparation stage. The ordinary CI
 rich build and its defaults remain unchanged.
+
+
+Release pointer finalization is a separate job after immutable publication. It
+fetches current master, adds only the generated `latest-version.txt` change in a
+fresh worktree and uses a normal push, retrying up to three times after races.
+Concurrent source commits and the pinned release tag remain intact. Commit
+failures are reported. Retrying the failed finalization job does not recreate
+tags or republish assets; rerunning its helper is idempotent when already current.
+
+Prepared release validation also requires nonempty sorted unique structure
+hashes present in both the web `TCR_hash` column and metrics `hash` column.
+Each download ZIP must contain the required coordinate/contact/PDB members,
+with unique safe names and exact served-file bytes; reading every member checks
+its CRC. Resealing an incomplete or internally stale download cannot make it a
+valid release input.

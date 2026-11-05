@@ -29,12 +29,16 @@ def prepared(tmp_path):
     web = tmp_path / "web"
     structure = web / "structure"
     structure.mkdir(parents=True)
-    (web / "vdjdb.txt.gz").write_bytes(gzip.compress(b"web table\n", mtime=0))
-    (web / "structures_metadata.tsv.gz").write_bytes(gzip.compress(b"metadata\n", mtime=0))
+    (web / "vdjdb.txt.gz").write_bytes(gzip.compress(("TCR_hash\n" + "a" * 64 + "\n").encode(), mtime=0))
+    (web / "structures_metadata.tsv.gz").write_bytes(gzip.compress(("hash\n" + "a" * 64 + "\n").encode(), mtime=0))
     h = "a" * 64
     for name in (f"{h}.html", f"{h}_simplified.html", f"aligned_aligned_{h}.pdb",
                  f"{h}_contacts_aa.txt.gz", f"{h}_aa_coordinates.tsv.gz", f"{h}_all.zip"):
         (structure / name).write_bytes(b"served file")
+    import zipfile
+    with zipfile.ZipFile(structure / f"{h}_all.zip", "w") as archive:
+        for name in (f"aligned_aligned_{h}.pdb", f"{h}_contacts_aa.txt.gz", f"{h}_aa_coordinates.tsv.gz"):
+            archive.write(structure / name, name)
     seal(web)
     return web
 
@@ -121,4 +125,33 @@ def test_changed_structure_manifest_and_unsealed_maps_fail(prepared):
     seal(prepared)
     (prepared / "structure/old-map.html").write_text("stale")
     with pytest.raises(ValueError, match="unsealed"):
+        validate(prepared)
+
+
+@pytest.mark.parametrize("counterexample", ["empty_hashes", "absent_table_hash", "absent_metrics_hash", "corrupt_zip"])
+def test_resealed_invalid_preparation_is_rejected(prepared, counterexample):
+    if counterexample.startswith("absent"):
+        name, column = (("vdjdb.txt.gz", "TCR_hash") if counterexample == "absent_table_hash"
+                        else ("structures_metadata.tsv.gz", "hash"))
+        (prepared / name).write_bytes(gzip.compress((column + "\n" + "c" * 64 + "\n").encode(), mtime=0))
+    elif counterexample == "corrupt_zip":
+        (prepared / "structure" / ("a" * 64 + "_all.zip")).write_bytes(b"not a zip")
+    seal(prepared)
+    if counterexample == "empty_hashes":
+        path = prepared / "structure/asset-manifest.json"
+        data = json.loads(path.read_text())
+        data["hashes"] = []
+        path.write_text(json.dumps(data))
+        path = prepared / "prepared-assets.json"
+        data = json.loads(path.read_text())
+        data["structure_manifest_sha256"] = manifest.sha256(prepared / "structure/asset-manifest.json")
+        path.write_text(json.dumps(data))
+    with pytest.raises(ValueError):
+        validate(prepared)
+
+
+def test_resealed_download_member_must_equal_served_file(prepared):
+    (prepared / "structure" / ("a" * 64 + "_contacts_aa.txt.gz")).write_bytes(b"changed contacts")
+    seal(prepared)
+    with pytest.raises(ValueError, match="stale structure ZIP member"):
         validate(prepared)
