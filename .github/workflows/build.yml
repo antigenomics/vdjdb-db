@@ -19,6 +19,14 @@ on:
         description: Release tag; when set, the release assets are built and uploaded.
         type: string
         default: ''
+      source_commit:
+        description: Immutable commit to build.
+        type: string
+        default: ''
+      with_web:
+        description: Include the optional legacy web bundle.
+        type: boolean
+        default: false
       previous:
         description: Previous release tag. Without it `vdjdb release` writes no RELEASE_NOTES.md,
           and `release.yml` publishes with `--notes-file`, so the release would fail after the
@@ -89,6 +97,8 @@ jobs:
       OPENBLAS_L2_SIZE: '256'
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_commit || github.sha }}
 
       - uses: astral-sh/setup-uv@v5
         with:
@@ -412,11 +422,32 @@ jobs:
             out/reports/structures/*.json
           retention-days: 90
 
+      - name: Previous release for changelog
+        if: inputs.tag != '' && inputs.previous != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREVIOUS: ${{ inputs.previous }}
+        run: |
+          set -euo pipefail
+          mkdir -p previous-release
+          # Historical releases predate manifests and have one legacy database zip.
+          if gh release view "$PREVIOUS" --json assets --jq '.assets[].name' | grep -qx manifest.json; then
+            gh release download "$PREVIOUS" --pattern manifest.json --dir previous-release
+            ASSET=$(jq -er '[.bundles[] | select(.role == "legacy")] | if length == 1 then .[0].file else error("expected one legacy bundle") end' previous-release/manifest.json)
+          elif [[ "$PREVIOUS" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}(-ZENODO)?$ ]]; then
+            ASSET=$(gh release view "$PREVIOUS" --json assets --jq '[.assets[] | select(.name | endswith(".zip"))] | if length == 1 then .[0].name else error("ambiguous historical release") end')
+          else
+            echo "::error::modern releases require manifest.json"; exit 1
+          fi
+          gh release download "$PREVIOUS" --pattern "$ASSET" --output previous-release/legacy.zip
+
       - name: Release assets
         if: inputs.tag != ''
         run: |
           uv run vdjdb release --tag "${{ inputs.tag }}" --build out --out out/release \
-            ${{ inputs.previous && format('--previous {0}', inputs.previous) || '' }}
+            --source-commit "$(git rev-parse HEAD)" \
+            ${{ inputs.previous && '--previous previous-release/legacy.zip' || '' }} \
+            ${{ inputs.with_web && '--with-web' || '' }}
 
       - uses: actions/upload-artifact@v4
         if: inputs.tag != ''

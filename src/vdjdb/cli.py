@@ -880,6 +880,7 @@ def release_cmd(
     tag: str = typer.Option(..., help="v<YYYY>.<MM>.<PATCH>, e.g. v2026.09.1."),
     build_dir: Path = typer.Option(Path("out"), "--build", help="What the build produced."),
     out: Path = typer.Option(Path("out/release"), help="Where the assets go."),
+    source_commit: str | None = typer.Option(None, help="Full build source SHA; defaults to git HEAD."),
     previous: Path | None = typer.Option(None, help="Previous release zip, for the changelog."),
     previous_lifecycle: Path | None = typer.Option(None, help="Previous release's lifecycle TSV, so "
                                                              "retirements carry the release that "
@@ -899,7 +900,14 @@ def release_cmd(
     from .release import bundle as b
     from .release import changelog as cl
 
+    import subprocess
+    import re
+
     version = b.version_of(tag)
+    if source_commit is None:
+        source_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    if not re.fullmatch(r"[0-9a-f]{40}", source_commit):
+        raise typer.BadParameter("source commit must be a full lowercase Git SHA")
     # `latest-version.txt` is tracked, so a dry run with a tag no release carries would leave the
     # repository naming a download that 404s (#707).
     latest = b.prepare_latest(tag, write=not dry_run)
@@ -926,7 +934,8 @@ def release_cmd(
         write_web(read_projection_tables(build_dir / "tables"), build_dir / "web",
                   motifs=build_dir / "motifs")
         bundles += (b.manifest.WEB,)
-    result = b.build(build_dir, out, tag, bundles=bundles, extras=(lifecycle_path,))
+    result = b.build(build_dir, out, tag, bundles=bundles, extras=(lifecycle_path,),
+                     source_commit=source_commit)
     for entry in result["bundles"]:
         typer.echo(f"{entry['role']:8} {entry['file']:34} {entry['bytes']:>13,} bytes  "
                    f"{len(entry['members']):>2} members")

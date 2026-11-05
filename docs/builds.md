@@ -330,3 +330,25 @@ continues to come from `tcr_pmhc_iptm`; native model confidence is absent.
 
 Pass `--structure-dir` to the metadata adapter to use rendered CDR3–peptide
 contact counts. Downloads use the same TCRen contact tables as the maps.
+
+
+## Dataset release versions
+
+New dataset releases use `vYYYY.MM.PATCH`: month `01`–`12`, and patch `0` for
+that month's first release, then a new patch for each correction. Patches have
+no leading zeros. Tags and published assets are immutable; corrections receive
+a new tag. Historical date tags remain readable for consumer compatibility.
+The dataset version is independent of the Python package version.
+
+`release.yml` pins the build to the planned source commit, records that full SHA
+in `manifest.json` (`schema_version: 1`), and verifies the tag points to that SHA
+before publishing. `SHA256SUMS` covers the manifest as well as the database
+bundles and lifecycle asset. The manifest's existing roles stay stable: Python
+VDJmatch selects `primary`; `latest-version.txt` line 1 selects `legacy`.
+Verification and previous-release changelogs select `legacy` by manifest role;
+only historical releases without manifests use the single-ZIP fallback.
+
+`--previous` accepts a local previous-release ZIP, not a tag. CI downloads the
+selected asset before passing its path. The optional workflow `with_web` input
+passes `--with-web`; its default is false and the full existing rich build runs
+in either case. No publishing is performed by `vdjdb release` itself.

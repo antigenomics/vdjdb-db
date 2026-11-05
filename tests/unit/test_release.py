@@ -84,8 +84,10 @@ def test_the_motif_members_name_the_directory_the_motifs_command_writes_to():
 
 
 def test_tag_scheme_is_enforced():
+    assert bundle.version_of("v2026.01.0") == "2026.01.0"
     assert bundle.version_of("v2026.09.1") == "2026.09.1"
-    for bad in ("2026-06-03", "v2026.9.1", "v2026.09", "2026.09.1", "v2026.09.1-ZENODO"):
+    for bad in ("2026-06-03", "v2026.9.1", "v2026.09", "2026.09.1", "v2026.09.1-ZENODO",
+                "v2026.00.0", "v2026.13.0", "v2026.09.01", "v2026.09.1\n"):
         with pytest.raises(ValueError, match="not v<YYYY>"):
             bundle.version_of(bad)
 
@@ -129,8 +131,9 @@ def test_bundles_are_byte_reproducible(build_dir, tmp_path):
 
 def test_manifest_names_every_bundle_by_role(build_dir, tmp_path):
     out = tmp_path / "rel"
-    bundle.build(build_dir, out, "v2026.09.1")
+    bundle.build(build_dir, out, "v2026.09.1", source_commit="a" * 40)
     m = json.loads((out / "manifest.json").read_text())
+    assert m["schema_version"] == 1 and m["source_commit"] == "a" * 40
     assert {b["role"] for b in m["bundles"]} == {"primary", "legacy", "airr"}
     assert m["tag"] == "v2026.09.1" and m["version"] == "2026.09.1"
     for entry in m["bundles"]:
@@ -152,6 +155,7 @@ def test_nothing_undeclared_reaches_a_bundle(build_dir, tmp_path):
 def test_checksums_are_the_format_sha256sum_reads(build_dir, tmp_path):
     out = tmp_path / "rel"
     bundle.build(build_dir, out, "v2026.09.1")
+    assert "  manifest.json\n" in (out / "SHA256SUMS").read_text()
     for line in (out / "SHA256SUMS").read_text().splitlines():
         digest, _, name = line.partition("  ")
         assert len(digest) == 64 and (out / name).exists()
@@ -250,3 +254,12 @@ def test_web_bundle_retains_compression(tmp_path):
                              (manifest.Member('web/vdjdb.txt'),))
     resolved = manifest.resolve(bundle, tmp_path, 'test')
     assert resolved[0][1] == 'web-test/vdjdb.txt.gz'
+
+
+def test_new_month_starts_at_zero_and_existing_tags_are_immutable():
+    assert bundle.validate_new_tag("v2026.11.0", ["2026-06-03"]) == "2026.11.0"
+    assert bundle.validate_new_tag("v2026.11.1", ["v2026.11.0"]) == "2026.11.1"
+    with pytest.raises(ValueError, match="patch 0"):
+        bundle.validate_new_tag("v2026.11.1", ["v2026.10.0"])
+    with pytest.raises(ValueError, match="immutable"):
+        bundle.validate_new_tag("v2026.11.0", ["v2026.11.0"])

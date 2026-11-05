@@ -206,11 +206,13 @@ def describe(path: Path, role: str) -> dict:
             "bytes": path.stat().st_size, "members": members}
 
 
-def write_manifest(entries: list[dict], out: Path, version: str, tag: str) -> Path:
+def write_manifest(entries: list[dict], out: Path, version: str, tag: str, *,
+                   source_commit: str | None = None) -> Path:
     """``manifest.json``: what a consumer reads to pick a bundle by role rather than by order."""
     path = out / "manifest.json"
     path.write_text(json.dumps(
-        {"version": version, "tag": tag, "bundles": entries}, indent=2) + "\n")
+        {"schema_version": 1, "version": version, "tag": tag,
+         "source_commit": source_commit, "bundles": entries}, indent=2) + "\n")
     return path
 
 

@@ -44,7 +44,18 @@ jobs:
           LINE_TAG=$(echo "$URL" | awk -F/ '{print $(NF-1)}')
           LINE_ASSET=$(basename "$URL")
           REL_TAG=$(gh release view --json tagName --jq .tagName)
-          REL_ASSET=$(gh release view --json assets --jq '.assets[] | select(.name | endswith(".zip")) | .name' | head -1)
+          ASSETS=$(gh release view "$REL_TAG" --json assets --jq '.assets[].name')
+          if printf '%s\n' "$ASSETS" | grep -qx manifest.json; then
+            mkdir -p latest-release
+            gh release download "$REL_TAG" --pattern manifest.json --dir latest-release
+            REL_ASSET=$(jq -er '[.bundles[] | select(.role == "legacy")] | if length == 1 then .[0].file else error("expected one legacy bundle") end' latest-release/manifest.json)
+            printf '%s\n' "$ASSETS" | grep -Fxq "$REL_ASSET" || REL_ASSET=''
+          elif [[ "$REL_TAG" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}(-ZENODO)?$ ]]; then
+            # Consumer compatibility for historical single-zip date releases only.
+            REL_ASSET=$(gh release view "$REL_TAG" --json assets --jq '[.assets[] | select(.name | endswith(".zip"))] | if length == 1 then .[0].name else error("ambiguous historical release") end')
+          else
+            REL_ASSET=''
+          fi
           echo "line1=$URL"            >> "$GITHUB_OUTPUT"
           echo "code=$CODE"            >> "$GITHUB_OUTPUT"
           echo "line_tag=$LINE_TAG"    >> "$GITHUB_OUTPUT"
