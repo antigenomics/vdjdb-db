@@ -16,6 +16,103 @@ motif analysis. A web rewrite belongs to a separate project.
 6. Compare large-epitope responsiveness with the live site → report measured scope,
    cohort sizes and host differences; commit only verified compatibility changes.
 
+## Comprehensive UI benchmark extension (active)
+
+Goal: explain the summer/production count discrepancy and exercise all available
+legacy UI workflows on Stratos with both summer and current web co-deliverables.
+Use the writing-plans, test-execution, systematic-debugging and executing-plans
+skills, plus the browser's local-web-development guidance for manual inspection.
+The author has explicitly authorized execution and functional fixes.
+
+Execution remains in the visible `codex/legacy-*` checkouts. Preserve other edits,
+rich-build outputs, release locks, accepted motif results and the published TCRen
+potential. Production is a read-only baseline; reversible uploads and exports
+belong on Stratos. Keep raw public exports and identifying mappings under ignored
+`out/interop/`; publish aggregate findings and neutral reproductions only.
+
+### Review focus
+
+- Total versus filtered versus paired counts must remain distinct and trace to source rows.
+- Filters must behave identically after paging, sorting, reset, refresh and deep links.
+- Summer lacks optional TCREMP/evidence/chart inputs; absence must not break other pages.
+- Empty/invalid searches, missing structures and stale selected IDs must recover visibly.
+- Large NLV card lists, overlays and mobile layouts must remain usable without errors.
+
+### Task 1: Trace database counts
+
+Owning code: web `Database.scala`, `DatabaseMetadata.scala`, `SearchTable.scala`,
+`filters_meta/meta-filters.ts`, and the deployed/released table provenance.
+
+- [x] Verify current live build identity and raw metadata count; independently query zero-filter and default-filter counts.
+- [x] Verify summer ZIP checksum, source row count and loaded count without changing its tables.
+- [x] Compare live and summer row multisets using available deployed inputs or a public export; group every added/removed row by source and transformation.
+- [x] Test the specific suspected cause against exact row counts; distinguish data selection, deduplication, parsing and display filtering.
+- [x] Record a reproducible arithmetic reconciliation, evidence and any unverified boundary.
+
+Count reconciliation: [legacy-web-record-counts.md](legacy-web-record-counts.md).
+
+### Task 2: Navigation, overview and visual baseline
+
+Owning files: existing navbar, home, overview and shared responsive components.
+
+- [ ] Exercise every navbar/menu destination, internal cross-page link, browser back/forward and reload.
+- [ ] Inspect Home/About/documentation links and Overview figures for loading, clipping and missing assets.
+- [ ] Inspect desktop and 375px mobile layouts, keyboard focus, dropdowns, tooltips and cookie controls.
+- [ ] Record console errors, broken resources, clipped controls and misleading loading/empty states.
+
+### Task 3: Browse and evidence
+
+Owning files: existing search components, filters, `SearchTable`, `DatabaseAPI` and websocket actor.
+
+- [ ] Verify totals, default filters and named epitope counts for both databases against source predicates.
+- [ ] Manually exercise CDR3 exact/substring/pattern and chain; antigen sequence/list/origin/gene; MHC class/allele; metadata/confidence/evidence filters, including combinations and negatives.
+- [ ] Verify reset/refresh, every page-size option, first/previous/next/last, ascending/descending sort and paired-row expansion.
+- [ ] Follow M/S evidence badges and external references; verify sequence, gene and epitope identity at destinations.
+- [ ] Download TSV with paired export off/on; verify header, row count, sequence contents and pairing behavior against the selected records.
+- [ ] Exercise empty results and invalid patterns; verify visible recovery and a subsequent successful query.
+
+### Task 4: Paratopes
+
+Owning files: existing motif service/components, SVG logos, scatter bridge and method adapters.
+
+- [ ] Inspect specific alpha/beta GIL/NLV/GLC motifs and their sequences against source members/PWMs in both releases.
+- [ ] Exercise all supplied methods, epitope tree, multiple selection, collapse/clear and background subtraction.
+- [ ] Exercise CDR3 exact/substring search, chain selection, rankings and no-hit recovery.
+- [ ] Exercise scatter/legend selection and deep-link/reload synchronization with the correct logo.
+- [ ] Download motif/member exports and inspect sequences, cluster IDs, counts and filenames.
+- [ ] Verify summer's missing optional method/charts do not create errors or mislabel another method's results.
+
+### Task 5: Structures
+
+Owning files: existing structure service/cards, SVG index, hover controller and download adapter.
+
+- [ ] Verify MHC/epitope selectors and CDR3 chain/substring search, including no-hit recovery.
+- [ ] Inspect predicted/native paired sequences, metadata ipTM, native 100%, positive peptide contacts and exclusion of zero-contact maps.
+- [ ] Exercise selection 0→5, deselection, sixth-selection handling, front promotion, zoom/pan/reset, hover and selected-ID reloads.
+- [ ] Follow alpha/beta motif and Show table links; inspect destination sequence and evidence filters.
+- [ ] Download PDB, contact table, CA coordinates and bundle; verify names, types, CRC, row identities and contact-map agreement.
+
+### Task 6: Annotation and auxiliary workflows
+
+Owning files: existing guest annotation/upload/sample/summary/export components.
+
+- [ ] On Stratos, exercise existing public synthetic/demo inputs, supported format selection, upload and resulting sample navigation.
+- [ ] Exercise available sample settings, annotation launch/status/results, summaries and exports with explicit bounded runtimes.
+- [ ] Test user-visible invalid input recovery with a small neutral fixture; do not create accounts, send mail or change production state.
+- [ ] Record any authentication-only controls that cannot be exercised with existing authorized sessions.
+
+### Task 7: Measured regression checks, fixes and delivery
+
+- [ ] Benchmark fixed Browse, motif and NLV structure journeys with exact cohorts, elapsed times, response sizes, DOM counts and server memory; use three bounded requests per comparable API case.
+- [ ] For every reproducible defect: record steps/expected/actual; add the smallest failing check; fix the owning shared cause; rerun that check and its manual journey.
+- [ ] Run affected Scala/frontend/Python checks first, then required full suites/build once for the final code state; cap ordinary tests at 5–10 minutes and diagnose stalls before rerunning.
+- [ ] Conduct one independent final source review, reconcile important findings, and recheck corrected paths.
+- [ ] Update aggregate audit/results and limitations, commit changes, preserve the preview, and checksum-sync final sources to Stratos.
+
+Report each journey as pass/fixed/blocked/not applicable with exact observations.
+Previously verified evidence is retained; this extension does not authorize motif
+reanalysis, production deployment or a web rewrite.
+
 ## Design
 
 `vdjdb make web` emits 27 columns; the ordinary legacy projection keeps 22.
