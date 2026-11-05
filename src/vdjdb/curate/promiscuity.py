@@ -33,12 +33,12 @@ refreshed by its own pull request through ``vdjdb promiscuity``, never written b
 
 from __future__ import annotations
 
-from vdjdb.io.text import read_csv, resolve_path
-
 from pathlib import Path
 from typing import NamedTuple
 
 import polars as pl
+
+from vdjdb.io.text import read_csv, resolve_path
 
 from ..config import Paths
 from ..schema import RESTRICTION_COLUMNS

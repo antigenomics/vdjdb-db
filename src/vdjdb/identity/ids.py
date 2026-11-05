@@ -36,7 +36,6 @@ records were added, amended or retired, as a reviewable diff.
 """
 from __future__ import annotations
 
-from vdjdb.io.text import read_csv, resolve_path, write_csv
 import hashlib
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
@@ -44,6 +43,8 @@ from enum import StrEnum
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import read_csv, resolve_path, write_csv
 
 from ..schema import ALL_COLUMNS, CHUNK_DEDUP_KEY, LEGACY_CHUNK_DEDUP_KEY
 

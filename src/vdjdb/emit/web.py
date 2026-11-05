@@ -3,11 +3,11 @@ from pathlib import Path
 
 import polars as pl
 
-from .legacy import _CSV, build_default
-from .vdjdb3 import joined
 from ..io.text import write_csv, write_text
 from ..schema import EVIDENCE_COLUMNS, VDJDB_WEB_COLUMNS
 from ..schema.fields import render_meta
+from .legacy import _CSV, build_default
+from .vdjdb3 import joined
 
 
 def build(tables: dict[str, pl.DataFrame]) -> pl.DataFrame:
@@ -68,8 +68,9 @@ def write_all(tables: dict[str, pl.DataFrame], out: Path, *, motifs: Path | None
     out.mkdir(parents=True, exist_ok=True)
     data = write_csv(build(tables), out / 'vdjdb.txt', **_CSV)
     meta = write_text(out / 'vdjdb.meta.txt', render_meta('vdjdb-web'))
-    from ..config import repo_root
     import shutil
+
+    from ..config import repo_root
     shutil.copyfile(repo_root() / 'rules/legacy_native_representatives.tsv',
                     out / 'native_representatives.tsv')
     if motifs is not None:

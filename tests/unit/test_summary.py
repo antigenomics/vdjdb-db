@@ -8,11 +8,11 @@ pipeline -- pandoc, the template and the filter -- over a fixture rather than a 
 """
 from __future__ import annotations
 
+import json
+import re
 import shutil
 import subprocess
 from pathlib import Path
-import re
-import json
 
 import pytest
 
@@ -61,7 +61,8 @@ def test_covid_plot_excludes_sars1_and_keeps_distinct_epitopes(tmp_path):
     script = tmp_path / "covid.R"
     script.write_text('''
 library(dplyr); library(stringr); library(ggplot2); library(ggalluvial); library(knitr)
-df <- data.frame(species="HomoSapiens", antigen.species=rep(c("SARS-CoV-2", "SARS-CoV-2", "SARS-CoV-1"), each=30),
+df <- data.frame(species="HomoSapiens",
+ antigen.species=rep(c("SARS-CoV-2", "SARS-CoV-2", "SARS-CoV-1"), each=30),
  antigen.gene="S", mhc.a="HLA-DPA1*01:03", mhc.b="HLA-DPB1*04:01", mhc.class="MHCII",
  antigen.epitope=rep(c("ALWAAAAAA", "ALWCCCCCC", "SARS1ONLY"), each=30),
  reference.id="PMID:1", gene="TRB")
@@ -88,6 +89,7 @@ stopifnot(setequal(as.character(strata$stratum[strata$x == 3]), c("ALWAAAAAA", "
 @pytest.mark.skipif(shutil.which("Rscript") is None, reason="needs dashboard R runtime")
 def test_summary_keeps_observed_mhc_and_v_gene_pairs(tmp_path):
     import polars as pl
+
     from vdjdb.emit.legacy import SLIM_GROUP
     from vdjdb.summary.interactive import _panels
 
@@ -96,7 +98,8 @@ def test_summary_keeps_observed_mhc_and_v_gene_pairs(tmp_path):
         for a, b, v, ref in [("HLA-DPA1*01:03", "HLA-DPB1*04:01", "TRAV12-2*01", "PMID:1"),
                               ("HLA-DRA*01:01", "HLA-DRB1*04:05", "TRAV26-1*01", "PMID:2")]:
             rows.append(dict(zip([*SLIM_GROUP, "mhc.a", "mhc.b", "mhc.class", "v.segm", "reference.id"],
-                                 ["TRA", "CAV" + "A" * (n + 1) + "F", "HomoSapiens", "GILGFVFTL", "M", "InfluenzaA", a, b, "MHCII", v, ref], strict=True)))
+                                 ["TRA", "CAV" + "A" * (n + 1) + "F", "HomoSapiens",
+                                  "GILGFVFTL", "M", "InfluenzaA", a, b, "MHCII", v, ref], strict=True)))
     long = pl.DataFrame(rows)
     slim = long.group_by(list(SLIM_GROUP)).agg(pl.exclude(SLIM_GROUP).unique().sort().str.join(","))
     long.write_csv(tmp_path / "vdjdb.txt", separator="\t")

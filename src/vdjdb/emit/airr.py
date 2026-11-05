@@ -32,11 +32,11 @@ One thing is still deliberately absent:
 """
 from __future__ import annotations
 
-from vdjdb.io.text import write_csv
-
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import write_csv
 
 from ..convert.coords import cdr3_aa
 

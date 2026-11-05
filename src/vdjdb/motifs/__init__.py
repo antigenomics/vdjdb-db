@@ -31,11 +31,11 @@ is used (``docs/denoising.md`` section 6.1).
 """
 from __future__ import annotations
 
-from vdjdb.io.text import write_csv
-
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import write_csv
 
 from . import cluster, emit, pwm, tcremp, tcrnet
 

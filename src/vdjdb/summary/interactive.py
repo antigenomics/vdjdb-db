@@ -291,13 +291,14 @@ SECTIONS: tuple[tuple[str, str, str], ...] = (
      "Distinct TCR chains, epitopes, MHC alleles and publications first reported at or before each "
      "year. Click a chain configuration in the legend to isolate it across all four metrics."),
     ("v-hla", "V gene and MHC allele",
-     "One heatmap per chain and MHC class; V genes and MHC groups each have at least 10 records. The colour scale is "
+     "One heatmap per chain and MHC class; V genes and MHC groups each have at least 10 records. "
+     "The colour scale is "
      "capped so a few very large cells do not flatten the rest; the hover reports the uncapped "
      "count."),
     ("spectratype", "CDR3 length", "Homo sapiens, both chains."),
     ("epitope-length", "Epitope length",
      "By MHC class. The hover carries the number of distinct CDR3 behind each bar."),
-    ("scores", "Confidence score", "Legacy 0–3 score; log record count, by MHC class and chain."),
+    ("scores", "Confidence score", "Legacy 0-3 score; log record count, by MHC class and chain."),
     ("hla-table", "MHC alleles", "The 40 most represented alleles; counts use distinct slim records."),
 )
 

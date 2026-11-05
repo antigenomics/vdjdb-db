@@ -20,9 +20,6 @@ One transport, shared with :mod:`vdjdb.summary.references`, which asks NCBI a di
 """
 from __future__ import annotations
 
-from vdjdb.io.text import read_csv, resolve_path, write_csv
-
-
 import hashlib
 import os
 import re
@@ -35,6 +32,8 @@ from pathlib import Path
 from xml.etree import ElementTree
 
 import polars as pl
+
+from vdjdb.io.text import read_csv, resolve_path, write_csv
 
 EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 

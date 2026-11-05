@@ -19,11 +19,12 @@ corrupt the row), and no JSON blobs at all.
 """
 from __future__ import annotations
 
-from vdjdb.io.text import write_csv
 from collections.abc import Sequence
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import write_csv
 
 from ..schema import (
     CHAIN_COLUMNS,

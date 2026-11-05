@@ -1,7 +1,6 @@
 """Offline prepared web/structure identity and archive-content checks."""
 import gzip
 import json
-from pathlib import Path
 
 import pytest
 
@@ -30,7 +29,8 @@ def prepared(tmp_path):
     structure = web / "structure"
     structure.mkdir(parents=True)
     (web / "vdjdb.txt.gz").write_bytes(gzip.compress(("TCR_hash\n" + "a" * 64 + "\n").encode(), mtime=0))
-    (web / "structures_metadata.tsv.gz").write_bytes(gzip.compress(("hash\n" + "a" * 64 + "\n").encode(), mtime=0))
+    (web / "structures_metadata.tsv.gz").write_bytes(
+        gzip.compress(("hash\n" + "a" * 64 + "\n").encode(), mtime=0))
     h = "a" * 64
     for name in (f"{h}.html", f"{h}_simplified.html", f"aligned_aligned_{h}.pdb",
                  f"{h}_contacts_aa.txt.gz", f"{h}_aa_coordinates.tsv.gz", f"{h}_all.zip"):
@@ -54,7 +54,8 @@ def test_paired_bundles_include_seals_and_exact_structure_files(prepared, tmp_pa
         with zipfile.ZipFile(tmp_path / "release" / entry["file"]) as archive:
             assert set(archive.namelist()) == set(entry["members"])
             if entry["role"] == "web-structures":
-                assert set(archive.namelist()) == {f"structure/{p.name}" for p in (prepared / "structure").iterdir()}
+                assert set(archive.namelist()) == {
+                    f"structure/{p.name}" for p in (prepared / "structure").iterdir()}
             else:
                 assert "db-2026.11.0/prepared-assets.json" in archive.namelist()
 
@@ -92,6 +93,7 @@ def test_table_only_allowed_but_unsealed_metrics_fail(tmp_path):
 
 def test_prepared_input_archive_stages_safely_and_rejects_overlays(tmp_path):
     import zipfile
+
     from vdjdb.release.prepared import stage_archive
 
     source = tmp_path / "input.zip"
@@ -128,7 +130,8 @@ def test_changed_structure_manifest_and_unsealed_maps_fail(prepared):
         validate(prepared)
 
 
-@pytest.mark.parametrize("counterexample", ["empty_hashes", "absent_table_hash", "absent_metrics_hash", "corrupt_zip"])
+@pytest.mark.parametrize("counterexample", [
+    "empty_hashes", "absent_table_hash", "absent_metrics_hash", "corrupt_zip"])
 def test_resealed_invalid_preparation_is_rejected(prepared, counterexample):
     if counterexample.startswith("absent"):
         name, column = (("vdjdb.txt.gz", "TCR_hash") if counterexample == "absent_table_hash"

@@ -4,11 +4,11 @@ Every subcommand is implemented; ``vdjdb --help`` lists them all.
 """
 from __future__ import annotations
 
-from vdjdb.io.text import read_csv, resolve_path, table_writer, write_csv, write_text
-
 from pathlib import Path
 
 import typer
+
+from vdjdb.io.text import read_csv, resolve_path, table_writer, write_csv, write_text
 
 from . import __version__
 from .config import Paths
@@ -135,7 +135,6 @@ def overlap(
     submitted: bool = typer.Option(False, help="Compare submitted junctions before repair."),
 ) -> None:
     """Screen distinct junction overlap within species/pMHC for source provenance review."""
-    import polars as pl
 
     from .assemble.master import build_master
     from .curate.authors import AUTHOR_TABLE, author_pairs, categories
@@ -509,7 +508,6 @@ def convert(
     release zip; it has no `d_call` (the file has no D column) and, on the current corpus, 1,501
     fewer chains, which is exactly what the legacy build drops.
     """
-    import polars as pl
 
     from .emit.airr import from_legacy, from_tables, write_all
     from .emit.vdjdb3 import read_tables
@@ -885,7 +883,9 @@ def release_cmd(
     previous_lifecycle: Path | None = typer.Option(None, help="Previous release's lifecycle TSV, so "
                                                              "retirements carry the release that "
                                                              "last held them."),
-    with_web: bool = typer.Option(False, "--with-web", help="Include the legacy web bundle and validated prepared structures when staged in build/web."),
+    with_web: bool = typer.Option(
+        False, "--with-web",
+        help="Include the legacy web bundle and validated prepared structures when staged in build/web."),
     dry_run: bool = typer.Option(False, "--dry-run", help="Leave the tracked latest-version.txt "
                                                          "alone. For checking the bundle shape."),
 ) -> None:
@@ -895,13 +895,13 @@ def release_cmd(
     `latest-version.txt` - belong to `release.yml`, which has the repository write access and
     network access they need.
     """
+    import re
+    import subprocess
+
     from .identity.checks import read_tables
     from .identity.lifecycle import advance, compare, present, read, write
     from .release import bundle as b
     from .release import changelog as cl
-
-    import subprocess
-    import re
 
     version = b.version_of(tag)
     if source_commit is None:
@@ -929,8 +929,8 @@ def release_cmd(
         typer.echo(f"identity-lifecycle.tsv -> {now.height:,} active ids")
     bundles = b.manifest.BUNDLES
     if with_web:
-        from .emit.web import write_all as write_web
         from .emit.vdjdb3 import read_tables as read_projection_tables
+        from .emit.web import write_all as write_web
         write_web(read_projection_tables(build_dir / "tables"), build_dir / "web",
                   motifs=build_dir / "motifs")
         bundles += (b.manifest.WEB,)
@@ -1144,7 +1144,6 @@ def corpus_build(
     The text family needs `corpus/text_terms.tsv`, which `vdjdb corpus refs` writes; without it the
     corpus builds from the receptor, antigen and MHC families and says so.
     """
-    import polars as pl
 
     from .corpus import build as cb
     from .corpus import pubmed as cp

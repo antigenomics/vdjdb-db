@@ -177,10 +177,12 @@ def resolve(bundle: Bundle, build: Path, version: str) -> list[tuple[Path, str]]
                 if chart.is_file() and chart.suffix in {".html", ".js"}:
                     if chart.is_symlink():
                         raise ValueError("web charts must be real generated files")
-                    out.append((chart, f"{bundle.prefix.format(version=version)}/{name}/{chart.relative_to(src)}"))
+                    out.append((chart,
+                                f"{bundle.prefix.format(version=version)}/{name}/{chart.relative_to(src)}"))
             continue
         if src.suffix in {".txt", ".tsv"} and src.stat().st_size > MAX_TEXT_BYTES:
-            raise ValueError(f"generated table {src} exceeds {MAX_TEXT_BYTES} bytes; gzip it before packaging")
+            raise ValueError(
+                f"generated table {src} exceeds {MAX_TEXT_BYTES} bytes; gzip it before packaging")
         if src.suffix == ".gz" and not name.endswith(".gz"):
             name += ".gz"
         out.append((src, f"{bundle.prefix.format(version=version)}/{name}"))

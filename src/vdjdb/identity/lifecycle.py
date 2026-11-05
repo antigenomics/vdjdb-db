@@ -18,12 +18,12 @@ when a chunk changes.
 """
 from __future__ import annotations
 
-from vdjdb.io.text import read_csv, resolve_path, write_csv
-
 from dataclasses import dataclass
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import read_csv, resolve_path, write_csv
 
 from .levels import LEVELS, level_of
 

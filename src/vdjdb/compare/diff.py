@@ -18,8 +18,8 @@ measurement, and a regression that touches a declared column would pass with no 
 """
 from __future__ import annotations
 
-import hashlib
 import gzip
+import hashlib
 import json
 import tomllib
 import zipfile

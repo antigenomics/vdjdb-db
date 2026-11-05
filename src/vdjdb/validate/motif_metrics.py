@@ -39,11 +39,11 @@ measured by different code. Acceptance and historical reporting answer different
 """
 from __future__ import annotations
 
-from vdjdb.io.text import read_csv, resolve_path
-
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import read_csv, resolve_path
 
 from ..compare import clustering
 from . import motif_bench as mb

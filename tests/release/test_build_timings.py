@@ -12,13 +12,13 @@ Core counts must match. Memory budgets remain absolute.
 """
 from __future__ import annotations
 
-from vdjdb.io.text import read_csv, resolve_path
-
 import os
 from pathlib import Path
 
 import polars as pl
 import pytest
+
+from vdjdb.io.text import read_csv, resolve_path
 
 pytestmark = pytest.mark.release
 

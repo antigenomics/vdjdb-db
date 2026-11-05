@@ -1,13 +1,14 @@
 """Produce record confidence v3 from completed tables and a frozen Bayesian model."""
 from __future__ import annotations
 
-from vdjdb.io.text import write_csv
 import hashlib
 import json
 from importlib.resources import files
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import write_csv
 
 from ..emit.vdjdb3 import read_table
 from .bayes import score_records

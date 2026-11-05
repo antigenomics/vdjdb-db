@@ -13,11 +13,11 @@
 # in docs/clustering.md is transcribed by hand.
 from __future__ import annotations
 
-from vdjdb.io.text import read_csv, resolve_path, write_csv
-
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import read_csv, resolve_path, write_csv
 
 SWEEPS = Path("out/reports/tuning")
 DOCS = Path("docs/tuning")
@@ -87,7 +87,8 @@ def scorecard() -> pl.DataFrame:
           .sort("gene", "algo", "retention"))
     write_csv(sc, DOCS / "scorecard.tsv", separator="\t")
     write_csv(sc.select("gene", "algo", "config", "retention", "lift", "f1", "q", "purity", "precision",
-               "epitopes", "perc_med", "cids", pl.col("admissible").cast(pl.Int8)), DOCS / "scorecard_plot.tsv", separator="\t")
+               "epitopes", "perc_med", "cids", pl.col("admissible").cast(pl.Int8)),
+              DOCS / "scorecard_plot.tsv", separator="\t")
     return sc
 
 

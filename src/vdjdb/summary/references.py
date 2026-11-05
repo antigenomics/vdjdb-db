@@ -31,9 +31,6 @@ blank ``reference.id`` is neither: it is the known curation gap on 854 records, 
 """
 from __future__ import annotations
 
-from vdjdb.io.text import read_csv, resolve_path, write_csv
-
-
 import json
 import re
 import subprocess
@@ -42,6 +39,8 @@ import urllib.request
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import read_csv, resolve_path, write_csv
 
 #: Where the resolved table goes. ``.tsv``, never ``.txt`` -- ``summary/*.txt`` is gitignored, so a
 #: ``.txt`` here would never be committed and nothing would report it.

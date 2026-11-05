@@ -31,11 +31,11 @@ numbers agree on all 408 (chain, metric, year) cells.
 """
 from __future__ import annotations
 
-from vdjdb.io.text import read_csv
-
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import read_csv
 
 #: Lifted from `2026-vdjdb-update/notebooks/vdjdb_timeline_figure.ipynb`. `fonttype 42` is what
 #: keeps text as text in the PDF rather than outlines, which every journal asks for.

@@ -23,11 +23,11 @@ is deciding, so the report does not wait for them.
 """
 from __future__ import annotations
 
-from vdjdb.io.text import read_csv, resolve_path
-
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import read_csv, resolve_path
 
 #: Columns whose values are compared against the rest of the corpus. A value absent from every other
 #: chunk is reported - not as an error, since a genuinely new epitope is the usual reason a chunk is

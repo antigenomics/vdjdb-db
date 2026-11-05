@@ -10,8 +10,8 @@ once, so dating the new studies costs a join rather than 600 network calls.
 """
 from __future__ import annotations
 
-import zipfile
 import gzip
+import zipfile
 from pathlib import Path
 
 import polars as pl

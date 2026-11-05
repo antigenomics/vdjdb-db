@@ -21,14 +21,13 @@ they already have.
 """
 from __future__ import annotations
 
-from vdjdb.io.text import read_csv, resolve_path
-
 import os
 from pathlib import Path
 
 import pytest
 
 from vdjdb.compare.diff import Bundle, DiffReport, diff, summary_from_json
+from vdjdb.io.text import read_csv, resolve_path
 from vdjdb.schema import SLIM_COLUMNS, VDJDB_COLUMNS
 
 pytestmark = pytest.mark.release

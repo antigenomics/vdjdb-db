@@ -6,8 +6,6 @@ Network fetches are excluded from compute budgets; memory limits are absolute.
 """
 from __future__ import annotations
 
-from vdjdb.io.text import write_csv
-
 import os
 import resource
 import sys
@@ -18,6 +16,8 @@ from pathlib import Path
 
 import polars as pl
 import psutil
+
+from vdjdb.io.text import write_csv
 
 
 def row_scaled_limits(timings: pl.DataFrame, baseline: pl.DataFrame, *,

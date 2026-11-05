@@ -11,12 +11,12 @@ roughly half the row count.
 """
 from __future__ import annotations
 
-from vdjdb.io.text import write_csv
-
 from collections.abc import Iterable
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import write_csv
 
 from ..config import Paths
 from ..curate.frequency import split_frequency

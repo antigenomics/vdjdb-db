@@ -35,8 +35,6 @@ human immunoglobulin table, so it was a range check rather than a membership one
 """
 from __future__ import annotations
 
-from vdjdb.io.text import read_csv, resolve_path
-
 import os
 from pathlib import Path
 
@@ -47,6 +45,7 @@ import legacy_qc as L
 from vdjdb.curate.anchors import templated
 from vdjdb.curate.nomenclature import _SPLIT, _imgt
 from vdjdb.emit.vdjdb3 import to_internal
+from vdjdb.io.text import read_csv, resolve_path
 
 pytestmark = pytest.mark.release
 

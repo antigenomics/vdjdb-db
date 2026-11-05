@@ -20,10 +20,10 @@ it had: its examples wrote ``antigen.species = HIV`` where the vocabulary now sa
 """
 from __future__ import annotations
 
-from vdjdb.io.text import write_text
-
 from pathlib import Path
 from typing import TYPE_CHECKING
+
+from vdjdb.io.text import write_text
 
 from .fields import CHUNK_COLUMNS, FIELDS
 

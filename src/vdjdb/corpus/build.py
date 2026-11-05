@@ -10,12 +10,12 @@ Postings are sorted by ``(term_id, document_id)``, which makes a term lookup one
 """
 from __future__ import annotations
 
-from vdjdb.io.text import write_csv
-
 import re
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import write_csv
 
 from . import mhc, pubmed, tokens
 

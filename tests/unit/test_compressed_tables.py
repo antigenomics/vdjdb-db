@@ -38,10 +38,9 @@ def test_rebuild_switches_formats_and_gzip_is_deterministic(tmp_path):
 def test_failed_write_preserves_previous_output(tmp_path):
     path = tmp_path / "table.tsv"
     path.write_text("previous\n")
-    with pytest.raises(RuntimeError):
-        with text.table_writer(path) as stream:
-            stream.write("partial")
-            raise RuntimeError("failed")
+    with pytest.raises(RuntimeError), text.table_writer(path) as stream:
+        stream.write("partial")
+        raise RuntimeError("failed")
     assert path.read_text() == "previous\n"
     assert sorted(p.name for p in tmp_path.iterdir()) == ["table.tsv"]
 

@@ -257,8 +257,8 @@ def test_explicit_coordinate_units_reach_both_export_formats(tmp_path, tables):
 
 
 def test_web_projection_preserves_legacy_and_adds_evidence():
-    from vdjdb.emit import web
     from vdjdb.assemble.evidence import empty
+    from vdjdb.emit import web
     from vdjdb.schema import VDJDB_COLUMNS, VDJDB_WEB_COLUMNS
 
     records = _frame(RECORDS, RECORD_COLUMNS, {'vdjdb.score': pl.Int64, 'chunk.row': pl.Int64})
@@ -300,8 +300,8 @@ def test_web_charts_use_shipped_coordinates_and_legacy_urls(tmp_path):
 
 
 def test_web_native_hash_recovery_prefers_the_records_cited_pdb(tables):
-    from vdjdb.emit.web import build
     from vdjdb.assemble.evidence import empty
+    from vdjdb.emit.web import build
     record = RECORDS[0]['record_id']
     tables = dict(tables)
     tables['records'] = tables['records'].with_columns(

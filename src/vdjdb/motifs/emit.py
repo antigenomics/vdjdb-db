@@ -13,11 +13,11 @@ rather than a second pipeline (ROADMAP section 6).
 """
 from __future__ import annotations
 
-from vdjdb.io.text import write_csv
-
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import write_csv
 
 #: ``cluster_members.txt``, 19 columns, in the order ``Motifs.scala`` types them.
 MEMBER_COLUMNS: tuple[str, ...] = (

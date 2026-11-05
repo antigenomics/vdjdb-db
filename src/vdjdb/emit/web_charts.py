@@ -1,6 +1,6 @@
 """Static legacy web scatter charts from shipped motif coordinates; no re-embedding."""
-from pathlib import Path
 import re
+from pathlib import Path
 
 from ..io.text import read_csv, resolve_path
 

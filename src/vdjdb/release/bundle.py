@@ -135,7 +135,8 @@ def build(build_dir: Path, out: Path, tag: str, *,
         entries.append(manifest.describe(zip_path, b.role))
         paths.append(zip_path)
     metadata = manifest.write_manifest(entries, out, version, tag, source_commit=source_commit)
-    manifest.write_checksums(paths + [metadata] + [resolve_path(p) for p in extras if resolve_path(p).exists()], out)
+    manifest.write_checksums(
+        paths + [metadata] + [resolve_path(p) for p in extras if resolve_path(p).exists()], out)
     return {"schema_version": 1, "version": version, "tag": tag,
             "source_commit": source_commit, "bundles": entries}
 

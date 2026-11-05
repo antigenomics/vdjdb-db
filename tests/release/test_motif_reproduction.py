@@ -21,8 +21,6 @@ The scorecards that chose the configuration are `docs/tuning/scorecard.tsv`, pin
 """
 from __future__ import annotations
 
-from vdjdb.io.text import read_csv, resolve_path, write_text
-
 import os
 from pathlib import Path
 
@@ -31,6 +29,7 @@ import pytest
 
 from vdjdb.compare.diff import Bundle
 from vdjdb.emit.vdjdb3 import read_table
+from vdjdb.io.text import read_csv, resolve_path, write_text
 from vdjdb.validate import motif_bench as mb
 from vdjdb.validate import motif_metrics as mmv
 

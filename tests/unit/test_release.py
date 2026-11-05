@@ -86,7 +86,8 @@ def test_the_motif_members_name_the_directory_the_motifs_command_writes_to():
 def test_tag_scheme_is_enforced():
     assert bundle.version_of("v2026.01.0") == "2026.01.0"
     assert bundle.version_of("v2026.09.1") == "2026.09.1"
-    for bad in ("2026-02-30", "2026-11-05-", "2026-11-05-../bad", "v2026.9.1", "v2026.09", "2026.09.1", "v2026.09.1-ZENODO",
+    for bad in ("2026-02-30", "2026-11-05-", "2026-11-05-../bad", "v2026.9.1", "v2026.09",
+                "2026.09.1", "v2026.09.1-ZENODO",
                 "v2026.00.0", "v2026.13.0", "v2026.09.01", "v2026.09.1\n"):
         with pytest.raises(ValueError, match="not v<YYYY>"):
             bundle.version_of(bad)
@@ -213,6 +214,7 @@ def _slim(rows: list[tuple[str, str, str]]) -> str:
 @pytest.mark.parametrize("archive", [False, True])
 def test_changelog_reads_plain_and_gzip_release_tables(tmp_path, compressed, archive):
     import gzip
+
     from vdjdb.release import changelog
 
     data = _slim([("CASSA", "GIL", "PMID:1,PMID:2")]).encode()
@@ -310,6 +312,7 @@ def test_web_bundle_is_opt_in_and_preserves_motif_contract():
 
 def test_web_bundle_retains_compression(tmp_path):
     import gzip
+
     from vdjdb.release import manifest
     root = tmp_path / 'web'
     root.mkdir()
@@ -337,6 +340,7 @@ def test_new_month_starts_at_zero_and_existing_tags_are_immutable():
 ])
 def test_all_archive_roles_retain_large_generated_gzip_tables(tmp_path, declared, source):
     import gzip
+
     from vdjdb.io.text import MAX_TEXT_BYTES, write_text
 
     contents = "a" * (MAX_TEXT_BYTES + 1)

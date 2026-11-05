@@ -18,11 +18,11 @@ clusterings when purity is the question, and say which is which (ROADMAP section
 """
 from __future__ import annotations
 
-from vdjdb.io.text import read_csv
-
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import read_csv
 
 #: The key a clustering is joined back onto -- ``cdr3|v.segm|j.segm``, the benchmark's own
 #: ``production_assign`` key, and deliberately not the epitope. Every cid is namespaced by

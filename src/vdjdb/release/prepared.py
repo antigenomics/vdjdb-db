@@ -4,8 +4,8 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
-import zipfile
 import re
+import zipfile
 from pathlib import Path, PurePosixPath
 
 from ..io.text import MAX_TEXT_BYTES, open_text, resolve_path

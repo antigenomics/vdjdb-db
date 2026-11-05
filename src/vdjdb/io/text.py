@@ -5,9 +5,10 @@ import gzip
 import os
 import shutil
 import tempfile
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterator, TextIO
+from typing import TextIO
 
 import polars as pl
 

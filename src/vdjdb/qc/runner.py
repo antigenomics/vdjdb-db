@@ -17,12 +17,12 @@ before removing repeated rows; the reader's defensive deduplication does not exc
 """
 from __future__ import annotations
 
-from vdjdb.io.text import write_csv
-
 from collections import Counter
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import write_csv
 
 from ..config import Paths
 from ..io.chunks import chunk_files, read_chunks

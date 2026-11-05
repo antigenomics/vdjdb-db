@@ -10,7 +10,7 @@ from vdjdb.release.finalize import finalize_latest
 
 def git(path, *args):
     return subprocess.run(["git", *args], cwd=path, check=True, text=True,
-                          stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.strip()
+                          capture_output=True).stdout.strip()
 
 
 @pytest.fixture
@@ -72,7 +72,8 @@ def test_finalize_retries_a_normal_push_race(history, monkeypatch):
 
     def run(command, *args, **kwargs):
         nonlocal raced
-        if command[:3] == ["git", "push", "origin"] and Path(kwargs.get("cwd", ".")).name == "checkout" and not raced:
+        if (command[:3] == ["git", "push", "origin"]
+                and Path(kwargs.get("cwd", ".")).name == "checkout" and not raced):
             raced = True
             (other / "second.txt").write_text("arrived during finalization")
             git(other, "add", "second.txt")

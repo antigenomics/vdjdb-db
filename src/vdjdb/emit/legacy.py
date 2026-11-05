@@ -18,12 +18,12 @@ Every deliberate quirk reproduced here has a comment saying why; anything withou
 """
 from __future__ import annotations
 
-from vdjdb.io.text import resolve_path, write_csv, write_text
-
 import json
 from pathlib import Path
 
 import polars as pl
+
+from vdjdb.io.text import resolve_path, write_csv, write_text
 
 from ..assemble.master import FIX_FIELDS
 from ..schema import FULL_COLUMNS, META_COLUMNS, METHOD_COLUMNS, SLIM_COLUMNS, VDJDB_COLUMNS
