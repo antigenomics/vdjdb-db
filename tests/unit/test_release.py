@@ -84,10 +84,39 @@ def test_the_motif_members_name_the_directory_the_motifs_command_writes_to():
 
 
 def test_tag_scheme_is_enforced():
+    assert bundle.version_of("v2026.01.0") == "2026.01.0"
     assert bundle.version_of("v2026.09.1") == "2026.09.1"
-    for bad in ("2026-06-03", "v2026.9.1", "v2026.09", "2026.09.1", "v2026.09.1-ZENODO"):
+    for bad in ("2026-02-30", "2026-11-05-", "2026-11-05-../bad", "v2026.9.1", "v2026.09",
+                "2026.09.1", "v2026.09.1-ZENODO",
+                "v2026.00.0", "v2026.13.0", "v2026.09.01", "v2026.09.1\n"):
         with pytest.raises(ValueError, match="not v<YYYY>"):
             bundle.version_of(bad)
+
+
+@pytest.mark.parametrize("tag", ["2026-11-05", "2026-11-05-SNAPSHOT", "2026-11-05-NOTE"])
+def test_date_tags_preserve_exact_identity(tag):
+    assert bundle.version_of(tag) == tag
+    assert bundle.validate_new_tag(tag, ["2026-06-03"]) == tag
+    assert f"/{tag}/vdjdb-legacy-{tag}.zip" in bundle.legacy_url(tag)
+    with pytest.raises(ValueError, match="immutable"):
+        bundle.validate_new_tag(tag, [tag])
+
+
+@pytest.mark.parametrize("tag,accepted", [
+    ("2026-06-03", True), ("2026-06-03-ZENODO", True),
+    ("2026-06-03-SNAPSHOT", True), ("pyvdjdb-2025-09-25", True),
+    ("2026-11-06-NOTE", True), ("v2026.11.0", False),
+    ("2026-11-06-../bad", False),
+])
+def test_workflow_historical_previous_tag_condition(tag, accepted):
+    import subprocess
+
+    line = next(s.strip() for s in Path(".github/workflows/build.yml").read_text().splitlines()
+                if s.strip().startswith('elif [[ "$PREVIOUS" =~'))
+    condition = line.removeprefix("elif ").removesuffix("; then")
+    result = subprocess.run(["bash", "-c", "PREVIOUS=$1; if " + condition +
+                             "; then exit 0; else exit 1; fi", "bash", tag], timeout=5)
+    assert (result.returncode == 0) == accepted
 
 
 def test_latest_version_is_idempotent_and_keeps_history(tmp_path):
@@ -100,6 +129,22 @@ def test_latest_version_is_idempotent_and_keeps_history(tmp_path):
     assert lines[0] == bundle.legacy_url("v2026.09.1")
     assert "https://example.invalid/old.zip" in lines, "history must be kept, not replaced"
     assert lines.count(lines[0]) == 1
+
+
+def test_workflows_retain_compressed_lifecycle(tmp_path):
+    import glob
+
+    for workflow, prefix in (("build.yml", "out/release/"), ("release.yml", "release/")):
+        text = Path(".github/workflows", workflow).read_text()
+        pattern = next(word for word in text.split()
+                       if word.startswith(prefix + "identity-lifecycle.tsv"))
+        directory = tmp_path / workflow
+        directory.mkdir()
+        for name in ("identity-lifecycle.tsv", "identity-lifecycle.tsv.gz"):
+            asset = directory / name
+            asset.touch()
+            assert glob.glob(str(directory / Path(pattern).name)) == [str(asset)]
+            asset.unlink()
 
 
 def test_line_one_names_the_legacy_bundle_of_this_tag():
@@ -129,8 +174,9 @@ def test_bundles_are_byte_reproducible(build_dir, tmp_path):
 
 def test_manifest_names_every_bundle_by_role(build_dir, tmp_path):
     out = tmp_path / "rel"
-    bundle.build(build_dir, out, "v2026.09.1")
+    bundle.build(build_dir, out, "v2026.09.1", source_commit="a" * 40)
     m = json.loads((out / "manifest.json").read_text())
+    assert m["schema_version"] == 1 and m["source_commit"] == "a" * 40
     assert {b["role"] for b in m["bundles"]} == {"primary", "legacy", "airr"}
     assert m["tag"] == "v2026.09.1" and m["version"] == "2026.09.1"
     for entry in m["bundles"]:
@@ -152,6 +198,7 @@ def test_nothing_undeclared_reaches_a_bundle(build_dir, tmp_path):
 def test_checksums_are_the_format_sha256sum_reads(build_dir, tmp_path):
     out = tmp_path / "rel"
     bundle.build(build_dir, out, "v2026.09.1")
+    assert "  manifest.json\n" in (out / "SHA256SUMS").read_text()
     for line in (out / "SHA256SUMS").read_text().splitlines():
         digest, _, name = line.partition("  ")
         assert len(digest) == 64 and (out / name).exists()
@@ -161,6 +208,29 @@ def _slim(rows: list[tuple[str, str, str]]) -> str:
     """A minimal `vdjdb.slim.txt`: (cdr3, epitope, comma-joined reference.id)."""
     head = "cdr3\tantigen.epitope\treference.id\n"
     return head + "".join(f"{c}\t{e}\t{r}\n" for c, e, r in rows)
+
+
+@pytest.mark.parametrize("compressed", [False, True])
+@pytest.mark.parametrize("archive", [False, True])
+def test_changelog_reads_plain_and_gzip_release_tables(tmp_path, compressed, archive):
+    import gzip
+
+    from vdjdb.release import changelog
+
+    data = _slim([("CASSA", "GIL", "PMID:1,PMID:2")]).encode()
+    name = "vdjdb.slim.txt" + (".gz" if compressed else "")
+    if compressed:
+        data = gzip.compress(data, mtime=0)
+    if archive:
+        source = tmp_path / "release.zip"
+        with zipfile.ZipFile(source, "w") as out:
+            out.writestr("vdjdb-2026-11-05/" + name, data)
+    else:
+        source = tmp_path
+        (source / name).write_bytes(data)
+    result = changelog._references(source)
+    assert set(result["reference.id"]) == {"PMID:1", "PMID:2"}
+    assert result["rows"].to_list() == [1, 1]
 
 
 def test_changelog_reports_a_renamed_study_as_a_rename(tmp_path):
@@ -229,3 +299,66 @@ def test_a_dry_run_leaves_the_tracked_latest_version_alone(tmp_path) -> None:
 
     prepare_latest("v2026.09.9", path)
     assert path.read_text() == content, "a real run writes exactly what the dry run computed"
+
+
+def test_web_bundle_is_opt_in_and_preserves_motif_contract():
+    from vdjdb.release import manifest
+    assert manifest.WEB not in manifest.BUNDLES
+    sources = [m.source for m in manifest.WEB.members]
+    assert sources[:2] == ['web/vdjdb.txt', 'web/vdjdb.meta.txt']
+    assert 'motifs/motif_pwms.txt' in sources
+    assert 'motifs/cluster_members_tcremp.txt' in sources
+
+
+def test_web_bundle_retains_compression(tmp_path):
+    import gzip
+
+    from vdjdb.release import manifest
+    root = tmp_path / 'web'
+    root.mkdir()
+    (root / 'vdjdb.txt.gz').write_bytes(gzip.compress(b'gene\nTRB\n', mtime=0))
+    bundle = manifest.Bundle('web', 'web-{version}.zip', 'web-{version}',
+                             (manifest.Member('web/vdjdb.txt'),))
+    resolved = manifest.resolve(bundle, tmp_path, 'test')
+    assert resolved[0][1] == 'web-test/vdjdb.txt.gz'
+
+
+def test_new_month_starts_at_zero_and_existing_tags_are_immutable():
+    assert bundle.validate_new_tag("v2026.11.0", ["2026-06-03"]) == "2026.11.0"
+    assert bundle.validate_new_tag("v2026.11.1", ["v2026.11.0"]) == "2026.11.1"
+    with pytest.raises(ValueError, match="patch 0"):
+        bundle.validate_new_tag("v2026.11.1", ["v2026.10.0"])
+    with pytest.raises(ValueError, match="immutable"):
+        bundle.validate_new_tag("v2026.11.0", ["v2026.11.0"])
+
+
+@pytest.mark.parametrize("declared,source", [
+    (manifest.LEGACY, "legacy/vdjdb.txt"),
+    (manifest.PRIMARY, "motifs/cluster_members.txt"),
+    (manifest.AIRR, "airr/vdjdb.rearrangement.tsv"),
+    (manifest.WEB, "web/vdjdb.txt"),
+])
+def test_all_archive_roles_retain_large_generated_gzip_tables(tmp_path, declared, source):
+    import gzip
+
+    from vdjdb.io.text import MAX_TEXT_BYTES, write_text
+
+    contents = "a" * (MAX_TEXT_BYTES + 1)
+    original = write_text(tmp_path / source, contents)
+    selected = manifest.Bundle(declared.role, declared.filename, declared.prefix,
+                               (manifest.Member(source),))
+    archive = manifest.write_zip(selected, tmp_path, tmp_path / "release", "test")
+    with zipfile.ZipFile(archive) as zipped:
+        expected = f"{declared.prefix.format(version='test')}/{Path(source).name}.gz"
+        assert zipped.namelist() == [expected]
+        assert zipped.read(expected) == original.read_bytes()
+        assert gzip.decompress(zipped.read(expected)).decode() == contents
+
+
+def test_packaging_rejects_oversized_plain_generated_tables(tmp_path):
+    from vdjdb.io.text import MAX_TEXT_BYTES
+
+    (tmp_path / "table.tsv").write_bytes(b"a" * (MAX_TEXT_BYTES + 1))
+    selected = manifest.Bundle("airr", "test.zip", "test", (manifest.Member("table.tsv"),))
+    with pytest.raises(ValueError, match="gzip it before packaging"):
+        manifest.write_zip(selected, tmp_path, tmp_path / "release", "test")

@@ -8,6 +8,8 @@
 
 from __future__ import annotations
 
+from vdjdb.io.text import write_csv, read_csv
+
 import csv
 import gzip
 import importlib.util
@@ -248,7 +250,7 @@ def _matrix_antibody(
 
 
 def load_peptide_key(path: Path) -> dict[str, str]:
-    frame = pl.read_csv(path, separator="\t", infer_schema_length=0)
+    frame = read_csv(path, separator="\t", infer_schema_length=0)
     out = {}
     for barcode, sequence, hla in frame.select("Barcode", "Sequence", "HLA").iter_rows():
         allele = str(hla).upper()
@@ -270,7 +272,7 @@ def viral_tables(
     """Deposited viral contigs and antibody counts, restricted to hashed donors."""
     peptide_of_feature = load_peptide_key(peptide_key_path)
     features = _matrix_antibody(matrix_path, barcodes_path, features_path, peptide_of_feature)
-    meta = pl.read_csv(meta_path, separator="\t", infer_schema_length=0)
+    meta = read_csv(meta_path, separator="\t", infer_schema_length=0)
     name_col = meta.columns[0]
     donor_of: dict[str, str] = {}
     for cell, donor in meta.select(name_col, "BC").iter_rows():
@@ -343,4 +345,4 @@ def viral_tables(
 def write_result(result: dict[str, pl.DataFrame], out: Path) -> None:
     out.mkdir(parents=True, exist_ok=True)
     for key, frame in result.items():
-        frame.write_csv(out / f"{key}.tsv", separator="\t")
+        write_csv(frame, out / f"{key}.tsv", separator="\t")

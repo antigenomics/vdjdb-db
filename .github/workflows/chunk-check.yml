@@ -64,7 +64,7 @@ jobs:
         # itself is worse than no check -- the reasoning `pyproject.toml` already applies to the
         # `summary` extra. Measured: 628 of 629 unit tests, 27 s.
         # confidence ensures pgmpy-backed score tests run instead of skipping.
-        run: uv sync --frozen --extra dev --extra test --extra motifs --extra confidence
+        run: uv sync --frozen --extra dev --extra test --extra motifs --extra confidence --extra summary
 
       # `ruff check .`, not `src/`: `tests/` is a third of the Python in the repository and was
       # unlinted, so an unsorted import block in a test passed CI and was caught only by someone
@@ -162,14 +162,14 @@ jobs:
         if: always()
         with:
           name: provenance-overlap
-          path: out/reports/provenance-overlap*.tsv
+          path: out/reports/provenance-overlap*.tsv*
           retention-days: 14
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: qc-report
-          path: qc-report.tsv
+          path: qc-report.tsv*
           retention-days: 14
 
       # What the submitter needs to see, on the pull request itself. The job already had
@@ -179,14 +179,15 @@ jobs:
       - name: Summarise for the pull request
         if: always() && github.event_name == 'pull_request'
         run: |
-          python3 - <<'PY' > comment.md
+          uv run python - <<'PY' > comment.md
           import csv, pathlib, collections
+          from vdjdb.io.text import resolve_path, open_text
           # `if: always()`, and `changed.txt` is written after the lint and unit-test steps - so a
           # failure there used to add a second red step with a traceback and post an empty comment.
           _c = pathlib.Path("changed.txt")
           changed = [l.strip() for l in _c.read_text().splitlines() if l.strip()] if _c.exists() else []
-          report = pathlib.Path("qc-report.tsv")
-          rows = list(csv.DictReader(report.open(), delimiter="\t")) if report.exists() else []
+          report = resolve_path(pathlib.Path("qc-report.tsv"))
+          rows = list(csv.DictReader(open_text(report), delimiter="\t")) if report.exists() else []
           print("## chunk-check\n")
           if not _c.exists():
               print("Changed-chunk selection did not complete.\n")

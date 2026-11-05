@@ -21,7 +21,7 @@ uv run vdjdb summary --legacy out/legacy      # the dashboard, rendered offline 
 uv run vdjdb identity check --tables out/tables # the identifier invariants
 uv run vdjdb corpus build --tables out/tables # the reference corpus: tf-idf over 12 token families
 uv run vdjdb diff <reference.zip> out/legacy  # compare against a released zip
-uv run vdjdb release --tag vYYYY.MM.P --dry-run  # the three bundles, without touching the tree
+uv run vdjdb release --tag vYYYY.MM.PATCH --dry-run  # the three bundles, without touching the tree
 VDJDB_REFERENCE_ZIP=reference.zip uv run pytest -q
 ```
 
@@ -302,3 +302,130 @@ refreshed by their own pull request and never written by a build:
 
 Neither is a cache: a cache is a stored answer to the question the build is currently asking, and
 these are inputs that arrive by review.
+
+### Legacy web co-deliverable
+
+`vdjdb make web --tables out/tables --out out/web` projects the 27-column
+legacy web table and matching metadata from the rich tables. The ordinary legacy
+export remains 22 columns. `vdjdb release TAG --with-web` additionally packages
+`vdjdb-web-VERSION.zip` with both motif methods, static scatter charts and the summary;
+existing release bundles are unchanged. Structure HTML and per-model metadata are
+prepared assets: use the legacy web's `tools/prepare_structure_assets.py`, then
+`tools/build_structure_maps.py` (TCRen environment, explicit path/hash manifest and
+source metadata identity check) and `tools/build_structures_metadata.py`
+(interface ipTM from `tcr_pmhc_iptm`), and place them beside the web tables.
+Do not run the old reconciliation script over this projection: it derives a
+second set of evidence rather than preserving the shipped rich evidence.
+
+Reviewed ambiguous model choices are in `rules/legacy_structure_representatives.tsv`.
+They preserve exact paired junctions and epitope, then use allele agreement or the
+original source-row V gene. Unknown or changed ambiguous associations fail the export.
+Reviewed experimental PDB representatives are in `rules/legacy_native_representatives.tsv`.
+The web ZIP includes prepared `web/structures_metadata.tsv[.gz]` when present;
+structure maps/downloads are deployed separately under the web database's `structure/`.
+
+For the legacy web display, native structures require a positive TCRen map contact
+count and use ipTM=1 (100%) as an experimental-display convention. Predicted ipTM
+continues to come from `tcr_pmhc_iptm`; native model confidence is absent.
+
+Pass `--structure-dir` to the metadata adapter to use rendered CDR3–peptide
+contact counts. Downloads use the same TCRen contact tables as the maps.
+
+
+## Dataset release versions
+
+Dataset releases retain `YYYY-MM-DD` tags, with an optional `-NOTE` suffix for
+an explicitly distinguished variant. Use the release title for seasonal names.
+The producer also accepts `vYYYY.MM.PATCH`: month `01`–`12`, and patch `0` for
+that month's first release. Patches have no leading zeros. Tags and published
+assets are immutable; corrections receive a new tag. A suffix does not by itself
+set GitHub prerelease status. Never generate a duplicate Zenodo twin release.
+The dataset version is independent of the Python package version.
+
+`release.yml` pins the build to the planned source commit, records that full SHA
+in `manifest.json` (`schema_version: 1`), and verifies the tag points to that SHA
+before publishing. `SHA256SUMS` covers the manifest as well as the database
+bundles and lifecycle asset. The manifest's existing roles stay stable: Python
+VDJmatch selects `primary`; `latest-version.txt` line 1 selects `legacy`.
+Verification and previous-release changelogs select `legacy` by manifest role;
+only historical releases without manifests use the single-ZIP fallback.
+
+`--previous` accepts a local previous-release ZIP, not a tag. CI downloads the
+selected asset before passing its path. The optional workflow `with_web` input
+passes `--with-web`; its default is false and the full existing rich build runs
+in either case. No publishing is performed by `vdjdb release` itself.
+
+
+Every release role preserves generated table compression inside its ZIP. Logical
+basenames such as `vdjdb.txt`, `cluster_members.txt`, and
+`vdjdb.rearrangement.tsv` become `.txt.gz` or `.tsv.gz` archive members when their
+source is gzip-compressed; readers accept either form. Packaging never inflates
+these members. Plain generated TSV/TXT inputs above 1,000,000 bytes are rejected;
+the producing writer must emit deterministic gzip first.
+
+### Paired prepared web and structure assets
+
+`vdjdb release --tag vYYYY.MM.0 --with-web --build out --out out/release`
+continues to emit the fresh web table and motif charts from the existing build.
+With no prepared metrics or structure directory it emits a table/chart web ZIP.
+For a full update, first place the accepted preparation outputs at:
+
+```
+out/web/prepared-assets.json
+out/web/structures_metadata.tsv[.gz]
+out/web/structure/asset-manifest.json
+out/web/structure/<served maps, coordinates, contacts and downloads>
+```
+
+Preparation and sealing belong to `vdjdb-web/tools/prepare_structure_assets.py`
+and `build_structures_metadata.py`; see that repository's
+`tools/README.interop.md`. They run on the prepared Stratos release cohort.
+This release step does not rerun structures, motifs, or their scientific analyses.
+The freshly emitted web table must have the exact physical-byte SHA256 recorded
+by preparation, including gzip bytes. A different projection must be prepared
+and sealed for its own cohort before packaging.
+
+Schema version 1 of `prepared-assets.json` binds `web_table_sha256` and
+`source_metadata_sha256` to `structure/asset-manifest.json`, and binds the exact
+metrics and structure manifest with `structures_metadata_sha256` and
+`structure_manifest_sha256`. The structure manifest lists sorted `hashes` and
+`files` entries (`path`, integer `bytes`, `sha256`); paths are relative to the
+structure directory. Raw source metadata stays outside the release; its digest
+cross-binds the two records. All served files must be sealed. Per hash, both HTML
+maps, aligned PDB, contacts, amino-acid coordinates and the download ZIP are
+required. Missing files, stale digests, unsealed extras or unsafe paths fail.
+
+A complete valid preparation automatically adds role `web-structures` with
+`structure/asset-manifest.json` and the sealed files under `structure/`. The web
+ZIP includes `prepared-assets.json` and metrics. Both ZIPs are selected from the
+same release manifest; existing `primary`, `legacy`, `airr` roles stay stable.
+To publish a locally assembled Stratos release, transport the complete release
+assets with their manifest and SHA256SUMS, verify them, and publish both web ZIPs
+alongside the usual rich/legacy/AIRR assets under the selected immutable tag.
+Keep the full source SHA from the same release checkout; publication must verify
+the tag points to it. No publication is performed by local packaging.
+
+For CI, produce one prepared-input ZIP containing only
+`web/prepared-assets.json`, `web/structures_metadata.tsv[.gz]` and
+`web/structure/**` (paths relative to `out/`). Supply `with_web: true`, an
+immutable `prepared_web_url` and its exact `prepared_web_sha256` to the release
+workflow. CI verifies that digest, stages into a fresh `out/web`, then emits and
+checks its own web table before making both paired ZIPs. Both URL and digest
+are required together. The prepared-input archive is an explicit external input;
+scientific generation remains the Stratos preparation stage. The ordinary CI
+rich build and its defaults remain unchanged.
+
+
+Release pointer finalization is a separate job after immutable publication. It
+fetches current master, adds only the generated `latest-version.txt` change in a
+fresh worktree and uses a normal push, retrying up to three times after races.
+Concurrent source commits and the pinned release tag remain intact. Commit
+failures are reported. Retrying the failed finalization job does not recreate
+tags or republish assets; rerunning its helper is idempotent when already current.
+
+Prepared release validation also requires nonempty sorted unique structure
+hashes present in both the web `TCR_hash` column and metrics `hash` column.
+Each download ZIP must contain the required coordinate/contact/PDB members,
+with unique safe names and exact served-file bytes; reading every member checks
+its CRC. Resealing an incomplete or internally stale download cannot make it a
+valid release input.

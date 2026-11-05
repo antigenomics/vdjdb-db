@@ -468,9 +468,11 @@ def test_compressed_registry_preserves_plain_tsv_and_deterministic_bytes(tmp_pat
     compressed = tmp_path / "records.tsv.gz"
     other = tmp_path / "other.tsv.gz"
     registry.save(plain)
+    expected = plain.read_bytes()
     registry.save(compressed)
     registry.save(other)
-    assert gzip.decompress(compressed.read_bytes()) == plain.read_bytes()
+    assert gzip.decompress(compressed.read_bytes()) == expected
+    assert not plain.exists()
     assert compressed.read_bytes() == other.read_bytes()
     restored = IdentityRegistry.load(compressed)
     assert restored.to_frame().equals(registry.to_frame())

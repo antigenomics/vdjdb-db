@@ -29,26 +29,46 @@ from __future__ import annotations
 import os
 import re
 import tempfile
+from datetime import date
 from pathlib import Path
 
+from ..io.text import resolve_path, write_text
 from . import manifest
 
-#: ``v<YYYY>.<MM>.<PATCH>`` -- CalVer, because this is a dataset with no API to break, and the patch
-#: component is what the date scheme lacked: ``2024-11-27`` needed an asset called
-#: ``vdjdb-2024-11-27-fixed.zip`` because there was nowhere to put a re-release.
-TAG = re.compile(r"^v(\d{4})\.(\d{2})\.(\d+)$")
+# Date tags preserve the public release convention; retain CalVer compatibility.
+TAG = re.compile(r"v([0-9]{4})\.(0[1-9]|1[0-2])\.(0|[1-9][0-9]*)")
+DATE_TAG = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}(?:-[A-Za-z0-9][A-Za-z0-9._-]*)?")
 RELEASES = "https://github.com/antigenomics/vdjdb-db/releases/download"
 LATEST = Path("latest-version.txt")
 
 
 def version_of(tag: str) -> str:
-    """``v2026.09.1`` -> ``2026.09.1``. Raises on anything that is not the declared scheme."""
-    if not TAG.match(tag):
+    """Keep date[-NOTE] tags intact; strip the leading v from CalVer tags."""
+    if DATE_TAG.fullmatch(tag):
+        try:
+            date.fromisoformat(tag[:10])
+        except ValueError:
+            pass
+        else:
+            return tag
+    if not TAG.fullmatch(tag):
         raise ValueError(
-            f"tag {tag!r} is not v<YYYY>.<MM>.<PATCH>. The date scheme it replaces had nowhere to "
-            "put a re-release, which is how 2026-06-03, 2026-06-03-ZENODO and "
-            "2026-06-03-SNAPSHOT all came to name the same build.")
+            f"tag {tag!r} is not v<YYYY>.<MM>.<PATCH> or a valid YYYY-MM-DD[-NOTE] tag")
     return tag[1:]
+
+
+def validate_new_tag(tag: str, existing: list[str]) -> str:
+    """Validate an immutable release tag; the first release in a month has patch zero."""
+    version = version_of(tag)
+    if tag in existing:
+        raise ValueError(f"tag {tag!r} already exists; release tags are immutable")
+    if DATE_TAG.fullmatch(tag):
+        return version
+    month, patch = version.rsplit(".", 1)
+    monthly = [t for t in existing if TAG.fullmatch(t) and t[1:].rsplit(".", 1)[0] == month]
+    if not monthly and patch != "0":
+        raise ValueError("the first release in a month must use patch 0")
+    return version
 
 
 def legacy_url(tag: str) -> str:
@@ -89,7 +109,7 @@ def prepare_latest(tag: str, path: Path = LATEST, *, write: bool = True) -> str:
 
 def build(build_dir: Path, out: Path, tag: str, *,
           bundles: tuple[manifest.Bundle, ...] = manifest.BUNDLES,
-          extras: tuple[Path, ...] = ()) -> dict:
+          extras: tuple[Path, ...] = (), source_commit: str | None = None) -> dict:
     """Write every bundle, the manifest and the checksums. Returns the manifest as a dict.
 
     ``build_dir`` is what ``vdjdb build`` / ``make legacy`` / ``motifs`` / ``summary`` produced,
@@ -101,15 +121,24 @@ def build(build_dir: Path, out: Path, tag: str, *,
     them, and :data:`manifest.BUNDLES` stays the list of downloadable databases.
     """
     version = version_of(tag)
+    if any(b.role in {"web", "web-structures"} for b in bundles):
+        from .prepared import validate
+        complete = validate(build_dir / "web")
+        if complete and not any(b.role == "web-structures" for b in bundles):
+            bundles += (manifest.WEB_STRUCTURES,)
+        if not complete and any(b.role == "web-structures" for b in bundles):
+            raise ValueError("web-structures requires complete prepared assets")
     out.mkdir(parents=True, exist_ok=True)
     entries, paths = [], []
     for b in bundles:
         zip_path = manifest.write_zip(b, build_dir, out, version)
         entries.append(manifest.describe(zip_path, b.role))
         paths.append(zip_path)
-    manifest.write_manifest(entries, out, version, tag)
-    manifest.write_checksums(paths + [p for p in extras if p.exists()], out)
-    return {"version": version, "tag": tag, "bundles": entries}
+    metadata = manifest.write_manifest(entries, out, version, tag, source_commit=source_commit)
+    manifest.write_checksums(
+        paths + [metadata] + [resolve_path(p) for p in extras if resolve_path(p).exists()], out)
+    return {"schema_version": 1, "version": version, "tag": tag,
+            "source_commit": source_commit, "bundles": entries}
 
 
 def stage(build_dir: Path, repo: Path = Path()) -> None:
@@ -123,4 +152,7 @@ def stage(build_dir: Path, repo: Path = Path()) -> None:
         src, dst = repo / name, build_dir / name
         if src.exists():
             dst.parent.mkdir(parents=True, exist_ok=True)
-            dst.write_bytes(src.read_bytes())
+            if dst.suffix == ".txt":
+                write_text(dst, src.read_text())
+            else:
+                dst.write_bytes(src.read_bytes())

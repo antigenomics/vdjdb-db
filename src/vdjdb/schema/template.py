@@ -23,6 +23,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from vdjdb.io.text import write_text
+
 from .fields import CHUNK_COLUMNS, FIELDS
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
@@ -189,8 +191,7 @@ def write_tsv(path: Path, examples: Sequence[dict[str, str]] = ()) -> Path:
     """The tab-separated template."""
     rows = [header_line()]
     rows += ["\t".join(row.get(c, "") for c in CHUNK_COLUMNS) for row in examples]
-    path.write_text("\n".join(rows) + "\n")
-    return path
+    return write_text(path, "\n".join(rows) + "\n")
 
 
 def write_xlsx(path: Path, examples: Sequence[dict[str, str]] = ()) -> Path:

@@ -17,6 +17,8 @@ from pathlib import Path
 
 import polars as pl
 
+from vdjdb.io.text import write_csv
+
 #: ``cluster_members.txt``, 19 columns, in the order ``Motifs.scala`` types them.
 MEMBER_COLUMNS: tuple[str, ...] = (
     "species", "antigen.epitope", "antigen.gene", "antigen.species", "mhc.a", "mhc.b", "mhc.class",
@@ -124,6 +126,6 @@ def write(members: pl.DataFrame, pwms: pl.DataFrame, out: Path, *,
     for name, df, cols in ((f"cluster_members{suffix}.txt", members, MEMBER_COLUMNS),
                            (f"motif_pwms{suffix}.txt", pwms, PWM_COLUMNS)):
         assert tuple(df.columns) == cols, f"{name}: column order is a contract, got {df.columns}"
-        df.write_csv(out / name, separator="\t", quote_style="never", line_terminator="\n")
+        write_csv(df, out / name, separator="\t", quote_style="never", line_terminator="\n")
         written[name] = df.height
     return written

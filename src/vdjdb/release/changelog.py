@@ -10,10 +10,13 @@ once, so dating the new studies costs a join rather than 600 network calls.
 """
 from __future__ import annotations
 
+import gzip
 import zipfile
 from pathlib import Path
 
 import polars as pl
+
+from ..io.text import read_csv
 
 MEMBER = "vdjdb.slim.txt"
 
@@ -31,13 +34,18 @@ def _references(source: Path) -> pl.DataFrame:
     preprint URLs with PubMed ids, and without this the release notes would report three studies
     withdrawn and three added when nothing changed but a name.
     """
+    options = dict(separator="\t", infer_schema_length=0, quote_char=None)
     if source.is_dir():
-        text = (source / MEMBER).read_text()
+        df = read_csv(source / MEMBER, **options)
     else:
         with zipfile.ZipFile(source) as zf:
-            name = next(n for n in zf.namelist() if Path(n).name == MEMBER)
-            text = zf.read(name).decode()
-    df = pl.read_csv(text.encode(), separator="\t", infer_schema_length=0, quote_char=None)
+            name = next(n for n in zf.namelist() if Path(n).name.removesuffix(".gz") == MEMBER)
+            with zf.open(name) as member:
+                if name.endswith(".gz"):
+                    with gzip.GzipFile(fileobj=member) as stream:
+                        df = read_csv(stream, **options)
+                else:
+                    df = read_csv(member, **options)
     return (df.select("cdr3", "antigen.epitope",
                       pl.col("reference.id").str.split(",").alias("ref"))
               # Pinned rather than left to the default, which Polars 2.0 flips. It makes no

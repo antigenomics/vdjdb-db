@@ -19,9 +19,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
 import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
+
+from ..io.text import MAX_TEXT_BYTES, resolve_path
 
 #: Read in blocks rather than all at once: the legacy `vdjdb.txt` is 240 MB.
 _CHUNK = 1 << 20
@@ -70,6 +73,27 @@ LEGACY = Bundle(
         Member("LICENSE"),
         Member("latest-version.txt"),
     ),
+)
+
+# Explicit opt-in co-deliverable; existing release roles and rich bundles stay unchanged.
+WEB = Bundle(
+    role="web",
+    filename="vdjdb-web-{version}.zip",
+    prefix="vdjdb-{version}",
+    members=(Member("web/vdjdb.txt"), Member("web/vdjdb.meta.txt"),
+             Member("web/motif-charts", name="motif-charts"),
+             Member("web/native_representatives.tsv"),
+             Member("web/structures_metadata.tsv", optional=True),
+             Member("web/prepared-assets.json", optional=True),
+             *tuple(m for m in LEGACY.members if m.source.startswith("motifs/")),
+             Member("summary/vdjdb_summary_embed.html"), Member("LICENSE")),
+)
+
+WEB_STRUCTURES = Bundle(
+    role="web-structures",
+    filename="vdjdb-web-structures-{version}.zip",
+    prefix="structure",
+    members=(Member("web/structure", name=""),),
 )
 
 PRIMARY = Bundle(
@@ -137,12 +161,31 @@ def resolve(bundle: Bundle, build: Path, version: str) -> list[tuple[Path, str]]
     out: list[tuple[Path, str]] = []
     missing: list[str] = []
     for m in bundle.members:
-        src = build / m.source
+        src = resolve_path(build / m.source)
         if not src.exists():
             if not m.optional:
                 missing.append(m.source)
             continue
-        out.append((src, f"{bundle.prefix.format(version=version)}/{m.member_name()}"))
+        name = m.member_name()
+        if bundle.role == "web-structures" and src.is_dir():
+            for asset in sorted(src.rglob("*")):
+                if asset.is_file():
+                    out.append((asset, f"structure/{asset.relative_to(src)}"))
+            continue
+        if bundle.role == "web" and src.is_dir():
+            for chart in sorted(src.rglob("*")):
+                if chart.is_file() and chart.suffix in {".html", ".js"}:
+                    if chart.is_symlink():
+                        raise ValueError("web charts must be real generated files")
+                    out.append((chart,
+                                f"{bundle.prefix.format(version=version)}/{name}/{chart.relative_to(src)}"))
+            continue
+        if src.suffix in {".txt", ".tsv"} and src.stat().st_size > MAX_TEXT_BYTES:
+            raise ValueError(
+                f"generated table {src} exceeds {MAX_TEXT_BYTES} bytes; gzip it before packaging")
+        if src.suffix == ".gz" and not name.endswith(".gz"):
+            name += ".gz"
+        out.append((src, f"{bundle.prefix.format(version=version)}/{name}"))
     if missing:
         raise FileNotFoundError(
             f"bundle {bundle.role!r} is missing required member(s): {', '.join(missing)} "
@@ -163,8 +206,9 @@ def write_zip(bundle: Bundle, build: Path, out: Path, version: str) -> Path:
             info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.external_attr = 0o644 << 16
-            with src.open("rb") as fh:
-                zf.writestr(info, fh.read())
+            # Keep the generated file's bytes and gzip suffix inside every bundle.
+            with src.open("rb") as fh, zf.open(info, "w", force_zip64=True) as member_out:
+                shutil.copyfileobj(fh, member_out)
     return target
 
 
@@ -176,11 +220,13 @@ def describe(path: Path, role: str) -> dict:
             "bytes": path.stat().st_size, "members": members}
 
 
-def write_manifest(entries: list[dict], out: Path, version: str, tag: str) -> Path:
+def write_manifest(entries: list[dict], out: Path, version: str, tag: str, *,
+                   source_commit: str | None = None) -> Path:
     """``manifest.json``: what a consumer reads to pick a bundle by role rather than by order."""
     path = out / "manifest.json"
     path.write_text(json.dumps(
-        {"version": version, "tag": tag, "bundles": entries}, indent=2) + "\n")
+        {"schema_version": 1, "version": version, "tag": tag,
+         "source_commit": source_commit, "bundles": entries}, indent=2) + "\n")
     return path
 
 

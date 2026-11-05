@@ -35,6 +35,8 @@ from pathlib import Path
 
 import polars as pl
 
+from vdjdb.io.text import read_csv
+
 #: Lifted from `2026-vdjdb-update/notebooks/vdjdb_timeline_figure.ipynb`. `fonttype 42` is what
 #: keeps text as text in the PDF rather than outlines, which every journal asks for.
 RC = {
@@ -65,8 +67,23 @@ def style():
 
 def cohort(legacy: Path) -> pl.DataFrame:
     """The slim table, which is what every panel below reads. One row per CDR3-antigen pair."""
-    return pl.read_csv(legacy / "vdjdb.slim.txt", separator="\t", infer_schema_length=0,
+    return read_csv(legacy / "vdjdb.slim.txt", separator="\t", infer_schema_length=0,
                        quote_char=None)
+
+
+def joint_contexts(legacy: Path, slim: pl.DataFrame) -> pl.DataFrame:
+    """Observed joint contexts, retaining the slim-record counting unit."""
+    from vdjdb.emit.legacy import SLIM_GROUP
+
+    keys = list(SLIM_GROUP)
+    long = read_csv(legacy / "vdjdb.txt", separator="\t", infer_schema_length=0,
+                    quote_char=None, columns=[*keys, "mhc.a", "mhc.b", "mhc.class",
+                                              "v.segm", "reference.id"]).fill_null("")
+    contexts = long.join(slim.select(keys).fill_null("").with_row_index("id"),
+                         on=keys, how="left", validate="m:1")
+    if contexts["id"].null_count() or contexts["id"].n_unique() != slim.height:
+        raise ValueError("long and slim summary cohorts differ")
+    return contexts
 
 
 def cumulative(legacy: Path, years: Path) -> pl.DataFrame:
@@ -75,9 +92,9 @@ def cumulative(legacy: Path, years: Path) -> pl.DataFrame:
     The same quantity the R document plots, by the same method: a key's first year, tabulated
     and cumulated. The form it replaced cross-joined every (year, year) pair, roughly 7M rows.
     """
-    full = pl.read_csv(legacy / "vdjdb_full.txt", separator="\t", infer_schema_length=0,
+    full = read_csv(legacy / "vdjdb_full.txt", separator="\t", infer_schema_length=0,
                        quote_char=None, truncate_ragged_lines=True)
-    pub = (pl.read_csv(years, separator="\t")
+    pub = (read_csv(years, separator="\t")
              .select("reference.id", pl.col("year").cast(pl.Int32).alias("pub_date")))
     base = (full.filter(pl.col("species") != "MacacaMulatta")
             .select(
@@ -276,16 +293,15 @@ def spectratype(cohort_df: pl.DataFrame, *, lo: int = 5, hi: int = 25, adjust: f
 def v_hla(cohort_df: pl.DataFrame, *, min_records: int = 10) -> pl.DataFrame:
     """``(gene, mhc.class, mhc, v, records)`` for the V-gene x MHC-allele heatmap.
 
-    Three columns are comma-separated lists and all three are exploded, so one slim row can land in
-    several cells. ``records`` therefore counts distinct source rows, not exploded ones --
-    `length(unique(id))` in the R, and the reason the row id is assigned before the explosion
-    rather than after.
+    Use :func:`joint_contexts` for a release: independently collapsed slim lists
+    do not retain joint MHC/V assignments. Count distinct slim IDs in each cell.
 
-    Alleles are truncated at the first ``:`` (two-field resolution) and V genes at ``*``, then
+    Alleles are truncated at the first ``:`` (first-field resolution) and V genes at ``*``, then
     anything whose MHC or V total is below ``min_records`` is dropped, exactly as the R does.
     """
+    if "id" not in cohort_df.columns:
+        cohort_df = cohort_df.with_row_index("id")
     d = (cohort_df.filter(pl.col("species") == "HomoSapiens")
-         .with_row_index("id")
          .select("id", "gene", "mhc.class", "mhc.a", "mhc.b", "v.segm")
          .with_columns(pl.col("mhc.a", "mhc.b", "v.segm").str.split(","))
          # Pinned: Polars 2.0 flips the default. `str.split` on an empty cell yields `[""]`,

@@ -33,6 +33,8 @@ from xml.etree import ElementTree
 
 import polars as pl
 
+from vdjdb.io.text import read_csv, resolve_path, write_csv
+
 EUTILS = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 
 #: Ids per request. NCBI's documented ceiling for a POST-sized id list is higher, but 200 matches
@@ -292,7 +294,7 @@ def write(records: pl.DataFrame, terms: pl.DataFrame, *, root: Path | None = Non
     for frame, rel in ((records, PUBMED_TABLE), (terms, TEXT_TERMS_TABLE)):
         path = base / rel
         path.parent.mkdir(parents=True, exist_ok=True)
-        frame.write_csv(path, separator="\t", quote_style="necessary")
+        path = write_csv(frame, path, separator="\t", quote_style="necessary")
         paths.append(path)
     return paths
 
@@ -303,8 +305,8 @@ def load_terms(path: Path | None = None) -> pl.DataFrame:
     Empty is a usable state: the corpus builds from the receptor, antigen and MHC families alone, and
     says the text family is absent rather than failing. That is what a fork and a first build see.
     """
-    target = path or TEXT_TERMS_TABLE
+    target = resolve_path(path or TEXT_TERMS_TABLE)
     schema = {"reference.id": pl.Utf8, "term": pl.Utf8, "tf": pl.UInt32}
     if not Path(target).exists():
         return pl.DataFrame(schema=schema)
-    return pl.read_csv(target, separator="\t", schema=schema)
+    return read_csv(target, separator="\t", schema=schema)
