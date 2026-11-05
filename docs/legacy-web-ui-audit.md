@@ -58,8 +58,8 @@ separate throughout.
 
 ## Versioned producer/consumer contract
 
-New dataset versions use immutable `vYYYY.MM.PATCH` tags, starting each month at
-patch zero. Publication is pinned to a source SHA; a concurrent source update
+Dataset releases retain immutable `YYYY-MM-DD` tags with optional `-NOTE`
+suffixes; the producer also accepts `vYYYY.MM.PATCH` tags. Publication is pinned to a source SHA; a concurrent source update
 cannot silently change the release or prevent safe pointer finalization.
 
 The complete local candidate contains primary, legacy, AIRR, web and

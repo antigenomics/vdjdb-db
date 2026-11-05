@@ -334,10 +334,12 @@ contact counts. Downloads use the same TCRen contact tables as the maps.
 
 ## Dataset release versions
 
-New dataset releases use `vYYYY.MM.PATCH`: month `01`–`12`, and patch `0` for
-that month's first release, then a new patch for each correction. Patches have
-no leading zeros. Tags and published assets are immutable; corrections receive
-a new tag. Historical date tags remain readable for consumer compatibility.
+Dataset releases retain `YYYY-MM-DD` tags, with an optional `-NOTE` suffix for
+an explicitly distinguished variant. Use the release title for seasonal names.
+The producer also accepts `vYYYY.MM.PATCH`: month `01`–`12`, and patch `0` for
+that month's first release. Patches have no leading zeros. Tags and published
+assets are immutable; corrections receive a new tag. A suffix does not by itself
+set GitHub prerelease status. Never generate a duplicate Zenodo twin release.
 The dataset version is independent of the Python package version.
 
 `release.yml` pins the build to the planned source commit, records that full SHA

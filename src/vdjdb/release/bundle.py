@@ -29,26 +29,31 @@ from __future__ import annotations
 import os
 import re
 import tempfile
+from datetime import date
 from pathlib import Path
 
 from ..io.text import resolve_path, write_text
 from . import manifest
 
-#: ``v<YYYY>.<MM>.<PATCH>`` -- CalVer, because this is a dataset with no API to break, and the patch
-#: component is what the date scheme lacked: ``2024-11-27`` needed an asset called
-#: ``vdjdb-2024-11-27-fixed.zip`` because there was nowhere to put a re-release.
+# Date tags preserve the public release convention; retain CalVer compatibility.
 TAG = re.compile(r"v([0-9]{4})\.(0[1-9]|1[0-2])\.(0|[1-9][0-9]*)")
+DATE_TAG = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}(?:-[A-Za-z0-9][A-Za-z0-9._-]*)?")
 RELEASES = "https://github.com/antigenomics/vdjdb-db/releases/download"
 LATEST = Path("latest-version.txt")
 
 
 def version_of(tag: str) -> str:
-    """``v2026.09.1`` -> ``2026.09.1``. Raises on anything that is not the declared scheme."""
+    """Keep date[-NOTE] tags intact; strip the leading v from CalVer tags."""
+    if DATE_TAG.fullmatch(tag):
+        try:
+            date.fromisoformat(tag[:10])
+        except ValueError:
+            pass
+        else:
+            return tag
     if not TAG.fullmatch(tag):
         raise ValueError(
-            f"tag {tag!r} is not v<YYYY>.<MM>.<PATCH>. The date scheme it replaces had nowhere to "
-            "put a re-release, which is how 2026-06-03, 2026-06-03-ZENODO and "
-            "2026-06-03-SNAPSHOT all came to name the same build.")
+            f"tag {tag!r} is not v<YYYY>.<MM>.<PATCH> or a valid YYYY-MM-DD[-NOTE] tag")
     return tag[1:]
 
 
@@ -57,6 +62,8 @@ def validate_new_tag(tag: str, existing: list[str]) -> str:
     version = version_of(tag)
     if tag in existing:
         raise ValueError(f"tag {tag!r} already exists; release tags are immutable")
+    if DATE_TAG.fullmatch(tag):
+        return version
     month, patch = version.rsplit(".", 1)
     monthly = [t for t in existing if TAG.fullmatch(t) and t[1:].rsplit(".", 1)[0] == month]
     if not monthly and patch != "0":

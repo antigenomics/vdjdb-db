@@ -11,6 +11,8 @@ from __future__ import annotations
 import shutil
 import subprocess
 from pathlib import Path
+import re
+import json
 
 import pytest
 
@@ -46,6 +48,27 @@ after the marker, must not appear
 """
 
 pandocmark = pytest.mark.skipif(shutil.which("pandoc") is None, reason="needs pandoc")
+
+
+@pytest.mark.skipif(shutil.which("Rscript") is None, reason="needs dashboard R runtime")
+def test_covid_plot_excludes_sars1_and_keeps_distinct_epitopes(tmp_path):
+    source = Path("summary/vdjdb_summary.Rmd").read_text()
+    block = next(b for b in re.findall(r"```\{r[^\n]*\}\n(.*?)```", source, re.S)
+                 if "-> df.c" in b)
+    script = tmp_path / "covid.R"
+    script.write_text('''
+library(dplyr); library(stringr); library(ggplot2); library(ggalluvial)
+df <- data.frame(species="HomoSapiens", antigen.species=rep(c("SARS-CoV-2", "SARS-CoV-2", "SARS-CoV-1"), each=30),
+ antigen.gene="S", mhc.a="HLA-A*02:01", mhc.b="B2M", mhc.class="MHCI",
+ antigen.epitope=rep(c("ALWAAAAAA", "ALWBBBBBB", "SARS1ONLY"), each=30),
+ reference.id="PMID:1", gene="TRB")
+''' + 'plot <- eval(parse(text=' + json.dumps(block) + '))\n' + '''
+stopifnot(setequal(df.c$Epitope, c("ALWAAAAAA", "ALWBBBBBB")))
+strata <- ggplot_build(plot)$data[[2]]
+stopifnot(setequal(as.character(strata$stratum[strata$x == 3]), c("ALWAAAAAA", "ALWBBBBBB")))
+''')
+    result = subprocess.run(["Rscript", str(script)], capture_output=True, text=True, timeout=45)
+    assert result.returncode == 0, result.stderr
 
 
 @pytest.fixture

@@ -86,10 +86,19 @@ def test_the_motif_members_name_the_directory_the_motifs_command_writes_to():
 def test_tag_scheme_is_enforced():
     assert bundle.version_of("v2026.01.0") == "2026.01.0"
     assert bundle.version_of("v2026.09.1") == "2026.09.1"
-    for bad in ("2026-06-03", "v2026.9.1", "v2026.09", "2026.09.1", "v2026.09.1-ZENODO",
+    for bad in ("2026-02-30", "2026-11-05-", "2026-11-05-../bad", "v2026.9.1", "v2026.09", "2026.09.1", "v2026.09.1-ZENODO",
                 "v2026.00.0", "v2026.13.0", "v2026.09.01", "v2026.09.1\n"):
         with pytest.raises(ValueError, match="not v<YYYY>"):
             bundle.version_of(bad)
+
+
+@pytest.mark.parametrize("tag", ["2026-11-05", "2026-11-05-SNAPSHOT", "2026-11-05-NOTE"])
+def test_date_tags_preserve_exact_identity(tag):
+    assert bundle.version_of(tag) == tag
+    assert bundle.validate_new_tag(tag, ["2026-06-03"]) == tag
+    assert f"/{tag}/vdjdb-legacy-{tag}.zip" in bundle.legacy_url(tag)
+    with pytest.raises(ValueError, match="immutable"):
+        bundle.validate_new_tag(tag, [tag])
 
 
 def test_latest_version_is_idempotent_and_keeps_history(tmp_path):

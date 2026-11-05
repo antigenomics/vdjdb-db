@@ -20,9 +20,13 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: v<YYYY>.<MM>.<PATCH>, e.g. v2026.09.1
+        description: YYYY-MM-DD[-NOTE] or vYYYY.MM.PATCH
         required: true
         type: string
+      title:
+        description: Release title (defaults to VDJdb plus version).
+        type: string
+        default: ''
       with_web:
         description: Include the optional legacy web bundle.
         type: boolean
@@ -117,6 +121,7 @@ jobs:
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TITLE: ${{ inputs.title || format('VDJdb {0}', needs.plan.outputs.version) }}
         run: |
           set -euo pipefail
           SHA="${{ needs.plan.outputs.source_commit }}"
@@ -127,7 +132,7 @@ jobs:
           git push origin "refs/tags/$TAG"
           test "$(git ls-remote origin "refs/tags/$TAG" | cut -f1)" = "$SHA"
           gh release create "$TAG" --verify-tag --target "$SHA" \
-            --title "VDJdb ${{ needs.plan.outputs.version }}" \
+            --title "$RELEASE_TITLE" \
             --notes-file release/RELEASE_NOTES.md \
             release/*.zip release/manifest.json release/SHA256SUMS \
             release/identity-lifecycle.tsv

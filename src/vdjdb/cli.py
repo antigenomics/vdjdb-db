@@ -877,7 +877,7 @@ def promiscuity_cmd(
 
 @app.command(name="release")
 def release_cmd(
-    tag: str = typer.Option(..., help="v<YYYY>.<MM>.<PATCH>, e.g. v2026.09.1."),
+    tag: str = typer.Option(..., help="YYYY-MM-DD[-NOTE] or v<YYYY>.<MM>.<PATCH>."),
     build_dir: Path = typer.Option(Path("out"), "--build", help="What the build produced."),
     out: Path = typer.Option(Path("out/release"), help="Where the assets go."),
     source_commit: str | None = typer.Option(None, help="Full build source SHA; defaults to git HEAD."),
