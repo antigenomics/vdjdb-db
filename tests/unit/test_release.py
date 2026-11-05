@@ -130,6 +130,22 @@ def test_latest_version_is_idempotent_and_keeps_history(tmp_path):
     assert lines.count(lines[0]) == 1
 
 
+def test_workflows_retain_compressed_lifecycle(tmp_path):
+    import glob
+
+    for workflow, prefix in (("build.yml", "out/release/"), ("release.yml", "release/")):
+        text = Path(".github/workflows", workflow).read_text()
+        pattern = next(word for word in text.split()
+                       if word.startswith(prefix + "identity-lifecycle.tsv"))
+        directory = tmp_path / workflow
+        directory.mkdir()
+        for name in ("identity-lifecycle.tsv", "identity-lifecycle.tsv.gz"):
+            asset = directory / name
+            asset.touch()
+            assert glob.glob(str(directory / Path(pattern).name)) == [str(asset)]
+            asset.unlink()
+
+
 def test_line_one_names_the_legacy_bundle_of_this_tag():
     # Clients in the wild download line 1 verbatim and expect the legacy layout inside it.
     url = bundle.legacy_url("v2026.09.1")

@@ -491,6 +491,6 @@ jobs:
             out/release/*.zip
             out/release/manifest.json
             out/release/SHA256SUMS
-            out/release/identity-lifecycle.tsv
+            out/release/identity-lifecycle.tsv*
             out/release/RELEASE_NOTES.md
           retention-days: 7

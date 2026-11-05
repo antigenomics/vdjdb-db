@@ -135,7 +135,7 @@ jobs:
             --title "$RELEASE_TITLE" \
             --notes-file release/RELEASE_NOTES.md \
             release/*.zip release/manifest.json release/SHA256SUMS \
-            release/identity-lifecycle.tsv
+            release/identity-lifecycle.tsv*
 
   finalize:
     needs: [plan, publish]
