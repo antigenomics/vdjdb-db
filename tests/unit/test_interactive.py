@@ -28,6 +28,7 @@ def _legacy(tmp: Path) -> Path:
         "reference.id": ["PMID:1", "PMID:2"], "vdjdb.score": ["1", "2"],
         "TCR_hash": ["a", "b"], "j.start": ["7", "8"], "v.end": ["3", "4"]})
     slim.write_csv(d / "vdjdb.slim.txt", separator="\t")
+    slim.write_csv(d / "vdjdb.txt", separator="\t")
     full = pl.DataFrame({
         "reference.id": ["PMID:1", "PMID:2"], "antigen.epitope": ["GILGFVFTL", "NLVPMVATV"],
         "species": ["HomoSapiens", "HomoSapiens"],

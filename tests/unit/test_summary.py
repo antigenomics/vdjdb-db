@@ -66,6 +66,7 @@ df <- data.frame(species="HomoSapiens", antigen.species=rep(c("SARS-CoV-2", "SAR
  antigen.epitope=rep(c("ALWAAAAAA", "ALWCCCCCC", "SARS1ONLY"), each=30),
  reference.id="PMID:1", gene="TRB")
 df <- rbind(df, transform(df, gene="TRA"))
+df.context <- transform(df, id=seq_len(nrow(df)))
 ''' + 'plot <- eval(parse(text=' + json.dumps(block) + '))\n' + '''
 stopifnot(setequal(df.c$Epitope, c("ALWAAAAAA", "ALWCCCCCC")))
 strata <- ggplot_build(plot)$data[[2]]
@@ -81,7 +82,48 @@ stopifnot(setequal(as.character(strata$stratum[strata$x == 3]), c("ALWAAAAAA", "
                             "\n\n!summary_embed_end!\n")
     fragment = tmp_path / "hla.html"
     render.extract(intermediate, fragment)
-    assert "HLA-DPA1*01/B1*04" in html.unescape(fragment.read_text())
+    assert "HLA-DPA1*01/HLA-DPB1*04" in html.unescape(fragment.read_text())
+
+
+@pytest.mark.skipif(shutil.which("Rscript") is None, reason="needs dashboard R runtime")
+def test_summary_keeps_observed_mhc_and_v_gene_pairs(tmp_path):
+    import polars as pl
+    from vdjdb.emit.legacy import SLIM_GROUP
+    from vdjdb.summary.interactive import _panels
+
+    rows = []
+    for n in range(12):
+        for a, b, v, ref in [("HLA-DPA1*01:03", "HLA-DPB1*04:01", "TRAV12-2*01", "PMID:1"),
+                              ("HLA-DRA*01:01", "HLA-DRB1*04:05", "TRAV26-1*01", "PMID:2")]:
+            rows.append(dict(zip([*SLIM_GROUP, "mhc.a", "mhc.b", "mhc.class", "v.segm", "reference.id"],
+                                 ["TRA", "CAV" + "A" * (n + 1) + "F", "HomoSapiens", "GILGFVFTL", "M", "InfluenzaA", a, b, "MHCII", v, ref], strict=True)))
+    long = pl.DataFrame(rows)
+    slim = long.group_by(list(SLIM_GROUP)).agg(pl.exclude(SLIM_GROUP).unique().sort().str.join(","))
+    long.write_csv(tmp_path / "vdjdb.txt", separator="\t")
+    slim.write_csv(tmp_path / "vdjdb.slim.txt", separator="\t")
+    source = Path("summary/vdjdb_summary.Rmd").read_text()
+    chunks = re.findall(r"```\{r[^\n]*\}\n(.*?)```", source, re.S)
+    load = next(b for b in chunks if "df = fread_generated" in b)
+    mhc = next(b for b in chunks if "df.m =" in b)
+    vh = next(b for b in chunks if "df.vhla =" in b).split("#df.vhla$v.segm.split")[0]
+    script = tmp_path / "joint.R"
+    script.write_text('params <- list(legacy=' + json.dumps(str(tmp_path)) + ')\n' +
+                      load + '\n' + mhc + '\n' + vh + '''
+stopifnot(nrow(df.m) == 2, all(df.m$Records == 12), all(df.m$Studies == 1))
+stopifnot(nrow(df.vhla) == 2, all(df.vhla$records == 12))
+stopifnot(all(df.vhla$v.segm.split[df.vhla$mhc.a.split == "HLA-DPA1*01"] == "TRAV12-2"))
+stopifnot(all(df.vhla$v.segm.split[df.vhla$mhc.a.split == "HLA-DRA*01"] == "TRAV26-1"))
+''')
+    result = subprocess.run(["Rscript", str(script)], capture_output=True, text=True, timeout=45)
+    assert result.returncode == 0, result.stderr
+    panels = _panels()
+    contexts = panels.joint_contexts(tmp_path, slim)
+    cells = panels.v_hla(contexts, min_records=1)
+    assert contexts["id"].n_unique() == 12
+    assert cells.height == 2
+    assert cells["records"].to_list() == [12, 12]
+    assert set(cells.select("mhc", "v").iter_rows()) == {
+        ("DPA1*01 / DPB1*04", "TRAV12-2"), ("DRA*01 / DRB1*04", "TRAV26-1")}
 
 
 @pytest.fixture

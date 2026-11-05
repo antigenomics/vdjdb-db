@@ -101,6 +101,23 @@ def test_date_tags_preserve_exact_identity(tag):
         bundle.validate_new_tag(tag, [tag])
 
 
+@pytest.mark.parametrize("tag,accepted", [
+    ("2026-06-03", True), ("2026-06-03-ZENODO", True),
+    ("2026-06-03-SNAPSHOT", True), ("pyvdjdb-2025-09-25", True),
+    ("2026-11-06-NOTE", True), ("v2026.11.0", False),
+    ("2026-11-06-../bad", False),
+])
+def test_workflow_historical_previous_tag_condition(tag, accepted):
+    import subprocess
+
+    line = next(s.strip() for s in Path(".github/workflows/build.yml").read_text().splitlines()
+                if s.strip().startswith('elif [[ "$PREVIOUS" =~'))
+    condition = line.removeprefix("elif ").removesuffix("; then")
+    result = subprocess.run(["bash", "-c", "PREVIOUS=$1; if " + condition +
+                             "; then exit 0; else exit 1; fi", "bash", tag], timeout=5)
+    assert (result.returncode == 0) == accepted
+
+
 def test_latest_version_is_idempotent_and_keeps_history(tmp_path):
     p = tmp_path / "latest-version.txt"
     p.write_text("https://example.invalid/old.zip\n")

@@ -46,6 +46,18 @@ on:
       runner:
         type: string
         default: '"ubuntu-latest"'
+      tag:
+        description: Optional candidate tag; retain release ZIPs without publishing.
+        type: string
+        default: ''
+      with_web:
+        description: Include the legacy web table and charts in candidate assets.
+        type: boolean
+        default: false
+      previous:
+        description: Previous release tag for candidate release notes.
+        type: string
+        default: ''
   # PRs targeting master only. `master` receives merges from `dev` (and `hotfix/*`) and nothing
   # else, so this is one build per release-ward merge -- and a required status check has to be
   # able to run on the pull request it gates, or it blocks every PR forever. That is why the
@@ -442,7 +454,7 @@ jobs:
           if gh release view "$PREVIOUS" --json assets --jq '.assets[].name' | grep -qx manifest.json; then
             gh release download "$PREVIOUS" --pattern manifest.json --dir previous-release
             ASSET=$(jq -er '[.bundles[] | select(.role == "legacy")] | if length == 1 then .[0].file else error("expected one legacy bundle") end' previous-release/manifest.json)
-          elif [[ "$PREVIOUS" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}(-ZENODO)?$ ]]; then
+          elif [[ "$PREVIOUS" =~ ^(pyvdjdb-)?[0-9]{4}-[0-9]{2}-[0-9]{2}(-[A-Za-z0-9][A-Za-z0-9._-]*)?$ ]]; then
             ASSET=$(gh release view "$PREVIOUS" --json assets --jq '[.assets[] | select(.name | endswith(".zip"))] | if length == 1 then .[0].name else error("ambiguous historical release") end')
           else
             echo "::error::modern releases require manifest.json"; exit 1

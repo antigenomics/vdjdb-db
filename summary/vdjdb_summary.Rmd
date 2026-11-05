@@ -103,6 +103,15 @@ fread_generated <- function(path, ...) {
 }
 
 df = fread_generated(file.path(params$legacy, "vdjdb.slim.txt"), header=T, sep="\t")
+# Recover joint observations before grouping. Independently collapsed slim fields
+# cannot preserve which MHC alpha/beta and V-gene calls occurred together.
+slim.keys <- c("gene", "cdr3", "species", "antigen.epitope", "antigen.gene", "antigen.species")
+df.context <- fread_generated(file.path(params$legacy, "vdjdb.txt"), header=TRUE, sep="\t",
+                             select=c(slim.keys, "mhc.a", "mhc.b", "mhc.class", "v.segm", "reference.id")) %>%
+  as_tibble() %>%
+  left_join(df %>% mutate(id=row_number()) %>% select(all_of(slim.keys), id),
+            by=slim.keys, relationship="many-to-one")
+stopifnot(!anyNA(df.context$id), n_distinct(df.context$id) == nrow(df))
 ```
 
 ---
@@ -276,7 +285,7 @@ kable(format = "html", df.a %>%
         mutate(`Parent species` = ifelse(`Parent species` == "", "Not reported", `Parent species`)))
 ```
 
-Missing parent-species metadata is shown as "Not reported".
+**Source nomenclature.** Antigen-source and gene labels retain the curated source nomenclature; aliases remain separate summary groups. Missing parent-species metadata is shown as "Not reported".
 
 ---
 
@@ -285,16 +294,16 @@ Missing parent-species metadata is shown as "Not reported".
 SARS-CoV-2 specificity records grouped by viral protein, HLA, full epitope sequence and TCR chain. HLA is grouped at first-field resolution. Combinations with at least 30 slim records are shown. Ribbon widths use log2(record count).
 
 ```{r message=FALSE, warning=FALSE, fig.width=12, fig.height=10}
-df %>% 
+df.context %>%
   filter(species == "HomoSapiens", 
          startsWith(as.character(antigen.species), "SARS-CoV-2")) %>%
   mutate(mhc.a = str_split_fixed(mhc.a, "[,:]", 2)[,1],
          mhc.b = str_split_fixed(mhc.b, "[,:]", 2)[,1],
-         mhc = ifelse(mhc.class == "MHCI", mhc.a, paste0(mhc.a, '/', substr(mhc.b, 7, 15)))) %>%
+         mhc = ifelse(mhc.class == "MHCI", mhc.a, paste0(mhc.a, '/', mhc.b))) %>%
   group_by(antigen.gene, mhc, antigen.epitope) %>%
   mutate(publications = length(unique(unlist(strsplit(reference.id, ","))))) %>%
   group_by(antigen.gene, mhc, antigen.epitope, gene, publications) %>%
-  summarize(records = n()) -> df.c
+  summarize(records = n_distinct(id)) -> df.c
 
 colnames(df.c) = c("Gene", "HLA", "Epitope", "TCR chain",
                    "Studies",
@@ -343,16 +352,16 @@ kable(format = "html",
 T-cell receptors recognizing self-antigens, including antigens linked to autoimmune diseases and potential neoantigen targets for cancer immunotherapy. Records are grouped by human gene, HLA, full epitope sequence and TCR chain. HLA is grouped at first-field resolution. Combinations with at least 10 slim records are shown. Ribbon widths use log2(record count).
 
 ```{r message=FALSE, warning=FALSE, fig.width=12, fig.height=40}
-df %>% 
+df.context %>%
   filter(species == "HomoSapiens", 
          startsWith(as.character(antigen.species), "HomoSapiens")) %>%
   mutate(mhc.a = str_split_fixed(mhc.a, "[,:]", 2)[,1],
          mhc.b = str_split_fixed(mhc.b, "[,:]", 2)[,1],
-         mhc = ifelse(mhc.class == "MHCI", mhc.a, paste0(mhc.a, '/', substr(mhc.b, 7, 15)))) %>%
+         mhc = ifelse(mhc.class == "MHCI", mhc.a, paste0(mhc.a, '/', mhc.b))) %>%
   group_by(antigen.gene, mhc, antigen.epitope) %>%
   mutate(publications = length(unique(unlist(strsplit(reference.id, ","))))) %>%
   group_by(antigen.gene, mhc, antigen.epitope, gene, publications) %>%
-  summarize(records = n()) -> df.n
+  summarize(records = n_distinct(id)) -> df.n
 
 colnames(df.n) = c("Gene", "HLA", "Epitope", "TCR chain",
                    "Studies",
@@ -472,10 +481,9 @@ ggplot(df.spe %>% mutate(
 Representative data for Homo Sapiens, Variable gene. Only Variable genes and MHC alleles with at least 10 records are shown.
 
 ```{r message=FALSE, warning=FALSE, fig.height=10, fig.width=6}
-df.vhla = df %>% 
+df.vhla = df.context %>%
   as_tibble %>%
   filter(species == "HomoSapiens" ) %>%
-  mutate(id = 1:n()) %>%
   separate_rows(mhc.a, sep = ",") %>%
   separate_rows(mhc.b, sep = ",") %>%
   separate_rows(v.segm, sep = ",") %>%
@@ -517,15 +525,14 @@ ggplot(df.vhla, aes(x=gsub("HLA-", "", paste(mhc.a.split, mhc.b.split, sep = " /
         strip.background = element_blank())
 ```
 
-Circos plot for correspondence between human TRBV genes and MHC class I alleles for links supported by more than 50 records in terms of the ratio of observed to expected records. Band width and color (from red:highest to light yellow:lowest) are scaled proportional to co-occurrence matrix value divided by row (TRBV) and column (HLA) sums.
+Circos plot for correspondence between human TRBV genes and MHC class I alleles for links supported by at least 50 slim records in terms of the ratio of observed to expected records. Band width and color (from red:highest to light yellow:lowest) are scaled proportional to co-occurrence matrix value divided by row (TRBV) and column (HLA) sums.
 
 ```{r message=FALSE, warning=FALSE, fig.width=8, fig.height=8}
 #https://jokergoo.github.io/circlize_book
 df.vhla.1b <- df.vhla %>%
   filter(records >= 50) %>%
   filter(gene == "TRB", mhc.class == "MHCI") %>%
-  mutate(mhc.a.split = substr(mhc.a.split, 5, nchar(mhc.a.split)),
-         v.segm.split = paste0("Vb", substr(v.segm.split, 5, nchar(v.segm.split)))) %>%
+  mutate(mhc.a.split = substr(mhc.a.split, 5, nchar(mhc.a.split))) %>%
   reshape2::dcast(mhc.a.split ~ v.segm.split, value.var = "records", fill = 0)
 rownames(df.vhla.1b) <- df.vhla.1b$mhc.a.split
 df.vhla.1b$mhc.a.split <- NULL
@@ -568,10 +575,9 @@ circos.clear()
 Representative data for Homo Sapiens MHC class I and II. Missing class-II partners are completed with the most commonly used compatible allele; imputed partners are marked in the source curation comments.
 
 ```{r message=FALSE, warning=FALSE}
-df.m = df %>% 
+df.m = df.context %>%
   as_tibble %>%
   filter(species == "HomoSapiens") %>%
-  mutate(id = 1:n()) %>%
   separate_rows(mhc.a, sep = ",") %>%
   separate_rows(mhc.b, sep = ",") %>%
   mutate(mhc.a.split = str_split_fixed(mhc.a, fixed(":"), n = Inf)[,1],
