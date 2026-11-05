@@ -49,6 +49,10 @@ separate throughout.
 - A displaced `@Singleton` created multiple user providers and seeded the same
   demo file four times at startup. The provider is again a singleton; a fresh
   isolated runtime seeds exactly one sample. Earlier test state was preserved.
+- The COVID-19 shortcut used the broad `SARS-CoV` substring and included 381
+  SARS-CoV-1 rows. Its shared preset now selects `SARS-CoV-2`; the expected
+  current filtered count is 35,664 instead of 36,045. Influenza and self-antigen
+  presets retain their previous behavior.
 - Quick-view popup cleanup could leave an attached body element after hiding or
   navigation. Explicit hide, disabling and destruction share one cleanup path.
 
@@ -104,7 +108,7 @@ the exercised journeys.
 ## Verification boundaries
 
 The full backend suite passes 339 tests; one pre-existing external-input control
-benchmark is explicitly skipped. The frontend suite passes 122 tests, including actual templates and
+benchmark is explicitly skipped. The frontend suite passes 124 tests, including actual templates and
 native label, paging, export and popup interactions. Release tooling and consumer checks remain offline except
 for the explicitly identified original release/export inputs.
 

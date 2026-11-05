@@ -336,7 +336,7 @@ software repositories; final synchronization awaits the remaining UI fixes and
 audit documentation. Publication and production service changes remain outside
 this validation run.
 
-Final UI suite: 122 passed; final backend suite: 339 passed, with the existing
+Final UI suite: 124 passed; final backend suite: 339 passed, with the existing
 external-input control benchmark explicitly skipped. The final binary again
 loads summer's 284,546 total / 275,804 default-filtered rows, expands the reviewed
 four-row alpha query to eight paired rows, and shows native sequence-search maps
@@ -355,3 +355,8 @@ The popup lifecycle correction also passes its packaged manual journey: Quick
 view is absent after hiding and after navigation to the structure page. Exact-tag
 fetching of all actual Python database roles passes against the full candidate
 artifact bytes; only GitHub discovery was replaced by the local test fixture.
+
+A final shortcut check found 381 SARS-CoV-1 rows entering the COVID-19 preset
+through its broad SARS-CoV substring. The shared preset now uses SARS-CoV-2.
+Real-service collection tests preserve Influenza/self-antigen behavior; all 124
+frontend tests pass. No database rows or scientific outputs were changed.
