@@ -552,7 +552,7 @@ chordDiagram(df.vhla.1b, annotationTrack = "grid", preAllocateTracks = 1,
              col = band.col,
              grid.col = grid.col,
              grid.border = "black",
-             big.gap = 20)
+             big.gap = 20, small.gap = 2)
 
 circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
   xlim = get.cell.meta.data("xlim")
@@ -560,7 +560,7 @@ circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
   sector.name = get.cell.meta.data("sector.index")
   circos.text(mean(xlim), ylim[1] + .1, sector.name, 
               facing = "clockwise", niceFacing = T, adj = c(0, 0.5), 
-              cex = 0.65)
+              cex = 0.5)
 }, bg.border = NA)
 
 title("TRBV ~ HLA-I")

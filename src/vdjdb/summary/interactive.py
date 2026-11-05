@@ -334,6 +334,7 @@ def build(legacy: Path, years: Path, out: Path, *, cap: int = 1000) -> Path:
     _register_template()
     panels = _panels()
     cohort = panels.cohort(legacy)
+    references = cohort["reference.id"].fill_null("").str.split(",").explode(empty_as_null=False)
     contexts = panels.joint_contexts(legacy, cohort)
     cum = panels.cumulative(legacy, years)
     figures = {
@@ -355,7 +356,7 @@ def build(legacy: Path, years: Path, out: Path, *, cap: int = 1000) -> Path:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(_PAGE.format(
         records=f"{cohort.height:,}",
-        publications=f"{cohort['reference.id'].n_unique():,}",
+        publications=f"{references.filter(references != '').n_unique():,}",
         epitopes=f"{cohort['antigen.epitope'].n_unique():,}",
         body="\n".join(blocks)))
     return out
