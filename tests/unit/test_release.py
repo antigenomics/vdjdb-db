@@ -176,6 +176,28 @@ def _slim(rows: list[tuple[str, str, str]]) -> str:
     return head + "".join(f"{c}\t{e}\t{r}\n" for c, e, r in rows)
 
 
+@pytest.mark.parametrize("compressed", [False, True])
+@pytest.mark.parametrize("archive", [False, True])
+def test_changelog_reads_plain_and_gzip_release_tables(tmp_path, compressed, archive):
+    import gzip
+    from vdjdb.release import changelog
+
+    data = _slim([("CASSA", "GIL", "PMID:1,PMID:2")]).encode()
+    name = "vdjdb.slim.txt" + (".gz" if compressed else "")
+    if compressed:
+        data = gzip.compress(data, mtime=0)
+    if archive:
+        source = tmp_path / "release.zip"
+        with zipfile.ZipFile(source, "w") as out:
+            out.writestr("vdjdb-2026-11-05/" + name, data)
+    else:
+        source = tmp_path
+        (source / name).write_bytes(data)
+    result = changelog._references(source)
+    assert set(result["reference.id"]) == {"PMID:1", "PMID:2"}
+    assert result["rows"].to_list() == [1, 1]
+
+
 def test_changelog_reports_a_renamed_study_as_a_rename(tmp_path):
     """#347 replaced DOI and preprint URLs with PubMed ids.
 

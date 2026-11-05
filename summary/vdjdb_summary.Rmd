@@ -282,7 +282,7 @@ Missing parent-species metadata is shown as "Not reported".
 
 #### **COVID-19** data
 
-SARS-CoV-2 specificity records grouped by viral protein, HLA, full epitope sequence and TCR chain. Combinations with at least 30 slim records are shown. Ribbon widths use log2(record count).
+SARS-CoV-2 specificity records grouped by viral protein, HLA, full epitope sequence and TCR chain. HLA is grouped at first-field resolution. Combinations with at least 30 slim records are shown. Ribbon widths use log2(record count).
 
 ```{r message=FALSE, warning=FALSE, fig.width=12, fig.height=10}
 df %>% 
@@ -330,16 +330,17 @@ Summary of SARS-CoV-2 epitopes and corresponding TCR alpha and beta chain specif
 kable(format = "html", 
       df.c %>% 
         reshape2::dcast(Gene + HLA + Epitope + Studies ~ `TCR chain`, fill = 0) %>%
-        mutate(HLA = gsub("*", ".", HLA, fixed = T)) %>%
         filter(TRA+TRB >= 10) %>%
-        arrange(-(TRB+TRA)))
+        arrange(-(TRB+TRA))) %>%
+  # Encode after kable escapes cells: pandoc must not interpret paired HLA stars as emphasis.
+  gsub("*", "&#42;", ., fixed = TRUE) %>% asis_output()
 ```
 
 ---
 
 #### **Self-antigen** data
 
-T-cell receptors recognizing self-antigens, including antigens linked to autoimmune diseases and potential neoantigen targets for cancer immunotherapy. Records are grouped by human gene, HLA, full epitope sequence and TCR chain. Combinations with at least 10 slim records are shown. Ribbon widths use log2(record count).
+T-cell receptors recognizing self-antigens, including antigens linked to autoimmune diseases and potential neoantigen targets for cancer immunotherapy. Records are grouped by human gene, HLA, full epitope sequence and TCR chain. HLA is grouped at first-field resolution. Combinations with at least 10 slim records are shown. Ribbon widths use log2(record count).
 
 ```{r message=FALSE, warning=FALSE, fig.width=12, fig.height=40}
 df %>% 
@@ -387,9 +388,10 @@ Summary of self-antigens and corresponding TCR alpha and beta chain specificity 
 kable(format = "html", 
       df.n %>% 
         reshape2::dcast(Gene + HLA + Epitope + Studies ~ `TCR chain`, fill = 0) %>%
-        mutate(HLA = gsub("*", ".", HLA, fixed = T)) %>%
         filter(TRA+TRB >= 10) %>%
-        arrange(-(TRB+TRA)))
+        arrange(-(TRB+TRA))) %>%
+  # Encode after kable escapes cells: pandoc must not interpret paired HLA stars as emphasis.
+  gsub("*", "&#42;", ., fixed = TRUE) %>% asis_output()
 ```
 
 ---

@@ -50,25 +50,38 @@ after the marker, must not appear
 pandocmark = pytest.mark.skipif(shutil.which("pandoc") is None, reason="needs pandoc")
 
 
-@pytest.mark.skipif(shutil.which("Rscript") is None, reason="needs dashboard R runtime")
+@pytest.mark.skipif(shutil.which("Rscript") is None or shutil.which("pandoc") is None,
+                    reason="needs dashboard R/pandoc runtime")
 def test_covid_plot_excludes_sars1_and_keeps_distinct_epitopes(tmp_path):
     source = Path("summary/vdjdb_summary.Rmd").read_text()
     block = next(b for b in re.findall(r"```\{r[^\n]*\}\n(.*?)```", source, re.S)
                  if "-> df.c" in b)
+    table_block = next(b for b in re.findall(r"```\{r[^\n]*\}\n(.*?)```", source, re.S)
+                       if "kable" in b and "df.c %>%" in b)
     script = tmp_path / "covid.R"
     script.write_text('''
-library(dplyr); library(stringr); library(ggplot2); library(ggalluvial)
+library(dplyr); library(stringr); library(ggplot2); library(ggalluvial); library(knitr)
 df <- data.frame(species="HomoSapiens", antigen.species=rep(c("SARS-CoV-2", "SARS-CoV-2", "SARS-CoV-1"), each=30),
- antigen.gene="S", mhc.a="HLA-A*02:01", mhc.b="B2M", mhc.class="MHCI",
- antigen.epitope=rep(c("ALWAAAAAA", "ALWBBBBBB", "SARS1ONLY"), each=30),
+ antigen.gene="S", mhc.a="HLA-DPA1*01:03", mhc.b="HLA-DPB1*04:01", mhc.class="MHCII",
+ antigen.epitope=rep(c("ALWAAAAAA", "ALWCCCCCC", "SARS1ONLY"), each=30),
  reference.id="PMID:1", gene="TRB")
+df <- rbind(df, transform(df, gene="TRA"))
 ''' + 'plot <- eval(parse(text=' + json.dumps(block) + '))\n' + '''
-stopifnot(setequal(df.c$Epitope, c("ALWAAAAAA", "ALWBBBBBB")))
+stopifnot(setequal(df.c$Epitope, c("ALWAAAAAA", "ALWCCCCCC")))
 strata <- ggplot_build(plot)$data[[2]]
-stopifnot(setequal(as.character(strata$stratum[strata$x == 3]), c("ALWAAAAAA", "ALWBBBBBB")))
-''')
+stopifnot(setequal(as.character(strata$stratum[strata$x == 3]), c("ALWAAAAAA", "ALWCCCCCC")))
+''' + 'writeLines(as.character(eval(parse(text=' + json.dumps(table_block) + '))), ' +
+        json.dumps(str(tmp_path / "table.html")) + ')\n')
     result = subprocess.run(["Rscript", str(script)], capture_output=True, text=True, timeout=45)
     assert result.returncode == 0, result.stderr
+    import html
+    intermediate = tmp_path / "hla.knit.md"
+    intermediate.write_text("!summary_embed_start!\n\n" +
+                            (tmp_path / "table.html").read_text() +
+                            "\n\n!summary_embed_end!\n")
+    fragment = tmp_path / "hla.html"
+    render.extract(intermediate, fragment)
+    assert "HLA-DPA1*01/B1*04" in html.unescape(fragment.read_text())
 
 
 @pytest.fixture
