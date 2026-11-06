@@ -111,3 +111,12 @@ and v3.2b independent-study forecasts, plus explicit legacy modes.
    denoising
    clustering
    dashboard
+
+.. toctree::
+   :hidden:
+   :caption: Release and interoperability records
+
+   legacy-web-interop-plan
+   legacy-web-record-counts
+   legacy-web-ui-audit
+   superpowers/plans/2026-11-05-late-autumn-release

@@ -178,7 +178,7 @@ measured per file and flags which one moved.
 ### What the comparison is, and is not, the instrument for
 
 It runs on the **assembled legacy zip**, so the thing compared is the file a consumer downloads.
-Three of that bundle's twelve members cannot be judged by keying their rows against the reference,
+Four of that bundle's twelve members cannot be judged by keying their rows against the reference,
 and `[measured_elsewhere]` in `rules/expected_diffs.toml` names each one with the instrument that
 gates it instead. They are still read, digested, row-counted and printed; what they are exempt from
 is the requirement that every changed cell match a rule.
@@ -300,7 +300,7 @@ refreshed by their own pull request and never written by a build:
   donor's HLA type and see every record their T cells could have raised - and makes no claim about the
   `mhc.a` a publication reported.
 
-Neither is a cache: a cache is a stored answer to the question the build is currently asking, and
+None of these tables is a cache: a cache is a stored answer to the question the build is currently asking, and
 these are inputs that arrive by review.
 
 ### Legacy web co-deliverable

@@ -1,8 +1,10 @@
-# VDJDB: A curated database of T-cell receptor sequences of known antigen specificity
+# VDJdb: A curated database of T-cell receptor sequences of known antigen specificity
 
 [![Docs](https://img.shields.io/badge/docs-docs.isalgo.dev-blue)](https://docs.isalgo.dev/vdjdb-db/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22104776.svg)](https://zenodo.org/records/22104776)
-[![Build](https://github.com/antigenomics/vdjdb-db/actions/workflows/build.yml/badge.svg)](https://github.com/antigenomics/vdjdb-db/actions/workflows/build.yml)
+[![Build](https://github.com/antigenomics/vdjdb-db/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/antigenomics/vdjdb-db/actions/workflows/build.yml)
+
+[![Docs build](https://github.com/antigenomics/vdjdb-db/actions/workflows/docs.yml/badge.svg?branch=master)](https://github.com/antigenomics/vdjdb-db/actions/workflows/docs.yml)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="images/vdjdb-splash-dark.svg">
