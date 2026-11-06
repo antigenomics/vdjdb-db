@@ -362,3 +362,12 @@ def test_packaging_rejects_oversized_plain_generated_tables(tmp_path):
     selected = manifest.Bundle("airr", "test.zip", "test", (manifest.Member("table.tsv"),))
     with pytest.raises(ValueError, match="gzip it before packaging"):
         manifest.write_zip(selected, tmp_path, tmp_path / "release", "test")
+
+
+def test_ci_reference_does_not_follow_the_latest_release_pointer() -> None:
+    """A release must not silently replace the baseline for exact declared deltas."""
+    workflow = Path(".github/workflows/build.yml").read_text()
+    download = workflow.split("- name: Reference release\n", 1)[1].split("- name:", 1)[0]
+    assert "URL=https://github.com/antigenomics/vdjdb-db/releases/download/2026-06-03/" in download
+    assert "vdjdb-2026-06-03.zip" in download
+    assert "head -1 latest-version.txt" not in download

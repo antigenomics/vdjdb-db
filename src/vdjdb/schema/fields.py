@@ -114,8 +114,7 @@ FIELDS: dict[str, Field] = dict([
     # (`search-table.service.ts:198`) -- so the value here only tells a standalone reader that the
     # hash is not a column to display.
     _f("TCR_hash", visible=0, searchable=0, autocomplete=0, data_type=TXT, title="TCR hash",
-       comment="SHA256 of the legacy receptor-pMHC field key, used to link structure visualizations; "
-               "not a hash of coordinate-file bytes."),
+       comment="SHA256 hash of TCR structure used for structure visualization."),
     _f("method", searchable=0, autocomplete=0, data_type="method.json", title="Method",
        comment="Details on method used to assay TCR specificity."),
     _f("meta", searchable=0, autocomplete=0, data_type="meta.json", title="Meta",

@@ -288,12 +288,11 @@ jobs:
       # scheduled build. Those are the checks that stop a column moving in the motif files, which
       # vdjdb-web reads by position, and stop vdjdb.meta.txt disagreeing with vdjdb.txt.
       #
-      # Line 1 of latest-version.txt is the published legacy zip. Downloading it is fetching an
-      # input, not caching a result (hard rule 9).
+      # The exact cell/row declarations in expected_diffs.toml use 2026-06-03.
+      # The public latest-version.txt pointer advances on release and is not this baseline.
       - name: Reference release
         run: |
-          URL=$(head -1 latest-version.txt)
-          [ -n "$URL" ] || { echo "::error::latest-version.txt line 1 is empty"; exit 1; }
+          URL=https://github.com/antigenomics/vdjdb-db/releases/download/2026-06-03/vdjdb-2026-06-03.zip
           # Retried: an unretried 41 MB fetch is a single transient 5xx away from failing this step,
           # and everything downstream of it - the comparison, the motif metrics and the release half
           # of the test suite - never runs.
@@ -323,7 +322,7 @@ jobs:
       # Both metadata files are compared here as of 2026-09-27. They are keyed on the column name
       # rather than the line number, so the inserted TCR_hash row reads as one added row instead of
       # eight changed lines, and rules/expected_diffs.toml declares the rest.
-      - name: Compare against the last release
+      - name: Compare against the frozen reference release
         run: |
           . .github/stage-timing.sh
           stage release-zip uv run python -c "
@@ -335,9 +334,9 @@ jobs:
             --report out/reports/release-diff.md \
             --json out/reports/release-diff.json
 
-      # Three sources, one cohort, one code path: the last legacy release, the latest release
-      # (the same file until one ships after 2026-06-03) and what this build produced. Acceptance
-      # compares `current-*` with `latest` on this cohort. Historical corpus drift is reported;
+      # The established motif gate uses the same frozen reference on the current cohort.
+      # Without --latest, the metric API labels that configured reference `latest`; it does
+      # not fetch the public latest release. Historical corpus drift is reported;
       # bounded relative trades are explicit in rules/motif_tradeoffs.tsv.
       #
       # This step exists because the motif metrics used to be computed inside test assertions and

@@ -54,6 +54,7 @@ are distinguished from imputed ones in the comments.
 
 The legacy metadata below preserves historical wording for compatibility. In particular,
 `cdr3` contains the anchor-inclusive junction, and class-I `mhc.b` is the literal `B2M`.
+`TCR_hash` hashes the legacy receptor-pMHC field key, not coordinate-file bytes.
 Use the definitions above and the [terminology guide](terminology.md) when interpreting
 these historical labels.
 
