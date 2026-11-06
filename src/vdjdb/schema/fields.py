@@ -114,7 +114,8 @@ FIELDS: dict[str, Field] = dict([
     # (`search-table.service.ts:198`) -- so the value here only tells a standalone reader that the
     # hash is not a column to display.
     _f("TCR_hash", visible=0, searchable=0, autocomplete=0, data_type=TXT, title="TCR hash",
-       comment="SHA256 hash of TCR structure used for structure visualization."),
+       comment="SHA256 of the legacy receptor-pMHC field key, used to link structure visualizations; "
+               "not a hash of coordinate-file bytes."),
     _f("method", searchable=0, autocomplete=0, data_type="method.json", title="Method",
        comment="Details on method used to assay TCR specificity."),
     _f("meta", searchable=0, autocomplete=0, data_type="meta.json", title="Meta",
@@ -178,19 +179,17 @@ FIELDS: dict[str, Field] = dict([
        comment="Frequency of this clonotype in the isolated epitope-reactive population, as the "
                "submitter wrote it: `x/X`, `X%` or a bare float. Free text on purpose - it is what "
                "every release has shipped, and some studies report only the ratio."),
-    # #696. Three independent columns, not one and two derived from it. A study that reports only a
-    # float has no count behind it, so deriving the float would blank it exactly where it is the
-    # only measurement; a study that reports `3/33921` has a count the float cannot carry, because
-    # at that depth `1/33921` and `3/33921` round to the same number. Where all three are present
-    # they must agree, which `vdjdb qc` reports and does not enforce.
+    # #696: preserve source frequency text and explicit numeric support independently.
+    # Missing numeric cells may be parsed from x/X; decimals cannot recover the counts.
     _f("method.frequency.count", searchable=0, autocomplete=0, data_type="uint",
        title="Frequency count",
-       comment="Reads, UMIs or cells supporting this clonotype, parsed from an unambiguous `x/X` "
-               "`method.frequency`. Null where the submitted value is a float or a percentage: the "
-               "count is absent, not zero."),
+       comment="Reported reads, UMIs or cells supporting this clonotype. An explicit count wins; "
+               "when absent, an unambiguous `x/X` method.frequency supplies the numerator. "
+               "Null means unavailable, not zero."),
     _f("method.frequency.total", searchable=0, autocomplete=0, data_type="uint",
        title="Frequency total",
-       comment="The sample total `method.frequency.count` is out of, from the same `x/X`."),
+       comment="Reported sample denominator for method.frequency.count. An explicit total wins; "
+               "when absent, an unambiguous `x/X` method.frequency supplies the denominator."),
     _f("method.singlecell", title="Single cell"),
     _f("method.sequencing", title="Sequencing"),
     _f("method.verification", title="Verification"),
@@ -219,7 +218,7 @@ FIELDS: dict[str, Field] = dict([
     # positional-width tests have one source, and so a renamed column fails a test rather than
     # mistyping the file with no error.
     _f("cdr3aa", type=SEQ, data_type="cdr3", title="CDR3",
-       comment="CDR3 amino acid sequence of the cluster member."),
+       comment="Anchor-inclusive amino-acid junction of the cluster member."),
     _f("x", data_type="float", title="x", comment="Layout x coordinate of the member in the cluster graph."),
     _f("y", data_type="float", title="y", comment="Layout y coordinate of the member in the cluster graph."),
     _f("cid", title="Cluster id",
@@ -230,8 +229,10 @@ FIELDS: dict[str, Field] = dict([
     _f("j.segm.repr", title="J representative",
        comment="Modal J allele of the cluster; the PWM is pinned to it."),
     _f("aa", title="Residue", comment="Amino acid at this PWM position."),
-    _f("pos", data_type="uint", title="Position", comment="0-based CDR3 position."),
-    _f("len", data_type="uint", title="Length", comment="CDR3 length the PWM stratum is pinned to."),
+    _f("pos", data_type="uint", title="Position",
+       comment="0-based amino-acid position in anchor-inclusive junction space."),
+    _f("len", data_type="uint", title="Length",
+       comment="Junction length, including anchors, defining this PWM stratum."),
     _f("count", data_type="uint", title="Count",
        comment="Observed occurrences of this residue at this position in the cluster."),
     _f("count.bg", data_type="uint", title="Background count",
@@ -249,7 +250,7 @@ FIELDS: dict[str, Field] = dict([
     _f("freq.bg", data_type="float", title="Background frequency",
        comment="Background residue frequency at the same position."),
     _f("I", data_type="float", title="Information",
-       comment="Information content in bits, 1 + sum(freq * log freq) / log 20."),
+       comment="Dimensionless normalized information, 1 + sum(freq * log(freq)) / log(20)."),
     _f("I.norm", data_type="float", title="Normalised information",
        comment="Information content relative to the background distribution."),
     _f("height.I", data_type="float", title="Letter height",
@@ -288,7 +289,8 @@ FIELDS: dict[str, Field] = dict([
                "recombination model -- not observed. Two models agree on only 7.2 % of these, so it "
                "is a representative history, never evidence."),
     _f("cdr3nt.pgen", searchable=0, autocomplete=0, data_type="float", title="CDR3nt Pgen",
-       comment="Generation probability of the inferred nucleotide junction."),
+       comment="Reconstruction-stage generation score for the selected nucleotide candidate. Later "
+               "germline repair does not rescore the final string."),
     _f("d.inferred", searchable=0, title="D inferred", airr="d_call",
        comment="D allele of the recombination scenario that produced cdr3nt. Not the curated "
                "d.segm, which it matches at gene level on 76.5 % of beta chains."),
@@ -350,8 +352,9 @@ FIELDS: dict[str, Field] = dict([
                "Naming the D is 74.35 % correct at gene level on human TRB against nucleotide "
                "truth; filter on this rather than reading d.inferred alone."),
     _f("cdr3nt.margin", searchable=0, autocomplete=0, data_type="float", title="CDR3nt margin",
-       comment="How far the inferred junction beat the runner-up: its Pgen divided by the next "
-               "candidate's. Near 1 means the choice among synonymous histories was near-arbitrary."),
+       comment="Ratio of the selected reconstruction-stage candidate score to its runner-up. Near 1 "
+               "indicates a close choice; this is not calibrated uncertainty for the final repaired "
+               "nucleotide string."),
     _f("cdr3.original", type=SEQ, autocomplete=0, data_type="cdr3", title="CDR3 as submitted",
        comment="The CDR3 as the reference publication reported it, before repair."),
     _f("v.segm.submitted", searchable=0, autocomplete=0, title="V as submitted",
@@ -378,12 +381,11 @@ FIELDS: dict[str, Field] = dict([
                "allele's germline record stopping inside the anchor region), or a Failed* reason."),
     _f("j.fix.type", searchable=0, title="J fix type", comment="How the J side was repaired."),
     _f("v.canonical", searchable=0, autocomplete=0, data_type="bool", title="V anchor canonical",
-       comment="Whether the CDR3 begins with Cys104, which a TCR junction does by definition. "
-               "False marks a record kept for what it reports and filterable by anyone who wants "
-               "only canonical junctions."),
+       comment="Whether the junction begins with canonical Cys104. A false value is a review flag; "
+               "inspect the source and named germline."),
     _f("j.canonical", searchable=0, autocomplete=0, data_type="bool", title="J anchor canonical",
-       comment="Whether the CDR3 ends with Phe118 or Trp118, which a TCR junction does by "
-               "definition. False marks a record kept and filterable, not a variant."),
+       comment="Whether the junction ends with canonical Phe118 or Trp118. Some germline alleles "
+               "encode another anchor; false alone does not establish a sequence error."),
     # The same two questions asked of the sequence the submitter sent, because the answers differ and
     # they are two different findings. Post-fix false says "this shipped record is not a canonical
     # junction, filter it if you want only canonical ones". Submitted false says "the chunk cell is
@@ -405,7 +407,8 @@ FIELDS: dict[str, Field] = dict([
        title="Single cysteine",
        comment="Whether the CDR3 carries no cysteine after the Cys104 it opens with."),
     _f("chunk.file", searchable=0, title="Chunk file",
-       comment="The chunk the record was read from. One chunk is one publication."),
+       comment="Source chunk filename. Chunks normally represent one publication; aggregates retain a "
+               "reference per row."),
     _f("chunk.row", searchable=0, autocomplete=0, data_type="uint", title="Chunk row",
        comment="0-based row within the chunk; with chunk.file it points at the curated line."),
     # -- the epitope catalogue (ROADMAP phase 9d) -----------------------------------------------
@@ -433,30 +436,32 @@ FIELDS: dict[str, Field] = dict([
        comment="Where the two differ, as position-proteome-to-epitope: `9C>V` is the difference "
                "between NY-ESO-1's SLLMWITQC and the SLLMWITQV that 29,729 records report."),
     _f("epitope.length", searchable=0, autocomplete=0, data_type="uint", title="Epitope length",
-       comment="Residues in the epitope. MHC-I presents 8-11, MHC-II 12-25, so it cross-checks "
-               "mhc.class independently of the allele."),
+       comment="Number of residues in the reported peptide. Length alone establishes neither MHC class "
+               "nor restriction."),
     _f("records", searchable=0, autocomplete=0, data_type="uint", title="Records",
        comment="Curated records supporting this row."),
     _f("chains", searchable=0, autocomplete=0, data_type="uint", title="Chains",
        comment="TCR chains across those records."),
     _f("clonotypes", searchable=0, autocomplete=0, data_type="uint", title="Clonotypes",
-       comment="Distinct receptor chains, by clonotype_id -- records minus the replication."),
+       comment="Distinct receptor chains, counted by clonotype_id."),
     _f("references", searchable=0, autocomplete=0, data_type="uint", title="References",
-       comment="Distinct publications reporting this row. Two or more is independent replication."),
+       comment="Distinct publication references reporting this row. Multiple references alone do not "
+               "establish independent experiments."),
     _f("mhc.a.status", searchable=0, title="MHC A status",
-       comment="known in IPD-IMGT/HLA by prefix, declared in proofreading/mhc_nonhuman.tsv for a "
-               "name that database does not cover (murine, macaque, B2M), or unknown. A build "
-               "carrying an unknown or blank call fails, so only the first two ever ship."),
+       comment="known, unconfirmed or unknown under the IPD-IMGT/HLA lookup, or declared in "
+               "proofreading/mhc_nonhuman.tsv. Invalid nonempty names fail validation; an unreported "
+               "class-II partner can remain blank."),
     _f("mhc.b.status", searchable=0, title="MHC B status",
        comment="As mhc.a.status, for the second chain."),
 
     _f("alleles.reported", searchable=0, autocomplete=0, data_type="uint",
        title="Alleles reported",
-       comment="Distinct mhc.a values VDJdb records for this epitope. Curation, not prediction: "
-               "two or more means different publications restricted the same peptide differently."),
+       comment="Distinct mhc.a values reported for this epitope. Counts curated restrictions, "
+               "including several restrictions within one publication."),
     _f("mhc.a.top", searchable=0, title="Top-scoring allele",
-       comment="The allele of mhcmatch's class I panel that presents this epitope best. Blank for "
-               "class II and for an epitope outside the 8-11mer class I binding range."),
+       comment="Best-ranked allele in the committed class-I prediction panel for this peptide. This "
+               "epitope-level annotation can also join to a class-II observation; it does not change "
+               "its reported restriction."),
     _f("mhc.a.rank", searchable=0, autocomplete=0, data_type="uint", title="Curated allele rank",
        comment="Where the curated mhc.a sits in that ranking, 1 being the top. Blank when the "
                "curated allele is not in the panel."),
@@ -469,9 +474,8 @@ FIELDS: dict[str, Field] = dict([
                "single-allele peptide; a high value is a promiscuous one, which is why the curated "
                "allele being outranked is not by itself a defect."),
     _f("mhcmatch.version", searchable=0, autocomplete=0, title="mhcmatch version",
-       comment="The model that produced the five columns above, recorded per row so a reader can "
-               "tell which one a number came from. Blank on a row scored before the column "
-               "existed."),
+       comment="Software version recorded with the four prediction annotations. alleles.reported is "
+               "counted from current curated restrictions, not predicted."),
 
     _f("mhc.species", title="MHC species",
        comment="HomoSapiens for HLA, MusMusculus for H2, empty for unsupported molecules. "

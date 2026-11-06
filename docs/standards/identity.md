@@ -35,7 +35,8 @@ Counts on the 2026-09 build: 187,935 clonotypes over 286,047 chain rows, 82,266 
 same 2,364 distinct values.
 
 A record reporting one chain has no clone, and `clone_id` is the **empty string** rather than a null.
-Empty is the only missing marker in VDJdb, so a null in a string column would be the ambiguity that
+Empty is the missing marker for these text identifiers; numeric annotations can be nullable.
+A null in an identifier string would introduce the ambiguity that
 several shipped bugs came from. 99,459 of 192,753 records are in this state.
 
 ## Derived and allocated
@@ -77,7 +78,7 @@ anywhere. The algorithm has to be one this repository owns, and
 
 Truncating to 16 digits is a size decision rather than a security one. At 187,935 clonotypes the
 chance of one collision is around 1 in 10⁹, and the invariants below fail a build rather than letting
-one corrupt a join. Measured cost on the current build: 83 ms to hash the 187,935 distinct clonotype
+one corrupt a join. Measured cost on that September 2026 build: 83 ms to hash the 187,935 distinct clonotype
 keys and 7 ms to join them back onto 286,047 chain rows.
 
 ## Lifecycle
@@ -117,18 +118,20 @@ returning has to produce the same id. It goes back to `active` keeping its origi
 and `vdjdb identity diff` reports it under `returned` rather than under `added`, because the two mean
 different things to a reader: one has been published before and one has not.
 
-The lifecycle table is a release asset rather than a committed file, at 15.9 MB for 274,683 derived
-ids. The record registry is separate and larger, at 72.7 MB, because it carries each record's natural
-key and content hash. The retired rows alone are committed, since they are the part a consumer needs
-and the part that is otherwise lost.
+The lifecycle table is a release asset rather than a committed file. The September 2026
+measurements were 15.9 MB uncompressed for 274,683 derived IDs and 72.7 MB uncompressed for
+the separate record registry. The committed registry retains active, amended and retired
+records, including their natural keys and content hashes. Generated tables above 1,000,000
+bytes are distributed as deterministic gzip files.
 
 A build with no lifecycle file still runs and produces exactly the same derived ids. Only the history
 is unknown, which is the correct state for a fork and for a first build.
 
 ## Invariants
 
-`vdjdb identity check` asserts six of the seven, exits 1 on any failure, and runs in `build.yml`
-after the assembly step.
+`vdjdb identity check` checks the build-level invariants and, when supplied, previous
+lifecycle and table history. It exits 1 on failure and runs in `build.yml` after assembly.
+Registry reconciliation and permutation tests cover the remaining historical properties.
 
 | # | Invariant | Needs |
 |---|---|---|
@@ -140,7 +143,7 @@ after the assembly step.
 | 6 | every id referenced resolves: a clone covers exactly two chains of different `gene`, every chain names a record, every evidence row names a chain, `pmhc_id` and `epitope_id` are never empty | the build |
 | 7 | `TCR_hash` is byte-identical wherever the clonotype key is unchanged | the previous tables |
 
-Invariant 3 is a property of two builds rather than of one directory, so it is a unit test over a
+Invariant 4 is covered by registry reconciliation tests. Invariant 3 is a property of two builds rather than of one directory, so it is a unit test over a
 fixture in `tests/unit/test_identity_levels.py` and costs milliseconds instead of two full builds.
 
 Invariants 2 and 5 together are what rules out reuse. Reuse would be an id resolving to a different

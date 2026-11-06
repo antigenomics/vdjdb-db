@@ -11,7 +11,8 @@ peptide provenance. Recognition is assigned to the peptide-MHC complex.
 
 ## Inspect existing harmonisation
 
-Use a fresh `vdjdb build --out out/`. Read `harmonisation.tsv`, `lookalikes.tsv` and
+Use a completed build matching the reviewed inputs, or run `vdjdb build --out out/`
+when a new build is required under AUTHORITIES.md. Read `harmonisation.tsv`, `lookalikes.tsv` and
 `epitope-sources.tsv` in `out/reports/`. The build applies declared epitope corrections and the
 reviewed gene/species alias tables; preserve source cells already resolved by those rules.
 

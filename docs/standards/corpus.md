@@ -1,11 +1,11 @@
 # The reference corpus
 
-One document per publication, twelve token families and tf-idf weights support
+One document per publication, thirteen token families and tf-idf weights support
 [publication search](https://vdjdb.com). Corpus lift measures co-occurrence within publications.
 Receptor-level motif association uses the record and chain tables separately, as described below.
 
-The corpus is an artifact rather than an index inside a service, so a downstream tool reads three
-parquet files and does not have to re-derive a vocabulary.
+The corpus is an artifact rather than an index inside a service, so a downstream tool reads four
+Parquet files and does not have to re-derive a vocabulary.
 
 ```bash
 uv run vdjdb corpus build --tables out/tables --out out/corpus
@@ -76,7 +76,7 @@ fields are truncated because keeping them would split one restriction across sev
 
 ## The MHC dictionary
 
-`corpus/mhc.parquet`, 213 rows on the current build, is one row per distinct MHC call: the call as
+`corpus/mhc.parquet`, 213 rows in the recorded 2026-09 build, is one row per distinct MHC call: the call as
 curated, its two-field allele, its locus, the chain the curation placed it on, the curated class, and
 the IPD-IMGT/HLA verdict. The three MHC token families are projections of it, so they cannot disagree
 with one another, and a tool that wants to group VDJdb by locus reads one mapping rather than writing
@@ -103,6 +103,9 @@ no longer an allele group; both are corrected in `patches/mhc.dict`.
 | inverse document frequency | `log((N + 1) / (df + 1)) + 1` | smoothed, so a term in every document still weighs 1 rather than 0 and a term in none cannot divide by zero |
 | normalisation | L2 per document | a long abstract and a short one become comparable |
 
+`tf` is the term count in one document, `df` the number of documents containing the term,
+and `N` the number of documents in the corpus. Logarithms are natural.
+
 These are scikit-learn's `TfidfVectorizer` conventions, and that is the reason for choosing them:
 `tests/unit/test_corpus.py` checks every weight against that library to nine decimal places. An
 implementation that agrees with a reference is evidence; one that agrees with its own last run only
@@ -117,14 +120,15 @@ corpus/postings.parquet    document_id, term_id, tf, weight
 corpus/mhc.parquet         mhc, allele, locus, chain, mhc.class, status
 ```
 
-661 documents, 259,270 terms and 1,040,354 postings on the current build, in 2.8 s.
+661 documents, 259,270 terms and 1,040,354 postings in the recorded 2026-09 build, in 2.8 s.
 
 Long postings rather than a sparse-matrix format, because the consumer is polars or duckdb and the
 query is a join. `document_id` is assigned by sorted `reference.id` and `term_id` by sorted term, both
 total orders, so the tables are reproducible without a hash and a diff between two builds is readable.
 Postings are sorted by `(term_id, document_id)`, which makes a term lookup one contiguous slice.
 
-TSV ships beside each parquet, the same pair the definitive tables use.
+A TSV projection accompanies each Parquet file. Generated TSV files above 1,000,000 bytes
+use `.tsv.gz`; read them as compressed streams.
 
 ## The two questions
 
@@ -168,8 +172,8 @@ Use `query.receptor_lift(records, chains, species="HomoSapiens", gene="TRB",
 epitope="GILGFVFTL", min_units=50)` to compare k-mer prevalence in beta-chain observations
 assigned to GILGFVFTL with prevalence across human beta-chain observations.
 The join uses `record_id`, not the publication. Each observation contributes once per distinct
-k-mer; alpha chains and other species are excluded. Repeated observations remain independent
-records. Restrictions are pooled within the epitope, so this does not establish MHC-specific effects.
+k-mer; alpha chains and other species are excluded. Repeated observations remain separate
+records; their statistical independence is not assumed. Restrictions are pooled within the epitope, so this does not establish MHC-specific effects.
 
 The combined import has 15,865 human beta-chain observations assigned to GILGFVFTL and
 175,364 human beta-chain observations overall. IRS occurs in 4,281 and 4,408 observations,
@@ -219,7 +223,7 @@ because a title is a fact any bibliography carries.
 
 Both are committed, reviewed inputs refreshed by their own pull request, exactly as
 `summary/reference_years.tsv` is. A build never runs `vdjdb corpus refs`, and a corpus with neither
-file builds from the other eleven families and says the word family is absent - which is the correct
+file builds from the other twelve families and says the word family is absent - which is the correct
 state for a fork and for a first build.
 
 Stop words are filtered at **query** time, not when the counts are written, so the committed corpus is
@@ -234,7 +238,7 @@ the only baseline in existence.
 
 **PageRank over the term co-occurrence graph** would rank terms by centrality instead of by rarity.
 Inverse document frequency handles receptor tokens badly at the common end: a 3-mer in every document
-has an idf near zero and drops out, even when it is the hub connecting two antigen families. Measure it
+has the minimum smoothed IDF of 1, even when it connects two peptide-provenance groups. Measure it
 against tf-idf on the same queries before preferring it.
 
 **An embedding index**, sentence embeddings for the word family and `mir.embedding.TCREmp` for the

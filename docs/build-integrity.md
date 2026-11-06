@@ -76,7 +76,9 @@ that exact run's artifact and fail if it is unavailable. Other documentation upd
 latest successful master build. Verify the published fragment against its selected artifact.
 Dated release downloads remain separate snapshots.
 
-Inspect all three bundles with `vdjdb release --dry-run` before publishing an authorized tag.
+Inspect the three core bundles, plus any requested web roles, with
+`vdjdb release --tag YYYY-MM-DD --dry-run` before publishing an authorized tag.
+This writes local packaging outputs while preserving the tracked download pointer; it does not publish.
 Release notes come from `vdjdb changelog`. Back-sync hotfixes to dev, reconcile completed issues and
 remove only integrated branches and obsolete generated output. Preserve source inputs, evidence
 and unmerged work.

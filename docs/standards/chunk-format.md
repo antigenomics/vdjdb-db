@@ -1,6 +1,6 @@
 # The chunk format
 
-A chunk is one publication, stored as `chunks/PMID_<id>.tsv` with one record per row. A
+A chunk normally represents one publication, stored as `chunks/PMID_<id>.tsv` with one record per row. A
 record stores the alpha and beta of one clone as columns of the same row; an unknown chain
 may remain blank. Multiple reported chains can produce candidate pairs as described below.
 `chains` is derived from the reported sequence columns, never the other way round.
@@ -29,7 +29,7 @@ record IDs and content hashes are preserved. Source paths and their natural keys
 
 ## The declared column order
 
-The 33 columns below, in this order, are what
+The 35 columns below, in this order, are what
 [`template.tsv`](https://raw.githubusercontent.com/antigenomics/vdjdb-db/master/template.tsv)
 carries, and both are generated from the field registry so neither can describe a column set the
 build does not read. Chunk columns keep their **dotted** names: the tidy tables ship
@@ -48,24 +48,25 @@ The rest of this page is how to fill each one, which is the part no generated ta
 
 ## Complex information columns (required)
 
-These columns describe the TCR:peptide:MHC complex and are mandatory in any submission.
+These columns describe the TCR:peptide:MHC complex and its source. Required values and
+permitted blanks are specified below; optional provenance is not a prerequisite for a record.
 
 column name     | description
 ----------------|-------------
-cdr3.alpha | TCR alpha CDR3 amino acid sequence. Give the complete sequence, starting with C and ending with F/W, where possible. Trimmed sequences are fixed at the build stage when sufficient V/J germline parts are present
+cdr3.alpha | TCR alpha amino-acid junction, including both conserved anchors. Give the complete sequence, starting with C and ending with F/W, where possible. Trimmed sequences are fixed at the build stage when sufficient V/J germline parts are present
 v.alpha | TCR alpha Variable (V) segment id, to the best resolution available (``TRAVX*XX``, e.g. ``TRAV7``, ``TRAV7*01``, ``TRAV7*02``...). Strictly IMGT nomenclature. May be left blank if unknown.
 j.alpha | TCR alpha Joining (J) segment id
-cdr3.beta | TCR beta CDR3 amino acid sequence
+cdr3.beta | TCR beta amino-acid junction, with the same anchor convention as alpha
 v.beta | TCR beta V segment id
 j.beta | TCR beta J segment id
 species | TCR parent species (``HomoSapiens``, ``MusMusculus``,...)
-mhc.a | First MHC chain allele, to the best resolution available, ``HLA-X*XX:XX``, e.g. ``HLA-A*02:01``. A peptide is presented by one locus, so within one chunk and one ``antigen.epitope`` the HLA gene (A, B, C) should be constant. QC reports a split under ``one epitope under two HLA genes in one chunk``: it is either donor typing written into this column, which is what turned ``RAKFKQLL`` into ``HLA-A*02``, ``HLA-B*08`` and ``HLA-B*07`` in one study (#597), or a paper that reports two restrictions. Only the paper says which
+mhc.a | First MHC chain allele, to the best resolution available, ``HLA-X*XX:XX``, e.g. ``HLA-A*02:01``. One observation records one restricting molecule. Multiple HLA loci for the same peptide within a chunk require source review, since a peptide can have several supported restrictions. QC reports a split under ``one epitope under two HLA genes in one chunk``: it is either donor typing written into this column, which is what turned ``RAKFKQLL`` into ``HLA-A*02``, ``HLA-B*08`` and ``HLA-B*07`` in one study (#597), or a paper that reports two restrictions. Only the paper says which
 mhc.b | Second MHC chain allele (``B2M`` for MHCI)
 mhc.class | ``MHCI`` or ``MHCII``
 antigen.epitope | Amino acid sequence of the epitope
-antigen.gene | Parent gene of the epitope sequence (e.g. ``pp24``). A property of the peptide, so within one chunk and one ``antigen.epitope`` it should be constant. QC reports a dense run of ``prefix``+integer under ``counter in antigen.gene``: dragging a cell down a spreadsheet column increments it, and that turned one epitope's ``Eef2`` into ``Eef2``..``Eef188``, holding 65 clonotypes apart because the column is part of the deduplication key. The same rule covers ``antigen.species``, ``mhc.a`` and ``mhc.b``, and deliberately not ``meta.clone.id`` or ``meta.subject.id``, where a counter is the content
+antigen.gene | Parent gene of the epitope sequence (e.g. ``pp24``). Retain the source-supported parent; a peptide can be shared by proteins or organisms. Review inconsistent labels rather than assuming one universal parent. QC reports a dense run of ``prefix``+integer under ``counter in antigen.gene``: dragging a cell down a spreadsheet column increments it, and that turned one epitope's ``Eef2`` into ``Eef2``..``Eef188``, holding 65 clonotypes apart because the column is part of the deduplication key. The same rule covers ``antigen.species``, ``mhc.a`` and ``mhc.b``, and deliberately not ``meta.clone.id`` or ``meta.subject.id``, where a counter is the content
 antigen.species | Parent species of the antigen, to the best clade resolution available (e.g. ``HIV-1``, ``HIV-1*HXB2``)
-reference.id | Pubmed id, doi, etc
+reference.id | Verified PubMed ID, DOI or other source identifier
 submitter | Name of submitting person/organization
 
 > **Notes:**
@@ -116,14 +117,14 @@ blocker; multiple reported chains alone need not quarantine a supported clonotyp
 
 ## Method information columns (optional)
 
-These columns are optional to fill, but should be present in the table header. They set the confidence ranking of an entry: a single confidence score is computed from factors such as the fraction of a given TCRab sequence among the tetramer+ clones sequenced and the verification experiments performed.
+These columns may be omitted; include them when the source supplies the corresponding evidence. They set the confidence ranking of an entry: a single confidence score is computed from factors such as the fraction of a given TCRab sequence among the tetramer+ clones sequenced and the verification experiments performed.
 
 column name     | description
 ----------------|-------------
 method.identification | ``tetramer-sort``, ``dextramer-sort``, ``pelimer-sort``, ``pentamer-sort``, etc. for sorting-based identification. For molecular assays use ``antigen-loaded-targets`` (T cell specificity analysed against cells incubated with antigenic peptide) or ``antigen-expressing-targets`` (T cell specificity analysed against cells transformed with an antigenic organism, protein or peptide, e.g. BCL transformed with EBV). For magnetic cell separation use ``beads``. Add ``cultured-T-cells`` or ``limiting-dilution-cloning`` if T cells were cultured before sequencing, since ``method.frequency`` then has a different meaning. For UMI-tagged multimers use ``tetramer-umi``, etc. Separate phrases with a comma.
 method.frequency | Frequency in the isolated epitope-reactive population, reported as ``X/X`` where possible, e.g. ``7/30`` if a given V/D/J/CDR3 is encountered in 7 out of 30 tetramer+ clones. The population is defined by the pMHC the sort used, not by the antigen it came from - a tetramer is one epitope on one allele. The formats ``X%``, ``X.X%``, ``X.X`` and ``1e-04`` are also supported. The build's ``frequency.tsv`` reports the current format counts.
-method.frequency.count | **Optional, and preferred over encoding the count in the string above** (#696). Reads, UMIs or cells supporting this clonotype, as an integer. A clonotype supported by 3 reads is better evidence than one supported by 1, and a frequency erases exactly that difference: at any realistic depth both are ``~1/total``, and ``1/33921`` against ``3/33921`` is 2.9e-5 against 8.8e-5, which a two-significant-figure export makes the same number.
-method.frequency.total | **Optional.** The sample total ``method.frequency.count`` is out of. Where this pair is left blank the build parses it out of ``method.frequency`` when that is an unambiguous ``x/X``; where it is given, **the submitted value wins and nothing is parsed**. Where all three are present they must agree - ``vdjdb qc`` reports ``frequency disagrees with its count and total`` and does not repair it, because which of the three the paper supports is a curation question.
+method.frequency.count | **Optional, and preferred over encoding the count in the string above** (#696). Reads, UMIs or cells supporting this clonotype, as an integer. Counts distinguish sequencing support from relative abundance. Frequencies alone cannot recover the numerator and denominator: ``1/33921`` and ``3/33921`` are approximately ``2.9e-5`` and ``8.8e-5``, respectively, but those fractions do not identify their original counts.
+method.frequency.total | **Optional.** The sample total ``method.frequency.count`` is out of. Each explicit numeric cell takes precedence independently. A missing count or total is parsed from ``method.frequency`` only when it is an unambiguous ``x/X``. Where all three are present they must agree - ``vdjdb qc`` reports ``frequency disagrees with its count and total`` and does not repair it, because which of the three the paper supports is a curation question.
 method.singlecell | ``yes`` if single cell sequencing was performed, blank otherwise
 method.sequencing | Sequencing method: ``sanger``, ``rna-seq`` or ``amplicon-seq``
 method.verification | ``tetramer-stain``, ``dextramer-stain``, ``pelimer-stain``, ``pentamer-stain``, etc. for methods that include TCR cloning and re-staining with multimers. For magnetic cell separation use ``beads``. ``restimulation``, ``co-culture``, ``antigen-loaded-targets``, ``antigen-expressing-targets`` for molecular assays that validate the specificity of cloned T-cell receptors. ``direct`` if the affinity of the TCR of a specific T cell to the pMHC is quantified directly. Several comma-separated verification methods may be given.
@@ -247,7 +248,12 @@ The build collapses the columns above into a JSON string held in a single ``meta
 }
 ```
 
-## Condition association columns (for extended database, TBA)
+## Proposed extensions (not accepted chunk columns)
+
+The fields below are design proposals, not part of the current submission schema.
+Do not add them to a shipping chunk header.
+
+### Condition association columns
 
 Condition metadata:
 
@@ -269,7 +275,7 @@ population.count | number of controls matching the entry (can be blank)
 association.pvalue | Association P-value, e.g. enrichment P-value for Fisher's exact test
 association.test | ``Fisher``, ``TCRNET``, ``ALICE`` or another statistical method
 
-## Ambiguous antigens (for extended database, TBA)
+### Ambiguous antigens
 
 Columns for peptide pools, long peptides used in T-cell culture expansion, and non-peptide ligands.
 
@@ -279,7 +285,7 @@ antigen.epitope.long | encompassing protein sequence containing the epitope
 antigen.peptide.pool | e.g. ``MIRA COVID19`` TBD
 antigen.nonpeptide | ``α-GalCer`` or ``KRN7000`` TBD
 
-## Non TRAB columns (for extended database, TBA)
+### Non-TRA/TRB columns
 
 Columns for non alpha-beta T-cells, CAR-T, etc.
 

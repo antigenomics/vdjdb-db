@@ -4,8 +4,9 @@ Use [build integrity](build-integrity.md) for candidate validation, CI artifact 
 promotion from one release to the next.
 
 The build is a `uv`-managed Python package. It reads `chunks/`, `patches/` and `proofreading/`, and
-writes everything else. Nothing computed is stored between builds: every output is recomputed from
-`chunks/` on every run.
+combines them with the committed identity registry and explicitly selected reference inputs.
+Every requested build stage recomputes its outputs; computed intermediates are not reused
+between database builds.
 
 ## Local build
 
@@ -14,14 +15,14 @@ uv sync --extra motifs --extra confidence --extra summary --extra test
 uv run vdjdb qc                               # chunk validation, fail-fast
 uv run vdjdb build --out out/                 # the definitive tables, then every projection
 uv run vdjdb make legacy --tables out/tables  # the legacy files, from the tables that shipped
-uv run vdjdb convert airr --tables out/tables # AIRR Rearrangement + Reactivity
+uv run vdjdb convert airr --tables out/tables # AIRR Rearrangement, Receptor and Reactivity
 uv run vdjdb motifs --tables out/tables       # TCRNET + TCREMP
 uv run vdjdb score-records --tables out/tables # frozen record confidence v3
 uv run vdjdb summary --legacy out/legacy      # the dashboard, rendered offline and checked
 uv run vdjdb identity check --tables out/tables # the identifier invariants
-uv run vdjdb corpus build --tables out/tables # the reference corpus: tf-idf over 12 token families
-uv run vdjdb diff <reference.zip> out/legacy  # compare against a released zip
-uv run vdjdb release --tag vYYYY.MM.PATCH --dry-run  # the three bundles, without touching the tree
+uv run vdjdb corpus build --tables out/tables # the reference corpus: tf-idf over 13 token families
+uv run vdjdb diff reference.zip out/legacy  # compare against a released zip
+uv run vdjdb release --tag YYYY-MM-DD --dry-run  # write bundles without updating the tracked pointer
 VDJDB_REFERENCE_ZIP=reference.zip uv run pytest -q
 ```
 
@@ -30,6 +31,7 @@ Output goes to `out/`, not `build/`: `build/` is gitignored as a Python packagin
 `build` already writes legacy and AIRR projections by default; the `make` and `convert` commands
 above show how to regenerate them from explicitly selected definitive tables, rather than steps
 that need repeating in every build. For a compact primary-only build, pass `--no-legacy --no-airr`.
+The README lists the same optional projection commands.
 See [build directories and storage](outputs.md#build-directories-and-storage) for the exact files
 and [structure cross-links](outputs.md#structure-files-and-current-record-cross-links) for the
 separate coordinate dataset and its current record IDs.
@@ -80,8 +82,9 @@ Supplemental archives and current links are audited separately even while their 
 disabled in default assembly and scoring.
 See [structure cross-links](outputs.md#structure-files-and-current-record-cross-links) for their meaning.
 
-`vdjdb release` writes tracked `latest-version.txt`. Use `--dry-run` to inspect bundles without
-changing the repository's download URL. Supply an intended release tag when publishing.
+`vdjdb release` writes tracked `latest-version.txt`. Use `--dry-run` to write and inspect bundles without
+changing the repository's tracked download URL. It still stages files and writes archives,
+checksums and lifecycle outputs; it is not a read-only operation. Supply an intended release tag when publishing.
 
 Download the 2026-06-03 release as `reference.zip` before running the comparison or release tests.
 A plain `pytest -q` skips the reference checks when `VDJDB_REFERENCE_ZIP` is unset. See
@@ -209,15 +212,18 @@ equality is achievable for releases built by this code.
 The comparison currently runs one build against one release, 2026-06-03. A single release cannot
 distinguish a rule that is correct from a rule that happens to fit that release.
 
-There are 43 published releases, back to 2017-06-13, and each one is a matched pair: the inputs
+The historical inventory contained 43 published releases, back to 2017-06-13.
+A replay pairs each release's inputs and outputs: the inputs
 (`chunks/`, `patches/`, `proofreading/` at that tag, and `res/` for a tag older than the #658
 retirement) and the outputs (the zip that shipped).
-Each pair is a regression test: take a git worktree at the tag and build it with the current code:
+A replay is a separate, explicitly requested regression experiment. Select the historical
+input tree and current executable explicitly, then use era-scoped comparison rules:
 
 ```bash
 git worktree add /tmp/vdjdb-2023 2023-06-01      # the corpus as it was
-cd /tmp/vdjdb-2023 && uv run --project <repo> vdjdb build --out out/
-uv run vdjdb diff <2023-06-01.zip> out/legacy    # does today's code reproduce that release?
+cd /tmp/vdjdb-2023
+/path/to/current/repo/.venv/bin/vdjdb build --out out/
+/path/to/current/repo/.venv/bin/vdjdb diff /path/to/2023-06-01.zip out/legacy
 ```
 
 What a replay across releases adds:
@@ -228,7 +234,7 @@ What a replay across releases adds:
 - Format drift that the current corpus no longer contains. The 2017–2019 chunks use header
   shapes, MHC spellings and nomenclature that later curation cleaned up, and those are the inputs a
   reader of an old release would hand back to the tool.
-- Dates for known defects. `web.cdr3fix.unmp` is wrong on 7,973 rows today; replaying it across
+- Dates for known defects. `web.cdr3fix.unmp` was wrong on 7,973 rows in the recorded comparison; replaying it across
   releases says when it started.
 
 Older releases were produced by older code with different column sets, so the comparison needs
@@ -236,7 +242,7 @@ era-scoped rules rather than one global set: `vdjdb.txt` gained columns, the sli
 shape, and the motif files did not exist at all before 2018. The first replay therefore produces a
 large diff that is mostly format difference, and the work is in classifying it.
 
-Start with one release, 2023-06-01: recent enough to share most of the schema, old enough that a
+For an authorized replay, start with one release, 2023-06-01: recent enough to share most of the schema, old enough that a
 rule which only fits 2026 will not fit it.
 
 ## Protect integration and release branches
@@ -265,10 +271,12 @@ its own ruleset with an empty bypass list. That is what `no-deletion-dev-master`
 `protect-dev` keeps its bypass on purpose, so a maintainer can still push a fix to `dev` directly when a
 status check is stuck. Deletion is the only thing nobody may do.
 
-If `dev` is ever absent again, the restore is one command, and the commit is the merge's second parent:
+If `dev` is ever absent again, identify the exact dev-to-master merge first. Its second parent is the dev tip
+at that merge; do not assume the current master tip is still that merge:
 
 ```bash
-git push origin $(git rev-parse master^2):refs/heads/dev
+merge_commit=FULL_SHA_OF_VERIFIED_DEV_TO_MASTER_MERGE
+git push origin "${merge_commit}^2:refs/heads/dev"
 ```
 
 ## Reproducibility
@@ -286,7 +294,7 @@ Same inputs, same bytes: in another process, on another host, at another core co
 
 ## Committed inputs
 
-Three derived tables make the build offline and deterministic. All are committed, reviewed inputs,
+The following reviewed inputs support offline, deterministic builds and documented comparisons. All are committed, reviewed inputs,
 refreshed by their own pull request and never written by a build:
 
 - `summary/reference_years.tsv` - the publication year of every reference, so the dashboard does not
@@ -294,8 +302,8 @@ refreshed by their own pull request and never written by a build:
 - `docs/tuning/scorecard.tsv` - the clustering bake-off, 252 configurations scored through one
   harness. Rebuilt by `docs/tuning/sweeps.py`.
 - `proofreading/epitope_promiscuity.tsv` - which class I alleles can present each epitope, 13,510
-  (epitope, allele) pairs over 1,729 epitopes, of which 1,739 are pairings VDJdb records and 11,771
-  are alleles only the predictor reaches. Rebuilt by `uv run vdjdb promiscuity`, which loads
+  (epitope, allele) pairs over 1,729 epitopes, of which 1,739 are pairings recorded in VDJdb and 11,771
+  are additional predicted peptide–allele pairings. Rebuilt by `uv run vdjdb promiscuity`, which loads
   `mhcmatch`'s reference panel from HuggingFace. It answers a query-side question - filter VDJdb to a
   donor's HLA type and see every record their T cells could have raised - and makes no claim about the
   `mhc.a` a publication reported.
@@ -307,7 +315,7 @@ these are inputs that arrive by review.
 
 `vdjdb make web --tables out/tables --out out/web` projects the 27-column
 legacy web table and matching metadata from the rich tables. The ordinary legacy
-export remains 22 columns. `vdjdb release TAG --with-web` additionally packages
+export remains 22 columns. `vdjdb release --tag TAG --with-web` additionally packages
 `vdjdb-web-VERSION.zip` with both motif methods, static scatter charts and the summary;
 existing release bundles are unchanged. Structure HTML and per-model metadata are
 prepared assets: use the legacy web's `tools/prepare_structure_assets.py`, then
@@ -365,7 +373,7 @@ the producing writer must emit deterministic gzip first.
 
 ### Paired prepared web and structure assets
 
-`vdjdb release --tag vYYYY.MM.0 --with-web --build out --out out/release`
+`vdjdb release --tag YYYY-MM-DD --with-web --build out --out out/release`
 continues to emit the fresh web table and motif charts from the existing build.
 With no prepared metrics or structure directory it emits a table/chart web ZIP.
 For a full update, first place the accepted preparation outputs at:

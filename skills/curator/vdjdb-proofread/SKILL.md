@@ -28,8 +28,8 @@ valid first chain and `B2M`. Complete a partially reported class-II restriction 
 commonly used compatible partner, following the [metadata completion rule](../../../docs/standards/columns.md#representative-parents-and-completed-mhc-pairs).
 Mark imputed partners and the submitted pair in `comment`. Correct known source errors before
 counting pair frequencies. Contradictory class, invalid names and unsupported positive assignments
-block the affected records. A source missing both chains needs a source-supported restriction
-or an explicitly recorded modal imputation before admission. Missing V/J or optional peptide provenance does
+block the affected records. A source missing both MHC chains needs a source-supported restriction before admission;
+the conditional partner rule cannot establish a restriction without a reported chain. Missing V/J or optional peptide provenance does
 not justify discarding a sequence-bearing observation.
 
 Each described chain needs its own reported junction. Recover a missing junction only from the

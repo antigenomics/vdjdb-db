@@ -48,10 +48,10 @@ database records from exports.
 | `validation_score` | v3.2a assay-validation probability, [0,1] |
 | `record_score`, `paired` | Aliases of `validation_score` |
 | `validation_score_version` | `3.2a` |
-| `model_sha256` | Exact assay-model bytes |
+| `model_sha256` | SHA256 digest of the exact assay-model bytes |
 | `independent_validation_score` | v3.2b additional-publication probability, [0,1] |
 | `independent_validation_score_version` | `3.2b` |
-| `independent_model_sha256` | Exact independent-study-model bytes |
+| `independent_model_sha256` | SHA256 digest of the exact independent-study-model bytes |
 | `score_version` | `3.2`, identifying the paired score-table release |
 | `TRA`, `TRB` | v3.2a conditioned only on that chain's study/motif evidence |
 | `paired_lower`, `paired_upper` | v3.2a sensitivity range over legal completions of missing predictors |
@@ -220,7 +220,8 @@ uv run vdjdb score-records --tables out/tables --legacy-v31
 The metadata argument supplies the reviewed structural input described in
 [build instructions](../builds.md). A build without it can still be scored; unavailable
 ipTM is marginalized. Scoring requires the completed motif stage and refuses a table
-with no motif evidence. CI runs scoring after motifs with packaged v3.1. `--legacy-v3` selects the unchanged
+with no motif evidence. The historical v3.1 pipeline ran scoring after motifs with the packaged v3.1 model;
+current CI uses v3.2. `--legacy-v3` selects the unchanged
 original model and hard motif evidence. `--hard-membership` selects hard evidence
 with the chosen model; `--threshold` overrides its decision cutoff without changing
 probabilities. For example:

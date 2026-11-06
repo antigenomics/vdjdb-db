@@ -5,9 +5,9 @@
     "Summary by antigen and antigen origin",
     "COVID-19 data",
     "Self-antigen data",
-    "Distribution VDJdb confidence scores",
+    "Distribution of VDJdb confidence scores",
     "Spectratype",
-    "V(D)J usage and MHC alleles",
+    "V-gene and MHC usage",
     "Detailed summary for HLA"
   ],
   "tables": [

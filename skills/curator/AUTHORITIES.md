@@ -10,7 +10,7 @@ the local execution record; retain material questions on the publication issue.
 
 | Question | Authority | Read it with |
 |---|---|---|
-| Which columns may a chunk have, in what order | [`docs/standards/chunk-format.md`](../../docs/standards/chunk-format.md) | `vdjdb schema --table records` |
+| Which columns may a chunk have, in what order | [`docs/standards/chunk-format.md`](../../docs/standards/chunk-format.md) | `vdjdb schema --table chunk --format header` |
 | Is this V/D/J gene or allele a name IMGT has | `proofreading/imgt_alleles.tsv.gz` | `proofreading/imgt.md` §8 has the queries |
 | What does this older gene name convert to | `proofreading/arden.tsv`, `patches/nomenclature.conversions` | `proofreading/imgt.md` §9 |
 | Is this human HLA allele a name IPD-IMGT/HLA has | `proofreading/mhc_alleles.tsv.gz` | `proofreading/mhc.md` §10 has the queries |
@@ -32,7 +32,8 @@ the local execution record; retain material questions on the publication issue.
   `junction_aa` when available. Printed cores, flanks and noncanonical anchors require repair
   inspection, not automatic deletion or manual sequence substitution.
 - At least one reported junction and the literal peptide are required. Optional provenance may
-  stay blank. Partially reported class-II restriction may retain its missing partner blank.
+  stay blank. Raw QC accepts a partially reported class-II restriction with a blank partner;
+  completed curation follows the [reviewed completion rule](../../docs/standards/columns.md#representative-parents-and-completed-mhc-pairs).
 - Report positive, explicitly negative, unassigned and unresolved observations separately.
   Do not infer peptide identity, pairing or restriction from a protein label or sequence similarity.
 - Different experiments and publication reports remain separate observations. Compare both chains,
@@ -46,8 +47,13 @@ the local execution record; retain material questions on the publication issue.
 uv run vdjdb qc <file> --strict --report out/reports/qc.tsv
 uv run vdjdb submission <file>
 uv run vdjdb build --out out/
-uv run vdjdb schema --table records
+uv run --extra dev vdjdb schema --table chunk --format template --out out/templates
 ```
+
+Generated report names below may have a `.gz` suffix when they exceed 1,000,000 bytes.
+Inspect the actual output directory and read either form; do not create oversized plain copies.
+Use a matching completed build for read-only review. Rebuild when validating authorized changes
+or when the required output is unavailable, and record the input revision.
 
 `qc-summary.tsv` declares which findings are advisory. Build reports identify harmonisation,
 unresolved nomenclature, junction/germline conflicts and lookalike terms. Read them before proposing

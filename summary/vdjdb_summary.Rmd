@@ -1,7 +1,6 @@
 ---
 title: "VDJdb summary statistics"
 author: "Mikhail Shugay"
-date: "26-02-2022"
 output:
   html_document:
     code_folding: hide
@@ -120,7 +119,9 @@ stopifnot(!anyNA(df.context$id), n_distinct(df.context$id) == nrow(df))
 
 #### Record statistics by species and TCR chain
 
-General statistics. Note that general statistics are computed using the 'slim' database version. Slim version, for example, lists the same TCR sequence found in several donors/studies only once and selects representative V/J for a given CDR3aa clonotype and the best score across all redundant records.
+These statistics use the slim projection, which combines repeated reports for the same
+species, chain, junction and peptide-source assignment across donors and studies. It retains
+representative V/J calls and the highest legacy confidence score within each group.
 
 ```{r warning=FALSE, message=FALSE}
 # `Studies` counts every reference, not the first of a comma-joined list. Keeping only the first
@@ -268,7 +269,7 @@ grid.arrange(arrangeGrob(p1 + theme(legend.position="none"),
 
 #### Summary by antigen and antigen origin
 
-Representative data for Homo Sapiens
+Human receptor observations grouped by peptide-source organism.
 
 ```{r message=FALSE, warning=FALSE}
 df.a = df %>% 
@@ -405,11 +406,14 @@ kable(format = "html",
 
 ---
 
-#### Distribution VDJdb confidence scores
+#### Distribution of VDJdb confidence scores
 
 Legend: 0 - low confidence, 1 - medium confidence, 2 - high confidence, 3 - very high confidence.
 
-Note that this scoring system is currently deprecated due to large amounts of deep multimer+ repertoire sequencing data and 10X scRNAseq with ImmuDEX dextramer multiplex that are almost impossible to validate independently. We suggest applying methods like TCRNET to [infer high-confidence TCR motifs](https://github.com/antigenomics/vdjdb-motifs) from VDJdb.
+The legacy score summarizes reported assay evidence. Large multimer-sorted repertoires and
+10x single-cell datasets with multiplexed dextramers often lack independent verification of
+every receptor. Complement this score with the released motif annotations and record scores;
+these provide distinct evidence and do not replace source-reported validation.
 
 ```{r message=FALSE, warning=FALSE}
 df.score <- df[df$species=='HomoSapiens',] %>%
@@ -429,7 +433,9 @@ ggplot(df.score, aes(x=paste(mhc.class, gene, sep = " "), y=total, fill = as.fac
 
 #### Spectratype
 
-Representative data for Homo Sapiens. CDR3 length distribution (spectratype) is colored by cognate epitope. Second plot shows epitope length distribution for MHC class I and II colored by unique CDR3 (alpha or beta) records.
+Human receptor observations. The first plot shows anchor-inclusive junction lengths,
+colored by cognate epitope. The second shows peptide lengths for MHC classes I and II,
+colored by junction-length rank. Counts refer to slim records.
 
 ```{r message=FALSE, warning=FALSE}
 df.spe = subset(df, species=="HomoSapiens")
@@ -476,9 +482,10 @@ ggplot(df.spe %>% mutate(
         strip.background = element_blank())
 ```
 
-#### V(D)J usage and MHC alleles
+#### V-gene and MHC usage
 
-Representative data for Homo Sapiens, Variable gene. Only Variable genes and MHC alleles with at least 10 records are shown.
+Human V-gene and MHC usage. Only V genes and MHC groups with at least 10 slim records
+are shown; MHC labels are grouped at first-field resolution.
 
 ```{r message=FALSE, warning=FALSE, fig.height=10, fig.width=6}
 df.vhla = df.context %>%
@@ -525,7 +532,10 @@ ggplot(df.vhla, aes(x=gsub("HLA-", "", paste(mhc.a.split, mhc.b.split, sep = " /
         strip.background = element_blank())
 ```
 
-Circos plot for correspondence between human TRBV genes and MHC class I alleles for links supported by at least 50 slim records in terms of the ratio of observed to expected records. Band width and color (from red:highest to light yellow:lowest) are scaled proportional to co-occurrence matrix value divided by row (TRBV) and column (HLA) sums.
+The chord diagram shows human TRBV–MHC-class-I combinations supported by at least 50 slim
+records. Ribbon width and color show observed/expected co-occurrence: each cell count
+multiplied by the matrix total and divided by its row and column totals. Red indicates the
+highest ratio and light yellow the lowest; expectations use the displayed matrix.
 
 ```{r message=FALSE, warning=FALSE, fig.width=8, fig.height=8}
 #https://jokergoo.github.io/circlize_book
@@ -572,7 +582,7 @@ circos.clear()
 
 #### Detailed summary for HLA
 
-Representative data for Homo Sapiens MHC class I and II. Missing class-II partners are completed with the most commonly used compatible allele; imputed partners are marked in the source curation comments.
+Human MHC class I and II restrictions, grouped at first-field resolution. Missing class-II partners are completed with the most commonly used compatible allele; imputed partners are marked in the source curation comments.
 
 ```{r message=FALSE, warning=FALSE}
 df.m = df.context %>%

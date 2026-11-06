@@ -22,7 +22,7 @@ Stated here so the next unread column is visible as a gap rather than discovered
 | `region_type` | **nothing** | V-REGION / J-REGION / D-REGION / EX0-2. Would let a lookup be scoped to the segment kind rather than trusting the name's prefix |
 | `accession` | **nothing** | the IMGT entry a row came from. Would let a report cite its source |
 
-Two facts about `functionality` that cost measuring:
+Two properties of the pinned functionality table:
 
 - **It is species-specific and the table has no duplicates.** IMGT has `TRBV7-1*01` as `ORF` in human,
   `P` in *Macaca fascicularis* and both *Pongo*, and `F` in five other species. Keyed on
@@ -32,8 +32,9 @@ Two facts about `functionality` that cost measuring:
   Treating that as non-functional flagged **17,891 chunk rows** where the actionable population is
   2,608 chain-segments.
 
-Nine forms appear, and the brackets carry meaning - `(F)` uncertain, `[P]` allele-specific - so the
-verdict is reported as IMGT spells it rather than collapsed to a boolean: `F` 4,024, `ORF` 547,
+Nine forms appear. Parentheses mark a rearranged genomic/cDNA source without an isolated
+germline counterpart; square brackets mark genomic DNA whose rearrangement status is unknown.
+Preserve the [IMGT functionality notation](https://www.imgt.org/IMGTScientificChart/SequenceDescription/IMGTfunctionality.html): `F` 4,024, `ORF` 547,
 `P` 464, `(F)` 262, `[F]` 31, `(P)` 6, `[P]` 4, `(ORF)` 2, `[ORF]` 2.
 
 ---
@@ -105,8 +106,8 @@ IMGT® (international ImMunoGeneTics information system®, https://www.imgt.org)
 | Code | Full name | Meaning |
 |---|---|---|
 | `F` | Functional | Protein-coding, no known defect |
-| `(F)` | Functional with note | Functional but mapped to two loci or with ambiguity |
-| `[F]` | Inferred functional | Rearranged/expressed; functionality inferred |
+| `(F)` | Functional, rearranged source | Corresponding germline not yet isolated |
+| `[F]` | Functional, genomic source | Germline versus rearranged status unknown |
 | `ORF` | Open Reading Frame | Intact coding sequence but non-functional due to regulatory/structural issue |
 | `P` | Pseudogene | Contains stop codons, frameshifts, or other defects |
 
@@ -129,19 +130,24 @@ The `imgt_alleles.tsv.gz` file contains TR allele entries for all four species p
 
 ## 6. Human TCR Allele Counts (from `imgt_alleles.tsv.gz`, release 2026-05-25)
 
-| Gene type | Allele count (Homo sapiens) |
+| Gene type | Allele entries (Homo sapiens) |
 |---|---|
-| TRAV | ~100 alleles across ~70 genes |
-| TRAJ | ~61 alleles (mostly 1 per gene) |
-| TRAC | 1 allele |
-| TRBV | ~250+ alleles across ~65 genes |
-| TRBD | 2 alleles |
-| TRBJ | ~14 alleles (mostly 1 per gene) |
-| TRBC | 2 alleles |
-| TRDV | ~20 alleles across ~14 genes (many shared with TRAV) |
-| TRDD | 3 alleles |
-| TRDJ | 4 alleles |
-| TRDC | 1 allele |
+| TRAC | 1 |
+| TRAJ | 73 |
+| TRAV | 129 |
+| TRBC | 8 |
+| TRBD | 3 |
+| TRBJ | 16 |
+| TRBV | 193 |
+| TRDC | 1 |
+| TRDD | 3 |
+| TRDJ | 5 |
+| TRDV | 7 |
+| TRGC | 18 |
+| TRGJ | 7 |
+| TRGV | 28 |
+
+Counts refer to the pinned table; shared TRAV/TRDV genes retain their TRAV prefix.
 
 ---
 
@@ -150,7 +156,7 @@ The `imgt_alleles.tsv.gz` file contains TR allele entries for all four species p
 1. Reference allele is always `*01`
 2. Subsequent alleles numbered `*02`, `*03`, etc. in order of discovery
 3. Alleles for a given gene can be found by filtering `imgt_allele_id` in `imgt_alleles.tsv.gz` where `imgt_gene_id` matches
-4. If an allele string (e.g., `TRBV7-9*09`) is not in `imgt_allele_id`: either the allele doesn't exist or the gene name is wrong
+4. If an allele string (e.g., `TRBV7-9*09`) is not in `imgt_allele_id`: check the pinned release, species and source spelling; a newer valid allele can be absent from this snapshot
 
 ---
 
@@ -168,7 +174,7 @@ species  imgt_gene_id  imgt_allele_id  functionality  region_type  accession
 - `region_type`: `V-REGION`, `J-REGION`, `D-REGION`, `C-REGION` (or exon for constant genes)
 - `accession`: IMGT/LIGM-DB accession number
 
-### Validation queries (decompress on-the-fly with zcat)
+### Validation queries (decompress with `gzip -dc`)
 
 **Check if a specific allele exists (human):**
 ```bash
@@ -180,20 +186,20 @@ gzip -dc proofreading/imgt_alleles.tsv.gz | awk -F'\t' '$1=="Homo sapiens" && $3
 gzip -dc proofreading/imgt_alleles.tsv.gz | awk -F'\t' '$1=="Homo sapiens" && $2=="TRBV7-9" {print $3, $4}'
 ```
 
-**Check if gene name is valid (any species):**
+**Find species carrying a gene name (not a species-specific validation):**
 ```bash
 gzip -dc proofreading/imgt_alleles.tsv.gz | awk -F'\t' '$2=="TRBV7-9"' | head -3
 ```
 
 **Check functionality of a specific allele:**
 ```bash
-gzip -dc proofreading/imgt_alleles.tsv.gz | awk -F'\t' '$3=="TRBV7-9*08" {print $4}'
+gzip -dc proofreading/imgt_alleles.tsv.gz | awk -F'\t' '$1=="Homo sapiens" && $3=="TRBV7-9*08" {print $4}'
 ```
 
 ### Validation rules for VDJdb
 1. **Gene-level check** (strip `*NN` suffix): gene must be in `imgt_gene_id` column for the correct species
 2. **Allele-level check** (if allele given): full `gene*allele` must be in `imgt_allele_id` column
-3. **Functionality check**: flag if `functionality` is `P`; flag with note if `(F)` or `[F]`
+3. **Functionality check**: use the build's advisory rule. `F`, `(F)` and `[F]` count as functional; a gene-level call is functional if any listed allele is functional. Review ORF/P calls against the source without automatically substituting an allele.
 4. For human TCR genes: name must start with `TRAV`, `TRAJ`, `TRBV`, `TRBD`, `TRBJ`, `TRDV`, `TRDD`, `TRDJ`, `TRGV`, `TRGJ`
 
 ---
@@ -280,14 +286,14 @@ Adaptive uses an expanded gene naming convention designed for alphanumeric sorti
 | Hybrid: IMGT prefix + zero-padded subgroup | `TRBV06-5` | Manual stripping of TCR prefix | `TRBV6-5` |
 | Hybrid: IMGT prefix + zero-padded cluster | `TRBV7-06`, `TRBV4-01` | Partially formatted data | `TRBV7-6`, `TRBV4-1` |
 | Single-cluster gene + zero-padded `-01` | `TRBV19-01`, `TRBV9-01`, `TRAV21-01` | Adaptive always adds cluster | `TRBV19`, `TRBV9`, `TRAV21` |
-| Single-cluster gene + `-02` (allele ref) | `TRBV15-02` | Ambiguous: may be allele 2 | `TRBV15` (drop cluster/allele info) |
+| Single-cluster gene + `-02` (allele ref) | `TRBV15-02` | Ambiguous: may be allele 2 | Resolve from the export specification and source; do not discard possible allele information |
 
 **Conversion algorithm:**
 1. Replace `TCRB` → `TRB`, `TCRA` → `TRA`, `TCRG` → `TRG`, `TCRD` → `TRD`
 2. Strip leading zeros from subgroup: `\bTR([ABGD][VDJC])0+(\d)` → `TR\1\2`
 3. Strip leading zeros from cluster: `-0+(\d+)` → `-\1`
-4. If resulting `gene-cluster` is not in `imgt_alleles.tsv.gz` for the species, try the bare gene name (without cluster): many IMGT genes have no cluster suffix
-5. Allele `*NN`: keep as-is (IMGT uses same zero-padded 2-digit allele format); or drop allele if VDJdb record doesn't require allele-level resolution
+4. Remove an added `-01` only when the source export convention and species-specific authority identify a single-cluster gene. An unknown suffix alone does not justify removing it.
+5. Preserve a reported `*NN` allele suffix and verify it against the authority; do not lower the reported resolution merely to make a name pass.
 
 **Key verification:** After any Adaptive→IMGT conversion, look up the result in `imgt_alleles.tsv.gz`:
 ```bash
@@ -309,8 +315,8 @@ Some older multiplex RT-PCR-based experiments use primers that detect multiple V
 | Observed | Likely issue | Action |
 |---|---|---|
 | `TRBV 7-9` | Space in gene name | Strip space → `TRBV7-9` |
-| `TRBV7-9*09` | Allele not in IMGT | Check `imgt_alleles.tsv.gz`; may be a typo of `*07` or `*08` |
-| `BV20S1` | Arden nomenclature without TR prefix | Check `nomenclature.conversions` after prepending `TRBV` → `TRBV20S1` is not in conversions; try `TRBV2S1` → `TRBV20-1` |
+| `TRBV7-9*09` | Allele absent from the pinned snapshot | Check the source and current authority; do not guess a replacement allele |
+| `BV20S1` | Arden nomenclature without TR prefix | Resolve the publication's naming scheme; do not change `20` to `2` merely to find a conversion |
 | `Vβ17` | Informal label | Not mappable without species context; ask user |
 | `TRAV14/DV4` | Dual-usage gene, looks wrong | Correct — this is a legitimate IMGT name for a dual-usage gene |
 | `TRBVS1` | Unmapped gene (old IMGT notation) | May exist in `imgt_alleles.tsv.gz`; check |

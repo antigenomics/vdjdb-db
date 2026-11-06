@@ -1,5 +1,9 @@
 # Summer archive versus production record counts
 
+> Historical pre-release audit: “production” and “current” below refer to the inspected
+> snapshots, not a live status check. Subsequent publication is recorded in the
+> [completed release ledger](superpowers/plans/2026-11-05-late-autumn-release.md).
+
 The difference is in the record contents, not the Browse default filters.
 The public production export was fetched with no filters and paired export
 explicitly disabled. Its 228,214 data rows equal both the HTTP search count and

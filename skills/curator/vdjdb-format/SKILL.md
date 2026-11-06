@@ -48,7 +48,9 @@ are different levels of reporting. Low-resolution human calls remain low resolut
 source provides more detail.
 
 Class I requires `mhc.b=B2M`. Class II cannot use `B2M`; a reported class-II chain may have its
-unreported partner blank. Resolve supported names and inspect partner inference where available;
+unreported partner blank at the raw-QC stage. Complete curation under the
+[reviewed completion rule](../../../docs/standards/columns.md#representative-parents-and-completed-mhc-pairs),
+distinguishing source-recovered and imputed partners. Resolve supported names;
 never infer restriction from peptide length or a peptide-binding prediction.
 
 ## Preserve frequency and assay meaning

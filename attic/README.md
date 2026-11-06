@@ -10,7 +10,8 @@ duplicated column lists did.
 2026-09-27 and was never reachable: `BuildDatabase.groovy` was its only caller, the Python port
 never invoked it, and it imports `Bio`, which this project does not depend on. It is here rather
 than deleted because it is the only written form of what stage II did, and `arda` covers only part
-of that -- arda repairs a CDR3 against a named germline but does not *name* a missing segment, which
-is why `_legacy_fixer/` and `res/` are still live (issue #462, ROADMAP phase 8).
+of its historical responsibilities. The current annotation path combines arda germline alignment
+with vdjtools recombination-model inference; `_legacy_fixer/` and `res/` have since been retired
+(see [the migration record](../docs/builds/library-pipeline-migration.md)).
 
 Nothing here runs. `uv run vdjdb build` replaced it; `docs/` specifies what it used to.

@@ -47,8 +47,10 @@ an implementation backlog. `attic/` remains because schema tests read its origin
 ## 2. Release assets
 
 The release produces primary, legacy and AIRR bundles, a manifest and checksums.
+Optional web bundles add the dashboard and web-specific annotations.
 [Build outputs](docs/outputs.md) specifies members, column orders and compatibility.
-Legacy member basenames remain `vdjdb.txt`, `vdjdb.slim.txt` and `vdjdb_full.txt`.
+Legacy logical basenames remain `vdjdb.txt`, `vdjdb.slim.txt` and `vdjdb_full.txt`;
+files above 1,000,000 bytes carry an additional `.gz` suffix.
 
 ## 3. Remaining work and release gates
 
@@ -131,7 +133,7 @@ anchors. All coordinate conversions belong to `vdjdb.convert.coords` and need ro
 | Space | Convention |
 |---|---|
 | VDJdb `v.end` / `j.start` | 0-based amino-acid indices in junction space |
-| vdjtools `Scenario.v_end` / `j_start` | 0-based half-open CDR3 nucleotide space |
+| vdjtools `Scenario.v_end` / `j_start` | 0-based half-open junction nucleotide space |
 | arda `annotate.dmap` | 1-based closed junction nucleotide space |
 | AIRR | 1-based closed sequence space |
 
@@ -184,7 +186,7 @@ Rebuild every fit from the current distinct receptor cohort. Store timing report
 
 ### 8.9 Evaluation helpers
 
-Use [clustering](docs/clustering.md) for purity, retention, coverage and Mayer metrics.
+Use [clustering](docs/clustering.md) for purity, retention, coverage, homogeneity and parsimony.
 Metrics with different unclustered-record conventions are not interchangeable.
 
 ## 9. Source and method authority
@@ -252,7 +254,8 @@ justify silently resetting a historical baseline or relaxing a tolerance.
 
 Held-out records stay outside the repository and release bundles. `vdjdb.validate.guard` checks
 both names and content shape. Read the set only through `$VDJDB_TCRVDB` and report aggregate
-metrics; do not tune on it or emit record-level verdicts. See [denoising](docs/denoising.md)
+metrics; do not tune motif parameters on it or emit record-level verdicts. The separately
+authorized record-score v3.2 fitting uses the labels described in its scoring specification. See [denoising](docs/denoising.md)
 and [outputs](docs/outputs.md).
 
 ## 12. Completed migration reference

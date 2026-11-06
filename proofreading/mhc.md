@@ -165,34 +165,31 @@ mhc.class = MHCI
 
 ### Class II entries
 ```
-mhc.a   = HLA-DQA1*01:02       ← α-chain allele
+mhc.a   = HLA-DQA1*03:01       ← α-chain allele
 mhc.b   = HLA-DQB1*03:02       ← β-chain allele
 mhc.class = MHCII
 ```
 
-### Class II DR entries (special case: DRA is monomorphic)
+### Class II DR entries (DRA has limited polymorphism)
 ```
-mhc.a   = HLA-DRA*01:01        ← or just HLA-DRA (non-polymorphic)
+mhc.a   = HLA-DRA*01:01        ← preserve the source-reported resolution
 mhc.b   = HLA-DRB1*03:01       ← the polymorphic β-chain
 mhc.class = MHCII
 ```
 
 ### 4.1 A blank class II partner chain
 
-Papers routinely report one chain of a class II heterodimer and leave the other implicit. `vdjdb qc`
-fails the row as `no.mhc`, and the fill is a curation decision that needs a stated reason. These are
-the precedents this corpus has set; each was applied to the row counts named and is the default for
-the same situation again.
+Papers can report one chain of a class-II heterodimer and leave its partner implicit.
+Raw QC accepts a valid partial restriction. Completed curation follows the
+[representative-parent and MHC-completion rule](../docs/standards/columns.md#representative-parents-and-completed-mhc-pairs):
+recover the partner from the source first, then use the reviewed conditional mode where supported.
+Keep alpha in `mhc.a` and beta in `mhc.b`, and mark an imputed partner and the submitted pair
+in the comment. If neither chain is reported, the conditional rule cannot establish restriction.
 
-| `mhc.a` | Fill `mhc.b` with | Reason, and what it rests on |
-|---|---|---|
-| `HLA-DRB[1-5]*xx:xx` | `HLA-DRA*01:01` | DRA is monomorphic - one functional protein in ~97 % of the population, so the α chain is not information the paper withheld. 153 rows |
-| `HLA-DPB1*04:01`, in a COVID vaccination or convalescence study | `HLA-DPA1*01:03` | the canonical DP haplotype pairing in that literature, 1,034+ instances already in VDJdb. 467 rows over PubMed-checked pairings |
-| `HLA-DQB1*06:02`, in a narcolepsy study | `HLA-DQA1*05:01`, and keep `mhc.b` as the DQB1 | DQ0602 is one haplotype and carries 98 % of type 1 narcolepsy. 428 rows |
-| `HLA-DPA1*` or `HLA-DQA1*` alone, no context above | **do not fill** | the β chain is the polymorphic one and cannot be inferred from the α. Ask the authors, or leave for manual curation |
-| `H2-IA*` / `H2-IE*` (`MusMusculus`) | the same string as `mhc.a` | the VDJdb convention for murine class II is the molecule name in both fields. 150 rows |
-
-A fill outside this table needs the paper's own HLA typing, or it is a guess about a donor's genotype.
+The earlier table in this guide incorrectly assigned `DQA1*05:01` to the DQ0602 example.
+The [PMID 35914171 source](https://pmc.ncbi.nlm.nih.gov/articles/PMC9371724/) specifies
+`DQA1*01:02/DQB1*06:02`. Historical imputation counts are not a substitute for source checking.
+Murine molecule shorthand follows the reviewed `H2-` conventions below.
 
 ---
 
@@ -257,21 +254,20 @@ For mouse class II: `mhc.b` = β-chain molecule or gene (e.g. `H2-IAb`, `H2-Ab1`
 
 ---
 
-## 8. HLA Allele Database Statistics (HLA2026.pdf, December 2025)
+## 8. HLA Allele Database Statistics (pinned release 3.64.0)
 
-| Gene | Allele count | Notes |
-|---|---|---|
-| HLA-A | 9,022 | Most studied class I locus |
-| HLA-B | 10,876 | Largest number of alleles |
-| HLA-C | 9,031 | |
-| HLA-DRB1 | 3,924 | Most polymorphic class II locus |
-| HLA-DQB1 | 3,022 | |
-| HLA-DPB1 | 3,075 | |
-| HLA-DQA1 | ~500 | Less polymorphic α-chain |
-| HLA-DPA1 | ~100 | Nearly monomorphic α-chain |
+| Gene | Allele entries |
+|---|---|
+| HLA-A | 9,175 |
+| HLA-B | 11,110 |
+| HLA-C | 9,288 |
+| HLA-DRB1 | 3,977 |
+| HLA-DQB1 | 3,069 |
+| HLA-DPB1 | 3,104 |
+| HLA-DQA1 | 1,026 |
+| HLA-DPA1 | 929 |
 
-**Total as of IPD-IMGT/HLA 3.63.0 (January 2026): 43,758 alleles**
-**Total as of IPD-IMGT/HLA 3.64.0 (April 2026): 46,005 alleles in `mhc_alleles.tsv.gz`**
+The complete pinned table contains 46,005 allele entries across all included loci.
 
 ---
 
@@ -285,18 +281,18 @@ Before molecular typing, alleles were named by the antigen they defined. These a
 
 | Serological name | Modern canonical name | Notes |
 |---|---|---|
-| `A2`, `HLA-A2` | `HLA-A*02` (low res) or `HLA-A*02:01` (if context known) | Most common HLA-A allele globally |
-| `A3` | `HLA-A*03:01` | |
-| `B7` | `HLA-B*07:02` | |
-| `B27` | `HLA-B*27:05` (most common) | Many B27 subtypes exist — do NOT assume 05 |
-| `DR4` | `HLA-DRB1*04:XX` | Very ambiguous — multiple DRB1*04 alleles |
-| `DQ2` | Usually `HLA-DQB1*02:01` or `*02:02` | Ambiguous without typing |
-| `B44` | `HLA-B*44:02` or `*44:03` | Two common subtypes |
+| `A2`, `HLA-A2` | `HLA-A*02` (low res) or `HLA-A*02:01` (if context known) | Retain first-field resolution unless the source identifies an allele |
+| `A3` | `HLA-A*03` | Higher resolution requires source typing |
+| `B7` | `HLA-B*07` | Higher resolution requires source typing |
+| `B27` | `HLA-B*27` | Do not infer a second field |
+| `DR4` | `HLA-DRB1*04` | Very ambiguous — multiple DRB1*04 alleles |
+| `DQ2` | `HLA-DQB1*02` | Allele and alpha partner require source typing |
+| `B44` | `HLA-B*44` | Do not choose a subtype without typing |
 | `B12` | `HLA-B*44` or `HLA-B*45` | **Broad antigen, not a group.** It split into B44 and B45, so `HLA-B*12` names nothing at any resolution. Resolve to the split, then stop — a serological typing cannot choose a second field |
 
 > **Rule:** When a serological antigen name is given without molecular typing, record at low resolution (e.g., `HLA-A*02`) and note in the extraction log that higher resolution was not available.
 
-### 9.2 Old molecular format (no colon separator, no field 2)
+### 9.2 Old molecular format (fields without colon separators)
 
 Older publications (mid-1990s to mid-2000s) sometimes use:
 - `A*0201` → normalise to `HLA-A*02:01` (insert `HLA-` prefix and colon after field 1)
@@ -305,7 +301,7 @@ Older publications (mid-1990s to mid-2000s) sometimes use:
 
 Pattern: `<GENE>*<4-digit>` → `HLA-<GENE>*<2-digit>:<2-digit>`
 
-### 9.3 WHO serology notation (no `*`)
+### 9.3 Compact molecular notation (no `*`)
 
 Some databases use `A0201`, `B0702` — no `*`, no `HLA-`:
 - `A0201` → `HLA-A*02:01`
@@ -322,7 +318,8 @@ Modern NGS typing produces up to 4-field resolution. VDJdb accepts and stores th
 | 3-field | `HLA-A*02:01:01` | Synonymous coding changes |
 | 4-field | `HLA-A*02:01:01:01` | Non-coding differences — accepted, store full string |
 
-When looking up 3- or 4-field alleles in `mhc_alleles.tsv.gz`, match on the full string in `allele_name`. When looking up low-resolution (1-field), use prefix matching.
+Match the full reported name or a colon-delimited extension in `allele_name`.
+Preserve expression suffixes; use the build resolver for suffixed or ambiguous names.
 
 ### 9.5 Null, low-expression, and aberrant alleles
 
@@ -336,8 +333,8 @@ Alleles with expression suffixes:
 ### 9.6 Non-HLA naming in context of human class I
 
 Some older literature refers to non-classical class I molecules without full allele typing:
-- `HLA-E` (no allele) → leave as-is; note single known common allele is `HLA-E*01:01` or `HLA-E*01:03`
-- `MICA`, `MICB` → these are MHC-class-I-related chains, NOT HLA; should appear in `mhc.a` for NKT or innate studies; flag for review
+- `HLA-E` (no allele) → leave as-is; preserve the reported resolution; `HLA-E*01:01` and `HLA-E*01:03` are distinct common alleles
+- `MICA`, `MICB` → these are MHC-class-I-related chains, NOT HLA; do not automatically admit them as peptide-MHC restriction; review receptor, ligand and scope
 
 ---
 
@@ -353,13 +350,15 @@ allele_id  allele_name  confirmed  sequence_type  partial  cell_count  group_cou
 - `sequence_type`: `gDNA` or `cDNA`
 - `partial`: `Full` or `Partial`
 
-> **Important:** All entries in `mhc_alleles.tsv.gz` are stored at full (4-field) resolution (e.g., `HLA-A*02:01:01:01`). A VDJdb entry like `HLA-A*02:01` (2-field) will **not** exact-match any row — use **prefix matching** (`$2 ~ /^HLA-A\*02:01:/`) to validate it. There are 504 rows starting with `HLA-A*02:01:` confirming this protein group exists.
+> **Resolution:** The authority contains names at several field depths. Match the exact name
+> or a colon-delimited extension of the reported fields. Preserve expression suffixes rather
+> than stripping them. Use the build's nomenclature resolver for suffixed or ambiguous calls.
 
 ### Validation queries (decompress on-the-fly with gzip -dc)
 
-**Look up a specific 2-field allele (prefix match — all entries in file are at 4-field resolution):**
+**Look up a two-field name and its deeper extensions:**
 ```bash
-gzip -dc proofreading/mhc_alleles.tsv.gz | awk -F'\t' '$2 ~ /^HLA-A\*02:01:/'
+gzip -dc proofreading/mhc_alleles.tsv.gz | awk -F'\t' '$2 == "HLA-A*02:01" || $2 ~ /^HLA-A\*02:01:/'
 ```
 
 **Look up an exact 4-field allele:**
@@ -369,7 +368,7 @@ gzip -dc proofreading/mhc_alleles.tsv.gz | awk -F'\t' '$2 == "HLA-A*02:01:01:01"
 
 **Check if an allele is confirmed (use prefix match for 2-field):**
 ```bash
-gzip -dc proofreading/mhc_alleles.tsv.gz | awk -F'\t' '$2 ~ /^HLA-A\*02:01:/ {print $2, $3}' | head -3
+gzip -dc proofreading/mhc_alleles.tsv.gz | awk -F'\t' '$2 == "HLA-A*02:01" || $2 ~ /^HLA-A\*02:01:/ {print $2, $3}' | head -3
 ```
 
 **Find all alleles at a locus (prefix match):**
@@ -386,7 +385,7 @@ gzip -dc proofreading/mhc_alleles.tsv.gz | awk -F'\t' '$2 ~ /^HLA-A\*02:/' | hea
 ### Validation rules for VDJdb
 1. For human entries where `mhc.a` starts with `HLA-`: look up in `mhc_alleles.tsv.gz`
    - **4-field allele** (e.g., `HLA-A*02:01:01:01`): exact match on `allele_name`
-   - **2- or 3-field allele** (e.g., `HLA-A*02:01`): use **prefix match** (`$2 ~ /^HLA-A\*02:01:/`) — file stores only 4-field entries
+   - **2- or 3-field allele** (e.g., `HLA-A*02:01`): match the exact name or a colon-delimited extension; the file contains several resolutions
    - **Low-resolution** (1-field, e.g., `HLA-A*02`): prefix match acceptable (`$2 ~ /^HLA-A\*02:/`); flag and note in log
    - **Not found**: check for common naming variants (sections 9.1–9.3); flag if truly absent
    - **Unconfirmed**: note in log
@@ -414,7 +413,7 @@ Several HLA class II genes include a digit suffix (e.g., `DPA1`, `DPB1`, `DQA1`,
 
 ### 11.2 `HLA-DRA1*` — incorrect extra digit
 
-`HLA-DRA1*` is wrong. The gene name is `DRA` (no trailing digit). Always use `HLA-DRA*01:01` (or `HLA-DRA*01` for low-resolution).
+`HLA-DRA1*` is wrong. The gene name is `DRA` (no trailing digit). Preserve the reported allele and resolution, for example `HLA-DRA*01:01` or `HLA-DRA*01`.
 
 | Wrong form | Correct form |
 |---|---|
@@ -432,18 +431,14 @@ Human MHC-II alleles in `mhc.a` and `mhc.b` must always include the `HLA-` prefi
 | `DRB1*15:01` | `HLA-DRB1*15:01` |
 | `DQB1*06:02` | `HLA-DQB1*06:02` |
 
-**Quick scan for all three error types:**
+**Header-aware validation:**
 
 ```bash
-# Missing digit in DP/DQ gene names
-awk -F'\t' 'NR>1 && ($10 ~ /^HLA-DP[AB]\*/ || $11 ~ /^HLA-DP[AB]\*/ || $10 ~ /^HLA-DQ[AB]\*/ || $11 ~ /^HLA-DQ[AB]\*/) {print NR, $10, $11}' <chunk_file>
-
-# HLA-DRA1* (extra digit)
-awk -F'\t' 'NR>1 && ($10 ~ /^HLA-DRA1\*/ || $11 ~ /^HLA-DRA1\*/) {print NR, $10, $11}' <chunk_file>
-
-# Missing HLA- prefix (starts with DP/DQ/DR but not HLA-)
-awk -F'\t' 'NR>1 && ($10 ~ /^D[PQR][ABMNO]/ || $11 ~ /^D[PQR][ABMNO]/) {print NR, $10, $11}' <chunk_file>
+uv run vdjdb qc path/to/chunk.tsv --strict --report out/reports/qc.tsv
 ```
+
+Inspect the named `mhc.a` and `mhc.b` fields in each finding. Do not use fixed numeric
+column positions: older and current chunk headers can differ.
 
 ---
 

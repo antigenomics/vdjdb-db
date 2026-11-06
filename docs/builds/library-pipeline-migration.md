@@ -124,13 +124,13 @@ measured on arda 2.36.0 - the floor this page declares:
 | MacacaMulatta | TRA | 74 | **73** | - | - |
 | HomoSapiens | TRD | 4 | **4** | 4 | 4 |
 
-**192,423 of 192,726 (99.84 %)**, and no species or locus at zero. TRA and TRD are VJ loci - there
-is no D to find. ⛔ **Break any coverage check in the build down BY SPECIES**: one percentage over
+**192,423 of 192,726 (99.84 %)**, and no species or locus at zero. TRA is a VJ locus and has no D segment; TRD is a VDJ locus, as the
+four TRD rows in the table show. ⛔ **Break any coverage check in the build down BY SPECIES**: one percentage over
 this corpus hid an entire organism answering nothing. ⚠ The `keys` column is as of arda 2.36.0 —
 the 461 keys naming neither V nor J had no locus before and now count under the one they resolve
 to, so a per-locus denominator is not comparable to an older run's.
 
-⚠ **Every accuracy percentage on this page is human TRB.** The truth set behind them
+⚠ **The D-gene and D-boundary accuracy percentages on this page are human TRB.** The truth set behind them
 (`isalgo/airr_control`) carries TRA and TRB and no immunoglobulin, so none of them may be quoted for
 IGH - and the per-species table above is coverage, not accuracy.
 

@@ -7,7 +7,8 @@ description: Review repeated paired receptor-pMHC observations and metadata syno
 
 Read [AUTHORITIES.md](../AUTHORITIES.md) and
 [observation identity](../../../docs/standards/chunk-format.md#completeness-and-observation-identity).
-Use a fresh build and read raw chunks with `read_chunks(deduplicate=False)`.
+Use a completed build matching the reviewed inputs; rebuild only when required under
+AUTHORITIES.md. Read raw chunks with `read_chunks(deduplicate=False)`.
 
 ## Compare receptors and experiments
 

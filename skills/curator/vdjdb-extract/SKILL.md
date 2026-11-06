@@ -49,7 +49,8 @@ is printed, retain that literal core and inspect the build repair. Preserve term
 reported V/J values when assembly resolves them. Internal cysteines and noncanonical anchors
 are review findings, not permission to discard an observation.
 
-Invalid amino-acid symbols, incomplete sequences and chemical modifications require a recorded
+Invalid amino-acid symbols, sequences still incomplete after supported repair, and chemical
+modifications require a recorded
 source disposition outside the positive build. Keep the original source; do not silently delete
 it or substitute standard residues. Ask only for a curation decision that is still unresolved.
 
@@ -57,7 +58,7 @@ For spreadsheets, inspect repeated headers, formula cells, functionality suffixe
 J/D fields. Do not strip allele suffixes merely because a cell also contains a functionality code.
 For a 10x Genomics dextramer matrix, call the chain co-occurrence caller for the donors in that
 chunk. `process_donor(dcode, donor)` and
-`processing/dcode_chain_graph.py --dcode DIR --donors 1 2 3 4 --out DIR` rebuild the five tables
+`uv run python processing/dcode_chain_graph.py --dcode DIR --donors 1 2 3 4 --out DIR` rebuild the five tables
 behind `chunks/ISSUE_289.tsv`. Deposited ITRAP matrices use `processing/itrap_reprocess.py`:
 `itrap1_tables` then `run_frames` for `chunks/PMID_37133356.tsv`, and `viral_tables` then
 `run_frames` for `chunks/DOI_10.64898_2025.12.19.695506.tsv`. The procedure, the filenames and

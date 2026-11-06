@@ -40,14 +40,14 @@ excludes the conserved anchors and is not interchangeable with it.
 Install the published annotation interface separately from the database build environment:
 
 ```bash
-uv tool install 'vdjmatch==0.6.2'
+uv tool install 'vdjmatch==1.2.3'
 vdjmatch annotate --help
 vdjmatch annotate sample.tsv --vdjdb reference.zip \
   --reference-population curated-benchmark --threads 4 -o annotation
 ```
 
 Here `reference.zip` is your selected primary or legacy database bundle.
-`curated-benchmark` is the recommended default population in version 0.6.2; it excludes
+`curated-benchmark` is the recommended default population in version 1.2.3; it excludes
 KLGGALQAK and PMID 40498839 source records. Choose `--reference-population all-valid`
 when you need the loader's full eligible population or historical reproduction. Keep the
 population in the analysis record. `--threads 4` is an example budget; set it to your allocated CPU count.
@@ -177,8 +177,12 @@ This example selects human beta-chain motifs for GILGFVFTL and returns both memb
 and position-specific amino-acid frequencies:
 
 ```python
-members = pl.read_csv(root / "cluster_members.txt", separator="\t")
-pwms = pl.read_csv(root / "motif_pwms.txt", separator="\t")
+member_path = root / "cluster_members.txt"
+pwm_path = root / "motif_pwms.txt"
+members = pl.read_csv(member_path if member_path.exists() else member_path.with_suffix(".txt.gz"),
+                      separator="\t", quote_char=None)
+pwms = pl.read_csv(pwm_path if pwm_path.exists() else pwm_path.with_suffix(".txt.gz"),
+                   separator="\t", quote_char=None)
 scope = ((pl.col("species") == "HomoSapiens")
          & (pl.col("gene") == "TRB")
          & (pl.col("antigen.epitope") == "GILGFVFTL"))

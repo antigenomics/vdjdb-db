@@ -34,7 +34,7 @@ is not proof of a full database build. Check artifact provenance by exact commit
 | Annotation or harmonisation | Literal source-to-build original CDR3/V/J equality, repair cases and unresolved flags, identity amendments |
 | Deduplication or identity | Pre-repair identity, retained record IDs, within-publication decisions and preserved independent reports |
 | Sampling, clustering or parallelism | Repeated digests in separate processes, seed/hash/worker-count checks, relevant motif metrics |
-| CI, packaging or publication | Event/selector cases, all three bundle layouts, exact tested artifact and live consumer/publication checks |
+| CI, packaging or publication | Event/selector cases, the three core bundle layouts and any selected web bundles, exact tested artifact and live consumer/publication checks |
 | Record confidence v3 | Frozen-model identity, completed motif evidence, deterministic score files and exactly one row per current record ID |
 | Structure-file audit | Pinned raw-file checksums, all archive members, current sequence flags and every native accession |
 
@@ -130,7 +130,10 @@ select the latest successful master build. Do not combine mutually exclusive run
 A missing required artifact must fail publication. Check the deployed summary bytes against the
 selected artifact after the deployment succeeds.
 
-Prepare all three bundles with `vdjdb release --dry-run`, inspect manifests and generated changelog,
+Prepare the three core bundles with `vdjdb release --tag YYYY-MM-DD --dry-run`
+(replacing the date), and inspect manifests and the generated changelog. This writes local
+release outputs but leaves the tracked latest-version pointer unchanged. Inspect optional
+`web` and `web-structures` bundles when selected,
 and publish a tag only when requested. Keep the live-master dashboard distinct from dated release
 snapshots. Update local execution/merge records, reconcile completed issues, back-sync hotfixes to
 dev and delete only ancestry-verified integrated branches. Retain source proofs and unmerged work.

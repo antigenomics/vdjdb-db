@@ -1,5 +1,9 @@
 # Legacy web audit and release handoff
 
+> Historical pre-release audit: “production” and “current” below refer to the inspected
+> snapshots, not a live status check. Subsequent publication is recorded in the
+> [completed release ledger](superpowers/plans/2026-11-05-late-autumn-release.md).
+
 This audit keeps the legacy application functional with summer and current
 co-deliverables. It does not replace the application or change the accepted rich
 scientific outputs. The execution checklist is in

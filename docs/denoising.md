@@ -14,11 +14,13 @@ Two papers define the method.
 2. **Luppov DV, Koneva AE, Bagaev DV, Alexandrova AV, Vlasova EK, Chudakov DM, Motozono C,
    Sewell AK, Shugay M.** *VDJdb in 2026: boosting T-cell receptor recognition evidence using
    paratope embeddings and AI-based structure prediction.* **Nucleic Acids Research**, 2026,
-   Database Issue. *In press - DOI assigned at production.*
+   gkag904.
+   [10.1093/nar/gkag904](https://doi.org/10.1093/nar/gkag904) ·
+   [PMID 42773777](https://pubmed.ncbi.nlm.nih.gov/42773777/).
 
 Two further documents are cited where they are used: the IMMREP25 audit
-(`~/vcs/manuscripts/2026-immrep25-audit`) for the calibrated cohort ladder, and the validation
-manuscript (`~/vcs/manuscripts/2026-vdjdb-db-validation`) for the held-out check.
+for the calibrated cohort ladder, and the validation
+manuscript for the held-out check.
 
 ---
 
@@ -379,7 +381,7 @@ existing calculation and do not add a new control or rerun the recorded test.
 
 | | question it answers | when it is used |
 |---|---|---|
-| §11.1 independent-study lift | does motif membership predict a record an independent laboratory also reported? | picks the shipped configuration |
+| §6.1 independent-study objective | does motif membership predict a record an independent laboratory also reported? | picks the shipped configuration |
 | Q = 2hp/(h+p) | is the motif structure sound, neither fragmented nor percolated? | compares algorithms and releases |
 | MATCHMAKERS / TCRvdb | does the denoising recover functionally validated records? | held out, touched once, aggregate only |
 
@@ -422,7 +424,7 @@ consequences:
 
 - Clustering still runs on everything. The hold-out is the *scoring* denominator, not an exclusion
   from the data. Whether display records should also be held out of the clustering is a separate,
-  open question (ROADMAP §30.6).
+  open question.
 - A lift figure is not comparable across denominators. The same clustering reads 5.31× on the
   non-display cohort and a much lower number on the full one. State which cohort a lift is on
   wherever it is quoted in this repository.
@@ -439,7 +441,7 @@ maximum attainable for the label partition, so epitope count and size divide out
 It scores §4's failure and §5's failure with one number:
 
 - shatter an epitope into singletons → `h = 1`, `p = 0`, `Q = 0`
-- percolate it into a single cluster → `p = 1`, `h = 0`, `Q = 0`
+- merge the entire multi-epitope cohort into a single cluster → `p = 1`, `h = 0`, `Q = 0`
 
 It replaces the purity/retention pair, two numbers that trade against each other and can be moved in
 opposite directions. Computed by `vdjdb.validate.qscore`.
@@ -504,7 +506,7 @@ Two rules follow, and they are the operative form of stage 1:
   build, rather than being a round number fixed in advance. On human TRB that purity is $0.9343$, so
   a floor of $0.93$ admits a clustering that has clustered nothing. The floor is $0.94$, the lowest
   round number above the do-nothing purity of both chains, and it is usable only on TRB: the window
-  there is $[0.9343, 0.9829]$, while on TRA it is empty by $0.0030$, because no configuration that
+  there is $(0.9343, 0.9829]$, while on TRA it is empty by $0.0030$, because no configuration that
   clears $Q$ and coverage reaches a purity above the $0.9204$ that doing nothing scores. TRA is
   therefore guarded by the legacy-relative bar and by stage 2, not by an absolute floor.
   `docs/clustering.md` §8 has the full audit and both windows.
@@ -557,7 +559,7 @@ a separate decision with its own validation.
 
 0. Does it beat the do-nothing partition - one cluster per epitope, nothing excluded - on lift and
    $F_1$? That partition clears every other axis on at least one chain (§7.1), so ask this first.
-1. Does it change the §11.1 lift and F1, per chain? Report both, with the base rate and n, and the
+1. Does it change the §6.1 lift and F1, per chain? Report both, with the base rate and n, and the
    publicity-controlled lift beside the raw one (§5.2).
 2. Does it change $Q$, with `h` and `p` separately? A gain in one that is a loss in the other is not
    a gain.

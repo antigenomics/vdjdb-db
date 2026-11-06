@@ -3,7 +3,6 @@
 [![Docs](https://img.shields.io/badge/docs-docs.isalgo.dev-blue)](https://docs.isalgo.dev/vdjdb-db/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22104776.svg)](https://zenodo.org/records/22104776)
 [![Build](https://github.com/antigenomics/vdjdb-db/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/antigenomics/vdjdb-db/actions/workflows/build.yml)
-
 [![Docs build](https://github.com/antigenomics/vdjdb-db/actions/workflows/docs.yml/badge.svg?branch=master)](https://github.com/antigenomics/vdjdb-db/actions/workflows/docs.yml)
 
 <picture>
@@ -28,7 +27,9 @@ reported:
   which standardizes reporting of the V-J junctions and CDR3 sequences that define a T-cell clone.
 
 This repository holds the submissions to the database and the build that validates, assembles and
-publishes it. `chunks/` is the data, one file per publication; everything else is machinery.
+publishes it. `chunks/` contains source observations, normally one file per publication; aggregate chunks
+retain a reference for each row. The remaining directories provide reviewed inputs, build code,
+validation and documentation.
 
 ## Documentation
 
@@ -66,7 +67,7 @@ duplicate curation within a publication and preserves distinct experiments. See
 | Retrieve motif members and position-specific frequencies | [Released TCRNET and TCREmp motifs](docs/using-vdjdb.md#retrieve-released-sequence-motifs) |
 | Fetch matching native or predicted coordinates | [Record-to-structure lookup and download](docs/using-vdjdb.md#fetch-coordinates-for-a-record) |
 
-Download the latest release zip from
+Download the bundle for your intended format from
 [the releases page](https://github.com/antigenomics/vdjdb-db/releases). A web GUI is at
 [vdjdb.com](https://vdjdb.com), served by [VDJdb-web](https://github.com/antigenomics/vdjdb-web).
 
@@ -92,12 +93,13 @@ uv run vdjdb motifs --tables out/tables       # TCRNET + TCREMP
 uv run vdjdb score-records --tables out/tables # frozen record confidence v3.2a/v3.2b
 uv run vdjdb summary --legacy out/legacy      # the dashboard, offline
 uv run vdjdb identity check --tables out/tables # the identifier invariants
-uv run vdjdb corpus build --tables out/tables # the reference corpus: tf-idf over 12 token families
-uv run vdjdb diff <reference.zip> out/legacy  # compare against a released zip
+uv run vdjdb corpus build --tables out/tables # the reference corpus: tf-idf over 13 token families
+uv run vdjdb diff reference.zip out/legacy  # compare against a released zip
 VDJDB_REFERENCE_ZIP=reference.zip uv run pytest -q
 ```
 
-Use the 2026-06-03 release as `reference.zip` for the release comparison and tests. The static
+`build` already emits legacy and AIRR tables; the separate projection commands above show how
+to regenerate them when needed. Use the 2026-06-03 release as `reference.zip` for the release comparison and tests. The static
 summary also requires R and pandoc; see [build requirements](docs/builds.md).
 Optional supplemental structure inputs and explicit legacy scoring modes are described
 in [record confidence v3.2a/v3.2b](docs/standards/record-scoring-v3.md).
@@ -123,9 +125,8 @@ maintenance skills in `skills/curator/`. Start with the [VDJdb consumer skill](s
 It routes queries, evidence review, motif retrieval and structure downloads to the same
 documented workflows. [Curation skills](skills/curator/AUTHORITIES.md) cover source review and submission.
 
-New records are submitted as chunks - see [the submission guide](docs/submission.md). A chunk pull
-request is checked in under three minutes by `chunk-check`, against the specification documented
-above.
+New records are submitted as chunks - see [the submission guide](docs/submission.md). The `chunk-check` workflow validates chunk pull requests against the specification above;
+full integration checks run separately.
 
 ## Citing
 

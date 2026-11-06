@@ -52,14 +52,19 @@ are distinguished from imputed ones in the comments.
 
 ## `vdjdb.txt` - the release table
 
+The legacy metadata below preserves historical wording for compatibility. In particular,
+`cdr3` contains the anchor-inclusive junction, and class-I `mhc.b` is the literal `B2M`.
+Use the definitions above and the [terminology guide](terminology.md) when interpreting
+these historical labels.
+
 ```{vdjdb-schema} vdjdb
 :columns: name, title, comment
 ```
 
 ## `vdjdb.txt` - the vdjdb-web variant
 
-The variant served by `vdjdb-web` adds five `evidence.*` columns and a `TCR_hash` row that
-the release table does not have.
+The variant served by `vdjdb-web` adds five `evidence.*` columns. Both variants already contain the
+`TCR_hash` column.
 
 ```{vdjdb-schema} vdjdb-web
 :columns: name, title, comment

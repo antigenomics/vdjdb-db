@@ -1,7 +1,7 @@
 # Motif clustering algorithms, parameters and scorecards
 
 Which algorithm turns a set of candidate clonotypes into motif clusters, what each one's parameters
-do, and what each one measures at. `docs/denoising.md` defines what to optimise and this document
+do, and how each performs. `docs/denoising.md` defines what to optimise and this document
 catalogues what is available to optimise over, so read `docs/denoising.md` first: a scorecard here is
 read against its §7.1 two-stage rule.
 
@@ -9,9 +9,9 @@ Status key: **shipped** - the default in `TUNED` · **wired** - implemented, tes
 default · **rejected** - measured and ruled out, kept so the ruling stays checkable ·
 **measured** - scored on the same instruments from a script under `docs/tuning/`, not in the package.
 
-Every number below comes from `docs/tuning/scorecard.tsv`, 252 configurations scored through one
-harness on one cohort, and the markdown is generated from it by `docs/tuning/report.py`, so no figure
-in this document is transcribed by hand. §11 has the commands.
+The historical tuning scorecards below come from `docs/tuning/scorecard.tsv`, 252 configurations scored through one
+harness on one cohort, and the markdown is generated from it by `docs/tuning/report.py`, so those scorecards can be checked against their source. Later implementation and
+validation sections identify their own measurements. §11 has the commands.
 
 **The cohort is `chunks/` as of 2026-09-26, and the legacy bar below is that cohort's.** The released
 `cluster_members.txt` never changes, but the corpus it is scored against does, so the bar moves when a
@@ -279,9 +279,9 @@ The machinery after labelling is not neutral:
 - `min_cluster` is applied after the split, so it is not the same knob as HDBSCAN's
   `min_cluster_size` and the two must not be conflated. Every measurement below fixes
   `min_cluster = 5`, the shipped value, so the algorithm is the only thing varying.
-- Cluster ids follow content, not order, size descending and then the alphabetically first member,
-  so a cluster whose membership is unchanged keeps its id across builds without anything being
-  stored (hard rule 9).
+- Cluster IDs are assigned deterministically by descending size and then the alphabetically
+  first member. They are stable for identical inputs, but adding or removing another cluster
+  can renumber an unchanged cluster; compare membership rather than IDs across builds.
 
 All four are seeded from `vdjdb.config.SEED` and verified byte-reproducible across processes
 (hard rule 7).
@@ -380,7 +380,7 @@ degenerate end top.
 On TRA lift rises at the cost of coverage. Lift 2.051 → 5.349 is a 2.6× improvement in how often a
 clustered clonotype is independently replicated, but the clustered set shrinks from 15,608
 clonotypes to 3,352, because Leiden keeps the densest cores and discards the rest. Dropping 78 % of
-what components clustered is not a trade §7.1 can accept.
+what components clustered is not a trade the rule in `denoising.md` §7.1 can accept.
 
 On TRB there is no lift gain: the maximum is 1.518 at resolution 0.05, a 1.1 % gain over components'
 1.501, and it falls to 1.198 by 0.5 while `Q` drops to a fifth of its value. No resolution improves
@@ -856,7 +856,7 @@ be re-run.
 
 Every sweep above includes one extra row, `trivial`: one cluster per epitope, every clonotype in it,
 nothing excluded. It is not an algorithm but the reading an instrument gives when no clustering has
-happened at all, and §7.1's admissibility axes do not survive it.
+happened at all, and the admissibility axes in `denoising.md` §7.1 do not survive it.
 
 | gene | axis | do-nothing partition | legacy bar | does the bar exclude it? |
 |---|---|---:|---:|---|
@@ -890,7 +890,7 @@ retentions. It stays in the scorecard and in the implemented admissibility rule 
 
 Epitope coverage behaves the same way. Coverage is maximised by claiming every clonotype, so a
 coverage floor is a floor against narrowness rather than a quality bar; it still serves the purpose
-§7.1 added it for, stopping stage 2 from raising lift by abandoning epitopes, but it is not evidence
+`denoising.md` §7.1 added it for, stopping stage 2 from raising lift by abandoning epitopes, but it is not evidence
 that a clustering is good.
 
 On TRA the four-axis rule already admits the do-nothing partition. Legacy TRA purity is 0.8658,
@@ -933,7 +933,7 @@ adjusted Rand index read 0.9991 and 0.9939 for doing nothing on TRB, while the p
 separates it from TCRNET by 1.7 points. Both are recorded, because the blob is worth watching, and
 the per-clonotype result also remains in the historical comparison report.
 
-### 8.1 The purity floor - 0.94 on both chains
+### 8.1 The evaluated purity floor - 0.94 on both chains
 
 On TRB the legacy purity bar of 0.9790 is the one axis the do-nothing partition fails, and relaxing
 it to 0.93 removes that, because doing nothing scores 0.9343, 0.0043 above the proposed floor. An
@@ -980,10 +980,10 @@ epitope coverage, both legacy-relative.
 | gene | do-nothing purity | cells clearing `Q` and coverage | highest purity among them | window | width |
 |---|---:|---|---:|---|---:|
 | TRA | 0.9204 | 74 of 122 | 0.9174 | **empty** | −0.0030 |
-| TRB | 0.9343 | 37 of 122 | 0.9829 | **[0.9343, 0.9829]** | 0.0486 |
+| TRB | 0.9343 | 37 of 122 | 0.9829 | **(0.9343, 0.9829]** | 0.0486 |
 
 On TRB the window is 0.0486 of purity wide and 0.94 sits inside it with margin at both ends, 5.4×
-the [0.9343, 0.9433] window HDBSCAN alone offers, because the incumbent DBSCAN radius sits at 0.9829
+the (0.9343, 0.9433] window HDBSCAN alone offers, because the incumbent DBSCAN radius sits at 0.9829
 and the ceiling is set by the best method rather than by the method being tested against it.
 
 On TRA the window is empty by 0.0030: across six algorithms and 122 configurations, the highest
@@ -1045,7 +1045,7 @@ this document is about, and Lumbermark sits at the other end with lift 1.148.
 The gated hybrid gives the highest selectivity measured in this document. On TRA, `hybrid mcs3 M5`
 reaches F1 0.1702 and lift 3.618, against the shipped TCRNET's F1 0.1086 and lift 1.977 and legacy's
 F1 0.0932 and lift 1.703, which is +57 % F1 over the best shipped TRA configuration on the objective
-§11.1 tunes against, and the largest single improvement measured on either chain.
+in denoising §6.1, and the largest single improvement measured on either chain.
 
 | gene | configuration | lift | F1 | `Q` | purity | retention | epitopes | percolation |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
@@ -1068,7 +1068,7 @@ against 657, so swapping the partition alone de-percolates and costs parsimony, 
 gate from recruited to enriched is what moves lift and F1.
 
 Both hybrids fail the coverage axis, by 17 epitopes on TRA and 23 on TRB, which is the narrow corner
-§7.1's coverage floor exists to exclude.
+the coverage floor in `denoising.md` §7.1 exists to exclude.
 
 Clustering inside CDR3-length strata does not recover the coverage. `hybrid-len` was run because the
 emit path splits every cluster by length before applying `min_cluster` (§0), so a cluster of 8 across
@@ -1116,14 +1116,14 @@ problem VDJdb does not have trouble with.
 | GLIPH2 (Huang et al. 2020, *Nat Biotechnol* 38:1194–1202, [doi](https://doi.org/10.1038/s41587-020-0505-4)) | as above, scaled to millions | greedy grouping | enrichment *p* | a scaling result; VDJdb's *n* is 10⁵ |
 | GIANA (Zhang et al. 2021, *Nat Commun* 12:4699, [doi](https://doi.org/10.1038/s41467-021-25006-7)) | isometric embedding of the CDR3 | nearest-neighbour hashing | none | 600× TCRdist's speed at equal specificity; a scaling result |
 | clusTCR (Valkiers et al. 2021, *Bioinformatics* 37:4865–4867, [doi](https://doi.org/10.1093/bioinformatics/btab446)) | Hamming-1 graph inside *k*-means superclusters | Markov clustering (MCL) | none | the one partition on the graph side not measured here; see below |
-| Vujovic et al. 2020, *Comput Struct Biotechnol J* 18:2166–2173, [doi](https://doi.org/10.1016/j.csbj.2020.06.041) | -- | -- | -- | the survey of the above; confirms the pattern |
+| Vujovic et al. 2020, *Comput Struct Biotechnol J* 18:2166–2173, [doi](https://doi.org/10.1016/j.csbj.2020.06.041) | -- | -- | -- | an earlier comparison of TCR clustering approaches |
 
 *(Bibliographic records retrieved from PubMed.)*
 
 Each of them clusters and none of them selects: they answer which receptors are similar, so their
 published evaluations are purity-like and their parameters are similarity thresholds, while VDJdb's
 motif stage answers which similarity is evidence, so the objective here is independent-study
-replication (§11.1) and what §9 measures is a gate plus partition composition rather than a new
+replication (denoising §6.1) and what §9 measures is a gate plus partition composition rather than a new
 distance.
 
 MCL is deliberately left untested: it is the clusTCR partition and it resists percolation by flow
