@@ -3598,6 +3598,12 @@ note = "Grouped remaining publications: add 42 observations, including six PMID3
 # omits is the drift hard rule 2 exists to stop.
 
 [[row_delta]]
+file = "latest-version.txt"
+added = 1
+removed = 0
+note = "The 2026-11-06 release prepended its legacy ZIP URL; all 40 earlier release URLs remain. This is release-discovery metadata, not a database observation change."
+
+[[row_delta]]
 file = "vdjdb.meta.txt"
 added = 1
 removed = 0
