@@ -15,6 +15,7 @@ import pytest
 
 from vdjdb.emit import airr
 from vdjdb.emit.vdjdb3 import read_tables
+from vdjdb.io.text import open_text, resolve_path
 
 pytestmark = pytest.mark.release
 
@@ -26,8 +27,9 @@ LEGACY_DROPS_RECORDS = 0
 @pytest.fixture(scope="module")
 def built() -> tuple[dict[str, pl.DataFrame], pl.DataFrame]:
     d = Path(os.environ.get("VDJDB_TABLES", "out/tables"))
-    legacy = d.parent / "legacy" / "vdjdb.txt"
+    legacy = resolve_path(d.parent / "legacy" / "vdjdb.txt")
     if not (d / "records.parquet").exists() or not legacy.exists():
+        assert not os.environ.get("CI"), f"CI must provide tables and legacy projection at {d.parent}"
         pytest.skip(f"no build at {d.parent}; run `vdjdb build --out out/`")
     return read_tables(d), pl.read_csv(legacy, separator="\t", infer_schema=False, quote_char=None)
 
@@ -36,7 +38,9 @@ def test_the_whole_rearrangement_table_passes_the_airr_validator(built, tmp_path
     """Phase 7's acceptance criterion."""
     tables, _ = built
     airr.write_all(airr.from_tables(tables), tmp_path)
-    assert A.validate_rearrangement(tmp_path / "vdjdb.rearrangement.tsv")
+    with open_text(tmp_path / "vdjdb.rearrangement.tsv") as handle:
+        reader = A.RearrangementReader(handle, validate=True)
+        assert sum(1 for _ in reader) == tables["chains"].height
 
 
 def test_the_legacy_path_keeps_every_chain_in_the_tables_path(built):

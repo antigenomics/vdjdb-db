@@ -392,7 +392,7 @@ jobs:
           VDJDB_REFERENCE_ZIP: reference.zip
         run: |
           . .github/stage-timing.sh
-          stage tests uv run pytest -q
+          stage tests uv run pytest -q -ra --junitxml=out/reports/pytest.xml
 
       - name: Build timings report
         if: always()
@@ -424,6 +424,7 @@ jobs:
             out/reports/motifs_per_epitope.tsv*
             out/motifs/cluster_members.txt*
             out/motifs/cluster_members_tcremp.txt*
+            out/reports/pytest.xml
             out/reports/release-diff.json
             out/reports/release-diff.md
             out/reports/qc.tsv*
